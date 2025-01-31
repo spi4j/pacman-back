@@ -1,0 +1,74 @@
+[module classes(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+						
+[import fr::pacman::core::aql::base/]						
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::rule::class/]
+[import fr::pacman::core::aql::rule::common/]
+
+[import fr::pacman::core::property::project::ProjectProperties/]
+
+[comment 	retourne les noms des classes java./]
+
+[comment retourne le nom pour les interfaces des classes de mapping./]
+[comment query public nameClassEntityMapperItf(e : entity::Entity) : String = (e.name() + e.suffixMapper()).apply_classInterface()/]
+
+[comment retourne le nom pour l'implémentation d'une classe de service soa (feature)./]  
+[query public nameClassServiceImpl(s : soa::Service) : String = (s.name() + ' ' + s.suffixService()).apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
+[query public nameClassControllerImpl(s : soa::Service) : String = (s.name() + ' ' + ' controller').apply_classImplem()/]
+  
+[comment retourne le nom pour l'interface d'une classe de service soa (feature)./]  
+[query public nameClassServiceOutItf(s : soa::Service) : String = (s.name() + ' ' + s.suffixService()).apply_classInterface()/]  
+
+[comment retourne le nom pour l'interface d'une classe de service soa (spi)./]  
+[query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + ' ' + s.suffixInterfaceIn()).apply_classInterface()/]  
+
+[comment retourne le nom d'implémentation d'une classe pour le service de persistance./]
+[query public nameClassServiceInImpl(s : soa::Service) : String = (s.name() + ' orm' + s.suffixInterfaceOut()).apply_classImplem()/]  
+
+[comment retourne le nom pour la classe d'implémentation d'un type spécial pacman./]
+[query public nameClassType(s : String) : String = s.apply_classDefault()/]
+
+[comment retourne le nom pour l'annotation d'injection des services métier./]
+[query public nameClassAnnotationOut (any : ecore::EObject) : String = any.nameAnnotationDomainService().apply_classDefault()/]
+  
+[comment retourne le nom pour l'annotation d'injection des services métier./]
+[query public nameClassAnnotationIn (any : ecore::EObject) : String = any.nameAnnotationAdapter().apply_classDefault()/]
+  
+[comment retourne le nom pour une classe d'énumération./]
+[query public nameClassEnumeration(e : environment::Enumeration) : String = e.name().apply_classEnum()/]
+
+[comment retourne le nom pour l'implémentation de l'entité./]
+[query public nameClassEntityImpl(e : entity::Entity) : String = (e.name() + ' ' +  e.suffixEntity()).apply_classImplem()/]
+
+[comment retourne le nom pour l'interface de l'entité./]
+[query public nameClassEntityItf(e : entity::Entity) : String = e.name().apply_classInterface()/]
+  
+[comment retourne le nom de la classe de démarrage pour une application Spring./]
+[query public nameClassAppBoostrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBoostrap()).apply_classDefault()/]
+  
+[comment retourne le nom de la classe pour un objet métier./]
+[query public nameClassDtoImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixDto()).apply_classDefault()/]
+  
+[comment retourne le nom de la classe pour un objet sérialisé./]
+[query public nameClassXtoImpl(d : environment::DTO) : String = (d.name() + ' ' + 'xto').apply_classDefault()/] 
+  
+[comment retourne le nom pour la classe d'implémentation du mapper objet métier <-> objet infrastructure./]
+[query public nameClassMapperImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixMapper()).apply_classDefault()/]
+
+[comment retourne le nom pour l'interface du dao pour une entité./]
+[query public nameClassEntityDaoItf(e : entity::Entity) : String = (e.name() + e.suffixEntityDao()).apply_classInterface()/]
+  
+[comment retourne le nom pour la classe d'implémentation du DAO./]
+[query public nameClassEntityDaoImpl(e : entity::Entity) : String = (e.name() + e.suffixEntityDao()).apply_classImplem()/]
+  
+[comment retourne le nom pour la classe d'implémentation du DAO dans le cadre des test./]
+[comment query public nameClassDaoJdbcTest(e : entity::Entity) : String = (e.name() + e.suffixDaoTest()).apply_classTest()/]
+  
+[comment retourne le nom pour ???????????????????/]
+[comment query public nameClassReferenceDaoImpl(r : environment::Reference) : String = (r.name() + r.suffixDao()).apply_classImplem()/]
+
+

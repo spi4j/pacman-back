@@ -1,0 +1,40 @@
+Eclipse ne decharge rien par lui meme mais un plugin pourrait
+explicitement demander le dechargement d'un autre plugin. 
+
+
+- comme un service s'appelle comme une query, on élimine au max les queries passe-plat. 
+- On remonte le maximum d'opération dans des services afin de bénéficier du debug. -> NON 
+- tout de qui vient de java a un underscore : is_ get_ use_, do_, write_, norme_
+
+- On ne gère pas encore les relations bidirectionnelles avec 3 tables ou plus .......
+
+
+- Si les annotations @Main ne fonctionnent pas correctement (effets de bord) pour l'héritage, repositionner les templates
+  dans les modules fils avec l'annotation et faire appel à 'super:' pour appeler le template du module parent.
+[comment @main/]
+[comment écriture de l'ensemble des entités et des classes pour la couche de persistance./]
+[template protected genServer(r : entity::Root)]
+  [r.super:genServer()/]
+[/template]
+
+- ATTENTION!! : bien respecter les espaces sur certaines commandes sinon cela empèche la compilation de la page !!!
+                (ex : if (..) et non if(...))
+                
+-----------------------------------------------------------------------------------------------
+ne pas diffuser l'infrastructure -> failles , diffusion de jetons, nom des développeurs, etc...
+le code publié doit être entièrement fonctionnel et testable.
+
+1 module métier, ne doit dépendre d'aucun framework (hormis test ou utilitaire (junit, guava, apache-commons)) contient les services, 
+       le modèle métier (qui n'est pas forcément celui de l'infra), les tests unitaires, un runtime permettant de jouer les algos avec 
+       des fichiers csv en entrée/sortie, etc..(idéalement une UI WEB autonome hors Spring (JSP/TOMCAT embarqué)?) -> implémenter cela pour 
+       permettre aux citoyens de tester les algos.....(citation code lutin).
+1 module infra, contient la couche de persitance avec le modèle infra, algos non publiables, etc...
+
+modèle infra (utiliser entity ?) <-convertisseurs-> modèle métier (utiliser dto avec +- de données à exposer ?) 
+ utiliser les générateurs pour écrire les matchers (convertisseurs) ?
+
+notion de repository publiable (domain) non publiable (infra)?
+-> deux dépots git séparés
+code lutin -> publication by design
+
+domain -> maven-enforcer plugin pour explicitement lister les dépendances authorisées en provenance de l'infra (par défaut tout est interdit)

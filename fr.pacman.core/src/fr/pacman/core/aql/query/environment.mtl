@@ -1,0 +1,3 @@
+[module environment(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[comment liste des requêtes possibles pour l'environnement./]

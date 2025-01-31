@@ -1,0 +1,17 @@
+[module genWebapp(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]	
+[import fr::pacman::core::aql::name::packages/]	
+[import fr::pacman::config::aql::block::webapp/]
+[import fr::pacman::core::aql::output::resources/]
+
+[comment écriture du fichier de configuration Maven pour le projet d'exposition./]
+[template public filePom(any : ecore::EObject, body : String)]
+  [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour le bootstrap de l'application./]
+[template public fileApplicationBootstrap(any : ecore::EObject, body : String)]
+  [file (any.nameClassAppBoostrap().toFileJava(null), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]

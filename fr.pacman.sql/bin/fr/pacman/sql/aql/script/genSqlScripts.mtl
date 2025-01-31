@@ -1,0 +1,58 @@
+[module genSqlScripts(	'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+					
+[import fr::pacman::core::aql::base/]	
+[import fr::pacman::core::aql::string/]	
+[import fr::pacman::core::aql::query::database/]
+[import fr::pacman::sql::aql::script::schemas/]
+[import fr::pacman::sql::aql::script::sequences/]	
+[import fr::pacman::sql::aql::script::tables/]
+[import fr::pacman::sql::aql::script::constraints/]
+[import fr::pacman::sql::aql::script::headers/]
+[import fr::pacman::sql::aql::script::initialization/]
+
+[import fr::pacman::core::service::DateUtils/]
+
+[comment script de création des tables pour la base de données de type 'dbType'/]
+[template public createSqlTables(r : entity::Root, dbType : String) post(self.escapeFile())]
+  [r.resetCounters()/]
+  [r.scriptsHeader(dbType)/]
+  [if (r.hasSchema())]
+    [r.createSchema()/]
+  [/if]
+  [if (dbType.hasSequence())]
+    [r.createSequences()/]
+  [/if]
+  [r.createTables(dbType)/]
+  [r.createConstraints()/]
+[/template]
+
+[comment script de suppression des tables pour la base de données de type 'dbType'/]
+[template public dropSqlTables(r : entity::Root, dbType : String) post(self.escapeFile())]
+  [r.resetCounters()/]
+  [r.scriptsHeader(dbType)/]
+  [if (dbType.hasSequence())]
+    [r.dropSequences()/]
+  [/if]
+  [r.dropConstraints()/]
+  [r.dropTables(dbType)/]
+  [if (r.hasSchema())]
+    [r.dropSchema()/]
+  [/if]
+[/template]
+
+[comment script d'initialisation pour la base de données de test (de type H2)./]
+[template public initSqlData(r : entity::Root, dbType : String) post(self.escapeFile())]
+  [r.resetCounters()/]
+  [r.scriptsHeader(dbType)/]
+  [r.initCommentHeader()/]
+  [r.dropConstraints()/]
+  [r.insertsHeader()/]
+  [r.initDatabase(dbType)/]
+  [r.ensureBlankLine()/]
+  /*
+   Start of user code init data
+   */   [r.ensureBlankLine()/]
+   /*
+   End of user code
+   */ 
+[/template]

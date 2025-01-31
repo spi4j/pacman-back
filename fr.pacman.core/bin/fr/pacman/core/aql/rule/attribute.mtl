@@ -1,0 +1,22 @@
+[module attribute(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::convention::ApplyNorme/]
+
+[comment applique le nom final pour un attribut par défaut./]
+[query public apply_attributeDefault(value : String) : String = value.norme_attributeDefault()/]
+
+[comment applique le nom final pour un attribut de type énumération./]
+[query public apply_attributeEnum(value : String) : String = value.norme_attributeEnum().trim()/]
+
+[comment applique le nom final pour un attribut multiple./]
+[query public apply_attributeMultiple(value : String) : String = value.norme_attributeMultiple()/]
+
+[comment applique le nom final pour un attribut avec modificateur final./]
+[query public apply_attributeFinal(value : String) : String = value.norme_attributeFinal()/]
+
+[comment applique le nom final pour un attribut avec modificateurs static et final (constantes)./]
+[query public apply_attributeFinalStatic(value : String) : String = value.norme_attributeFinalStatic().trim()/]
+
+[comment applique le nom final pour un attribut avec modificateur static./]
+[query public apply_attributeStatic(value : String) : String = value.norme_attributeStatic()/]
+

@@ -1,0 +1,53 @@
+[module operation(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+				    'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::eobjects/]				    
+[import fr::pacman::core::aql::query::parameter/]
+[import fr::pacman::core::aql::rule::parameter/]
+
+[comment vérifie si l'opération a un paramètre en sortie (entité, dto, type primitif)./]
+[query public hasOutputParam(o : soa::Operation) : Boolean = o.output <> null and o.output->size() > 0 /]
+  
+[comment vérifie si l'opération a des paramètres en entrée (entité, dto, type primitif)./]
+[query public hasInputParams(o : soa::Operation) : Boolean = o.input <> null and o.input->size() > 0 /]
+  
+[comment retourne le type pour le paramètre de sortie./]
+[query public outputParamType(o : soa::Operation) : String = if(o.hasOutputParam()) then if(o.output->first().isOptional()) 
+  then 'Optional<' + o.output->first().type() + '>' else o.output->first().type() endif else '' endif/]
+
+[comment retourne le type et le nom du paramètre de sortie (si existe)./]
+[query public outputParamSignature(o : soa::Operation) : String = if(o.hasOutputParam()) then o.output->first().type() 
+  + ' ' + o.output->first().name() else 'void' endif/]
+  
+[comment retourne les types et les noms des paramètres en entrée (si existent)./]
+[query public inputParamsSignature(o : soa::Operation) : String = o.input->collect(o1 | o1.type() + ' ' 
+  + o1.name().apply_parameterMethodClassicInOut())->sep(', ')/]
+  
+[comment retourne les ..../]
+[query public inputParamsSignatureWithoutTypes(o : soa::Operation) : soa::Parameter = o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())->sep(', ')/]
+
+[comment retourne le paramètre de sortie (si existe) VOIR CE QU ON FAIT SI NULL ET VOIR SI ON PREND LE TYPE./]
+[query public outputParam(o : soa::Operation) : soa::Parameter = o.output->first()/]
+
+
+
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+[comment retourne le nom de la variable pour le repository de l'opération./]  
+[query public repository(o : soa::Operation) : String = if(o.hasOutputParam() and o.output->first().oclIsTypeOf(entity::Entity)) 
+  then o.output->first().type.oclAsType(entity::Entity).name()  else '' endif/]
+  

@@ -1,0 +1,24 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+							
+[import fr::pacman::core::aql::query::database/]
+[import fr::pacman::entity::aql::file::genEntity/]
+
+[comment écriture des classes et fichiers persistence pour la partie serveur de l'application cible./]
+[template protected genServer(r : entity::Root)]
+  [for (e : entity::Entity | r.persistentEntities())]
+    [e.fileEntityImpl(e.genEntityImpl())/]
+    [e.fileEntityItf(e.genEntityItf())/]
+    [e.fileEntityDaoItf(e.genEntityDaoItf())/]
+    [e.fileEntityDaoImpl(e.genEntityDaoImpl())/]
+  [/for]
+[/template]
+
+[comment ********************************************************************************/]
+[comment liste des templates abstraits destinés à etre implémentés dans les modules fils./]
+[comment ********************************************************************************/]
+[template protected genEntityImpl(e : entity::Entity)][/template]
+[template protected genEntityItf(e : entity::Entity)][/template]
+[template protected genEntityDaoImpl(e : entity::Entity)][/template]
+[template protected genEntityDaoItf(e : entity::Entity)][/template]
+

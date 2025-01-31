@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ASCII"?>
+<soa:System xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oenv="http://www.obeonetwork.org/dsl/environment/3.0.0" xmlns:soa="http://www.obeonetwork.org/dsl/soa/4.0.0" xmi:id="_Lkt64KiqEe-v4fvF-cv85g" technicalid="_LklYAKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:14.625+0100" modifiedOn="2024-11-22T09:17:23.226+0100">
+  <ownedNamespaces xmi:id="_M2nnoaiqEe-v4fvF-cv85g" technicalid="_M2nnoKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:23.226+0100" modifiedOn="2024-11-22T09:21:55.009+0100" name="soa">
+    <types xsi:type="oenv:DTO" xmi:id="_PeK4saiqEe-v4fvF-cv85g" technicalid="_PeK4sKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:40.795+0100" modifiedOn="2024-11-22T09:21:02.663+0100" name="DTO1">
+      <ownedAttributes xmi:id="_RjwsMaiqEe-v4fvF-cv85g" technicalid="_RjwsMKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:54.803+0100" modifiedOn="2024-11-22T09:19:34.724+0100" name="attribute1" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_SKJz0PsREeWC2u5kehASiQ"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_Rq9gYaiqEe-v4fvF-cv85g" technicalid="_Rq9gYKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:55.558+0100" modifiedOn="2024-11-22T09:18:12.637+0100" name="attribute2">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5FXAqwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_RwJiYaiqEe-v4fvF-cv85g" technicalid="_RwJiYKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:56.102+0100" modifiedOn="2024-11-22T09:19:43.957+0100" name="attribute3" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-E6wKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_R1pGYaiqEe-v4fvF-cv85g" technicalid="_R1pGYKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:56.678+0100" modifiedOn="2024-11-22T09:18:19.406+0100" name="attribute4">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_R7w8gaiqEe-v4fvF-cv85g" technicalid="_R7w8gKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:57.320+0100" modifiedOn="2024-11-22T09:19:47.646+0100" name="attribute5" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5GlIKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_SBr-UaiqEe-v4fvF-cv85g" technicalid="_SBr-UKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:57.941+0100" modifiedOn="2024-11-22T09:18:30.169+0100" name="attribute6">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5FXAawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_SGpW0aiqEe-v4fvF-cv85g" technicalid="_SGpW0KiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:58.461+0100" modifiedOn="2024-11-22T09:19:51.022+0100" name="attribute7" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_9dnH8bGqEd2SRpTkL4GntA"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_YaHgAaiqEe-v4fvF-cv85g" technicalid="_YaHgAKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:18:40.768+0100" modifiedOn="2024-11-22T09:18:48.318+0100" name="attribute8">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_YfDqYaiqEe-v4fvF-cv85g" technicalid="_YfDqYKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:18:41.286+0100" modifiedOn="2024-11-22T09:19:54.875+0100" name="attribute9" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_rWTrcTwHEeiOd8zmfAzmGQ"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_Yi8E0aiqEe-v4fvF-cv85g" technicalid="_Yi8E0KiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:18:41.693+0100" modifiedOn="2024-11-22T09:19:00.031+0100" name="attribute10">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_rGXK8DwHEeiOd8zmfAzmGQ"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_YoZMkaiqEe-v4fvF-cv85g" technicalid="_YoZMkKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:18:42.265+0100" modifiedOn="2024-11-22T09:19:58.823+0100" name="attribute11" multiplicity="1" type="_c4koUaiqEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_oDwuYaiqEe-v4fvF-cv85g" technicalid="_oDwuYKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:20:25.798+0100" modifiedOn="2024-11-22T09:20:29.073+0100" name="DTO2s" referencedType="_QqRfcaiqEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_sp5zEaiqEe-v4fvF-cv85g" technicalid="_sp5zEKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:20:56.641+0100" modifiedOn="2024-11-22T09:21:10.752+0100" name="DTO5s" multiplicity="1" referencedType="_q5gMcaiqEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_tFXnEaiqEe-v4fvF-cv85g" technicalid="_tFXnEKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:20:59.521+0100" modifiedOn="2024-11-22T09:21:15.680+0100" name="DTO6s" multiplicity="0..*" referencedType="_rUs6saiqEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_tjVVcaiqEe-v4fvF-cv85g" technicalid="_tjVVcKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:21:02.663+0100" modifiedOn="2024-11-22T09:21:22.032+0100" name="DTO7s" multiplicity="1..*" referencedType="_ruf6waiqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_QqRfcaiqEe-v4fvF-cv85g" technicalid="_QqRfcKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:17:48.775+0100" modifiedOn="2024-11-25T17:43:18.090+0100" name="DTO-ZeroUn"/>
+    <types xsi:type="oenv:Enumeration" xmi:id="_c4koUaiqEe-v4fvF-cv85g" technicalid="_c4koUKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:19:10.805+0100" modifiedOn="2024-11-22T09:19:17.194+0100" name="Enum3">
+      <literals xmi:id="_dwMz4aiqEe-v4fvF-cv85g" technicalid="_dwMz4KiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:19:16.638+0100" modifiedOn="2024-11-22T09:19:16.638+0100" name="literal1"/>
+      <literals xmi:id="_d1gKoaiqEe-v4fvF-cv85g" technicalid="_d1gKoKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:19:17.194+0100" modifiedOn="2024-11-22T09:19:17.194+0100" name="literal2"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_ma0aoaiqEe-v4fvF-cv85g" technicalid="_ma0aoKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:20:14.794+0100" modifiedOn="2024-11-25T17:42:25.741+0100" name="DTO4HeriteDTO1" supertype="_PeK4saiqEe-v4fvF-cv85g"/>
+    <types xsi:type="oenv:DTO" xmi:id="_q5gMcaiqEe-v4fvF-cv85g" technicalid="_q5gMcKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:20:44.855+0100" modifiedOn="2024-11-25T17:43:45.300+0100" name="DTO5-Un"/>
+    <types xsi:type="oenv:DTO" xmi:id="_rUs6saiqEe-v4fvF-cv85g" technicalid="_rUs6sKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:20:47.707+0100" modifiedOn="2024-11-25T17:43:33.097+0100" name="DTO6-ZeroEtoile"/>
+    <types xsi:type="oenv:DTO" xmi:id="_ruf6waiqEe-v4fvF-cv85g" technicalid="_ruf6wKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:20:50.412+0100" modifiedOn="2024-11-25T17:42:53.105+0100" name="DTO7-UnEtoile"/>
+    <types xsi:type="oenv:DTO" xmi:id="_r0f1EaiqEe-v4fvF-cv85g" technicalid="_r0f1EKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:20:51.041+0100" modifiedOn="2024-11-22T09:22:00.351+0100" name="DTO8">
+      <ownedReferences xmi:id="_2JfS8aiqEe-v4fvF-cv85g" technicalid="_2JfS8KiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:22:00.351+0100" modifiedOn="2024-11-22T09:22:09.346+0100" name="DTO9s" navigable="false" oppositeOf="_2JfS86iqEe-v4fvF-cv85g" referencedType="_zfDF8aiqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_zfDF8aiqEe-v4fvF-cv85g" technicalid="_zfDF8KiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:21:42.479+0100" modifiedOn="2024-11-22T09:22:00.351+0100" name="DTO9">
+      <ownedReferences xmi:id="_2JfS86iqEe-v4fvF-cv85g" technicalid="_2JfS8qiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:22:00.351+0100" modifiedOn="2024-11-22T09:22:04.788+0100" name="DTO8s" oppositeOf="_2JfS8aiqEe-v4fvF-cv85g" referencedType="_r0f1EaiqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_zreYYaiqEe-v4fvF-cv85g" technicalid="_zreYYKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:21:43.782+0100" modifiedOn="2024-11-22T09:22:15.497+0100" name="DTO10">
+      <ownedReferences xmi:id="_4Z7rkaiqEe-v4fvF-cv85g" technicalid="_4Z7rkKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:22:15.497+0100" modifiedOn="2024-11-22T09:22:41.974+0100" name="DTO11s" navigable="false" oppositeOf="_4Z7rk6iqEe-v4fvF-cv85g" referencedType="_z88i4aiqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_z88i4aiqEe-v4fvF-cv85g" technicalid="_z88i4KiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:21:45.614+0100" modifiedOn="2024-11-22T09:22:15.497+0100" name="DTO11">
+      <ownedReferences xmi:id="_4Z7rk6iqEe-v4fvF-cv85g" technicalid="_4Z7rkqiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:22:15.497+0100" modifiedOn="2024-11-22T09:22:49.857+0100" name="DTO10s" multiplicity="1" oppositeOf="_4Z7rkaiqEe-v4fvF-cv85g" referencedType="_zreYYaiqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_0VtoMaiqEe-v4fvF-cv85g" technicalid="_0VtoMKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:21:48.211+0100" modifiedOn="2024-11-22T09:22:57.605+0100" name="DTO12">
+      <ownedReferences xmi:id="_-rgXUaiqEe-v4fvF-cv85g" technicalid="_-rgXUKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:22:57.605+0100" modifiedOn="2024-11-22T09:23:06.849+0100" name="DTO13s" multiplicity="0..*" navigable="false" oppositeOf="_-rgXU6iqEe-v4fvF-cv85g" referencedType="_0svBEaiqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_0svBEaiqEe-v4fvF-cv85g" technicalid="_0svBEKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:21:50.625+0100" modifiedOn="2024-11-22T09:22:57.605+0100" name="DTO13">
+      <ownedReferences xmi:id="_-rgXU6iqEe-v4fvF-cv85g" technicalid="_-rgXUqiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:22:57.605+0100" modifiedOn="2024-11-22T09:23:03.627+0100" name="DTO12s" multiplicity="0..*" oppositeOf="_-rgXUaiqEe-v4fvF-cv85g" referencedType="_0VtoMaiqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_0_b6oaiqEe-v4fvF-cv85g" technicalid="_0_b6oKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:21:52.586+0100" modifiedOn="2024-11-22T09:23:27.255+0100" name="DTO14">
+      <ownedReferences xmi:id="_DGRScairEe-v4fvF-cv85g" technicalid="_DGRScKirEe-v4fvF-cv85g" createdOn="2024-11-22T09:23:27.255+0100" modifiedOn="2024-11-22T09:23:33.641+0100" name="DTO15s" multiplicity="0..*" navigable="false" oppositeOf="_DGR5gairEe-v4fvF-cv85g" referencedType="_1WizEaiqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:DTO" xmi:id="_1WizEaiqEe-v4fvF-cv85g" technicalid="_1WizEKiqEe-v4fvF-cv85g" createdOn="2024-11-22T09:21:55.009+0100" modifiedOn="2024-11-22T09:23:27.256+0100" name="DTO15">
+      <ownedReferences xmi:id="_DGR5gairEe-v4fvF-cv85g" technicalid="_DGR5gKirEe-v4fvF-cv85g" createdOn="2024-11-22T09:23:27.256+0100" modifiedOn="2024-11-22T09:23:32.272+0100" name="DTO14s" multiplicity="1..*" oppositeOf="_DGRScairEe-v4fvF-cv85g" referencedType="_0_b6oaiqEe-v4fvF-cv85g"/>
+    </types>
+  </ownedNamespaces>
+</soa:System>

@@ -1,0 +1,121 @@
+[module entity(		'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]	
+[import fr::pacman::core::aql::string/]		
+[import fr::pacman::core::aql::name::classes/]	
+[import fr::pacman::core::aql::name::databases/]	
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::headers/]	
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::method/]		
+
+[comment écriture du corps pour la classe d'implémentation d'une entité./]
+[template public implementation (e : entity::Entity)]
+  [e.classHeader(e.namePackageEntityImpl())/]
+  import java.util.Objects;
+  import jakarta.persistence.Entity;
+  import jakarta.persistence.Id;
+  import jakarta.persistence.Table;
+  import jakarta.persistence.GeneratedValue;
+  import jakarta.persistence.GenerationType;
+  
+  [e.commentClass()/]
+  @Entity
+  @Table(name = "[e.nameTableSchema()/]")
+  public class [e.nameClassEntityImpl()/] 
+  {  
+	  // CONSTANTES
+	  
+	  ['SerialUid'.commentMultiLines()/]
+	  private static final long serialVersionUID = -1;
+	  
+	  // ATTRIBUTS
+	   
+	  ['Id'.commentSingleLine()/]
+	  @Id
+	  @GeneratedValue(strategy = GenerationType.AUTO)
+	  private [e.defaultTypePk()/] [e.writePk()/];	
+
+	  [for (a : environment::Attribute | e.attributesNoPK())]
+	    [a.comment().commentSingleLine()/]
+	    private [a.type()/] [a.nameAttribute()/];
+	    
+	  [/for]
+	  [('Constructeur sans paramètre pour la classe : ' + e.nameClassEntityImpl()).commentMultiLines()/]
+	  public [e.nameClassEntityImpl()/] ()
+	  {
+		  super();
+	  }
+	  
+	  [for (a : environment::Attribute | e.attributesNoPK())]
+	    [('Retourne ' + a.comment()).commentMultiLines()/]
+	    public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
+	    {
+	      return [a.prefixAffectation()/][a.nameAttribute()/];
+	    }
+	    
+	    ['Affecte'.commentMultiLines()/]
+	    public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
+	    {
+	      [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+	    }
+	    
+	  [/for]
+	  [''.commentMultiLines()/]
+	  @Override
+	  public boolean equals(Object ['obj'.apply_parameterMethodClassicIn()/])
+	  {
+		  if (this == ['obj'.apply_parameterMethodClassicIn()/]) {
+			  return true;
+		  }	  
+		  
+		  if (!(['obj'.apply_parameterMethodClassicIn()/] instanceof [e.nameClassEntityImpl()/])) {
+			  return false;
+		  }
+		  
+		  [e.nameClassEntityImpl()/] [e.name()/] = ([e.nameClassEntityImpl()/]) ['obj'.apply_parameterMethodClassicIn()/];
+		  return Objects.equals([e.prefixAffectation()/][e.writePk()/], [e.writePk()/]) [for (a : environment::Attribute | e.attributesNoPK())] 
+		    && Objects.equals([a.prefixAffectation()/][a.nameAttribute()/], [e.name()/].[a.nameAttribute()/])[/for];
+	  }
+	  
+	  [''.commentMultiLines()/]
+	  @Override
+	  public int hashCode() 
+	  {
+		  return Objects.hash([e.prefixAffectation()/][e.writePk()/][for (a : environment::Attribute | e.attributesNoPK())], 
+		    [e.prefixAffectation()/][a.nameAttribute()/][/for]);
+	  }
+	  
+	  [''.commentMultiLines()/]
+	  @Override
+	  public String toString() 
+	  {
+		  return "[e.nameClassEntityImpl()/] { [e.writePk()/] = " + [e.prefixAffectation()/][e.writePk()/][for (a : environment::Attribute | e.attributesNoPK())] 
+		    + "[a.nameAttribute()/] = " + [e.prefixAffectation()/][a.nameAttribute()/][/for] + "}"; 
+	  }
+  }
+[/template]
+
+[comment écriture de l'interface pour une entité (au sens Spring)./]
+[template public interfaceDao (e : entity::Entity)]
+  [e.classHeader(e.namePackageEntityDaoItf())/]
+  import org.springframework.data.jpa.repository.JpaRepository;
+  [e.importImpl()/]
+  
+  /**
+   *
+   */
+  public interface [e.nameClassEntityDaoItf()/] extends JpaRepository<[e.nameClassEntityImpl()/], Long> {
+
+  }
+[/template]
+
+[comment raccourci pour l'écriture de la clé primaire./]
+[query private writePk(e : entity::Entity) : String = e.nameSimplePropertyID().apply_attributeDefault()/]
+

@@ -1,0 +1,5 @@
+[module resources(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+
+[comment retourne les chemins de génération pour l'ensemble des ressources générées./]

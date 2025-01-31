@@ -1,0 +1,30 @@
+[module parameter(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::convention::ApplyNorme/]
+
+[comment applique le nom final pour un paramètre en entrée./]
+[query public apply_parameterMethodClassicIn(value : String) : String = value.norme_parameterMethodClassicIn()/]
+
+[comment applique le nom final pour un paramètre multiple (collectioj)./]
+[query public apply_parameterMethodMultiple(value : String) : String = value.norme_parameterMethodMultiple()/]
+
+[comment applique le nom final pour un paramètre de type map./]
+[query public apply_parameterMethodMultipleMap(value : String) : String = value.norme_parameterMethodMultipleMap()/]
+
+[comment applique le nom final pour un paramètre objet en entrée./]
+[query public apply_parameterMethodObjectIn(value : String) : String = value.norme_parameterMethodObjectIn()/]
+
+[comment ./]
+[query public apply_parameterMethodClassicInOut(value : String) : String = value.norme_parameterMethodClassicInOut()/]
+
+[comment ./]
+[query public apply_parameterMethodObjectInOut(value : String) : String = value.norme_parameterMethodObjectInOut()/]
+
+[comment ./]
+[query public apply_parameterMethodClassicOut(value : String) : String = value.norme_parameterMethodClassicOut()/]
+
+[comment ./]
+[query public apply_parameterMethodObjectOut(value : String) : String = value.norme_parameterMethodObjectOut()/]
+
+[comment ./]
+[query public apply_parameterMethodReset(value : String) : String = value.norme_parameterMethodReset()/]

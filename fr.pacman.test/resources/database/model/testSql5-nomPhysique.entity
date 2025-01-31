@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="ASCII"?>
+<oent:Root xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oent="http://www.obeonetwork.org/dsl/entity/3.0.0" xmlns:oenv="http://www.obeonetwork.org/dsl/environment/3.0.0" xmi:id="_MPObEKfnEe-v4fvF-cv85g" technicalid="_MPNM8KfnEe-v4fvF-cv85g" createdOn="2024-11-21T10:01:27.231+0100" modifiedOn="2024-11-26T16:14:35.847+0100">
+  <ownedNamespaces xmi:id="_A6pUYagnEe-v4fvF-cv85g" technicalid="_A6pUYKgnEe-v4fvF-cv85g" description="Namespace pour tester l'ensemble des cas possibles dans le cadre d'utilisation du diagramme xx." createdOn="2024-11-21T17:38:19.046+0100" modifiedOn="2024-11-22T14:45:43.712+0100" name="nomsPhysiques">
+    <metadatas xmi:id="_XVsvsagoEe-v4fvF-cv85g" technicalid="_XVsvsKgoEe-v4fvF-cv85g">
+      <metadatas xsi:type="oenv:Annotation" xmi:id="_XVsvs6goEe-v4fvF-cv85g" technicalid="_XVsvsqgoEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="PN"/>
+    </metadatas>
+    <types xsi:type="oent:Entity" xmi:id="_HJ-kcagnEe-v4fvF-cv85g" technicalid="_HJ-kcKgnEe-v4fvF-cv85g" createdOn="2024-11-21T17:39:00.919+0100" modifiedOn="2024-11-24T11:04:03.561+0100" name="NP_Entity_Pere">
+      <metadatas xmi:id="_Yr0DgagnEe-v4fvF-cv85g" technicalid="_Yr0DgKgnEe-v4fvF-cv85g">
+        <metadatas xsi:type="oenv:Annotation" xmi:id="_Yr7YQKgnEe-v4fvF-cv85g" technicalid="_Yr6xMKgnEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_PERE"/>
+        <metadatas xsi:type="oenv:Annotation" xmi:id="_8wGxIagnEe-v4fvF-cv85g" technicalid="_8wGxIKgnEe-v4fvF-cv85g" title="PHYSICAL_UNIQUE" body="attributSize:asc,attributUnicADesc:desc|attributUnicAsc:asc,attributDefault:desc,attributCheck:asc"/>
+      </metadatas>
+      <ownedAttributes xmi:id="_Op8V8agnEe-v4fvF-cv85g" technicalid="_Op8V8KgnEe-v4fvF-cv85g" createdOn="2024-11-21T17:39:51.247+0100" modifiedOn="2024-11-21T17:43:51.229+0100" name="attributePhysicalName">
+        <metadatas xmi:id="_a6I8QagnEe-v4fvF-cv85g" technicalid="_a6I8QKgnEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_a6I8Q6gnEe-v4fvF-cv85g" technicalid="_a6I8QqgnEe-v4fvF-cv85g" title="PHYSICAL_SIZE" body=""/>
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_cn5ekagnEe-v4fvF-cv85g" technicalid="_cn5ekKgnEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ATTRIBUT_PHYSICAL_NAME"/>
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_2j7iwagnEe-v4fvF-cv85g" technicalid="_2j7iwKgnEe-v4fvF-cv85g" title="PHYSICAL_UNIQUE" body=""/>
+        </metadatas>
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_OvHw4agnEe-v4fvF-cv85g" technicalid="_OvHw4KgnEe-v4fvF-cv85g" createdOn="2024-11-21T17:39:51.790+0100" modifiedOn="2024-11-21T17:43:42.708+0100" name="attributeSize">
+        <metadatas xmi:id="_djeWAagnEe-v4fvF-cv85g" technicalid="_djeWAKgnEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_djeWA6gnEe-v4fvF-cv85g" technicalid="_djeWAqgnEe-v4fvF-cv85g" title="PHYSICAL_SIZE" body="100"/>
+        </metadatas>
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_O0BfAagnEe-v4fvF-cv85g" technicalid="_O0BfAKgnEe-v4fvF-cv85g" createdOn="2024-11-21T17:39:52.304+0100" modifiedOn="2024-11-21T17:43:31.443+0100" name="attributeUnicAsc">
+        <metadatas xmi:id="_edKXEagnEe-v4fvF-cv85g" technicalid="_edKXEKgnEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_edKXE6gnEe-v4fvF-cv85g" technicalid="_edKXEqgnEe-v4fvF-cv85g" title="PHYSICAL_CHECK" body=""/>
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_fRmrwagnEe-v4fvF-cv85g" technicalid="_fRmrwKgnEe-v4fvF-cv85g" title="PHYSICAL_UNIQUE" body="ASC"/>
+        </metadatas>
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_O5IBcagnEe-v4fvF-cv85g" technicalid="_O5IBcKgnEe-v4fvF-cv85g" createdOn="2024-11-21T17:39:52.839+0100" modifiedOn="2024-11-21T17:43:23.346+0100" name="attributeUnicDesc">
+        <metadatas xmi:id="_f5zUMagnEe-v4fvF-cv85g" technicalid="_f5zUMKgnEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_f5zUM6gnEe-v4fvF-cv85g" technicalid="_f5zUMqgnEe-v4fvF-cv85g" title="PHYSICAL_UNIQUE" body="DESC"/>
+        </metadatas>
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_O-Ey4agnEe-v4fvF-cv85g" technicalid="_O-Ey4KgnEe-v4fvF-cv85g" createdOn="2024-11-21T17:39:53.358+0100" modifiedOn="2024-11-21T17:43:07.726+0100" name="attributeDefault">
+        <metadatas xmi:id="_ib-9EagnEe-v4fvF-cv85g" technicalid="_ib-9EKgnEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_ib-9E6gnEe-v4fvF-cv85g" technicalid="_ib-9EqgnEe-v4fvF-cv85g" title="PHYSICAL_DEFAULT" body="'default'"/>
+        </metadatas>
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_PDp2cagnEe-v4fvF-cv85g" technicalid="_PDp2cKgnEe-v4fvF-cv85g" createdOn="2024-11-21T17:39:53.943+0100" modifiedOn="2024-11-21T17:42:54.741+0100" name="attributeCheck">
+        <metadatas xmi:id="_n54JIagnEe-v4fvF-cv85g" technicalid="_n54JIKgnEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_n54JI6gnEe-v4fvF-cv85g" technicalid="_n54JIqgnEe-v4fvF-cv85g" title="PHYSICAL_CHECK" body="attributCheck in (1,2)"/>
+        </metadatas>
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedReferences xmi:id="_bOfmMagoEe-v4fvF-cv85g" technicalid="_bOfmMKgoEe-v4fvF-cv85g" createdOn="2024-11-21T17:48:25.107+0100" modifiedOn="2024-11-24T11:04:24.710+0100" name="NP_Entity_Filss" multiplicity="0..*" referencedType="_ILg58agnEe-v4fvF-cv85g">
+        <metadatas xmi:id="_kOzJEagoEe-v4fvF-cv85g" technicalid="_kOzJEKgoEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_kOzJE6goEe-v4fvF-cv85g" technicalid="_kOzJEqgoEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_FILS"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_ILg58agnEe-v4fvF-cv85g" technicalid="_ILg58KgnEe-v4fvF-cv85g" createdOn="2024-11-21T17:39:07.791+0100" modifiedOn="2024-11-24T11:03:58.513+0100" name="NP_Entity_Fils"/>
+    <types xsi:type="oent:Entity" xmi:id="_h0R_saguEe-v4fvF-cv85g" technicalid="_h0R_sKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:32:06.315+0100" modifiedOn="2024-11-24T11:07:29.514+0100" name="NP_Entity_1A">
+      <ownedReferences xmi:id="_soYbcaguEe-v4fvF-cv85g" technicalid="_soYbcKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:33:18.887+0100" modifiedOn="2024-11-24T11:10:00.504+0100" name="NP_Entity_1Bs" referencedType="_iSdJcaguEe-v4fvF-cv85g">
+        <metadatas xmi:id="_-W2oUaguEe-v4fvF-cv85g" technicalid="_-W2oUKguEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_-W2oU6guEe-v4fvF-cv85g" technicalid="_-W2oUqguEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_AA"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_iSdJcaguEe-v4fvF-cv85g" technicalid="_iSdJcKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:32:09.479+0100" modifiedOn="2024-11-24T11:07:38.433+0100" name="NP_Entity_1B"/>
+    <types xsi:type="oent:Entity" xmi:id="_unLDYaguEe-v4fvF-cv85g" technicalid="_unLDYKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:33:32.182+0100" modifiedOn="2024-11-24T11:08:00.044+0100" name="NP_Entity_2A">
+      <ownedReferences xmi:id="_xkHVoaguEe-v4fvF-cv85g" technicalid="_xkHVoKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:33:51.994+0100" modifiedOn="2024-11-24T11:10:05.286+0100" name="NP_Entity_2Bs" multiplicity="1" referencedType="_vS0ocaguEe-v4fvF-cv85g">
+        <metadatas xmi:id="__OYGMaguEe-v4fvF-cv85g" technicalid="__OYGMKguEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="__OYGM6guEe-v4fvF-cv85g" technicalid="__OYGMqguEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_BB"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_vS0ocaguEe-v4fvF-cv85g" technicalid="_vS0ocKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:33:36.759+0100" modifiedOn="2024-11-24T11:08:17.913+0100" name="NP_Entity_2B"/>
+    <types xsi:type="oent:Entity" xmi:id="_y_Zn4KguEe-v4fvF-cv85g" technicalid="_y_ZA0KguEe-v4fvF-cv85g" createdOn="2024-11-21T18:34:01.566+0100" modifiedOn="2024-11-24T11:08:33.816+0100" name="NP_Entity_3A">
+      <ownedReferences xmi:id="_1y5DMaguEe-v4fvF-cv85g" technicalid="_1y5DMKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:34:20.387+0100" modifiedOn="2024-11-24T11:10:10.568+0100" name="NP_Entity_3Bs" multiplicity="0..*" referencedType="_z-CaYaguEe-v4fvF-cv85g">
+        <metadatas xmi:id="__xZTsaguEe-v4fvF-cv85g" technicalid="__xZTsKguEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="__xZTs6guEe-v4fvF-cv85g" technicalid="__xZTsqguEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_CC"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_z-CaYaguEe-v4fvF-cv85g" technicalid="_z-CaYKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:34:08.134+0100" modifiedOn="2024-11-24T11:08:40.692+0100" name="NP_Entity_3B"/>
+    <types xsi:type="oent:Entity" xmi:id="_4DCg4aguEe-v4fvF-cv85g" technicalid="_4DCg4KguEe-v4fvF-cv85g" createdOn="2024-11-21T18:34:35.502+0100" modifiedOn="2024-11-24T11:09:35.613+0100" name="NP_Entity_4A">
+      <ownedReferences xmi:id="_69KIoaguEe-v4fvF-cv85g" technicalid="_69KIoKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:34:55.018+0100" modifiedOn="2024-11-24T11:10:20.727+0100" name="NP_Entity_4Bs" multiplicity="1..*" referencedType="_41eDYaguEe-v4fvF-cv85g">
+        <metadatas xmi:id="_AkfkkagvEe-v4fvF-cv85g" technicalid="_AkfkkKgvEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_Akfkk6gvEe-v4fvF-cv85g" technicalid="_AkfkkqgvEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_DD"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_41eDYaguEe-v4fvF-cv85g" technicalid="_41eDYKguEe-v4fvF-cv85g" createdOn="2024-11-21T18:34:40.790+0100" modifiedOn="2024-11-24T11:09:19.649+0100" name="NP_Entity_4B"/>
+    <types xsi:type="oent:Entity" xmi:id="_Npym4agvEe-v4fvF-cv85g" technicalid="_Npym4KgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:37:00.494+0100" modifiedOn="2024-11-24T11:09:44.901+0100" name="NP_Entity_5A">
+      <ownedReferences xmi:id="_XkrisagvEe-v4fvF-cv85g" technicalid="_XkrisKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:38:07.067+0100" modifiedOn="2024-11-24T11:10:58.497+0100" name="NP_Entity_5Bs" isComposite="true" referencedType="_PrtbUagvEe-v4fvF-cv85g">
+        <metadatas xmi:id="_exWkwagvEe-v4fvF-cv85g" technicalid="_exWkwKgvEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_exWkw6gvEe-v4fvF-cv85g" technicalid="_exWkwqgvEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_EE"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_OeqZYagvEe-v4fvF-cv85g" technicalid="_OeqZYKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:37:06.038+0100" modifiedOn="2024-11-24T11:09:49.924+0100" name="NP_Entity_6A">
+      <ownedReferences xmi:id="_Y6F2cagvEe-v4fvF-cv85g" technicalid="_Y6F2cKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:38:16.023+0100" modifiedOn="2024-11-24T11:11:08.072+0100" name="NP_Entity_6Bs" multiplicity="1" isComposite="true" referencedType="_QFDIYagvEe-v4fvF-cv85g">
+        <metadatas xmi:id="_fqRJwagvEe-v4fvF-cv85g" technicalid="_fqRJwKgvEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_fqRJw6gvEe-v4fvF-cv85g" technicalid="_fqRJwqgvEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_FF"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_O0A-UagvEe-v4fvF-cv85g" technicalid="_O0A-UKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:37:08.277+0100" modifiedOn="2024-11-24T11:11:50.754+0100" name="NP_Entity_7A">
+      <ownedReferences xmi:id="_Z8P3AagvEe-v4fvF-cv85g" technicalid="_Z8P3AKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:38:22.960+0100" modifiedOn="2024-11-24T11:12:18.126+0100" name="NP_Entity_7Bs" multiplicity="0..*" isComposite="true" referencedType="_QUJUUagvEe-v4fvF-cv85g">
+        <metadatas xmi:id="_gPaeMagvEe-v4fvF-cv85g" technicalid="_gPaeMKgvEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_gPaeM6gvEe-v4fvF-cv85g" technicalid="_gPaeMqgvEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_GG"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_PFzR4KgvEe-v4fvF-cv85g" technicalid="_PFyq0KgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:37:10.142+0100" modifiedOn="2024-11-24T11:11:55.848+0100" name="NP_Entity_8A">
+      <ownedReferences xmi:id="_a6lHgagvEe-v4fvF-cv85g" technicalid="_a6lHgKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:38:29.496+0100" modifiedOn="2024-11-24T11:12:31.587+0100" name="NP_Entity_8Bs" multiplicity="1..*" isComposite="true" referencedType="_QlUj4agvEe-v4fvF-cv85g">
+        <metadatas xmi:id="_hEqEIagvEe-v4fvF-cv85g" technicalid="_hEqEIKgvEe-v4fvF-cv85g">
+          <metadatas xsi:type="oenv:Annotation" xmi:id="_hEqrMagvEe-v4fvF-cv85g" technicalid="_hEqrMKgvEe-v4fvF-cv85g" title="PHYSICAL_NAME" body="ENTITY_HH"/>
+        </metadatas>
+      </ownedReferences>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_PrtbUagvEe-v4fvF-cv85g" technicalid="_PrtbUKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:37:14.118+0100" modifiedOn="2024-11-24T11:09:25.044+0100" name="NP_Entity_5B"/>
+    <types xsi:type="oent:Entity" xmi:id="_QFDIYagvEe-v4fvF-cv85g" technicalid="_QFDIYKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:37:16.774+0100" modifiedOn="2024-11-24T11:09:29.740+0100" name="NP_Entity_6B"/>
+    <types xsi:type="oent:Entity" xmi:id="_QUJUUagvEe-v4fvF-cv85g" technicalid="_QUJUUKgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:37:18.357+0100" modifiedOn="2024-11-24T11:12:03.003+0100" name="NP_Entity_7B"/>
+    <types xsi:type="oent:Entity" xmi:id="_QlUj4agvEe-v4fvF-cv85g" technicalid="_QlUj4KgvEe-v4fvF-cv85g" createdOn="2024-11-21T18:37:20.158+0100" modifiedOn="2024-11-24T11:12:08.176+0100" name="NP_Entity_8B"/>
+  </ownedNamespaces>
+</oent:Root>

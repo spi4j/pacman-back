@@ -1,0 +1,30 @@
+[module versions(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+
+
+[query public versionMavenCompilerPlugin(any : ecore::EObject) : String = '3.10.1'/]
+[query public versionMavenEnforcerPlugin(any : ecore::EObject) : String = '3.0.0-M2'/]
+[query public versionMaven(any : ecore::EObject) : String = '3.6.3'/]    
+
+
+
+[query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
+[query public mvnCompilerVersion(any : eoecore::EObject) : String = ''/]
+[query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]
+[query public mvnAssemblyVersion(any : eoecore::EObject) : String = ''/]
+[query public mvnSiteVersion(any : eoecore::EObject) : String = ''/]
+[query public mvnEnforcerVersion(any : eoecore::EObject) : String = ''/]
+  
+[query public tychoVersion(any : eoecore::EObject) : String = ''/]
+[query public javaVersion(any : eoecore::EObject) : String = ''/]
+[query public junitVersion(any : eoecore::EObject) : String = '5.9.3'/]
+[query public log4jVersion(any : eoecore::EObject) : String = '2.20.0'/]
+[query public jerseyVersion(any : eoecore::EObject) : String = '3.1.2'/]
+[query public jsonVersion(any : eoecore::EObject) : String = '20240303'/]
+[query public tomcatVersion(any : eoecore::EObject) : String = '3.1.2'/]
+  
+[query public dbPostgresVersion(any : eoecore::EObject) : String = '3.1.2'/]
+[query public dbOracleVersion(any : eoecore::EObject) : String = '3.1.2'/]
+[query public dbMysqlVersion(any : eoecore::EObject) : String = '3.1.2'/]
+[query public dbH2Version(any : eoecore::EObject) : String = '3.1.2'/]
+[query public dbMariaVersion(any : eoecore::EObject) : String = '3.1.2'/]

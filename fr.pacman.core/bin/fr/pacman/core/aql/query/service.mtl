@@ -1,0 +1,17 @@
+[module service(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+				    'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[comment retourne toutes les opérations d'un service soa./]
+[query public operations(s : soa::Service) : Sequence(soa::Operation) = s.ownedInterface.ownedOperations/]
+
+[comment retourne la liste des paramètres de type 'Entity' (sans doublon) pour toutes les opérations sur un service./]					
+[query public outputEntities(s : soa::Service) : OrderedSet(entity::Entity) = s.ownedInterface.ownedOperations.output.type
+  ->select(o | o.oclIsKindOf(entity::Entity))->asOrderedSet()/]
+  
+[comment retourne le dto persistant associé au service métier./]  
+[query public associatedPersistentDto(s : soa::Service) : environment::DTO = s.eAllContents(soa::Parameter)
+  ->select(o1 | o1.type.oclIsTypeOf(environment::DTO) and o1.name.equalsIgnoreCase(s.name))
+  ->collect(o2 | o2.type.oclAsType(environment::DTO))->first()/]
+  
+ 

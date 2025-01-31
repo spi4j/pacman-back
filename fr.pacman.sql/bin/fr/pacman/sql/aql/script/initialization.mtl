@@ -1,0 +1,49 @@
+[module initialization(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
+[import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::query::database/]
+[import fr::pacman::core::aql::name::databases/]
+
+[import fr::pacman::core::service::DatabaseUtils/]
+
+[template public initDatabase(r : entity::Root, dbType : String) post(self.removeEmptyLines())]
+  [for (e : entity::Entity | r.persistentEntities())]
+    [e.writeInsert(e.referencesForeignKeys(), dbType)/]
+  [/for]
+  [r.initJoinTables(dbType)/]
+[/template]
+
+[comment initialisation spécifique pour les tables de jointure./]
+[template private initJoinTables(root : entity::Root, dbType : String)]
+  [for (r : environment::Reference | root.referencesJoinTables())]
+    [r.writeInsert(dbType)/]
+  [/for]
+[/template]
+
+[comment écriture de la ligne d'insertion pour une table de jointure./]
+[query private writeInsert(r : environment::Reference, dbType : String) : String = 'insert into ' + r.nameTableSchemaJoin().toUpper() 
+	+ ' (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ',' + if (r.isStarRecursive()) then 
+	r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(), r.suffixSqlId()).toUpper() 
+	else r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() endif + ')' + ' values (1, 1);'/]
+
+[comment écriture de la ligne d'insertion pour une table./]
+[query private writeInsert(e : entity::Entity, rs : OrderedSet(environment::Reference), dbType : String) : String = 
+	('insert into ' + e.nameTableSchema().toUpper() + ' ('+ e.writeColumns(rs).toUpper() +')' + ' values (' 
+	+ e.writeValues(rs) + ');').eraseLastComma().lineCut(130,',')/]
+
+[comment écriture de la ligne pour la liste des colonnes de la table./]
+[query private writeColumns (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = e.namePrimaryKey() + ',' 
+	+ e.attributesNoPKAndNoComputed()->collect(o : environment::Attribute | o.nameColumn())->sep(',') + ',' 
+	+ rs->collect(o | o.nameReferenceId(o.structuredType(e),o.get_namingIndex(rs)))->sep(',')/]
+	
+[comment écriture de la ligne pour la liste des valeurs à insérer dans les colonnes de la table./]
+[query private writeValues (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = ('1,' + e.attributesNoPKAndNoComputed()
+	->asSequence()->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') + ',' 
+	+ rs->asSequence()->collect(o | o.defaultSqlForeignkey())->sep(','))/]
+
+[comment supprime la dernière virgule non nécessaire dans la liste des colonnes et des valeurs./]
+[query private eraseLastComma(s : String) : String = s.replaceAll(',\\)','\\)').replaceAll(',',', ')/]

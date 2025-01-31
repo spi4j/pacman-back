@@ -1,0 +1,256 @@
+[module configurations(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[comment example par défaut pour le fichier...../]
+[template public defaultProject(any : eoecore::EObject)]
+  # Le nom de l'application (sert de prefixe pour l'ensemble des projets)
+  idAppli = 
+  # La version de Java pour la compilation des projets
+  java.version = 11
+  # L'auteur par defaut des fichiers generes
+  author = 
+  # Le package racine des sources du projet
+  package = fr.
+  # La version de l'application
+  version = 0.0.1-SNAPSHOT
+  # La version de SPI4J utilisee par les generateurs
+  spi4j.version = 4.6.0
+  # Type(s) de base(s) de donnees (Oracle / Oracle_32 / H2 / MySQL / MariaDB / PostgreSQL)
+  database.type = H2,PostgreSQL
+  # Le prefixe pour les annotations requirement
+  requirement.prefix = REQ_
+  # Prefixe pour les tables de l'application ( format : xxx_ )
+  server.sql.table.prefix = 
+  # Nom du schema pour les tables de l'application ( format : xxx. )
+  server.sql.table.schema = 
+  # Tablespace specifique (si base Oracle)
+  server.sql.oracle.index.tablespace = 
+  # Flag indiquant si le mode debug pour PacMan est actif (plus d'informations en cas d'erreur de generation)
+  pacman.mode.debug = false
+  # Flag indiquant si le formattage auto des imports est actif (CTRL + SHIFT + O)
+  pacman.import.format = true
+  # Flag indiquant si les identifiants de balise user code sont en clair (non actif par defaut)
+  pacman.userCode.clear = false
+  # Flag indiquant la generation de commentaire pour la balise user code (non actif par defaut et lie avec l'utilisation du hash)
+  pacman.userCode.hash.clear = false
+  # Flag indiquant si la generation de la couche de persistance (= Entity) se fait avec les methodes de LazyLoading
+  dsl.entity.isLazyLoading = false
+  # Flag indiquant si la fetching strategy doit etre generee dans l'application (non generee par defaut)
+  fetchingstrategy.enabled = false
+  # Flag indiquant si des services de traitement automatique doivent etre generes (non genere par defaut)
+  batch.layer.enabled = true
+  # Flag indiquant si les service requirements doivent etre generes dans l'application (generes par defaut)
+  servicerequirements.enabled = true
+  # Flag indiquant si le log4j2.xml doit etre genere dans l'application (genere par defaut)
+  log4j.enabled = true
+  # Flag indiquant si les annotations ejb doivent etre generees dans l'application (non generees par defaut)
+  ejbservice.enabled = false
+  # Flag pour la generation de la couche Matching et les objets DTO (generee par defaut)
+  matching.layer.enabled = true
+  # Flag pour la generation de la couche de securite (serveur / client) (non generee par defaut)
+  spi4j.security.enabled = false
+  # Flag indiquant si une application des gestion des entites (crud) doit etre generee (non generee par defaut)
+  application.crud.enabled = false
+  # Flag indiquant si les tests de comportement (JBehave) doivent etre generes (non generes par defaut)
+  tests.bdd.enabled = false
+  # Flag indiquant si le projet va servir comme librairie
+  project.isLibrary = false
+  # Flag indiquant si le projet va servir comme librairie avec un import swagger
+  project.isLibraryRs = false
+  # Flag indiquant si on permet la regeneration des fichiers pom.xml, web.xml et log4j2.xml (non par defaut)
+  # ATTENTION : IL S'AGIT D'UNE RESTAURATION D'USINE ! PERTE DES VERSIONS ET DES AJOUTS
+  project.rootfiles.generate.enabled = false
+  # Flag indiquant si on veut generer des services web (non genere par defaut)
+  ws.layer.enabled = false
+  # Flag indiquant si on veut generer des micro services web (non genere par defaut)
+  wms.layer.enabled = false
+  # Flag indiquant si on veut generer une api d'observabilite pour l'application (non genere par defaut)
+  ws.health.enabled = false
+  # Flag indiquant si on veut utiliser l'injection pour les services web REST (oui par defaut)
+  ws.layer.hk2.enabled = false
+  # Flag indiquant si les tests unitaires sur le crud doivent etre generes (generes par defaut)
+  tests.crud.enabled = true
+  # Niveau de base pour le decoupage des exigences dans le code genere (0 : aucun decoupage)
+  requirement.category.base.level = 0
+  # Version initiale (cf. "set_versionImplem()") mise lors de la premiere generation pour les tests de versionning d'exigence 
+  # ("none" : exigence non implementee ou "current" pour la version du modele)
+  test.requirement.versionning.initial = none
+  # Fichier de configuration des regles de validation
+  validation.config.file = validation.xml
+  # Initialisation du fichier de configuration en cas d'erreur de celui-ci
+  validation.init.on.error = true
+  # Utilisation du framework spi4j pour la gestion de fichiers de configuration
+  config.files.frwk.enabled = false
+  # Utilisation des parametres pour le user code des methodes soa
+  deprecated.soa.usercode.params = true
+  # Package pour la generation des servlets CXF (SOAP)
+  server.cfx.pkg = ws.servlet
+  # Package specifique pour l'ensemble des enumerations modelisees (vide par defaut)
+  # Si vide les enumerations sont generees au niveau de leur emplacement de modelisation
+  commons.enums.package = 
+  # Dossier du repertoire de configuration common
+  commons.conf.dir = conf
+  # Enclanche le profiler pour gestion de la performance (non actif par defaut)
+  profiler.enabled = false
+  # Champs additionnels pour les librairies supplementaires de l'application
+  server.jar.additional = 
+  # Champs additionnels pour les tables SQL de l'application
+  server.sql.table.additional_fields = 
+  # Ajoute automatiquement le suffixe '_ID' pour le nom physique des references (actif par defaut)
+  server.sql.id.suffix_enabled = true
+  # Mode de fonctionnement pour la pagination (auto, user, vide par defaut)
+  paging.mode = 
+[/template]
+
+[comment example par défaut de fichier de propriétés pour le nommage./]
+[template public defaultNaming(any : eoecore::EObject)]
+  # Le nom d'un attribut par defaut
+  attributeDefault = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un attribut d'enumeration
+  attributeEnum = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un attribut multiple
+  attributeMultiple = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'attribut dans une affectation dans le constructeur
+  attributeAffectation = this.{$attributeDefault}
+  # Le nom d'un attribut static
+  attributeStatic = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un attribut final static
+  attributeFinalStatic = ['['/]CamelCase.UpperAll['/]'/]
+  # Le nom d'un attribut final
+  attributeFinal = {$attributeDefault}
+  # Le nom d'une methode par defaut
+  methodDefault = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'une methode multiple
+  methodMultiple = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'une methode get
+  methodGet = get['['/]CamelCase.UpperFirst['/]'/]
+  # Le nom d'une methode set
+  methodSet = set['['/]CamelCase.UpperFirst['/]'/]
+  # Le nom d'une methode reset
+  methodReset = reset['['/]CamelCase.UpperFirst['/]'/]
+  # La norme a appliquer pour une classe par defaut
+  classDefault = ['['/]CamelCase['/]'/]
+  # La norme a appliquer pour une annotation Java
+  classAnnotation = ['['/]CamelCase['/]'/]
+  # La norme a appliquer pour une classe abstraite
+  classAbstract = ['['/]CamelCase['/]'/]Abs
+  # La norme a appliquer pour une interface
+  classInterface = ['['/]CamelCase['/]'/]
+  # La norme a appliquer pour une classe d'implementation
+  classImplem = ['['/]CamelCase['/]'/]Impl
+  # La norme a appliquer pour une enumeration
+  classEnum = ['['/]CamelCase['/]'/]Enum
+  # La norme a appliquer pour une classe de test
+  classTest = ['['/]CamelCase['/]'/]Test
+  # Le nom d'une variable final
+  variableFinal = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'une variable par defaut
+  variableDefault = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'une variable multiple par defaut
+  variableMultipleDefault = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'une variable multiple (map) par defaut
+  variableMultipleMap = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'une variable objet final
+  variableObjectFinal = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'une variable par objet defaut
+  variableObjectDefault = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre IN classic
+  parameterMethodClassicIn = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre Multiple
+  parameterMethodMultiple = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre Multiple
+  parameterMethodMultipleMap = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre IN objet
+  parameterMethodObjectIn = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre OUT classique
+  parameterMethodClassicOut = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre OUT objet
+  parameterMethodObjectOut = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre IN/OUT classique
+  parameterMethodClassicInOut = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre IN/OUT objet
+  parameterMethodObjectInOut = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre du methode reset
+  parameterMethodReset = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom d'un parametre d'un setter
+  parameterMethodSetter = ['['/]CamelCase.LowerFirst['/]'/]
+  # Le nom du package de persistence
+  packagePersistence = persistence
+  # Le nom du package d'implementation jdbc
+  packageImplemJdbc = jdbc
+  # Le nom du package d'api
+  packageApi = api
+  # Le nom du package pour la montee en charge
+  packageOverload = dbpopulate
+  # Le nom du package pour l import de referentiel
+  packageReferentiel = dbreferentiel
+  # Le nom du package d'implementation server
+  packageImplemServer = server
+  # Le nom du package de matching
+  packageMatching = matching
+  # Le nom du package du business
+  packageBusiness = business
+  # Le nom du package de requirement
+  packageRequirement = requirement
+  # Le prefixe des listes
+  listPrefix = 
+  # Le prefixe des map
+  mapPrefix = 
+  # Prefix des attributs lors d'une affectation (this. ou rien)
+  affectationPrefix = this.
+[/template]
+
+[comment /]
+[template public defaultSpi(any: eoecore::EObject)]
+  # L'interface ancetre des services avec CRUD
+  framework.type.Service_Itf = fr.spi4j.business.Service_Itf
+  # L'interface ancetre des services avec CRUD (Sans la couche Matching)
+  framework.type.entity.Service_Itf = fr.spi4j.entity.Service_Itf
+  # La classe ancetre des services avec CRUD
+  framework.type.Service_Abs = fr.spi4j.business.Service_Abs
+  # La classe ancetre des services avec CRUD (Sans la couche Matching)
+  framework.type.Entity.Service_Abs = fr.spi4j.entity.Service_Abs
+  # La classe ancetre de tous les services
+  framework.type.ApplicationService_Itf = fr.spi4j.business.ApplicationService_Itf
+  # La classe ancetre de la factory des services
+  framework.type.UserBusiness_Abs = fr.spi4j.business.UserBusiness_Abs
+  # L'interface marquant un service comme ayant un cache
+  framework.type.ServiceReferentiel_Itf = fr.spi4j.business.ServiceReferentiel_Itf
+  # L'interface pour les enumerations des attributs
+  framework.type.AttributeNames_Itf = fr.spi4j.business.dto.AttributesNames_Itf
+  # L'interface des DTOs
+  framework.type.Dto_Itf = fr.spi4j.business.dto.Dto_Itf
+  # L'interface des Mappers (conversion DTO <-> XTO)
+  framework.type.Mapper_Itf = fr.spi4j.mapper.Mapper_Itf
+  # L'interface des Mappers (conversion Entity <-> XTO)
+  framework.type.EntityMapper_Itf = fr.spi4j.mapper.EntityMapper_Itf
+  # La classe ancetre des Mappers (conversion DTO <-> XTO)
+  framework.type.Mapper_Abs = fr.spi4j.mapper.Mapper_Abs
+  # La classe ancetre des Mappers (conversion Entity <-> XTO)
+  framework.type.EntityMapper_Abs = fr.spi4j.mapper.EntityMapper_Abs
+  # L'interface des Match (conversion Entity <-> DTO)
+  framework.type.Match_Itf = fr.spi4j.matching.Match_Itf
+  # La classe ancetre des Match (conversion Entity <-> DTO)
+  framework.type.Match_Abs = fr.spi4j.matching.Match_Abs
+  # La classe ancetre de la factory des DAOs et Entities
+  framework.type.UserPersistence_Abs = fr.spi4j.persistence.UserPersistence_Abs
+  # L'interface des DAOs
+  framework.type.Dao_Itf = fr.spi4j.persistence.dao.Dao_Itf
+  # La classe ancetre des DAO JDBC
+  framework.type.DaoJdbc_Abs = fr.spi4j.persistence.dao.jdbc.DaoJdbc_Abs
+  # L'interface pour les enumerations des colonnes
+  framework.type.ColumnsNames_Itf = fr.spi4j.persistence.entity.ColumnsNames_Itf
+  # L'interface des Entities
+  framework.type.Entity_Itf = fr.spi4j.persistence.entity.Entity_Itf
+  # La classe ancetre des testeurs de beans
+  framework.type.BeanTester_Abs = fr.spi4j.tua.BeanTester_Abs
+  # La classe ancetre des testeurs de FetchingStrategy
+  framework.type.FetchingStrategyTester_Abs = fr.spi4j.tua.FetchingStrategyTester_Abs
+  # La classe ancetre des testeurs de FetchingStrategy
+  framework.type.FetchingStrategyEntityTester_Abs = fr.spi4j.tua.FetchingStrategyEntityTester_Abs
+  # L'interface des XTOs
+  framework.type.Xto_Itf = fr.spi4j.ws.xto.Xto_Itf
+  # L'interface des XTOs pour les services REST
+  framework.type.Xto_rs_Itf = fr.spi4j.ws.rs.RsXto_Itf
+  # La classe des Binaires (Binary)
+  framework.type.Binary = fr.spi4j.persistence.dao.Binary
+[/template]

@@ -1,0 +1,38 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::soa::aql::file::genServiceServer/]
+[import fr::pacman::soa::aql::file::genXto/]
+[import fr::pacman::soa::aql::block::mapper/]
+[import fr::pacman::soa::aql::block::xto/]
+
+[comment écriture des classes et fichiers soa pour la partie infrastructure de l'application cible./]
+[template protected genServer(m : soa::System)]
+  [for (s : soa::Service | m.eAllContents(soa::Service))]
+    [s.fileServiceImpl(s.genServiceImpl())/]
+    [s.fileServiceInImpl(s.genServiceInImpl())/]
+  [/for]
+  [for (d : environment::DTO | m.eAllContents(environment::DTO))]
+  	[d.fileMapperInImpl(d.genMapperInImpl())/]
+  	[d.fileMapperOutImpl(d.genMapperOutImpl())/]
+  	[d.fileXtoImpl(d.genXtoImpl())/]
+  [/for]
+[/template]
+
+[comment écriture des mappers, communs à l'ensemble des frameworks (infrastructure)./]
+[template private genMapperInImpl(d : environment::DTO)][d.mapperIn()/][/template]
+  
+[comment écriture des mappers, communs à l'ensemble des frameworks (application)./]
+[template private genMapperOutImpl(d : environment::DTO)][d.mapperOut()/][/template]
+  
+[comment écriture des objets sérialisés, commun à l'ensemble des frameworks (application)./]
+[template private genXtoImpl(d : environment::DTO)][d.implementation()/][/template]
+
+[comment ********************************************************************************/]
+[comment liste des templates abstraits destinés à etre implémentés dans les modules fils./]
+[comment ********************************************************************************/]
+[template protected genServiceImpl(s : soa::Service)][/template]
+[template protected genServiceInImpl(s : soa::Service)][/template]
+  
+  
+

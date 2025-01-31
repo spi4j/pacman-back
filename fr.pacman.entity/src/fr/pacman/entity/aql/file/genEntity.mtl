@@ -1,0 +1,26 @@
+[module genEntity('http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]	
+[import fr::pacman::core::aql::name::classes/]	
+[import fr::pacman::core::aql::name::packages/]	
+[import fr::pacman::core::aql::output::resources/]
+
+[comment écriture du fichier d'implémentation pour l'entité./]
+[template public fileEntityImpl(e: entity::Entity, body : String)]
+  [file (e.nameClassEntityImpl().toFileJava(e.namePackageEntityImpl()), overwrite, e.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'interface pour l'entité./]
+[template public fileEntityItf(e : entity::Entity, body : String)]
+  [file (e.nameClassEntityItf().toFileJava(e.namePackageEntityItf()), overwrite, e.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'interface pour le dao de l'entité./]
+[template public fileEntityDaoItf(e : entity::Entity, body : String)]
+  [file (e.nameClassEntityDaoItf().toFileJava(e.namePackageEntityDaoItf()), overwrite, e.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour le dao de l'entité./]
+[template public fileEntityDaoImpl(e : entity::Entity, body : String)]
+  [file (e.nameClassEntityDaoImpl().toFileJava(e.namePackageEntityDaoImpl()), overwrite, e.defaultFileEncoding())][body/][/file]
+[/template]

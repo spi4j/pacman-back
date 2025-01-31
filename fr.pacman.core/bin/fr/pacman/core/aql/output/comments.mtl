@@ -1,0 +1,90 @@
+[comment encoding = UTF-8 /]
+[module comments(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::operation/]
+[import fr::pacman::core::aql::rule::parameter/]
+
+[import fr::pacman::core::property::project::ProjectProperties/]
+
+[comment ./]
+[template public commentMultiLines(s : String)]
+  [if (s.exists())]
+    /**
+     * [s/].
+     */
+   [/if]
+[/template]
+
+[comment ./]
+[template public commentSingleLine(s : String)]
+  [if (s.exists())]
+    /** [s/]. */
+  [/if]
+[/template]
+
+[comment ./]
+[template public commentGet(s : String)]
+  [if (s.exists())]
+    /** [s/]. */
+  [/if]
+[/template]
+
+[comment ./]
+[template public commentSet(s : String)]
+  [if (s.exists())]
+    /** [s/]. */
+  [/if]
+[/template]
+
+[comment ./]
+[template public commentClass(any :: environment::ObeoDSMObject)]
+  /**
+   * [any.writeDescription()/]
+   *
+   * @Author [any.get_authorName()/]
+   */
+[/template]
+
+[comment ./]
+[template public commentInterface(any :: environment::ObeoDSMObject)]
+  /**
+   * [any.writeDescription()/]
+   * 
+   * @Author [any.get_authorName()/]
+   */
+[/template]
+
+[comment ./]
+[template public commentOperation(o : soa::Operation)]
+  [if (o.exists())]
+    /**
+     * [if (o.description.exists())][o.description.escapeComment()/][else][o.cNoDescription()/][/if].
+     * 
+     [for (p : soa::Parameter | o.input)]
+       [p.writeParam()/]
+     [/for]
+     *
+     [if (o.hasOutputParam())]
+       [o.writeReturn()/]
+     [/if]
+     */
+  [/if]
+[/template]
+
+[comment ./]
+[query private writeDescription(any :: environment::ObeoDSMObject) : String = if(any.description.exists()) then 
+   (any.description.escapeComment() + '.').lineCut(130, ' ') else any.cNoDescription() endif/]
+
+[comment ./]
+[query private writeParam(p : soa::Parameter) : String = '* @param ' + p.name().apply_parameterMethodClassicIn() 
+  + ' : ' + if(p.description.exists()) then p.description.escapeComment() else p.cNoDescription() endif + '.'/]
+
+[comment ./]
+[query private writeReturn(o : soa::Operation) : String = '* @return ' + o.outputParamType() + ' : ' 
+  + if (o.outputParam().description.exists()) then o.outputParam().description.escapeComment() 
+  else o.cNoDescription() endif + '.'/]

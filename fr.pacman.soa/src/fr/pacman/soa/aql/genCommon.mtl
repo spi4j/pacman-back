@@ -1,0 +1,34 @@
+[module genCommon(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::soa::aql::file::genDto/]
+[import fr::pacman::soa::aql::file::genServiceCommon/]
+[import fr::pacman::soa::aql::block::dto/]
+[import fr::pacman::soa::spring::aql::block::serviceCommon/]
+
+[comment écriture des classes et fichiers soa pour la partie métier de l'application cible./]
+[template protected genCommon(m : soa::System)]
+  [for (d : environment::DTO | m.eAllContents(environment::DTO))]
+  	[d.fileDtoImpl(d.genDtoImpl())/]
+  [/for]
+  [for (s : soa::Service | m.eAllContents(soa::Service))]
+  	[s.fileServiceImpl(s.genServiceImpl())/]
+  	[s.fileServiceOutItf(s.genServiceOutItf())/]
+  	[s.fileServiceInItf(s.genServiceInItf())/]
+  [/for]
+[/template]
+
+[comment écriture de l'implémentation pour un objet métier./]
+[template private genDtoImpl(d : environment::DTO)][d.implementation()/][/template]
+    
+[comment écriture de la partie interface service métier (métier -> application)./]
+[template protected genServiceOutItf(s : soa::Service)][s.interfaceOut()/][/template]
+  
+[comment écriture de la partie interface service persistance (métier -> infrastructure)./]
+[template protected genServiceInItf(s : soa::Service)][s.interfaceIn()/][/template]
+  
+[comment ********************************************************************************/]
+[comment liste des templates abstraits destinés à etre implémentés dans les modules fils./]
+[comment ********************************************************************************/]
+[template protected genServiceImpl(s : soa::Service)][/template]
+

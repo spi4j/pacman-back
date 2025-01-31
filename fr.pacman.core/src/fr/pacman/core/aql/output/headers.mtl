@@ -1,0 +1,81 @@
+[module headers(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[comment 	écriture des importations par défaut pour une classe Java. 
+			Tous les imports non utilisés seront supprimés par l'organisation 
+			automatique de l'IDE./]
+
+[import fr::pacman::core::aql::base /]
+[import fr::pacman::core::aql::string /]
+[import fr::pacman::core::aql::name::classes /]
+[import fr::pacman::core::aql::name::packages /]
+[import fr::pacman::core::aql::name::eobjects /]
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::aql::output::licences /]
+[import fr::pacman::core::property::project::ProjectProperties/]
+
+[comment écriture des imports par défaut./]
+[template public defaultsImports(any : ecore::EObject)]
+  import java.util.List;
+  import java.util.Arrays;
+  import java.util.ArrayList;
+  import java.util.Collections;
+  import java.time.Instant;
+  import java.time.LocalDate;
+  import java.time.LocalTime;
+  import java.util.stream.Collectors;
+  import java.util.Optional;
+  import java.util.LinkedHashMap;
+  import java.util.Map;
+  import [any.get_projectPackage()/].[any.namePackageType()/].[any.nameTypeBinary().nameClassType()/];
+[/template]
+
+[comment 	écriture des imports spécifiques pour la classe, on essaye de trouver le maximum des imports 
+ 			issus de la modélisation, ces imports peuvent provenir des attributs, des références, etc.../]
+[template public defaultImports(any : ecore::EObject)]
+  [comment protected ('for imports') startTagPrefix('// ') endTagPrefix('// ')/]
+  [any.defaultsImports()/]
+  [if (any.mustCheckModeledImports())]
+  [for (o : environment::ObeoDSMObject | any.eAllContents(environment::ObeoDSMObject))]
+    [if (o.oclIsKindOf(environment::Attribute))]
+      [if (o.type.oclIsTypeOf(environment::Enumeration))]
+        import [o.type.oclAsType(environment::Enumeration).namePackageEnumeration()
+          .package(o.type.oclAsType(environment::Enumeration).nameClassEnumeration())/]
+      [/if]
+      [if (o.type.oclIsTypeOf(entity::Entity))]
+        import [o.type/]
+      [/if]
+    [/if]
+    [if (o.oclIsKindOf(soa::Parameter))]
+      [if (o.type.oclIsTypeOf(entity::Entity))]
+        import [o.type.oclAsType(entity::Entity).namePackageEntityImpl()
+          .package(o.type.oclAsType(entity::Entity).nameClassEntityImpl())/]
+      [/if]
+      [if (o.type.oclIsTypeOf(environment::DTO))]
+        import [o.type.oclAsType(environment::DTO).namePackageDtoImpl()
+          .package(o.type.oclAsType(environment::DTO).nameClassDtoImpl())/]
+      [/if]
+    [/if]
+  [/for][/if]
+[/template]
+
+[comment vérifie si l'objet permet d'effectuer une recherche sur ses imports éventuellement modélisés./]
+[query private mustCheckModeledImports(any : ecore::EObject) : Boolean = any.oclIsTypeOf(entity::Entity) or any.oclIsTypeOf(soa::Service) 
+  or any.oclIsTypeOf(environment::DTO)/]
+
+[comment écriture des lignes d'en-tête pour une classe (licence + ligne de package + les imports de base)./]
+[query public classHeader(any : ecore::EObject, pkg : String) : String = any.licence() + pkg.package() 
+ + any.lineSeparator() + any.lineSeparator() + any.defaultImports()/]
+
+[comment écriture de la ligne d'import du package pour une classe Java./]
+[query private package(pkg : String, c : String) : String = (pkg.get_projectPackage() + '.' + pkg).toPackage() + '.' + c + ';'/]
+
+[comment écriture de la ligne de package pour une classe Java./]
+[query public package(pkg : String) : String = 'package ' + (pkg.get_projectPackage() + if(pkg.exists()) then '.' + pkg else '' endif).toPackage() + ';'/]
+
+[comment écriture de la ligne d'import pour une implémentation d'entité issue de la modélisation./]
+[query public importImpl(e : entity::Entity) : String = 'import ' + e.namePackageEntityImpl().package(e.nameClassEntityImpl())/]
+
+[comment écriture de la ligne d'import pour une interface d'entité issue de la modélisation./]
+[query public importItf(e : entity::Entity) : String = 'import ' + e.namePackageEntityItf().package(e.nameClassEntityItf())/]

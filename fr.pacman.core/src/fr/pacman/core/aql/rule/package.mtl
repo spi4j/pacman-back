@@ -1,0 +1,25 @@
+[module package(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::convention::ApplyNorme/]
+
+[comment ./]
+[query public apply_packageApi(value : String) : String = value.norme_packageApi()/]
+
+[comment ./]
+[query public apply_packageImplemJdbc(value : String) : String = value.norme_packageImplemJdbc()/]
+
+[comment ./]
+[query public apply_packageImplemServer(value : String) : String = value.norme_packageImplemServer()/]
+
+[comment ./]
+[query public apply_packageMatching(value : String) : String = value.norme_packageMatching()/]
+
+[comment ./]
+[query public apply_packagePersistence(value : String) : String = value.norme_packagePersistence()/]
+
+[comment ./]
+[query public apply_packageBusiness(value : String) : String = value.norme_packageBusiness()/]
+
+[comment ./]
+[query public apply_packageRequirement(value : String) : String = value.norme_packageRequirement()/]
+

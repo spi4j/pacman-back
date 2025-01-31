@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ASCII"?>
+<oent:Root xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oent="http://www.obeonetwork.org/dsl/entity/3.0.0" xmi:id="_MPObEKfnEe-v4fvF-cv85g" technicalid="_MPNM8KfnEe-v4fvF-cv85g" createdOn="2024-11-21T10:01:27.231+0100" modifiedOn="2024-11-26T16:13:42.478+0100">
+  <ownedNamespaces xmi:id="__novAagTEe-v4fvF-cv85g" technicalid="__novAKgTEe-v4fvF-cv85g" description="Namespace pour tester l'ensemble des cas possibles dans le cadre de relations de type 'simple direction'." createdOn="2024-11-21T15:22:09.905+0100" modifiedOn="2024-11-22T14:46:51.470+0100" name="relationsSimples">
+    <types xsi:type="oent:Entity" xmi:id="_-KCdsKgVEe-v4fvF-cv85g" technicalid="_-KB2oKgVEe-v4fvF-cv85g" description="Table A1" createdOn="2024-11-21T15:36:19.083+0100" modifiedOn="2024-11-22T15:20:47.312+0100" name="RS_R_Entity_1A">
+      <ownedReferences xmi:id="_Gvw9YagWEe-v4fvF-cv85g" technicalid="_Gvw9YKgWEe-v4fvF-cv85g" description="Relation 0..1" createdOn="2024-11-21T15:37:16.726+0100" modifiedOn="2024-12-03T16:16:12.628+0100" name="relation1" referencedType="__7TnAagVEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="__7TnAagVEe-v4fvF-cv85g" technicalid="__7TnAKgVEe-v4fvF-cv85g" description="Table B1" createdOn="2024-11-21T15:36:30.960+0100" modifiedOn="2024-11-22T15:20:42.459+0100" name="RS_R_Entity_1B"/>
+    <types xsi:type="oent:Entity" xmi:id="_KrfzIagWEe-v4fvF-cv85g" technicalid="_KrfzIKgWEe-v4fvF-cv85g" description="Table A2" createdOn="2024-11-21T15:37:43.122+0100" modifiedOn="2024-11-22T15:21:30.649+0100" name="RS_R_Entity_2A">
+      <ownedReferences xmi:id="_Mpph4agWEe-v4fvF-cv85g" technicalid="_Mpph4KgWEe-v4fvF-cv85g" description="Relation 1" createdOn="2024-11-21T15:37:56.350+0100" modifiedOn="2024-11-21T15:42:28.733+0100" name="relation2" multiplicity="1" referencedType="_K9-qQagWEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_K9-qQagWEe-v4fvF-cv85g" technicalid="_K9-qQKgWEe-v4fvF-cv85g" description="Table B2" createdOn="2024-11-21T15:37:45.060+0100" modifiedOn="2024-11-22T15:21:26.602+0100" name="RS_R_Entity_2B"/>
+    <types xsi:type="oent:Entity" xmi:id="_QXvkQagWEe-v4fvF-cv85g" technicalid="_QXvkQKgWEe-v4fvF-cv85g" description="Table A3" createdOn="2024-11-21T15:38:21.316+0100" modifiedOn="2024-11-22T15:21:49.767+0100" name="RS_R_Entity_3A">
+      <ownedReferences xmi:id="_UELZwagWEe-v4fvF-cv85g" technicalid="_UELZwKgWEe-v4fvF-cv85g" description="Relation 0..*" createdOn="2024-11-21T15:38:46.108+0100" modifiedOn="2024-11-21T15:42:37.577+0100" name="relation3" multiplicity="0..*" referencedType="_Ro6RMagWEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_Ro6RMagWEe-v4fvF-cv85g" technicalid="_Ro6RMKgWEe-v4fvF-cv85g" description="Table B3" createdOn="2024-11-21T15:38:29.827+0100" modifiedOn="2024-11-22T15:21:35.043+0100" name="RS_R_Entity_3B"/>
+    <types xsi:type="oent:Entity" xmi:id="_XUDPEagWEe-v4fvF-cv85g" technicalid="_XUDPEKgWEe-v4fvF-cv85g" description="Table A4" createdOn="2024-11-21T15:39:07.905+0100" modifiedOn="2024-11-22T15:21:44.485+0100" name="RS_R_Entity_4A">
+      <ownedReferences xmi:id="_ctdjwagWEe-v4fvF-cv85g" technicalid="_ctdjwKgWEe-v4fvF-cv85g" description="Relation 1..*" createdOn="2024-11-21T15:39:44.124+0100" modifiedOn="2024-11-22T14:51:38.223+0100" name="relation4" multiplicity="1..*" referencedType="_aXEUIagWEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_aXEUIagWEe-v4fvF-cv85g" technicalid="_aXEUIKgWEe-v4fvF-cv85g" description="Table B4" createdOn="2024-11-21T15:39:28.354+0100" modifiedOn="2024-11-22T15:21:40.404+0100" name="RS_R_Entity_4B"/>
+    <types xsi:type="oent:Entity" xmi:id="_64NrIagWEe-v4fvF-cv85g" technicalid="_64NrIKgWEe-v4fvF-cv85g" description="Table C1" createdOn="2024-11-21T15:43:06.578+0100" modifiedOn="2024-11-22T15:21:08.164+0100" name="RS_C_Entity_1A">
+      <ownedReferences xmi:id="_VE3lQagXEe-v4fvF-cv85g" technicalid="_VE3lQKgXEe-v4fvF-cv85g" description="Composition 0..1" createdOn="2024-11-21T15:46:02.388+0100" modifiedOn="2024-11-21T15:47:27.326+0100" name="compo1" isComposite="true" referencedType="_KBD5lKgXEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_8pyWcagWEe-v4fvF-cv85g" technicalid="_8RTlAqgWEe-v4fvF-cv85g" description="Table C2" createdOn="2024-11-21T15:43:06.578+0100" modifiedOn="2024-11-22T15:21:14.249+0100" name="RS_C_Entity_2A">
+      <ownedReferences xmi:id="_VnRuwagXEe-v4fvF-cv85g" technicalid="_VnRuwKgXEe-v4fvF-cv85g" description="Composition 1" createdOn="2024-11-21T15:46:05.996+0100" modifiedOn="2024-11-21T15:47:33.741+0100" name="compo2" multiplicity="1" referencedType="_KBD5lagXEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_9C1IkagWEe-v4fvF-cv85g" technicalid="_8RTlAqgWEe-v4fvF-cv85g" description="Table C3" createdOn="2024-11-21T15:43:06.578+0100" modifiedOn="2024-11-22T15:22:11.439+0100" name="RS_C_Entity_3A">
+      <ownedReferences xmi:id="_WF3vQagXEe-v4fvF-cv85g" technicalid="_WF3vQKgXEe-v4fvF-cv85g" description="Composition 0..*" createdOn="2024-11-21T15:46:09.204+0100" modifiedOn="2024-11-21T15:47:44.662+0100" name="compo3" multiplicity="0..*" referencedType="_KBD5lqgXEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_9bvX0agWEe-v4fvF-cv85g" technicalid="_8RTlAqgWEe-v4fvF-cv85g" description="Table C4" createdOn="2024-11-21T15:43:06.578+0100" modifiedOn="2024-11-22T15:22:16.389+0100" name="RS_C_Entity_4A">
+      <ownedReferences xmi:id="_WvEdQagXEe-v4fvF-cv85g" technicalid="_WvEdQKgXEe-v4fvF-cv85g" description="Composition 1..*" createdOn="2024-11-21T15:46:13.524+0100" modifiedOn="2024-11-21T15:47:53.445+0100" name="compo4" multiplicity="1..*" referencedType="_KBD5l6gXEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_KBD5lKgXEe-v4fvF-cv85g" technicalid="_JmwjOKgXEe-v4fvF-cv85g" description="Table D1 " createdOn="2024-11-21T15:43:06.578+0100" modifiedOn="2024-11-22T15:20:58.974+0100" name="RS_C_Entity_1B"/>
+    <types xsi:type="oent:Entity" xmi:id="_KBD5lagXEe-v4fvF-cv85g" technicalid="_JmwjOagXEe-v4fvF-cv85g" description="Table D2" createdOn="2024-11-21T15:43:06.578+0100" modifiedOn="2024-11-22T15:21:19.448+0100" name="RS_C_Entity_2B"/>
+    <types xsi:type="oent:Entity" xmi:id="_KBD5lqgXEe-v4fvF-cv85g" technicalid="_JmwjOqgXEe-v4fvF-cv85g" description="Table D3" createdOn="2024-11-21T15:43:06.578+0100" modifiedOn="2024-11-22T15:21:58.073+0100" name="RS_C_Entity_3B"/>
+    <types xsi:type="oent:Entity" xmi:id="_KBD5l6gXEe-v4fvF-cv85g" technicalid="_JmwjO6gXEe-v4fvF-cv85g" description="Table D4" createdOn="2024-11-21T15:43:06.578+0100" modifiedOn="2024-11-22T15:22:03.100+0100" name="RS_C_Entity_4B"/>
+    <types xsi:type="oent:Entity" xmi:id="_wtCbIagXEe-v4fvF-cv85g" technicalid="_wtCbIKgXEe-v4fvF-cv85g" description="Table E1" createdOn="2024-11-21T15:49:07.794+0100" modifiedOn="2024-11-22T15:22:21.733+0100" name="RS_H_Entity_1A"/>
+    <types xsi:type="oent:Entity" xmi:id="_xZlYEagXEe-v4fvF-cv85g" technicalid="_xZlYEKgXEe-v4fvF-cv85g" description="Table E11" createdOn="2024-11-21T15:49:12.465+0100" modifiedOn="2024-11-22T15:22:25.649+0100" name="RS_H_Entity_1B" supertype="_wtCbIagXEe-v4fvF-cv85g"/>
+    <types xsi:type="oent:Entity" xmi:id="_6XGFoagXEe-v4fvF-cv85g" technicalid="_6XGFoKgXEe-v4fvF-cv85g" createdOn="2024-11-21T15:50:12.602+0100" modifiedOn="2024-11-22T15:22:30.370+0100" name="RS_H_Entity_1C" supertype="_wtCbIagXEe-v4fvF-cv85g"/>
+  </ownedNamespaces>
+</oent:Root>

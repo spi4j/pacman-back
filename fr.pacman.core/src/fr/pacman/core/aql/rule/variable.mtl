@@ -1,0 +1,22 @@
+[module variable(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::convention::ApplyNorme/]
+
+[comment applique le nom final pour une variable par défaut./]
+[query public apply_variableDefault(value : String) : String = value.norme_variableDefault()/]
+
+[comment applique le nom final pour une variable multiple par défaut./]
+[query public apply_variableMultipleDefault(value : String) : String = value.norme_variableMultipleDefault()/]
+
+[comment applique le nom final pour une variable de type map./]
+[query public apply_variableMultipleMap(value : String) : String = value.norme_variableMultipleMap()/]
+
+[comment applique le nom final pour une variable avec modificateur final./]
+[query public apply_variableFinal(value : String) : String = value.norme_variableFinal()/]
+
+[comment ./]
+[query public apply_variableObjectDefault(value : String) : String = value.norme_variableObjectDefault()/]
+
+[comment ./]
+[query public apply_variableObjectFinal(value : String) : String = value.norme_variableObjectFinal()/]
+

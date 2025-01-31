@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="ASCII"?>
+<oent:Root xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oent="http://www.obeonetwork.org/dsl/entity/3.0.0" xmlns:oenv="http://www.obeonetwork.org/dsl/environment/3.0.0" xmi:id="_MPObEKfnEe-v4fvF-cv85g" technicalid="_MPNM8KfnEe-v4fvF-cv85g" createdOn="2024-11-21T10:01:27.231+0100" modifiedOn="2024-11-26T16:13:19.567+0100">
+  <ownedNamespaces xmi:id="_LTgQgaglEe-v4fvF-cv85g" technicalid="_LTgQgKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:25:09.768+0100" modifiedOn="2024-11-22T16:23:03.890+0100" name="attributs">
+    <types xsi:type="oent:Entity" xmi:id="_N8uVgaglEe-v4fvF-cv85g" technicalid="_N8uVgKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:25:27.512+0100" modifiedOn="2024-11-21T17:36:37.964+0100" name="EntityMultiplicity">
+      <ownedAttributes xmi:id="_PfvncaglEe-v4fvF-cv85g" technicalid="_PfvncKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:25:37.895+0100" modifiedOn="2024-11-21T17:25:49.404+0100" name="attribute1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_R-0R8aglEe-v4fvF-cv85g" technicalid="_R-0R8KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:25:54.575+0100" modifiedOn="2024-11-21T17:26:03.091+0100" name="attribute2" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_SkqxAaglEe-v4fvF-cv85g" technicalid="_SkqxAKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:25:58.544+0100" modifiedOn="2024-11-21T17:26:06.438+0100" name="attribute3" multiplicity="0..*">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_SpUAcaglEe-v4fvF-cv85g" technicalid="_SpUAcKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:25:59.031+0100" modifiedOn="2024-11-21T17:26:10.085+0100" name="attribute4" multiplicity="1..*">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_WTdW8aglEe-v4fvF-cv85g" technicalid="_WTdW8KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:26:23.583+0100" modifiedOn="2024-11-21T17:36:44.202+0100" name="EntityType">
+      <ownedAttributes xmi:id="_Xbxp4aglEe-v4fvF-cv85g" technicalid="_Xbxp4KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:26:31.166+0100" modifiedOn="2024-11-21T17:30:14.372+0100" name="attributeBinary">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_SKJz0PsREeWC2u5kehASiQ"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_XgIlcaglEe-v4fvF-cv85g" technicalid="_XgIlcKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:26:31.623+0100" modifiedOn="2024-11-21T17:30:19.733+0100" name="attributeBollean">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5FXAqwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_XlPH4aglEe-v4fvF-cv85g" technicalid="_XlPH4KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:26:32.158+0100" modifiedOn="2024-11-21T17:30:31.255+0100" name="attributeDate">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-E6wKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_XqNHcaglEe-v4fvF-cv85g" technicalid="_XqNHcKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:26:32.679+0100" modifiedOn="2024-11-21T17:30:37.153+0100" name="attributeDouble">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_Xvny8aglEe-v4fvF-cv85g" technicalid="_Xvny8KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:26:33.247+0100" modifiedOn="2024-11-21T17:30:44.988+0100" name="attributeFloat">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5GlIKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_X2774aglEe-v4fvF-cv85g" technicalid="_X2774KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:26:34.014+0100" modifiedOn="2024-11-21T17:30:50.778+0100" name="attributeInteger">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5FXAawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_X_aicaglEe-v4fvF-cv85g" technicalid="_X_aicKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:26:34.903+0100" modifiedOn="2024-11-21T17:30:55.970+0100" name="attributeLong">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_9dnH8bGqEd2SRpTkL4GntA"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_dYe44aglEe-v4fvF-cv85g" technicalid="_dYe44KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:27:11.086+0100" modifiedOn="2024-11-21T17:31:10.244+0100" name="attributeString">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_dev48aglEe-v4fvF-cv85g" technicalid="_dev48KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:27:11.743+0100" modifiedOn="2024-11-21T17:31:01.653+0100" name="attributeTime">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_rWTrcTwHEeiOd8zmfAzmGQ"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_dkn3caglEe-v4fvF-cv85g" technicalid="_dkn3cKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:27:12.359+0100" modifiedOn="2024-11-21T17:31:19.285+0100" name="attributeTimestamp">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_rGXK8DwHEeiOd8zmfAzmGQ"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_2Ghf8aglEe-v4fvF-cv85g" technicalid="_2Ghf8KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:29:56.975+0100" modifiedOn="2024-11-21T17:31:24.741+0100" name="attributeEnum" type="_kdrZ8aglEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:Enumeration" xmi:id="_kdrZ8aglEe-v4fvF-cv85g" technicalid="_kdrZ8KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:27:58.607+0100" modifiedOn="2024-11-21T17:28:09.423+0100" name="Enum3">
+      <literals xmi:id="_laBtcaglEe-v4fvF-cv85g" technicalid="_laBtcKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:28:04.935+0100" modifiedOn="2024-11-21T17:29:43.669+0100" name="123456789"/>
+      <literals xmi:id="_l1RfAaglEe-v4fvF-cv85g" technicalid="_l1RfAKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:28:07.792+0100" modifiedOn="2024-11-21T17:28:35.141+0100" name="court"/>
+      <literals xmi:id="_l-MKcaglEe-v4fvF-cv85g" technicalid="_l-MKcKglEe-v4fvF-cv85g" createdOn="2024-11-21T17:28:08.727+0100" modifiedOn="2024-11-21T17:28:43.219+0100" name="moyen1"/>
+      <literals xmi:id="_mE098aglEe-v4fvF-cv85g" technicalid="_mE098KglEe-v4fvF-cv85g" createdOn="2024-11-21T17:28:09.424+0100" modifiedOn="2024-11-21T17:29:28.612+0100" name="trestrestrestreslong"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_GiUkAagmEe-v4fvF-cv85g" technicalid="_GiUkAKgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:31:47.264+0100" modifiedOn="2024-11-21T17:36:58.508+0100" name="EntityIdentifier">
+      <ownedAttributes xmi:id="_HPUz8agmEe-v4fvF-cv85g" technicalid="_HPUz8KgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:31:51.983+0100" modifiedOn="2024-11-21T17:32:17.339+0100" name="attributeIdentifier" isIdentifier="true">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_HT05cagmEe-v4fvF-cv85g" technicalid="_HT05cKgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:31:52.455+0100" modifiedOn="2024-11-21T17:32:06.747+0100" name="attributeNormal">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_NLa-8agmEe-v4fvF-cv85g" technicalid="_NLa-8KgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:32:31.839+0100" modifiedOn="2024-11-21T17:36:20.355+0100" name="EntityConstraintData">
+      <ownedAttributes xmi:id="_N5bUcagmEe-v4fvF-cv85g" technicalid="_N5bUcKgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:32:36.663+0100" modifiedOn="2024-11-21T17:35:02.553+0100" name="attributeString" maximum="100" minimum="1" pattern="[a..A]">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_N9sJYagmEe-v4fvF-cv85g" technicalid="_N9sJYKgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:32:37.110+0100" modifiedOn="2024-11-21T17:34:56.616+0100" name="attributeDouble" maximum="222" minimum="2">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_OCvBcagmEe-v4fvF-cv85g" technicalid="_OCvBcKgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:32:37.639+0100" modifiedOn="2024-11-21T17:34:48.997+0100" name="attributeFloat" maximum="333" minimum="3">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5GlIKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_OMHm8agmEe-v4fvF-cv85g" technicalid="_OMHm8KgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:32:38.623+0100" modifiedOn="2024-11-21T17:35:07.753+0100" name="attributeInterger" maximum="444" minimum="4">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5FXAawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_k21rYagmEe-v4fvF-cv85g" technicalid="_k21rYKgmEe-v4fvF-cv85g" createdOn="2024-11-21T17:35:10.742+0100" modifiedOn="2024-11-21T17:35:29.859+0100" name="attributeLong" maximum="555" minimum="5">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_9dnH8bGqEd2SRpTkL4GntA"/>
+      </ownedAttributes>
+    </types>
+  </ownedNamespaces>
+</oent:Root>

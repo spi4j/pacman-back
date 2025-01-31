@@ -1,0 +1,27 @@
+[module class(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::string/]
+[import fr::pacman::core::convention::ApplyNorme/]
+
+[comment penser à supprimer le normalize qui normallement est déjà effectué./]
+
+[comment applique le nom final pour une classe java par défaut./]
+[query public apply_classDefault(value : String) : String = value.normalize().norme_classDefault()/]
+
+[comment applique le nom final pour une annotation./]
+[query public apply_classAnnotation(value : String) : String = value.normalize().norme_classAnnotation()/]
+
+[comment applique le nom final pour une classe abstraite./]
+[query public apply_classAbstract(value : String) : String = value.normalize().norme_classAbstract()/]
+
+[comment applique le nom final pour une classe d'énumération./]
+[query public apply_classEnum(value : String) : String = value.normalize().norme_classEnum()/]
+
+[comment applique le nom final pour une classe d'implémentation./]
+[query public apply_classImplem(value : String) : String = value.normalize().norme_classImplem()/]
+
+[comment applique le nom final pour une classe d'interface./]
+[query public apply_classInterface(value : String) : String = value.normalize().norme_classInterface()/]
+
+[comment applique le nom final pour une classe de test./]
+[query public apply_classTest(value : String) : String = value.normalize().norme_classTest()/]

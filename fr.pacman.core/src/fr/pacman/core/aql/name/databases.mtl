@@ -1,0 +1,170 @@
+[module databases(	'http://www.obeonetwork.org/dsl/environment/3.0.0',
+					'http://www.obeonetwork.org/dsl/entity/3.0.0', 'http://www.eclipse.org/emf/2002/Ecore')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::aql::query::database/]
+[import fr::pacman::core::aql::query::property/]
+
+[import fr::pacman::core::service::MandatoryUtils/]
+[import fr::pacman::core::service::DatabaseUtils/]
+[import fr::pacman::core::service::AnnotationUtils/]
+
+[import fr::pacman::core::property::project::ProjectProperties/]
+					
+[comment 	retourne les noms de toutes les ressources spécifiques aux bases de données (hors classe Java).
+			Comme les nom des ressources (noms de tables, des clés, des indexs, etc.. sont dépendants des 
+			de tailles qui sont calculées en fonction du type de la base de données, toutes les queries pour 
+			le calcul des tailles sont donc aussi présentes dans ce fichier).
+			
+			idx : rIndex (ligne)
+			cpt : compteur de 
+			/]	
+
+[comment taille maximum pour le nom de la séquence SQL./]
+[query public maxSequenceSize(e : entity::Entity) : Integer = e.maxTableSize() - 4/]
+
+[comment taille maximum pour le nom de la clé étrangère SQL./]
+[query public maxColumnPKSize(any : ecore::EObject) : Integer = 0.maxSize(3)/]
+
+[comment taille maximum pour le nom de la table SQL./]
+[query public maxTableSize(e : entity::Entity) : Integer = e.namePrefixTable().size().maxSize(0)/]
+
+[comment taille maximum pour le nom de l'index SQL./]
+[query public maxIndexSize(any : ecore::EObject) : Integer = 0.maxSize(8)/]
+
+[comment taille maximum pour le nom de la contrainte SQL./]
+[query public maxConstraintSize(any : ecore::EObject) : Integer = 0.maxSize(7)/]
+
+[comment taille maximum pour le nom des jointures SQL./]
+[query public maxJointureSize(any : ecore::EObject) : Integer = 0.maxSize(6)/]
+
+[comment taille maximum pour le nom des colonnes SQL. /]
+[query public maxColumnSize(any : ecore::EObject) : Integer = 0.maxSize(0)/]
+
+[comment taille maximum pour le nom des colonnes de ref SQL. /]
+[query public maxColumnReferenceSize(any : ecore::EObject) : Integer = 0.maxSize(0)/]
+
+[comment calcul de la taille maximale en fonction de la base de données et de la cible./]
+[query private maxSize(px : Integer, p_sx : Integer) : Integer = px.do_calcMaxSize(p_sx)/]
+  
+[comment retourne le nom du fichier pour le script de création des tables SQL./]
+[query public nameScriptCreate(any : ecore::EObject, dbType : String) : String = any.prefixSqlScriptCreate() + any.nameProject() + '_' + dbType/]
+
+[comment retourne le nom du fichier pour le script de suppression des tables SQL./]
+[query public nameScriptDrop(any : ecore::EObject, dbType : String) : String = any.prefixSqlScriptDrop() + any.nameProject() + '_' + dbType/]
+
+[comment retourne le nom du fichier pour le script d'initialisation des tables SQL./]
+[query public nameScriptInit(any : ecore::EObject, dbType : String) : String = any.prefixSqlScriptInit() + any.nameProject() + '_' + dbType/]
+
+[comment retourne le nom complet pour le préfixe des tables (si existe)./]
+[query public namePrefixTable (any : ecore::EObject): String = if (any.prefixTable().exists()) then any.prefixTable() + '_' else '' endif/]
+
+[comment retourne le nom complet pour le nom du schéma (si existe)./]
+[query public namePrefixSchema (any : ecore::EObject): String = if (any.prefixTableSchema().exists()) then any.prefixTableSchema() + '.' else '' endif/]
+
+[comment retourne le nom d'en-tete complet pour une table SQL à afficher (avec le schéma si existe)./]  
+[query public nameTableHeader(e : entity::Entity) : String = e.prefixSqlTableHeader() + e.namePrefixSchema() + e.nameTable()/]
+
+[comment retourne le nom d'en-tete complet pour une table de liaison (0-1,*) SQL à afficher (avec le schéma si existe)./]  
+[query public nameTableHeaderJoin(r : environment::Reference) : String = r.prefixSqlTableHeaderJoin() + r.namePrefixSchema() + r.nameTableJoin()/]
+
+[comment retourne le nom physique (si existe) ou le nom direct de l'entité pour la couche de persistance (avec préfixe si existe)./]
+[query public nameTable(e : entity::Entity) : String =  e.namePrefixTable() + (if e.has_metaPhysicalName() then e.get_metaPhysicalName() else e.name endif).sanitizeSql()/]
+
+[comment retourne le nom physique court (ou direct) pour une table SQL (avec préfixe si existe)./]
+[query public nameTableShort(e : entity::Entity) : String = if e.has_metaPhysicalShortname() then e.get_metaPhysicalShortname().sanitizeSql() else e.nameTable() endif/]
+ 
+[comment retourne le nom pour une table SQL (avec préfixe et schéma si existent)./]
+[query public nameTableSchema(e : entity::Entity) : String = e.namePrefixSchema() + e.nameTable()/]   
+
+[comment retourne le nom physique (si existe) de la table de référence dans le cas de relation (*,*) (avec préfixe si existe)./]
+[query public nameTableJoin(r : environment::Reference) : String = if r.has_metaPhysicalName() then  r.namePrefixTable() + r.get_metaPhysicalName().sanitizeSql() 
+	else r.containingType.oclAsType(entity::Entity).nameTable() + r.name.sanitizeSql() endif/] 
+
+[comment retourne le nom physique (ou direct) de la table de jointure (avec le préfixe et le schéma si existent) dans le cas de relation (n-n)./]
+[query public nameTableSchemaJoin(r : environment::Reference) : String = r.namePrefixSchema() + r.nameTableJoin()/]
+
+[comment retourne le nom de la clé principale pour l'entité (avec préfixe si existe)./]
+[query public namePrimaryKey(e : entity::Entity) : String =  (if e.ownedAttributes->exists(a | a.isIdentifier)) then e.namePrefixTable() + 
+	e.ownedAttributes->select(a | a.isIdentifier)->asSequence()->collect(o | o.nameColumn())->first() else e.nameDefaultPrimaryKey() endif/] 
+
+[comment retourne le nom de la clé principale par défaut si aucun attribut n'a été déclaré en tant que clé./]
+[query private nameDefaultPrimaryKey(e : entity::Entity) : String =  e.nameTable().first(e.maxColumnPKSize()) + e.suffixSqlId()/]
+
+[comment retourne le nom de la colonne pour l'attribut dans l'entité./]
+[query public nameColumn(a : environment::Attribute) : String = a.nameAttribut().first(a.maxColumnSize())/] 
+
+[comment retourne le nom physique de l'attribut (si existe) ou le nom direct pour la couche de persistance./]
+[query public nameAttribut(a: environment::Attribute) : String = (if a.has_metaPhysicalName() then a.get_metaPhysicalName() else a.name endif).sanitizeSql()/]
+
+[comment retourne le nom physique pour la référence (referencing / referenced) (avec préfixe si existe) ou xxxx./]
+[query public nameReference(r : environment::Reference, any : environment::StructuredType, idx : Integer) : String =  if r.has_metaPhysicalName() then r.namePrefixTable() + r.get_metaPhysicalName()
+	.sanitizeSql() else any.oclAsType(entity::Entity).nameTable().first(r.defaultMaxHalfSqlColumnReferenceSize()) + if (idx <> null and idx > 0) then '_' + idx else '' endif endif/]
+	
+[comment retourne le nom complet de la séquence pour l'entité (avec préfixe et schéma si existent)./]
+[query public nameSequence(e : entity::Entity) : String = e.namePrefixSchema() + e.nameTable().first(e.maxSequenceSize()) + e.suffixSqlSequence()/]
+
+[comment retourne le nom de l'index pour la colonne dans l'entité./]
+[query public nameIndex(r : environment::Reference, idx : Integer) : String = if (r.isMultiple()) then r.nameIndex(r.referencedType, idx) else r.nameIndex(r.containingType, idx)  endif/]
+
+[comment retourne le nom de l'index pour la référence (avec le préfixe de table)./]
+[query private nameIndex(r : environment::Reference, e : environment::StructuredType , idx : Integer) : String = e.oclAsType(entity::Entity).nameTableShort()
+	.first(r.maxIndexSize()) + r.suffixSqlIndexMultiple() + idx/]
+  
+[comment retourne le nom pour un index unique au niveau de l'entité (table)./]
+[query public nameIndexUnique(e : entity::Entity, idx1 : Integer, idx2 : Integer) : String = e.nameTable() + if e.is_mandatoryAnnotationProperties(e.get_metaPhysicalUnique()) 
+	then e.suffixSqlUnique() else e.suffixSqlIndex() endif  +  idx1 + '_' + idx2/]	
+
+[comment retourne le nom physique pour la référence (si existe) et vérifie le nommage de type identifiant./]
+[query public nameReferenceId(r : environment::Reference, any : environment::StructuredType, idx : Integer) : String = r.nameReference(any, idx).buildSimpleReferenceName()/]
+
+[comment retourne le nom physique pour la référence (si existe) et vérifie le nommage de type identifiant./]
+[query public nameReferenceId(r : environment::Reference, any : environment::StructuredType) : String = r.nameReference(any, null).buildSimpleReferenceName()/]
+
+[comment retourne le nom physique pour la référence (avec schéma et préfixe table) (si existe) ou xxxx. ./]	
+[query public nameTableReferenceSchema(r : environment::Reference) : String = r.namePrefixSchema() + r.namePrefixTable() + r.referencedType.name/]
+
+[comment retourne le nom pour la contrainte de la clé primaire pour l'entité./]
+[query public nameConstraintPrimaryKey(e : entity::Entity) : String = e.nameTable().first(e.defaultMaxSqlConstraintPrimaryKeySize()) +  e.suffixSqlPrimaryKey()/]
+
+[comment retourne le nom pour la contrainte des clés primaires sur une table de jointure./]
+[query public nameConstraintPrimaryKeyJoin(r : environment::Reference) : String =  r.nameTableSchemaJoin() + r.suffixSqlPrimaryKeyJoin()/]
+
+[comment retourne le nom pour la contrainte de vérification sur l'attribut pour l'entité./]
+[query public nameConstraintCheck(e : entity::Entity, idx : Integer) : String = e.nameTable().first(e.maxConstraintSize()) + e.suffixSqlConstraintCheck() + idx/]
+
+[comment retourne le nom pour la contrainte sur une clé étrangère pour l'entité./]
+[query public nameConstraintForeignKey(e : entity::Entity, r : environment::Reference, idx : Integer) : String = e.nameTableShort().first(e.maxConstraintSize()) + e.suffixSqlConstraintForeignKey() + '_' + idx/]
+
+[comment retourne le nom pour la contrainte sur clé étrangère (n-n) pour l'entité./]
+[query public nameConstraintJointure1(r : environment::Reference) : String = r.nameTableJoin().first(r.maxJointureSize()) + r.suffixSqlJoin1()/]
+
+[comment retourne le nom pour la contrainte sur clé étrangère (n-n) pour l'entité./]
+[query public nameConstraintJointure2(r : environment::Reference) : String = r.nameTableJoin().first(r.maxJointureSize()) + r.suffixSqlJoin2()/]
+
+[comment xxxx à partir de l'entité./]
+[comment query public nameConstraintInverse(e : entity::Entity, r : environment::Reference, cpt : Integer) : String = e.nameTableSimple().first(e.maxConstraintSize()) +  e.suffixSqlConstraintForeignKey() + '_' + cpt/]
+[comment xxxx à partir de l'entité./]
+[comment query public nameConstraintInverse(e : entity::Entity, r : environment::Reference) : String = e.nameTableSimple().first(e.maxConstraintSize()) + e.suffixSqlConstraintForeignKey()/]
+
+[comment construction du nom la table en fonction de l'entité externe (librairie) ou interne pour les relations bi-directionnelles./]
+[comment query public nameSqlTableReferencedWithSchema(r : environment::Reference) : String = 
+if r.referencedType.oclAsType(entity::Entity). then '' else '' endif/]
+
+[comment retourne le nom physique (ou direct) de la table de jointure (avec le schéma) dans le cas de relation (n-n)./]
+[comment query public nameTableJoinWithSchema(r : environment::Reference, cpt : Integer) : String = r.prefixSqlTableSchema() + r.nameTableJoin(cpt)/]
+
+[comment retourne le nom physique (ou direct) de la table de jointure dans le cas de relation (n-n)./]
+[comment query public nameTableJoin(r : environment::Reference, compteur : Integer) : String = r.prefixSqlTableSchema() + r.namePhysicalJoin().first(r.entity().maxTableSize())/] 
+
+[comment retourne le nom de la clé étrangère pour l'entité./]
+[comment query public nameForeignKey(e : entity::Entity) : String = ''/]
+
+[comment query public headerTableJointure(r : environment::Reference) : String = 'Table: ' + r.nameTableJointureWithSchema()/]
+
+[comment retourne la référence avec une sécurité de nommage. Si pas de presence _id on l'ajoute automatiquement la fin de la référence./]
+[query private buildSimpleReferenceName(str : String) : String = if (str.use_idSQLSuffixForReferences() and str.last(str.suffixSqlId().size()).equalsIgnoreCase(str.suffixSqlId())) then str else str + str.suffixSqlId() endif/]
+

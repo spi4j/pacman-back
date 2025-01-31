@@ -1,0 +1,28 @@
+[module genServiceServer(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+							'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::core::aql::base/]	
+[import fr::pacman::core::aql::name::classes/]	
+[import fr::pacman::core::aql::name::packages/]	
+[import fr::pacman::core::aql::output::resources/]
+
+[comment écriture du fichier d'implémentation pour le service utilisateur (application)./]
+[template public fileServiceImpl(s: soa::Service, body : String)]
+  [file (s.nameClassControllerImpl().toFileJava(s.namePackageControllerImpl()), overwrite, s.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour le service de persistance (infrastructure)./]
+[template public fileServiceInImpl(s: soa::Service, body : String)]
+  [file (s.nameClassServiceInImpl().toFileJava(s.namePackageInImpl()), overwrite, s.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour un mapper (objet métier -> objet infrastructure)./]
+[template public fileMapperInImpl(d: environment::DTO, body : String)]
+  [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperInImpl()), overwrite, d.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour un mapper (objet métier -> application)./]
+[template public fileMapperOutImpl(d: environment::DTO, body : String)]
+  [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperOutImpl()), overwrite, d.defaultFileEncoding())][body/][/file]
+[/template]
+

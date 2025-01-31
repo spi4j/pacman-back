@@ -1,0 +1,19 @@
+[module method(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::convention::ApplyNorme/]
+
+[comment applique le nom final pour une méthode par défaut./]
+[query public apply_methodDefault(value : String) : String = value.norme_methodDefault()/]
+
+[comment applique le nom final pour une méthode de type multiple./]
+[query public apply_methodMultiple(value : String) : String = value.norme_methodMultiple()/]
+
+[comment applique le nom final pour une méthode de type get (assesseur)./]
+[query public apply_methodGet(value : String) : String = value.norme_methodGet()/]
+
+[comment applique le nom final pour une méthode de type reset./]
+[query public apply_methodReset(value : String) : String = value.norme_methodReset()/]
+
+[comment applique le nom final pour une méthode de type set (assesseur)./]
+[query public apply_methodSet(value : String) : String = value.norme_methodSet()/]
+

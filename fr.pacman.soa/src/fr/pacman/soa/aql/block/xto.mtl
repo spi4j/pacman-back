@@ -1,0 +1,57 @@
+[module xto(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]	
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::method/]	
+
+[comment écriture de l'implémentation pour un objet métier sérialisé./]
+[template public implementation(d : environment::DTO)]
+  [d.classHeader(d.namePackageXtoImpl())/]
+  import java.io.Serializable;
+  
+  [d.commentClass()/]
+  public class [d.nameClassXtoImpl()/] implements Serializable
+  {
+	  // CONSTANTES
+	  
+	  ['SerialUid'.commentMultiLines()/]
+	  private static final long serialVersionUID = -1;
+	  
+	  // ATTRIBUTS
+
+	  [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+	    [a.comment().commentSingleLine()/]
+	    private [a.type()/] [a.nameAttribute()/];
+	    
+	  [/for]
+	  [('Constructeur sans paramètre pour la classe : ' + d.nameClassXtoImpl()).commentMultiLines()/]
+	  public [d.nameClassXtoImpl()/] ()
+	  {
+		  super();
+	  }
+	  
+	  [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+	    [('Retourne ' + a.comment()).commentMultiLines()/]
+	    public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
+	    {
+	      return [a.prefixAffectation()/][a.nameAttribute()/];
+	    }
+	    
+	    ['Affecte'.commentMultiLines()/]
+	    public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
+	    {
+	      [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+	    }
+	    
+	  [/for]
+  }
+[/template]

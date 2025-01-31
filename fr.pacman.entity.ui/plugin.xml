@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="fr.pacman.entity.ui.handlers.EntityGeneratorsHandler"
+            commandId="fr.pacman.entity.ui.commands.EntityGeneratorCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <menu
+               id="fr.pacman.ui.menus.generators"
+               icon="icons/cali.png"
+               tooltip="Liste des générateurs Cali"
+               label="Générateurs Cali">
+            <command
+                  commandId="fr.pacman.entity.ui.commands.EntityGeneratorCommand"
+                  id="fr.pacman.entity.ui.commands.EntityGeneratorCommand" 
+                  icon="icons/cali.png" 
+                  label="Génération de la couche de persistance">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.core.resources.IFile">
+                           </instanceof>
+                           <test
+                                 property="org.eclipse.core.resources.extension"
+                                 value="entity">
+                           </test>
+                        </and>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="fr.pacman.entity.ui.commands.generatorsCategory"
+            name="Generators">
+      </category>
+      <command
+            categoryId="fr.pacman.entity.ui.commands.generatorsCategory"
+            id="fr.pacman.entity.ui.commands.EntityGeneratorCommand"
+            name="fr::pacman::entity::api::entity::generateServerEntity">
+      </command>
+   </extension>
+</plugin>
+

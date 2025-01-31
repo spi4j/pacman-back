@@ -1,0 +1,20 @@
+[module genCommonSpring(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
+							'http://www.obeonetwork.org/dsl/environment/3.0.0')
+							extends fr::pacman::soa::aql::genCommon/]
+							
+[comment toujours placer les 'main' au niveau des modules fils, sinon génération incomplète./]
+[comment enlever ces imports suite a correction bug./]
+[import fr::pacman::soa::aql::file::genDto/]
+[import fr::pacman::soa::aql::file::genServiceCommon/]
+[import fr::pacman::soa::aql::block::dto/]
+[import fr::pacman::soa::spring::aql::block::serviceCommon/]
+[comment enlever ces imports suite a correction bug./]
+
+[comment @main/]
+[comment écriture des classes et fichiers soa pour la partie métier de l'application cible./]
+[template protected genCommon(m : soa::System)][m.super:genCommon()/][/template]
+
+[comment écriture de la partie implémentation du service métier./]
+[template protected genServiceImpl(s : soa::Service)][s.implementation()/][/template]
+
+

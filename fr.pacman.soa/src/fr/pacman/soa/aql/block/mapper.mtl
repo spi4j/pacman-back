@@ -1,0 +1,104 @@
+[module mapper(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0',
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::query::dto/]	
+[import fr::pacman::core::aql::query::attribute/]				
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::method/]
+
+[comment ./]
+[template public mapperIn(d : environment::DTO)]
+  [d.classHeader(d.namePackageMapperInImpl())/]
+  import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
+  import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
+  
+  public class [d.nameClassMapperImpl()/]
+  {
+    public static [d.associatedEntity().nameClassEntityImpl()/] toEntity (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
+    { 
+        if(null ==['dto'.apply_parameterMethodClassicIn()/])
+        {
+           throw new RuntimeException();
+       }
+       
+       [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_variableDefault()/] = new [d.associatedEntity().nameClassEntityImpl()/]();
+       return ['entity'.apply_variableDefault()/];
+    }
+  
+    public static [d.nameClassDtoImpl()/] toRecord (final [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_parameterMethodClassicIn()/])
+    {
+        if(null ==['entity'.apply_parameterMethodClassicIn()/])
+        {
+           throw new RuntimeException();
+        }
+        
+        return new [d.nameClassDtoImpl()/](
+           [d.dsq1()/]
+           );
+    }	  
+  }
+[/template]
+
+
+
+[comment ./]
+[template public mapperOut(d : environment::DTO)]
+  [d.classHeader(d.namePackageMapperOutImpl())/]
+  import [d.namePackageProject()/].[d.namePackageXtoImpl()/].[d.nameClassXtoImpl()/];
+  import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
+  
+  public class [d.nameClassMapperImpl()/]
+  {
+    public static [d.nameClassDtoImpl()/] toRecord (final [d.nameClassXtoImpl()/] ['xto'.apply_parameterMethodClassicIn()/])
+    { 
+        return new [d.nameClassDtoImpl()/](
+           [d.dsq2()/]
+           );
+    }
+  
+    public static [d.nameClassXtoImpl()/] toXto (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
+    { 
+      [d.nameClassXtoImpl()/] ['xto'.apply_variableDefault()/] = new [d.nameClassXtoImpl()/]();
+      [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+        ['xto'.apply_variableDefault()/].[a.name().apply_methodSet()/](['dto'.apply_parameterMethodClassicIn()/].[a.nameAttribute()/]());
+      [/for]
+      return ['xto'.apply_variableDefault()/];
+    }	  
+  }
+[/template]
+
+[query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]
+[query private dsq2(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'xto'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]
+
+
+[comment pour sauvagarde......./]
+[template public oldmapper(d : environment::DTO)]
+  [d.classHeader(d.namePackageMapperInImpl())/]
+  import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
+  import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
+  
+  public class [d.nameClassMapperImpl()/]
+  {
+    public static [d.associatedEntity().nameClassEntityImpl()/] convertDtoToEntity (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
+    { 
+       [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_variableDefault()/] = new [d.associatedEntity().nameClassEntityImpl()/]();
+       return ['entity'.apply_variableDefault()/];
+    }
+  
+    public static [d.nameClassDtoImpl()/] convertEntityToDto (final [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_parameterMethodClassicIn()/])
+    { 
+      [d.nameClassDtoImpl()/] ['dto'.apply_variableDefault()/] = new [d.nameClassDtoImpl()/]();
+      [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+        ['dto'.apply_variableDefault()/].[a.nameAttribute().apply_methodSet()/](['entity'.apply_parameterMethodClassicIn()/].[a.nameAttribute().apply_methodGet()/]()); 
+      [/for]
+      return ['dto'.apply_variableDefault()/];
+    }	  
+  }
+[/template]

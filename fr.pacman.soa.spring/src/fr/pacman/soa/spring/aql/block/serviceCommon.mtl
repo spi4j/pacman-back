@@ -1,0 +1,84 @@
+[module serviceCommon(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+						'http://www.obeonetwork.org/dsl/entity/3.0.0',
+						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]						
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::query::operation/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::parameter/]
+						
+[comment écriture de l'implémentation d'un service soa./]
+[template public implementation (s : soa::Service)]
+  [s.classHeader(s.namePackageServiceImpl())/]
+  import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
+  import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+  import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationOut()/];
+  
+  [s.commentClass()/]
+  @[s.nameClassAnnotationOut()/]
+  public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceOutItf()/]
+  {
+      ['Interface de persistance'.commentMultiLines()/]
+      private final [s.nameClassServiceInItf()/] ['provider'.apply_attributeFinal()/];
+      
+      ['Constructeur'.commentMultiLines()/]
+      public [s.nameClassServiceImpl()/] (final [s.nameClassServiceInItf()/] ['provider'.apply_parameterMethodClassicIn()/]) {
+         [s.prefixAffectation()/]['provider'.apply_attributeFinal()/] = ['provider'.apply_parameterMethodClassicIn()/];
+      }
+      
+      [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+        
+        [o.commentOperation()/]
+        @Override
+        [o.writeOperationSignature()/]
+        {
+          return [o.prefixAffectation()/]['provider'.apply_attributeFinal()/].[o.writeOperationSignatureWithoutTypes()/];
+        }
+      [/for]
+  }
+[/template]
+
+[comment écriture de l'interface d'un service (domain -> application)./]
+[template public interfaceOut (s : soa::Service)]
+  [s.classHeader(s.namePackageOutItf())/]
+  
+  [s.commentInterface()/]
+  public interface [s.nameClassServiceOutItf()/]
+  {
+	  [s.writeInterface()/]
+  }
+[/template]
+
+[comment écriture de l'interface d'un service (domain -> infrastructure)./]
+[template public interfaceIn (s : soa::Service)]
+  [s.classHeader(s.namePackageInItf())/]
+  
+  [s.commentInterface()/]
+  public interface [s.nameClassServiceInItf()/]
+  {
+	  [s.writeInterface()/]
+  }
+[/template]
+
+[comment écriture de la partie commune pour les deux interfaces de service./]
+[template private writeInterface(s : soa::Service)]
+  [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+        
+        [o.commentOperation()/]
+        [o.writeOperationSignature()/];
+  [/for]
+[/template]
+
+[comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
+[query private writeOperationSignature(o : soa::Operation) : String = 'public ' + o.outputParamType() + ' ' + o.nameOperation()
+  + '(' + o.inputParamsSignature() + ')' /]
+  
+[comment écriture de la signature d'une opération avec le paramètre en sortie./]
+[query private writeOperationSignatureWithoutTypes(o : soa::Operation) : String = o.nameOperation() 
+  + '(' + o.inputParamsSignatureWithoutTypes() + ')' /]
+

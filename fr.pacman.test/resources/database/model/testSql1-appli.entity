@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ASCII"?>
+<oent:Root xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oent="http://www.obeonetwork.org/dsl/entity/3.0.0" xmlns:oenv="http://www.obeonetwork.org/dsl/environment/3.0.0" xmi:id="_MPObEKfnEe-v4fvF-cv85g" technicalid="_MPNM8KfnEe-v4fvF-cv85g" createdOn="2024-11-21T10:01:27.231+0100" modifiedOn="2024-11-26T16:11:40.594+0100">
+  <ownedNamespaces xmi:id="_NBNRoafnEe-v4fvF-cv85g" technicalid="_NBNRoKfnEe-v4fvF-cv85g" description="Namespace pour tester le r&#xe9;sultat d'une petite application concr&#xe8;te." createdOn="2024-11-21T10:01:32.474+0100" modifiedOn="2024-12-10T14:16:27.054+0100" name="application">
+    <types xsi:type="oent:Entity" xmi:id="_XgGSYafnEe-v4fvF-cv85g" technicalid="_XgGSYKfnEe-v4fvF-cv85g" description="Table des personnes" createdOn="2024-11-21T10:02:42.822+0100" modifiedOn="2024-12-10T13:22:49.238+0100" name="personne">
+      <metadatas xmi:id="_eq0w4LbTEe-HUfTJUXv6Nw" technicalid="_eqziwLbTEe-HUfTJUXv6Nw">
+        <metadatas xsi:type="oenv:Annotation" xmi:id="_eq2mEbbTEe-HUfTJUXv6Nw" technicalid="_eq2mELbTEe-HUfTJUXv6Nw" title="PHYSICAL_UNIQUE" body="nom:asc,prenom:desc,civilite:asc|salaire:asc,moyenne:asc|age:asc"/>
+      </metadatas>
+      <ownedAttributes xmi:id="_cHDPYafnEe-v4fvF-cv85g" technicalid="_cHDPYKfnEe-v4fvF-cv85g" description="Nom de la personne" createdOn="2024-11-21T10:03:13.750+0100" modifiedOn="2024-11-21T15:34:08.614+0100" name="nom" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_d8UH4afnEe-v4fvF-cv85g" technicalid="_d8UH4KfnEe-v4fvF-cv85g" description="Pr&#xe9;nom de la personne" createdOn="2024-11-21T10:03:26.046+0100" modifiedOn="2024-11-21T15:34:16.744+0100" name="prenom" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_eCav4afnEe-v4fvF-cv85g" technicalid="_eCav4KfnEe-v4fvF-cv85g" description="Civilit&#xe9; de la personne" createdOn="2024-11-21T10:03:26.686+0100" modifiedOn="2024-11-21T15:34:25.047+0100" name="civilite" multiplicity="1" type="_gFaiYafnEe-v4fvF-cv85g"/>
+      <ownedAttributes xmi:id="_eHmx4afnEe-v4fvF-cv85g" technicalid="_eHmx4KfnEe-v4fvF-cv85g" description="Date de naissance de la personne" createdOn="2024-11-21T10:03:27.230+0100" modifiedOn="2024-11-21T15:34:33.720+0100" name="dateNaissance" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-E6wKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_eOeO4afnEe-v4fvF-cv85g" technicalid="_eOeO4KfnEe-v4fvF-cv85g" description="La personne est-elle c&#xe9;libataire (O/N)" createdOn="2024-11-21T10:03:27.950+0100" modifiedOn="2024-11-21T15:34:57.936+0100" name="celibataire" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5FXAqwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_rrra4afnEe-v4fvF-cv85g" technicalid="_rrra4KfnEe-v4fvF-cv85g" description="Photo de la personnes" createdOn="2024-11-21T10:04:58.254+0100" modifiedOn="2024-11-21T15:35:05.847+0100" name="photo">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_SKJz0PsREeWC2u5kehASiQ"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_uU-YYafnEe-v4fvF-cv85g" technicalid="_uU-YYKfnEe-v4fvF-cv85g" description="Attribut de type Double" createdOn="2024-11-21T10:05:16.006+0100" modifiedOn="2024-11-22T14:28:10.015+0100" name="salaire">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_uaULYafnEe-v4fvF-cv85g" technicalid="_uaULYKfnEe-v4fvF-cv85g" description="Attribut de type Float" createdOn="2024-11-21T10:05:16.566+0100" modifiedOn="2024-11-22T14:33:35.013+0100" name="moyenne">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5GlIKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_ul_P4afnEe-v4fvF-cv85g" technicalid="_ul_P4KfnEe-v4fvF-cv85g" description="Attribut de type Integer" createdOn="2024-11-21T10:05:17.790+0100" modifiedOn="2024-11-22T14:27:49.841+0100" name="age">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5FXAawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_1KNK0afnEe-v4fvF-cv85g" technicalid="_1KNK0KfnEe-v4fvF-cv85g" description="Attribut de type Long" createdOn="2024-11-21T10:06:01.853+0100" modifiedOn="2024-11-22T14:30:11.258+0100" name="nbEnfants">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_9dnH8bGqEd2SRpTkL4GntA"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_1OkGYafnEe-v4fvF-cv85g" technicalid="_1OkGYKfnEe-v4fvF-cv85g" description="Heure de naissance de la personne" createdOn="2024-11-21T10:06:02.310+0100" modifiedOn="2024-11-21T15:35:53.246+0100" name="heureNaissance">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_rWTrcTwHEeiOd8zmfAzmGQ"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_1TXt4KfnEe-v4fvF-cv85g" technicalid="_1TXG0KfnEe-v4fvF-cv85g" description="Attribut de type Timestamp" createdOn="2024-11-21T10:06:02.814+0100" modifiedOn="2024-11-22T14:29:26.855+0100" name="dateEnregistrement" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_rGXK8DwHEeiOd8zmfAzmGQ"/>
+      </ownedAttributes>
+      <ownedReferences xmi:id="_8gnXsafnEe-v4fvF-cv85g" technicalid="_8gnXsKfnEe-v4fvF-cv85g" description="Le pere de la personne" createdOn="2024-11-21T10:06:51.179+0100" modifiedOn="2024-11-27T10:14:08.657+0100" name="aPourPere" referencedType="_XgGSYafnEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_EgKBIafoEe-v4fvF-cv85g" technicalid="_EgKBIKfoEe-v4fvF-cv85g" description="La m&#xe8;re de la personne" createdOn="2024-11-21T10:07:44.818+0100" modifiedOn="2024-11-27T10:14:42.126+0100" name="aPourMere" multiplicity="1" referencedType="_XgGSYafnEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_OKWOgKfoEe-v4fvF-cv85g" technicalid="_OKVncKfoEe-v4fvF-cv85g" description="Le (ou les) fr&#xe8;re(s) de la personne" createdOn="2024-11-21T10:08:49.640+0100" modifiedOn="2024-11-24T11:16:59.242+0100" name="aPourFrere" multiplicity="0..*" referencedType="_XgGSYafnEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_ZMcqAafoEe-v4fvF-cv85g" technicalid="_ZMcqAKfoEe-v4fvF-cv85g" description="La (ou les) soeur(s) de la personne" createdOn="2024-11-21T10:10:03.680+0100" modifiedOn="2024-11-24T11:16:38.915+0100" name="aPourSoeur" multiplicity="1..*" referencedType="_XgGSYafnEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_4C2EgafqEe-v4fvF-cv85g" technicalid="_4C2EgKfqEe-v4fvF-cv85g" description="L'adresse principale de la personne" createdOn="2024-11-21T10:27:49.704+0100" modifiedOn="2024-11-21T15:32:50.036+0100" name="adressePrincipal" multiplicity="1" oppositeOf="_4C2Eg6fqEe-v4fvF-cv85g" referencedType="_Avf9gafpEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_Hb3c8afrEe-v4fvF-cv85g" technicalid="_Hb3c8KfrEe-v4fvF-cv85g" description="La (ou les) adresse(s) secondaire(s) de la personne" createdOn="2024-11-21T10:29:32.991+0100" modifiedOn="2024-11-24T11:17:52.292+0100" name="adresseSecondaire" multiplicity="0..*" oppositeOf="_Hb4EAKfrEe-v4fvF-cv85g" referencedType="_Avf9gafpEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oenv:Enumeration" xmi:id="_gFaiYafnEe-v4fvF-cv85g" technicalid="_gFaiYKfnEe-v4fvF-cv85g" description="Enum&#xe9;ration pour la Civilit&#xe9; des personnes" createdOn="2024-11-21T10:03:40.422+0100" modifiedOn="2024-11-21T15:33:40.710+0100" name="civilite">
+      <literals xmi:id="_hbx4YKfnEe-v4fvF-cv85g" technicalid="_hbxRUKfnEe-v4fvF-cv85g" description="Civilit&#xe9; de type Monsieur" createdOn="2024-11-21T10:03:49.478+0100" modifiedOn="2024-11-21T15:33:55.119+0100" name="Monsieur"/>
+      <literals xmi:id="_iwFY4KfnEe-v4fvF-cv85g" technicalid="_iwEx0KfnEe-v4fvF-cv85g" description="Civilit&#xe9; de type Madame" createdOn="2024-11-21T10:03:58.318+0100" modifiedOn="2024-11-21T15:34:00.432+0100" name="Madame"/>
+    </types>
+  </ownedNamespaces>
+  <ownedNamespaces xmi:id="_NjzoYafnEe-v4fvF-cv85g" technicalid="_NjzoYKfnEe-v4fvF-cv85g" description="Namespace pour tester un petit r&#xe9;f&#xe9;rentiel" createdOn="2024-11-21T10:01:36.102+0100" modifiedOn="2024-11-22T14:36:00.488+0100" name="referentiel">
+    <types xsi:type="oent:Entity" xmi:id="_QuD94afnEe-v4fvF-cv85g" technicalid="_QuD94KfnEe-v4fvF-cv85g" description="Table des pays" createdOn="2024-11-21T10:01:57.310+0100" modifiedOn="2024-11-21T15:23:27.864+0100" name="pays">
+      <ownedAttributes xmi:id="_TWmtcafnEe-v4fvF-cv85g" technicalid="_TWmtcKfnEe-v4fvF-cv85g" description="Nom du pays" createdOn="2024-11-21T10:02:14.983+0100" modifiedOn="2024-11-21T15:23:43.630+0100" name="nom" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedReferences xmi:id="_1gCmAafpEe-v4fvF-cv85g" technicalid="_1gCmAKfpEe-v4fvF-cv85g" description="Les d&#xe9;partements du pays" createdOn="2024-11-21T10:20:23.136+0100" modifiedOn="2024-11-21T15:26:33.952+0100" name="listD&#xe9;partement" multiplicity="0..*" oppositeOf="_1gCmA6fpEe-v4fvF-cv85g" referencedType="_kfi5cKfpEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_oWvC4afoEe-v4fvF-cv85g" technicalid="_oWvC4KfoEe-v4fvF-cv85g" description="Table des villes" createdOn="2024-11-21T10:11:45.422+0100" modifiedOn="2024-11-21T10:23:49.266+0100" name="ville">
+      <ownedAttributes xmi:id="_qE-tYafoEe-v4fvF-cv85g" technicalid="_qE-tYKfoEe-v4fvF-cv85g" description="Nom de la ville" createdOn="2024-11-21T10:11:56.982+0100" modifiedOn="2024-11-21T10:22:55.284+0100" name="nom" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedReferences xmi:id="_M1gGAafpEe-v4fvF-cv85g" technicalid="_M1gGAKfpEe-v4fvF-cv85g" description="Les adresses dans la ville" createdOn="2024-11-21T10:15:50.240+0100" modifiedOn="2024-11-21T15:27:48.903+0100" name="listAdresse" multiplicity="0..*" navigable="false" oppositeOf="_M1gGA6fpEe-v4fvF-cv85g" referencedType="_Avf9gafpEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_r400IKfpEe-v4fvF-cv85g" technicalid="_r40NEqfpEe-v4fvF-cv85g" description="Le d&#xe9;partement de la ville" createdOn="2024-11-21T10:19:18.626+0100" modifiedOn="2024-11-21T15:27:05.518+0100" name="aPourD&#xe9;partement" multiplicity="1" navigable="false" oppositeOf="_r40NEafpEe-v4fvF-cv85g" referencedType="_kfi5cKfpEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_UN1wEafqEe-v4fvF-cv85g" technicalid="_UN1wEKfqEe-v4fvF-cv85g" description="Les CP de la ville" createdOn="2024-11-21T10:23:49.265+0100" modifiedOn="2024-11-21T15:28:44.460+0100" name="listCP" multiplicity="0..*" oppositeOf="_UN2XIafqEe-v4fvF-cv85g" referencedType="_BSaA0afqEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_Avf9gafpEe-v4fvF-cv85g" technicalid="_Avf9gKfpEe-v4fvF-cv85g" description="Tables des adresses" createdOn="2024-11-21T10:14:29.080+0100" modifiedOn="2024-11-21T10:29:32.992+0100" name="adresse">
+      <ownedAttributes xmi:id="_DEGdYKfpEe-v4fvF-cv85g" technicalid="_DEF2UKfpEe-v4fvF-cv85g" description="Num&#xe9;ro de l'adresse" createdOn="2024-11-21T10:14:44.662+0100" modifiedOn="2024-11-21T10:23:15.282+0100" name="numero">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedAttributes xmi:id="_DoLa0afpEe-v4fvF-cv85g" technicalid="_DoLa0KfpEe-v4fvF-cv85g" description="Nom de la rue de l'adresse" createdOn="2024-11-21T10:14:48.445+0100" modifiedOn="2024-11-21T10:23:24.361+0100" name="rue" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedReferences xmi:id="_M1gGA6fpEe-v4fvF-cv85g" technicalid="_M1gGAqfpEe-v4fvF-cv85g" description="La ville de l'adresse" createdOn="2024-11-21T10:15:50.240+0100" modifiedOn="2024-11-21T15:28:18.960+0100" name="aPourVille" multiplicity="1" oppositeOf="_M1gGAafpEe-v4fvF-cv85g" referencedType="_oWvC4afoEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_djqP8afqEe-v4fvF-cv85g" technicalid="_djqP8KfqEe-v4fvF-cv85g" description="Le CP de l'adresse" createdOn="2024-11-21T10:24:51.951+0100" modifiedOn="2024-11-21T15:29:51.398+0100" name="codePostalAdresse" multiplicity="1" referencedType="_BSaA0afqEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_4C2Eg6fqEe-v4fvF-cv85g" technicalid="_4C2EgqfqEe-v4fvF-cv85g" description="Les personnes ayant cette adresse  pour adresse sprincipale" createdOn="2024-11-21T10:27:49.705+0100" modifiedOn="2024-11-24T11:18:30.926+0100" name="listPersonnesHabitantAdressePrincipale" multiplicity="0..*" oppositeOf="_4C2EgafqEe-v4fvF-cv85g" referencedType="_XgGSYafnEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_Hb4EAKfrEe-v4fvF-cv85g" technicalid="_Hb3c8qfrEe-v4fvF-cv85g" description="Les personnes habitant &#xe0; cette adresse secondaire" createdOn="2024-11-21T10:29:32.992+0100" modifiedOn="2024-11-21T15:32:25.570+0100" name="listPersonnesHabitantAdresseSecondaire" multiplicity="0..*" oppositeOf="_Hb3c8afrEe-v4fvF-cv85g" referencedType="_XgGSYafnEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_kfi5cKfpEe-v4fvF-cv85g" technicalid="_kfiSYKfpEe-v4fvF-cv85g" description="Table des d&#xe9;partements" createdOn="2024-11-21T10:18:28.999+0100" modifiedOn="2024-11-21T15:25:50.238+0100" name="departement">
+      <ownedAttributes xmi:id="_nQhzUafpEe-v4fvF-cv85g" technicalid="_nQhzUKfpEe-v4fvF-cv85g" description="Nom du d&#xe9;partement" createdOn="2024-11-21T10:18:47.557+0100" modifiedOn="2024-11-21T15:26:00.550+0100" name="nom" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5F-EKwKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedReferences xmi:id="_r40NEafpEe-v4fvF-cv85g" technicalid="_r40NEKfpEe-v4fvF-cv85g" description="Les villes du d&#xe9;partement" createdOn="2024-11-21T10:19:18.625+0100" modifiedOn="2024-11-21T15:27:20.109+0100" name="listVille" multiplicity="0..*" oppositeOf="_r400IKfpEe-v4fvF-cv85g" referencedType="_oWvC4afoEe-v4fvF-cv85g"/>
+      <ownedReferences xmi:id="_1gCmA6fpEe-v4fvF-cv85g" technicalid="_1gCmAqfpEe-v4fvF-cv85g" description="Le pays du d&#xe9;partement" createdOn="2024-11-21T10:20:23.136+0100" modifiedOn="2024-11-21T15:26:25.163+0100" name="appartientAuPays" multiplicity="1" oppositeOf="_1gCmAafpEe-v4fvF-cv85g" referencedType="_QuD94afnEe-v4fvF-cv85g"/>
+    </types>
+    <types xsi:type="oent:Entity" xmi:id="_BSaA0afqEe-v4fvF-cv85g" technicalid="_BSaA0KfqEe-v4fvF-cv85g" description="Table des codes postaux" createdOn="2024-11-21T10:21:42.237+0100" modifiedOn="2024-11-21T10:23:49.266+0100" name="codePostaux">
+      <ownedAttributes xmi:id="_DCL8YafqEe-v4fvF-cv85g" technicalid="_DCL8YKfqEe-v4fvF-cv85g" description="Code postaux" createdOn="2024-11-21T10:21:53.958+0100" modifiedOn="2024-11-21T15:24:17.037+0100" name="code" multiplicity="1">
+        <type xsi:type="oenv:PrimitiveType" href="platform:/plugin/org.obeonetwork.dsl.environment.common/model/obeo.environment#_s5FXAawKEd2XLNOhkJIazw"/>
+      </ownedAttributes>
+      <ownedReferences xmi:id="_UN2XIafqEe-v4fvF-cv85g" technicalid="_UN2XIKfqEe-v4fvF-cv85g" description="Les villes qui ont pour CP ce code postal" createdOn="2024-11-21T10:23:49.266+0100" modifiedOn="2024-11-24T11:20:12.449+0100" name="aPourCP" multiplicity="0..*" oppositeOf="_UN1wEafqEe-v4fvF-cv85g" referencedType="_oWvC4afoEe-v4fvF-cv85g"/>
+    </types>
+  </ownedNamespaces>
+</oent:Root>

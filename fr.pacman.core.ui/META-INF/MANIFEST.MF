@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.core.ui
+Bundle-ManifestVersion: 2
+Bundle-Name: Pacman - Core UI
+Bundle-SymbolicName: fr.pacman.core.ui;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: fr.pacman.core.ui.plugin.Activator
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.core.expressions,
+ org.eclipse.core.resources,
+ org.eclipse.emf.ecore,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.ui,
+ org.eclipse.jface,
+ org.eclipse.jface.text,
+ org.eclipse.ui,
+ org.obeonetwork.dsl.environment,
+ org.obeonetwork.dsl.entity,
+ org.obeonetwork.dsl.soa,
+ fr.pacman.core,
+ org.eclipse.acceleo.engine,
+ org.eclipse.acceleo.query.ide;bundle-version="[8.0.2,9.0.0)",
+ org.eclipse.acceleo.query;bundle-version="8.0.2",
+ org.eclipse.acceleo.aql;bundle-version="4.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: fr.pacman.core.ui.generator,
+ fr.pacman.core.ui.plugin.activator,
+ fr.pacman.core.ui.service
+

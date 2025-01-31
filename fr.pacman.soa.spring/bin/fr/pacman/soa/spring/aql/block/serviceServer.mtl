@@ -1,0 +1,128 @@
+[module serviceServer(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+						'http://www.obeonetwork.org/dsl/entity/3.0.0',
+						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::query::operation/]
+[import fr::pacman::core::aql::query::parameter/]
+[import fr::pacman::core::aql::query::dto/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::method/]
+
+[import fr::pacman::core::property::project::ProjectProperties/]
+
+[comment écriture de l'implémentation d'un service soa (couche infrastructure)./]
+[template public implementation (s : soa::Service)]
+  [s.classHeader(s.namePackageControllerImpl())/]
+
+  import org.springframework.http.HttpStatus;
+  import org.springframework.http.ResponseEntity;
+  import org.springframework.beans.factory.annotation.Autowired;
+  import org.springframework.web.bind.annotation.DeleteMapping;
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.PathVariable;
+  import org.springframework.web.bind.annotation.PostMapping;
+  import org.springframework.web.bind.annotation.PutMapping;
+  import org.springframework.web.bind.annotation.RequestBody;
+  import org.springframework.web.bind.annotation.RestController;
+  import org.springframework.web.bind.annotation.RequestMapping;
+  import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+  
+  [s.commentClass()/]  
+  @RestController
+  @RequestMapping("")
+  public class [s.nameClassControllerImpl()/]
+  {
+    
+    ['Interface vers le service métier'.commentMultiLines()/]
+    private final [s.nameClassServiceOutItf()/] [s.name()/];
+    
+    ['Constructeur'.commentMultiLines()/]
+    //@Autowired
+    public [s.nameClassControllerImpl()/](final [s.nameClassServiceOutItf()/] [s.name().apply_parameterMethodClassicInOut()/])
+    {
+      [s.prefixAffectation()/][s.name()/] = [s.name().apply_parameterMethodClassicInOut()/];
+    }
+    
+    [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+      @GetMapping("/")
+      public ResponseEntity<[o.outputParamType().replaceAll('Record','Xto')/]> [o.name().apply_methodDefault()/]()
+      {
+        [if (not o.outputParam().isMultiple())]
+          //return new ResponseEntity<>("Hello", HttpStatus.OK);
+          return null;
+        [else]
+           return new ResponseEntity<[o.outputParamType().replaceAll('Record','Xto')/]>([s.prefixAffectation()/][s.name()/].[o.nameOperation()/]()
+             .stream().map(o -> PersonneMapper.toXto(o)).collect(Collectors.toList()), HttpStatus.OK);
+           
+           //return new ResponseEntity<List<PersonneXto>>(
+           //		this.personne.getAllPersonnes().stream().map(o -> PersonneMapper.toXto(o)).collect(Collectors.toList()),
+           //		HttpStatus.OK);
+        [/if]
+      }
+    [/for]
+    
+    [if (s.is_applicationCrud())]
+    [/if]
+  }
+[/template]
+
+[comment écriture de l'implémentation pour le service de persistance (couche infrastructure)./]
+[template public implementationIn(s : soa::Service)]
+  [s.classHeader(s.namePackageInImpl())/]
+  import org.springframework.beans.factory.annotation.Autowired;
+  import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
+  import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationIn()/];
+  import [s.namePackageProject()/].[s.associatedPersistentDto().namePackageMapperInImpl()/].[s.associatedPersistentDto().nameClassMapperImpl()/];
+  import [s.namePackageProject()/].[s.associatedPersistentDto().associatedEntity().namePackageEntityImpl()/].[s.associatedPersistentDto().associatedEntity().nameClassEntityImpl()/];
+  import [s.namePackageProject()/].[s.associatedPersistentDto().associatedEntity().namePackageEntityDaoItf()/].[s.associatedPersistentDto().associatedEntity().nameClassEntityDaoItf()/];
+  
+  [s.commentInterface()/]
+  @[s.nameClassAnnotationIn()/]
+  public class [s.nameClassServiceInImpl()/] implements [s.nameClassServiceInItf()/]
+  {
+  
+    ['Le gestionnaire de persistance'.commentMultiLines()/]
+    final [s.associatedPersistentDto().associatedEntity().nameClassEntityDaoItf()/] ['dao'.apply_attributeFinal()/];
+    
+    //@Autowired
+    ['Constructeur'.commentMultiLines()/]
+    public [s.nameClassServiceInImpl()/] (final PersonneDao ['dao'.apply_parameterMethodClassicIn()/])
+    {
+       [s.prefixAffectation()/]['dao'.apply_attributeFinal()/] = ['dao'.apply_parameterMethodClassicIn()/];	
+    }
+    
+    [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+      [o.commentOperation()/]
+      @Override
+      [o.writeOperationSignature()/]
+      {
+        //throw new RuntimeException("Not implemented !");
+        [if (not o.outputParam().isMultiple())]
+          [if (o.outputParam().isOptional())]
+            Optional<[s.associatedPersistentDto().associatedEntity().nameClassEntityImpl()/]> entity = this.dao.findById(identifiant);
+            if(entity.isPresent()){
+               return Optional.of([s.associatedPersistentDto().nameClassMapperImpl()/].toRecord(entity.get()));
+            }
+            return Optional.empty();
+          [/if]
+      
+          [else]
+            return ['dao'.apply_attributeFinal()/].findAll().stream().map(o -> [s.associatedPersistentDto().nameClassMapperImpl()/].toRecord(o))
+            		.collect(Collectors.toList());
+        [/if]
+      }
+    [/for]
+  }
+[/template]
+
+[comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
+[query public writeOperationSignature(o : soa::Operation) : String = 'public ' + o.outputParamType() + ' ' + o.nameOperation()
+  + '(' + o.inputParamsSignature() + ')' /]
