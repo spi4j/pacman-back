@@ -1,9 +1,0 @@
-[module genRoot(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
-
-[import fr::pacman::config::aql::file::genRoot/]
-
-[comment écriture de l'ensemble de la configuration de base pour le projet principal (conteneur)./]
-[template protected genRootConfig(r : overview::Root)][r.filePom(r.genPom())/][/template]
-
-[comment liste des méthodes abstraites destinées à etre implémentées dans les modules fils./]
-[template protected genPom(any : ecore::EObject)][/template]
