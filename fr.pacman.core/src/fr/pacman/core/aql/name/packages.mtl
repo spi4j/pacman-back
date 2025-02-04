@@ -47,10 +47,10 @@
 [query public namePackageEntityItf(e : entity::Entity) : String = ''/]
   
 [comment retourne le package pour une classe d'interface de la persitance ORM./]
-[query public namePackageEntityDaoItf(e : entity::Entity) : String = 'persistence.dao' + e.blockHierarchy()/]
+[query public namePackageEntityDaoItf(e : entity::Entity) : String = 'persistence.repo' + e.blockHierarchy()/]
   
 [comment retourne le package pour une classe d'implémentation de la persistance ORM./]
-[query public namePackageEntityDaoImpl(e : entity::Entity) : String = 'persistence.dao' + e.blockHierarchy()/]
+[query public namePackageEntityDaoImpl(e : entity::Entity) : String = 'persistence.repo' + e.blockHierarchy()/]
 
 [comment retourne le package pour une classe d'implémentation (cas d'un objet de transfert)./]  
 [query public namePackageDtoImpl(d : environment::DTO) : String = d.get_suffixCommon() + '.objects' + d.blockHierarchy()/]

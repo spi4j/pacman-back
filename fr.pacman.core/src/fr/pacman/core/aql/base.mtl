@@ -29,6 +29,9 @@
 [comment le type d'encodage par défaut pour les fichiers./]
 [query public defaultFileEncoding(any : ecore::EObject) : String = 'UTF-8'/]
 
+[comment le code de retour par défaut pour les services rest./]
+[query public defaultRsStatusCode(any : ecore::EObject) : String = '200'/]
+
 [comment la valeur par défaut pour l'initialisation d'une séquence SQL./]  [query public defaultSqlStartSequence(any : ecore::EObject) : String = '1000'/]
 
 [comment la base de données par défaut pour les tests de non-régression./]
@@ -104,7 +107,13 @@
 [query public suffixInterfaceOut(any : ecore::EObject) : String = ' adapter'/]
 
 [comment le suffixe pour le dao d'une entité./]
-[query public suffixEntityDao(any : ecore::EObject) : String = ' dao'/]
+[query public suffixEntityDao(any : ecore::EObject) : String = ' repository'/]
+
+[comment le suffixe par défaut pour les objets sérialisés./]
+[query public suffixXto(any : ecore::EObject) : String = ' xto'/]
+
+[comment le suffixe par défaut pour la gestion gloable des exceptions rest./]  
+[query public suffixRsExceptionHandler(any : ecore::EObject) : String = ' response entity exception handler'/]
 
 [comment le suffixe pour la classe de démarrage de l'application./]
 [query public suffixApplicationBoostrap(any : ecore::EObject) : String = ' boostrap'/]
@@ -239,4 +248,7 @@
 
 [comment retourne le message à afficher si une description est manquante./]
 [query public cNoDescription(e : ecore::EObject) : String = 'DESCRIPTION A IMPLEMENTER'/]
+  
+[comment retourne le message à afficher si la modélisation est manquante par rapport à ce qui est demandé./]
+[query public cNoModelisation(e : ecore::EObject) : String = 'ERREUR DE MODELISATION'/]
 

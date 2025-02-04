@@ -3,22 +3,55 @@
 				    'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 
 [import fr::pacman::core::aql::base/]
-[import fr::pacman::core::aql::name::eobjects/]				    
+[import fr::pacman::core::aql::string/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::query::parameter/]
 [import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::common/]
+[import fr::pacman::core::aql::rule::class/]
+
+[comment retourne le paramètre de sortie (si existe) VOIR CE QU ON FAIT SI NULL ET VOIR SI ON PREND LE TYPE./]
+[query public output(o : soa::Operation) : soa::Parameter = o.output->first()/]
 
 [comment vérifie si l'opération a un paramètre en sortie (entité, dto, type primitif)./]
-[query public hasOutputParam(o : soa::Operation) : Boolean = o.output <> null and o.output->size() > 0 /]
+[query public hasOutput(o : soa::Operation) : Boolean = o.output <> null and o.output->size() > 0 /]
   
 [comment vérifie si l'opération a des paramètres en entrée (entité, dto, type primitif)./]
-[query public hasInputParams(o : soa::Operation) : Boolean = o.input <> null and o.input->size() > 0 /]
+[query public hasInput(o : soa::Operation) : Boolean = o.input <> null and o.input->size() > 0 /]
   
-[comment retourne le type pour le paramètre de sortie./]
-[query public outputParamType(o : soa::Operation) : String = if(o.hasOutputParam()) then if(o.output->first().isOptional()) 
-  then 'Optional<' + o.output->first().type() + '>' else o.output->first().type() endif else '' endif/]
+[comment retourne le type complet pour le paramètre de sortie d'une opération./]
+[query public outputType(o : soa::Operation) : String = if(o.hasOutput()) then o.output().outputType(false) else 'void' endif/]
+  
+[comment retourne le type complet pour le paramètre de sortie, possibilité de gérer le type Optional./]
+[query private outputType(p : soa::Parameter, serialized : Boolean) : String =  if (not serialized and p.isOptional()) then 'Optional<' + p.type() 
+  + '>' else p.type() endif /]
+
+[comment retourne le type complet pour le paramètre de sortie dans le cadre d'une opération rest./]
+[query public rsOutputType(o : soa::Operation) : String = if(o.hasOutput()) then o.output().rsOutputType() else '' endif/]
+
+[comment retourne le type complet pour le paramètre de sortie, possibilité de gérer le type Xto pour une opération rest./]
+[query private rsOutputType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
+  + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif else p.outputType(true) endif/]
+  
+[comment retourne le type complet pour le paramètre en entrée, possibilité de gérer le type Xto pour une opération rest./]
+[query public rsInputType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
+  + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif else p.type() endif/]
+  
+[comment vérifie si l'opération a un code de retour pour les service rest. /]
+[query public rsHasStatusCode(o : soa::Operation) : Boolean = o.exists() and o.hasOutput() and not (o.output().statusCode = null) 
+  and o.output->first().statusCode.size() > 0/]
+
+  
+  
+  
+  
+  
 
 [comment retourne le type et le nom du paramètre de sortie (si existe)./]
-[query public outputParamSignature(o : soa::Operation) : String = if(o.hasOutputParam()) then o.output->first().type() 
+[query public outputParamSignature(o : soa::Operation) : String = if(o.hasOutput()) then o.output->first().type() 
   + ' ' + o.output->first().name() else 'void' endif/]
   
 [comment retourne les types et les noms des paramètres en entrée (si existent)./]
@@ -28,8 +61,17 @@
 [comment retourne les ..../]
 [query public inputParamsSignatureWithoutTypes(o : soa::Operation) : soa::Parameter = o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())->sep(', ')/]
 
-[comment retourne le paramètre de sortie (si existe) VOIR CE QU ON FAIT SI NULL ET VOIR SI ON PREND LE TYPE./]
-[query public outputParam(o : soa::Operation) : soa::Parameter = o.output->first()/]
+
+
+[comment vérifie si l'opération est une opération de type rest./]
+[query public rsIsOperation(o : soa::Operation) : Boolean = o.exists() and o.public and o.exposition = soa::ExpositionKind::REST/]
+
+[comment retourne l'uri (partielle) pour une opération rest, si rien de renseigné renvoie '/' par défaut./]
+[query public rsUri(o : soa::Operation) : String = if (o.rsIsOperation()) then if (o.URI.exists()) then ('/' +  o.URI.trim()).toUri() 
+  else '/' endif else o.cNoModelisation() endif/]
+  
+  
+
 
 
 
@@ -48,6 +90,6 @@
   
   
 [comment retourne le nom de la variable pour le repository de l'opération./]  
-[query public repository(o : soa::Operation) : String = if(o.hasOutputParam() and o.output->first().oclIsTypeOf(entity::Entity)) 
+[query public repository(o : soa::Operation) : String = if(o.hasOutput() and o.output->first().oclIsTypeOf(entity::Entity)) 
   then o.output->first().type.oclAsType(entity::Entity).name()  else '' endif/]
   

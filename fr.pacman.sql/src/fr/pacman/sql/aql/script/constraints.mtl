@@ -78,6 +78,7 @@
 [query private writeCheckEnum(e : entity::Entity, a : environment::Attribute, idx : Integer, command : String) : String = 'alter table ' 
 	+ e.nameTableSchema().toUpper() +  if (command.equalsIgnoreCase(e.commandCreate())) then ' add' else ' drop' endif + ' constraint ' 
 	+  e.nameConstraintCheck(idx).toUpper() + if (command.equalsIgnoreCase(e.commandCreate())) then ' CHECK (' + a.nameColumn().toUpper() + ' IN ('
-	+ a.type.oclAsType(environment::Enumeration).literals->asSequence()->collect(temp1 | temp1.enumStruct(a.type.oclAsType(environment::Enumeration)))->sep(',') + '))' else '' endif/]
+	+ a.type.oclAsType(environment::Enumeration).literals->asSequence()->collect(temp1 | temp1.enumStruct(a.type.oclAsType(environment::Enumeration)))
+	->sep(',') + '))' else '' endif/]
 	
 [query private enumStruct(l : environment::Literal, e : environment::Enumeration) : String = '\'' +  l.name + '\''/]	

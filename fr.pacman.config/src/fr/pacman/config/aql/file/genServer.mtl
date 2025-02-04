@@ -10,4 +10,10 @@
   [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())][body/][/file]
 [/template]
 
+[comment écriture du fichier de configuration Maven pour le projet d'infrastructure./]
+[template public fileRsExceptionHandler(any : ecore::EObject, body : String)]
+  [file (any.nameClassRsExceptionHandlerImpl().toFileJava(any.namePackageProject()), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
+
 

@@ -11,6 +11,9 @@
 [query private toPath(pkg : String) : String = if(pkg <> null and pkg.trim()->size() > 0) then  pkg.replaceAll('\\.', '/').normalizePath()
   .ensureTrailingSlash() else '' endif/]
 
+[comment normailisation d'une uri pour les services rest etc..../]
+[query public toUri(uri : String) : String = if(uri.exists()) then uri.toPath().replaceAll('\\/$', '') else '/' endif/]
+
 [comment normalisation d'un package à partir d'une chaine de caractères./]
 [query public toPackage(pkg : String) : String = pkg.replaceAll('\\.+','\\.')/]
 

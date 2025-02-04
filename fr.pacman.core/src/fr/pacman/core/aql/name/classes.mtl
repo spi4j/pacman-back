@@ -54,7 +54,7 @@
 [query public nameClassDtoImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixDto()).apply_classDefault()/]
   
 [comment retourne le nom de la classe pour un objet sérialisé./]
-[query public nameClassXtoImpl(d : environment::DTO) : String = (d.name() + ' ' + 'xto').apply_classDefault()/] 
+[query public nameClassXtoImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixXto()).apply_classDefault()/] 
   
 [comment retourne le nom pour la classe d'implémentation du mapper objet métier <-> objet infrastructure./]
 [query public nameClassMapperImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixMapper()).apply_classDefault()/]
@@ -65,10 +65,11 @@
 [comment retourne le nom pour la classe d'implémentation du DAO./]
 [query public nameClassEntityDaoImpl(e : entity::Entity) : String = (e.name() + e.suffixEntityDao()).apply_classImplem()/]
   
+[comment retourne le nom de la classe pour l'implémentation de la gestion globale des erreurs rest./]
+[query public nameClassRsExceptionHandlerImpl(any : ecore::EObject) : String = (any.get_projectName() + any.suffixRsExceptionHandler()).apply_classImplem()/]
+  
 [comment retourne le nom pour la classe d'implémentation du DAO dans le cadre des test./]
 [comment query public nameClassDaoJdbcTest(e : entity::Entity) : String = (e.name() + e.suffixDaoTest()).apply_classTest()/]
   
 [comment retourne le nom pour ???????????????????/]
 [comment query public nameClassReferenceDaoImpl(r : environment::Reference) : String = (r.name() + r.suffixDao()).apply_classImplem()/]
-
-

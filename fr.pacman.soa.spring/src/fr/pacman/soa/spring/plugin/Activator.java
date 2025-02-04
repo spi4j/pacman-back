@@ -8,7 +8,7 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends Plugin {
 
-	public static final String c_pluginId = "fr.pacman.service";
+	public static final String c_pluginId = "fr.pacman.soa.spring";
 	private static Activator plugin;
 
 	@Override

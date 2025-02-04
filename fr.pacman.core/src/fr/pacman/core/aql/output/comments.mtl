@@ -69,7 +69,7 @@
        [p.writeParam()/]
      [/for]
      *
-     [if (o.hasOutputParam())]
+     [if (o.hasOutput())]
        [o.writeReturn()/]
      [/if]
      */
@@ -85,6 +85,6 @@
   + ' : ' + if(p.description.exists()) then p.description.escapeComment() else p.cNoDescription() endif + '.'/]
 
 [comment ./]
-[query private writeReturn(o : soa::Operation) : String = '* @return ' + o.outputParamType() + ' : ' 
-  + if (o.outputParam().description.exists()) then o.outputParam().description.escapeComment() 
-  else o.cNoDescription() endif + '.'/]
+[query private writeReturn(o : soa::Operation) : String = '* @return ' + o.outputType() + ' : ' 
+  + if (o.output().description.exists()) then o.output().description.escapeComment() else o.cNoDescription() 
+  endif + '.'/]

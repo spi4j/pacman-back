@@ -55,6 +55,8 @@
       [if (o.type.oclIsTypeOf(environment::DTO))]
         import [o.type.oclAsType(environment::DTO).namePackageDtoImpl()
           .package(o.type.oclAsType(environment::DTO).nameClassDtoImpl())/]
+        import [o.type.oclAsType(environment::DTO).namePackageXtoImpl()
+          .package(o.type.oclAsType(environment::DTO).nameClassXtoImpl())/]
       [/if]
     [/if]
   [/for][/if]

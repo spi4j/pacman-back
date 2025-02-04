@@ -2,6 +2,11 @@
 					'http://www.obeonetwork.org/dsl/entity/3.0.0',
 				    'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]				    
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::output::resources/]
+
 [comment retourne toutes les opérations d'un service soa./]
 [query public operations(s : soa::Service) : Sequence(soa::Operation) = s.ownedInterface.ownedOperations/]
 
@@ -13,5 +18,15 @@
 [query public associatedPersistentDto(s : soa::Service) : environment::DTO = s.eAllContents(soa::Parameter)
   ->select(o1 | o1.type.oclIsTypeOf(environment::DTO) and o1.name.equalsIgnoreCase(s.name))
   ->collect(o2 | o2.type.oclAsType(environment::DTO))->first()/]
+
+[comment vérifie si un service contient des opérations de type rest./]
+[query public isRsService(s : soa::Service) : Boolean = s.exists() and not s.ownedInterface.ownedOperations
+  ->select(o | o.exposition = soa::ExpositionKind::REST)->isEmpty() /]
+  
+[comment retourne l'uri (partielle) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
+[query public rsUri(s : soa::Service) : String = if (s.isRsService()) then if (s.URI.exists()) then ('/' +  s.URI).toUri() 
+  else '/' endif else s.cNoModelisation() endif/]
+  
+
   
  

@@ -18,7 +18,7 @@
   import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
   import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
   import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationOut()/];
-  
+
   [s.commentClass()/]
   @[s.nameClassAnnotationOut()/]
   public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceOutItf()/]
@@ -75,7 +75,7 @@
 [/template]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writeOperationSignature(o : soa::Operation) : String = 'public ' + o.outputParamType() + ' ' + o.nameOperation()
+[query private writeOperationSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation()
   + '(' + o.inputParamsSignature() + ')' /]
   
 [comment écriture de la signature d'une opération avec le paramètre en sortie./]
