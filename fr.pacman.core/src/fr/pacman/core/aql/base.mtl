@@ -32,6 +32,15 @@
 [comment le code de retour par défaut pour les services rest./]
 [query public defaultRsStatusCode(any : ecore::EObject) : String = '200'/]
 
+[comment le code 'not found' par défaut pour les services rest./]
+[query public defaultRsNotFoundStatusCode1(any : ecore::EObject) : String = '404'/]
+
+[comment le code 'not found' par défaut pour les services rest./]
+[query public defaultRsNotFoundStatusCode2(any : ecore::EObject) : String = '204'/]
+
+[comment le type de média par défaut pour le retour de l'ensemble des services rest./]
+[query public defaultRsMediaType (any : ecore::EObject) : String = 'MediaType.APPLICATION_JSON_VALUE'/]
+
 [comment la valeur par défaut pour l'initialisation d'une séquence SQL./]  [query public defaultSqlStartSequence(any : ecore::EObject) : String = '1000'/]
 
 [comment la base de données par défaut pour les tests de non-régression./]
@@ -113,7 +122,7 @@
 [query public suffixXto(any : ecore::EObject) : String = ' xto'/]
 
 [comment le suffixe par défaut pour la gestion gloable des exceptions rest./]  
-[query public suffixRsExceptionHandler(any : ecore::EObject) : String = ' response entity exception handler'/]
+[query public suffixRsExceptionHandler(any : ecore::EObject) : String = ' rs exception handler'/]
 
 [comment le suffixe pour la classe de démarrage de l'application./]
 [query public suffixApplicationBoostrap(any : ecore::EObject) : String = ' boostrap'/]

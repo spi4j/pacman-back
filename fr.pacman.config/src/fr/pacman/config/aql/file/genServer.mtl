@@ -10,9 +10,14 @@
   [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())][body/][/file]
 [/template]
 
-[comment écriture du fichier de configuration Maven pour le projet d'infrastructure./]
+[comment écriture de la classe pour la gestion globale des exceptions rest./]
 [template public fileRsExceptionHandler(any : ecore::EObject, body : String)]
-  [file (any.nameClassRsExceptionHandlerImpl().toFileJava(any.namePackageProject()), overwrite, any.defaultFileEncoding())][body/][/file]
+  [file (any.nameClassRsExceptionHandlerImpl().toFileJava(''), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture de la classe d'exception pour le 404/204./]
+[template public fileRsDataNotFoundException(any : ecore::EObject, body : String)]
+  [file (any.nameClassRsDataNotFoundExceptionImpl().toFileJava(''), overwrite, any.defaultFileEncoding())][body/][/file]
 [/template]
 
 

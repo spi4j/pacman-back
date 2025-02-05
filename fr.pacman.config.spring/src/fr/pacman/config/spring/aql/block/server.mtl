@@ -4,6 +4,10 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::method/]
 
 [comment écriture du fichier de configuration Maven pour le sous-projet serveur (infrastructure)./]
 [template public pom (any : ecore::EObject)]
@@ -51,9 +55,33 @@
   </project>
 [/template]
 
+[comment écriture de la classe d'exception pour les données rest non trouvées./]
+[template public rsDataNotFoundException(any : ecore::EObject)]
+  [any.classHeader(null)/]
+  
+  public class [any.nameClassRsDataNotFoundExceptionImpl()/] extends RuntimeException {
+      
+      private static final long serialVersionUID = 3708878571796774828L;
+      
+      ['Code retour pour le statut de la réponse'.commentMultiLines()/]
+      private int ['code'.apply_attributeDefault()/];
+      
+      ['Constructeur'.commentMultiLines()/]
+      public [any.nameClassRsDataNotFoundExceptionImpl()/](final int ['code'.apply_parameterMethodClassicIn()/], 
+          final String ['msg'.apply_parameterMethodClassicIn()/]) {
+          super(['msg'.apply_parameterMethodClassicIn()/]);
+          [any.prefixAffectation()/]['code'.apply_attributeDefault()/] = ['code'.apply_parameterMethodClassicIn()/];
+      }
+      
+      public int ['code'.apply_methodGet()/]() {
+          return ['code'.apply_attributeDefault()/];
+      }
+  }  
+[/template]
+
 [comment écriture de la classe de gestion globale des erreurs pour les api rest./]
 [template public rsExceptionhandler(any : ecore::EObject)]
-  [any.classHeader(any.namePackageProject())/]
+  [any.classHeader(null)/]
   
   import org.springframework.http.HttpHeaders;
   import org.springframework.http.HttpStatus;
@@ -64,7 +92,7 @@
   import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
   
   @ControllerAdvice
-  public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+  public class [any.nameClassRsExceptionHandlerImpl()/] extends ResponseEntityExceptionHandler {
     
     @ExceptionHandler(value = { IllegalArgumentException.class, IllegalStateException.class })
     protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
@@ -72,10 +100,39 @@
        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
   	}
   	
-  	@ExceptionHandler(value = { NullPointerException.class})
-  	protected ResponseEntity<Object> handleNullPointer(RuntimeException ex, WebRequest request) {
-       String bodyOfResponse = "This should be application specific";
-       return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
+  	@ExceptionHandler(value = { [any.nameClassRsDataNotFoundExceptionImpl()/].class})
+  	protected ResponseEntity<Object> handleDataNotFound([any.nameClassRsDataNotFoundExceptionImpl()/] ['ex'.apply_parameterMethodClassicIn()/]
+  	   , WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
+
+		ExceptionBody bodyOfResponse = new ExceptionBody();
+		bodyOfResponse.setStatusCode(['ex'.apply_parameterMethodClassicIn()/].getCode());
+		bodyOfResponse.setErrMessage(['ex'.apply_parameterMethodClassicIn()/].getMessage());
+
+       return handleExceptionInternal(['ex'.apply_parameterMethodClassicIn()/], bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT
+         , ['request'.apply_parameterMethodClassicIn()/]);
+    }
+    
+    class ExceptionBody {
+
+    		private int statusCode;
+
+    		private String errMessage;
+
+    		public int getStatusCode() {
+    		return statusCode;
+    	}
+
+    		public void setStatusCode(int statusCode) {
+    		this.statusCode = statusCode;
+    	}
+
+    		public String getErrMessage() {
+    		return errMessage;
+    	}
+
+    		public void setErrMessage(String errMessage) {
+    		this.errMessage = errMessage;
+    	}
     }
   }
 [/template]

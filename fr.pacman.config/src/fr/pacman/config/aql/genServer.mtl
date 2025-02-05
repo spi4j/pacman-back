@@ -5,9 +5,11 @@
 [comment écriture de l'ensemble de la configuration de base pour le projet d'infrastructure./]
 [template protected genRootConfig(r : overview::Root)]
   [r.filePom(r.genPom())/]
-  [r.genRsExceptionHandler()/]
+  [r.fileRsExceptionHandler(r.genRsExceptionHandler())/]
+  [r.fileRsDataNotFoundException(r.genRsDataNotFoundException())/]
 [/template]
 
 [comment liste des méthodes abstraites destinées à etre implémentées dans les modules fils./]
 [template protected genPom(any : ecore::EObject)][/template]
 [template protected genRsExceptionHandler(any : ecore::EObject)][/template]
+[template protected genRsDataNotFoundException(any : ecore::EObject)][/template]

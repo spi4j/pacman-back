@@ -44,6 +44,36 @@
 [query public rsHasStatusCode(o : soa::Operation) : Boolean = o.exists() and o.hasOutput() and not (o.output().statusCode = null) 
   and o.output->first().statusCode.size() > 0/]
 
+[comment vérifie si l'opération a défini un type de média pour la sortie du service rest./]
+[query public rsHasMediaType(o : soa::Operation) : Boolean = o.exists() and o.output().exists() and o.output().rsHasMediaType()/]
+  
+[comment vérifie si le paramètre de sortie a défini un type de média pour le service rest./]
+[query public rsHasMediaType(p : soa::Parameter) : Boolean = p.exists() and p.mediaType <> null and  p.mediaType->size() > 0/]
+  
+[comment retourne le type de média pour le paramètre de sortie du service rest./]
+[query public rsMediaType(p : soa::Parameter) : String = p.mediaType->first().identifier/]
+
+[comment vérifie si une 'fault' de type 'Not Found' a été définie sur l'opération rest./]
+[query public rsHasNotFoundFault (o :soa::Operation) : Boolean = o.exists() and not o.fault->select(f | f.statusCode.equalsIgnoreCase
+ (o.defaultRsNotFoundStatusCode1()) or f.statusCode.equalsIgnoreCase(o.defaultRsNotFoundStatusCode2()))->isEmpty()/]
+
+[comment retourne la 'fault' de type 'Not Found' qui a été définie sur l'opération rest./]
+[query public rsNotFoundFault (o :soa::Operation) : soa::Parameter =  o.fault->select(f | f.statusCode.equalsIgnoreCase
+ (o.defaultRsNotFoundStatusCode1()) or f.statusCode.equalsIgnoreCase(o.defaultRsNotFoundStatusCode2()))->first()/]
+  
+[comment vérifie si l'opération est une opération de type rest./]
+[query public rsIsOperation(o : soa::Operation) : Boolean = o.exists() and o.public and o.exposition = soa::ExpositionKind::REST/]
+
+[comment retourne l'uri (partielle) pour une opération rest, si rien de renseigné renvoie '/' par défaut./]
+[query public rsUri(o : soa::Operation) : String = if (o.rsIsOperation()) then if (o.URI.exists()) then ('/' +  o.URI.trim()).toUri() 
+  else '/' endif else o.cNoModelisation() endif/] 
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -63,12 +93,7 @@
 
 
 
-[comment vérifie si l'opération est une opération de type rest./]
-[query public rsIsOperation(o : soa::Operation) : Boolean = o.exists() and o.public and o.exposition = soa::ExpositionKind::REST/]
 
-[comment retourne l'uri (partielle) pour une opération rest, si rien de renseigné renvoie '/' par défaut./]
-[query public rsUri(o : soa::Operation) : String = if (o.rsIsOperation()) then if (o.URI.exists()) then ('/' +  o.URI.trim()).toUri() 
-  else '/' endif else o.cNoModelisation() endif/]
   
   
 

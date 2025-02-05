@@ -26,7 +26,7 @@
 [query public namePackageInItf(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixInterfaceIn().trim() + 's' + '.' + s.nameComponent()/]
 
 [comment retourne le package pour l'implémentation du port par l'adaptateur (domain->persistance)./]
-[query public namePackageInImpl(s : soa::Service) : String = 'adapters.infra.' + s.nameComponent()/]
+[query public namePackageInImpl(s : soa::Service) : String = 'infra.adapters.' + s.nameComponent()/]
   
 [comment retourne le package pour une classe d'énumération./]
 [query public namePackageEnumeration(e : environment::Enumeration) : String = 'app'/]
@@ -38,7 +38,7 @@
 [query public namePackageServiceImpl(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService() +  's.' + s.nameComponent()/]
   
 [comment retourne le package pour l'implémentation d'un contrôleur soa./]
-[query public namePackageControllerImpl(s : soa::Service) : String = 'adapters.app.' + s.nameComponent()/]
+[query public namePackageControllerImpl(s : soa::Service) : String = 'app.adapters.' + s.nameComponent()/]
   
 [comment retourne le package pour une classe d'implémentation (cas d'une entité)./]
 [query public namePackageEntityImpl(e : entity::Entity) : String = 'persistence' + e.blockHierarchy()/]
@@ -47,22 +47,22 @@
 [query public namePackageEntityItf(e : entity::Entity) : String = ''/]
   
 [comment retourne le package pour une classe d'interface de la persitance ORM./]
-[query public namePackageEntityDaoItf(e : entity::Entity) : String = 'persistence.repo' + e.blockHierarchy()/]
+[query public namePackageEntityDaoItf(e : entity::Entity) : String = 'infra.persistence.repo' + e.blockHierarchy()/]
   
 [comment retourne le package pour une classe d'implémentation de la persistance ORM./]
-[query public namePackageEntityDaoImpl(e : entity::Entity) : String = 'persistence.repo' + e.blockHierarchy()/]
+[query public namePackageEntityDaoImpl(e : entity::Entity) : String = 'infra.persistence.repo' + e.blockHierarchy()/]
 
 [comment retourne le package pour une classe d'implémentation (cas d'un objet de transfert)./]  
 [query public namePackageDtoImpl(d : environment::DTO) : String = d.get_suffixCommon() + '.objects' + d.blockHierarchy()/]
   
 [comment retourne le package pour une classe d'implémentation (cas d'un objet sérialisé)./]  
-[query public namePackageXtoImpl(d : environment::DTO) : String = d.get_suffixServer() + '.xto' + d.blockHierarchy()/]
+[query public namePackageXtoImpl(d : environment::DTO) : String = 'app.xto' + d.blockHierarchy()/]
   
 [comment retourne le package pour une classe de mapping entre l'objet métier et l'objet d'infrastructure./]  
-[query public namePackageMapperInImpl(d : environment::DTO) : String = 'adapters.infra.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
+[query public namePackageMapperInImpl(d : environment::DTO) : String = 'infra.adapters.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
   
 [comment retourne le package pour une classe de mapping entre l'objet métier et l'objet application./]  
-[query public namePackageMapperOutImpl(d : environment::DTO) : String = 'adapters.app.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
+[query public namePackageMapperOutImpl(d : environment::DTO) : String = 'app.adapters.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
   
 [comment ESSAYER DE MUTUALISER ?????./]
   

@@ -14,7 +14,10 @@
 [template protected genRootConfig(r : overview::Root)][r.super:genRootConfig()/][/template]
 
 [comment écriture du fichier de configuration Maven./]
-[template protected genPom(any : ecore::EObject)][any.pom()/][/template]
+[template protected genPom(r : ecore::EObject)][r.pom()/][/template]
 
 [comment écriture de la classe de gestion globale des erreurs rest./]
-[template protected genRsExceptionHandler(any : ecore::EObject)][any.rsExceptionhandler()/][/template]
+[template protected genRsExceptionHandler(r : ecore::EObject)][r.rsExceptionhandler()/][/template]
+ 
+[comment écriture de la classe d'exception pour les données non trouvées dans les services rest./] 
+[template protected genRsDataNotFoundException(r : ecore::EObject)][r.rsDataNotFoundException()/][/template]

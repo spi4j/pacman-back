@@ -206,8 +206,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 
 		try {
 			File file = new File((p_project).getLocation().toString());
-			final String modelPath = file.getAbsolutePath() + File.separator + _pageOne.getProjectName()
+			final String modelPath = file.getAbsolutePath() + File.separator + _pageOne.getProjectName() + "-"
 					+ ProjectProperties.get_suffixModel(null);
+			
 			PropertiesHandler.init(modelPath, p_properties);
 			Monitor monitor = new BasicMonitor();
 			// PacmanUIGeneratorsReport.reset();
@@ -244,7 +245,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			// PacmanUIGeneratorsReport.log(true);
 			try {
 				PropertiesHandler.exit();
-				
+
 			} catch (IOException e) {
 
 				throw new CoreException(WizardUtil.sendErrorStatus(e, Activator.c_pluginId));

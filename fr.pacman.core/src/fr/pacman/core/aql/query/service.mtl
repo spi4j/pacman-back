@@ -15,7 +15,7 @@
   ->select(o | o.oclIsKindOf(entity::Entity))->asOrderedSet()/]
   
 [comment retourne le dto persistant associé au service métier./]  
-[query public associatedPersistentDto(s : soa::Service) : environment::DTO = s.eAllContents(soa::Parameter)
+[query public associatedDto(s : soa::Service) : environment::DTO = s.eAllContents(soa::Parameter)
   ->select(o1 | o1.type.oclIsTypeOf(environment::DTO) and o1.name.equalsIgnoreCase(s.name))
   ->collect(o2 | o2.type.oclAsType(environment::DTO))->first()/]
 

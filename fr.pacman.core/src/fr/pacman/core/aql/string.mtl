@@ -60,7 +60,7 @@
 [query public lineCut(str : String, nbCols : Integer) : String = str.lineCut(nbCols, null)/]
 
 [comment retourne la les lignes de commentaires échappées des apostrophes et des retours à la ligne./]  
-[query public escapeComment(str : String) : String = str.replaceAll('\'', '\'\'').replaceAll('[\n|\r]','').replace('\\.$','')/]
+[query public escapeComment(str : String) : String = str.replaceAll('[\n|\r]','').replace('\\.$','')/]
 
 [comment retourne le script SQL débarrasé des lignes vides issues de la génération./]
 [query public escapeFile(str : String) : String = str.escapeFile(true)/]

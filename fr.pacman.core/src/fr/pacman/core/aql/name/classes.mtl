@@ -66,7 +66,10 @@
 [query public nameClassEntityDaoImpl(e : entity::Entity) : String = (e.name() + e.suffixEntityDao()).apply_classImplem()/]
   
 [comment retourne le nom de la classe pour l'implémentation de la gestion globale des erreurs rest./]
-[query public nameClassRsExceptionHandlerImpl(any : ecore::EObject) : String = (any.get_projectName() + any.suffixRsExceptionHandler()).apply_classImplem()/]
+[query public nameClassRsExceptionHandlerImpl(any : ecore::EObject) : String = (any.get_projectName() + any.suffixRsExceptionHandler()).apply_classDefault()/]
+
+[comment retourne le nom de la classe d'exception dans le cas ou les données ne sont pas trouvées./]
+[query public nameClassRsDataNotFoundExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' rs not found exception').apply_classDefault()/]
   
 [comment retourne le nom pour la classe d'implémentation du DAO dans le cadre des test./]
 [comment query public nameClassDaoJdbcTest(e : entity::Entity) : String = (e.name() + e.suffixDaoTest()).apply_classTest()/]
