@@ -14,9 +14,9 @@
 [query public outputEntities(s : soa::Service) : OrderedSet(entity::Entity) = s.ownedInterface.ownedOperations.output.type
   ->select(o | o.oclIsKindOf(entity::Entity))->asOrderedSet()/]
   
-[comment retourne le dto persistant associé au service métier./]  
+[comment retourne le dto persistant associé au service métier, le doto doit avoir le même nom que le service./]  
 [query public associatedDto(s : soa::Service) : environment::DTO = s.eAllContents(soa::Parameter)
-  ->select(o1 | o1.type.oclIsTypeOf(environment::DTO) and o1.name.equalsIgnoreCase(s.name))
+  ->select(o1 | o1.type.oclIsTypeOf(environment::DTO) and o1.type.name.trim().equalsIgnoreCase(s.name.trim()))
   ->collect(o2 | o2.type.oclAsType(environment::DTO))->first()/]
 
 [comment vérifie si un service contient des opérations de type rest./]

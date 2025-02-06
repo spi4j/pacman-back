@@ -69,7 +69,13 @@
 [query public nameClassRsExceptionHandlerImpl(any : ecore::EObject) : String = (any.get_projectName() + any.suffixRsExceptionHandler()).apply_classDefault()/]
 
 [comment retourne le nom de la classe d'exception dans le cas ou les données ne sont pas trouvées./]
-[query public nameClassRsDataNotFoundExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' rs not found exception').apply_classDefault()/]
+[query public nameClassRsDataNotFoundExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' not found exception').apply_classDefault()/]
+
+[comment retourne le nom de la classe contenant le corps de la reponse pour la gestion globale des erreurs rest./]
+[query public nameClassRsErrorBodyResponseImpl(any : ecore::EObject) : String = (any.get_projectName() + ' error body response').apply_classDefault()/]
+
+[comment retourne le nom de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest./]
+[query public nameClassRsHttpStatusResolverImpl(any : ecore::EObject) : String = (any.get_projectName() + ' http status resolver').apply_classDefault()/]
   
 [comment retourne le nom pour la classe d'implémentation du DAO dans le cadre des test./]
 [comment query public nameClassDaoJdbcTest(e : entity::Entity) : String = (e.name() + e.suffixDaoTest()).apply_classTest()/]

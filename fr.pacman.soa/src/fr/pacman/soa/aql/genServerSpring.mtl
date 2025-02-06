@@ -1,5 +1,5 @@
-[module genServerSpring(	'http://www.obeonetwork.org/dsl/soa/4.0.0') 
-
+[module genServerSpring(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+                            'http://www.obeonetwork.org/dsl/environment/3.0.0') 
 							extends fr::pacman::soa::aql::genServer/]
 
 [comment toujours placer les 'main' au niveau des modules fils, sinon génération incomplète./]
@@ -11,13 +11,14 @@
 [comment enlever ces imports suite a correction bug./]
 
 [import fr::pacman::soa::spring::aql::block::serviceServer/]
+[import fr::pacman::core::aql::query::service/]
 
 [comment @main/]
 [comment sert de passe-plat pour le module parent./]
 [template protected genServer(s : soa::System)][s.super:genServer()/][/template]
 
 [comment écriture de l'implémentation Spring pour le contrôleur./]
-[template protected genServiceImpl(s : soa::Service)][s.implementation()/][/template]
+[template protected genServiceImpl(s : soa::Service)][s.implementation(s.associatedDto())/][/template]
 
 [comment écriture de l'implémentation Spring pour le service de persistance./]
-[template protected genServiceInImpl(s : soa::Service)][s.implementationIn()/][/template]
+[template protected genServiceInImpl(s : soa::Service)][s.implementationIn(s.associatedDto())/][/template]

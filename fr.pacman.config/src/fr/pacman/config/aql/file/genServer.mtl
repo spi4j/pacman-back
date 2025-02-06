@@ -2,6 +2,7 @@
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::config::aql::block::server/]
 [import fr::pacman::core::aql::output::resources/]
 
@@ -12,13 +13,25 @@
 
 [comment écriture de la classe pour la gestion globale des exceptions rest./]
 [template public fileRsExceptionHandler(any : ecore::EObject, body : String)]
-  [file (any.nameClassRsExceptionHandlerImpl().toFileJava(''), overwrite, any.defaultFileEncoding())][body/][/file]
+  [file (any.nameClassRsExceptionHandlerImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
 [/template]
 
 [comment écriture de la classe d'exception pour le 404/204./]
 [template public fileRsDataNotFoundException(any : ecore::EObject, body : String)]
-  [file (any.nameClassRsDataNotFoundExceptionImpl().toFileJava(''), overwrite, any.defaultFileEncoding())][body/][/file]
+  [file (any.nameClassRsDataNotFoundExceptionImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
 [/template]
+
+[comment écriture de la classe pour le corps de la reponse dans le cadre de la gestion globale des erreurs rest./]
+[template public fileRsErrorBodyResponse(any : ecore::EObject, body : String)]
+  [file (any.nameClassRsErrorBodyResponseImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest../]
+[template public fileRsHttpStatusResolver(any : ecore::EObject, body : String)]
+  [file (any.nameClassRsHttpStatusResolverImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
+
 
 
 

@@ -122,7 +122,7 @@
 [query public suffixXto(any : ecore::EObject) : String = ' xto'/]
 
 [comment le suffixe par défaut pour la gestion gloable des exceptions rest./]  
-[query public suffixRsExceptionHandler(any : ecore::EObject) : String = ' rs exception handler'/]
+[query public suffixRsExceptionHandler(any : ecore::EObject) : String = ' exception handler'/]
 
 [comment le suffixe pour la classe de démarrage de l'application./]
 [query public suffixApplicationBoostrap(any : ecore::EObject) : String = ' boostrap'/]

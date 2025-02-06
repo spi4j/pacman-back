@@ -41,7 +41,7 @@
 [query public namePackageControllerImpl(s : soa::Service) : String = 'app.adapters.' + s.nameComponent()/]
   
 [comment retourne le package pour une classe d'implémentation (cas d'une entité)./]
-[query public namePackageEntityImpl(e : entity::Entity) : String = 'persistence' + e.blockHierarchy()/]
+[query public namePackageEntityImpl(e : entity::Entity) : String = 'infra.persistence' + e.blockHierarchy()/]
   
 [comment retourne le package pour une interface (cas d'une entité)./]
 [query public namePackageEntityItf(e : entity::Entity) : String = ''/]
@@ -59,10 +59,13 @@
 [query public namePackageXtoImpl(d : environment::DTO) : String = 'app.xto' + d.blockHierarchy()/]
   
 [comment retourne le package pour une classe de mapping entre l'objet métier et l'objet d'infrastructure./]  
-[query public namePackageMapperInImpl(d : environment::DTO) : String = 'infra.adapters.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
+[query public namePackageMapperInImpl(d : environment::DTO) : String = 'infra.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
   
 [comment retourne le package pour une classe de mapping entre l'objet métier et l'objet application./]  
-[query public namePackageMapperOutImpl(d : environment::DTO) : String = 'app.adapters.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
+[query public namePackageMapperOutImpl(d : environment::DTO) : String = 'app.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
+  
+[comment retourne la package pour les classes génériques concernant les services rest./]
+[query public namePackageRsBase(any : ecore::EObject) : String = 'app'/]
   
 [comment ESSAYER DE MUTUALISER ?????./]
   

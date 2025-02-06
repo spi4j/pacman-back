@@ -7,9 +7,13 @@
   [r.filePom(r.genPom())/]
   [r.fileRsExceptionHandler(r.genRsExceptionHandler())/]
   [r.fileRsDataNotFoundException(r.genRsDataNotFoundException())/]
+  [r.fileRsErrorBodyResponse(r.genRsErrorBodyResponse())/]
+  [r.fileRsHttpStatusResolver(r.genRsHttpStatusResolver())/]
 [/template]
 
 [comment liste des méthodes abstraites destinées à etre implémentées dans les modules fils./]
 [template protected genPom(any : ecore::EObject)][/template]
 [template protected genRsExceptionHandler(any : ecore::EObject)][/template]
 [template protected genRsDataNotFoundException(any : ecore::EObject)][/template]
+[template protected genRsErrorBodyResponse(any : ecore::EObject)][/template]
+[template protected genRsHttpStatusResolver(any : ecore::EObject)][/template]

@@ -7,7 +7,10 @@
 [import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::method/]
+
+[import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture du fichier de configuration Maven pour le sous-projet serveur (infrastructure)./]
 [template public pom (any : ecore::EObject)]
@@ -57,31 +60,49 @@
 
 [comment écriture de la classe d'exception pour les données rest non trouvées./]
 [template public rsDataNotFoundException(any : ecore::EObject)]
-  [any.classHeader(null)/]
+  [any.classHeader(any.namePackageRsBase())/]
   
+  /**
+   * Services REST: Classe minimaliste (à titre d'exemple) pour une exception de
+   * type fonctionnelle. Elle est automatiquement renvoyée par les générateurs si
+   * l'entitée n'est pas trouvée dans le cadre des services rest.
+   * <p>
+   * Cette classe fonctionne en relation avec les classes {@link [any.nameClassRsErrorBodyResponseImpl()/]} 
+   * et {@link [any.nameClassRsExceptionHandlerImpl()/]}
+   * <p>
+   * Si besoin, créer des exceptions supplémentaires et les positionner au niveau
+   * de ce package.
+   * 
+   * @author [any.get_authorName()/]
+   */
   public class [any.nameClassRsDataNotFoundExceptionImpl()/] extends RuntimeException {
       
       private static final long serialVersionUID = 3708878571796774828L;
       
-      ['Code retour pour le statut de la réponse'.commentMultiLines()/]
-      private int ['code'.apply_attributeDefault()/];
+      ['Code pour le statut HTTP'.commentMultiLines()/]
+      private int ['status code'.apply_attributeDefault()/];
       
       ['Constructeur'.commentMultiLines()/]
-      public [any.nameClassRsDataNotFoundExceptionImpl()/](final int ['code'.apply_parameterMethodClassicIn()/], 
+      public [any.nameClassRsDataNotFoundExceptionImpl()/](final int ['status code'.apply_parameterMethodClassicIn()/], 
           final String ['msg'.apply_parameterMethodClassicIn()/]) {
           super(['msg'.apply_parameterMethodClassicIn()/]);
-          [any.prefixAffectation()/]['code'.apply_attributeDefault()/] = ['code'.apply_parameterMethodClassicIn()/];
+          [any.prefixAffectation()/]['status code'.apply_attributeDefault()/] = ['status code'.apply_parameterMethodClassicIn()/];
       }
       
-      public int ['code'.apply_methodGet()/]() {
-          return ['code'.apply_attributeDefault()/];
+      /**
+       * Retourne le code de statut HTTP.
+       * 
+       * @return le code de statut HTTP.
+       */
+      public int ['status code'.apply_methodGet()/]() {
+          return ['status code'.apply_attributeDefault()/];
       }
   }  
 [/template]
 
 [comment écriture de la classe de gestion globale des erreurs pour les api rest./]
 [template public rsExceptionhandler(any : ecore::EObject)]
-  [any.classHeader(null)/]
+  [any.classHeader(any.namePackageRsBase())/]
   
   import org.springframework.http.HttpHeaders;
   import org.springframework.http.HttpStatus;
@@ -91,48 +112,124 @@
   import org.springframework.web.context.request.WebRequest;
   import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
   
+  /**
+   * Gestionnaire global des erreurs (ou avertissements) techniques et
+   * fonctionnelles pour les services rest. Ce gestionnaire focntionne en relation
+   * avec la classe de définition de la structure pour la reponse {@link [any.nameClassRsErrorBodyResponseImpl()/]}.
+   * <p>
+   * Compléter la classe si besoin avec autant de méthodes de gestion des
+   * exceptions que nécessaires;
+   * 
+   * @author [any.get_authorName()/]
+   */
   @ControllerAdvice
   public class [any.nameClassRsExceptionHandlerImpl()/] extends ResponseEntityExceptionHandler {
     
-    @ExceptionHandler(value = { IllegalArgumentException.class, IllegalStateException.class })
-    protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
-       String bodyOfResponse = "This should be application specific";
-       return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
-  	}
-  	
-  	@ExceptionHandler(value = { [any.nameClassRsDataNotFoundExceptionImpl()/].class})
-  	protected ResponseEntity<Object> handleDataNotFound([any.nameClassRsDataNotFoundExceptionImpl()/] ['ex'.apply_parameterMethodClassicIn()/]
-  	   , WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
-
-		ExceptionBody bodyOfResponse = new ExceptionBody();
-		bodyOfResponse.setStatusCode(['ex'.apply_parameterMethodClassicIn()/].getCode());
-		bodyOfResponse.setErrMessage(['ex'.apply_parameterMethodClassicIn()/].getMessage());
-
-       return handleExceptionInternal(['ex'.apply_parameterMethodClassicIn()/], bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT
-         , ['request'.apply_parameterMethodClassicIn()/]);
+    /**
+    * Exception fonctionnelle : données (entités) non trouvées au niveau de la
+    * persistance.
+    */
+    @ExceptionHandler(value = { [any.nameClassRsDataNotFoundExceptionImpl()/].class})
+    protected ResponseEntity<Object> ['handle data not found'.apply_methodDefault()/]
+      ([any.nameClassRsDataNotFoundExceptionImpl()/] ['ex'.apply_parameterMethodClassicIn()/]
+       , WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
+       [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
+         = new [any.nameClassRsErrorBodyResponseImpl()/] (['ex'.apply_parameterMethodClassicIn()/].['status code'.apply_methodGet()/](), 
+          ['ex'.apply_parameterMethodClassicIn()/].['message'.apply_methodGet()/]());
+       return handleExceptionInternal(['ex'.apply_parameterMethodClassicIn()/], ['body response'.apply_variableDefault()/]
+       , new HttpHeaders(), [any.nameClassRsHttpStatusResolverImpl()/].['resolve'.apply_methodDefault()/]
+       (['body response'.apply_variableDefault()/].['status code'.apply_methodGet()/]()), ['request'.apply_parameterMethodClassicIn()/]);
     }
     
-    class ExceptionBody {
+    /**
+     * Exception technique : toutes les autres exceptions, non gérées précédement.
+      */
+    @ExceptionHandler(value = { Exception.class })
+    protected ResponseEntity<Object> ['handle server error exception'.apply_methodDefault()/](Exception ex, WebRequest request) {
+       [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
+         = new [any.nameClassRsErrorBodyResponseImpl()/](500, "Exception");
+       return handleExceptionInternal(ex, ['body response'.apply_variableDefault()/]
+       , new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+  	}
+  }
+[/template]
 
-    		private int statusCode;
+[comment écriture de la classe pour le corps des erreurs sur les api rest./]
+[template public rsErrorBodyResponse(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  
+  /**
+   * Services REST: Structure du message à envoyer lors des exceptions techniques ou
+   * fonctionnelles.
+   * <P>
+   * Cette classe est utilisée par le gestionnaire global des exceptions de
+   * l'application [any.nameProject()/] : classe {@link [any.nameClassRsExceptionHandlerImpl()/]}. 
+   * Par défaut, la structure est minimale avec un statut HTTP (bien qu'il soit aussi présent au
+   * niveau de l'en-tête) et un message d'erreur. 
+   * <p>
+   * Compléter la classe selon le besoin et modifier la classe {@link [any.nameClassRsExceptionHandlerImpl()/]} 
+   * afin de prendre en compte l'ensemble des modifications apportées.
+   * 
+   * @author [any.get_authorName()/]
+   */
+  class [any.nameClassRsErrorBodyResponseImpl()/] {
+     
+     ['Le code de statut HTTP'.commentMultiLines()/]
+     private final int ['status code'.apply_attributeDefault()/];
+       
+     ['Le message d\'erreur ou d\'avertissement'.commentMultiLines()/]
+     private final String ['err message'.apply_attributeFinal()/];
+     
+     ['Constructeur'.commentMultiLines()/]
+     [any.nameClassRsErrorBodyResponseImpl()/](final int ['status code'.apply_parameterMethodClassicIn()/], 
+       final String ['err message'.apply_parameterMethodClassicIn()/])
+     {
+        [any.prefixAffectation()/]['status code'.apply_attributeFinal()/] = ['status code'.apply_parameterMethodClassicIn()/] ;
+        [any.prefixAffectation()/]['err message'.apply_attributeFinal()/] = ['err message'.apply_parameterMethodClassicIn()/];
+     }
+     
+     /**
+      * Retourne le statut HTTP pour l'exception.
+      * 
+      * @return le statut HTTP.
+      */
+     public int ['status code'.apply_methodGet()/]() {
+        return ['status code'.apply_attributeDefault()/];
+     }
+     
+     /**
+      * Retourne le message d'erreur ou d'avertissement pour l'exception.
+      * 
+      * @return le message d'erreur ou d'avertissment?
+      */
+     public String ['err message'.apply_methodGet()/]() {
+        return ['err message'.apply_attributeDefault()/];
+     }
+  }
+[/template]
 
-    		private String errMessage;
-
-    		public int getStatusCode() {
-    		return statusCode;
-    	}
-
-    		public void setStatusCode(int statusCode) {
-    		this.statusCode = statusCode;
-    	}
-
-    		public String getErrMessage() {
-    		return errMessage;
-    	}
-
-    		public void setErrMessage(String errMessage) {
-    		this.errMessage = errMessage;
-    	}
-    }
+[comment écriture de la classe de résolution des statuts (int <-> HTttpStatus) pour les services rest./]
+[template public rsHttpStatusResolver(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  
+  import org.springframework.http.HttpStatus;
+  
+  /**
+   * Classe de conversion entre les statuts HTTP modélisés et l'énumération Spring
+   * HttpStatus. 
+   * 
+   * @author [any.get_authorName()/]
+   */
+  class [any.nameClassRsHttpStatusResolverImpl()/]
+  {
+      /**
+       * Retourne l'énumération à partie de son code de statut au format entier.
+       * 
+       * @param ['status code'.apply_parameterMethodClassicIn()/] le code de sttaut HTTP sous forme d'entier.
+       * @return le statut sous forme d'énumération.
+       */
+      static HttpStatus ['resolve'.apply_methodDefault()/](final int ['status code'.apply_parameterMethodClassicIn()/]) {
+         return HttpStatus.resolve(['status code'.apply_parameterMethodClassicIn()/]);
+      }
   }
 [/template]

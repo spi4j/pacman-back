@@ -26,7 +26,7 @@
 [query public outputType(o : soa::Operation) : String = if(o.hasOutput()) then o.output().outputType(false) else 'void' endif/]
   
 [comment retourne le type complet pour le paramètre de sortie, possibilité de gérer le type Optional./]
-[query private outputType(p : soa::Parameter, serialized : Boolean) : String =  if (not serialized and p.isOptional()) then 'Optional<' + p.type() 
+[query private outputType(p : soa::Parameter, serialized : Boolean) : String =  if (not serialized and p.isTypeOptional()) then 'Optional<' + p.type() 
   + '>' else p.type() endif /]
 
 [comment retourne le type complet pour le paramètre de sortie dans le cadre d'une opération rest./]
@@ -87,9 +87,7 @@
 [comment retourne les types et les noms des paramètres en entrée (si existent)./]
 [query public inputParamsSignature(o : soa::Operation) : String = o.input->collect(o1 | o1.type() + ' ' 
   + o1.name().apply_parameterMethodClassicInOut())->sep(', ')/]
-  
-[comment retourne les ..../]
-[query public inputParamsSignatureWithoutTypes(o : soa::Operation) : soa::Parameter = o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())->sep(', ')/]
+
 
 
 

@@ -21,3 +21,9 @@
  
 [comment écriture de la classe d'exception pour les données non trouvées dans les services rest./] 
 [template protected genRsDataNotFoundException(r : ecore::EObject)][r.rsDataNotFoundException()/][/template]
+  
+[comment écriture de la classe pour le corps de la reponse pour les erreurs sur les services rest./]
+[template protected genRsErrorBodyResponse(any : ecore::EObject)][any.rsErrorBodyResponse()/][/template]
+
+[comment écriture de la classe pour la résolution des statuts http dans le cadre des services rest./]
+[template protected genRsHttpStatusResolver(any : ecore::EObject)][any.rsHttpStatusResolver()/][/template]
