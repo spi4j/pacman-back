@@ -39,22 +39,37 @@
           <dependency>
              <groupId>org.springframework.boot</groupId>
              <artifactId>spring-boot-starter-data-jpa</artifactId>
-             <version>3.4.1</version>
+             <version>[any.versionSpringBoot()/]</version>
           </dependency>
           <dependency>
              <groupId>org.springframework.boot</groupId>
              <artifactId>spring-boot-starter-web</artifactId>
-             <version>3.4.1</version>
+             <version>[any.versionSpringBoot()/]</version>
           </dependency>
           <dependency>
              <groupId>org.junit.jupiter</groupId>
              <artifactId>junit-jupiter</artifactId>
-             <version>5.11.4</version>
+             <version>[any.versionJupiter()/]</version>
           </dependency>
           <dependency>
              <groupId>com.h2database</groupId>
              <artifactId>h2</artifactId>
-             <version>2.2.224</version>
+             <version>[any.versionH2()/]</version>
+          </dependency>
+          <dependency>
+          	<groupId>org.springframework.boot</groupId>
+          	<artifactId>spring-boot-starter-security</artifactId>
+          	<version>[any.versionSpringBoot()/]</version>
+          </dependency>
+          <dependency>
+          	<groupId>org.springframework.boot</groupId>
+          	<artifactId>spring-boot-starter-oauth2-client</artifactId>
+          	<version>[any.versionSpringBoot()/]</version>
+          </dependency>
+          <dependency>
+          	<groupId>org.springframework.boot</groupId>
+          	<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+          	<version>[any.versionSpringBoot()/]</version>
           </dependency>
        </dependencies>
     </dependencyManagement>

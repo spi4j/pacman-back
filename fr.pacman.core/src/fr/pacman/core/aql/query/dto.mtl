@@ -16,4 +16,8 @@
 [comment retourne l'entité associée au dto (dans le cadre de pacman, toujours une entité)./]
 [query public associatedEntity(d : environment::DTO) : entity::Entity = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
    then d.associatedTypes->first().oclAsType(entity::Entity) else null endif/]
+
+[comment retourne le type associé au dto (dans le cadre de pacman, toujours une entité)./]
+[query public associatedType(d : environment::DTO) : environment::Type = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
+   then d.associatedTypes->first() else null endif/]
   

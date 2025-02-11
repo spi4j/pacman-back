@@ -12,7 +12,7 @@
   .ensureTrailingSlash() else '' endif/]
 
 [comment normailisation d'une uri pour les services rest etc..../]
-[query public toUri(uri : String) : String = if(uri.exists()) then uri.toPath().replaceAll('\\/$', '') else '/' endif/]
+[query public toUri(uri : String) : String = if(uri.exists()) then uri.trim().toPath().replaceAll('\\/$', '') else '/' endif/]
 
 [comment normalisation d'un package à partir d'une chaine de caractères./]
 [query public toPackage(pkg : String) : String = pkg.replaceAll('\\.+','\\.')/]

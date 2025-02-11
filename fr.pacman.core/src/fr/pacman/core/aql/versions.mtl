@@ -4,7 +4,10 @@
 
 [query public versionMavenCompilerPlugin(any : ecore::EObject) : String = '3.10.1'/]
 [query public versionMavenEnforcerPlugin(any : ecore::EObject) : String = '3.0.0-M2'/]
-[query public versionMaven(any : ecore::EObject) : String = '3.6.3'/]    
+[query public versionMaven(any : ecore::EObject) : String = '3.6.3'/]
+[query public versionSpringBoot(any : ecore::EObject) : String = '3.4.1'/]
+[query public versionH2(any : ecore::EObject) : String = '2.2.224'/]
+[query public versionJupiter(any : ecore::EObject) : String = '5.11.4'/]
 
 
 

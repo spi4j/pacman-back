@@ -26,6 +26,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	static final String c_project_suffixUpdate = "update";
 	static final String c_project_suffixWebapp = "webapp";
 
+	public static final String c_project_debug = "project.debug.enabled";
 	public static final String c_project_version = "project.version";
 	public static final String c_project_java_version = "project.java.version";
 	public static final String c_project_name = "project.name";
@@ -76,9 +77,6 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_paging_currentPageIdx = "paging.current.page.idx.key";
 	public static final String c_paging_pageCount = "paging.page.count.key";
 	public static final String c_paging_currentPageSize = "paging.current.page.size.key";
-
-	public static final String c_ide_autoImports = "ide.auto.import.enabled";
-	public static final String c_ide_formatClasses = "ide.auto.format.enabled";
 
 	// public static final String c_project_libraries =
 	// "project.additional.libraries";
@@ -163,12 +161,6 @@ public final class ProjectProperties extends PropertiesCategory {
 //				PacmanProperty.newRequired(c_is_debug, "false",
 //						"Flag indiquant si le mode debug pour PacMan est actif (plus d'informations en cas d'erreur de generation)"),
 
-				PacmanProperty.newRequired(c_ide_autoImports, "true",
-						"Flag indiquant si le formattage auto des imports est actif (CTRL + SHIFT + O)"),
-
-				PacmanProperty.newRequired(c_ide_formatClasses, "true",
-						"Flag indiquant si le formattage auto des classes java est actif (CTRL + SHIFT + F)"),
-
 //				PacmanProperty.newRequired(c_is_displayReport, "true",
 //						"Flag indiquant si la generation doit afficher un rapport"),
 
@@ -216,6 +208,9 @@ public final class ProjectProperties extends PropertiesCategory {
 
 //				PacmanProperty.newRequired(c_is_wsHk2, "true",
 //						"Flag indiquant si on veut utiliser l'injection pour les services web REST (oui par defaut)"),
+
+				PacmanProperty.newRequired(c_project_debug, "true",
+						"Flag indiquant si la generation pour le projet fonctionne en mode debug (non par defaut)"),
 
 				PacmanProperty.newRequired(c_project_testsCrud, "true",
 						"Flag indiquant si les tests unitaires sur le crud doivent etre generes (generes par defaut)"),
@@ -480,6 +475,10 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_project_ws);
 	}
 
+	public static boolean isModeDebug() {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_debug));
+	}
+
 //	public static String get_useWMS() {
 //		return PropertiesHandler.getProperty(c_is_wms);
 //	}
@@ -599,10 +598,6 @@ public final class ProjectProperties extends PropertiesCategory {
 //		return PropertiesHandler.getProperty(c_is_debug);
 //	}
 
-	public static boolean isAutoImports() {
-		return Boolean.valueOf(PropertiesHandler.getProperty(c_ide_autoImports));
-	}
-
 //	public static String get_httpEmbeddedServer() {
 //		return PropertiesHandler.getProperty(c_is_httpEmbeddedServer);
 //	}
@@ -638,10 +633,6 @@ public final class ProjectProperties extends PropertiesCategory {
 
 	public static boolean isProfilerEnabled() {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_profiler));
-	}
-
-	public static boolean isFormatJavaClasses() {
-		return Boolean.valueOf(PropertiesHandler.getProperty(c_ide_formatClasses));
 	}
 
 	public static String get_SQLAdditionalFields() {

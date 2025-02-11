@@ -9,6 +9,7 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::service/]
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::query::parameter/]
@@ -16,12 +17,14 @@
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::method/]
+[import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::class/]
+[import fr::pacman::soa::spring::aql::common/]
 
 [import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture de l'implémentation d'un service soa (couche infrastructure)./]
-[template public implementation (s : soa::Service, d : environment::DTO)]
+[template public implementation (s : soa::Service)]
   [s.classHeader(s.namePackageControllerImpl())/]
 
   import org.springframework.http.HttpStatus;
@@ -41,9 +44,12 @@
   import org.springframework.web.bind.annotation.RequestHeader;
   import org.springframework.web.bind.annotation.ResponseBody;
   import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
-  import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
   import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
   
+  [for (d | s.associatedDtos())]
+    import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
+  [/for]
+ 
   [s.commentClass()/]  
   @Controller
   @RequestMapping("[s.rsUri()/]")
@@ -61,81 +67,131 @@
     }
     
     [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
-      [if (o.rsIsOperation())]
+      [if (o.isRsOperation())]
         [o.commentOperation()/]
         [o.writeRsAnnotations()/]
         [o.writeRsSignature()/]
         {
            [o.lineSeparator()/]
-           [o.writeRsResponse(s, d)/]; 
+           [o.writeRsOperation(s)/]; 
         }
       [/if]
     [/for]
-    [if (s.is_applicationCrud())]
-    [/if]
   }
 [/template]
 
 [comment écriture de l'implémentation pour le service de persistance (couche infrastructure)./]
-[template public implementationIn(s : soa::Service, d : environment::DTO)]
+[template public implementationIn(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageInImpl())/]
   import org.springframework.beans.factory.annotation.Autowired;
   import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
   import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationIn()/];
-  import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];
-  import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
-  import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityDaoItf()/].[d.associatedEntity().nameClassEntityDaoItf()/];
+  
+  [for (d | ds)]
+    import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];
+    [if (d.isPersistent())]
+      import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
+      import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/];
+    [/if]
+  [/for]
   
   [s.commentInterface()/]
   @[s.nameClassAnnotationIn()/]
   public class [s.nameClassServiceInImpl()/] implements [s.nameClassServiceInItf()/]
   {
-      ['Le gestionnaire de persistance'.commentMultiLines()/]
-      final [d.associatedEntity().nameClassEntityDaoItf()/] ['dao'.apply_attributeFinal()/];
+      [for (d | ds->select(o | o.isPersistent()))]
+        ['Le gestionnaire de persistance'.commentMultiLines()/]
+        final [d.associatedEntity().nameClassEntityPersistItf()/] [d.name().apply_attributeFinal()/];
+      [/for]
     
       ['Constructeur'.commentMultiLines()/]
       @Autowired
-      public [s.nameClassServiceInImpl()/] (final PersonneRepository ['dao'.apply_parameterMethodClassicIn()/])
+      public [s.nameClassServiceInImpl()/] ([ds->writePersistInputs()/])
       {
-         [s.prefixAffectation()/]['dao'.apply_attributeFinal()/] = ['dao'.apply_parameterMethodClassicIn()/];	
+         [ds->writePersistAffectation()/]
       }
    
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
-        [o.commentOperation()/]
-        @Override
-        [o.writeSignature()/]
-        {
-          //throw new RuntimeException("Not implemented !");
-          [if (o.hasOutput())]
-            [if (not o.output().isMultiple())]
-              [if (o.output().isTypeOptional())]
-                Optional<[d.associatedEntity().nameClassEntityImpl()/]> entity = this.dao.findById(identifiant);
-                if(entity.isPresent()){
-                   return Optional.of([d.nameClassMapperImpl()/].toRecord(entity.get()));
-                }
-                return Optional.empty();
-              [/if]
-      
-              [else]
-                return ['dao'.apply_attributeFinal()/].findAll().stream().map(o -> [d.nameClassMapperImpl()/].toRecord(o))
-              	  	.collect(Collectors.toList());
-            [/if]
-            // return ResponseEntity.status(HttpStatus.CREATED).body(createdResource);
-          [/if]
-        }
+        [if (o.fsd())]
+          [o.commentOperation()/]
+          @Override
+          [o.writePersistSignature()/]
+          { 
+            [o.writePersistOperation()/]
+          }
+          
+          [o.commentOperation()/]
+          [o.writePersistSignatureInvoke()/]
+          {
+            throw new RuntimeException();
+          }
+        [/if]
       [/for]
   }
 [/template]
 
+[query private fsd(o : soa::Operation) : Boolean =  if (o.hasOutput()) then 
+  if(o.output->first().type.oclIsKindOf(environment::DTO)) then 
+     if (o.output->first().type.oclAsType(environment::DTO).isPersistent()) then 
+       true 
+     else 
+       false 
+     endif
+   else 
+     true 
+   endif   
+  else 
+    true 
+  endif /]
+ 
+[comment 	écriture du corps de l'opération pour la couche de persistance, sert d'aiguillage pour les autres queries en fonction du type de sortie.
+			on rappelle juste qu'on ne peut générer qu'a partir du momment ou on a des DTOs en paramètre./] 
+[query private writePersistOperation(o : soa::Operation) : String = if (o.hasOutput()) then if (o.output->first().isOptional()) 
+   then if (o.output->first().isMultiple()) then o.writeOptionalOutputStar() else o.writeOptionalOutputOne() endif 
+   else if (o.output->first().isMultiple()) then o.writeNonOptionalOutputStar() else o.writeNonOptionalOutputOne() 
+   endif endif else 'XXX' endif/]
+
+[comment écriture de l'appel pour une sortie liste optionnelle (normalement jamais appelé pour l'instant)./]
+[query private writeOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
+  + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
+  +  o.associatedDto().nameClassMapperImpl() + '.toRecord(o)).collect(Collectors.toList());'/]
+
+[comment écriture de l'appel pour une sortie liste./]       	    	
+[query private writeNonOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
+  + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
+  +  o.associatedDto().nameClassMapperImpl() + '.toRecord(o)).collect(Collectors.toList());'/]
+
+[comment écriture de l'appel pour une sortie simple optionelle./]
+[query private writeOptionalOutputOne(o : soa::Operation) : String =  o.outputPersistType() + ' ' +  'entity'.apply_variableDefault() 
+  + ' = ' + o.nameOperation() + '_invoke(' + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') + ');' + 'if ( ' 
+  + 'entity'.apply_variableDefault() + '.isPresent()) ' + '{ return Optional.of( ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.toRecord(' 
+  + 'entity'.apply_variableDefault() + '.get()));} return Optional.empty();'/]
+                  
+[comment écriture de l'appel pour une sortie simple./]
+[query private writeNonOptionalOutputOne(o : soa::Operation) : String = ''/]
+  
+[comment écriture de la signature pour le constructeur afin d'injecter les couches de persistance./]
+[query private writePersistInputs(ds : OrderedSet(environment::DTO)) : String = ds->select(o1 | o1.isPersistent())->collect(o2 | 'final ' 
+  + o2.associatedEntity().nameClassEntityPersistItf() + ' ' +  o2.name().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
+
+[comment écriture de l'affectation pour la couche de persistance dans le constructeur./]
+[query private writePersistAffectation(ds : OrderedSet(environment::DTO)) : String = ds->select(o1 | o1.isPersistent())
+  ->collect(o2 | o2.prefixAffectation() + o2.name().apply_attributeFinal() + ' = ' + o2.name().apply_parameterMethodClassicIn())->sep(';' 
+  + ds.lineSeparator())->toString() + ';'/]
+
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writeSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation()
+[query private writePersistSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation()
+  + '(' + o.inputParamsSignature() + ')' /]
+  
+[comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
+[query private writePersistSignatureInvoke(o : soa::Operation) : String = 'private ' + o.outputPersistType() + ' ' + o.nameOperation() + '_invoke'
   + '(' + o.inputParamsSignature() + ')' /]
   
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeRsSignature(o : soa::Operation) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 
   + ' (' + o.writeRsInputs() + ')'/]
   
-[comment écriture des annotations pour l'opération rest./]
+[comment écriture des annotations au niveau de l'opération rest./]
 [query private writeRsAnnotations(o : soa::Operation) : String = 
   if (o.verb = soa::Verb::GET) then '@GetMapping(value = "'+ o.rsUri()
   else if (o.verb = soa::Verb::POST) then '@PostMapping(value = "'+ o.rsUri()
@@ -146,10 +202,10 @@
   else if (o.verb = soa::Verb::PATCH) then ''
   else if (o.verb = soa::Verb::TRACE) then ''
   else '' endif endif endif endif endif endif endif endif 
-  + '", produces = ' + if (o.rsHasMediaType()) then '"' 
-  + o.output().rsMediaType() + '"'else o.defaultRsMediaType() endif + ')'/]
+  + '", produces = ' + if (o.hasRsMediaType()) then '"' 
+  + o.output->first().rsMediaType() + '"'else o.defaultRsMediaType() endif + ')'/]
 
-[comment écriture des annotations pour les paramètres rest./]
+[comment écriture des annotations au niveau des paramètres rest./]
 [query private writeRsAnnotation(p : soa::Parameter) : String = 
  if (p.restData.passingMode = soa::ParameterPassingMode::PATH) then '@PathVariable(name = "' + p.restData.restId + '", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::QUERY) then '@RequestParam(name = "' + p.restData.restId + '", '
@@ -159,58 +215,58 @@
  else '' endif endif endif endif endif + 'required = ' + p.isMandatory() +  ')'/]
 
 [comment écriture du statut modélisé pour la réponse, si aucun statut on prend celui par défaut./]
-[query private writeRsStatus(o : soa::Operation) : String = if (o.rsHasStatusCode()) then o.output().statusCode 
+[query private writeRsStatus(o : soa::Operation) : String = if (o.hasRsStatusCode()) then o.output->first().statusCode 
   else o.defaultRsStatusCode() endif/]
 
 [comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
-[query private writeRsInputs(o : soa::Operation) : String = if (o.hasInput()) then o.input->asOrderedSet()
-  ->collect(p : soa::Parameter | 'final ' + p.writeRsAnnotation() + ' ' + p.rsInputType() + ' ' + p.name().apply_parameterMethodClassicIn())
+[query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
+  ->collect(p : soa::Parameter | 'final ' + p.writeRsAnnotation() + ' ' + p.inputRsType() + ' ' + p.name().apply_parameterMethodClassicIn())
   ->sep(', ')->toString() else '' endif/]
   
 [comment écriture du paramètre de sortie (si existe) pour une opération de type rest./]
-[query private writeRsOutput(o : soa::Operation) : String = if (o.hasOutput()) then 'ResponseEntity<' + (o.rsOutputType()) + '>' 
+[query private writeRsOutput(o : soa::Operation) : String = if (o.hasOutput()) then 'ResponseEntity<' + (o.outputRsType()) + '>' 
   else 'ResponseBody' endif/]
 
 [comment écriture de la chaine complète (avec mapper) pour les paramètres en entrée du service domaine./]
-[query private writeRsInputsForService(o : soa::Operation, d : environment::DTO) : String = if (o.hasInput()) then o.input->asOrderedSet()
-  ->collect(p : soa::Parameter | p.rsInputForService(d))->sep(', ')->toString() else '' endif/]
-
-[comment écriture de la chaine complète (avec mapper) pour les paramètres en entrée du service domaine./]
-[query private rsInputForService(p : soa::Parameter, d : environment::DTO) : String = if (p.type.oclIsKindOf(environment::DTO)) 
-  then if (p.isMultiple()) then p.name().apply_parameterMethodClassicIn() + '.stream().map(o -> ' +  d.nameClassMapperImpl() 
-  + '.' + 'to record'.apply_methodDefault() + '(o)).collect(Collectors.toList())' else  d.nameClassMapperImpl() + '.' 
-  + 'to record'.apply_methodDefault() + '(' + p.name().apply_parameterMethodClassicIn() + ')' endif else p.name() endif /]
+[query private writeRsInputsForService(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
+  ->collect(p : soa::Parameter | p.writeRsInputForService())->sep(', ')->toString() else '' endif/]
 
 [comment écriture de la requête pour le service rest, sert d'aiguillage pour les autres queries en fonction du type de sortie./]
-[query private writeRsResponse(o : soa::Operation, s : soa::Service, d : environment::DTO) : String = 'return ' + if (o.hasOutput()) then 
- if (o.output().rsIsTypeOptional()) then if(o.output().isMultiple()) then o.optionalOutputStar(s, d) else o.optionalOutputOne(s, d) endif 
- else if(o.output().isMultiple()) then o.nonOptionalOutputStar(s, d) else o.nonOptionalOutputOne(s, d) endif endif else 'XXX' endif/]
+[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'return ' + if (o.hasOutput()) then 
+ if (o.output->first().rsIsOptional()) then if(o.output->first().isMultiple()) then o.writeRsOptionalOutputStar(s) else o.writeRsOptionalOutputOne(s) endif 
+ else if(o.output->first().isMultiple()) then o.writeRsNonOptionalOutputStar(s) else o.writeRsNonOptionalOutputOne(s) endif endif else 'XXX' endif/]
  
 [comment écriture pour un résultat optionnel sur un enregistrement./]
-[query private optionalOutputOne(o : soa::Operation, s : soa::Service, d : environment::DTO) : String = o.prefixAffectation() + s.name().apply_attributeFinal() 
-   + '.' + o.nameOperation() + '(' + o.writeRsInputsForService(d) + ').map(o -> ResponseEntity.status(' + o.writeRsStatus() + ').body('
-   + d.nameClassMapperImpl() + '.' + 'to xto'.apply_methodDefault() + '(o))).orElseThrow(() -> new ' + o.nameClassRsDataNotFoundExceptionImpl() 
-   + '(' + if (o.rsHasNotFoundFault()) then o.rsNotFoundFault().statusCode + ', "' + o.rsNotFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
+[query private writeRsOptionalOutputOne(o : soa::Operation, s : soa::Service) : String = o.prefixAffectation() + s.name().apply_attributeFinal() 
+   + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').map(o -> ResponseEntity.status(' + o.writeRsStatus() + ').body('
+   + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' + 'to xto'.apply_methodDefault() + '(o))).orElseThrow(() -> new ' + o.nameClassRsDataNotFoundExceptionImpl() 
+   + '(' + if (o.hasRsNotFoundFault()) then o.rsNotFoundFault().statusCode + ', "' + o.rsNotFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
    + ', "' endif + '"))'/]
 
 [comment écriture pour un résultat optionnel sur une liste d'enregistrements (pour l'instant 200 avec liste vide)./]
-[query private optionalOutputStar(o : soa::Operation, s : soa::Service, d : environment::DTO) : String = 'ResponseEntity.status(' + o.writeRsStatus() + ').body(' +
-   if (o.output().type.oclIsKindOf(environment::DTO)) then o.prefixAffectation() + s.name().apply_attributeFinal() 
-   + '.' + o.nameOperation() + '(' + o.writeRsInputsForService(d) + ').stream().map(o -> ' + d.nameClassMapperImpl() 
+[query private writeRsOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'ResponseEntity.status(' + o.writeRsStatus() + ').body(' +
+   if (o.output->first().type.oclIsKindOf(environment::DTO)) then o.prefixAffectation() + s.name().apply_attributeFinal() 
+   + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').stream().map(o -> ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
    + '.' + 'to xto'.apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
-   + o.nameOperation() + '(' + o.writeRsInputsForService(d) + '))' endif/]
+   + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif/]
 
 [comment écriture pour un résultat obligatoire sur un enregistrement./]
-[query private nonOptionalOutputOne(o : soa::Operation, s : soa::Service, d : environment::DTO) : String = 'ResponseEntity.status(' + o.writeRsStatus() + ').body(' +
-   if (o.output().type.oclIsKindOf(environment::DTO)) d.nameClassMapperImpl() + '.' 
+[query private writeRsNonOptionalOutputOne(o : soa::Operation, s : soa::Service) : String = 'ResponseEntity.status(' + o.writeRsStatus() + ').body(' +
+   if (o.output->first().type.oclIsKindOf(environment::DTO)) o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' 
    + 'to xto'.apply_methodDefault() + '(' + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() 
-   + '(' + o.writeRsInputsForService(d) + ')))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
-   + o.nameOperation() + '(' + o.writeRsInputsForService(d) + '))' endif /]
+   + '(' + o.writeRsInputsForService() + ')))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
+   + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif /]
 
 [comment écriture pour un résultat obligatoire sur un liste d'enregistrements./]
-[query private nonOptionalOutputStar(o : soa::Operation, s : soa::Service, d : environment::DTO) : String = 'ResponseEntity.status(' + o.writeRsStatus() + ').body(' +
-   if (o.output().type.oclIsKindOf(environment::DTO)) then  o.prefixAffectation() + s.name().apply_attributeFinal() 
-   + '.' + o.nameOperation() + '(' + o.writeRsInputsForService(d) + ').stream().map(o -> ' + d.nameClassMapperImpl() 
+[query private writeRsNonOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'ResponseEntity.status(' + o.writeRsStatus() + ').body(' +
+   if (o.output->first().type.oclIsKindOf(environment::DTO)) then  o.prefixAffectation() + s.name().apply_attributeFinal() 
+   + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').stream().map(o -> ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
    + '.' + 'to xto'.apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
-   + o.nameOperation() + '(' + o.writeRsInputsForService(d) + '))' endif/]
+   + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif/]
+
+[comment écriture de la chaine complète (avec mapper) pour les paramètres en entrée du service domaine./]
+[query private writeRsInputForService(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) 
+  then if (p.isMultiple()) then p.name().apply_parameterMethodClassicIn() + '.stream().map(o -> ' +  p.type.oclAsType(environment::DTO).nameClassMapperImpl() 
+  + '.' + 'to record'.apply_methodDefault() + '(o)).collect(Collectors.toList())' else  p.type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' 
+  + 'to record'.apply_methodDefault() + '(' + p.name().apply_parameterMethodClassicIn() + ')' endif else p.name() endif /]
 

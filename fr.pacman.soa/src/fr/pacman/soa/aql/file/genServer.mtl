@@ -1,5 +1,5 @@
-[module genServiceServer(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
-							'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+[module genServer(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 
 [import fr::pacman::core::aql::base/]	
 [import fr::pacman::core::aql::name::classes/]	
@@ -25,4 +25,15 @@
 [template public fileMapperOutImpl(d: environment::DTO, body : String)]
   [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperOutImpl()), overwrite, d.defaultFileEncoding())][body/][/file]
 [/template]
+
+[comment écriture du fichier d'implémentation pour objet sérialisé./]
+[template public fileXtoImpl(d : environment::DTO, body : String)]
+  [file (d.nameClassXtoImpl().toFileJava(d.namePackageXtoImpl()), overwrite, d.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'implémentation la configuration de la sécurité des services rest./]
+[template public fileRsSecurityConfigImpl(any : ecore::EObject, body : String)]
+  [file (any.nameClassRsSecurityConfigImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
 

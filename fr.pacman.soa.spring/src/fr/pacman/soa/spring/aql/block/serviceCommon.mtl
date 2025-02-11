@@ -11,6 +11,7 @@
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::soa::spring::aql::common/]
 						
 [comment écriture de l'implémentation d'un service soa./]
 [template public implementation (s : soa::Service)]
@@ -35,7 +36,7 @@
         
         [o.commentOperation()/]
         @Override
-        [o.writeOperationSignature()/]
+        [o.writeOperation()/]
         {
           return [o.prefixAffectation()/]['provider'.apply_attributeFinal()/].[o.writeInputs()/];
         }
@@ -68,14 +69,13 @@
 [comment écriture de la partie commune pour les deux interfaces de service./]
 [template private writeInterface(s : soa::Service)]
   [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
-        
-        [o.commentOperation()/]
-        [o.writeOperationSignature()/];
+     [o.commentOperation()/]
+     [o.writeOperation()/];
   [/for]
 [/template]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writeOperationSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation()
+[query private writeOperation(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation()
   + '(' + o.inputParamsSignature() + ')' /]
   
 [comment écriture de la signature d'une opération avec le paramètre en sortie./]

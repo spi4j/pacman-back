@@ -86,5 +86,5 @@
 
 [comment ./]
 [query private writeReturn(o : soa::Operation) : String = '* @return ' + o.outputType() + ' : ' 
-  + if (o.output().description.exists()) then o.output().description.escapeComment() else o.cNoDescription() 
+  + if (o.output->first().description.exists()) then o.output->first().description.escapeComment() else o.cNoDescription() 
   endif + '.'/]

@@ -9,8 +9,8 @@
   [for (e : entity::Entity | r.persistentEntities())]
     [e.fileEntityImpl(e.genEntityImpl())/]
     [e.fileEntityItf(e.genEntityItf())/]
-    [e.fileEntityDaoItf(e.genEntityDaoItf())/]
-    [e.fileEntityDaoImpl(e.genEntityDaoImpl())/]
+    [e.fileEntityPersistItf(e.genEntityPersistItf())/]
+    [e.fileEntityPersistImpl(e.genEntityPersistImpl())/]
   [/for]
 [/template]
 
@@ -19,6 +19,6 @@
 [comment ********************************************************************************/]
 [template protected genEntityImpl(e : entity::Entity)][/template]
 [template protected genEntityItf(e : entity::Entity)][/template]
-[template protected genEntityDaoImpl(e : entity::Entity)][/template]
-[template protected genEntityDaoItf(e : entity::Entity)][/template]
+[template protected genEntityPersistImpl(e : entity::Entity)][/template]
+[template protected genEntityPersistItf(e : entity::Entity)][/template]
 

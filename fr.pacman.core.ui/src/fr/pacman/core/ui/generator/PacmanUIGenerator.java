@@ -212,7 +212,7 @@ public abstract class PacmanUIGenerator {
 				Monitor monitor = new BasicMonitor();
 				PacmanUIAcceleoProfiler.set_project(null);
 				PropertiesHandler.init(_rootPath.getPath());
-//				PacmanUIGeneratorsReport.reset();
+				//PacmanUIGeneratorsReport.reset();
 				if (hasSelectionIncompatibilities())
 					return;
 
@@ -240,7 +240,7 @@ public abstract class PacmanUIGenerator {
 		} finally {
 			try {
 				postTreatment();
-//				PacmanUIGeneratorsReport.log(Boolean.valueOf(ProjectProperties.getIsDisplayGeneratorReport()));
+				//PacmanUIGeneratorsReport.log(Boolean.valueOf(ProjectProperties.getIsDisplayGeneratorReport()));
 				PropertiesHandler.exit();
 
 			} catch (Exception p_e) {
@@ -313,8 +313,8 @@ public abstract class PacmanUIGenerator {
 	 */
 	private void doImportsAction(final IContainer p_targetWorkspaceContainer, final IWorkbenchPartSite p_targetSite)
 			throws CoreException {
-		if (Boolean.valueOf(ProjectProperties.isAutoImports()) && isOrganizeImports() && p_targetSite != null
-				&& PacmanUIGeneratorsReport.getNbFiles() > 0)
+		if (!ProjectProperties.isModeDebug() && p_targetSite != null
+				&& PacmanUIGeneratorsReport.getNbFiles() >= 0)
 			runDispatchAction(p_targetWorkspaceContainer.getProject(), new OrganizeImportsAction(p_targetSite));
 	}
 
@@ -328,8 +328,8 @@ public abstract class PacmanUIGenerator {
 	 */
 	private void doFormatAction(final IContainer p_targetWorkspaceContainer, final IWorkbenchPartSite p_targetSite)
 			throws CoreException {
-		if (Boolean.valueOf(ProjectProperties.isFormatJavaClasses()) && p_targetSite != null
-				&& PacmanUIGeneratorsReport.getNbFiles() > 0)
+		if (!ProjectProperties.isModeDebug() && p_targetSite != null
+				&& PacmanUIGeneratorsReport.getNbFiles() >= 0)
 			runDispatchAction(p_targetWorkspaceContainer.getProject(), new FormatAllAction(p_targetSite));
 	}
 

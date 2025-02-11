@@ -1,8 +1,7 @@
 [module genCommon(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
-[import fr::pacman::soa::aql::file::genDto/]
-[import fr::pacman::soa::aql::file::genServiceCommon/]
+[import fr::pacman::soa::aql::file::genCommon/]
 [import fr::pacman::soa::aql::block::dto/]
 [import fr::pacman::soa::spring::aql::block::serviceCommon/]
 

@@ -1,4 +1,5 @@
-[module genServiceCommon(	'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+[module genCommon(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]	
 [import fr::pacman::core::aql::name::classes/]	
@@ -18,5 +19,10 @@
 [comment écriture du fichier d'interface pour le service de persistance ./]
 [template public fileServiceInItf(s: soa::Service, body : String)]
   [file (s.nameClassServiceInItf().toFileJava(s.namePackageInItf()), overwrite, s.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour objet métier./]
+[template public fileDtoImpl(d : environment::DTO, body : String)]
+  [file (d.nameClassDtoImpl().toFileJava(d.namePackageDtoImpl()), overwrite, d.defaultFileEncoding())][body/][/file]
 [/template]
 

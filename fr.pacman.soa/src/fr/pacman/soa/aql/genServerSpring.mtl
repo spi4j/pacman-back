@@ -4,13 +4,13 @@
 
 [comment toujours placer les 'main' au niveau des modules fils, sinon génération incomplète./]
 [comment enlever ces imports suite a correction bug./]
-[import fr::pacman::soa::aql::file::genServiceServer/]
-[import fr::pacman::soa::aql::file::genXto/]
+[import fr::pacman::soa::aql::file::genServer/]
 [import fr::pacman::soa::aql::block::mapper/]
 [import fr::pacman::soa::aql::block::xto/]
 [comment enlever ces imports suite a correction bug./]
 
 [import fr::pacman::soa::spring::aql::block::serviceServer/]
+[import fr::pacman::soa::spring::aql::block::securityServer/]
 [import fr::pacman::core::aql::query::service/]
 
 [comment @main/]
@@ -18,7 +18,10 @@
 [template protected genServer(s : soa::System)][s.super:genServer()/][/template]
 
 [comment écriture de l'implémentation Spring pour le contrôleur./]
-[template protected genServiceImpl(s : soa::Service)][s.implementation(s.associatedDto())/][/template]
+[template protected genServiceImpl(s : soa::Service)][s.implementation()/][/template]
 
 [comment écriture de l'implémentation Spring pour le service de persistance./]
-[template protected genServiceInImpl(s : soa::Service)][s.implementationIn(s.associatedDto())/][/template]
+[template protected genServiceInImpl(s : soa::Service)][s.implementationIn(s.associatedDtos())/][/template]
+
+[comment écriture le l'implémentation pour la configuration de la sécurité rest./]
+[template protected genRsSecurityConfigImpl(m : soa::System)][m.implementation()/][/template]

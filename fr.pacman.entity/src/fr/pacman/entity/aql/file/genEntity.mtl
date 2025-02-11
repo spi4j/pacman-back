@@ -15,12 +15,12 @@
   [file (e.nameClassEntityItf().toFileJava(e.namePackageEntityItf()), overwrite, e.defaultFileEncoding())][body/][/file]
 [/template]
 
-[comment écriture du fichier d'interface pour le dao de l'entité./]
-[template public fileEntityDaoItf(e : entity::Entity, body : String)]
-  [file (e.nameClassEntityDaoItf().toFileJava(e.namePackageEntityDaoItf()), overwrite, e.defaultFileEncoding())][body/][/file]
+[comment écriture du fichier d'interface pour la persistance de l'entité./]
+[template public fileEntityPersistItf(e : entity::Entity, body : String)]
+  [file (e.nameClassEntityPersistItf().toFileJava(e.namePackageEntityPersistItf()), overwrite, e.defaultFileEncoding())][body/][/file]
 [/template]
 
-[comment écriture du fichier d'implémentation pour le dao de l'entité./]
-[template public fileEntityDaoImpl(e : entity::Entity, body : String)]
-  [file (e.nameClassEntityDaoImpl().toFileJava(e.namePackageEntityDaoImpl()), overwrite, e.defaultFileEncoding())][body/][/file]
+[comment écriture du fichier d'implémentation pour la persistance de l'entité./]
+[template public fileEntityPersistImpl(e : entity::Entity, body : String)]
+  [file (e.nameClassEntityPersistImpl().toFileJava(e.namePackageEntityPersistImpl()), overwrite, e.defaultFileEncoding())][body/][/file]
 [/template]

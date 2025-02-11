@@ -18,4 +18,4 @@
 [template protected genEntityImpl(e : entity::Entity)][e.implementation()/][/template]
 
 [comment écriture de l'interface Spring pour l'entité./]
-[template protected genEntityDaoItf(e : entity::Entity)][e.interfaceDao()/][/template]
+[template protected genEntityPersistItf(e : entity::Entity)][e.interfacePersist()/][/template]

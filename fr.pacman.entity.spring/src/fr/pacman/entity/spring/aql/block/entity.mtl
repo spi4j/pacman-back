@@ -103,15 +103,15 @@
 [/template]
 
 [comment écriture de l'interface pour une entité (au sens Spring)./]
-[template public interfaceDao (e : entity::Entity)]
-  [e.classHeader(e.namePackageEntityDaoItf())/]
+[template public interfacePersist (e : entity::Entity)]
+  [e.classHeader(e.namePackageEntityPersistItf())/]
   import org.springframework.data.jpa.repository.JpaRepository;
   [e.importImpl()/]
   
   /**
    *
    */
-  public interface [e.nameClassEntityDaoItf()/] extends JpaRepository<[e.nameClassEntityImpl()/], Long> {
+  public interface [e.nameClassEntityPersistItf()/] extends JpaRepository<[e.nameClassEntityImpl()/], Long> {
 
   }
 [/template]

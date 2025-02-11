@@ -1,0 +1,94 @@
+[module securityServer(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::application/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::attribute/]
+
+[import fr::pacman::core::service::RestUtils/]
+
+[comment écriture de l'implémentation pour la configuration de la sécurité des services rest./]						
+[template public implementation(m : soa::System)]
+  [m.classHeader(m.namePackageRsBase())/]
+  
+  import javax.crypto.spec.SecretKeySpec;
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.context.annotation.Configuration;
+  import org.springframework.security.config.Customizer;
+  import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+  import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+  import org.springframework.security.config.http.SessionCreationPolicy;
+  import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+  import org.springframework.security.oauth2.jwt.JwtDecoder;
+  import org.springframework.security.oauth2.jwt.JwtEncoder;
+  import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+  import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+  import org.springframework.security.web.SecurityFilterChain;
+  import com.nimbusds.jose.jwk.source.ImmutableSecret;
+  
+  @Configuration 
+  @EnableWebSecurity
+  class [m.nameClassRsSecurityConfigImpl()/] 
+  {
+    [let uris = m.rsSecuredURIs()]
+        // privilégier les clés asymétrique et ne pas le stocker en dur sur le serveur.
+        private String ['jwt key'.apply_attributeDefault()/];
+     
+       /**
+        * Pour les API REST sans état, en particulier celles utilisant
+        * l’authentification basée sur des jetons, la désactivation du CSRF est une
+        * décision courante et généralement sûre, ne modifier que si besoin express.
+        *
+        * @param ['http'.apply_parameterMethodClassicIn()/]
+        * @return
+        * @throws Exception
+        */
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity ['http'.apply_parameterMethodClassicIn()/]) throws Exception {
+           return ['http'.apply_parameterMethodClassicIn()/].csrf(csrf -> csrf.disable())
+              .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+              .authorizeHttpRequests(['auth'.apply_variableDefault()/] -> {
+              //auth.anyRequest().authenticated()
+               [uris->writeRsSecuredURIs(m)/]
+               ['auth'.apply_variableDefault()/].anyRequest().permitAll();
+           })
+           .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())).build();
+        }
+     
+       /**
+        * 
+        * @return
+        */
+       @Bean
+       public JwtDecoder jwtDecoder() {
+          SecretKeySpec ['secret key'.apply_variableDefault()/] = new SecretKeySpec(this.['jwt key'.apply_attributeDefault()/]
+           .getBytes(), 0, this.['jwt key'.apply_attributeDefault()/].getBytes().length, "RSA");
+          return NimbusJwtDecoder.withSecretKey(['secret key'.apply_variableDefault()/]).macAlgorithm(MacAlgorithm.HS256).build();
+       }
+
+       /**
+        * 
+        * @return
+        */
+       @Bean
+       public JwtEncoder jwtEncoder() {
+          return new NimbusJwtEncoder(new ImmutableSecret<>(this.['jwt key'.apply_attributeDefault()/].getBytes()));
+       }
+    [/let]
+  }
+[/template]
+
+[comment retourne l'ensemble des URIs sécurisées dans le cadre de services rest./]
+[query private rsSecuredURIs(m : soa::System) : Sequence(String) = m.root().eAllContents(soa::Service)->get_securedURIs()/]
+
+[comment écriture de la chaine de sécurité pour l'ensemble des URIs de l'application./]
+[query private writeRsSecuredURIs(uris : Sequence(String), m : soa::System) : String = if (uris->size() > 0) then uris->collect(o | o.writeRsSecuredURI())
+  ->sep(';' + m.lineSeparator()) + ';' else '' endif/]
+
+[comment écriture de la chaine de sécurité pour une URI./]
+[query private writeRsSecuredURI (s : String) : String = 'auth'.apply_variableDefault() + '.requestMatchers("' + s + '").hasRole("' + '")'/]
