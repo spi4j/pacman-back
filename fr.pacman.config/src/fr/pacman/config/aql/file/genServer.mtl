@@ -18,7 +18,17 @@
 
 [comment écriture de la classe d'exception pour le 404/204./]
 [template public fileRsDataNotFoundException(any : ecore::EObject, body : String)]
-  [file (any.nameClassRsDataNotFoundExceptionImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
+  [file (any.nameClassRsDataNotFoundExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture de la classe d'exception pour le mapper./]
+[template public fileMapperException(any : ecore::EObject, body : String)]
+  [file (any.nameClassMapperExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture de la classe d'exception pour les services non implémentés./]
+[template public fileNotImplementedException(any : ecore::EObject, body : String)]
+  [file (any.nameClassNotImplementedExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())][body/][/file]
 [/template]
 
 [comment écriture de la classe pour le corps de la reponse dans le cadre de la gestion globale des erreurs rest./]

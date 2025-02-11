@@ -64,8 +64,11 @@
 [comment retourne le package pour une classe de mapping entre l'objet métier et l'objet application./]  
 [query public namePackageMapperOutImpl(d : environment::DTO) : String = 'app.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
   
-[comment retourne la package pour les classes génériques concernant les services rest./]
+[comment retourne le package pour les classes génériques concernant les services rest./]
 [query public namePackageRsBase(any : ecore::EObject) : String = 'app'/]
+
+[comment retourne le package pour le stockage de toutes les exceptions du projet./]
+[query public namePackageException(any : ecore::EObject) : String = 'app.exceptions'/]
   
 [comment ESSAYER DE MUTUALISER ?????./]
   

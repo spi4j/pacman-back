@@ -70,6 +70,12 @@
 
 [comment retourne le nom de la classe d'exception dans le cas ou les données ne sont pas trouvées./]
 [query public nameClassRsDataNotFoundExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' not found exception').apply_classDefault()/]
+  
+[comment retourne le nom de la classe d'exception dans le cas d'une problématique dans les mappers./]
+[query public nameClassMapperExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' mapper exception').apply_classDefault()/]
+  
+[comment retourne le nom de la classe d'exception dans le cas d'une problématique dans les mappers./]
+[query public nameClassNotImplementedExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' not implemented exception').apply_classDefault()/]
 
 [comment retourne le nom de la classe contenant le corps de la reponse pour la gestion globale des erreurs rest./]
 [query public nameClassRsErrorBodyResponseImpl(any : ecore::EObject) : String = (any.get_projectName() + ' error body response').apply_classDefault()/]

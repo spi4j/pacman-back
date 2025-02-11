@@ -19,24 +19,45 @@
   import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
   import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
   
+  /**
+   * Classe utilitaire pour la conversion entre les objets {@link [d.nameClassDtoImpl()/]} et {@link [d.associatedEntity().nameClassEntityImpl()/]}.  
+   * Cette classe fournit deux méthodes statiques pour convertir un objet DTO en une entité et inversement.
+   * Elle permet de mapper un objet {@link [d.nameClassDtoImpl()/]} vers un {@link [d.associatedEntity().nameClassEntityImpl()/]} et vice-versa.  
+   */
   public class [d.nameClassMapperImpl()/]
   {
-    public static [d.associatedEntity().nameClassEntityImpl()/] toEntity (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
+   /**
+    * Cette méthode permet de convertir un objet {@link [d.nameClassDtoImpl()/]} en une entité {@link [d.associatedEntity().nameClassEntityImpl()/]}.
+    * 
+    * @param dto L'objet de type {@link [d.nameClassDtoImpl()/]} à convertir. Il ne doit pas être nul.
+    * @return Un objet de type {@link [d.associatedEntity().nameClassEntityImpl()/]} représentant l'entité correspondante.
+    * 
+    * @throws [d.nameClassMapperExceptionImpl()/] Si le paramètre dto est nul, une exception est lancée pour signaler l'impossibilité de réaliser la conversion.
+    */
+    public static [d.associatedEntity().nameClassEntityImpl()/] ['to entity'.apply_methodDefault()/] (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
     { 
-        if(null ==['dto'.apply_parameterMethodClassicIn()/])
-        {
-           throw new RuntimeException();
+       if(null ==['dto'.apply_parameterMethodClassicIn()/])
+       {
+          throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.associatedEntity().nameClassEntityImpl()/]");
        }
        
        [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_variableDefault()/] = new [d.associatedEntity().nameClassEntityImpl()/]();
        return ['entity'.apply_variableDefault()/];
     }
-  
-    public static [d.nameClassDtoImpl()/] toRecord (final [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_parameterMethodClassicIn()/])
+    
+   /**
+    * Cette méthode permet de convertir un objet {@link [d.associatedEntity().nameClassEntityImpl()/]} en un {@link [d.nameClassDtoImpl()/]}.
+    * 
+    * @param entity L'objet de type {@link [d.associatedEntity().nameClassEntityImpl()/]} à convertir. Il ne doit pas être nul.
+    * @return Un objet de type {@link [d.nameClassDtoImpl()/]} représentant le DTO correspondant.
+    * 
+    * @throws [d.nameClassMapperExceptionImpl()/] Si le paramètre entity est nul, une exception est lancée pour signaler l'impossibilité de réaliser la conversion.
+    */
+    public static [d.nameClassDtoImpl()/] ['to record'.apply_methodDefault()/] (final [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_parameterMethodClassicIn()/])
     {
         if(null ==['entity'.apply_parameterMethodClassicIn()/])
         {
-           throw new RuntimeException();
+           throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassDtoImpl()/]");
         }
         
         return new [d.nameClassDtoImpl()/](
@@ -56,15 +77,35 @@
   
   public class [d.nameClassMapperImpl()/]
   {
-    public static [d.nameClassDtoImpl()/] toRecord (final [d.nameClassXtoImpl()/] ['xto'.apply_parameterMethodClassicIn()/])
+  
+   /**
+    *
+    * 
+    */
+    public static [d.nameClassDtoImpl()/] ['to record'.apply_methodDefault()/] (final [d.nameClassXtoImpl()/] ['xto'.apply_parameterMethodClassicIn()/])
     { 
-        return new [d.nameClassDtoImpl()/](
-           [d.dsq2()/]
-           );
+    
+       if(null == ['xto'.apply_parameterMethodClassicIn()/])
+       {
+          throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassDtoImpl()/]");
+       }
+       
+       return new [d.nameClassDtoImpl()/](
+         [d.dsq2()/]);
     }
   
-    public static [d.nameClassXtoImpl()/] toXto (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
+   /**
+    *
+    * 
+    */
+    public static [d.nameClassXtoImpl()/] ['to xto'.apply_methodDefault()/] (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
     { 
+    
+      if(null == ['dto'.apply_parameterMethodClassicIn()/])
+      {
+         throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassXtoImpl()/]");
+      }
+    
       [d.nameClassXtoImpl()/] ['xto'.apply_variableDefault()/] = new [d.nameClassXtoImpl()/]();
       [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
         ['xto'.apply_variableDefault()/].[a.name().apply_methodSet()/](['dto'.apply_parameterMethodClassicIn()/].[a.nameAttribute()/]());

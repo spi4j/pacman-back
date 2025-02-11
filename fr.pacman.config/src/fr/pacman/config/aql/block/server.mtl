@@ -1,1 +1,25 @@
 [module server(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::output::headers/]
+
+[comment écriture de l'implémentation pour une exception levée au niveau des mappers./]
+[template public mapperExceptionImpl (any : ecore::EObject)]
+  [any.classHeader(any.namePackageException())/]
+  
+  public class [any.nameClassMapperExceptionImpl()/] extends RuntimeException 
+  {
+	  
+  }
+[/template]
+
+[comment écriture de l'implementation pour une exception levée au niveau de la couche de persistance./]
+[template public notImplementedExceptionImpl (any : ecore::EObject)]
+  [any.classHeader(any.namePackageException())/]
+  
+  public class [any.nameClassNotImplementedExceptionImpl()/] extends RuntimeException 
+  {
+	  
+  }
+[/template]

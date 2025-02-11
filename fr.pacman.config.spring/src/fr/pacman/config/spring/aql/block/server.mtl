@@ -73,7 +73,7 @@
 
 [comment écriture de la classe d'exception pour les données rest non trouvées./]
 [template public rsDataNotFoundException(any : ecore::EObject)]
-  [any.classHeader(any.namePackageRsBase())/]
+  [any.classHeader(any.namePackageException())/]
   
   /**
    * Services REST: Classe minimaliste (à titre d'exemple) pour une exception de
@@ -126,9 +126,9 @@
   import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
   
   /**
-   * Gestionnaire global des erreurs (ou avertissements) techniques et
-   * fonctionnelles pour les services rest. Ce gestionnaire focntionne en relation
-   * avec la classe de définition de la structure pour la reponse {@link [any.nameClassRsErrorBodyResponseImpl()/]}.
+   * Gère les exceptions dans l'application en fournissant des réponses d'erreur personnalisées.
+   * Cette classe utilise l'annotation {@link ControllerAdvice} pour intercepter les exceptions globalement
+   * et les convertir en réponses HTTP structurées.
    * <p>
    * Compléter la classe si besoin avec autant de méthodes de gestion des
    * exceptions que nécessaires;
@@ -138,9 +138,12 @@
   @ControllerAdvice
   public class [any.nameClassRsExceptionHandlerImpl()/] extends ResponseEntityExceptionHandler {
     
-    /**
-    * Exception fonctionnelle : données (entités) non trouvées au niveau de la
-    * persistance.
+   /**
+    * Gère les exceptions {@link [any.nameClassRsDataNotFoundExceptionImpl()/]} et renvoie une réponse d'erreur avec le code de statut approprié.
+    * 
+    * @param ex L'exception {@link [any.nameClassRsDataNotFoundExceptionImpl()/]} capturée.
+    * @param request La requête HTTP associée à l'exception.
+    * @return Une réponse HTTP avec un corps contenant le message d'erreur et le code de statut approprié.
     */
     @ExceptionHandler(value = { [any.nameClassRsDataNotFoundExceptionImpl()/].class})
     protected ResponseEntity<Object> ['handle data not found'.apply_methodDefault()/]
@@ -154,9 +157,13 @@
        (['body response'.apply_variableDefault()/].['status code'.apply_methodGet()/]()), ['request'.apply_parameterMethodClassicIn()/]);
     }
     
-    /**
-     * Exception technique : toutes les autres exceptions, non gérées précédement.
-      */
+   /**
+    * Gère les exceptions génériques {@link Exception} et renvoie une réponse d'erreur avec un code de statut 500.
+    * 
+    * @param ex L'exception générique capturée.
+    * @param request La requête HTTP associée à l'exception.
+    * @return Une réponse HTTP avec un corps contenant un message générique d'erreur et un code de statut 500.
+    */
     @ExceptionHandler(value = { Exception.class })
     protected ResponseEntity<Object> ['handle server error exception'.apply_methodDefault()/](Exception ex, WebRequest request) {
        [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
@@ -172,8 +179,8 @@
   [any.classHeader(any.namePackageRsBase())/]
   
   /**
-   * Services REST: Structure du message à envoyer lors des exceptions techniques ou
-   * fonctionnelles.
+   * Représente une réponse d'erreur ou d'avertissement contenant un code de statut HTTP et un message associé.
+   * Cette classe est utilisée pour transmettre des informations sur une erreur ou un avertissement dans un format structuré.
    * <P>
    * Cette classe est utilisée par le gestionnaire global des exceptions de
    * l'application [any.nameProject()/] : classe {@link [any.nameClassRsExceptionHandlerImpl()/]}. 

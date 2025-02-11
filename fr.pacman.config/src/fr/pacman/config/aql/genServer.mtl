@@ -1,6 +1,7 @@
 [module genServer(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
 [import fr::pacman::config::aql::file::genServer/]
+[import fr::pacman::config::aql::block::server/]
 
 [comment écriture de l'ensemble de la configuration de base pour le projet d'infrastructure./]
 [template protected genRootConfig(r : overview::Root)]
@@ -9,7 +10,15 @@
   [r.fileRsDataNotFoundException(r.genRsDataNotFoundException())/]
   [r.fileRsErrorBodyResponse(r.genRsErrorBodyResponse())/]
   [r.fileRsHttpStatusResolver(r.genRsHttpStatusResolver())/]
+  [r.fileNotImplementedException(r.genNotImplementedException())/]
+  [r.fileMapperException(r.genMapperException())/]
 [/template]
+
+[comment écriture de l'exception pour les mappers (commun à tous les frameworks)./]
+[template private genNotImplementedException(any : ecore::EObject)][any.mapperExceptionImpl()/][/template]
+
+[comment écriture de l'exception pour la couche de persistance (commun à tous les frameworks)./]
+[template private genMapperException(any : ecore::EObject)][any.notImplementedExceptionImpl()/][/template]
 
 [comment liste des méthodes abstraites destinées à etre implémentées dans les modules fils./]
 [template protected genPom(any : ecore::EObject)][/template]
