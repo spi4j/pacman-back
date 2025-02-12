@@ -50,17 +50,37 @@
   import [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationOut()/];
   import [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationIn()/];
   
+  
+  /**
+   * Classe principale de démarrage de l'application {@code [any.nameClassAppBoostrap()/]}.
+   * Cette classe démarre l'application Spring Boot et configure le scan des composants
+   * en incluant spécifiquement des services annotés avec {@link [any.nameClassAnnotationOut()/]} 
+   * ou {@link [any.nameClassAnnotationIn()/]}.
+   */
   @SpringBootApplication
   @ComponentScan(basePackages = {"[any.namePackageProject()/]"}, includeFilters = {
   @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationOut()/].class, [any.nameClassAnnotationIn()/].class })})
   public class [any.nameClassAppBoostrap()/]
   {
   
-	  ['Démarrage de l\'application'.commentMultiLines()/]
+     /**
+      * Point d'entrée de l'application Spring Boot. Il démarre l'application en appelant
+      * {@link SpringApplication#run(Class, String...)} avec la 
+      * classe {@code  [any.nameClassAppBoostrap()/]}.
+      *
+      * @param args Les arguments de la ligne de commande.
+      */
 	  public static void main(String... args) {
 		    SpringApplication.run([any.nameClassAppBoostrap()/].class, args);
 	  }
 	  
+	  /**
+	   * Un {@link CommandLineRunner} qui est exécuté au démarrage de l'application. Il affiche
+	   * la liste de tous les beans définis dans le contexte de l'application Spring.
+	   *
+	   * @param ctx Le contexte de l'application Spring contenant les beans.
+	   * @return Un {@link CommandLineRunner} qui est exécuté au démarrage de l'application.
+	   */
 	  @Bean
 	  public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 	    return args -> {

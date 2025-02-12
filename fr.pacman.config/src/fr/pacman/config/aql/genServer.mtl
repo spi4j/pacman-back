@@ -15,10 +15,10 @@
 [/template]
 
 [comment écriture de l'exception pour les mappers (commun à tous les frameworks)./]
-[template private genNotImplementedException(any : ecore::EObject)][any.mapperExceptionImpl()/][/template]
+[template private genNotImplementedException(any : ecore::EObject)][any.notImplementedExceptionImpl()/][/template]
 
 [comment écriture de l'exception pour la couche de persistance (commun à tous les frameworks)./]
-[template private genMapperException(any : ecore::EObject)][any.notImplementedExceptionImpl()/][/template]
+[template private genMapperException(any : ecore::EObject)][any.mapperExceptionImpl()/][/template]
 
 [comment liste des méthodes abstraites destinées à etre implémentées dans les modules fils./]
 [template protected genPom(any : ecore::EObject)][/template]

@@ -44,7 +44,7 @@
   import org.springframework.web.bind.annotation.RequestHeader;
   import org.springframework.web.bind.annotation.ResponseBody;
   import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
-  import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
+  import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
   
   [for (d | s.associatedDtos())]
     import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];

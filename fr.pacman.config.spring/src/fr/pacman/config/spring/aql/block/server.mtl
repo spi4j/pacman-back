@@ -179,11 +179,12 @@
   [any.classHeader(any.namePackageRsBase())/]
   
   /**
-   * Représente une réponse d'erreur ou d'avertissement contenant un code de statut HTTP et un message associé.
-   * Cette classe est utilisée pour transmettre des informations sur une erreur ou un avertissement dans un format structuré.
+   * Représente une réponse d'erreur avec un code de statut HTTP et un message d'erreur.
+   * Cette classe est utilisée pour encapsuler les informations d'une erreur retournée par un service,
+   * incluant un code de statut HTTP et un message d'erreur associé.
    * <P>
    * Cette classe est utilisée par le gestionnaire global des exceptions de
-   * l'application [any.nameProject()/] : classe {@link [any.nameClassRsExceptionHandlerImpl()/]}. 
+   * l'application [any.nameProject()/], la classe {@link [any.nameClassRsExceptionHandlerImpl()/]}. 
    * Par défaut, la structure est minimale avec un statut HTTP (bien qu'il soit aussi présent au
    * niveau de l'en-tête) et un message d'erreur. 
    * <p>
@@ -194,10 +195,10 @@
    */
   class [any.nameClassRsErrorBodyResponseImpl()/] {
      
-     ['Le code de statut HTTP'.commentMultiLines()/]
+     ['Le code de statut HTTP associé à l\'erreur'.commentMultiLines()/]
      private final int ['status code'.apply_attributeDefault()/];
        
-     ['Le message d\'erreur ou d\'avertissement'.commentMultiLines()/]
+     ['Le message d\'erreur ou d\'avertissement associé à l\'erreur.'.commentMultiLines()/]
      private final String ['err message'.apply_attributeFinal()/];
      
      ['Constructeur'.commentMultiLines()/]
@@ -235,17 +236,23 @@
   import org.springframework.http.HttpStatus;
   
   /**
-   * Classe de conversion entre les statuts HTTP modélisés et l'énumération Spring
-   * HttpStatus. 
-   * 
+   * La classe {@code [any.nameClassRsHttpStatusResolverImpl()/]} fournit une méthode statique
+   * permettant de résoudre un code de statut HTTP en utilisant la classe
+   * {@link HttpStatus}. Cette méthode permet de retourner un objet
+   * {@link HttpStatus} correspondant au code de statut HTTP fourni.
+   *  
    * @author [any.get_authorName()/]
    */
   class [any.nameClassRsHttpStatusResolverImpl()/]
   {
       /**
-       * Retourne l'énumération à partie de son code de statut au format entier.
+       * Résout un code de statut HTTP en un objet {@link HttpStatus}.
+       *
+       * @param ['status code'.apply_parameterMethodClassicIn()/] Le code de statut HTTP à résoudre.
+       * @return Un objet {@link HttpStatus} représentant le code de statut HTTP, ou {@code null} si le code n'est pas valide.
+       * @throws IllegalArgumentException Si le code de statut est invalide et ne peut être résolu.
        * 
-       * @param ['status code'.apply_parameterMethodClassicIn()/] le code de sttaut HTTP sous forme d'entier.
+       * @param ['status code'.apply_parameterMethodClassicIn()/] le code de statut HTTP sous forme d'entier.
        * @return le statut sous forme d'énumération.
        */
       static HttpStatus ['resolve'.apply_methodDefault()/](final int ['status code'.apply_parameterMethodClassicIn()/]) {

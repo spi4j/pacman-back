@@ -13,7 +13,7 @@
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::method/]
 
-[comment ./]
+[comment écriture de la classe utilitaire de mapping pour la couche d'infrastructure./]
 [template public mapperIn(d : environment::DTO)]
   [d.classHeader(d.namePackageMapperInImpl())/]
   import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
@@ -69,19 +69,29 @@
 
 
 
-[comment ./]
+[comment écriture de la classe utilitaire de mapping pour la couche application./]
 [template public mapperOut(d : environment::DTO)]
   [d.classHeader(d.namePackageMapperOutImpl())/]
   import [d.namePackageProject()/].[d.namePackageXtoImpl()/].[d.nameClassXtoImpl()/];
   import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
   
+  /**
+   * La classe {@code [d.nameClassMapperImpl()/]} est responsable de la conversion entre deux types d'objets : 
+   * {@link [d.nameClassXtoImpl()/]} et {@link [d.nameClassDtoImpl()/]}. Elle fournit des méthodes statiques pour effectuer 
+   * ces transformations. Si une conversion échoue (en raison d'un paramètre {@code null}), une exception
+   * {@link [d.nameClassMapperExceptionImpl()/]} est lancée.
+   */
   public class [d.nameClassMapperImpl()/]
   {
   
-   /**
-    *
-    * 
-    */
+    /**
+     * Convertit un objet {@link [d.nameClassXtoImpl()/]} en un objet {@link [d.nameClassDtoImpl()/]}.
+     * Si l'objet {@code [d.nameClassXtoImpl()/]} est {@code null}, une {@link [d.nameClassMapperExceptionImpl()/]} est lancée.
+     *
+     * @param xto L'objet {@code [d.nameClassXtoImpl()/]} à convertir.
+     * @return Un objet {@code [d.nameClassDtoImpl()/]} représentant les mêmes informations que {@code [d.nameClassXtoImpl()/]}.
+     * @throws [d.nameClassMapperExceptionImpl()/] Si l'objet {@code [d.nameClassXtoImpl()/]} est {@code null}.
+     */
     public static [d.nameClassDtoImpl()/] ['to record'.apply_methodDefault()/] (final [d.nameClassXtoImpl()/] ['xto'.apply_parameterMethodClassicIn()/])
     { 
     
@@ -94,10 +104,14 @@
          [d.dsq2()/]);
     }
   
-   /**
-    *
-    * 
-    */
+    /**
+     * Convertit un objet {@link [d.nameClassDtoImpl()/]} en un objet {@link [d.nameClassXtoImpl()/]}.
+     * Si l'objet {@code [d.nameClassDtoImpl()/]} est {@code null}, une {@link [d.nameClassMapperExceptionImpl()/]} est lancée.
+     *
+     * @param ['dto'.apply_parameterMethodClassicIn()/] L'objet {@code [d.nameClassDtoImpl()/]} à convertir.
+     * @return Un objet {@code [d.nameClassXtoImpl()/]} représentant les mêmes informations que {@code [d.nameClassDtoImpl()/]}.
+     * @throws [d.nameClassMapperExceptionImpl()/] Si l'objet {@code [d.nameClassDtoImpl()/]} est {@code null}.
+     */
     public static [d.nameClassXtoImpl()/] ['to xto'.apply_methodDefault()/] (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
     { 
     
@@ -117,29 +131,3 @@
 
 [query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]
 [query private dsq2(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'xto'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]
-
-
-[comment pour sauvagarde......./]
-[template public oldmapper(d : environment::DTO)]
-  [d.classHeader(d.namePackageMapperInImpl())/]
-  import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
-  import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
-  
-  public class [d.nameClassMapperImpl()/]
-  {
-    public static [d.associatedEntity().nameClassEntityImpl()/] convertDtoToEntity (final [d.nameClassDtoImpl()/] ['dto'.apply_parameterMethodClassicIn()/])
-    { 
-       [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_variableDefault()/] = new [d.associatedEntity().nameClassEntityImpl()/]();
-       return ['entity'.apply_variableDefault()/];
-    }
-  
-    public static [d.nameClassDtoImpl()/] convertEntityToDto (final [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_parameterMethodClassicIn()/])
-    { 
-      [d.nameClassDtoImpl()/] ['dto'.apply_variableDefault()/] = new [d.nameClassDtoImpl()/]();
-      [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-        ['dto'.apply_variableDefault()/].[a.nameAttribute().apply_methodSet()/](['entity'.apply_parameterMethodClassicIn()/].[a.nameAttribute().apply_methodGet()/]()); 
-      [/for]
-      return ['dto'.apply_variableDefault()/];
-    }	  
-  }
-[/template]
