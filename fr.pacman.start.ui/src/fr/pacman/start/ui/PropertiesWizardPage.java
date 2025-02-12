@@ -1,5 +1,6 @@
 package fr.pacman.start.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Resource;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -48,7 +50,13 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 	/**
 	 * La liste de l'ensemble des composants de saisie à gérer.
 	 */
-	private Map<String, T> _lstWidgets;
+	private Map<String, T> _lstWidgets = new HashMap<>();
+
+	/**
+	 * La liste des composants spécifiques à 'disposer' expressement (sinon message
+	 * d'erreur dans la console, voir plus tard si solution plus élégante).
+	 */
+	private List<Resource> _lstResourcesToDispose = new ArrayList<>();
 
 	/**
 	 * Constructeur.
@@ -60,14 +68,20 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 	}
 
 	/**
+	 * 
+	 * @param p_resource
+	 */
+	void registerResourceToDispose(final Resource p_resource) {
+		_lstResourcesToDispose.add(p_resource);
+	}
+
+	/**
 	 * Demande d'enregistrement du composant de saisie.
 	 * 
 	 * @param p_key    la clé unique, identifiant du composant
 	 * @param p_widget le composant
 	 */
 	void registerWidget(final String p_key, T p_widget) {
-		if (null == _lstWidgets)
-			_lstWidgets = new HashMap<>();
 		_lstWidgets.put(p_key, p_widget);
 	}
 
@@ -181,6 +195,7 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		group.setToolTipText(p_tooltip);
 		group.setLayout(p_layout);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		registerResourceToDispose(group.getFont());
 		return group;
 	}
 
@@ -254,10 +269,12 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 	Button addTableCheckBox(final Table p_parent, final TableItem p_item, final int p_column) {
 		TableEditor editor = new TableEditor(p_parent);
 		Button chk = new Button(p_parent, SWT.CHECK);
+		chk.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
 		chk.pack();
 		editor.minimumWidth = chk.getSize().x;
 		editor.horizontalAlignment = SWT.CENTER;
 		editor.setEditor(chk, p_item, p_column);
+		registerResourceToDispose(chk.getCursor());
 		return chk;
 	}
 
@@ -299,13 +316,14 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		fillLayout.marginHeight = 3;
 		group.setLayout(fillLayout);
 		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		//group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
 		Button yesButton = new Button(group, SWT.RADIO);
 		yesButton.setText("OUI");
 		yesButton.setSelection(true);
 		Button noButton = new Button(group, SWT.RADIO);
 		noButton.setText("NON");
 		widgetContainer container = new widgetContainer(yesButton, noButton);
+		registerResourceToDispose(group.getCursor());
 		return container;
 	}
 
@@ -363,10 +381,18 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		gridLayout.marginTop = 8;
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		group.setLayoutData(gridData);
-		//group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		registerResourceToDispose(group.getCursor());
 		return group;
 	}
 
+	/**
+	 * 
+	 * @param p_parent
+	 * @param p_labelValue
+	 * @param p_tooltip
+	 * @return
+	 */
 	Button addCheckBox(final Composite p_parent, final String p_labelValue, final String p_tooltip) {
 		Label label = new Label(p_parent, SWT.NONE);
 		label.setToolTipText(p_tooltip);
@@ -376,7 +402,8 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		fillLayout.marginHeight = 3;
 		group.setLayout(fillLayout);
 		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		//group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		registerResourceToDispose(group.getCursor());
 		Button chbox = new Button(group, SWT.CHECK);
 		chbox.setData(label);
 		return chbox;
@@ -409,8 +436,14 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		combo2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		Image imageBt1 = new Image(p_parent.getDisplay(), this.getClass().getResourceAsStream("left.png"));
 		Image imageBt2 = new Image(p_parent.getDisplay(), this.getClass().getResourceAsStream("right.png"));
+		bt1.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		bt2.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
 		bt1.setBackground(p_parent.getBackground());
 		bt2.setBackground(p_parent.getBackground());
+		registerResourceToDispose(imageBt1);
+		registerResourceToDispose(imageBt2);
+		registerResourceToDispose(bt1.getCursor());
+		registerResourceToDispose(bt2.getCursor());
 		bt1.setImage(imageBt1);
 		bt2.setImage(imageBt2);
 
@@ -522,5 +555,17 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		public Button getNoButton() {
 			return _noButton;
 		}
+	}
+
+	/**
+	 * Demande express de suppression de certaines ressources à la fermeture du
+	 * formulaire, sinon apparition de messages d'erreur dans la console
+	 */
+	@Override
+	public void dispose() {
+		for (Resource resource : _lstResourcesToDispose) {
+			resource.dispose();
+		}
+		super.dispose();
 	}
 }

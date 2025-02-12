@@ -208,7 +208,7 @@ public final class ProjectProperties extends PropertiesCategory {
 //				PacmanProperty.newRequired(c_is_wsHk2, "true",
 //						"Flag indiquant si on veut utiliser l'injection pour les services web REST (oui par defaut)"),
 
-				PacmanProperty.newRequired(c_project_debug, "true",
+				PacmanProperty.newRequired(c_project_debug, "false",
 						"Flag indiquant si la generation pour le projet fonctionne en mode debug (non par defaut)"),
 
 				PacmanProperty.newRequired(c_project_testsCrud, "true",
