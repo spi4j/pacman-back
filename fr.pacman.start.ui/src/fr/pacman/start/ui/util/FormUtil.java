@@ -184,17 +184,6 @@ public class FormUtil {
 	}
 
 	/**
-	 * Construction automatique d'un nom de package a partir du nom de projet.
-	 * 
-	 * @param p_packageName
-	 * @param p_projectName
-	 */
-	public static void completePackageName(final Text p_packageName, final Text p_projectName) {
-		p_packageName.setText(p_packageName.getText().substring(0, p_packageName.getText().indexOf(".") + 1)
-				.concat(p_projectName.getText().toLowerCase().replace("-", "_")));
-	}
-
-	/**
 	 * Verifie la coherence pour la selection des services web.
 	 * 
 	 * @param p_ws

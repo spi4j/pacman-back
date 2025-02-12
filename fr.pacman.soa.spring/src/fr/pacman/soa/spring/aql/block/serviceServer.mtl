@@ -202,8 +202,8 @@
   else if (o.verb = soa::Verb::PATCH) then ''
   else if (o.verb = soa::Verb::TRACE) then ''
   else '' endif endif endif endif endif endif endif endif 
-  + '", produces = ' + if (o.hasRsMediaType()) then '"' 
-  + o.output->first().rsMediaType() + '"'else o.defaultRsMediaType() endif + ')'/]
+  + '", produces = ' + if (o.hasMediaRsType()) then '"' 
+  + o.output->first().mediaRsType() + '"'else o.defaultRsMediaType() endif + ')'/]
 
 [comment écriture des annotations au niveau des paramètres rest./]
 [query private writeRsAnnotation(p : soa::Parameter) : String = 

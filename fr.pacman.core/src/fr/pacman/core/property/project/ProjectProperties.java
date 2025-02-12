@@ -103,7 +103,6 @@ public final class ProjectProperties extends PropertiesCategory {
 	// modifier
 	// persistance
 
-	public static final String c_server_cxf_pkg = "application.server.cfx.pkg";
 	public static final String c_deprecated_soa_usercode_params = "deprecated.soa.usercode.params";
 	public static final String c_tests_bdd_enabled = "tests.bdd.enabled";
 	public static final String c_rootfiles_generate_enabled = "application.rootfiles.generate";
@@ -137,7 +136,7 @@ public final class ProjectProperties extends PropertiesCategory {
 				PacmanProperty.newRequired(c_project_profiler, "false",
 						"Flag indiquant si le profiling est actif lors des generations"),
 
-				PacmanProperty.newRequired(c_project_framework, "Spring",
+				PacmanProperty.newRequired(c_project_framework, "spring",
 						"Type de framework pour le projet (Spring par defaut)"),
 
 				PacmanProperty.newRequired(c_project_version, c_noDefaultValue, "La version de l'application"),
@@ -237,9 +236,6 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newConditional(c_ws_security_scheme_id, "",
 						"Schema de securite a generer si librairie REST et plusieurs schemas (vide par defaut)"),
-
-				PacmanProperty.newRequired(c_server_cxf_pkg, "ws.servlet",
-						"Package pour la generation des servlets CXF (SOAP)"),
 
 //				PacmanProperty.newConditional(c_is_httpEmbeddedServer, "",
 //						"Mise en place d'un serveur http embarque (jetty, tomcat)"),
@@ -420,17 +416,11 @@ public final class ProjectProperties extends PropertiesCategory {
 	}
 
 	public static String get_projectName(final Object p_object) {
-		return "safran";
-		// return PropertiesHandler.getProperty(c_project_name);
+		return PropertiesHandler.getProperty(c_project_name);
 	}
 
 	public static String get_projectPackage(final Object p_object) {
-		return "fr.safran";
-		// return PropertiesHandler.getProperty(c_project_package);
-	}
-
-	public static String get_packageCFXServer() {
-		return PropertiesHandler.getProperty(c_server_cxf_pkg);
+		return PropertiesHandler.getProperty(c_project_package);
 	}
 
 	public static String get_dataBasesNames(final Object p_object) {
@@ -438,12 +428,12 @@ public final class ProjectProperties extends PropertiesCategory {
 		// return PropertiesHandler.getProperty(c_project_databaseTypes);
 	}
 
-	public static String get_useServiceRequirements() {
-		return PropertiesHandler.getProperty(c_project_servicerequirements);
+	public static boolean get_useServiceRequirements(final Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_servicerequirements));
 	}
 
-	public static String get_useTestsCRUD() {
-		return PropertiesHandler.getProperty(c_project_testsCrud);
+	public static boolean get_useTestsCRUD() {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_testsCrud));
 	}
 
 	public static boolean is_appCRUD() {
@@ -467,12 +457,12 @@ public final class ProjectProperties extends PropertiesCategory {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_library_rs));
 	}
 
-	public static String is_generateRootFiles() {
-		return PropertiesHandler.getProperty(c_rootfiles_generate_enabled);
+	public static boolean is_generateRootFiles() {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_rootfiles_generate_enabled));
 	}
 
-	public static String get_useWS() {
-		return PropertiesHandler.getProperty(c_project_ws);
+	public static boolean get_useWS() {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_ws));
 	}
 
 	public static boolean isModeDebug() {

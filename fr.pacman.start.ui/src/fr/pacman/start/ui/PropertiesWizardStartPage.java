@@ -41,6 +41,24 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * Liste des paramètres.
 	 */
 	private String _projectName = "";
+	private String _packageName = "";
+	private String _authorName = "";
+	private String _javaVersion = "";
+	private String _typeProject = "";
+	private String _typeFramework = "";
+	private String _sqlTablePrefix = "";
+	private String _sqlTableSchema = "";
+	private String _sqlTableSpace = "";
+	private String _requirementPrefix = "";
+	private String _requirementLevel = "";
+//	private String _ = "";
+//	private String _ = "";
+//	private String _ = "";
+//	private String _ = "";
+//	private String _ = "";
+//	private String _ = "";
+//	private String _ = "";
+//	private String _ = "";
 
 	/**
 	 * Constructeur avec la définition de l'en-tête pour le panneau global de
@@ -53,6 +71,10 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		setDescription("Saisir les différents paramètres pour la création du projet.");
 	}
 
+	/**
+	 * 
+	 * @param p_defaultSize
+	 */
 	void resize(final boolean p_defaultSize) {
 		if (p_defaultSize)
 			getShell().setSize(getShell().computeSize(720, 300));
@@ -68,13 +90,13 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		final Map<String, Composite> containers = addTabFolder(container);
 
 		Group project1 = addGroup(containers.get("project"), "Identification",
-				"Informations de base permettant l'identification du projet.");
+				"Ensemble des informations de base permettant l'identification du projet.");
 
 		Group project2 = addGroup(containers.get("project"), "Options",
-				"Informations structurantes pour la création du projet.");
+				"Ensemble des informations structurantes pour la création du projet.");
 
 		Group database2 = addGroup(containers.get("database"), "Options",
-				"Informations structurantes pour la création et la gestion de la(ou des) base(s) de données.");
+				"Ensemble des informations structurantes pour la création et la gestion de la(ou des) base(s) de données.");
 
 		Group database3 = addGroup(containers.get("database"), "Champs automatiques",
 				"Définition des champs transverses à rajouter automatiquement pour toutes les entités persistantes.",
@@ -83,23 +105,23 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		Group options1 = addGroup(containers.get("options"), "Règles de gestion", "tooltip");
 		Group options2 = addGroup(containers.get("options"), "Autre", "tooltip");
 
-		registerWidget("w_dba", containers.get("database"));
-		registerWidget("w_appl", addTextApplication(project1));
-		registerWidget("w_pack", addTextPackage(project1));
-		registerWidget("w_auth", addTextAuthorName(project1));
-		registerWidget("w4", addComboProjectType(project2));
-		registerWidget("w4b", addComboFramework(project2));
-		registerWidget("w5", addComboJavaVersion(project2));
+		registerWidget("cb_database", containers.get("database"));
+		registerWidget("txt_project", addTextApplication(project1));
+		registerWidget("txt_package", addTextPackage(project1));
+		registerWidget("txt_author", addTextAuthorName(project1));
+		registerWidget("cb_projectType", addComboProjectType(project2));
+		registerWidget("cb_framework", addComboFramework(project2));
+		registerWidget("cb_javaVersion", addComboJavaVersion(project2));
 
 		addDatabases(project2);
 
-		registerWidget("w10", addTextDbTablePrefix(database2));
-		registerWidget("w11", addTextDbTableSpace(database2));
-		registerWidget("w12", addTextDbTableSchema(database2));
+		registerWidget("txt_sqlTPrefix", addTextDbTablePrefix(database2));
+		registerWidget("txt_sqlTSpace", addTextDbTableSpace(database2));
+		registerWidget("txt_sqlTSpace", addTextDbTableSchema(database2));
 
-		registerWidget("w13", addTextReqPrefix(options1));
-		registerWidget("w14", addTextReqLevel(options1));
-		registerWidget("w15", addComboReqInitVersion(options1));
+		registerWidget("txt_reqPrefix", addTextReqPrefix(options1));
+		registerWidget("txt_reqLevel", addTextReqLevel(options1));
+		registerWidget("cb_reqInitVerion", addComboReqInitVersion(options1));
 
 		registerWidget("w16", addCheckBoxCdi(options2));
 		registerWidget("w17", addCheckBoxSpi4jConfig(options2));
@@ -124,18 +146,17 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		setControl(container);
 		setPageComplete(false);
 		initWithDefault();
-		resize(true);
-
 		setPageComplete(true);
+		resize(true);
 	}
 
 	/**
 	 * 
 	 */
 	private void initWithDefault() {
-		// setEnabled(getWidget("w7"), false);
-		// setEnabled(getWidget("w8"), false);
-		// ((Button) getWidget("w6")).setSelection(true);
+		_javaVersion = "11";
+		_typeProject = "xx";
+		_typeFramework = "spring";
 	}
 
 	/**
@@ -171,7 +192,9 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			@Override
 			public void keyReleased(final KeyEvent p_e) {
 				_projectName = txt.getText();
-				// FormUtil.completePackageName(_packageName, applicationName);
+				completePackageName((Text) getWidget("txt_package"), txt);
+				_packageName = ((Text) getWidget("txt_package")).getText();
+				computeValidity();
 			}
 
 			@Override
@@ -196,6 +219,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		txt.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(final KeyEvent p_e) {
+				_packageName = txt.getText();
 				computeValidity();
 			}
 
@@ -216,11 +240,12 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	private Text addTextAuthorName(final Composite p_parent) {
 		final Text txt = addText(p_parent, "Auteur(s)", "",
-				"Auteur(s) ou organisme(s) à afficher dans l'ensemble des commentaires "
-						+ "(uniquement pour la partie infrastrucuture).");
+				"Auteur(s) ou organisme(s) à afficher dans l'ensemble des commentaires."
+						+ "\n\rCes informations ne seront visibles que dans la partie infrastrucuture.");
 		txt.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(final KeyEvent p_e) {
+				_authorName = txt.getText();
 				computeValidity();
 			}
 
@@ -241,7 +266,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private void addDatabases(final Composite p_parent) {
 		MultiSelectionContainer container = addMultiSelection(p_parent, "Base(s) de données",
 				"La (ou les) base(s) de données à utiliser pour la persistence des données de l'application"
-						+ "\nLa base de données H2 est automatiquement embarquée dans le projet.");
+						+ "\nLa base de données H2 est toujours automatiquement embarquée dans le projet.");
 		container.populate(new ArrayList<String>(
 				Arrays.asList("MySql", "Postgresql", "MariaDb", "Oracle (< 12.2)", "Oracle (> 12.1)")));
 
@@ -249,41 +274,33 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 			@Override
 			public void modifyText(ModifyEvent e) {
-				setEnabled(getWidget("w_dba"), container.get_selected().getItemCount() > 0);
+				// RAS.
 			}
 		});
 	}
 
 	/**
-	 * 
-	 * @param p_parent p_parent le composite parent sur lequel accrocher le
-	 *                 composant.
-	 * @return
-	 */
-	private Button addCheckBoxHttpServer(final Composite p_parent) {
-		Button cbx = addCheckBox(p_parent, "Utilise un serveur HTTP embarqué", "");
-		return cbx;
-	}
-
-	/**
-	 * 
-	 * @param p_parent p_parent le composite parent sur lequel accrocher le
-	 *                 composant.
-	 * @return
-	 */
-	private Button addCheckBoxH2(final Composite p_parent) {
-		Button cbx = addCheckBox(p_parent, "Utilise une base H2 embarquée", "");
-		return cbx;
-	}
-
-	/**
+	 * Ajout de la boite de sélection pour le choix de la version Java à appliquer
+	 * sur l'ensemble du projet.
 	 * 
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
-	 * @return
+	 * @return la version Java.
 	 */
 	private Combo addComboJavaVersion(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Version Java", "La version LTS pour la compilation des classes du projet.",
 				new String[] { "Java 11", "Java 17", "Java 21" }, 0);
+
+		cbx.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(final SelectionEvent p_e) {
+				_javaVersion = String.valueOf(cbx.getSelectionIndex());
+			}
+
+			@Override
+			public void widgetDefaultSelected(final SelectionEvent p_e) {
+				widgetSelected(p_e);
+			}
+		});
 		return cbx;
 	}
 
@@ -291,15 +308,53 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * Champ de saisie pour le type de projet.
 	 * 
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
-	 * @return
+	 * @return le type de projet.
 	 */
 	private Combo addComboProjectType(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Type ",
 				"Le type du (ou des) service(s) à exposer pour le projet de type FrontEnd.",
-				new String[] { "Librairie de services internes", "Exposition de services externes",
+				new String[] { "Librairie de services internes", "Exposition de services externes de type rest",
 						"Exposition de micro-services externes", "Librairie client services externes",
 						"POC (base H2 embedded)" },
 				0);
+
+		cbx.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(final SelectionEvent p_e) {
+				_typeProject = String.valueOf(cbx.getSelectionIndex());
+			}
+
+			@Override
+			public void widgetDefaultSelected(final SelectionEvent p_e) {
+				widgetSelected(p_e);
+			}
+		});
+		return cbx;
+	}
+
+	/**
+	 * Champ de saisie pour le choix du type de framework à utiliser.
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return le choix du type de framework.
+	 */
+	private Combo addComboFramework(final Composite p_parent) {
+		Combo cbx = addComboBox(p_parent, "Framework",
+				"Le framework à utiliser pour la génération des classes issues de la modélisation.",
+				new String[] { "Spring", "Spi4j" }, 0);
+
+		cbx.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(final SelectionEvent p_e) {
+				_typeFramework = (cbx.getItem(cbx.getSelectionIndex()).trim()).toLowerCase();
+			}
+
+			@Override
+			public void widgetDefaultSelected(final SelectionEvent p_e) {
+				widgetSelected(p_e);
+			}
+		});
+
 		return cbx;
 	}
 
@@ -308,53 +363,156 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
-	private Combo addComboFramework(final Composite p_parent) {
-		Combo cbx = addComboBox(p_parent, "Framework",
-				"Le framework à utiliser pour la génération des classes issues de la modélisation.",
-				new String[] { "Spring", "Spi4j" }, 0);
-		return cbx;
-	}
-
 	private Text addTextDbTablePrefix(final Composite p_parent) {
 		final Text txt = addText(p_parent, "Préfixe pour l'ensemble des tables", "", "");
+		txt.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(final KeyEvent p_e) {
+				_sqlTablePrefix = txt.getText();
+				computeValidity();
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent p_e) {
+				if (!FormUtil.checkKeyForPrefix(p_e.character)) {
+					p_e.doit = false;
+				}
+			}
+		});
 		return txt;
 	}
 
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Text addTextDbTableSpace(final Composite p_parent) {
 		final Text txt = addText(p_parent, "Tablespace pour les indexs (Oracle)", "", "");
+		txt.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(final KeyEvent p_e) {
+				_sqlTableSpace = txt.getText();
+				computeValidity();
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent p_e) {
+				if (!FormUtil.checkKeyForSqlTableSpace(p_e.character)) {
+					p_e.doit = false;
+				}
+			}
+		});
 		return txt;
 	}
 
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Text addTextDbTableSchema(final Composite p_parent) {
 		final Text txt = addText(p_parent, "Schema pour l'ensemble des tables", "", "");
+		txt.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(final KeyEvent p_e) {
+				_sqlTableSchema = txt.getText();
+				computeValidity();
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent p_e) {
+				if (!FormUtil.checkKeyForSchema(p_e.character)) {
+					p_e.doit = false;
+				}
+			}
+		});
 		return txt;
 	}
 
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Text addTextReqPrefix(final Composite p_parent) {
 		final Text txt = addText(p_parent, "Préfixe", "", "");
+		txt.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(final KeyEvent p_e) {
+				_requirementPrefix = txt.getText();
+				computeValidity();
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent p_e) {
+				if (!FormUtil.checkKeyForPrefix(p_e.character)) {
+					p_e.doit = false;
+				}
+			}
+		});
 		return txt;
 	}
 
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Text addTextReqLevel(final Composite p_parent) {
 		final Text txt = addText(p_parent, "Niveaux", "", "");
+		txt.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(final KeyEvent p_e) {
+				_requirementLevel = txt.getText();
+				computeValidity();
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent p_e) {
+				if (!FormUtil.checkKeyForNumericValue(p_e.character)) {
+					p_e.doit = false;
+				}
+			}
+		});
 		return txt;
 	}
 
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Combo addComboReqInitVersion(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Init. Version", "", new String[] { "None", "Current" }, 0);
 		return cbx;
 	}
 
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Button addCheckBoxCdi(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Api REST - Utilisation de l'injection CDI", "");
 		return cbx;
 	}
 
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Button addCheckBoxSpi4jConfig(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Fichiers de configuration gérés par SPI4J", "");
 		return cbx;
 	}
 
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Button addCheckBoxFetchStrategy(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Fetching Strategy", "");
 		return cbx;
@@ -362,7 +520,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 	/**
 	 * 
-	 * @param p_parent
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
 	private Button addCheckBoxSecurity(final Composite p_parent) {
@@ -523,6 +681,17 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
+	 * Construction automatique d'un nom de package a partir du nom de projet.
+	 * 
+	 * @param p_packageName
+	 * @param p_projectName
+	 */
+	private void completePackageName(final Text p_packageName, final Text p_projectName) {
+		p_packageName.setText(p_packageName.getText().substring(0, p_packageName.getText().indexOf(".") + 1)
+				.concat(p_projectName.getText().toLowerCase().replace("-", "_")));
+	}
+
+	/**
 	 * Vérification globale de la saisie.
 	 */
 	private void computeValidity() {
@@ -537,6 +706,95 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getProjectName() {
 		return _projectName;
+	}
+
+	/**
+	 * Retourne le libellé du package racine pour le projet.
+	 * 
+	 * @return le libellé du package.
+	 */
+	public String getPackageName() {
+		return _packageName;
+	}
+
+	/**
+	 * Retourne le nom de l'auteur pour le projet.
+	 * 
+	 * @return le nom de l'auteur pour le projet.
+	 */
+	public String getAuthorName() {
+		return _authorName;
+	}
+
+	/**
+	 * Retourne la version Java pour la compilation du projet.
+	 * 
+	 * @return la version Java.
+	 */
+	public String getJavaVersion() {
+		return _javaVersion;
+	}
+
+	/**
+	 * Retourne le type de projet à générer.
+	 * 
+	 * @return le type du projet.
+	 */
+	public String getTypeProject() {
+		return _typeProject;
+	}
+
+	/**
+	 * Retourne le type de framework à utiliser pour le projet.
+	 * 
+	 * @return le type de framework.
+	 */
+	public String getTypeFramework() {
+		return _typeFramework;
+	}
+
+	/**
+	 * Retourne le préfixe à utiliser pour l'ensemble des tables sql.
+	 * 
+	 * @return le préfixe pour les tables sql.
+	 */
+	public String getSqlTablePrefix() {
+		return _sqlTablePrefix;
+	}
+
+	/**
+	 * Retourne le schéma à utiliser pour l'ensemble des tables sql.
+	 * 
+	 * @return le schéma à utiliser pour les tables sql.
+	 */
+	public String getSqlTableSchema() {
+		return _sqlTableSchema;
+	}
+
+	/**
+	 * Retourne (dans le cas d'une base Oracle) le tablespace à utiliser.
+	 * 
+	 * @return le tablespace à utiliser.
+	 */
+	public String getSqlTableSpace() {
+		return _sqlTableSpace;
+	}
+
+	/**
+	 * Retourne le préfixe à utiliser pour les règles de gestion (requirement).
+	 * 
+	 * @return le préfixe à utiliser pour les règles de gestions.
+	 */
+	public String getRequirementPrefix() {
+		return _requirementPrefix;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRequirementLevel() {
+		return _requirementLevel;
 	}
 
 	/**

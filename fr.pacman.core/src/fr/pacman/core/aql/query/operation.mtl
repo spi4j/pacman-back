@@ -47,13 +47,13 @@
   and o.output->first().statusCode.size() > 0/]
 
 [comment vérifie si l'opération a défini un type de média pour la sortie du service rest./]
-[query public hasRsMediaType(o : soa::Operation) : Boolean = o.exists() and o.output->first().exists() and o.output->first().hasRsMediaType()/]
+[query public hasMediaRsType(o : soa::Operation) : Boolean = o.exists() and o.output->first().exists() and o.output->first().hasMediaRsType()/]
   
 [comment vérifie si le paramètre de sortie a défini un type de média pour le service rest./]
-[query public hasRsMediaType(p : soa::Parameter) : Boolean = p.exists() and p.mediaType <> null and  p.mediaType->size() > 0/]
+[query public hasMediaRsType(p : soa::Parameter) : Boolean = p.exists() and p.mediaType <> null and  p.mediaType->size() > 0/]
   
 [comment retourne le type de média pour le paramètre de sortie du service rest./]
-[query public rsMediaType(p : soa::Parameter) : String = p.mediaType->first().identifier/]
+[query public mediaRsType(p : soa::Parameter) : String = p.mediaType->first().identifier/]
 
 [comment vérifie si une 'fault' de type 'Not Found' a été définie sur l'opération rest./]
 [query public hasRsNotFoundFault (o :soa::Operation) : Boolean = o.exists() and not o.fault->select(f | f.statusCode.equalsIgnoreCase

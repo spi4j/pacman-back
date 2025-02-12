@@ -299,7 +299,7 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		fillLayout.marginHeight = 3;
 		group.setLayout(fillLayout);
 		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		//group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
 		Button yesButton = new Button(group, SWT.RADIO);
 		yesButton.setText("OUI");
 		yesButton.setSelection(true);
@@ -363,7 +363,7 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		gridLayout.marginTop = 8;
 		GridData gridData = new GridData(GridData.FILL_HORIZONTAL);
 		group.setLayoutData(gridData);
-		group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		//group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
 		return group;
 	}
 
@@ -376,7 +376,7 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 		fillLayout.marginHeight = 3;
 		group.setLayout(fillLayout);
 		group.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
+		//group.setCursor(new Cursor(p_parent.getDisplay(), SWT.CURSOR_HAND));
 		Button chbox = new Button(group, SWT.CHECK);
 		chbox.setData(label);
 		return chbox;
