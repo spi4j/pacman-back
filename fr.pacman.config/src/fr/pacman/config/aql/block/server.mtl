@@ -13,6 +13,12 @@
   [any.classHeader(any.namePackageException())/]
   
   /**
+   * Exception personnalisée pour le mappage dans l'application [any.get_projectName()/].
+   * <p>
+   * Cette exception est une extension de {@link RuntimeException} et est utilisée pour signaler des erreurs spécifiques
+   * liées au processus de mappage des données dans l'application [any.get_projectName()/].
+   * </p>
+   * Cette classe prend un message d'erreur en paramètre lors de la création de l'exception.
    * 
    * @author [any.get_authorName()/]
    */
@@ -21,6 +27,11 @@
      ['identifiant de sérialisation'.commentMultiLines()/]
      private static final long serialVersionUID = 7461624407885629938L;
      
+    /**
+     * Constructeur qui initialise l'exception avec un message détaillant l'erreur.
+     * 
+     * @param ['message'.apply_parameterMethodClassicIn()/] Le message décrivant la cause de l'exception.
+     */
      public [any.nameClassMapperExceptionImpl()/](final String ['message'.apply_parameterMethodClassicIn()/]) {
      	super(['message'.apply_parameterMethodClassicIn()/]);
      }
@@ -32,7 +43,13 @@
   [any.classHeader(any.namePackageException())/]
   
   /**
-   * 
+   * Exception personnalisée pour indiquer qu'une fonctionnalité n'est pas encore implémentée dans l'application [any.get_projectName()/].
+   * <p>
+   * Cette exception est une extension de {@link RuntimeException} et est utilisée pour signaler des tentatives d'utilisation
+   * de fonctionnalités qui n'ont pas encore été développées ou qui ne sont pas supportées.
+   * </p>
+   * Cette classe prend un message d'erreur en paramètre lors de la création de l'exception.
+   *
    * @author [any.get_authorName()/]
    */
   public class [any.nameClassNotImplementedExceptionImpl()/] extends RuntimeException 
@@ -40,6 +57,11 @@
      ['identifiant de sérialisation'.commentMultiLines()/]
      private static final long serialVersionUID = 1L;
      
+    /**
+     * Constructeur qui initialise l'exception avec un message détaillant l'erreur.
+     * 
+     * @param ['message'.apply_parameterMethodClassicIn()/] Le message décrivant la cause de l'exception.
+     */
      public [any.nameClassNotImplementedExceptionImpl()/](final String ['message'.apply_parameterMethodClassicIn()/]) {
      	super(['message'.apply_parameterMethodClassicIn()/]);
      }

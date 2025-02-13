@@ -11,6 +11,7 @@
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::common/]
 [import fr::pacman::core::aql::rule::method/]
 
 [comment écriture de la classe utilitaire de mapping pour la couche d'infrastructure./]
@@ -53,7 +54,7 @@
     * 
     * @throws [d.nameClassMapperExceptionImpl()/] Si le paramètre entity est nul, une exception est lancée pour signaler l'impossibilité de réaliser la conversion.
     */
-    public static [d.nameClassDtoImpl()/] ['to record'.apply_methodDefault()/] (final [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_parameterMethodClassicIn()/])
+    public static [d.nameClassDtoImpl()/] [('to ' + d.suffixDto()).apply_methodDefault()/] (final [d.associatedEntity().nameClassEntityImpl()/] ['entity'.apply_parameterMethodClassicIn()/])
     {
         if(null ==['entity'.apply_parameterMethodClassicIn()/])
         {
@@ -92,7 +93,7 @@
      * @return Un objet {@code [d.nameClassDtoImpl()/]} représentant les mêmes informations que {@code [d.nameClassXtoImpl()/]}.
      * @throws [d.nameClassMapperExceptionImpl()/] Si l'objet {@code [d.nameClassXtoImpl()/]} est {@code null}.
      */
-    public static [d.nameClassDtoImpl()/] ['to record'.apply_methodDefault()/] (final [d.nameClassXtoImpl()/] ['xto'.apply_parameterMethodClassicIn()/])
+    public static [d.nameClassDtoImpl()/] [('to ' + d.suffixDto()).apply_methodDefault()/] (final [d.nameClassXtoImpl()/] ['xto'.apply_parameterMethodClassicIn()/])
     { 
     
        if(null == ['xto'.apply_parameterMethodClassicIn()/])

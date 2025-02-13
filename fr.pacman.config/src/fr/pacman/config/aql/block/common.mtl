@@ -22,10 +22,22 @@
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
 
-  @Retention(RetentionPolicy.RUNTIME)
-  public @interface [any.nameClassAnnotationOut()/] {
-    //RAS.
-  }
+  /** 
+   * Annotation personnalisée pour marquer les services du domaine dans l'application.
+   * <p>
+   * Cette annotation est utilisée pour indiquer qu'une classe fait partie du domaine métier de l'application,
+   * généralement utilisée pour désigner les services ou les composants qui gèrent la logique métier.
+   * Elle est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
+   * </p>
+   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut être étendue à l'avenir pour  
+   * ajouter des métadonnées supplémentaires si nécessaire.
+   *
+   * @author [any.get_authorName()/]
+   */
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface [any.nameClassAnnotationOut()/] {
+     //RAS.
+   }
 [/template]
 
 [comment écriture de l'annotation pour l'injection de service persistance./]
@@ -34,8 +46,21 @@
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
 
-  @Retention(RetentionPolicy.RUNTIME)
-  public @interface [any.nameClassAnnotationIn()/] {
-    //RAS.
-  }
+  /**
+   * Annotation personnalisée pour marquer les adaptateurs de service dans l'application.
+   * <p>
+   * Cette annotation est utilisée pour identifier les classes qui servent d'adaptateurs pour les services.
+   * Les adaptateurs de service sont généralement utilisés pour intégrer des services externes ou des composants 
+   * spécifiques à l'architecture de l'application tout en offrant une interface uniforme.
+   * Elle est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
+   * </p>
+   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut être étendue à l'avenir pour
+   * ajouter des métadonnées supplémentaires si nécessaire.
+   * </p> 
+   * @author [any.get_authorName()/]
+   */
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface [any.nameClassAnnotationIn()/] {
+     //RAS.
+   }
 [/template]

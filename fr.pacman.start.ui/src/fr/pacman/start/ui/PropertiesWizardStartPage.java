@@ -51,10 +51,11 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _sqlTableSpace = "";
 	private String _requirementPrefix = "";
 	private String _requirementLevel = "";
-//	private String _ = "";
-//	private String _ = "";
-//	private String _ = "";
-//	private String _ = "";
+	private String _requirementInitVersion = "";
+	private String _spi4jRsCdi = "false";
+	private String _spi4jfetchingStrategy = "false";
+	private String _spi4jSecurity = "false";
+	private String _projectCrud = "false";
 //	private String _ = "";
 //	private String _ = "";
 //	private String _ = "";
@@ -485,6 +486,17 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	private Combo addComboReqInitVersion(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Init. Version", "", new String[] { "None", "Current" }, 0);
+		cbx.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(final SelectionEvent p_e) {
+				_requirementInitVersion = (cbx.getItem(cbx.getSelectionIndex()).trim()).toLowerCase();
+			}
+
+			@Override
+			public void widgetDefaultSelected(final SelectionEvent p_e) {
+				widgetSelected(p_e);
+			}
+		});
 		return cbx;
 	}
 
@@ -600,40 +612,65 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		TableItem p_item = new TableItem(p_parent, SWT.NONE);
 
 		TableEditor editor = new TableEditor(p_parent);
-		CCombo combo = new CCombo(p_parent, SWT.NONE);
-		combo.add("XtopSup", 0);
-		combo.add("XdMaj", 1);
-		combo.add("Char", 2);
-		combo.add("String", 3);
-		combo.add("Integer", 4);
-		combo.add("Long", 5);
-		combo.add("Double", 6);
-		combo.add("Float", 7);
-		combo.add("Date", 8);
-		combo.add("Timestamp", 9);
-		combo.add("Time", 10);
-		combo.add("Boolean", 11);
+		CCombo cbx = new CCombo(p_parent, SWT.NONE);
+		cbx.add("XtopSup", 0);
+		cbx.add("XdMaj", 1);
+		cbx.add("Char", 2);
+		cbx.add("String", 3);
+		cbx.add("Integer", 4);
+		cbx.add("Long", 5);
+		cbx.add("Double", 6);
+		cbx.add("Float", 7);
+		cbx.add("Date", 8);
+		cbx.add("Timestamp", 9);
+		cbx.add("Time", 10);
+		cbx.add("Boolean", 11);
 		editor.grabHorizontal = true;
-		editor.setEditor(combo, p_item, 0);
+		editor.setEditor(cbx, p_item, 0);
 
 		Text txtName = addTableText(p_parent, p_item, 1);
 		Text txtLength = addTableText(p_parent, p_item, 2);
 		Text txtDefault = addTableText(p_parent, p_item, 3);
-		addTableCheckBox(p_parent, p_item, 4);
-		addTableText(p_parent, p_item, 5);
-
-		combo.addSelectionListener(new SelectionListener() {
+		Button cbxNull = addTableCheckBox(p_parent, p_item, 4);
+		Text txtDescription = addTableText(p_parent, p_item, 5);
+		cbx.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><");
-
+				if (cbx.getSelectionIndex() == 0) {
+					txtName.setText("XTOPSUP");
+					txtName.setEnabled(false);
+					txtLength.setText("1");
+					txtLength.setEnabled(false);
+					txtDefault.setText("current_date");
+					txtDefault.setEnabled(false);
+					cbxNull.setEnabled(false);
+					txtDescription.setText("Date de mise a jour de la ligne");
+				}
+				if (cbx.getSelectionIndex() == 1) {
+					txtName.setText("XDMAJ");
+					txtName.setEnabled(false);
+					txtLength.setText("1");
+					txtLength.setEnabled(false);
+					txtDefault.setText("0");
+					txtDefault.setEnabled(false);
+					cbxNull.setEnabled(false);
+					txtDescription.setText("Indicateur de suppression logique");
+				}
+				if (cbx.getSelectionIndex() > 1) {
+					txtName.setText("");
+					txtLength.setText("");
+					txtDefault.setText("");
+					cbxNull.setEnabled(true);
+					txtDescription.setText("");
+					txtLength.setEnabled(true);
+					txtName.setEnabled(true);
+					txtDefault.setEnabled(true);
+				}
 			}
 
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><");
-
 			}
 		});
 
@@ -670,8 +707,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 			@Override
 			public void keyPressed(final KeyEvent p_e) {
-				if (combo.getSelectionIndex() == 4 || combo.getSelectionIndex() == 5 || combo.getSelectionIndex() == 6
-						|| combo.getSelectionIndex() == 7) {
+				if (cbx.getSelectionIndex() == 4 || cbx.getSelectionIndex() == 5 || cbx.getSelectionIndex() == 6
+						|| cbx.getSelectionIndex() == 7) {
 					if (!FormUtil.checkKeyForNumericValue(p_e.character)) {
 						p_e.doit = false;
 					}
@@ -795,6 +832,46 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getRequirementLevel() {
 		return _requirementLevel;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRequirementInitVersion() {
+		return _requirementInitVersion;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSpi4jRsCdi() {
+		return _spi4jRsCdi;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSpi4jfetchingStrategy() {
+		return _spi4jfetchingStrategy;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSpi4jSecurity() {
+		return _spi4jSecurity;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getProjectCrud() {
+		return _projectCrud;
 	}
 
 	/**

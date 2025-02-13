@@ -12,11 +12,11 @@ import fr.pacman.core.property.PropertiesHandler;
  */
 public class CommonNamingRule extends PropertiesCategory {
 
-	private static final String c_idParam_listPrefix = "listPrefix";
-	private static final String c_idParam_mapPrefix = "mapPrefix";
-	private static final String c_idParam_entitySuffix = "entitySuffix";
-	private static final String c_idParam_serviceSuffix = "serviceSuffix";
-	private static final String c_idParam_dtoSuffix = "dtoSuffix";
+	private static final String c_idParam_prefixList = "prefixList";
+	private static final String c_idParam_prefixMap = "prefixMap";
+	private static final String c_idParam_suffixEntity = "suffixEntity";
+	private static final String c_idParam_suffixService = "suffixService";
+	private static final String c_idParam_suffixDto = "suffixDto";
 
 	@Override
 	protected String get_propertiesFileName() {
@@ -32,23 +32,22 @@ public class CommonNamingRule extends PropertiesCategory {
 	protected PacmanProperty[] initPacmanProperties() {
 		return new PacmanProperty[] {
 
-				PacmanProperty.newRequired(c_idParam_listPrefix, new String[] { "", "tab" }, "Le prefixe des listes"),
+				PacmanProperty.newRequired(c_idParam_prefixList, new String[] { "", "tab" }, "Le prefixe des listes"),
 
-				PacmanProperty.newRequired(c_idParam_mapPrefix, new String[] { "", "map" }, "Le prefixe des map"),
+				PacmanProperty.newRequired(c_idParam_prefixMap, new String[] { "", "map" }, "Le prefixe des map"),
 
-				PacmanProperty.newRequired(c_idParam_entitySuffix, new String[] { "entity", "" },
+				PacmanProperty.newRequired(c_idParam_suffixEntity, new String[] { "entity", "" },
 						"Le suffixe des entites"),
 
-				PacmanProperty.newRequired(c_idParam_dtoSuffix, new String[] { "record", "" },
+				PacmanProperty.newRequired(c_idParam_suffixDto, new String[] { "record", "" },
 						"Le suffixe des objets métier"),
 
-				PacmanProperty.newRequired(c_idParam_serviceSuffix, new String[] { "service", "" },
-						"Le suffixe des services soa"),
-		};
+				PacmanProperty.newRequired(c_idParam_suffixService, new String[] { "service", "" },
+						"Le suffixe des services soa"), };
 	}
 
 	public static String get_entitySuffix() {
-		return PropertiesHandler.getProperty(c_idParam_entitySuffix);
+		return PropertiesHandler.getProperty(c_idParam_suffixEntity);
 	}
 
 	public static String get_entitySuffix(Object object) {
@@ -56,7 +55,7 @@ public class CommonNamingRule extends PropertiesCategory {
 	}
 
 	public static String get_serviceSuffix() {
-		return PropertiesHandler.getProperty(c_idParam_serviceSuffix);
+		return PropertiesHandler.getProperty(c_idParam_suffixService);
 	}
 
 	public static String get_serviceSuffix(Object object) {
@@ -64,7 +63,7 @@ public class CommonNamingRule extends PropertiesCategory {
 	}
 
 	public static String get_dtoSuffix() {
-		return PropertiesHandler.getProperty(c_idParam_dtoSuffix);
+		return PropertiesHandler.getProperty(c_idParam_suffixDto);
 	}
 
 	public static String get_dtoSuffix(Object object) {
@@ -72,7 +71,7 @@ public class CommonNamingRule extends PropertiesCategory {
 	}
 
 	public static String get_listPrefix() {
-		return PropertiesHandler.getProperty(c_idParam_listPrefix);
+		return PropertiesHandler.getProperty(c_idParam_prefixList);
 	}
 
 	public static String get_listPrefix(Object object) {
@@ -80,7 +79,7 @@ public class CommonNamingRule extends PropertiesCategory {
 	}
 
 	public static String get_mapPrefix() {
-		return PropertiesHandler.getProperty(c_idParam_mapPrefix);
+		return PropertiesHandler.getProperty(c_idParam_prefixMap);
 	}
 
 	public static String get_mapPrefix(Object object) {

@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -19,17 +18,8 @@ import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.common.util.Logger;
 import org.eclipse.emf.common.util.Monitor;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.ui.actions.FormatAllAction;
-import org.eclipse.jdt.ui.actions.OrganizeImportsAction;
-import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPartSite;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Namespace;
@@ -53,7 +43,7 @@ import fr.pacman.core.ui.service.PlugInUtils;
  * 
  * @author MINARM
  */
-public abstract class PacmanUIGenerator {
+public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 
 	private static final String c_txtErrIncompatiblesOptions = "Les options prises lors de la création "
 			+ "de ce projet ne permettent pas l'utilisation de ce générateur. \n\r La génération va être stoppée.";
@@ -120,18 +110,6 @@ public abstract class PacmanUIGenerator {
 		_resources = Collections.emptyList();
 	}
 
-//	/**
-//	 * Constructeur partiel pour la création d'un nouveau projet. Ce constructeur
-//	 * est juste utilisé pour pouvoir bénéficier (et uniquement dans le cadre de la
-//	 * création de projet) de la méthode de post traitement, et éviter ainsi une
-//	 * duplication de code.
-//	 * 
-//	 * @param p_project le projet en cours de création.
-//	 */
-//	public PacmanUIGenerator(IProject p_project) {
-//		_rootPath = new File(p_project.getLocation() + File.separator + p_project.getName() + "-model");
-//	}
-
 	/**
 	 * Retourne la liste de l'ensemble des propriétés de génération (options) qui
 	 * sont incompatibles avec le modèle et le(s) générateur(s) sélectionné(s).
@@ -189,15 +167,6 @@ public abstract class PacmanUIGenerator {
 	protected abstract Logger getLogger();
 
 	/**
-	 * Vérifie si le générateur doit doit gérer une vue Eclipse (ErrorLog, Problems,
-	 * etc.. ).
-	 * 
-	 * @return 'true' si le générateur doit gérer une vue Eclipse, sinon retourne la
-	 *         valeur 'false'.
-	 */
-	protected abstract boolean hasView();
-
-	/**
 	 * Méthode principale, point d'entrée pour les générateurs au niveau de la
 	 * couche UI.
 	 * <p>
@@ -212,7 +181,7 @@ public abstract class PacmanUIGenerator {
 				Monitor monitor = new BasicMonitor();
 				PacmanUIAcceleoProfiler.set_project(null);
 				PropertiesHandler.init(_rootPath.getPath());
-				//PacmanUIGeneratorsReport.reset();
+				// PacmanUIGeneratorsReport.reset();
 				if (hasSelectionIncompatibilities())
 					return;
 
@@ -240,7 +209,7 @@ public abstract class PacmanUIGenerator {
 		} finally {
 			try {
 				postTreatment();
-				//PacmanUIGeneratorsReport.log(Boolean.valueOf(ProjectProperties.getIsDisplayGeneratorReport()));
+				// PacmanUIGeneratorsReport.log(Boolean.valueOf(ProjectProperties.getIsDisplayGeneratorReport()));
 				PropertiesHandler.exit();
 
 			} catch (Exception p_e) {
@@ -258,7 +227,7 @@ public abstract class PacmanUIGenerator {
 	 * la classe {@link PacmanUIPropertyTester}. A voir plus tard si on effectue une
 	 * évolution en ce sens).
 	 * 
-	 * @return la valeur 'true' si aun moins une optios de génération est
+	 * @return la valeur 'true' si au moins une option de génération est
 	 *         incompatible avec le générateur sélectionné.
 	 */
 	private boolean hasSelectionIncompatibilities() {
@@ -304,36 +273,6 @@ public abstract class PacmanUIGenerator {
 	}
 
 	/**
-	 * Si l'option est activée, demande l'organisation et le formattage automatique
-	 * des imports Java par l'IDE.
-	 * 
-	 * @param p_targetWorkspaceContainer le conteneur de ressources.
-	 * @param p_targetSite               interface entre ....
-	 * @throws CoreException une exception levée pendant le traitement.
-	 */
-	private void doImportsAction(final IContainer p_targetWorkspaceContainer, final IWorkbenchPartSite p_targetSite)
-			throws CoreException {
-		if (!ProjectProperties.isModeDebug() && p_targetSite != null
-				&& PacmanUIGeneratorsReport.getNbFiles() >= 0)
-			runDispatchAction(p_targetWorkspaceContainer.getProject(), new OrganizeImportsAction(p_targetSite));
-	}
-
-	/**
-	 * Si l'option est activée, demande le formattage automatique des classes Java
-	 * par l'IDE.
-	 * 
-	 * @param p_targetWorkspaceContainer le conteneur de ressources.
-	 * @param p_targetSite               interface entre .....
-	 * @throws CoreException une exception levée pendant le traitement.
-	 */
-	private void doFormatAction(final IContainer p_targetWorkspaceContainer, final IWorkbenchPartSite p_targetSite)
-			throws CoreException {
-		if (!ProjectProperties.isModeDebug() && p_targetSite != null
-				&& PacmanUIGeneratorsReport.getNbFiles() >= 0)
-			runDispatchAction(p_targetWorkspaceContainer.getProject(), new FormatAllAction(p_targetSite));
-	}
-
-	/**
 	 * Vérifie si toutes les options sélectionnées par le développeur sont
 	 * compatibles avec la demande de génération.
 	 * <p>
@@ -355,64 +294,5 @@ public abstract class PacmanUIGenerator {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Permet de passer une commande de type {@link SelectionDispatchAction} à
-	 * l'IDE. Cela permet de bénéficier de l'ensemble des commandes existantes de
-	 * l'IDE (Eclipse) qui sont accessibles soit pas menu soit par séquence de
-	 * touche. Cette commande ne doit impacter que les sous-projets de type Java.
-	 * <p>
-	 * Pour l'instant on utilise déjà l'organisation des imports (CTRL + SHIFT + O)
-	 * et la demande de formattage automatique (CRL + SHIFT + F).
-	 * 
-	 * @param p_project le projet cible.
-	 * @param p_action  l'action à executer pour le projet cible.
-	 * @throws CoreException une exception levée lors de l'exécution du traitement.
-	 */
-	private void runDispatchAction(final IProject p_project, final SelectionDispatchAction p_actionToExcute)
-			throws CoreException {
-		Runnable job = new Runnable() {
-			@Override
-			public void run() {
-				try {
-					IJavaProject prj = null;
-					if (p_project.exists() && p_project.hasNature(JavaCore.NATURE_ID)) {
-						prj = JavaCore.create(p_project);
-						IStructuredSelection selection = new StructuredSelection(prj);
-						p_actionToExcute.run(selection);
-					}
-				} catch (CoreException ce) {
-					ce.printStackTrace();
-				}
-			}
-		};
-		getWorkbenchWindow().getShell().getDisplay().syncExec(job);
-	}
-
-	/**
-	 * Retourne la fenêtre de travail active. Si aucune fenêtre n'est active,
-	 * retourne la première fenêtre trouvée dans la liste des fenêtres disponibles.
-	 * 
-	 * @return la fenêtre de travail courant.
-	 */
-	private IWorkbenchWindow getWorkbenchWindow() {
-		IWorkbench workbench = PlatformUI.getWorkbench();
-		if (hasView())
-			return workbench.getActiveWorkbenchWindow();
-		if (workbench.getWorkbenchWindowCount() > 0)
-			return workbench.getWorkbenchWindows()[0];
-		return null;
-	}
-
-	/**
-	 * Retourne l'interface principale ...
-	 * 
-	 * @return The target site.
-	 */
-	private IWorkbenchPartSite getTargetSite() {
-		if (null != getWorkbenchWindow())
-			return getWorkbenchWindow().getPartService().getActivePart().getSite();
-		throw new RuntimeException("xxx");
 	}
 }

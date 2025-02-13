@@ -69,8 +69,8 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_requirement_prefix = "requirement.prefix";
 	public static final String c_requirement_versionningInitial = "requirement.versionning.initial";
 	public static final String c_requirement_categoryBaseLevel = "requirement.category.base.level";
-	public static final String c_requirement_versionningInitialNone = "none";
-	public static final String c_requirement_versionningInitialCurrent = "current";
+	private static final String c_requirement_versionningInitialNone = "none";
+	private static final String c_requirement_versionningInitialCurrent = "current";
 
 	public static final String c_paging_mode = "paging.mode";
 	public static final String c_paging_totalCount = "paging.total.count.key";
@@ -522,8 +522,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	}
 
 	public static String get_authorName(Object p_object) {
-		return "TOTO";
-		// return PropertiesHandler.getProperty(c_project_author);
+		return PropertiesHandler.getProperty(c_project_author);
 	}
 
 	public static String get_requirementPrefix() {

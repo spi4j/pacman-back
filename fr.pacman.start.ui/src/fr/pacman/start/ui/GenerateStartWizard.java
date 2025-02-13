@@ -3,8 +3,10 @@ package fr.pacman.start.ui;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
@@ -105,7 +107,8 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 					return WizardUtil.sendErrorStatus(p_e, Activator.c_pluginId);
 				} finally {
 					try {
-						WizardUtil.refreshAndSaveProject(subMonitor, project);
+						WizardUtil.postTreatment(subMonitor, project, getSubprojectNames());
+
 					} catch (CoreException e) {
 						return WizardUtil.sendErrorStatus(e, Activator.c_pluginId);
 					}
@@ -115,6 +118,21 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		};
 		job.schedule();
 		return true;
+	}
+
+	/**
+	 * Retourne une liste de sous-projets pour l'ensemble des traittements qui sont
+	 * posterieurs à la création du projet principal.
+	 * 
+	 * @return la liste des suffixes pour les sous-projets à traiter suite à la
+	 *         création du projet principal.
+	 */
+	private List<String> getSubprojectNames() {
+		List<String> subProjects = new ArrayList<>();
+		subProjects.add(ProjectProperties.get_projectCommonName(null));
+		subProjects.add(ProjectProperties.get_projectServerName(null));
+		subProjects.add(ProjectProperties.get_projectWebappName(null));
+		return subProjects;
 	}
 
 	/**
@@ -133,10 +151,15 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		properties.put(ProjectProperties.c_project_java_version, _pageOne.getJavaVersion());
 		properties.put(ProjectProperties.c_requirement_categoryBaseLevel, _pageOne.getRequirementLevel());
 		properties.put(ProjectProperties.c_requirement_prefix, _pageOne.getRequirementPrefix());
+		properties.put(ProjectProperties.c_requirement_versionningInitial, _pageOne.getRequirementInitVersion());
 		properties.put(ProjectProperties.c_sql_tablePrefix, _pageOne.getSqlTablePrefix());
 		properties.put(ProjectProperties.c_sql_tableSchema, _pageOne.getSqlTableSchema());
 		properties.put(ProjectProperties.c_sql_oracleIndexTablespace, _pageOne.getSqlTableSpace());
 		properties.put(ProjectProperties.c_project_framework, _pageOne.getTypeProject());
+		properties.put(ProjectProperties.c_project_crud, _pageOne.getProjectCrud());
+		properties.put(ProjectProperties.c_project_fetchingStrategy, _pageOne.getSpi4jfetchingStrategy());
+		// properties.put(ProjectProperties.c_, _pageOne.getSpi4jRsCdi());
+		properties.put(ProjectProperties.c_project_security, _pageOne.getSpi4jSecurity());
 
 //		// On rajoute les proprietes additionnelles si elles existent.
 //		properties.putAll(_pageOne.getSqlAddColumnsDetail());
@@ -183,7 +206,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			File file = new File((p_project).getLocation().toString());
 			final String modelPath = file.getAbsolutePath() + File.separator + _pageOne.getProjectName() + "-"
 					+ ProjectProperties.get_suffixModel(null);
-			
+
 			PropertiesHandler.init(modelPath, p_properties);
 			Monitor monitor = new BasicMonitor();
 			// PacmanUIGeneratorsReport.reset();

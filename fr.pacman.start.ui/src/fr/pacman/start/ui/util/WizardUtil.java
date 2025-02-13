@@ -1,5 +1,7 @@
 package fr.pacman.start.ui.util;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -18,6 +20,7 @@ import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.wizards.IWizardDescriptor;
 
+import fr.pacman.start.ui.GenerateStartWizardAction;
 import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.exception.WizardNotFoundException;
 
@@ -56,21 +59,26 @@ public class WizardUtil {
 	}
 
 	/**
-	 * Demande le rechargement d'un projet dans le workspace, et effectue les
-	 * éventuelles sauvegardes si des éditeurs sont encore ouverts.
+	 * Demande le rechargement d'un projet dans le workspace, demande la
+	 * réorganisation automatique des imports, le formattage automatique du code et
+	 * effectue les éventuelles sauvegardes si des éditeurs sont encore ouverts. On
+	 * se raccorde sur la classe d'action {@link GenerateStartWizardAction} afin
+	 * d'effectuer la majorité de ces demandes.
 	 * 
-	 * @param p_projectName le nom du projet en cours de création.
-	 * @param p_monitor     un moniteur de progression qui utilise les données de
-	 *                      travail d'un moniteur parent. Il s'agit d'une
-	 *                      alternative plus sûre et plus facile à utiliser à
-	 *                      SubProgressMonitor.
+	 * @param p_projectName     le nom du projet en cours de création.
+	 * @param p_monitor         un moniteur de progression qui utilise les données
+	 *                          de travail d'un moniteur parent. Il s'agit d'une
+	 *                          alternative plus sûre et plus facile à utiliser que
+	 *                          le SubProgressMonitor.
+	 * @param p_subProjectNames le nom des différents sous-projets pour le projet
+	 *                          conteneur.
 	 * @throws CoreException une exception suceptible d'être levée pendant
 	 *                       l'exécution de la méthode.
 	 */
-	public static void refreshAndSaveProject(final SubMonitor p_monitor, final IProject p_project)
-			throws CoreException {
+	public static void postTreatment(final SubMonitor p_monitor, final IProject p_project,
+			final List<String> p_subProjectNames) throws CoreException {
 		if (null != p_project && p_project.exists()) {
-			p_project.refreshLocal(IResource.DEPTH_INFINITE, p_monitor.newChild(100));
+			new GenerateStartWizardAction().postTreatment(p_project, p_subProjectNames);
 			saveAllEditors();
 		}
 	}

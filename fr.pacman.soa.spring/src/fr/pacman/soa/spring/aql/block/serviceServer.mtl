@@ -19,6 +19,7 @@
 [import fr::pacman::core::aql::rule::method/]
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::class/]
+[import fr::pacman::core::aql::rule::common/]
 [import fr::pacman::soa::spring::aql::common/]
 
 [import fr::pacman::core::property::project::ProjectProperties/]
@@ -267,6 +268,6 @@
 [comment écriture de la chaine complète (avec mapper) pour les paramètres en entrée du service domaine./]
 [query private writeRsInputForService(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) 
   then if (p.isMultiple()) then p.name().apply_parameterMethodClassicIn() + '.stream().map(o -> ' +  p.type.oclAsType(environment::DTO).nameClassMapperImpl() 
-  + '.' + 'to record'.apply_methodDefault() + '(o)).collect(Collectors.toList())' else  p.type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' 
-  + 'to record'.apply_methodDefault() + '(' + p.name().apply_parameterMethodClassicIn() + ')' endif else p.name() endif /]
+  + '.' + ('to ' + p.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList())' else  p.type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' 
+  + ('to ' + p.suffixDto()).apply_methodDefault() + '(' + p.name().apply_parameterMethodClassicIn() + ')' endif else p.name() endif /]
 
