@@ -34,10 +34,13 @@
 [query public hasComment(o : environment::ObeoDSMObject) : Boolean = o.description <> null and o.description.trim().escapeComment().size() > 0 /]
 
 [comment retourne le commentaire éventuellement attaché pour l'objet./]
-[query public comment(o : environment::ObeoDSMObject) : String = if (o.hasComment()) then o.description.trim().escapeComment() else '' endif/]
+[query public comment(o : environment::ObeoDSMObject) : String = if (o.hasComment()) then o.description.trim().escapeComment() else o.cNoDescription() endif/]
 
 [comment vérifie si un objet existe bien./]
 [query public exists(any : ecore::EObject) : Boolean = any <> null/]
+  
+[comment ./]
+[query public immutable(any : ecore::EObject) : Boolean = false/]
   
 [comment : vérifie si l'objet existe et est valide. /]
 [comment query public exists(e : environment::ObeoDSMObject) : Boolean = not (e = null)/]

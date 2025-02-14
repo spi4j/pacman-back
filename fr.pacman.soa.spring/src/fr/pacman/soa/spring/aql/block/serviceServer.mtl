@@ -155,18 +155,19 @@
 [comment écriture de l'appel pour une sortie liste optionnelle (normalement jamais appelé pour l'instant)./]
 [query private writeOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
   + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
-  +  o.associatedDto().nameClassMapperImpl() + '.toRecord(o)).collect(Collectors.toList());'/]
+  +  o.associatedDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie liste./]       	    	
 [query private writeNonOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
   + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
-  +  o.associatedDto().nameClassMapperImpl() + '.toRecord(o)).collect(Collectors.toList());'/]
+  +  o.associatedDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie simple optionelle./]
-[query private writeOptionalOutputOne(o : soa::Operation) : String =  o.outputPersistType() + ' ' +  'entity'.apply_variableDefault() 
+[query private writeOptionalOutputOne(o : soa::Operation) : String =  o.outputPersistType() + ' ' +  o.suffixEntity().apply_variableDefault() 
   + ' = ' + o.nameOperation() + '_invoke(' + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') + ');' + 'if ( ' 
-  + 'entity'.apply_variableDefault() + '.isPresent()) ' + '{ return Optional.of( ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.toRecord(' 
-  + 'entity'.apply_variableDefault() + '.get()));} return Optional.empty();'/]
+  + o.suffixEntity().apply_variableDefault() + '.isPresent()) ' + '{ return Optional.of( ' + o.output->first().type.oclAsType(environment::DTO)
+  .nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(' + o.suffixEntity().apply_variableDefault() 
+  + '.get()));} return Optional.empty();'/]
                   
 [comment écriture de l'appel pour une sortie simple./]
 [query private writeNonOptionalOutputOne(o : soa::Operation) : String = ''/]
@@ -240,15 +241,16 @@
 [comment écriture pour un résultat optionnel sur un enregistrement./]
 [query private writeRsOptionalOutputOne(o : soa::Operation, s : soa::Service) : String = o.prefixAffectation() + s.name().apply_attributeFinal() 
    + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').map(o -> ResponseEntity.status(' + o.writeRsStatus() + ').body('
-   + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' + 'to xto'.apply_methodDefault() + '(o))).orElseThrow(() -> new ' + o.nameClassRsDataNotFoundExceptionImpl() 
-   + '(' + if (o.hasRsNotFoundFault()) then o.rsNotFoundFault().statusCode + ', "' + o.rsNotFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
+   + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' + ('to ' + o.suffixXto()).apply_methodDefault() 
+   + '(o))).orElseThrow(() -> new ' + o.nameClassRsDataNotFoundExceptionImpl() + '(' + if (o.hasRsNotFoundFault()) 
+   then o.rsNotFoundFault().statusCode + ', "' + o.rsNotFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
    + ', "' endif + '"))'/]
 
 [comment écriture pour un résultat optionnel sur une liste d'enregistrements (pour l'instant 200 avec liste vide)./]
 [query private writeRsOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'ResponseEntity.status(' + o.writeRsStatus() + ').body(' +
    if (o.output->first().type.oclIsKindOf(environment::DTO)) then o.prefixAffectation() + s.name().apply_attributeFinal() 
    + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').stream().map(o -> ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
-   + '.' + 'to xto'.apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
+   + '.' + ('to ' + o.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
    + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif/]
 
 [comment écriture pour un résultat obligatoire sur un enregistrement./]
@@ -262,7 +264,7 @@
 [query private writeRsNonOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'ResponseEntity.status(' + o.writeRsStatus() + ').body(' +
    if (o.output->first().type.oclIsKindOf(environment::DTO)) then  o.prefixAffectation() + s.name().apply_attributeFinal() 
    + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').stream().map(o -> ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
-   + '.' + 'to xto'.apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
+   + '.' + ('to ' + o.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
    + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif/]
 
 [comment écriture de la chaine complète (avec mapper) pour les paramètres en entrée du service domaine./]

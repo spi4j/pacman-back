@@ -19,6 +19,9 @@
 [comment retourne tous les attributs d'une entité qui ne sont pas des clés primaires. /]
 [query public attributesNoPK(e : entity::Entity) : OrderedSet(environment::Attribute) = e.get_attributes()->select(a | 
 	not a.isIdentifier)->asOrderedSet()/]
+
+[comment retourne tous les attributs d'un objet de transfert qui ne sont pas des clés primaires. /]
+[query public attributesNoPK(d : environment::DTO) : OrderedSet(environment::Attribute) = d.get_attributes()->asOrderedSet()/]
 	
 [comment retourne tous les attributs d'une entité qui ne sont pas des clés primaires et ne sont pas des champs calculés. /]
 [query public attributesNoPKAndNoComputed(e : entity::Entity) : OrderedSet(environment::Attribute) = e.get_attributes()->select(a | 

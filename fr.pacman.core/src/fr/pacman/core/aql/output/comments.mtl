@@ -28,17 +28,23 @@
 [/template]
 
 [comment ./]
-[template public commentGet(s : String)]
-  [if (s.exists())]
-    /** [s/]. */
-  [/if]
+[template public commentGet(a : environment::Attribute)]
+
+    /** 
+     * Retourne l'attribut '[a.name()/]'. 
+     *
+     * @return la valeur de l'attribut '[a.name()/]'.
+     */
 [/template]
 
 [comment ./]
-[template public commentSet(s : String)]
-  [if (s.exists())]
-    /** [s/]. */
-  [/if]
+[template public commentSet(a : environment::Attribute)]
+
+    /**
+     * Affectation de l'attribut '[a.name()/]'. 
+     *
+     * @param [a.name().apply_parameterMethodClassicIn()/] la valeur à affecter pour l'attribut '[a.name()/]'.
+     */
 [/template]
 
 [comment ./]

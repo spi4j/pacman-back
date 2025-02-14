@@ -1,21 +1,64 @@
 [module dto(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
 				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
+[import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::method/]
 
-[comment écriture de l'implémentation pour l'objet métier./]
+[comment écriture de l'implémentation pour l'objet métier (dto / xto)./]
 [template public implementation(d : environment::DTO)]
   [d.classHeader(d.namePackageDtoImpl())/]
   
   [d.commentClass()/]
-  public record [d.nameClassDtoImpl()/] (
-      [d.dsq()/]
-      ){}
+  public [if (d.immutable())]record[else]class[/if] [d.nameClassDtoImpl()/] [if (d.immutable())][d.dsq()/][/if]
+   {
+   
+      [if (not d.immutable())]
+        // CONSTANTES
+        
+        [protected ('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') startTagPrefix('// ') endTagPrefix('// ')]
+        
+        [/protected]
+        
+        // ATTRIBUTS
+        
+        ['Id'.commentSingleLine()/]
+        //private [d.defaultTypePk()/] [comment d.writePk()/];
+        
+        [for (a : environment::Attribute | d.attributesNoPK())]
+          [a.comment().commentSingleLine()/]
+          private [a.type()/] [a.nameAttribute()/];
+          
+        [/for]
+        
+        [for (a : environment::Attribute | d.attributesNoPK())]
+          [a.commentGet()/]
+          public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
+          {
+            return [a.prefixAffectation()/][a.nameAttribute()/];
+          }
+          
+           [a.commentSet()/]
+          public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
+          {
+            [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+          }
+          
+        [/for]
+      [/if]
+   }
 [/template]
 
-[query private dsq(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | o.type() + ' ' + o.nameAttribute() + o.lineSeparator())->sep(',')/]
+[comment ./]
+[query private dsq(d : environment::DTO) : String = '( ' + d.attributesNoPKAndNoComputed()->collect(o | o.type() + ' ' + o.nameAttribute() + o.lineSeparator())->sep(',')->toString() + ' )'/]
+
+
+[comment raccourci pour l'écriture de la clé primaire./]
+[comment query private writePk(d : environment::DTO) : String = d.nameSimplePropertyID().apply_attributeDefault()/]

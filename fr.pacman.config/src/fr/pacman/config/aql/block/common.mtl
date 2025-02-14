@@ -56,7 +56,7 @@
    * </p>
    * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut être étendue à l'avenir pour
    * ajouter des métadonnées supplémentaires si nécessaire.
-   * </p> 
+   * 
    * @author [any.get_authorName()/]
    */
    @Retention(RetentionPolicy.RUNTIME)

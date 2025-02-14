@@ -30,10 +30,12 @@
   @Table(name = "[e.nameTableSchema()/]")
   public class [e.nameClassEntityImpl()/] 
   {  
+  
 	  // CONSTANTES
 	  
-	  ['SerialUid'.commentMultiLines()/]
-	  private static final long serialVersionUID = -1;
+	  [protected ('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') startTagPrefix('// ') endTagPrefix('// ')]
+	  
+	  [/protected]
 	  
 	  // ATTRIBUTS
 	   
@@ -47,27 +49,40 @@
 	    private [a.type()/] [a.nameAttribute()/];
 	    
 	  [/for]
-	  [('Constructeur sans paramètre pour la classe : ' + e.nameClassEntityImpl()).commentMultiLines()/]
+	  [('Constructeur sans paramètre pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
 	  public [e.nameClassEntityImpl()/] ()
 	  {
 		  super();
 	  }
 	  
 	  [for (a : environment::Attribute | e.attributesNoPK())]
-	    [('Retourne ' + a.comment()).commentMultiLines()/]
+	    [a.commentGet()/]
 	    public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
 	    {
 	      return [a.prefixAffectation()/][a.nameAttribute()/];
 	    }
 	    
-	    ['Affecte'.commentMultiLines()/]
+	     [a.commentSet()/]
 	    public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
 	    {
 	      [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
 	    }
 	    
 	  [/for]
-	  [''.commentMultiLines()/]
+	  
+	 /** 
+	  * Compare cet objet avec l'objet spécifié pour déterminer s'ils sont égaux.
+	  *
+	  * Cette méthode vérifie si l'instance actuelle et l'objet fourni sont la même instance,
+	  * puis compare les attributs des deux objets pour en vérifier l'égalité. La comparaison
+	  * est effectuée à l'aide de la méthode {@link Objects#equals(Object, Object)} afin de gérer 
+	  * correctement les valeurs de type 'null'.
+	  *
+	  * @param ['obj'.apply_parameterMethodClassicIn()/] L'objet à comparer avec l'instance actuelle. 
+	  * Celui-ci doit être une instance de {@link [e.nameClassEntityImpl()/]} pour une comparaison valide.
+	  *
+	  * @return {@code true} si l'objet spécifié est égal à l'instance actuelle, {@code false} sinon.
+	  */
 	  @Override
 	  public boolean equals(Object ['obj'.apply_parameterMethodClassicIn()/])
 	  {
@@ -84,7 +99,15 @@
 		    && Objects.equals([a.prefixAffectation()/][a.nameAttribute()/], [e.name()/].[a.nameAttribute()/])[/for];
 	  }
 	  
-	  [''.commentMultiLines()/]
+	 /**
+	  * Retourne un code de hachage pour l'objet actuel.
+	  * 
+	  * Elle utilise la méthode {@link Objects#hash(Object...)} pour générer un code de hachage combiné 
+	  * basé sur ces attributs. Ce code de hachage est utilisé dans des structures de données 
+	  * telles que les tables de hachage.
+	  *
+	  * @return Le code de hachage pour l'objet actuel.
+	  */
 	  @Override
 	  public int hashCode() 
 	  {
@@ -92,7 +115,12 @@
 		    [e.prefixAffectation()/][a.nameAttribute()/][/for]);
 	  }
 	  
-	  [''.commentMultiLines()/]
+	 /**
+	  * Retourne une représentation sous forme de chaîne de caractères de l'objet actuel.
+	  * 
+	  * Cette méthode est utile pour obtenir une représentation lisible de l'objet, notamment pour les 
+	  * opérations de débogage ou de journalisation.
+	  */
 	  @Override
 	  public String toString() 
 	  {
@@ -109,7 +137,7 @@
   [e.importImpl()/]
   
   /**
-   *
+   * 
    */
   public interface [e.nameClassEntityPersistItf()/] extends JpaRepository<[e.nameClassEntityImpl()/], Long> {
 
