@@ -23,3 +23,29 @@
   else if (t.name.equalsIgnoreCase('TimeStamp')) then 'Instant' 
   else if (t.name.equalsIgnoreCase('Time')) then 'LocalTime' 
   else t.name.sanitize() endif endif endif endif endif endif/] 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[comment a voir si vraiment utile./]
+[query public isAlpha(t : environment::Type) : Boolean = t.name.equalsIgnoreCase('String')/]
+  
+[comment a voir si vraiment utile../]
+[query public isNumeric(t : environment::Type) : Boolean = t.isDecimal() or t.isInt()/]
+  
+[comment a voir si vraiment utile../]
+[query public isDecimal(t : environment::Type) : Boolean = t.name.equalsIgnoreCase('Float') or t.name.equalsIgnoreCase('Double')/]
+  
+[comment a voir si vraiment utile../]
+[query public isInt(t : environment::Type) : Boolean = t.name.equalsIgnoreCase('Integer') or t.name.equalsIgnoreCase('Long')/]
+
