@@ -25,7 +25,7 @@
 [comment écriture des lignes pour les contraintes de la base de données./]
 [template private constraints(r : entity::Root, command : String)]
   [r.constraintsHeader()/]
-  [for (e : entity::Entity | r.persistentEntities())]
+  [for (e : entity::Entity | r.eAllContents(entity::Entity))]
     [for (a : environment::Attribute | e.attributes)]
       [if (a.has_metaPhysicalCheck())]
         [e.writeCheck(a, e.get_counterCK(), command)/];

@@ -6,10 +6,7 @@
 
 [comment demande la réinitialisation complète pour les compteurs de contrainte (nommage)./]
 [query public resetCounters(any : ecore::EObject) : String = true.do_resetCounters()/]
-  
-[comment retourne la liste de toutes les entités persistantes pour le root. /]
-[query public persistentEntities(r : entity::Root ) : Sequence(entity::Entity) = r.eAllContents(entity::Entity)->select(o | o.isPersistent())/]
-
+ 
 [comment génération de séquences dans tous les cas SAUF Mysql et MariaDB/]
 [query public hasSequence(dbType : String) : Boolean = dbType.use_sequences()/]
 

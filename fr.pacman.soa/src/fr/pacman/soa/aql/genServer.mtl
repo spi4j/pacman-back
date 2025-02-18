@@ -4,6 +4,7 @@
 [import fr::pacman::soa::aql::file::genServer/]
 [import fr::pacman::soa::aql::block::mapper/]
 [import fr::pacman::soa::aql::block::xto/]
+[import fr::pacman::core::aql::query::eobject/]
 
 [comment écriture des classes et fichiers soa pour la partie infrastructure de l'application cible./]
 [template protected genServer(m : soa::System)]
@@ -15,7 +16,9 @@
   [/for]
   
   [for (d : environment::DTO | m.eAllContents(environment::DTO))]
-  	[d.fileMapperInImpl(d.genMapperInImpl())/]
+  	[if (d.isPersistent())]
+  	  [d.fileMapperInImpl(d.genMapperInImpl())/]
+  	[/if]
   	[d.fileMapperOutImpl(d.genMapperOutImpl())/]
   	[d.fileXtoImpl(d.genXtoImpl())/]
   [/for]

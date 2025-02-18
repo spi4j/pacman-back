@@ -1,6 +1,11 @@
 [module common(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::output::headers/]
+
+[import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture du fichier de configuration Maven pour le sous-projet métier (domain)./]
 [template public pom (any : ecore::EObject)]
@@ -60,4 +65,54 @@
       </plugins>
     </build>
   </project>
+[/template]
+
+
+[comment écriture de l'annotation pour l'injection de service métier./]
+[template public annotationOut(any : ecore::EObject)]
+  [any.classHeader(any.namePackageAnnotation())/]
+  import java.lang.annotation.Retention;
+  import java.lang.annotation.RetentionPolicy;
+
+  /** 
+   * Annotation personnalisée pour marquer les services du domaine dans l'application.
+   * <p>
+   * Cette annotation est utilisée pour indiquer qu'une classe fait partie du domaine métier de l'application,
+   * généralement utilisée pour désigner les services ou les composants qui gèrent la logique métier.
+   * Elle est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
+   * </p>
+   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut être étendue à l'avenir pour  
+   * ajouter des métadonnées supplémentaires si nécessaire.
+   *
+   * @author [any.get_authorName()/]
+   */
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface [any.nameClassAnnotationOut()/] {
+     //RAS.
+   }
+[/template]
+
+[comment écriture de l'annotation pour l'injection de service persistance./]
+[template public annotationIn(any : ecore::EObject)]
+  [any.classHeader(any.namePackageAnnotation())/]
+  import java.lang.annotation.Retention;
+  import java.lang.annotation.RetentionPolicy;
+
+  /**
+   * Annotation personnalisée pour marquer les adaptateurs de service dans l'application.
+   * <p>
+   * Cette annotation est utilisée pour identifier les classes qui servent d'adaptateurs pour les services.
+   * Les adaptateurs de service sont généralement utilisés pour intégrer des services externes ou des composants 
+   * spécifiques à l'architecture de l'application tout en offrant une interface uniforme.
+   * Elle est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
+   * </p>
+   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut être étendue à l'avenir pour
+   * ajouter des métadonnées supplémentaires si nécessaire.
+   * 
+   * @author [any.get_authorName()/]
+   */
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface [any.nameClassAnnotationIn()/] {
+     //RAS.
+   }
 [/template]

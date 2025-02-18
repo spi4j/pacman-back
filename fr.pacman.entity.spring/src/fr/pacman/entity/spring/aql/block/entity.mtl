@@ -9,124 +9,155 @@
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::output::headers/]	
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::attribute/]
-[import fr::pacman::core::aql::rule::method/]		
+[import fr::pacman::core::aql::rule::method/]	
+
+[import fr::pacman::core::service::AnnotationUtils/]	
+[import fr::pacman::core::property::project::ProjectProperties/]	
 
 [comment écriture du corps pour la classe d'implémentation d'une entité./]
 [template public implementation (e : entity::Entity)]
   [e.classHeader(e.namePackageEntityImpl())/]
   import java.util.Objects;
+  import jakarta.persistence.Column;
   import jakarta.persistence.Entity;
   import jakarta.persistence.Id;
   import jakarta.persistence.Table;
   import jakarta.persistence.GeneratedValue;
   import jakarta.persistence.GenerationType;
+  import jakarta.persistence.JoinColumn;
+  import jakarta.persistence.OneToOne;
   
   [e.commentClass()/]
   @Entity
-  @Table(name = "[e.nameTableSchema()/]")
+  [e.writeAnnotationTable()/]
   public class [e.nameClassEntityImpl()/] 
   {  
-  
-	  // CONSTANTES
-	  
-	  [protected ('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') startTagPrefix('// ') endTagPrefix('// ')]
-	  
-	  [/protected]
-	  
-	  // ATTRIBUTS
-	   
-	  ['Id'.commentSingleLine()/]
-	  @Id
-	  @GeneratedValue(strategy = GenerationType.AUTO)
-	  private [e.defaultTypePk()/] [e.writePk()/];	
+      // CONSTANTES
+      
+      [protected ('xxxxxxxxxxxxxxxxxx') startTagPrefix('// ') endTagPrefix('// ')]
 
-	  [for (a : environment::Attribute | e.attributesNoPK())]
-	    [a.comment().commentSingleLine()/]
-	    private [a.type()/] [a.nameAttribute()/];
-	    
-	  [/for]
-	  [('Constructeur sans paramètre pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
-	  public [e.nameClassEntityImpl()/] ()
-	  {
-		  super();
-	  }
-	  
-	  [for (a : environment::Attribute | e.attributesNoPK())]
-	    [a.commentGet()/]
-	    public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
-	    {
-	      return [a.prefixAffectation()/][a.nameAttribute()/];
-	    }
-	    
-	     [a.commentSet()/]
-	    public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
-	    {
-	      [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
-	    }
-	    
-	  [/for]
-	  
-	 /** 
-	  * Compare cet objet avec l'objet spécifié pour déterminer s'ils sont égaux.
-	  *
-	  * Cette méthode vérifie si l'instance actuelle et l'objet fourni sont la même instance,
-	  * puis compare les attributs des deux objets pour en vérifier l'égalité. La comparaison
-	  * est effectuée à l'aide de la méthode {@link Objects#equals(Object, Object)} afin de gérer 
-	  * correctement les valeurs de type 'null'.
-	  *
-	  * @param ['obj'.apply_parameterMethodClassicIn()/] L'objet à comparer avec l'instance actuelle. 
-	  * Celui-ci doit être une instance de {@link [e.nameClassEntityImpl()/]} pour une comparaison valide.
-	  *
-	  * @return {@code true} si l'objet spécifié est égal à l'instance actuelle, {@code false} sinon.
-	  */
-	  @Override
-	  public boolean equals(Object ['obj'.apply_parameterMethodClassicIn()/])
-	  {
-		  if (this == ['obj'.apply_parameterMethodClassicIn()/]) {
-			  return true;
-		  }	  
-		  
-		  if (!(['obj'.apply_parameterMethodClassicIn()/] instanceof [e.nameClassEntityImpl()/])) {
-			  return false;
-		  }
-		  
-		  [e.nameClassEntityImpl()/] [e.name()/] = ([e.nameClassEntityImpl()/]) ['obj'.apply_parameterMethodClassicIn()/];
-		  return Objects.equals([e.prefixAffectation()/][e.writePk()/], [e.writePk()/]) [for (a : environment::Attribute | e.attributesNoPK())] 
-		    && Objects.equals([a.prefixAffectation()/][a.nameAttribute()/], [e.name()/].[a.nameAttribute()/])[/for];
-	  }
-	  
-	 /**
-	  * Retourne un code de hachage pour l'objet actuel.
-	  * 
-	  * Elle utilise la méthode {@link Objects#hash(Object...)} pour générer un code de hachage combiné 
-	  * basé sur ces attributs. Ce code de hachage est utilisé dans des structures de données 
-	  * telles que les tables de hachage.
-	  *
-	  * @return Le code de hachage pour l'objet actuel.
-	  */
-	  @Override
-	  public int hashCode() 
-	  {
-		  return Objects.hash([e.prefixAffectation()/][e.writePk()/][for (a : environment::Attribute | e.attributesNoPK())], 
-		    [e.prefixAffectation()/][a.nameAttribute()/][/for]);
-	  }
-	  
-	 /**
-	  * Retourne une représentation sous forme de chaîne de caractères de l'objet actuel.
-	  * 
-	  * Cette méthode est utile pour obtenir une représentation lisible de l'objet, notamment pour les 
-	  * opérations de débogage ou de journalisation.
-	  */
-	  @Override
-	  public String toString() 
-	  {
-		  return "[e.nameClassEntityImpl()/] { [e.writePk()/] = " + [e.prefixAffectation()/][e.writePk()/][for (a : environment::Attribute | e.attributesNoPK())] 
-		    + "[a.nameAttribute()/] = " + [e.prefixAffectation()/][a.nameAttribute()/][/for] + "}"; 
-	  }
+      [/protected]
+      
+      // ATTRIBUTS    
+      
+      [let rs = e.referencesForeignKeys()]
+        
+        ['Id'.commentSingleLine()/]
+        @Id
+        @GeneratedValue(strategy = GenerationType.AUTO)
+        private [e.defaultTypePk()/] [e.writePk()/];	
+        
+        [for (a : environment::Attribute | e.attributesNoPK())]
+          [a.comment().commentSingleLine()/]
+          [a.writeAnnotationColumn()/]
+          private [a.type()/] [a.nameAttribute()/];
+          
+        [/for]
+        [for (r : environment::Reference | rs)]
+          [r.referencedType(e).comment().commentSingleLine()/]
+          [r.writeAnnotationsJoin(e)/]
+          private [r.referencedType(e).nameClassEntityImpl()/] [r.referencedType(e).name().apply_attributeDefault()/];
+          
+        [/for]
+         
+        [('Constructeur sans paramètre pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
+        public [e.nameClassEntityImpl()/] ()
+        {
+           super();
+        }
+        
+        [for (a : environment::Attribute | e.attributesNoPK())]
+          [a.commentGet()/]
+          public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
+          {
+             return [a.prefixAffectation()/][a.nameAttribute()/];
+          }
+          
+          [a.commentSet()/]
+          public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
+          {
+             [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+          }
+          
+        [/for]
+        
+        [for (r : environment::Reference | rs)]
+          [r.referencedType(e).commentGet()/]
+          public [r.referencedType(e).nameClassEntityImpl()/] [r.referencedType(e).name().apply_methodGet()/]()
+          {
+             return [r.prefixAffectation()/][r.referencedType(e).name().apply_attributeDefault()/];
+          }
+          
+          [r.referencedType(e).commentSet()/]
+          public void [r.referencedType(e).name().apply_methodSet()/](final [r.referencedType(e).nameClassEntityImpl()/] [r.referencedType(e).name().apply_parameterMethodClassicIn()/])
+          {
+             [r.prefixAffectation()/][r.referencedType(e).name().apply_attributeDefault()/] = [r.referencedType(e).name().apply_parameterMethodClassicIn()/];
+          }
+        [/for]
+        
+        /** 
+         * Compare cet objet avec l'objet spécifié pour déterminer s'ils sont égaux.
+         *
+         * Cette méthode vérifie si l'instance actuelle et l'objet fourni sont la même instance,
+         * puis compare les attributs des deux objets pour en vérifier l'égalité. La comparaison
+         * est effectuée à l'aide de la méthode {@link Objects#equals(Object, Object)} afin de gérer 
+         * correctement les valeurs de type 'null'.
+         *
+         * @param ['obj'.apply_parameterMethodClassicIn()/] L'objet à comparer avec l'instance actuelle. 
+         * Celui-ci doit être une instance de {@link [e.nameClassEntityImpl()/]} pour une comparaison valide.
+         *
+         * @return {@code true} si l'objet spécifié est égal à l'instance actuelle, {@code false} sinon.
+         */
+         @Override
+         public boolean equals(Object ['obj'.apply_parameterMethodClassicIn()/])
+         {
+           if (this == ['obj'.apply_parameterMethodClassicIn()/]) {
+              return true;
+           }	  
+             
+           if (!(['obj'.apply_parameterMethodClassicIn()/] instanceof [e.nameClassEntityImpl()/])) {
+              return false;
+           }
+            
+           [e.nameClassEntityImpl()/] [e.name()/] = ([e.nameClassEntityImpl()/]) ['obj'.apply_parameterMethodClassicIn()/];
+           return Objects.equals([e.prefixAffectation()/][e.writePk()/], [e.writePk()/]) [for (a : environment::Attribute | e.attributesNoPK())] 
+              && Objects.equals([a.prefixAffectation()/][a.nameAttribute()/], [e.name()/].[a.nameAttribute()/])[/for];
+        }
+          
+        /**
+         * Retourne un code de hachage pour l'objet actuel.
+         * 
+         * Elle utilise la méthode {@link Objects#hash(Object...)} pour générer un code de hachage combiné 
+         * basé sur ces attributs. Ce code de hachage est utilisé dans des structures de données 
+         * telles que les tables de hachage.
+         *
+         * @return Le code de hachage pour l'objet actuel.
+         */
+        @Override
+        public int hashCode() 
+        {
+          return Objects.hash([e.prefixAffectation()/][e.writePk()/][for (a : environment::Attribute | e.attributesNoPK())], 
+            [e.prefixAffectation()/][a.nameAttribute()/][/for]);
+        }
+        
+        /**
+         * Retourne une représentation sous forme de chaîne de caractères de l'objet actuel.
+         * 
+         * Cette méthode est utile pour obtenir une représentation lisible de l'objet, notamment pour les 
+         * opérations de débogage ou de journalisation.
+         */
+         @Override
+         public String toString() 
+         {
+           return "[e.nameClassEntityImpl()/] { [e.writePk()/] = " + [e.prefixAffectation()/][e.writePk()/][for (a : environment::Attribute | e.attributesNoPK())] 
+             + "[a.nameAttribute()/] = " + [e.prefixAffectation()/][a.nameAttribute()/][/for] + "}"; 
+         }
+     [/let]
   }
 [/template]
 
@@ -146,4 +177,18 @@
 
 [comment raccourci pour l'écriture de la clé primaire./]
 [query private writePk(e : entity::Entity) : String = e.nameSimplePropertyID().apply_attributeDefault()/]
+
+[comment écriture de l'annotation @Table pour l'entité./]
+[query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable() + '"' + if (e.get_SQLTableSchema().exists()) then ', schema = "' 
+  + e.get_SQLTableSchema().toUpper() + '"' else '' endif + ')' /]
+  
+[comment écriture de l'annotation @column pour chaque attribut de l'entité./]
+[query private writeAnnotationColumn(a : environment::Attribute) : String = '@Column(name = "' + a.nameAttribut() +'", nullable = ' 
+  + a.isMandatory() + ', updatable = true' + if (a.has_metaPhysicalSize()) then ', length = ' + a.get_metaPhysicalSize() else '' endif + ')'/]
+  
+[comment écriture de la chaine complète des annotations pour faire les liaisons inter-tableb./]
+[query private writeAnnotationsJoin(r : environment::Reference, e : entity::Entity) : String = '@OneToOne' + r.lineSeparator() + '@JoinColumn(name = "' 
+  + r.referencedType(e).nameSimplePropertyID().apply_attributeDefault() + '", referencedColumnName = "id", table = "' 
+  + r.referencedType(e).nameTable().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) 
+  then 'false' else 'true' endif +')'/]
 

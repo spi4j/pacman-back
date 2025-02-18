@@ -34,7 +34,7 @@ public class CommonNamingRule extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_idParam_prefixList, new String[] { "", "tab" }, "Le prefixe des listes"),
 
-				PacmanProperty.newRequired(c_idParam_prefixMap, new String[] { "", "map" }, "Le prefixe des map"),
+				PacmanProperty.newRequired(c_idParam_prefixMap, new String[] { "", "map" }, "Le prefixe des maps"),
 
 				PacmanProperty.newRequired(c_idParam_suffixEntity, new String[] { "entity", "" },
 						"Le suffixe des entites"),

@@ -71,6 +71,25 @@
           	<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
           	<version>[any.versionSpringBoot()/]</version>
           </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>[any.versionSpringBoot()/]</version>
+            <scope>test</scope>
+          </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <version>[any.versionSpringBoot()/]</version>
+            <scope>runtime</scope>
+            <optional>true</optional>
+          </dependency>
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>[any.versionPostgres()/]</version>
+            <scope>runtime</scope>
+          </dependency>
        </dependencies>
     </dependencyManagement>
     

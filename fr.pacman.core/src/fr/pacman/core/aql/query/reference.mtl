@@ -11,6 +11,9 @@
 [comment retourne le type xxxx ./] 
 [query public structuredType(r : environment::Reference, e : entity::Entity) : environment::StructuredType = 
 	if (r.containingType.oclAsType(entity::Entity) = e) then r.referencedType else r.containingType endif/]  
+	
+[comment raccourci pour l'obtention de l'entité dans le cadre des références (toujours une entité)./]	
+[query public referencedType(r : environment::Reference, e : entity::Entity) : entity::Entity = r.structuredType(e).oclAsType(entity::Entity)  /]
 
 [comment retourne les références triées par nom./]	
 [query private sortedByName(c : Sequence(environment::Reference)) : OrderedSet(environment::Reference) = 

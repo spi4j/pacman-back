@@ -29,10 +29,10 @@
 [query public namePackageInImpl(s : soa::Service) : String = 'infra.adapters.' + s.nameComponent()/]
   
 [comment retourne le package pour une classe d'énumération./]
-[query public namePackageEnumeration(e : environment::Enumeration) : String = 'app'/]
+[query public namePackageEnumeration(e : environment::Enumeration) : String = 'app.enumerations'/]
 
 [comment retourne le package pour les classes d'annotation./]
-[query public namePackageAnnotation(e : ecore::EObject) : String = 'annotation'/]
+[query public namePackageAnnotation(e : ecore::EObject) : String = 'annotations'/]
  
 [comment retourne le package pour l'implémentation d'un service soa./]
 [query public namePackageServiceImpl(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService() +  's.' + s.nameComponent()/]
@@ -69,6 +69,9 @@
 
 [comment retourne le package pour le stockage de toutes les exceptions du projet./]
 [query public namePackageException(any : ecore::EObject) : String = 'app.exceptions'/]
+  
+[comment retoure le package pour les stockage des fichiers de ressources./]
+[query public namePackageResources(any : ecore::EObject) : String = any.dirResources()/]
   
 [comment ESSAYER DE MUTUALISER ?????./]
   

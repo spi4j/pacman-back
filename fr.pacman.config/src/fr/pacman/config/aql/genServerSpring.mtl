@@ -28,3 +28,6 @@
 
 [comment écriture de la classe pour la résolution des statuts http dans le cadre des services rest./]
 [template protected genRsHttpStatusResolver(any : ecore::EObject)][any.rsHttpStatusResolver()/][/template]
+  
+[comment écriture du fichier pour l'ensemble des informations de datasource./]
+[template protected genApplicationProperties(any : ecore::EObject)][any.applicationProperties()/][/template]

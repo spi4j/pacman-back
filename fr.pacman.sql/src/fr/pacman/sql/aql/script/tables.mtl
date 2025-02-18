@@ -23,7 +23,7 @@
 
 [comment template principal du script de création des tables, indexs et contraintes pour une base 'dbType'./]				
 [template public createTables(r : entity::Root, dbType : String)]
-  [for (e : entity::Entity | r.persistentEntities())]
+  [for (e : entity::Entity | r.eAllContents(entity::Entity))]
     [let rs = e.referencesForeignKeys()]
       [e.tableHeader()/]
       [e.writeTable(e.commandCreate())/]
@@ -43,10 +43,10 @@
 [comment template principal du script de suppression des tables, indexs et contraintes pour un base 'dbType'./]				
 [template public dropTables(r : entity::Root, dbType : String)]
   [r.indexsHeader()/]
-  [for (e : entity::Entity | r.persistentEntities())]
+  [for (e : entity::Entity | r.eAllContents(entity::Entity))]
       [e.indexs(e.referencesForeignKeys(),dbType, e.commandDelete())/]
   [/for]
-  [for (e : entity::Entity | r.persistentEntities())]
+  [for (e : entity::Entity | r.eAllContents(entity::Entity))]
     [e.tableHeader()/]
     [e.writeTable(e.commandDelete())/];
   [/for]

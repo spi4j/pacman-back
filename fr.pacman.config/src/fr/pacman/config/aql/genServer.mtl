@@ -12,6 +12,7 @@
   [r.fileRsHttpStatusResolver(r.genRsHttpStatusResolver())/]
   [r.fileNotImplementedException(r.genNotImplementedException())/]
   [r.fileMapperException(r.genMapperException())/]
+  [r.fileApplicationProperties(r.genApplicationProperties())/]
 [/template]
 
 [comment écriture de l'exception pour les mappers (commun à tous les frameworks)./]
@@ -26,3 +27,4 @@
 [template protected genRsDataNotFoundException(any : ecore::EObject)][/template]
 [template protected genRsErrorBodyResponse(any : ecore::EObject)][/template]
 [template protected genRsHttpStatusResolver(any : ecore::EObject)][/template]
+[template protected genApplicationProperties(any : ecore::EObject)][/template]

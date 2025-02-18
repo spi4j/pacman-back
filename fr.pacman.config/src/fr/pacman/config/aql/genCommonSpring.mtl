@@ -15,3 +15,9 @@
 
 [comment écriture du fichier de configuration Maven./]
 [template protected genPom(any : ecore::EObject)][any.pom()/][/template]
+
+[comment écriture de l'annotation pour l'injection du service métier./]
+[template protected genAnnotationOut(any : ecore::EObject)][any.annotationOut()/][/template]
+
+[comment écriture de l'annotation pour l'injection du service de persistance./]
+[template protected genAnnotationIn(any : ecore::EObject)][any.annotationIn()/][/template]

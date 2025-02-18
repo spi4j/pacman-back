@@ -155,15 +155,16 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		properties.put(ProjectProperties.c_sql_tablePrefix, _pageOne.getSqlTablePrefix());
 		properties.put(ProjectProperties.c_sql_tableSchema, _pageOne.getSqlTableSchema());
 		properties.put(ProjectProperties.c_sql_oracleIndexTablespace, _pageOne.getSqlTableSpace());
-		properties.put(ProjectProperties.c_project_framework, _pageOne.getTypeProject());
+		properties.put(ProjectProperties.c_project_framework, _pageOne.getTypeFramework());
 		properties.put(ProjectProperties.c_project_crud, _pageOne.getProjectCrud());
 		properties.put(ProjectProperties.c_project_fetchingStrategy, _pageOne.getSpi4jfetchingStrategy());
-		// properties.put(ProjectProperties.c_, _pageOne.getSpi4jRsCdi());
 		properties.put(ProjectProperties.c_project_security, _pageOne.getSpi4jSecurity());
+		properties.put(ProjectProperties.c_project_databases, _pageOne.getDatabases());
 
 //		// On rajoute les proprietes additionnelles si elles existent.
 //		properties.putAll(_pageOne.getSqlAddColumnsDetail());
 //		properties.putAll(_pageOne.getAddLibrariesDetail());
+//		properties.put(ProjectProperties.c_, _pageOne.getSpi4jRsCdi());
 		return properties;
 	}
 
@@ -194,8 +195,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	/**
 	 * Ajout de l'ensemble de la configuration pour un projet de type Cali.
 	 * 
-	 * @param p_monitor
-	 * @param p_project
+	 * @param p_monitor    l'objet de monitoring pour contrôler les fichiers créés
+	 *                     sous l'IDE.
+	 * @param p_project    le nouveau projet en cours de création.
 	 * @param p_properties
 	 * @throws CoreException
 	 */
@@ -254,8 +256,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	/**
 	 * Ajout de la nature "Maven" au projet principal (projet parent).
 	 * 
-	 * @param p_monitor
-	 * @param p_project
+	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
+	 *                  l'IDE.
+	 * @param p_project le nouveau projet en cours de création.
 	 * @throws CoreException
 	 */
 	private void addMavenNatureToProject(final SubMonitor p_monitor, final IProject p_project) throws CoreException {
@@ -281,6 +284,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 
 	/**
 	 * 
+	 * @param p_project le nouveau projet en cours de création.
 	 * @throws CoreException
 	 */
 	private void configureSubProjectsWithMaven(final IProject p_project) throws CoreException {
@@ -323,8 +327,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 * stoppe et on affiche un message à l'utilisateur pour finaliser à la main la
 	 * configuration du projet de modelisation. Utilisation de seéaphore ?
 	 *
-	 * @param p_monitor
-	 * @param p_project
+	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
+	 *                  l'IDE.
+	 * @param p_project le nouveau projet en cours de création.
 	 * @throws CoreException
 	 * @throws InterruptedException
 	 * @throws PacmanInitModelException
@@ -364,8 +369,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 * est de fournir la liste des sous-projets. Ceci est a rapprocher du generateur
 	 * UI de configuration {@link ConfigurationUIGenerators}
 	 * 
-	 * @param p_monitor
-	 * @param p_project
+	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
+	 *                  l'IDE.
+	 * @param p_project le nouveau projet en cours de création.
 	 * @throws CoreException
 	 */
 	private void updateIDEAfterCodeGeneration(final SubMonitor p_monitor, final IProject p_project)

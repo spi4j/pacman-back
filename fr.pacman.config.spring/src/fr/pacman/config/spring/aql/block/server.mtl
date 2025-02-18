@@ -57,10 +57,17 @@
     	   <version>0.0.1-SNAPSHOT</version>
     	</dependency>
     	<!-- Base H2 embarquée pour les tests. -->
+    	<!--
     	<dependency>
     	   <groupId>com.h2database</groupId>
     	   <artifactId>h2</artifactId>
     	   <scope>runtime</scope>
+    	</dependency>
+    	-->
+    	<dependency>
+    	  <groupId>org.postgresql</groupId>
+    	  <artifactId>postgresql</artifactId>
+    	  <scope>runtime</scope>
     	</dependency>
     </dependencies>
     
@@ -165,9 +172,10 @@
     * @return Une réponse HTTP avec un corps contenant un message générique d'erreur et un code de statut 500.
     */
     @ExceptionHandler(value = { Exception.class })
-    protected ResponseEntity<Object> ['handle server error exception'.apply_methodDefault()/](Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> ['handle server error exception'.apply_methodDefault()/](
+	   Exception ['ex'.apply_parameterMethodClassicIn()/], WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
        [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
-         = new [any.nameClassRsErrorBodyResponseImpl()/](500, "Exception");
+         = new [any.nameClassRsErrorBodyResponseImpl()/](HttpStatus.INTERNAL_SERVER_ERROR.value(), "Exception");
        return handleExceptionInternal(ex, ['body response'.apply_variableDefault()/]
        , new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
   	}
@@ -259,4 +267,30 @@
          return HttpStatus.resolve(['status code'.apply_parameterMethodClassicIn()/]);
       }
   }
+[/template]
+
+[comment écriture de l'ensemble des informations pour les datasources./]
+[template public applicationProperties(any : ecore::EObject)]
+  # Note : il n'est pas utile de spécifier le nom de classe du pilote, puisque Spring Boot 
+  # peut le déduire pour la plupart des bases de données à partir de l'URL de connexion.
+  
+  ## pool de connexion par defaut
+  spring.datasource.hikari.connectionTimeout=20000
+  spring.datasource.hikari.maximumPoolSize=5
+  
+  ## PostgreSQL
+  spring.datasource.url=jdbc:postgresql://localhost:5432/<votre base de donnees>
+  spring.datasource.username=<nom utilisateur>
+  spring.datasource.password=<mot de passe utilisateur>
+  spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+  
+  # H2 DB
+  #spring.datasource.url=jdbc:h2:file:C:/temp/test
+  #spring.datasource.username=sa
+  #spring.datasource.password=
+  #spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+  
+  # create and drop table, good for testing, production set to none or comment it
+  spring.jpa.hibernate.ddl-auto=<create | create-drop | update | validate | none>
+  spring.jpa.hibernate.show-sql=<true | false>
 [/template]

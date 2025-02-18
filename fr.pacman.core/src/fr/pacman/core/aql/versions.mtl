@@ -8,6 +8,7 @@
 [query public versionSpringBoot(any : ecore::EObject) : String = '3.4.1'/]
 [query public versionH2(any : ecore::EObject) : String = '2.2.224'/]
 [query public versionJupiter(any : ecore::EObject) : String = '5.11.4'/]
+[query public versionPostgres(any : ecore::EObject) : String = '42.7.5'/]
 
 
 

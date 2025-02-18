@@ -5,5 +5,8 @@
 
 [comment retourne les noms de toutes les ressources (fichiers) autres que classes java, packages, etc.../]
 
+[comment le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
+[query public nameApplicationResources(any : ecore::EObject) : String = 'application'/]
+
 
 

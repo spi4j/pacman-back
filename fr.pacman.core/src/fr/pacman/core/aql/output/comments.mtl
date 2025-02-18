@@ -1,6 +1,7 @@
 [comment encoding = UTF-8 /]
 [module comments(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
-					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+					'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
@@ -8,6 +9,7 @@
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::attribute/]
 
 [import fr::pacman::core::property::project::ProjectProperties/]
 
@@ -28,23 +30,40 @@
 [/template]
 
 [comment ./]
-[template public commentGet(a : environment::Attribute)]
+[template public commentGet(e : entity::Entity)]
+  
+  /** 
+   * Retourne l'attribut '[e.name().apply_attributeDefault()/]'. 
+   *
+   * @return la valeur de l'attribut '[e.name().apply_attributeDefault()/]'.
+   */
+[/template]
 
-    /** 
-     * Retourne l'attribut '[a.name()/]'. 
-     *
-     * @return la valeur de l'attribut '[a.name()/]'.
-     */
+[comment ./]
+[template public commentSet(e : entity::Entity)]
+  /**
+   * Affectation de l'attribut '[e.name().apply_attributeDefault()/]'. 
+   *
+   * @param [e.name().apply_parameterMethodClassicIn()/] la valeur à affecter pour l'attribut '[e.name().apply_attributeDefault()/]'.
+   */
+[/template]
+
+[comment ./]
+[template public commentGet(a : environment::Attribute)]
+  /** 
+   * Retourne l'attribut '[a.name()/]'. 
+   *
+   * @return la valeur de l'attribut '[a.name()/]'.
+   */
 [/template]
 
 [comment ./]
 [template public commentSet(a : environment::Attribute)]
-
-    /**
-     * Affectation de l'attribut '[a.name()/]'. 
-     *
-     * @param [a.name().apply_parameterMethodClassicIn()/] la valeur � affecter pour l'attribut '[a.name()/]'.
-     */
+  /**
+   * Affectation de l'attribut '[a.name()/]'. 
+   *
+   * @param [a.name().apply_parameterMethodClassicIn()/] la valeur à affecter pour l'attribut '[a.name()/]'.
+   */
 [/template]
 
 [comment ./]

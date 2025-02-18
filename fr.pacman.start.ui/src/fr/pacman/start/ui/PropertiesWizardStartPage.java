@@ -22,14 +22,17 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import fr.pacman.start.ui.PropertiesPage2.AddColumn;
 import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.util.FormUtil;
+import fr.pacman.start.ui.util.ValidatorUtil;
 
 /**
  * 
@@ -56,7 +59,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _spi4jfetchingStrategy = "false";
 	private String _spi4jSecurity = "false";
 	private String _projectCrud = "false";
-//	private String _ = "";
+	private String _databases = "";
 //	private String _ = "";
 //	private String _ = "";
 //	private String _ = "";
@@ -117,7 +120,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		addDatabases(project2);
 
 		registerWidget("txt_sqlTPrefix", addTextDbTablePrefix(database2));
-		registerWidget("txt_sqlTSpace", addTextDbTableSpace(database2));
+		// registerWidget("txt_sqlTSpace", addTextDbTableSpace(database2));
 		registerWidget("txt_sqlTSpace", addTextDbTableSchema(database2));
 
 		registerWidget("txt_reqPrefix", addTextReqPrefix(options1));
@@ -147,7 +150,6 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		setControl(container);
 		setPageComplete(false);
 		initWithDefault();
-		setPageComplete(true);
 		resize(true);
 	}
 
@@ -155,9 +157,9 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * 
 	 */
 	private void initWithDefault() {
-		_javaVersion = "11";
+		_javaVersion = "17";
 		_typeProject = "xx";
-		_typeFramework = "spring";
+		_typeFramework = "springboot";
 	}
 
 	/**
@@ -242,7 +244,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private Text addTextAuthorName(final Composite p_parent) {
 		final Text txt = addText(p_parent, "Auteur(s)", "",
 				"Auteur(s) ou organisme(s) à afficher dans l'ensemble des commentaires."
-						+ "\n\rCes informations ne seront visibles que dans la partie infrastrucuture.");
+						+ "\nCes informations ne seront visibles que dans la partie infrastrucuture.");
 		txt.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(final KeyEvent p_e) {
@@ -275,7 +277,10 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 			@Override
 			public void modifyText(ModifyEvent e) {
-				// RAS.
+				_databases = "";
+				for (String item : container.get_selected().getItems()) {
+					_databases += "," + item.toLowerCase();
+				}
 			}
 		});
 	}
@@ -289,7 +294,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	private Combo addComboJavaVersion(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Version Java", "La version LTS pour la compilation des classes du projet.",
-				new String[] { "Java 11", "Java 17", "Java 21" }, 0);
+				new String[] { "Java 17", "Java 21" }, 0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
@@ -342,12 +347,12 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private Combo addComboFramework(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Framework",
 				"Le framework à utiliser pour la génération des classes issues de la modélisation.",
-				new String[] { "Spring", "Spi4j" }, 0);
+				new String[] { "Spring Boot", "Spring Web", "Spi4j" }, 0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(final SelectionEvent p_e) {
-				_typeFramework = (cbx.getItem(cbx.getSelectionIndex()).trim()).toLowerCase();
+				_typeFramework = (cbx.getItem(cbx.getSelectionIndex()).replaceAll(" +", "")).toLowerCase();
 			}
 
 			@Override
@@ -733,6 +738,29 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	private void computeValidity() {
 
+		ValidatorUtil.INSTANCE.setPackageOK(!_packageName.isEmpty());
+		ValidatorUtil.INSTANCE.setApplicationNewOk(FormUtil.checkForNewProject(_projectName));
+		ValidatorUtil.INSTANCE.setApplicationOK(null != _projectName && !_projectName.isEmpty());
+		ValidatorUtil.INSTANCE.setAuthorOK(null != _authorName && !_authorName.isEmpty());
+		ValidatorUtil.INSTANCE.setSqlTablePrefixOk(FormUtil.checkValueForPrefix(_sqlTablePrefix));
+		ValidatorUtil.INSTANCE.setSqlTableSchema(FormUtil.checkValueForSchema(_sqlTableSchema));
+		ValidatorUtil.INSTANCE.setRequirementPrefixOK(FormUtil.checkValueForPrefix(_requirementPrefix));
+		ValidatorUtil.INSTANCE.setDatabaseOK(FormUtil.checkForDatabase(_databases));
+		ValidatorUtil.INSTANCE.setAdditionalFieldsOK(computeAdditionalFieldsValidity());
+		setMessage(ValidatorUtil.INSTANCE.getMessage(), ValidatorUtil.INSTANCE.getMessageType());
+		setPageComplete(ValidatorUtil.INSTANCE.isValid());
+	}
+	
+	/**
+	 * Vérifie la validité des champs additionnels pour les tables sql.
+	 */
+	private boolean computeAdditionalFieldsValidity() {
+
+//		for (AddColumn v_addColumn : _sqlAddColumns) {
+//			if (v_addColumn._name.isEmpty())
+//				return false;
+//		}
+		return true;
 	}
 
 	/**
@@ -864,6 +892,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getSpi4jSecurity() {
 		return _spi4jSecurity;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getDatabases() {
+		return "h2" + _databases;
 	}
 
 	/**

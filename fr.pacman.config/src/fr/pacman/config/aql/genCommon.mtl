@@ -7,19 +7,15 @@
 [template protected genRootConfig(r : overview::Root)]
   [r.filePom(r.genPom())/]
   [r.fileBinaryType(r.genBinaryType())/]
-  [r.fileAnnotationDomainService(r.genAnnotationDomainService())/]
-  [r.fileAnnotationAdapter(r.genAnnotationAdapter())/]
+  [r.fileAnnotationOut(r.genAnnotationOut())/]
+  [r.fileAnnotationIn(r.genAnnotationIn())/]
 [/template]
 
 [comment écriture du type Binary (commun à tous les frameworks, sert de passe-plat pour être homogène avec les héritages)./]
 [template private genBinaryType(any : ecore::EObject)][any.binaryType()/][/template]
 
-[comment écriture des annotations (commun à tous les frameworks ?, sert de passe-plat pour être homogène avec les héritages)./]
-[template private genAnnotationDomainService(any : ecore::EObject)][any.annotationDomainService()/][/template]
-
-[comment écriture des annotations (commun à tous les frameworks ?, sert de passe-plat pour être homogène avec les héritages)./]
-[template private genAnnotationAdapter(any : ecore::EObject)][any.annotationAdapter()/][/template]
-
 [comment liste des méthodes abstraites destinées à etre implémentées dans les modules fils./]
+[template protected genAnnotationOut(any : ecore::EObject)][/template]
+[template protected genAnnotationIn(any : ecore::EObject)][/template]
 [template protected genPom(any : ecore::EObject)][/template]
 

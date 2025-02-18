@@ -612,12 +612,11 @@ public final class ProjectProperties extends PropertiesCategory {
 //	}
 
 	public static String get_framework(final Object p_object) {
-		// return PropertiesHandler.getProperty(c_project_framework);
-		return "spring";
+		return PropertiesHandler.getProperty(c_project_framework);
 	}
 
 	public static boolean is_spring(final Object p_object) {
-		return true;
+		return get_framework(p_object).indexOf("spring") != -1;
 	}
 
 	public static boolean isProfilerEnabled() {

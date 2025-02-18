@@ -17,11 +17,11 @@
 [/template]
 
 [comment écriture du fichier d'annotation (commun à tous les frameworks ?)./]
-[template public fileAnnotationDomainService(any : ecore::EObject, body : String)]
+[template public fileAnnotationOut(any : ecore::EObject, body : String)]
   [file (any.nameClassAnnotationOut().toFileJava(any.namePackageAnnotation()), overwrite, any.defaultFileEncoding())][body/][/file]
 [/template]
 
 [comment écriture du fichier d'annotation (commun à tous les frameworks ?)./]
-[template public fileAnnotationAdapter(any : ecore::EObject, body : String)]
+[template public fileAnnotationIn(any : ecore::EObject, body : String)]
   [file (any.nameClassAnnotationIn().toFileJava(any.namePackageAnnotation()), overwrite, any.defaultFileEncoding())][body/][/file]
 [/template]

@@ -6,7 +6,7 @@
 
 [comment écriture des classes et fichiers persistence pour la partie serveur de l'application cible./]
 [template protected genServer(r : entity::Root)]
-  [for (e : entity::Entity | r.persistentEntities())]
+  [for (e : entity::Entity | r.eAllContents(entity::Entity))]
     [e.fileEntityImpl(e.genEntityImpl())/]
     [e.fileEntityItf(e.genEntityItf())/]
     [e.fileEntityPersistItf(e.genEntityPersistItf())/]

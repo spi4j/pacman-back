@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * Classe utilitaire pour la vérification et la validation des différents champs
@@ -226,14 +225,9 @@ public class FormUtil {
 	 * selectionnee.
 	 * 
 	 * @param p_databases
-	 * @param p_h2Embedded
 	 * @return
 	 */
-	public static boolean checkForDatabase(final List<String> p_databases, final String p_h2Embedded) {
-
-		if (p_databases.size() == 1 && !Boolean.valueOf(p_h2Embedded))
-			return Boolean.FALSE;
-
+	public static boolean checkForDatabase(final String p_databases) {
 		return Boolean.TRUE;
 	}
 

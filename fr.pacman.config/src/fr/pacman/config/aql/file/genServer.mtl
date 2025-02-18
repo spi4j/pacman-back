@@ -3,8 +3,11 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::resources/]
 [import fr::pacman::config::aql::block::server/]
 [import fr::pacman::core::aql::output::resources/]
+
+[comment pour l'instant, on positionne ici toutes les écritures de fichier tout frameworks confondus, à voir si on laisse comme ca./]
 
 [comment écriture du fichier de configuration Maven pour le projet d'infrastructure./]
 [template public filePom(any : ecore::EObject, body : String)]
@@ -39,6 +42,11 @@
 [comment écriture de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest../]
 [template public fileRsHttpStatusResolver(any : ecore::EObject, body : String)]
   [file (any.nameClassRsHttpStatusResolverImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
+[/template]
+
+[comment écriture du fichier de propriété pour les datasources./]
+[template public fileApplicationProperties(any : ecore::EObject, body : String)]
+  [file (any.nameApplicationResources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')][body/][/file]
 [/template]
 
 

@@ -235,7 +235,7 @@
 [query public nameTypeBinary(any : ecore::EObject) : String = 'binary'/]
 
 [comment retourne le nom pour l'annotation d'injection du service dans la couche métier./]
-[query public nameAnnotationDomainService(any : ecore::EObject) : String = 'domain service'/]
+[query public nameAnnotationDomainService(any : ecore::EObject) : String = 'service domain'/]
 
 [comment retourne le nom pour l'annotation d'injection du service dans la couche persistance./]
 [query public nameAnnotationAdapter(any : ecore::EObject) : String = 'service adapter'/]
