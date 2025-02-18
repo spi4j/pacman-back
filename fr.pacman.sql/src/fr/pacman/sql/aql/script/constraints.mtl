@@ -35,13 +35,13 @@
         [e.writeCheckEnum(a, e.get_counterCK(), command)/];
       [/if]
     [/for]
-    [let rs = e.referencesForeignKeys()]
+    [let rs = e.referencesFK()]
       [for (r2 : environment::Reference | rs)]
         [e.writeForeignKey(r2, e.get_counterFK(1), r2.get_namingIndex(rs), command )/];
       [/for]
     [/let]
   [/for]
-  [for (r2 : environment::Reference | r.referencesJoinTables())]
+  [for (r2 : environment::Reference | r.referencesJT())]
     [r2.writeForeignKeyJoin1(command)/];
     [r2.writeForeignKeyJoin2(command)/];
   [/for]

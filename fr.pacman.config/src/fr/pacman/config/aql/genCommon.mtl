@@ -1,21 +1,8 @@
 [module genCommon(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
 [import fr::pacman::config::aql::file::genCommon/]
-[import fr::pacman::config::aql::block::common/]
 
 [comment écriture de l'ensemble de la configuration de base pour le projet métier./]
-[template protected genRootConfig(r : overview::Root)]
-  [r.filePom(r.genPom())/]
-  [r.fileBinaryType(r.genBinaryType())/]
-  [r.fileAnnotationOut(r.genAnnotationOut())/]
-  [r.fileAnnotationIn(r.genAnnotationIn())/]
+[template public genRootConfig(r : overview::Root)]
+  [r.fileBinaryType()/]
 [/template]
-
-[comment écriture du type Binary (commun à tous les frameworks, sert de passe-plat pour être homogène avec les héritages)./]
-[template private genBinaryType(any : ecore::EObject)][any.binaryType()/][/template]
-
-[comment liste des méthodes abstraites destinées à etre implémentées dans les modules fils./]
-[template protected genAnnotationOut(any : ecore::EObject)][/template]
-[template protected genAnnotationIn(any : ecore::EObject)][/template]
-[template protected genPom(any : ecore::EObject)][/template]
-

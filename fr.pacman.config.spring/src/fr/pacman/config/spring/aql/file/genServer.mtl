@@ -1,0 +1,52 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::resources/]
+[import fr::pacman::config::spring::aql::block::server/]
+[import fr::pacman::core::aql::output::resources/]
+
+[comment écriture du fichier de configuration Maven pour le projet d'infrastructure./]
+[template public filePom(any : ecore::EObject)]
+  [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())]
+    [any.pom()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe pour la gestion globale des exceptions rest./]
+[template public fileRsExceptionHandler(any : ecore::EObject)]
+  [file (any.nameClassRsExceptionHandlerImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsExceptionhandler()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe d'exception pour le 404/204./]
+[template public fileRsDataNotFoundException(any : ecore::EObject)]
+  [file (any.nameClassRsDataNotFoundExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
+    [any.rsDataNotFoundException()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe pour le corps de la reponse dans le cadre de la gestion globale des erreurs rest./]
+[template public fileRsErrorBodyResponse(any : ecore::EObject)]
+  [file (any.nameClassRsErrorBodyResponseImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsErrorBodyResponse()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest../]
+[template public fileRsHttpStatusResolver(any : ecore::EObject)]
+  [file (any.nameClassRsHttpStatusResolverImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsHttpStatusResolver()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de propriété pour les datasources./]
+[template public fileApplicationProperties(any : ecore::EObject)]
+  [file (any.nameApplicationResources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')]
+    [any.applicationProperties()/]
+  [/file]
+[/template]
+

@@ -3,53 +3,22 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
-[import fr::pacman::core::aql::name::resources/]
 [import fr::pacman::config::aql::block::server/]
 [import fr::pacman::core::aql::output::resources/]
 
-[comment pour l'instant, on positionne ici toutes les écritures de fichier tout frameworks confondus, à voir si on laisse comme ca./]
-
-[comment écriture du fichier de configuration Maven pour le projet d'infrastructure./]
-[template public filePom(any : ecore::EObject, body : String)]
-  [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]
-
-[comment écriture de la classe pour la gestion globale des exceptions rest./]
-[template public fileRsExceptionHandler(any : ecore::EObject, body : String)]
-  [file (any.nameClassRsExceptionHandlerImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]
-
-[comment écriture de la classe d'exception pour le 404/204./]
-[template public fileRsDataNotFoundException(any : ecore::EObject, body : String)]
-  [file (any.nameClassRsDataNotFoundExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]
-
 [comment écriture de la classe d'exception pour le mapper./]
-[template public fileMapperException(any : ecore::EObject, body : String)]
-  [file (any.nameClassMapperExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())][body/][/file]
+[template public fileMapperException(any : ecore::EObject)]
+  [file (any.nameClassMapperExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
+    [any.mapperExceptionImpl()/]
+  [/file]
 [/template]
 
 [comment écriture de la classe d'exception pour les services non implémentés./]
-[template public fileNotImplementedException(any : ecore::EObject, body : String)]
-  [file (any.nameClassNotImplementedExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())][body/][/file]
+[template public fileNotImplementedException(any : ecore::EObject)]
+  [file (any.nameClassNotImplementedExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
+    [any.notImplementedExceptionImpl()/]
+  [/file]
 [/template]
-
-[comment écriture de la classe pour le corps de la reponse dans le cadre de la gestion globale des erreurs rest./]
-[template public fileRsErrorBodyResponse(any : ecore::EObject, body : String)]
-  [file (any.nameClassRsErrorBodyResponseImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]
-
-[comment écriture de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest../]
-[template public fileRsHttpStatusResolver(any : ecore::EObject, body : String)]
-  [file (any.nameClassRsHttpStatusResolverImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]
-
-[comment écriture du fichier de propriété pour les datasources./]
-[template public fileApplicationProperties(any : ecore::EObject, body : String)]
-  [file (any.nameApplicationResources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')][body/][/file]
-[/template]
-
-
 
 
 

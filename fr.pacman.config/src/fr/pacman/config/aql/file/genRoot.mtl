@@ -1,10 +1,3 @@
 [module genRoot(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
-[import fr::pacman::core::aql::base/]
-[import fr::pacman::config::aql::block::root/]
-[import fr::pacman::core::aql::output::resources/]
-
-[comment écriture du fichier de configuration Maven pour le projet principal (conteneur)./]
-[template public filePom(any : ecore::EObject, body : String)]
-  [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]
+[comment ras pour l'instant./]

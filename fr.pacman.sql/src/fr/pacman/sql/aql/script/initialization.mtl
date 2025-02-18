@@ -12,14 +12,14 @@
 
 [template public initDatabase(r : entity::Root, dbType : String) post(self.removeEmptyLines())]
   [for (e : entity::Entity | r.eAllContents(entity::Entity))]
-    [e.writeInsert(e.referencesForeignKeys(), dbType)/]
+    [e.writeInsert(e.referencesFK(), dbType)/]
   [/for]
   [r.initJoinTables(dbType)/]
 [/template]
 
 [comment initialisation spécifique pour les tables de jointure./]
 [template private initJoinTables(root : entity::Root, dbType : String)]
-  [for (r : environment::Reference | root.referencesJoinTables())]
+  [for (r : environment::Reference | root.referencesJT())]
     [r.writeInsert(dbType)/]
   [/for]
 [/template]

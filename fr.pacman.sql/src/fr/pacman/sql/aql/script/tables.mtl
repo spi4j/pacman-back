@@ -24,7 +24,7 @@
 [comment template principal du script de création des tables, indexs et contraintes pour une base 'dbType'./]				
 [template public createTables(r : entity::Root, dbType : String)]
   [for (e : entity::Entity | r.eAllContents(entity::Entity))]
-    [let rs = e.referencesForeignKeys()]
+    [let rs = e.referencesFK()]
       [e.tableHeader()/]
       [e.writeTable(e.commandCreate())/]
       (
@@ -44,7 +44,7 @@
 [template public dropTables(r : entity::Root, dbType : String)]
   [r.indexsHeader()/]
   [for (e : entity::Entity | r.eAllContents(entity::Entity))]
-      [e.indexs(e.referencesForeignKeys(),dbType, e.commandDelete())/]
+      [e.indexs(e.referencesFK(),dbType, e.commandDelete())/]
   [/for]
   [for (e : entity::Entity | r.eAllContents(entity::Entity))]
     [e.tableHeader()/]
@@ -113,7 +113,7 @@
 
 [comment écriture des tables de jointure (0,*)(1,*) toutes tables confondues./]
 [template private joinTables(root : entity::Root, dbType : String, command : String)]
-  [for (r : environment::Reference | root.referencesJoinTables())]
+  [for (r : environment::Reference | root.referencesJT())]
     [r.ensureBlankLine()/]
     [r.cLine()/]
     [r.nameTableHeaderJoin().toUpper().ensureSlashLine(r.defaultMaxSizeSqlHeader())/]

@@ -2,20 +2,15 @@
 							extends fr::pacman::config::aql::genWebapp/]
 						
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
-[comment enlever ces imports suite a correction bug./]
-[import fr::pacman::config::aql::file::genWebapp/]
-[comment enlever ces imports suite a correction bug./]
 
-[import fr::pacman::config::spring::aql::block::webapp/]
+[import fr::pacman::config::spring::aql::file::genWebapp/]
 
 [comment @main/]
 [comment écriture de l'ensemble de la configuration de base pour le projet d'exposition (Spring)./]
-[template protected genRootConfig(r : overview::Root)][r.super:genRootConfig()/][/template]
-
-[comment écriture du fichier de configuration Maven./]
-[template protected genPom(any : ecore::EObject)][any.pom()/][/template]
-
-[comment écriture des classes de bootstrap pour l'application cible./]
-[template protected genApplicationBootstrap(any : ecore::EObject)][any.applicationBoostrap()/][/template]
+[template public genRootConfig(r : overview::Root)]
+  [r.super:genRootConfig()/]
+  [r.fileApplicationBootstrap()/]
+  [r.filePom()/]
+[/template]
 
 

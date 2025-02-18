@@ -1,0 +1,22 @@
+[module genEntity('http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]	
+[import fr::pacman::core::aql::name::classes/]	
+[import fr::pacman::core::aql::name::packages/]	
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::entity::spring::aql::block::entity/]
+
+[comment écriture du fichier d'implémentation pour l'entité./]
+[template public fileEntityImpl(e: entity::Entity)]
+  [file (e.nameClassEntityImpl().toFileJava(e.namePackageEntityImpl()), overwrite, e.defaultFileEncoding())]
+    [e.implementation()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'interface pour la persistance de l'entité./]
+[template public fileEntityPersistItf(e : entity::Entity)]
+  [file (e.nameClassEntityPersistItf().toFileJava(e.namePackageEntityPersistItf()), overwrite, e.defaultFileEncoding())]
+    [e.interfacePersist()/]
+  [/file]
+[/template]
+

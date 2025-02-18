@@ -5,7 +5,7 @@
 [import fr::pacman::core::aql::name::classes/]
 
 [comment ./]
-[template public genTypeBinary(any : environment::ObeoDSMObject)]
+[template public typeBinary(any : ecore::EObject)]
   [any.classHeader(any.namePackageType())/]
   import java.io.Serializable;
   

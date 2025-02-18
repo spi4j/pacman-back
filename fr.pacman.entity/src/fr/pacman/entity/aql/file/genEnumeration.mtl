@@ -4,9 +4,12 @@
 [import fr::pacman::core::aql::name::classes/]	
 [import fr::pacman::core::aql::name::packages/]	
 [import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::entity::aql::block::enumeration/]
 
 [comment écriture du fichier d'implémentation pour une énumération./]
-[template public fileEnumerationImplementation(e: environment::Enumeration, body : String)]
-  [file (e.nameClassEnumeration().toFileJava(e.namePackageEnumeration()), overwrite, e.defaultFileEncoding())][body/][/file]
+[template public fileEnumerationImplementation(e: environment::Enumeration)]
+  [file (e.nameClassEnumeration().toFileJava(e.namePackageEnumeration()), overwrite, e.defaultFileEncoding())]
+    [e.genEnumeration()/]
+  [/file]
 [/template]
 

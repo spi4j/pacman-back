@@ -1,20 +1,12 @@
-[module genServerSpi4j(	'http://www.obeonetwork.org/dsl/entity/3.0.0') 
-								
+[module genServerSpi4j(	'http://www.obeonetwork.org/dsl/entity/3.0.0') 								
 						extends fr::pacman::entity::aql::genServer/]
 
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
-[import fr::pacman::entity::spi4j::aql::block::entity/]
 
 [comment @main/]
-[comment sert de passe-plat pour le module parent./]
-[template protected genServer(r : entity::Root)][r.super:genServer()/][/template]
-
-[comment écriture de l'implémentation Spi4j pour l'entité./]
-[template protected genEntityImpl(e : entity::Entity)][e.implementation()/][/template]
-
-[comment écriture de l'interface Spi4j pour l'entité./]
-[template protected genEntityItf(e : entity::Entity)][e.interface()/][/template]
-
+[template public genServer(r : entity::Root)]
+  [r.super:genServer()/]
+[/template]
 
 	
 

@@ -6,22 +6,10 @@
 [import fr::pacman::config::aql::block::common/]
 [import fr::pacman::core::aql::output::resources/]
 
-[comment écriture du fichier de configuration Maven pour le projet métier./]
-[template public filePom(any : ecore::EObject, body : String)]
-  [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]
-
 [comment écriture du fichier pour le type Binary (commun à tous les frameworks)./]
-[template public fileBinaryType(any : ecore::EObject, body : String)]
-  [file (any.nameTypeBinary().nameClassType().toFileJava(any.namePackageType()), overwrite, any.defaultFileEncoding())][body/][/file]
+[template public fileBinaryType(any : ecore::EObject)]
+  [file (any.nameTypeBinary().nameClassType().toFileJava(any.namePackageType()), overwrite, any.defaultFileEncoding())]
+    [any.binaryType()/]
+  [/file]
 [/template]
 
-[comment écriture du fichier d'annotation (commun à tous les frameworks ?)./]
-[template public fileAnnotationOut(any : ecore::EObject, body : String)]
-  [file (any.nameClassAnnotationOut().toFileJava(any.namePackageAnnotation()), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]
-
-[comment écriture du fichier d'annotation (commun à tous les frameworks ?)./]
-[template public fileAnnotationIn(any : ecore::EObject, body : String)]
-  [file (any.nameClassAnnotationIn().toFileJava(any.namePackageAnnotation()), overwrite, any.defaultFileEncoding())][body/][/file]
-[/template]

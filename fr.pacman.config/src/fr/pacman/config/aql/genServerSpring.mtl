@@ -1,33 +1,21 @@
 [module genServerSpring(	'http://www.obeonetwork.org/dsl/overview/2.0.0') 
   							extends fr::pacman::config::aql::genServer/]
 
-
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
 [comment enlever ces imports suite a correction bug./]
 [import fr::pacman::config::aql::file::genServer/]
-[import fr::pacman::config::aql::block::server/]
 [comment enlever ces imports suite a correction bug./]
 
-[import fr::pacman::config::spring::aql::block::server/]
+[import fr::pacman::config::spring::aql::file::genServer/]
 
 [comment @main/]
 [comment écriture de l'ensemble de la configuration de base pour le projet d'infrastructure (Spring)./]
-[template protected genRootConfig(r : overview::Root)][r.super:genRootConfig()/][/template]
-
-[comment écriture du fichier de configuration Maven./]
-[template protected genPom(r : ecore::EObject)][r.pom()/][/template]
-
-[comment écriture de la classe de gestion globale des erreurs rest./]
-[template protected genRsExceptionHandler(r : ecore::EObject)][r.rsExceptionhandler()/][/template]
- 
-[comment écriture de la classe d'exception pour les données non trouvées dans les services rest./] 
-[template protected genRsDataNotFoundException(r : ecore::EObject)][r.rsDataNotFoundException()/][/template]
-  
-[comment écriture de la classe pour le corps de la reponse pour les erreurs sur les services rest./]
-[template protected genRsErrorBodyResponse(any : ecore::EObject)][any.rsErrorBodyResponse()/][/template]
-
-[comment écriture de la classe pour la résolution des statuts http dans le cadre des services rest./]
-[template protected genRsHttpStatusResolver(any : ecore::EObject)][any.rsHttpStatusResolver()/][/template]
-  
-[comment écriture du fichier pour l'ensemble des informations de datasource./]
-[template protected genApplicationProperties(any : ecore::EObject)][any.applicationProperties()/][/template]
+[template public genRootConfig(r : overview::Root)]
+  [r.super:genRootConfig()/]
+  [r.fileRsExceptionHandler()/]
+  [r.fileRsDataNotFoundException()/]
+  [r.fileRsErrorBodyResponse()/]
+  [r.fileRsHttpStatusResolver()/]
+  [r.fileApplicationProperties()/]
+  [r.filePom()/]
+[/template]

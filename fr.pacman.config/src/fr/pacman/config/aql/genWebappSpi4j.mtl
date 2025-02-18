@@ -2,10 +2,7 @@
 							extends fr::pacman::config::aql::genWebapp/]
 
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
-[comment enlever ces imports suite a correction bug./]
-[import fr::pacman::config::aql::file::genWebapp/]
-[comment enlever ces imports suite a correction bug./]
 							
 [comment @main/]
 [comment écriture de l'ensemble de la configuration de base pour le projet d'exposition (Spi4j)./]
-[template protected genRootConfig(r : overview::Root)][r.super:genRootConfig()/][/template]
+[template public genRootConfig(r : overview::Root)][r.super:genRootConfig()/][/template]

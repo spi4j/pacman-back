@@ -4,8 +4,11 @@
 [import fr::pacman::core::aql::name::classes/]	
 [import fr::pacman::core::aql::name::packages/]	
 [import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::entity::aql::block::type/]
 
 [comment écriture du fichier d'implémentation pour les types spéciaux de pacman./]
-[template public fileTypeImplementation( any : ecore::EObject , type : String, body : String)]
-   [file (type.nameClassType().toFileJava(any.namePackageType()), overwrite, any.defaultFileEncoding())][body/][/file]
+[template public fileTypeImplementation(any : ecore::EObject , type : String)]
+   [file (type.nameClassType().toFileJava(any.namePackageType()), overwrite, any.defaultFileEncoding())]
+     [any.typeBinary()/]
+   [/file]
 [/template]

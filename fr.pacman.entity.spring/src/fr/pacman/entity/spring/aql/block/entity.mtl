@@ -26,6 +26,7 @@
   import java.util.Objects;
   import jakarta.persistence.Column;
   import jakarta.persistence.Entity;
+  import jakarta.persistence.FetchType;
   import jakarta.persistence.Id;
   import jakarta.persistence.Table;
   import jakarta.persistence.CascadeType;
@@ -34,22 +35,21 @@
   import jakarta.persistence.GenerationType;
   import jakarta.persistence.JoinColumn;
   import jakarta.persistence.OneToOne;
+  import jakarta.persistence.ManyToOne;
+  import jakarta.persistence.OneToMany;
   import jakarta.persistence.SequenceGenerator;
   
   [e.commentClass()/]
   @Entity
   [e.writeAnnotationTable()/]
   public class [e.nameClassEntityImpl()/] 
-  {  
-      // CONSTANTES
+  {   
       
-      [protected ('xxxxxxxxxxxxxxxxxx') startTagPrefix('// ') endTagPrefix('// ')]
+      // CONSTANTES ET ATTRIBUTS
+      [protected ('xxxxxxxxxxxxxxxxxx1') startTagPrefix('// ') endTagPrefix('// ')]
 
       [/protected]
-      
-      // ATTRIBUTS    
-      
-      [let rs = e.referencesForeignKeys()]
+      [let rs = e.referencesSB()]
         
         ['Id'.commentSingleLine()/]
         @Id
@@ -65,7 +65,7 @@
         [for (r : environment::Reference | rs)]
           [r.referencedType(e).comment().commentSingleLine()/]
           [r.writeAnnotationsJoin(e)/]
-          private [r.referencedType(e).nameClassEntityImpl()/] [r.referencedType(e).name().apply_attributeDefault()/];
+          private [r.writeReferencedType(e)/] [r.referencedType(e).name().apply_attributeDefault()/];
           
         [/for]
          
@@ -92,17 +92,22 @@
         
         [for (r : environment::Reference | rs)]
           [r.referencedType(e).commentGet()/]
-          public [r.referencedType(e).nameClassEntityImpl()/] [r.referencedType(e).name().apply_methodGet()/]()
+          public [r.writeReferencedType(e)/] [r.referencedType(e).name().apply_methodGet()/]()
           {
              return [r.prefixAffectation()/][r.referencedType(e).name().apply_attributeDefault()/];
           }
           
           [r.referencedType(e).commentSet()/]
-          public void [r.referencedType(e).name().apply_methodSet()/](final [r.referencedType(e).nameClassEntityImpl()/] [r.referencedType(e).name().apply_parameterMethodClassicIn()/])
+          public void [r.referencedType(e).name().apply_methodSet()/](final [r.writeReferencedType(e)/] [r.referencedType(e).name().apply_parameterMethodClassicIn()/])
           {
              [r.prefixAffectation()/][r.referencedType(e).name().apply_attributeDefault()/] = [r.referencedType(e).name().apply_parameterMethodClassicIn()/];
           }
         [/for]
+        
+        // METHODES
+        [protected ('xxxxxxxxxxxxxxxxxx') startTagPrefix('// ') endTagPrefix('// ')]
+
+        [/protected]
         
         /** 
          * Compare cet objet avec l'objet spécifié pour déterminer s'ils sont égaux.
@@ -181,6 +186,10 @@
 
 [comment raccourci pour l'écriture de la clé primaire./]
 [query private writePk(e : entity::Entity) : String = e.nameSimplePropertyID().apply_attributeDefault()/]
+  
+[comment écriture du type complet pour les entités référencées./]
+[query private writeReferencedType(r : environment::Reference, e : entity::Entity) : String = if (r.isMultiple() and r.containingType = e) then 
+  'List<' +  r.referencedType(e).type() + '>' else r.referencedType(e).type() endif /]
 
 [comment écriture de l'annotation @Table pour l'entité./]
 [query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) 
@@ -189,13 +198,16 @@
   
 [comment écriture de l'annotation @column pour chaque attribut de l'entité./]
 [query private writeAnnotationColumn(a : environment::Attribute) : String = '@Column(name = "' + a.nameAttribut() +'", nullable = ' 
-  + a.isMandatory() + ', updatable = true' + if (a.has_metaPhysicalSize() and a.type.isAlpha()) then ', length = ' + a.get_metaPhysicalSize() 
+  + not a.isMandatory() + ', updatable = true' + if (a.has_metaPhysicalSize() and a.type.isAlpha()) then ', length = ' + a.get_metaPhysicalSize() 
   else if (a.has_metaPhysicalSize() and a.type.isNumeric()) then ', precision = ' + a.get_metaPhysicalSize() else if (a.has_metaPhysicalSize() 
   and a.type.isDecimal()) then ', scale = ' +  a.get_metaPhysicalSize()  else '' endif  endif endif + ')'/]
   
-[comment écriture de la chaine complète des annotations pour faire les liaisons inter-tableb./]
-[query private writeAnnotationsJoin(r : environment::Reference, e : entity::Entity) : String = '@OneToOne(cascade = CascadeType.ALL)' 
-  + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedType(e).nameSimplePropertyID().apply_attributeDefault() + '", referencedColumnName = "'  
-  + r.referencedType(e).nameSimplePropertyID().apply_attributeDefault() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) 
-  then 'false' else 'true' endif +')'/]
+[comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables./]
+[query private writeAnnotationsJoin(r : environment::Reference, e : entity::Entity) : String = if(r.isMultiple()) then if (r.containingType = e) then 
+  '@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "' + e.name().apply_attributeDefault() + '")' else '@ManyToOne()' 
+  + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedType(e).nameSimplePropertyID().apply_attributeDefault() + '", nullable = false)' 
+  endif  else '@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)'  + r.lineSeparator() + '@JoinColumn(name = "' 
+  + r.referencedType(e).nameSimplePropertyID().apply_attributeDefault() + '", referencedColumnName = "'  
+  + r.referencedType(e).nameSimplePropertyID().apply_attributeDefault() + '", nullable = ' 
+  + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
 

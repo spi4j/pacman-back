@@ -1,26 +1,3 @@
 [module genEntity('http://www.obeonetwork.org/dsl/entity/3.0.0')/]
 
-[import fr::pacman::core::aql::base/]	
-[import fr::pacman::core::aql::name::classes/]	
-[import fr::pacman::core::aql::name::packages/]	
-[import fr::pacman::core::aql::output::resources/]
-
-[comment écriture du fichier d'implémentation pour l'entité./]
-[template public fileEntityImpl(e: entity::Entity, body : String)]
-  [file (e.nameClassEntityImpl().toFileJava(e.namePackageEntityImpl()), overwrite, e.defaultFileEncoding())][body/][/file]
-[/template]
-
-[comment écriture du fichier d'interface pour l'entité./]
-[template public fileEntityItf(e : entity::Entity, body : String)]
-  [file (e.nameClassEntityItf().toFileJava(e.namePackageEntityItf()), overwrite, e.defaultFileEncoding())][body/][/file]
-[/template]
-
-[comment écriture du fichier d'interface pour la persistance de l'entité./]
-[template public fileEntityPersistItf(e : entity::Entity, body : String)]
-  [file (e.nameClassEntityPersistItf().toFileJava(e.namePackageEntityPersistItf()), overwrite, e.defaultFileEncoding())][body/][/file]
-[/template]
-
-[comment écriture du fichier d'implémentation pour la persistance de l'entité./]
-[template public fileEntityPersistImpl(e : entity::Entity, body : String)]
-  [file (e.nameClassEntityPersistImpl().toFileJava(e.namePackageEntityPersistImpl()), overwrite, e.defaultFileEncoding())][body/][/file]
-[/template]
+[comment ras pour l'instant./]
