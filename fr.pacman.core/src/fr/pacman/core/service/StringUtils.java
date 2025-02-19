@@ -236,7 +236,7 @@ public final class StringUtils {
 	 *         même taille, quelle que soit la taille initiale de l'identifiant pass
 	 *         en paramètre)
 	 */
-	public static String userCodeId(final String p_str) {
+	public static String get_userCodeId(final String p_str) {
 		try {
 			MessageDigest v_messageDigest = MessageDigest.getInstance("MD5");
 			v_messageDigest.update(p_str.getBytes());

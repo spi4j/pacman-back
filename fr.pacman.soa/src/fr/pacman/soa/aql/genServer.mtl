@@ -2,43 +2,18 @@
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::soa::aql::file::genServer/]
-[import fr::pacman::soa::aql::block::mapper/]
-[import fr::pacman::soa::aql::block::xto/]
 [import fr::pacman::core::aql::query::eobject/]
 
 [comment écriture des classes et fichiers soa pour la partie infrastructure de l'application cible./]
-[template protected genServer(m : soa::System)]
-  [m.fileRsSecurityConfigImpl(m.genRsSecurityConfigImpl())/]
-  
-  [for (s : soa::Service | m.eAllContents(soa::Service))]
-    [s.fileServiceImpl(s.genServiceImpl())/]
-    [s.fileServiceInImpl(s.genServiceInImpl())/]
-  [/for]
-  
+[template public genServer(m : soa::System)]  
   [for (d : environment::DTO | m.eAllContents(environment::DTO))]
   	[if (d.isPersistent())]
-  	  [d.fileMapperInImpl(d.genMapperInImpl())/]
+  	  [d.fileMapperInImpl()/]
   	[/if]
-  	[d.fileMapperOutImpl(d.genMapperOutImpl())/]
-  	[d.fileXtoImpl(d.genXtoImpl())/]
+  	[d.fileMapperOutImpl()/]
+  	[d.fileXtoImpl()/]
   [/for]
 [/template]
 
-[comment écriture des mappers, communs à l'ensemble des frameworks (infrastructure)./]
-[template private genMapperInImpl(d : environment::DTO)][d.mapperIn()/][/template]
-  
-[comment écriture des mappers, communs à l'ensemble des frameworks (application)./]
-[template private genMapperOutImpl(d : environment::DTO)][d.mapperOut()/][/template]
-  
-[comment écriture des objets sérialisés, commun à l'ensemble des frameworks (application)./]
-[template private genXtoImpl(d : environment::DTO)][d.implementation()/][/template]
-
-[comment ********************************************************************************/]
-[comment liste des templates abstraits destinés à etre implémentés dans les modules fils./]
-[comment ********************************************************************************/]
-[template protected genServiceImpl(s : soa::Service)][/template]
-[template protected genServiceInImpl(s : soa::Service)][/template]
-[template protected genRsSecurityConfigImpl(m : soa::System)][/template]
-  
   
 

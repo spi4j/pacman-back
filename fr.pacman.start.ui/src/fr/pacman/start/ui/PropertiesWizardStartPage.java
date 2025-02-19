@@ -60,7 +60,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _projectCrud = "";
 	private String _databases = "";
 
-	private List<SqlAddColumn> _sqlAddColumns = new ArrayList<>();
+	private List<SqlAutoField> _sqlAutoFields = new ArrayList<>();
 
 	/**
 	 * Constructeur avec la définition de l'en-tête pour le panneau global de
@@ -578,7 +578,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * entité. Pour l'instant impossible d'arriver à lire les données insérées dans
 	 * le tableau, on a donc recours à un hack en enregistrant l'ensemble des
 	 * widgets non seulement au niveau de la table mais aussi dans une liste de
-	 * {@link SqlAddColumn}. Il est ainsi possible de récupérer les entrées lors du
+	 * {@link sqlAutoField}. Il est ainsi possible de récupérer les entrées lors du
 	 * click utilisateur sur le bouton "finish".
 	 * 
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
@@ -655,14 +655,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		Text txtDescription = addTableText(p_parent, p_item, 5);
 
 		// hack pour récupération des données.
-		SqlAddColumn row = new SqlAddColumn();
+		SqlAutoField row = new SqlAutoField();
 		row._name = txtName;
 		row._comment = txtDescription;
 		row._default = txtDefault;
 		row._type = cbx;
 		row._size = txtLength;
 		row._notNull = cbxNull;
-		_sqlAddColumns.add(row);
+		_sqlAutoFields.add(row);
 
 		cbx.addSelectionListener(new SelectionListener() {
 
@@ -784,14 +784,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private boolean computeAdditionalFieldsValidity() {
 		int xtopsup = 0;
 		int xdmaj = 0;
-		for (SqlAddColumn sqlAddColumn : _sqlAddColumns) {
-			if ("xtopsup".equalsIgnoreCase(sqlAddColumn._name.getText().trim()))
+		for (SqlAutoField sqlAutoField : _sqlAutoFields) {
+			if ("xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
 				xtopsup++;
-			if ("xdmaj".equalsIgnoreCase(sqlAddColumn._name.getText().trim()))
+			if ("xdmaj".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
 				xdmaj++;
-			if (!sqlAddColumn._type.getText().isEmpty() && sqlAddColumn._name.getText().isEmpty())
+			if (!sqlAutoField._type.getText().isEmpty() && sqlAutoField._name.getText().isEmpty())
 				return false;
-			if (!sqlAddColumn._name.getText().isEmpty() && sqlAddColumn._type.getText().isEmpty())
+			if (!sqlAutoField._name.getText().isEmpty() && sqlAutoField._type.getText().isEmpty())
 				return false;
 		}
 		if (xtopsup > 1 || xdmaj > 1)
@@ -955,46 +955,46 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @return une liste contenant les données pour l'ensemble des champs
 	 *         supplémentaires (colonnes) pour la base de donénes
 	 */
-	public Map<String, String> getSqlAddColumns() {
-		Map<String, String> sqlAddColumns = new HashMap<>();
+	public Map<String, String> getsqlAutoFields() {
+		Map<String, String> sqlAutoFields = new HashMap<>();
 		String sqlFields = "";
 
-		for (SqlAddColumn sqlAddColumn : _sqlAddColumns) {
-			if ("xdmaj".equalsIgnoreCase(sqlAddColumn._name.getText().trim())) {
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajName, "XDMAJ");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajComment, "Date de mise à jour de la ligne.");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajDefault, "current_date");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajNotnull, "true");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajSize, "");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajType, "Date");
+		for (SqlAutoField sqlAutoField : _sqlAutoFields) {
+			if ("xdmaj".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajName, "XDMAJ");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajComment, "Date de mise à jour de la ligne.");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajDefault, "current_date");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajNotnull, "true");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajSize, "");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajType, "Date");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXdmaj);
-			} else if ("xtopsup".equalsIgnoreCase(sqlAddColumn._name.getText().trim())) {
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique.");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupDefault, "0");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupNotnull, "true");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupSize, "1");
-				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupType, "XtopSup");
+			} else if ("xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique.");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupDefault, "0");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupNotnull, "true");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupSize, "1");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupType, "XtopSup");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXtopsup);
-			} else if (!sqlAddColumn._name.getText().isEmpty() && !sqlAddColumn._name.getText().isBlank()) {
-				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".name", sqlAddColumn._name.getText().trim());
-				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".comment", sqlAddColumn._comment.getText().trim());
-				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".default", sqlAddColumn._default.getText().trim());
-				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".notNull", "true");
-				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".size", sqlAddColumn._size.getText().trim());
-				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".type", sqlAddColumn._type.getText());
-				sqlFields += ("," + ProjectProperties.c_sql_tableXField + "." + sqlAddColumn._name.getText().trim());
+			} else if (!sqlAutoField._name.getText().isEmpty() && !sqlAutoField._name.getText().isBlank()) {
+				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".name", sqlAutoField._name.getText().trim());
+				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".comment", sqlAutoField._comment.getText().trim());
+				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".default", sqlAutoField._default.getText().trim());
+				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".notNull", "true");
+				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".size", sqlAutoField._size.getText().trim());
+				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".type", sqlAutoField._type.getText());
+				sqlFields += ("," + ProjectProperties.c_sql_tableXField + "." + sqlAutoField._name.getText().trim());
 			}
 		}
-		sqlAddColumns.put(ProjectProperties.c_sql_fields, sqlFields.replaceFirst(",", ""));
-		return sqlAddColumns;
+		sqlAutoFields.put(ProjectProperties.c_sql_fields, sqlFields.replaceFirst(",", ""));
+		return sqlAutoFields;
 	}
 
 	/**
 	 * Classe interne pour le stockage des champs supplémentaires dans les entités
 	 * de la base de données.
 	 */
-	class SqlAddColumn {
+	class SqlAutoField {
 		Text _name;
 		Text _size;
 		Text _comment;

@@ -20,7 +20,7 @@ public class FormUtil {
 	private static final String c_patternProjectKey = "[a-zA-Z0-9[\b\\_\\-]]";
 	private static final String c_patternPackageKey = "[a-z0-9[\b\\.]]";
 	private static final String c_patternSqlOptionKey = "[a-zA-Z0-9[\b\\_]]";
-	private static final String c_patternSqlSchemaKey = "[a-zA-Z0-9[\b\\.]]";
+	private static final String c_patternSqlSchemaKey = "[a-zA-Z0-9[\b\\]]";
 	private static final String c_patternSqlPrefix = "^$|^[a-zA-Z0-9]+(\\_){1}";
 	private static final String c_patternSqlSchema = "^$|^[a-zA-Z0-9]+(\\.){1}";
 	private static final String c_patternLibraryKey = "[a-zA-Z0-9[\b\\-\\_\\.]]";

@@ -1,0 +1,33 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::core::aql::base/]	
+[import fr::pacman::core::aql::name::classes/]	
+[import fr::pacman::core::aql::name::packages/]	
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::soa::spring::aql::block::service/]
+[import fr::pacman::soa::spring::aql::block::security/]
+[import fr::pacman::core::aql::query::service/]
+
+[comment écriture du fichier d'implémentation pour le service utilisateur (application)./]
+[template public fileServiceImpl(s: soa::Service)]
+  [file (s.nameClassControllerImpl().toFileJava(s.namePackageControllerImpl()), overwrite, s.defaultFileEncoding())]
+    [s.implementation()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour le service de persistance (infrastructure)./]
+[template public fileServiceInImpl(s: soa::Service)]
+  [file (s.nameClassServiceInImpl().toFileJava(s.namePackageInImpl()), overwrite, s.defaultFileEncoding())]
+    [s.implementationIn(s.associatedDtos())/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation la configuration de la sécurité des services rest./]
+[template public fileRsSecurityConfigImpl(m : soa::System)]
+  [file (m.nameClassRsSecurityConfigImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
+    [m.implementation()/]
+  [/file]
+[/template]
+
+

@@ -12,7 +12,8 @@
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::property/]
 [import fr::pacman::core::aql::output::comments/]
-[import fr::pacman::core::aql::output::headers/]	
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]	
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::method/]	
@@ -46,7 +47,7 @@
   {   
       
       // CONSTANTES ET ATTRIBUTS
-      [protected ('xxxxxxxxxxxxxxxxxx1') startTagPrefix('// ') endTagPrefix('// ')]
+      [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
 
       [/protected]
       [let rs = e.referencesSB()]
@@ -58,12 +59,17 @@
         
         [for (a : environment::Attribute | e.attributesNoPK())]
           [a.comment().commentSingleLine()/]
+          [protected (a.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
           [a.writeAnnotationColumn()/]
           private [a.type()/] [a.nameAttribute()/];
           
         [/for]
+        
         [for (r : environment::Reference | rs)]
           [r.referencedEntity(e).comment().commentSingleLine()/]
+          [protected (r.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
           [r.writeAnnotationsJoin(e)/]
           private [r.referencedType(e)/] [r.referencedEntity(e).name().apply_attributeDefault()/];
           
@@ -73,6 +79,8 @@
         public [e.nameClassEntityImpl()/] ()
         {
            super();
+           [protected ('constructor'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           [/protected]
         }
         
         [for (a : environment::Attribute | e.attributesNoPK())]
@@ -105,7 +113,7 @@
         [/for]
         
         // METHODES
-        [protected ('xxxxxxxxxxxxxxxxxx') startTagPrefix('// ') endTagPrefix('// ')]
+        [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
 
         [/protected]
         

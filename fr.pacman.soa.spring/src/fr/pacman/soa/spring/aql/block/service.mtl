@@ -1,6 +1,6 @@
-[module serviceServer(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
-						'http://www.obeonetwork.org/dsl/entity/3.0.0',
-						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+[module service(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]

@@ -1,6 +1,6 @@
-[module serviceCommon(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
-						'http://www.obeonetwork.org/dsl/entity/3.0.0',
-						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+[module service(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]						
 [import fr::pacman::core::aql::name::classes/]
@@ -81,8 +81,3 @@
 [comment écriture de la signature d'une opération avec le paramètre en sortie./]
 [query private writeInputs(o : soa::Operation) : String = o.nameOperation() 
   + '(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())->sep(', ') + ')' /]
-  
-  
-  
-  
-  

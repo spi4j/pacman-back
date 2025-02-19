@@ -498,9 +498,8 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_requirement_categoryBaseLevel);
 	}
 
-	public static String get_persistenceAutoFields(final Object p_object) {
-		return "";
-		// return PropertiesHandler.getProperty(c_sql_fields);
+	public static String get_sqlAutoFields(final Object p_object) {
+		return PropertiesHandler.getProperty(c_sql_fields);
 	}
 
 //	public static String getLibrariesAdditionalJars(Object p_object) {

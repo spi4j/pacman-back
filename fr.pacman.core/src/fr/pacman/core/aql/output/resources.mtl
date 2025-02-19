@@ -3,6 +3,7 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::service::StringUtils/]
 
 [comment ajoute un slash à la fin de la chaine./]
 [query private ensureTrailingSlash(path : String) : String = if path = null then '/' else if path.endsWith('/') then path else path + '/' endif endif/]
@@ -33,3 +34,6 @@
 
 [comment fName le nom du fichier, path le chemin complet (à formatter correctement), fExt l'extension du fichier./]   
 [query public toFile(fName : String, path : String, fExt : String) : String = path.toPath().toLower() + fName + fExt/]
+
+[comment retourne un code de hash unique basé sur une chaine de caractères./]
+[query public protectedId (str : String) : String = if (true) then str.get_userCodeId() else str endif /]
