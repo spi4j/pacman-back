@@ -232,6 +232,10 @@ public final class AnnotationUtils {
 	public static boolean has_metaPhysicalUnique(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PHYSICAL_UNIQUE);
 	}
+	
+	public static boolean has_metaCascadeType(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.CASCADE_TYPE);
+	}
 
 	public static boolean has_metaVersion(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.VERSION);
@@ -339,6 +343,10 @@ public final class AnnotationUtils {
 
 	public static String get_metaLiteralParamsStruct(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.LITERALS_PARAMS_STRUCT);
+	}
+	
+	public static String get_metaLiteralCascadeType(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.CASCADE_TYPE);
 	}
 
 	public static boolean has_metaLiteralParamsStruct(final ObeoDSMObject p_object) {

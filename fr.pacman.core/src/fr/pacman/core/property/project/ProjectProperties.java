@@ -65,6 +65,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_sql_tableXtopsupComment = "sql.table.field.xtopsup.comment";
 	public static final String c_sql_tableXtopsupSize = "sql.table.field.xtopsup.size";
 	public static final String c_sql_oracleIndexTablespace = "sql.oracle.index.tablespace";
+	public static final String c_sql_tableXField = "sql.table.field";
 
 	public static final String c_requirement_prefix = "requirement.prefix";
 	public static final String c_requirement_versionningInitial = "requirement.versionning.initial";

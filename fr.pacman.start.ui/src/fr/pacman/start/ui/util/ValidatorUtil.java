@@ -42,7 +42,7 @@ public class ValidatorUtil {
 				&& _sqlTablePrefixOK 
 				&& _requirementPrefixOK 
 				&& _additionnalFieldsOK
-				&& _packageOK 
+				&& _packageOK
 				&& _authorOK;
 	}
 
@@ -74,11 +74,11 @@ public class ValidatorUtil {
 		if (!_requirementPrefixOK)
 			return "Le préfixe pour les requirements n'est pas valide";
 
-//		if (!_oracleOK)
-//			return "Il est impossible de générer pour deux versions différentes d'Oracle.";
-//
+		if (!_databaseOK)
+			return "Il est impossible de générer pour deux versions différentes d'Oracle.";
+
 		if (!_additionnalFieldsOK)
-			return "Veuillez remplir le nom pour les champs SQL additionnels.";
+			return "La rubrique champs automatiques n'est pas correctement renseignée.";
 
 		return null;
 	}
@@ -90,7 +90,7 @@ public class ValidatorUtil {
 	 */
 	public int getMessageType() {
 
-		return IMessageProvider.ERROR;
+		return IMessageProvider.INFORMATION;
 	}
 
 	public void setApplicationOK(boolean p_applicationOK) {

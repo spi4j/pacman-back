@@ -37,6 +37,7 @@ import fr.pacman.core.generator.PacmanGeneratorStart;
 import fr.pacman.core.property.PropertiesHandler;
 import fr.pacman.core.property.project.ProjectProperties;
 import fr.pacman.start.main.GenStart;
+import fr.pacman.start.ui.PropertiesWizardStartPage.SqlAddColumn;
 import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.exception.PacmanInitModelException;
 import fr.pacman.start.ui.util.SiriusUtil;
@@ -160,11 +161,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		properties.put(ProjectProperties.c_project_fetchingStrategy, _pageOne.getSpi4jfetchingStrategy());
 		properties.put(ProjectProperties.c_project_security, _pageOne.getSpi4jSecurity());
 		properties.put(ProjectProperties.c_project_databases, _pageOne.getDatabases());
-
-//		// On rajoute les proprietes additionnelles si elles existent.
-//		properties.putAll(_pageOne.getSqlAddColumnsDetail());
-//		properties.putAll(_pageOne.getAddLibrariesDetail());
-//		properties.put(ProjectProperties.c_, _pageOne.getSpi4jRsCdi());
+		properties.putAll(_pageOne.getSqlAddColumns());
 		return properties;
 	}
 

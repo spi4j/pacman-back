@@ -16,7 +16,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 public class FormUtil {
 
 	private static final String c_patternNumeric = "[0-9[\b]]";
-	private static final String c_patternAlphaNumeric = "[a-zA-Z0-9]";
+	private static final String c_patternAlphaNumeric = "[a-zA-Z0-9[\b]]";
 	private static final String c_patternProjectKey = "[a-zA-Z0-9[\b\\_\\-]]";
 	private static final String c_patternPackageKey = "[a-z0-9[\b\\.]]";
 	private static final String c_patternSqlOptionKey = "[a-zA-Z0-9[\b\\_]]";
@@ -178,8 +178,8 @@ public class FormUtil {
 	 */
 	public static boolean checkForOracleVersion(final List<String> _bdNames) {
 		if (_bdNames.contains("Oracle") && _bdNames.contains("Oracle_32"))
-			return Boolean.FALSE;
-		return Boolean.TRUE;
+			return false;
+		return true;
 	}
 
 	/**
@@ -207,14 +207,14 @@ public class FormUtil {
 		IWorkspaceRoot v_root = ResourcesPlugin.getWorkspace().getRoot();
 
 		if (null == p_appliName || p_appliName.isEmpty())
-			return Boolean.TRUE;
+			return true;
 
 		File v = new File(v_root.getLocationURI().getPath() + File.separator + p_appliName);
 
 		if (v.exists())
-			return Boolean.FALSE;
+			return false;
 
-		return Boolean.TRUE;
+		return true;
 	}
 
 	/**
@@ -228,7 +228,10 @@ public class FormUtil {
 	 * @return
 	 */
 	public static boolean checkForDatabase(final String p_databases) {
-		return Boolean.TRUE;
+		String databases = p_databases.replaceFirst("oracle", "");
+		if (databases.indexOf("oracle") != -1)
+			return false;
+		return true;
 	}
 
 	/**
@@ -242,8 +245,8 @@ public class FormUtil {
 	public static boolean checkForEmbeddedDatabase(final List<String> p_databases, final String p_h2Embedded) {
 
 		if (Boolean.valueOf(p_h2Embedded) && p_databases.size() > 1)
-			return Boolean.FALSE;
+			return false;
 
-		return Boolean.TRUE;
+		return true;
 	}
 }

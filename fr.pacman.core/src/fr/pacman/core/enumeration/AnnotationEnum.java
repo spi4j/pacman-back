@@ -54,7 +54,9 @@ public enum AnnotationEnum {
 
 	LITERAL_PARAM_VALUES("LITERAL_PARAM_VALUES", ModelEnum.DSL_ENTITY, true),
 
-	LITERALS_PARAMS_STRUCT("LITERALS_PARAMS_STRUCT", ModelEnum.DSL_ENTITY, true);
+	LITERALS_PARAMS_STRUCT("LITERALS_PARAMS_STRUCT", ModelEnum.DSL_ENTITY, true),
+	
+	CASCADE_TYPE("CASCADE_TYPE", ModelEnum.DSL_ENTITY, true);
 
 	/** Le nom de l'annotation */
 	private String _annotationName;

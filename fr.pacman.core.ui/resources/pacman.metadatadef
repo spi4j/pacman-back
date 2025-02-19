@@ -7,126 +7,131 @@
   <metaDataDefinitions 
      technicalid="_dC7qQL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_NAME" 
-     body="Le nom tel que défini en base de données." 
+     body="Nom défini en base de données." 
      condition="aql:Sequence{'entity','attribute'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_Cpag8L3sEe-BE5WUAFqNvQ"
      title="PHYSICAL_NAME"
-     body="Le nom tel que défini en base de données. Cette métadonnée sera également utilisée pour les index et contraintes de clé étrangère (sauf si PHYSICAL_SHORT_NAME est précisé)." 
+     body="Nom défini en base de données. Egalement utilisé pour les index et contraintes de clé étrangère (sauf si PHYSICAL_SHORT_NAME est précisé)." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>/>
   <metaDataDefinitions 
      technicalid="_gaOWML1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_SHORT_NAME" 
-     body="Le nom utilisé pour les noms d'index ou de contraintes en base de données (cas de très longues tables)." 
+     body="Nom utilisé pour les noms d'index ou de contraintes en base de données (longues tables)." 
      condition="aql:Sequence{'entity','reference'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_hBCekL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_DEFAULT" 
-     body="Indique une valeur par défaut dans la base de données si aucune valeur n'a été préalablement précisée." 
+     body="Valeur par défaut dans la base de données si aucune valeur n'a été précisée." 
      condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_hUgNIL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_CHECK" 
-     body="Affecte des contraintes de vérification pour insertion ou modification dans la base de données." 
+     body="Contrainte de vérification pour insertion ou modification dans la base de données." 
      condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_jNrVQL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_UNIQUE" 
-     body="Indique une contrainte d'unicité pour la colonne dans la base de données." 
+     body="Contrainte d'unicité pour la colonne dans la base de données." 
      condition="aql:Sequence{'attribute'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_jpDCoL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_SIZE" 
-     body="La taille de l'attribut en base de données (pour une chaine de caractère ou un nombre)." 
+     body="Taille de l'attribut en base de données (chaine de caractère ou un nombre)." 
      condition="aql:Sequence{'attribute'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_j4oWwL1bEe-jcvmoMOdyBg" 
      title="VERSION" 
-     body="Permet de gérer la version de l'entité (implique une gestion automatique du Lock Optimiste)." 
+     body="Version de l'entité (implique une gestion automatique du Lock Optimiste)." 
      condition="aql:Sequence{'system,category,dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_kGDHsL1bEe-jcvmoMOdyBg" 
      title="REFERENTIAL" 
-     body="Indique si un DTO (ou ensemble de DTO) sera stocké dans un cache pour les méthodes 'findById' et 'findAll' du service associé au DTO." 
+     body="Cache pour les méthodes 'findById' et 'findAll' du service associé au DTO." 
      condition="aql:Sequence{'system','dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_kWYpwL1bEe-jcvmoMOdyBg" 
      title="NOT_PERSISTENT" 
-     body="Indique que le DTO (ou ensemble de DTO) n'est pas l'image d'une Entité et ne doit= avoir de CRUD automatiquement généré." 
+     body="DTO (ou ensemble de DTO) ne doit pas avoir de CRUD automatiquement généré." 
      condition="aql:Sequence{'system','category','dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_km05gL1bEe-jcvmoMOdyBg" 
      title="COMPUTED" 
-     body="Indique que l'élément sera calculé par le développeur. L'attribut ou la référence ne génèrera pas d'attribut dans le DTO, ne possèdera pas de setter et le getter sera en user code." 
+     body="Elément sera calculé par le développeur. Pas d'attribut dans le DTO, ne possèdere pas de setter et le getter, sera en user code." 
      condition="aql:Sequence{'attribute','reference'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_k15QQL1bEe-jcvmoMOdyBg" 
      title="USER" 
-     body="Indique le DTO qui représente l'utilisateur connecté à l'application. Ce DTO doit contenir un attribut (calculé ou non) appelé 'identifiant'." 
+     body="DTO qui représente l'utilisateur connecté à l'application. Ce DTO doit contenir un attribut (calculé ou non) appelé 'identifiant'." 
      condition="aql:Sequence{'dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_lLBywL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS" 
-     body="Indique qu'une opération ne peut s'exécuter que si l'utilisateur possède certaines permissions." 
+     body="Opération à exécuter que si l'utilisateur possède des permissions." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_la-TQL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS_OR" 
-     body="Indique qu'une opération ne peut s'exécuter que si l'utilisateur possède certaines permissions." 
+     body="Opération à exécuter que si l'utilisateur possède des permissions." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_lvyssL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS_AND" 
-     body="Indique qu'une opération ne peut s'exécuter que si l'utilisateur possède certaines permissions." 
+     body="Opération à exécuter que si l'utilisateur possède des permissions." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_mAQKkL1bEe-jcvmoMOdyBg" 
      title="VOL_NB_ROWS" 
-     body="Peuplement de base : indique le nombre d'entités à créer pour cette table." 
+     body="Peuplement de base : indique le nombre d'entités à créer pour une table." 
      condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_mPhVoL1bEe-jcvmoMOdyBg" 
      title="VOL_MIN_OCCURS" 
-     body="Peuplement de base : indique le nombre minimum d'éléments pour cette relation." 
+     body="Peuplement de base : indique le nombre minimum d'éléments pour la relation." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_me8RsL1bEe-jcvmoMOdyBg" 
      title="VOL_MAX_OCCURS" 
-     body="Peuplement de base : indique le nombre maximum d'éléments pour cette relation." 
+     body="Peuplement de base : indique le nombre maximum d'éléments pour la relation." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_mu0gwL1bEe-jcvmoMOdyBg" 
      title="ACCEPT_UNAUTHENTIFIED" 
-     body="Indique que l'opération accepte un utilisateur non encore authentifié (méthode de connexion, etc...)" 
+     body="Opération qui accepte un utilisateur non encore authentifié (méthode de connexion, etc...)" 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_nA1d0L1bEe-jcvmoMOdyBg" 
      title="PAGE_SIZE" 
-     body="Indique le nombre d'éléments (DTO) à retourner par page si le service REST est paginé." 
+     body="Nombre d'éléments (DTO) à retourner par page si le service REST est paginé." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_pvUA0L1cEe-jcvmoMOdyBg" 
      title="AUTH_TOKEN" 
-     body="Indique si l'opération REST est dédiée à la récupération d'un jeton d'authentification (valeurs possibles : auth/refresh)." 
+     body="Opération REST dédiée à la récupération d'un jeton d'authentification : [AUTH|REFRESH])." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qLSyML1cEe-jcvmoMOdyBg" 
      title="API_VERSION" 
-     body="Indique au gérérateur de ne pas prendre en compte la version précisée dans la modélisation pour la constitution de l'URI sur la ressource (valeurs possibles : )." 
+     body="Ne prend pas en compte la version précisée dans la modélisation pour l'URI sur la ressource." 
      condition="aql:Sequence{'component'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qdmDIL1cEe-jcvmoMOdyBg" 
      title="LIBRARY_NAME" 
-     body="Dans le cadre de l'utilisation d'une librairie, indique le nom exact de la librairie (nom de l'application)." 
+     body="Nom exact de la librairie : [nom de l'application])." 
      condition="aql:Sequence{'dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qsxHkL1cEe-jcvmoMOdyBg" 
      title="LITERAL_PARAM_VALUE" 
-     body="Pour une enumération complexe, affecte la valeur de chaque paramètre attendu. ex : 'toto',2,false,4.5F" 
+     body="Enumération complexe, affecte la valeur de chaque paramètre attendu. ex : ['toto',2,false,4.5F]" 
      condition="aql:Sequence{'literal'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_q_mkAL1cEe-jcvmoMOdyBg" 
      title="LITERALS_PARAMS_STRUCT" 
-     body="Pour une enumération complexe, affecte le type de chaque paramètre attendu. ex : param1:String,param2:Integer,param3:Boolean,param4:Float." 
+     body="Enumération complexe, affecte le type de chaque paramètre attendu. ex : [param1:String,param2:Integer,param3:Boolean,param4:Float]." 
      condition="aql:Sequence{'enumeration'}->includes(self.eClass().name.toLower())"/>
+  <metaDataDefinitions 
+     technicalid="_tmSXkO4eEe-hJvFgO8ER5w"
+     title="CASCADE_TYPE" 
+     body="Relations entre entités sous spring : [ALL|PERSIST|MERGE|REMOVE|REFRESH|DETACH]." 
+     condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
 </metadatadef:MetaDataDefinitions>

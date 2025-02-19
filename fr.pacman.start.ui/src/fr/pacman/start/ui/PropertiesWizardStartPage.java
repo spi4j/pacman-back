@@ -22,14 +22,13 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import fr.pacman.start.ui.PropertiesPage2.AddColumn;
+import fr.pacman.core.property.project.ProjectProperties;
 import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.util.FormUtil;
 import fr.pacman.start.ui.util.ValidatorUtil;
@@ -55,14 +54,13 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _requirementPrefix = "";
 	private String _requirementLevel = "";
 	private String _requirementInitVersion = "";
-	private String _spi4jRsCdi = "false";
-	private String _spi4jfetchingStrategy = "false";
-	private String _spi4jSecurity = "false";
-	private String _projectCrud = "false";
+	private String _spi4jRsCdi = "";
+	private String _spi4jfetchingStrategy = "";
+	private String _spi4jSecurity = "";
+	private String _projectCrud = "";
 	private String _databases = "";
-//	private String _ = "";
-//	private String _ = "";
-//	private String _ = "";
+
+	private List<SqlAddColumn> _sqlAddColumns = new ArrayList<>();
 
 	/**
 	 * Constructeur avec la définition de l'en-tête pour le panneau global de
@@ -122,30 +120,25 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		registerWidget("txt_sqlTPrefix", addTextDbTablePrefix(database2));
 		// registerWidget("txt_sqlTSpace", addTextDbTableSpace(database2));
 		registerWidget("txt_sqlTSpace", addTextDbTableSchema(database2));
-
 		registerWidget("txt_reqPrefix", addTextReqPrefix(options1));
 		registerWidget("txt_reqLevel", addTextReqLevel(options1));
 		registerWidget("cb_reqInitVerion", addComboReqInitVersion(options1));
-
-		registerWidget("w16", addCheckBoxCdi(options2));
-		registerWidget("w17", addCheckBoxSpi4jConfig(options2));
-		registerWidget("w18", addCheckBoxFetchStrategy(options2));
-		registerWidget("w19", addCheckBoxSecurity(options2));
-		registerWidget("w20", addCheckBoxCrud(options2));
-		registerWidget("w21", addCheckBoxBatch(options2));
-
-		registerWidget("w22", project1);
-		registerWidget("w23", project2);
-		registerWidget("w25", database2);
-		registerWidget("w26", database3);
-		registerWidget("w27", options1);
-		registerWidget("w28", options2);
-
-		registerWidget("w29", containers.get("project"));
-		registerWidget("w30", containers.get("database"));
-		registerWidget("w31", containers.get("various"));
-
-		addTable(database3);
+		registerWidget("ck_jerseyCdi", addCheckBoxCdi(options2));
+		registerWidget("ck_fileConfig", addCheckBoxSpi4jConfig(options2));
+		registerWidget("ck_fetchStrategy", addCheckBoxFetchStrategy(options2));
+		registerWidget("ck_security", addCheckBoxSecurity(options2));
+		registerWidget("ck_crud", addCheckBoxCrud(options2));
+		registerWidget("ck_batch", addCheckBoxBatch(options2));
+		registerWidget("grp_project1", project1);
+		registerWidget("grp_project2", project2);
+		registerWidget("grp_database2", database2);
+		registerWidget("grp_database3", database3);
+		registerWidget("grp_options1", options1);
+		registerWidget("grp_options2", options2);
+		registerWidget("tab_project", containers.get("project"));
+		registerWidget("tab_database", containers.get("database"));
+		registerWidget("tab_various", containers.get("various"));
+		registerWidget("tbl_addSqlColumns", addTable(database3));
 
 		setControl(container);
 		setPageComplete(false);
@@ -154,12 +147,22 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
-	 * 
+	 * Initialisation des données par défaut pour l'ensemble des valeurs de retour.
+	 * Désactivation de certains composants pour l'arrivée sur le formulaire de
+	 * création.
 	 */
 	private void initWithDefault() {
 		_javaVersion = "17";
 		_typeProject = "xx";
 		_typeFramework = "springboot";
+		_spi4jRsCdi = "false";
+		_spi4jfetchingStrategy = "false";
+		_spi4jSecurity = "false";
+		_projectCrud = "false";
+
+		getWidget("ck_jerseyCdi").setEnabled(false);
+		getWidget("ck_fileConfig").setEnabled(false);
+		getWidget("ck_fetchStrategy").setEnabled(false);
 	}
 
 	/**
@@ -281,6 +284,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				for (String item : container.get_selected().getItems()) {
 					_databases += "," + item.toLowerCase();
 				}
+				computeValidity();
 			}
 		});
 	}
@@ -360,7 +364,6 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				widgetSelected(p_e);
 			}
 		});
-
 		return cbx;
 	}
 
@@ -393,6 +396,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private Text addTextDbTableSpace(final Composite p_parent) {
 		final Text txt = addText(p_parent, "Tablespace pour les indexs (Oracle)", "", "");
 		txt.addKeyListener(new KeyListener() {
@@ -569,10 +573,17 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
+	 * Création de la table pour l'ajout de colonnes supplémentaires au niveau de la
+	 * base de données. ces champs sont à rajouter automatiquement sur chasue
+	 * entité. Pour l'instant impossible d'arriver à lire les données insérées dans
+	 * le tableau, on a donc recours à un hack en enregistrant l'ensemble des
+	 * widgets non seulement au niveau de la table mais aussi dans une liste de
+	 * {@link SqlAddColumn}. Il est ainsi possible de récupérer les entrées lors du
+	 * click utilisateur sur le bouton "finish".
 	 * 
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 */
-	private void addTable(final Composite p_parent) {
+	private Table addTable(final Composite p_parent) {
 		Table table = addTable(p_parent, 200);
 
 		TableColumn column = new TableColumn(table, SWT.NONE);
@@ -607,9 +618,12 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 		for (int i = 0; i < 10; i++)
 			addTableItem(table);
+
+		return table;
 	}
 
 	/**
+	 * Enregistrement des lignes pour la table.
 	 * 
 	 * @param p_parent le composite parent, en loccurence, la table.
 	 */
@@ -618,18 +632,19 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 		TableEditor editor = new TableEditor(p_parent);
 		CCombo cbx = new CCombo(p_parent, SWT.NONE);
-		cbx.add("XtopSup", 0);
-		cbx.add("XdMaj", 1);
-		cbx.add("Char", 2);
-		cbx.add("String", 3);
-		cbx.add("Integer", 4);
-		cbx.add("Long", 5);
-		cbx.add("Double", 6);
-		cbx.add("Float", 7);
-		cbx.add("Date", 8);
-		cbx.add("Timestamp", 9);
-		cbx.add("Time", 10);
-		cbx.add("Boolean", 11);
+		cbx.add("", 0);
+		cbx.add("XtopSup", 1);
+		cbx.add("XdMaj", 2);
+		cbx.add("Char", 3);
+		cbx.add("String", 4);
+		cbx.add("Integer", 5);
+		cbx.add("Long", 6);
+		cbx.add("Double", 7);
+		cbx.add("Float", 8);
+		cbx.add("Date", 9);
+		cbx.add("Timestamp", 10);
+		cbx.add("Time", 11);
+		cbx.add("Boolean", 12);
 		editor.grabHorizontal = true;
 		editor.setEditor(cbx, p_item, 0);
 
@@ -638,11 +653,22 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		Text txtDefault = addTableText(p_parent, p_item, 3);
 		Button cbxNull = addTableCheckBox(p_parent, p_item, 4);
 		Text txtDescription = addTableText(p_parent, p_item, 5);
+
+		// hack pour récupération des données.
+		SqlAddColumn row = new SqlAddColumn();
+		row._name = txtName;
+		row._comment = txtDescription;
+		row._default = txtDefault;
+		row._type = cbx;
+		row._size = txtLength;
+		row._notNull = cbxNull;
+		_sqlAddColumns.add(row);
+
 		cbx.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (cbx.getSelectionIndex() == 0) {
+				if (cbx.getSelectionIndex() == 1) {
 					txtName.setText("XTOPSUP");
 					txtName.setEnabled(false);
 					txtLength.setText("1");
@@ -650,9 +676,9 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtDefault.setText("current_date");
 					txtDefault.setEnabled(false);
 					cbxNull.setEnabled(false);
-					txtDescription.setText("Date de mise a jour de la ligne");
-				}
-				if (cbx.getSelectionIndex() == 1) {
+					txtDescription.setText("Date de mise à jour de la ligne");
+					txtName.getParent();
+				} else if (cbx.getSelectionIndex() == 2) {
 					txtName.setText("XDMAJ");
 					txtName.setEnabled(false);
 					txtLength.setText("1");
@@ -661,8 +687,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtDefault.setEnabled(false);
 					cbxNull.setEnabled(false);
 					txtDescription.setText("Indicateur de suppression logique");
-				}
-				if (cbx.getSelectionIndex() > 1) {
+				} else {
 					txtName.setText("");
 					txtLength.setText("");
 					txtDefault.setText("");
@@ -672,6 +697,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtName.setEnabled(true);
 					txtDefault.setEnabled(true);
 				}
+				computeValidity();
 			}
 
 			@Override
@@ -682,6 +708,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		txtName.addKeyListener(new KeyListener() {
 			@Override
 			public void keyReleased(final KeyEvent p_e) {
+				computeValidity();
 			}
 
 			@Override
@@ -750,16 +777,25 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		setMessage(ValidatorUtil.INSTANCE.getMessage(), ValidatorUtil.INSTANCE.getMessageType());
 		setPageComplete(ValidatorUtil.INSTANCE.isValid());
 	}
-	
+
 	/**
 	 * Vérifie la validité des champs additionnels pour les tables sql.
 	 */
 	private boolean computeAdditionalFieldsValidity() {
-
-//		for (AddColumn v_addColumn : _sqlAddColumns) {
-//			if (v_addColumn._name.isEmpty())
-//				return false;
-//		}
+		int xtopsup = 0;
+		int xdmaj = 0;
+		for (SqlAddColumn sqlAddColumn : _sqlAddColumns) {
+			if ("xtopsup".equalsIgnoreCase(sqlAddColumn._name.getText().trim()))
+				xtopsup++;
+			if ("xdmaj".equalsIgnoreCase(sqlAddColumn._name.getText().trim()))
+				xdmaj++;
+			if (!sqlAddColumn._type.getText().isEmpty() && sqlAddColumn._name.getText().isEmpty())
+				return false;
+			if (!sqlAddColumn._name.getText().isEmpty() && sqlAddColumn._type.getText().isEmpty())
+				return false;
+		}
+		if (xtopsup > 1 || xdmaj > 1)
+			return false;
 		return true;
 	}
 
@@ -908,6 +944,67 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getProjectCrud() {
 		return _projectCrud;
+	}
+
+	/**
+	 * On transfert l'ensemble des données du tableau dans une classe interne afin
+	 * de rendre les données plus lisibles pour la classe chargée de la création du
+	 * projet. Pour xdmaj et xtopsup il n'y a même pas besoin d'aller lire les
+	 * informations car on les connait déjà.
+	 * 
+	 * @return une liste contenant les données pour l'ensemble des champs
+	 *         supplémentaires (colonnes) pour la base de donénes
+	 */
+	public Map<String, String> getSqlAddColumns() {
+		Map<String, String> sqlAddColumns = new HashMap<>();
+		String sqlFields = "";
+
+		for (SqlAddColumn sqlAddColumn : _sqlAddColumns) {
+			if ("xdmaj".equalsIgnoreCase(sqlAddColumn._name.getText().trim())) {
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajName, "XDMAJ");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajComment, "Date de mise à jour de la ligne.");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajDefault, "current_date");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajNotnull, "true");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajSize, "");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXdmajType, "Date");
+				sqlFields += ("," + ProjectProperties.c_sql_tableXdmaj);
+			} else if ("xtopsup".equalsIgnoreCase(sqlAddColumn._name.getText().trim())) {
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique.");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupDefault, "0");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupNotnull, "true");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupSize, "1");
+				sqlAddColumns.put(ProjectProperties.c_sql_tableXtopsupType, "XtopSup");
+				sqlFields += ("," + ProjectProperties.c_sql_tableXtopsup);
+			} else if (!sqlAddColumn._name.getText().isEmpty() && !sqlAddColumn._name.getText().isBlank()) {
+				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".name", sqlAddColumn._name.getText().trim());
+				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".comment", sqlAddColumn._comment.getText().trim());
+				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".default", sqlAddColumn._default.getText().trim());
+				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".notNull", "true");
+				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".size", sqlAddColumn._size.getText().trim());
+				sqlAddColumns.put(sqlAddColumn.getAssociatedKey() + ".type", sqlAddColumn._type.getText());
+				sqlFields += ("," + ProjectProperties.c_sql_tableXField + "." + sqlAddColumn._name.getText().trim());
+			}
+		}
+		sqlAddColumns.put(ProjectProperties.c_sql_fields, sqlFields.replaceFirst(",", ""));
+		return sqlAddColumns;
+	}
+
+	/**
+	 * Classe interne pour le stockage des champs supplémentaires dans les entités
+	 * de la base de données.
+	 */
+	class SqlAddColumn {
+		Text _name;
+		Text _size;
+		Text _comment;
+		Text _default;
+		Button _notNull;
+		CCombo _type;
+
+		String getAssociatedKey() {
+			return ProjectProperties.c_sql_tableXField + "." + _name.getText().trim();
+		}
 	}
 
 	/**

@@ -107,17 +107,17 @@
   <metaDataDefinitions 
      technicalid="_pvUA0L1cEe-jcvmoMOdyBg" 
      title="AUTH_TOKEN" 
-     body="Indique si l'opération REST est dédiée à la récupération d'un jeton d'authentification." 
+     body="Indique si l'opération REST est dédiée à la récupération d'un jeton d'authentification : [AUTH|REFRESH])." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qLSyML1cEe-jcvmoMOdyBg" 
      title="API_VERSION" 
-     body="Indique au gérérateur de ne pas prendre en compte la version précisée dans la modélisation pour la constitution de l'URI sur la ressource." 
+     body="Indique au gérérateur de ne pas prendre en compte la version précisée dans la modélisation pour la constitution de l'URI sur la ressource (valeurs possibles : )." 
      condition="aql:Sequence{'component'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qdmDIL1cEe-jcvmoMOdyBg" 
      title="LIBRARY_NAME" 
-     body="Dans le cadre de l'utilisation d'une librairie, indique le nom exact de la librairie (nom de l'application)." 
+     body="Dans le cadre de l'utilisation d'une librairie, indique le nom exact de la librairie : [nom de l'application])." 
      condition="aql:Sequence{'dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qsxHkL1cEe-jcvmoMOdyBg" 
@@ -129,4 +129,9 @@
      title="LITERALS_PARAMS_STRUCT" 
      body="Pour une enumération complexe, affecte le type de chaque paramètre attendu. ex : param1:String,param2:Integer,param3:Boolean,param4:Float." 
      condition="aql:Sequence{'enumeration'}->includes(self.eClass().name.toLower())"/>
+  <metaDataDefinitions 
+     technicalid="_tmSXkO4eEe-hJvFgO8ER5w"
+     title="CASCADE_TYPE" 
+     body="Pour les relations entre entités sous spring : [ALL|PERSIST|MERGE|REMOVE|REFRESH|DETACH]." 
+     condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
 </metadatadef:MetaDataDefinitions>
