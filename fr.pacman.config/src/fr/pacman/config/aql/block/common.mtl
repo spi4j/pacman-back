@@ -8,7 +8,7 @@
 [comment écriture du type spécial Binary pour le projet./]
 [template public binaryType (any : ecore::EObject)]
   [any.classHeader(any.namePackageType())/]
-  
+  [any.defaultImports()/]
   public class [any.nameTypeBinary().nameClassType()/]
   {
 	  

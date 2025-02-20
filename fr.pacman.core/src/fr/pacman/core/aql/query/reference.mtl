@@ -1,5 +1,6 @@
 [module reference(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
-					'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
@@ -9,14 +10,20 @@
 [import fr::pacman::core::service::DatabaseUtils/]
 
 [comment liste des requêtes possibles au niveau des références pour les entités./]
-
-[comment retourne le type xxxx ./] 
-[query public structuredType(r : environment::Reference, e : entity::Entity) : environment::StructuredType = 
-	if (r.containingType.oclAsType(entity::Entity) = e) then r.referencedType else r.containingType endif/]  
 	
-[comment raccourci pour l'obtention de l'entité dans le cadre des références (toujours une entité) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]	
+[comment raccourci pour l'obtention de l'entité dans le cadre des références (toujours une entité)./]
+[comment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]	
 [query public referencedEntity(r : environment::Reference, e : entity::Entity) : entity::Entity = 
 	r.structuredType(e).oclAsType(entity::Entity)/]
+
+[comment raccourci pour l'obtention du dto dans le cadre des références (toujours un dto)./]
+[comment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]		
+[query public referencedDto(r : environment::Reference, d: environment::DTO) : environment::DTO = 
+	r.structuredType(d).oclAsType(environment::DTO)/]
+	
+[comment retourne le type xxxx (si fonctionne mal peut toujours comparer les identifiants techniques !)./] 
+[query private structuredType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+	if (r.containingType = st) then r.referencedType else r.containingType endif/]  
 
 [comment retourne les références triées par nom./]	
 [query private sortedByName(c : Sequence(environment::Reference)) : OrderedSet(environment::Reference) = 
@@ -34,15 +41,17 @@
 [query public isOptional(r : environment::Reference) : Boolean = if (r.exists()) then r.multiplicity = 
   environment::MultiplicityKind::ZERO_ONE else true endif/]
 
-[comment retourne toutes les références unidirectionnelles niveau entité  
+[comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto
 		-> pour spring / spring boot uniquement. /]	
-[query public referencesSB(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.references
+[query public referencesSB(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+	st.references
 	->select(o | (o.oppositeOf = null))		
-	->union(e.eContainer(entity::Root).eAllContents(environment::Reference)
+	->union(st.eContainer( if (st.oclIsKindOf(entity::Entity)) 
+		then entity::Root else soa::System endif)
+		.eAllContents(environment::Reference)
 	->select(o | o.oppositeOf = null 
 		and o.isMultiple() 
-		and o.referencedType = e
+		and o.referencedType = st
 		and not (o.containingType = o.referencedType)))			
 	->sortedByName()/]
 
@@ -93,14 +102,27 @@
 	->do_skipDuplicates()
 	->sortedByName()/]
 
-[comment écriture du type complet pour les entités référencées./]
-[query public referencedType(r : environment::Reference, e : entity::Entity) : String = 
-  if (r.isOptional()) then 'Optional<' + r.type(e) + '>' else r.type(e) endif /]
+[comment écriture du type complet pour les entités ou les dtos référencés (1/2)./]
+[query public referencedType(r : environment::Reference, st : environment::StructuredType) : String = 
+  if (r.isOptional()) then 'Optional<' + r.type(st) + '>' else r.type(st) endif /]
   
-[comment écriture du type complet pour les entités référencées./]
-[query private type(r : environment::Reference, e : entity::Entity) : String = 
-  if (r.isMultiple() and r.containingType = e) then 'List<' +  r.referencedEntity(e).nameClassEntityImpl() + '>' 
-  else r.referencedEntity(e).nameClassEntityImpl() endif /]
+[comment écriture du type complet pour les entités ou les dtos référencés (2/2)./]
+[query private type(r : environment::Reference, st : environment::StructuredType) : String = 
+  if (r.isMultiple() and r.containingType = st) then 'List<' + if (st.oclIsKindOf(entity::Entity)) then 
+  r.referencedEntity(st).nameClassEntityImpl() else r.referencedDto(st.oclAsType(environment::DTO))
+  .nameClassDtoImpl() endif + '>' else if (st.oclIsKindOf(entity::Entity)) then  r.referencedEntity(st).nameClassEntityImpl() 
+  else r.referencedDto(st.oclAsType(environment::DTO)).nameClassDtoImpl() endif endif /]
+  
+[comment écriture du type complet pour les xtos référencés./]
+[query public referencedRsType(r : environment::Reference, st : environment::StructuredType) : String = 
+  if (r.isMultiple() and r.containingType = st) then 'List<' +  r.referencedDto(st.oclAsType(environment::DTO))
+  .nameClassXtoImpl() + '>' else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]
+
+
+
+
+
+
 
 
 
@@ -167,29 +189,6 @@
 [comment query public starOwnedAllNavigability(e : entity::Entity) : OrderedSet(environment::Reference) = e.references->select(r | r.isMultiple() 
 	and r.referencedType = e and r.oppositeOf = null)->sort()/]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [comment retourne les références d'une entité (0,*)(1) ainsi que les références (0,*)(1,*) vers cette entité, navigables ou non./]
 [comment query public noStarAndStarAllNavigability(e : entity::Entity) : OrderedSet(environment::Reference) = 
 	e.noStarAllNavigability()->union(e.starAllNavigability())->asSequence()->sortedByName() /]
@@ -233,25 +232,6 @@
 		->sortedByName()
 	endif
 /]
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 [template public blockHierarchy(r : environment::Reference) post(self.trim())]

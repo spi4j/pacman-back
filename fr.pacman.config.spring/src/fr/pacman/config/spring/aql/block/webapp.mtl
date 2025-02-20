@@ -40,6 +40,7 @@
 [comment écriture du boostrap pour l'application./]
 [template public applicationBoostrap(any : ecore::EObject)]
   [any.classHeader(null)/]
+  [any.defaultImports()/]
   import org.springframework.boot.CommandLineRunner;
   import org.springframework.boot.SpringApplication;
   import org.springframework.boot.autoconfigure.SpringBootApplication;

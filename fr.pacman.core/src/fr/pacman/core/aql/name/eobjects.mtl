@@ -40,8 +40,8 @@
 [comment retourne le nom pour un service de type soa./]
 [query public name(s : soa::Service) : String = s.name.replaceAll('(?i)' + s.suffixService(), ' ').sanitize()/]
 
-[comment retourne le nom de la clé primaire d'une entitée / dto dans les énumérations./]
-[query public nameSimplePropertyID(e : entity::Entity) : String = e.name.safeCamelCase() + e.suffixIdPk()/]
+[comment retourne le nom de la clé primaire d'une entitée dans les énumérations./]
+[query public nameSimplePropertyID(e : entity::Entity) : String = e.name().safeCamelCase() + e.suffixIdPk()/]
   
 [comment retourne le nom formatté d'un attribut./]
 [query public nameAttribute(a : environment::Attribute) : String = a.name().apply_attributeDefault()/]

@@ -38,7 +38,7 @@
 [comment écriture de la ligne pour la liste des colonnes de la table./]
 [query private writeColumns (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = e.namePrimaryKey() + ',' 
 	+ e.attributesNoPKAndNoComputed()->collect(o : environment::Attribute | o.nameColumn())->sep(',') + ',' 
-	+ rs->collect(o | o.nameReferenceId(o.structuredType(e),o.get_namingIndex(rs)))->sep(',')/]
+	+ rs->collect(o | o.nameReferenceId(o.referencedEntity(e),o.get_namingIndex(rs)))->sep(',')/]
 	
 [comment écriture de la ligne pour la liste des valeurs à insérer dans les colonnes de la table./]
 [query private writeValues (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = ('1,' + e.attributesNoPKAndNoComputed()

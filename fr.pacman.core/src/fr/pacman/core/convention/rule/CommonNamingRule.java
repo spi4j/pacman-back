@@ -39,7 +39,7 @@ public class CommonNamingRule extends PropertiesCategory {
 				PacmanProperty.newRequired(c_idParam_suffixEntity, new String[] { "entity", "" },
 						"Le suffixe des entites"),
 
-				PacmanProperty.newRequired(c_idParam_suffixDto, new String[] { "record", "" },
+				PacmanProperty.newRequired(c_idParam_suffixDto, new String[] { "dto", "" },
 						"Le suffixe des objets métier"),
 
 				PacmanProperty.newRequired(c_idParam_suffixService, new String[] { "service", "" },

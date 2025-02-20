@@ -50,8 +50,8 @@
 [comment écriture de la ligne pour une contrainte sur les clés étrangères./]
 [query private writeForeignKey(e : entity::Entity, r : environment::Reference, idx : Integer, idx2 : Integer, command : String) : String = 'alter table ' 
 	+ e.nameTableSchema().toUpper() +  if (command.equalsIgnoreCase(e.commandCreate())) then ' add' else ' drop' endif + ' constraint ' + e.nameConstraintForeignKey(r, idx).toUpper() 
-	+ if (command.equalsIgnoreCase(e.commandCreate())) then ' foreign key (' + r.nameReferenceId(r.structuredType(e), idx2).toUpper() + ') references ' 
-	+ r.structuredType(e).oclAsType(entity::Entity).nameTableSchema().toUpper() + ' (' +  r.structuredType(e).oclAsType(entity::Entity).namePrimaryKey().toUpper() + ')' 
+	+ if (command.equalsIgnoreCase(e.commandCreate())) then ' foreign key (' + r.nameReferenceId(r.referencedEntity(e), idx2).toUpper() + ') references ' 
+	+ r.referencedEntity(e).oclAsType(entity::Entity).nameTableSchema().toUpper() + ' (' +  r.referencedEntity(e).oclAsType(entity::Entity).namePrimaryKey().toUpper() + ')' 
 	else '' endif/]
 
 [comment écriture de la ligne pour une contrainte sur les clé étrangères de jointure./]

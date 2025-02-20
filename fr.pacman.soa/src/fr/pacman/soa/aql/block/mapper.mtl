@@ -9,15 +9,22 @@
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::property/]
+[import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::common/]
 [import fr::pacman::core::aql::rule::method/]
 
-[comment écriture de la classe utilitaire de mapping pour la couche d'infrastructure./]
+[comment 	écriture de la classe utilitaire de mapping pour la couche d'infrastructure.
+			Le entités (ou dto) sont traitées avec le wrapper 'Optional' si besoin, 
+			aucun contrôle n'est effectué au niveau des types 'primitifs'./]
+			
 [template public mapperIn(d : environment::DTO)]
   [d.classHeader(d.namePackageMapperInImpl())/]
+  [d.defaultImports()/]
   import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
   import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
   
@@ -55,7 +62,8 @@
     * 
     * @throws [d.nameClassMapperExceptionImpl()/] Si le paramètre entity est nul, une exception est lancée pour signaler l'impossibilité de réaliser la conversion.
     */
-    public static [d.nameClassDtoImpl()/] [('to ' + d.suffixDto()).apply_methodDefault()/] (final [d.associatedEntity().nameClassEntityImpl()/] [d.suffixEntity().apply_parameterMethodClassicIn()/])
+    public static [d.nameClassDtoImpl()/] [('to ' + d.suffixDto()).apply_methodDefault()/] 
+      (final [d.associatedEntity().nameClassEntityImpl()/] [d.suffixEntity().apply_parameterMethodClassicIn()/])
     {
         if(null ==[d.suffixEntity().apply_parameterMethodClassicIn()/])
         {
@@ -67,19 +75,56 @@
         [else]
           [d.nameClassDtoImpl()/] [d.suffixDto()/] = new [d.nameClassDtoImpl()/]();
           [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-             [d.suffixDto().apply_variableDefault()/].[a.name().apply_methodSet()/]([d.suffixEntity().apply_parameterMethodClassicIn()/].[a.name().apply_methodGet()/]());
+            [d.writeStandardInDtoMapper(a)/];
           [/for]
-          return [d.suffixDto()/];
-        [/if]  
+          [for (r | d.referencesSB())]
+            [if (not r.isOptional() and not r.isMultiple())]
+              [r.writeReferenceInDtoMapper(d, false)/];
+            [/if]
+            [if (r.isOptional())]
+              
+              if ([d.suffixEntity().apply_parameterMethodClassicIn()/].[r.referencedDto(d).name().apply_methodGet()/]().isPresent()) {
+                  [r.writeReferenceInDtoMapper(d, true)/];
+              }
+                  
+            [/if]
+            [if (r.isMultiple() and d = r.containingType)]
+              [r.writeListInDtoMapper(d)/];
+            [/if]
+          [/for]
+          
+          [protected (d.nameClassDtoImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+               
+          return [d.suffixDto()/];[/if]  
      }
   }
 [/template]
 
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardInDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '())'/]
 
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListInDtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).name().apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))'/]
+
+[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[query private writeReferenceInDtoMapper(r : environment::Reference, d : environment::DTO, optional : Boolean) : String  = 
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + if (optional) 
+  then 'Optional.of(' else '' endif  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixDto()).apply_methodDefault() 
+  + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).name().apply_methodGet() + '()' 
+  + if (optional) then '.get())))' else '))' endif/]
+  
+[query private writeReferenceInEntityMapper(d : environment::DTO) : String  = ''/]
+[query private writeReferenceOutXtoMapper(d : environment::DTO) : String  = ''/]
 
 [comment écriture de la classe utilitaire de mapping pour la couche application./]
 [template public mapperOut(d : environment::DTO)]
   [d.classHeader(d.namePackageMapperOutImpl())/]
+  [d.defaultImports()/]
   import [d.namePackageProject()/].[d.namePackageXtoImpl()/].[d.nameClassXtoImpl()/];
   import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
   

@@ -81,6 +81,7 @@
 [comment écriture de la classe d'exception pour les données rest non trouvées./]
 [template public rsDataNotFoundException(any : ecore::EObject)]
   [any.classHeader(any.namePackageException())/]
+  [any.defaultImports()/]
   
   /**
    * Services REST: Classe minimaliste (à titre d'exemple) pour une exception de
@@ -123,7 +124,7 @@
 [comment écriture de la classe de gestion globale des erreurs pour les api rest./]
 [template public rsExceptionhandler(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
-  
+  [any.defaultImports()/]
   import org.springframework.http.HttpHeaders;
   import org.springframework.http.HttpStatus;
   import org.springframework.http.ResponseEntity;
@@ -185,6 +186,7 @@
 [comment écriture de la classe pour le corps des erreurs sur les api rest./]
 [template public rsErrorBodyResponse(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
+  [any.defaultImports()/]
   
   /**
    * Représente une réponse d'erreur avec un code de statut HTTP et un message d'erreur.
@@ -240,7 +242,7 @@
 [comment écriture de la classe de résolution des statuts (int <-> HTttpStatus) pour les services rest./]
 [template public rsHttpStatusResolver(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
-  
+  [any.defaultImports()/]
   import org.springframework.http.HttpStatus;
   
   /**

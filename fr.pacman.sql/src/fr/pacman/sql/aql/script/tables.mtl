@@ -89,7 +89,7 @@
     [/if]
   [/for]
   [for (r : environment::Reference | rs)]
-    [e.writeIndex(r, dbType, r.nameReferenceId(r.structuredType(e), r.get_namingIndex(rs)), 
+    [e.writeIndex(r, dbType, r.nameReferenceId(r.referencedEntity(e), r.get_namingIndex(rs)), 
     	e.get_counterIDX(e.defaultSqlIndexIncrement()), command)/]
   [/for]
 [/template]
@@ -105,7 +105,7 @@
     [/for]
     [for (r : environment::Reference | rs)]
       [if (r.hasComment())]
-        [r.writeComment(e, r.nameReferenceId(r.structuredType(e), r.get_namingIndex(rs)))/]
+        [r.writeComment(e, r.nameReferenceId(r.referencedEntity(e), r.get_namingIndex(rs)))/]
       [/if]
     [/for]
   [/if]
@@ -166,7 +166,7 @@
 	+ a.writeEndLine(dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT' + '\'' + a.get_metaPhysicalDefault() + '\'' else '' endif + ','/]
 
 [comment écriture de la ligne pour chacune des tables référencées./]
-[query private writeReference(r : environment::Reference, e : entity::Entity, dbType : String, idx : Integer) : String = r.nameReferenceId(r.structuredType(e),idx).toUpper() 
+[query private writeReference(r : environment::Reference, e : entity::Entity, dbType : String, idx : Integer) : String = r.nameReferenceId(r.referencedEntity(e),idx).toUpper() 
 	+ ' ' + r.typeColumnRef(dbType) + r.writeEndLine(dbType) + ','/]
 
 [comment écriture d'un segment commun pour certaines lignes./]

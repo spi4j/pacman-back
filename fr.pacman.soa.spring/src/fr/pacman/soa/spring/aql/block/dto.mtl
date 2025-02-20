@@ -1,4 +1,5 @@
 [module dto(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0', 
 				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
@@ -6,16 +7,24 @@
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::resources/]	
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::method/]
+[import fr::pacman::core::aql::rule::attribute/]
 
 [comment écriture de l'implémentation pour l'objet métier (dto / xto)./]
 [template public implementation(d : environment::DTO)]
   [d.classHeader(d.namePackageDtoImpl())/]
-  
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [d.defaultImports()/]
+    
+  [/protected]
   [d.commentClass()/]
   public [if (d.immutable())]record[else]class[/if] [d.nameClassDtoImpl()/] [if (d.immutable())][d.dsq()/][/if]
    {
@@ -23,38 +32,75 @@
       [if (not d.immutable())]
         // CONSTANTES
         
-        [protected ('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') startTagPrefix('// ') endTagPrefix('// ')]
+        [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
         
         [/protected]
         
         // ATTRIBUTS
+        [let rs = d.referencesSB()]
         
-        ['Id'.commentSingleLine()/]
-        //private [d.defaultTypePk()/] [comment d.writePk()/];
-        
-        [for (a : environment::Attribute | d.attributesNoPK())]
-          [a.comment().commentSingleLine()/]
-          private [a.type()/] [a.nameAttribute()/];
+          ['Id'.commentSingleLine()/]
+          private [d.defaultTypePk()/] [d.writePk()/];
           
-        [/for]
-        
-        [for (a : environment::Attribute | d.attributesNoPK())]
-          [a.commentGet()/]
-          public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
+          [for (a : environment::Attribute | d.attributesNoPK())]
+            [a.comment().commentSingleLine()/]
+            private [a.type()/] [a.nameAttribute()/];
+            
+          [/for]
+          [for (r : environment::Reference | rs)]
+            [r.referencedDto(d).comment().commentSingleLine()/]
+            private [r.referencedType(d)/] [r.referencedDto(d).name().apply_attributeDefault()/];
+            
+          [/for]
+          
+          /**
+           * Retourne l'identifiant pour le dto. 
+           *
+           * @return la valeur de l'identifiant.
+           */
+          public [d.defaultTypePk()/] [d.associatedEntity().nameSimplePropertyID().apply_methodGet()/]()
           {
-            return [a.prefixAffectation()/][a.nameAttribute()/];
+            return [d.prefixAffectation()/][d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/];
           }
           
-           [a.commentSet()/]
-          public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
-          {
-            [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
-          }
+          [for (a : environment::Attribute | d.attributesNoPK())]
+            [a.commentGet()/]
+            public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
+            {
+              return [a.prefixAffectation()/][a.nameAttribute()/];
+            }
           
-        [/for]
+            [a.commentSet()/]
+            public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
+            {
+              [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+            }
+          
+          [/for]
+          [for (r : environment::Reference | rs)]
+              [r.referencedDto(d).commentGet()/]
+              public [r.referencedType(d)/] [r.referencedDto(d).name().apply_methodGet()/]()
+              {
+                 return [r.prefixAffectation()/][r.referencedDto(d).name().apply_attributeDefault()/];
+              }
+              
+              [r.referencedDto(d).commentSet()/]
+              public void [r.referencedDto(d).name().apply_methodSet()/](final [r.referencedType(d)/] [r.referencedDto(d).name().apply_parameterMethodClassicIn()/])
+              {
+                 [r.prefixAffectation()/][r.referencedDto(d).name().apply_attributeDefault()/] = [r.referencedDto(d).name().apply_parameterMethodClassicIn()/];
+              }
+            [/for]
+            
+            // METHODES
+            [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]
+        [/let]
       [/if]
    }
 [/template]
+
+[comment raccourci pour l'écriture de la clé primaire./]
+[query private writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]
 
 [comment ./]
 [query private dsq(d : environment::DTO) : String = '( ' + d.attributesNoPKAndNoComputed()->collect(o | o.type() + ' ' + o.nameAttribute() + o.lineSeparator())->sep(',')->toString() + ' )'/]

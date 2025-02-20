@@ -18,22 +18,22 @@
   
 [comment vérifie si l'opération a des paramètres en entrée (entité, dto, type primitif) (transverse)./]
 [query public hasInputs(o : soa::Operation) : Boolean = o.input <> null and o.input->size() > 0 /]
-
-[comment retourne le type complet (optional + list) pour le paramètre en entrée, pour une opération rest./]
-[query public inputRsType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
-  + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif else p.type(false) endif/]
    
 [comment retourne le type complet (optional + list) pour le paramètre de sortie d'une opération (transverse)./]
 [query public outputType(o : soa::Operation) : String = if (o.hasOutput()) then o.output->first().outputType(false, false) else 'void' endif/]
   
 [comment retourne le type complet (optional + list) pour le paramètre de sortie dans le cadre d'une opération rest./]
 [query public outputRsType(o : soa::Operation) : String = if (o.hasOutput()) then o.output->first().outputRsType() else '' endif/]
+  
+[comment retourne le type complet (optional + list) pour le paramètre en entrée, pour une opération rest./]
+[query public inputRsType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
+  + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif else p.type(false) endif/]
 
 [comment retourne le type complet (optional + list) pour le paramètre de sortie pour une opération de persistance./]
 [query public outputPersistType(o : soa::Operation) : String = if (o.hasOutput() and o.output->first().type.oclIsKindOf(environment::DTO)) 
   then o.output->first().outputType(false, true) else o.outputType() endif/]
   
-[comment retourne le type complet pour le paramètre de sortie (transverse - optional + list)./]
+[comment retourne le type complet pour le paramètre de sortie (transverse) (optional + list)./]
 [query private outputType(p : soa::Parameter, serialized : Boolean, associatedEntity : Boolean) : String =  if (not serialized and p.isOptional()) 
   then 'Optional<' + p.type(associatedEntity) + '>' else p.type(associatedEntity) endif /]
 
@@ -67,7 +67,7 @@
 [query public isRsOperation(o : soa::Operation) : Boolean = o.exists() and o.public and o.exposition = soa::ExpositionKind::REST/]
 
 [comment retourne l'uri (partielle) pour une opération rest, si rien de renseigné renvoie '/' par défaut./]
-[query public rsUri(o : soa::Operation) : String = if (o.isRsOperation()) then if (o.URI.exists()) then ('/' +  o.URI).toUri() 
+[query public uriRs(o : soa::Operation) : String = if (o.isRsOperation()) then if (o.URI.exists()) then ('/' +  o.URI).toUri() 
   else '/' endif else o.cNoModelisation() endif/] 
 
 [comment retourne le dto associé pour la couche de persistance (point d'entrée). 
@@ -76,32 +76,26 @@
 		- sinon, si on trouve un dto en en entrée, c'est ce dto qui est considéré comme persistant.
 		- sinon, si on trouve plusieurs dtos en entrée, on ne sait pas les distinguer -> zone non générée avec exception.
 		- sinon, si ce ne sont que des 'primitives', on ne connait pas la requête -> zone non générée avec exception.  /]
-[query public associatedDto(o :soa::Operation) : environment::DTO = o.associatedDto(o.associatedOutputDto(), o.associatedInputsDto())/]
-
-[comment retourne le dto associé pour la couche de persistance (si impossible à déterminer on retourne null)./]
-[query private associatedDto(o : soa::Operation, d : environment::DTO, ds : Sequence(environment::DTO)) : environment::DTO = if (d.exists()) 
- then d else if (ds->size() = 1) then ds->first() else null endif endif/]
+[query public persistDto(o :soa::Operation) : environment::DTO = o.persistDto(o.persistOutputDto(), o.persistInputDto())/]
  
 [comment retourne le DTO persistant en paramètre de sortie (si existe)./]
-[query public associatedOutputDto(o : soa::Operation) : environment::DTO = if (o.hasOutput() and o.output->first().type.oclIsKindOf(environment::DTO) 
+[query private persistOutputDto(o : soa::Operation) : environment::DTO = if (o.hasOutput() and o.output->first().type.oclIsKindOf(environment::DTO) 
   and o.output->first().type.oclAsType(environment::DTO).isPersistent()) then o.output->first().type.oclAsType(environment::DTO) else null endif/]
   
 [comment retourne le(s) DTO(s) persistant(s) au niveau de l'entrée (si existe(nt))./]
-[query public associatedInputsDto(o : soa::Operation) : Sequence(environment::DTO) =  o.input->select(o1 | o1.type.oclIsKindOf(environment::DTO) and o1.isPersistent())
+[query private persistInputDto(o : soa::Operation) : Sequence(environment::DTO) =  o.input->select(o1 | o1.type.oclIsKindOf(environment::DTO) and o1.isPersistent())
   ->collect(o2 | o2.type.oclAsType(environment::DTO))/]
   
+[comment retourne le dto associé pour la couche de persistance (si impossible à déterminer on retourne null)./][query private persistDto(o : soa::Operation, d : environment::DTO, ds : Sequence(environment::DTO)) : environment::DTO = if (d.exists()) 
+  then d else if (ds->size() = 1) then ds->first() else null endif endif/]
+
+[comment retourne le type et le nom du paramètre de sortie (si existe) (liste + optional + type + nom)./]
+[query public outputSignature(o : soa::Operation) : String = if(o.hasOutput()) then o.output->first().type(false) 
+  + ' ' + o.output->first().name() else 'void' endif/]
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+[comment retourne les types et les noms des paramètres en entrée (si existent) (list + optional + type + nom)./]
+[query public inputSignature(o : soa::Operation) : String = o.input->collect(o1 | 'final ' + o1.type(false) + ' ' 
+  + o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
   
 [comment retourne le nom de la variable pour le repository de l'opération./]  
 [query public repository(o : soa::Operation) : String = if(o.hasOutput() and o.output->first().oclIsTypeOf(entity::Entity)) 

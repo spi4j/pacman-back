@@ -19,6 +19,7 @@
 [comment écriture du corps de la classe pour une énumération./]
 [template public genEnumeration(e : environment::Enumeration)]
   [e.classHeader(e.namePackageEnumeration())/]
+  [e.defaultImports()/]
   
   public enum [e.nameClassEnumeration()/]
   {

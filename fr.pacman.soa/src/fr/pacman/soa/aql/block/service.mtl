@@ -11,11 +11,11 @@
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
-[import fr::pacman::soa::spring::aql::common/]
 						
 [comment écriture de l'implémentation d'un service soa./]
 [template public implementation (s : soa::Service)]
   [s.classHeader(s.namePackageServiceImpl())/]
+  [s.defaultImports()/]
   import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
   import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
   import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationOut()/];
@@ -47,6 +47,7 @@
 [comment écriture de l'interface d'un service (domain -> application)./]
 [template public interfaceOut (s : soa::Service)]
   [s.classHeader(s.namePackageOutItf())/]
+  [s.defaultImports()/]
   
   [s.commentInterface()/]
   public interface [s.nameClassServiceOutItf()/]
@@ -58,6 +59,7 @@
 [comment écriture de l'interface d'un service (domain -> infrastructure)./]
 [template public interfaceIn (s : soa::Service)]
   [s.classHeader(s.namePackageInItf())/]
+  [s.defaultImports()/]
   
   [s.commentInterface()/]
   public interface [s.nameClassServiceInItf()/]
@@ -75,9 +77,8 @@
 [/template]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writeOperation(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation()
-  + '(' + o.inputParamsSignature() + ')' /]
+[query private writeOperation(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]
   
 [comment écriture de la signature d'une opération avec le paramètre en sortie./]
-[query private writeInputs(o : soa::Operation) : String = o.nameOperation() 
-  + '(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())->sep(', ') + ')' /]
+[query private writeInputs(o : soa::Operation) : String = o.nameOperation()  + '(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())
+	->sep(', ') + ')' /]

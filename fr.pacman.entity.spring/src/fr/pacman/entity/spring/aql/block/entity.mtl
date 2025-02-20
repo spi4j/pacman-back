@@ -11,12 +11,13 @@
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::property/]
+[import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]	
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::attribute/]
-[import fr::pacman::core::aql::rule::method/]	
+[import fr::pacman::core::aql::rule::method/]
 
 [import fr::pacman::core::service::AnnotationUtils/]	
 [import fr::pacman::core::property::project::ProjectProperties/]	
@@ -24,21 +25,26 @@
 [comment écriture du corps pour la classe d'implémentation d'une entité./]
 [template public implementation (e : entity::Entity)]
   [e.classHeader(e.namePackageEntityImpl())/]
-  import java.util.Objects;
-  import jakarta.persistence.Column;
-  import jakarta.persistence.Entity;
-  import jakarta.persistence.FetchType;
-  import jakarta.persistence.Id;
-  import jakarta.persistence.Table;
-  import jakarta.persistence.CascadeType;
-  import jakarta.persistence.Transient;
-  import jakarta.persistence.GeneratedValue;
-  import jakarta.persistence.GenerationType;
-  import jakarta.persistence.JoinColumn;
-  import jakarta.persistence.OneToOne;
-  import jakarta.persistence.ManyToOne;
-  import jakarta.persistence.OneToMany;
-  import jakarta.persistence.SequenceGenerator;
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [e.defaultImports()/]
+    import java.util.Objects;
+    import jakarta.persistence.Column;
+    import jakarta.persistence.Entity;
+    import jakarta.persistence.FetchType;
+    import jakarta.persistence.Id;
+    import jakarta.persistence.Table;
+    import jakarta.persistence.CascadeType;
+    import jakarta.persistence.Transient;
+    import jakarta.persistence.GeneratedValue;
+    import jakarta.persistence.GenerationType;
+    import jakarta.persistence.JoinColumn;
+    import jakarta.persistence.OneToOne;
+    import jakarta.persistence.ManyToOne;
+    import jakarta.persistence.OneToMany;
+    import jakarta.persistence.SequenceGenerator;
+    
+    [/protected]
   
   [e.commentClass()/]
   @Entity
@@ -65,7 +71,6 @@
           private [a.type()/] [a.nameAttribute()/];
           
         [/for]
-        
         [for (r : environment::Reference | rs)]
           [r.referencedEntity(e).comment().commentSingleLine()/]
           [protected (r.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -79,8 +84,36 @@
         public [e.nameClassEntityImpl()/] ()
         {
            super();
-           [protected ('constructor'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           
+           [protected ('constructor without paramater'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
            [/protected]
+        }
+        
+        [('Constructeur avec paramètres pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
+        public [e.nameClassEntityImpl()/] ([e.inputSignature(rs)/])
+        {
+           
+           super();
+           [e.prefixAffectation()/][e.writePk()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+           [for (a : environment::Attribute | e.attributesNoPK())]
+             [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
+           [/for]
+           [for (r : environment::Reference | rs)]
+             [e.prefixAffectation()/][r.referencedEntity(e).name().apply_attributeDefault()/] = [r.referencedEntity(e).name().apply_parameterMethodClassicIn()/];
+           [/for]
+           
+           [protected ('constructor with paramaters'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           [/protected]
+        }
+        
+        /**
+         * Retourne l'identifiant pour l'entité'. 
+         *
+         * @return la valeur de l'identifiant'.
+         */
+        public [e.defaultTypePk()/] [e.nameSimplePropertyID().apply_methodGet()/]()
+        {
+           return [e.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/];
         }
         
         [for (a : environment::Attribute | e.attributesNoPK())]
@@ -181,6 +214,7 @@
 [comment écriture de l'interface pour une entité (au sens Spring)./]
 [template public interfacePersist (e : entity::Entity)]
   [e.classHeader(e.namePackageEntityPersistItf())/]
+  [e.defaultImports()/]
   import org.springframework.data.jpa.repository.JpaRepository;
   [e.importImpl()/]
   

@@ -11,6 +11,7 @@
 [comment écriture de l'implémentation pour une exception levée au niveau des mappers./]
 [template public mapperExceptionImpl (any : ecore::EObject)]
   [any.classHeader(any.namePackageException())/]
+  [any.defaultImports()/]
   
   /**
    * Exception personnalisée pour le mappage dans l'application [any.get_projectName()/].
@@ -41,6 +42,7 @@
 [comment écriture de l'implementation pour une exception levée au niveau de la couche de persistance./]
 [template public notImplementedExceptionImpl (any : ecore::EObject)]
   [any.classHeader(any.namePackageException())/]
+  [any.defaultImports()/]
   
   /**
    * Exception personnalisée pour indiquer qu'une fonctionnalité n'est pas encore implémentée dans l'application [any.get_projectName()/].

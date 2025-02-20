@@ -13,10 +13,10 @@
 [query public root(any : ecore::EObject) : environment::ObeoDSMObject = any.get_root().oclAsType(environment::ObeoDSMObject)/]
 
 [comment vérifie si l'objet doit contenir des champs supplémentaires (automatiques) pour la persistance./]  
-[query public hasAutoAttributs(any : ecore::EObject) : Boolean = any.get_persistenceAutoFields().trim().size() > 0/] 
+[query public hasAutoAttributs(any : ecore::EObject) : Boolean = any.get_sqlAutoFields().trim().size() > 0/] 
 
 [comment retourne l'ensemble des champs supplémentaires pour la persistance./]
-[query public autoAttributs(any : ecore::EObject) : Sequence(String) = any.get_persistenceAutoFields().trim().tokenize(',')/]
+[query public autoAttributs(any : ecore::EObject) : Sequence(String) = any.get_sqlAutoFields().trim().tokenize(',')/]
 
 [comment vérifie l'existance d'un champ supplémentaire de type xtopsup./]
 [query public hasXtopSup(any : ecore::EObject) : Boolean = any.autoAttributs()->collect(o | o.contains(any.keyXtopSup())) <> false/]

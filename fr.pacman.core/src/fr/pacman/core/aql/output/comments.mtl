@@ -49,6 +49,25 @@
 [/template]
 
 [comment ./]
+[template public commentGet(d : environment::DTO)]
+  
+  /** 
+   * Retourne l'attribut '[d.name().apply_attributeDefault()/]'. 
+   *
+   * @return la valeur de l'attribut '[d.name().apply_attributeDefault()/]'.
+   */
+[/template]
+
+[comment ./]
+[template public commentSet(d : environment::DTO)]
+  /**
+   * Affectation de l'attribut '[d.name().apply_attributeDefault()/]'. 
+   *
+   * @param [d.name().apply_parameterMethodClassicIn()/] la valeur à affecter pour l'attribut '[d.name().apply_attributeDefault()/]'.
+   */
+[/template]
+
+[comment ./]
 [template public commentGet(a : environment::Attribute)]
   /** 
    * Retourne l'attribut '[a.name()/]'. 

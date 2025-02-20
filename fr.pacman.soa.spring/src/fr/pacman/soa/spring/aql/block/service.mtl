@@ -13,6 +13,7 @@
 [import fr::pacman::core::aql::query::service/]
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::query::parameter/]
+[import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
@@ -20,37 +21,40 @@
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::class/]
 [import fr::pacman::core::aql::rule::common/]
-[import fr::pacman::soa::spring::aql::common/]
 
 [import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture de l'implémentation d'un service soa (couche infrastructure)./]
 [template public implementation (s : soa::Service)]
   [s.classHeader(s.namePackageControllerImpl())/]
-
-  import org.springframework.http.HttpStatus;
-  import org.springframework.http.MediaType;
-  import org.springframework.http.ResponseEntity;
-  import org.springframework.stereotype.Controller;
-  import org.springframework.beans.factory.annotation.Autowired;
-  import org.springframework.web.bind.annotation.DeleteMapping;
-  import org.springframework.web.bind.annotation.GetMapping;
-  import org.springframework.web.bind.annotation.PathVariable;
-  import org.springframework.web.bind.annotation.PostMapping;
-  import org.springframework.web.bind.annotation.PutMapping;
-  import org.springframework.web.bind.annotation.RequestMapping;
-  import org.springframework.web.bind.annotation.RequestBody;
-  import org.springframework.web.bind.annotation.RequestParam;
-  import org.springframework.web.bind.annotation.RequestAttribute;  
-  import org.springframework.web.bind.annotation.RequestHeader;
-  import org.springframework.web.bind.annotation.ResponseBody;
-  import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
-  import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [s.defaultImports()/]
+  
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.MediaType;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.stereotype.Controller;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.web.bind.annotation.DeleteMapping;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.PathVariable;
+    import org.springframework.web.bind.annotation.PostMapping;
+    import org.springframework.web.bind.annotation.PutMapping;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RequestBody;
+    import org.springframework.web.bind.annotation.RequestParam;
+    import org.springframework.web.bind.annotation.RequestAttribute;  
+    import org.springframework.web.bind.annotation.RequestHeader;
+    import org.springframework.web.bind.annotation.ResponseBody;
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
   
   [for (d | s.associatedDtos())]
     import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
   [/for]
- 
+  
+  [/protected]
+  
   [s.commentClass()/]  
   @Controller
   @RequestMapping("[s.rsUri()/]")
@@ -84,17 +88,21 @@
 [comment écriture de l'implémentation pour le service de persistance (couche infrastructure)./]
 [template public implementationIn(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageInImpl())/]
-  import org.springframework.beans.factory.annotation.Autowired;
-  import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
-  import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationIn()/];
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [s.defaultImports()/]
   
-  [for (d | ds)]
-    import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];
-    [if (d.isPersistent())]
-      import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
-      import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/];
-    [/if]
-  [/for]
+    import org.springframework.beans.factory.annotation.Autowired;
+    import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
+    import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationIn()/];  
+  
+    [for (d | ds)]
+      import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];
+      [if (d.isPersistent())]
+        import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
+        import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/];
+      [/if]
+    [/for]
+  [/protected]
   
   [s.commentInterface()/]
   @[s.nameClassAnnotationIn()/]
@@ -124,7 +132,12 @@
           [o.commentOperation()/]
           [o.writePersistSignatureInvoke()/]
           {
-            throw new RuntimeException();
+            [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              
+              throw new [s.nameClassNotImplementedExceptionImpl()/] 
+                ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
+              
+            [/protected]
           }
         [/if]
       [/for]
@@ -155,12 +168,12 @@
 [comment écriture de l'appel pour une sortie liste optionnelle (normalement jamais appelé pour l'instant)./]
 [query private writeOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
   + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
-  +  o.associatedDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
+  +  o.persistDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie liste./]       	    	
 [query private writeNonOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
   + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
-  +  o.associatedDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
+  +  o.persistDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie simple optionelle./]
 [query private writeOptionalOutputOne(o : soa::Operation) : String =  o.outputPersistType() + ' ' +  o.suffixEntity().apply_variableDefault() 
@@ -182,12 +195,11 @@
   + ds.lineSeparator())->toString() + ';'/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writePersistSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation()
-  + '(' + o.inputParamsSignature() + ')' /]
+[query private writePersistSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]
   
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writePersistSignatureInvoke(o : soa::Operation) : String = 'private ' + o.outputPersistType() + ' ' + o.nameOperation() + '_invoke'
-  + '(' + o.inputParamsSignature() + ')' /]
+[query private writePersistSignatureInvoke(o : soa::Operation) : String = 'private ' + o.outputPersistType() + ' ' + o.nameOperation() + '_invoke' 
+  + '(' + o.inputSignature() + ')' /]
   
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeRsSignature(o : soa::Operation) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 
@@ -195,11 +207,11 @@
   
 [comment écriture des annotations au niveau de l'opération rest./]
 [query private writeRsAnnotations(o : soa::Operation) : String = 
-  if (o.verb = soa::Verb::GET) then '@GetMapping(value = "'+ o.rsUri()
-  else if (o.verb = soa::Verb::POST) then '@PostMapping(value = "'+ o.rsUri()
-  else if (o.verb = soa::Verb::PUT) then '@PutMapping(value = "'+ o.rsUri()
+  if (o.verb = soa::Verb::GET) then '@GetMapping(value = "'+ o.uriRs()
+  else if (o.verb = soa::Verb::POST) then '@PostMapping(value = "'+ o.uriRs()
+  else if (o.verb = soa::Verb::PUT) then '@PutMapping(value = "'+ o.uriRs()
   else if (o.verb = soa::Verb::OPTIONS) then ''
-  else if (o.verb = soa::Verb::DELETE) then '@DeleteMapping(value = "'+ o.rsUri()
+  else if (o.verb = soa::Verb::DELETE) then '@DeleteMapping(value = "'+ o.uriRs()
   else if (o.verb = soa::Verb::HEAD) then ''
   else if (o.verb = soa::Verb::PATCH) then ''
   else if (o.verb = soa::Verb::TRACE) then ''

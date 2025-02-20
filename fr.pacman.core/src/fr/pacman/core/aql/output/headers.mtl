@@ -11,6 +11,8 @@
 [import fr::pacman::core::aql::name::classes /]
 [import fr::pacman::core::aql::name::packages /]
 [import fr::pacman::core::aql::name::eobjects /]
+[import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::output::licences /]
 [import fr::pacman::core::property::project::ProjectProperties/]
@@ -34,11 +36,23 @@
 [/template]
 
 [comment 	écriture des imports spécifiques pour la classe, on essaye de trouver le maximum des imports 
- 			issus de la modélisation, ces imports peuvent provenir des attributs, des références, etc.../]
+ 			issus de la modélisation, ces imports peuvent provenir des attributs, des références, etc...
+ 			il faut un fonctionnement particulier pour les dtos car ces derniers héritent des entités et 
+ 			par conséquent n'ont pas d'attribut (sauf ceux rajoutés expressement), il faut donc aller 
+ 			rechercher les attributs hérités à partir de l'entité./]
+ 			
 [template public defaultImports(any : ecore::EObject)]
   [comment protected ('for imports') startTagPrefix('// ') endTagPrefix('// ')/]
   [any.defaultsImports()/]
   [if (any.mustCheckModeledImports())]
+    [if (any.oclIsKindOf(environment::DTO))]
+      [for (o | any.oclAsType(environment::DTO).attributesNoPK())]
+        [if (o.type.oclIsTypeOf(environment::Enumeration))]
+          //import [o.type.oclAsType(environment::Enumeration).namePackageEnumeration()
+            .package(o.type.oclAsType(environment::Enumeration).nameClassEnumeration())/]
+        [/if]
+     [/for]
+  [/if] 
   [for (o : environment::ObeoDSMObject | any.eAllContents(environment::ObeoDSMObject))]
     [if (o.oclIsKindOf(environment::Attribute))]
       [if (o.type.oclIsTypeOf(environment::Enumeration))]
@@ -61,6 +75,18 @@
           .package(o.type.oclAsType(environment::DTO).nameClassXtoImpl())/]
       [/if]
     [/if]
+    [if (o.oclIsKindOf(environment::Reference))]
+      [if (any.oclIsKindOf(environment::DTO))]
+        import [o.referencedDto(any).namePackageDtoImpl()
+        	.package(o.referencedDto(any).nameClassDtoImpl())/]
+        import [o.referencedDto(any).namePackageXtoImpl()
+        	.package(o.referencedDto(any).nameClassXtoImpl())/]
+      [/if]
+      [if (any.oclIsKindOf(entity::Entity))]
+        import [o.referencedEntity(any).namePackageEntityImpl()
+        	.package(o.referencedEntity(any).nameClassEntityImpl())/]
+      [/if]
+    [/if]
   [/for][/if]
 [/template]
 
@@ -70,7 +96,7 @@
 
 [comment écriture des lignes d'en-tête pour une classe (licence + ligne de package + les imports de base)./]
 [query public classHeader(any : ecore::EObject, pkg : String) : String = any.licence() + pkg.package() 
- + any.lineSeparator() + any.lineSeparator() + any.defaultImports()/]
+ + any.lineSeparator()/]
 
 [comment écriture de la ligne d'import du package pour une classe Java./]
 [query private package(pkg : String, c : String) : String = (pkg.get_projectPackage() + '.' + pkg).toPackage() + '.' + c + ';'/]
@@ -83,3 +109,4 @@
 
 [comment écriture de la ligne d'import pour une interface d'entité issue de la modélisation./]
 [query public importItf(e : entity::Entity) : String = 'import ' + e.namePackageEntityItf().package(e.nameClassEntityItf())/]
+
