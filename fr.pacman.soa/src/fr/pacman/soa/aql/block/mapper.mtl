@@ -50,7 +50,39 @@
           throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.associatedEntity().nameClassEntityImpl()/]");
        }
        
-       [d.associatedEntity().nameClassEntityImpl()/] [d.suffixEntity().apply_variableDefault()/] = new [d.associatedEntity().nameClassEntityImpl()/]();
+       [let e  = d.associatedEntity()]
+         [if (d.immutable())]
+         [else]
+           [e.nameClassEntityImpl()/] [d.suffixEntity().apply_variableDefault()/] = new [e.nameClassEntityImpl()/]();
+           
+           [e.suffixEntity()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixDto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
+           [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+             [d.writeStandardInEntityMapper(a)/];
+           [/for]
+           [for (r | d.referencesSB())]
+             [if (not r.isOptional() and not r.isMultiple())]
+               [r.writeReferenceInEntityMapper(d, false)/];
+               
+             [/if]
+             [if (r.isOptional())]
+               if ([d.suffixDto().apply_parameterMethodClassicIn()/].[r.referencedDto(d).name().apply_methodGet()/]().isPresent()) {
+                   [r.writeReferenceInEntityMapper(d, true)/];
+               }
+               
+             [/if]
+             [if (r.isMultiple() and d = r.containingType)]
+               [r.writeListInEntityMapper(d)/];
+             [/if]
+             [if (r.isMultiple() and d <> r.containingType)]
+                [r.writeReferenceInEntityMapper(d, false)/];
+              [/if]
+           [/for]
+         [/if]
+         
+         [protected ((e.nameClassEntityImpl() ' in').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         [/protected]
+       [/let]
+       
        return [d.suffixEntity().apply_variableDefault()/];
     }
     
@@ -69,20 +101,23 @@
         {
            throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassDtoImpl()/]");
         }
-        
         [if (d.immutable())]
           return new [d.nameClassDtoImpl()/]([d.dsq1()/]);
         [else]
-          [d.nameClassDtoImpl()/] [d.suffixDto()/] = new [d.nameClassDtoImpl()/]();
+          [let e  = d.associatedEntity()]
+            [d.nameClassDtoImpl()/] [d.suffixDto()/] = new [d.nameClassDtoImpl()/]();
+            
+            [d.suffixDto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixEntity()/].[e.nameSimplePropertyID().apply_methodGet()/]());
+          [/let]
           [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
             [d.writeStandardInDtoMapper(a)/];
           [/for]
           [for (r | d.referencesSB())]
             [if (not r.isOptional() and not r.isMultiple())]
               [r.writeReferenceInDtoMapper(d, false)/];
+              
             [/if]
             [if (r.isOptional())]
-              
               if ([d.suffixEntity().apply_parameterMethodClassicIn()/].[r.referencedDto(d).name().apply_methodGet()/]().isPresent()) {
                   [r.writeReferenceInDtoMapper(d, true)/];
               }
@@ -91,35 +126,18 @@
             [if (r.isMultiple() and d = r.containingType)]
               [r.writeListInDtoMapper(d)/];
             [/if]
+            [if (r.isMultiple() and d <> r.containingType)]
+              [r.writeReferenceInDtoMapper(d, false)/];
+            [/if]
           [/for]
           
-          [protected (d.nameClassDtoImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [protected ((d.nameClassDtoImpl() + ' in').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
-               
+          
           return [d.suffixDto()/];[/if]  
      }
   }
 [/template]
-
-[comment écriture d'une ligne de mapping pour un attribut standard./]
-[query private writeStandardInDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
-  + '.' + a.name().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '())'/]
-
-[comment écriture de mapping pour une liste dans le cadre d'une référence./]
-[query private writeListInDtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixDto().apply_variableDefault() 
-  + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
-  + r.referencedDto(d).name().apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
-  + ('to ' + d.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))'/]
-
-[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
-[query private writeReferenceInDtoMapper(r : environment::Reference, d : environment::DTO, optional : Boolean) : String  = 
-  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + if (optional) 
-  then 'Optional.of(' else '' endif  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixDto()).apply_methodDefault() 
-  + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).name().apply_methodGet() + '()' 
-  + if (optional) then '.get())))' else '))' endif/]
-  
-[query private writeReferenceInEntityMapper(d : environment::DTO) : String  = ''/]
-[query private writeReferenceOutXtoMapper(d : environment::DTO) : String  = ''/]
 
 [comment écriture de la classe utilitaire de mapping pour la couche application./]
 [template public mapperOut(d : environment::DTO)]
@@ -156,10 +174,32 @@
        [if (d.immutable())]
          return new [d.nameClassDtoImpl()/]([d.dsq2()/]);
        [else]
-         [d.nameClassDtoImpl()/] [d.suffixDto().apply_variableDefault()/] = new [d.nameClassDtoImpl()/]();
-         [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-           [d.suffixDto().apply_variableDefault()/].[a.name().apply_methodSet()/]([d.suffixXto().apply_parameterMethodClassicIn()/].[a.name().apply_methodGet()/]());
-         [/for]
+         [let e = d.associatedEntity()]
+           [d.nameClassDtoImpl()/] [d.suffixDto().apply_variableDefault()/] = new [d.nameClassDtoImpl()/]();
+           
+           [d.suffixDto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixXto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
+           [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+             [d.writeStandardOutDtoMapper(a)/];
+           [/for]
+           [for (r | d.referencesSB())]
+             [if (not r.isOptional() and not r.isMultiple())]
+               [r.writeReferenceOutDtoMapper(d, false)/];
+             [/if]
+             [if (r.isOptional())]
+               [r.writeReferenceOutDtoMapper(d, true)/];
+             [/if]
+             [if (r.isMultiple() and d = r.containingType)]
+               [r.writeListOutDtoMapper(d)/];
+             [/if]
+             [if (r.isMultiple() and d <> r.containingType)]
+                [r.writeReferenceOutDtoMapper(d, false)/];
+              [/if]
+           [/for]
+         [/let]
+         
+         [protected ((d.nameClassDtoImpl() + ' out').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         [/protected]
+         
          return [d.suffixDto().apply_variableDefault()/];
        [/if]  
     }
@@ -179,15 +219,106 @@
       {
          throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassXtoImpl()/]");
       }
-    
-      [d.nameClassXtoImpl()/] [d.suffixXto().apply_variableDefault()/] = new [d.nameClassXtoImpl()/]();
-      [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-        [d.suffixXto().apply_variableDefault()/].[a.name().apply_methodSet()/]([d.suffixDto().apply_parameterMethodClassicIn()/].[a.name().apply_methodGet()/]());
-      [/for]
+      
+      [let e = d.associatedEntity()]
+        [d.nameClassXtoImpl()/] [d.suffixXto().apply_variableDefault()/] = new [d.nameClassXtoImpl()/]();
+        
+        [d.suffixXto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixDto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
+        [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+          [d.writeStandardOutXtoMapper(a)/];
+        [/for]
+        [for (r | d.referencesSB())]
+          [if (not r.isOptional() and not r.isMultiple())]
+            [r.writeReferenceOutXtoMapper(d, false)/]; 
+          [/if]
+          [if (r.isOptional())]
+            [r.writeReferenceOutXtoMapper(d, true)/];
+          [/if]
+          [if (r.isMultiple() and d = r.containingType)]
+            [r.writeListOutXtoMapper(d)/];
+          [/if]
+          [if (r.isMultiple() and d <> r.containingType)]
+            [comment r.writeReferenceOutXtoMapper(d, false)/];
+          [/if]
+        [/for]
+      [/let]
+      
+      [protected ((d.nameClassXtoImpl() + ' out').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
+      
       return [d.suffixXto().apply_variableDefault()/];
     }	  
   }
 [/template]
+
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardOutXtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixXto().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '())'/]
+  
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardOutDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '())'/]
+
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardInDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '())'/]
+  
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardInEntityMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixEntity().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '())'/]
+
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListInDtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).name().apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))'/]
+  
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListInEntityMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixEntity().apply_variableDefault() 
+  + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).name().apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixEntity()).apply_methodDefault() + '(o)).collect(Collectors.toList()))'/]
+  
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListOutDtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).name().apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))'/]
+  
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListOutXtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixXto().apply_variableDefault() 
+  + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).name().apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))'/]
+
+[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[query private writeReferenceOutXtoMapper(r : environment::Reference, d : environment::DTO, optional : Boolean) : String  = 
+  d.suffixXto().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
+  + '.' + ('to ' + d.suffixXto()).apply_methodDefault() 
+  + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).name().apply_methodGet() + '()' 
+  + if (optional) then '.get()))' else '))' endif/]
+  
+[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[query private writeReferenceOutDtoMapper(r : environment::Reference, d : environment::DTO, optional : Boolean) : String  = 
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + if (optional) 
+  then 'Optional.of(' else '' endif  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixDto()).apply_methodDefault() 
+  + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).name().apply_methodGet() + '()' 
+  + if (optional) then ')))' else '))' endif/]
+  
+[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[query private writeReferenceInDtoMapper(r : environment::Reference, d : environment::DTO, optional : Boolean) : String  = 
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + if (optional) 
+  then 'Optional.of(' else '' endif  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixDto()).apply_methodDefault() 
+  + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).name().apply_methodGet() + '()' 
+  + if (optional) then '.get())))' else '))' endif/]
+  
+[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[query private writeReferenceInEntityMapper(r : environment::Reference, d : environment::DTO, optional : Boolean) : String  = 
+  d.suffixEntity().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + if (optional) 
+  then 'Optional.of(' else '' endif  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixEntity()).apply_methodDefault() 
+  + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).name().apply_methodGet() + '()' 
+  + if (optional) then '.get())))' else '))' endif/]
+  
 
 [query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]
 [query private dsq2(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'xto'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]

@@ -53,15 +53,27 @@
             
           [/for]
           
-          /**
-           * Retourne l'identifiant pour le dto. 
-           *
-           * @return la valeur de l'identifiant.
-           */
-          public [d.defaultTypePk()/] [d.associatedEntity().nameSimplePropertyID().apply_methodGet()/]()
-          {
-            return [d.prefixAffectation()/][d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/];
-          }
+          [let e = d.associatedEntity()]
+            /**
+             * Retourne l'identifiant pour le dto. 
+             *
+             * @return la valeur de l'identifiant.
+             */
+             public [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_methodGet()/]()
+             {
+               return [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/];
+             }
+             
+            /**
+             * Affecte l'identifiant pour le dto'. 
+             *
+             * @param la valeur de l'identifiant'.
+             */
+             public void [e.nameSimplePropertyID().apply_methodSet()/](final [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
+             {
+                [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+             }
+          [/let]
           
           [for (a : environment::Attribute | d.attributesNoPK())]
             [a.commentGet()/]

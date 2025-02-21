@@ -28,8 +28,9 @@
 [template public implementation (s : soa::Service)]
   [s.classHeader(s.namePackageControllerImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
     [s.defaultImports()/]
-  
+    
     import org.springframework.http.HttpStatus;
     import org.springframework.http.MediaType;
     import org.springframework.http.ResponseEntity;
@@ -48,7 +49,7 @@
     import org.springframework.web.bind.annotation.ResponseBody;
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
-  
+    
   [for (d | s.associatedDtos())]
     import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
   [/for]
@@ -89,8 +90,8 @@
 [template public implementationIn(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageInImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
     [s.defaultImports()/]
-  
     import org.springframework.beans.factory.annotation.Autowired;
     import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
     import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationIn()/];  
@@ -102,6 +103,7 @@
         import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/];
       [/if]
     [/for]
+    
   [/protected]
   
   [s.commentInterface()/]
@@ -132,12 +134,13 @@
           [o.commentOperation()/]
           [o.writePersistSignatureInvoke()/]
           {
-            [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
               
-              throw new [s.nameClassNotImplementedExceptionImpl()/] 
-                ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
-              
-            [/protected]
+              [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+                
+                throw new [s.nameClassNotImplementedExceptionImpl()/] 
+                  ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
+                  
+              [/protected]
           }
         [/if]
       [/for]

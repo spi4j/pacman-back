@@ -116,6 +116,16 @@
            return [e.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/];
         }
         
+        /**
+         * Affecte l'identifiant pour l'entité'. 
+         *
+         * @param la valeur de l'identifiant'.
+         */
+        public void [e.nameSimplePropertyID().apply_methodSet()/](final [e.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
+        {
+            [e.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+        }
+        
         [for (a : environment::Attribute | e.attributesNoPK())]
           [a.commentGet()/]
           public [a.type()/] [a.nameAttribute().apply_methodGet()/]()

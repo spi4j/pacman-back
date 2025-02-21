@@ -1,4 +1,5 @@
 [module xto(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0', 
 				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]	
@@ -11,6 +12,7 @@
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::method/]	
@@ -33,6 +35,9 @@
      [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
      
      [/protected]
+     
+     ['Id'.commentSingleLine()/]
+     private [d.defaultTypePk()/] [d.writePk()/];
      
      // ATTRIBUTS
      [let rs = d.referencesSB()]
@@ -58,6 +63,28 @@
        {
          super();
        }
+       
+       [let e = d.associatedEntity()]
+         /**
+          * Retourne l'identifiant pour le dto. 
+          *
+          * @return la valeur de l'identifiant.
+          */
+          public [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_methodGet()/]()
+          {
+            return [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/];
+          }
+       
+         /**
+          * Affecte l'identifiant pour le dto'. 
+          *
+          * @param la valeur de l'identifiant'.
+          */
+          public void [e.nameSimplePropertyID().apply_methodSet()/](final [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
+          {
+            [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+          }
+       [/let]
         
        [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
          [a.commentGet()/]
@@ -93,3 +120,6 @@
      [/let]
   }
 [/template]
+
+[comment raccourci pour l'écriture de la clé primaire./]
+[query private writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]

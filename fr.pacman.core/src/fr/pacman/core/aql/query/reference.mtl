@@ -41,11 +41,14 @@
 [query public isOptional(r : environment::Reference) : Boolean = if (r.exists()) then r.multiplicity = 
   environment::MultiplicityKind::ZERO_ONE else true endif/]
 
-[comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto
+[comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto, la requête est 
+		très légèrement différente de 'referencesFK'
 		-> pour spring / spring boot uniquement. /]	
 [query public referencesSB(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
 	st.references
-	->select(o | (o.oppositeOf = null))		
+	->select(o | (o.oppositeOf = null 
+		and not (o.isMultiple() 
+		and o.referencedType = st)))		
 	->union(st.eContainer( if (st.oclIsKindOf(entity::Entity)) 
 		then entity::Root else soa::System endif)
 		.eAllContents(environment::Reference)
