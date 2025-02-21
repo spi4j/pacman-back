@@ -94,7 +94,6 @@
         {
            
            super();
-           [e.prefixAffectation()/][e.writePk()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
            [for (a : environment::Attribute | e.attributesNoPK())]
              [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
            [/for]

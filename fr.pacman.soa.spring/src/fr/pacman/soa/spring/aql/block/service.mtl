@@ -50,10 +50,10 @@
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
     
-  [for (d | s.associatedDtos())]
-    import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
-  [/for]
-  
+    [for (d | s.associatedDtos())]
+      import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
+    [/for]
+    
   [/protected]
   
   [s.commentClass()/]  
@@ -135,7 +135,7 @@
           [o.writePersistSignatureInvoke()/]
           {
               
-              [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
                 
                 throw new [s.nameClassNotImplementedExceptionImpl()/] 
                   ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");

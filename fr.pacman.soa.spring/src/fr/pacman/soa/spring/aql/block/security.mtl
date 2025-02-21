@@ -37,7 +37,7 @@
   {
     [let uris = m.rsSecuredURIs()]
         // privilégier les clés asymétrique et ne pas le stocker en dur sur le serveur.
-        private String ['jwt key'.apply_attributeDefault()/];
+        private String ['jwt key'.apply_attributeDefault()/] = "HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F";
      
        /**
         * Pour les API REST sans état, en particulier celles utilisant

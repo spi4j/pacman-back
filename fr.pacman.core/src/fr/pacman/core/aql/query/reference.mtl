@@ -104,13 +104,9 @@
 	->referencesJT()
 	->do_skipDuplicates()
 	->sortedByName()/]
-
-[comment écriture du type complet pour les entités ou les dtos référencés (1/2)./]
-[query public referencedType(r : environment::Reference, st : environment::StructuredType) : String = 
-  if (r.isOptional()) then 'Optional<' + r.type(st) + '>' else r.type(st) endif /]
   
-[comment écriture du type complet pour les entités ou les dtos référencés (2/2)./]
-[query private type(r : environment::Reference, st : environment::StructuredType) : String = 
+[comment écriture du type complet pour les entités ou les dtos référencés (pas d'optional sinon plante jpa)./]
+[query public referencedType(r : environment::Reference, st : environment::StructuredType) : String = 
   if (r.isMultiple() and r.containingType = st) then 'List<' + if (st.oclIsKindOf(entity::Entity)) then 
   r.referencedEntity(st).nameClassEntityImpl() else r.referencedDto(st.oclAsType(environment::DTO))
   .nameClassDtoImpl() endif + '>' else if (st.oclIsKindOf(entity::Entity)) then  r.referencedEntity(st).nameClassEntityImpl() 

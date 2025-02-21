@@ -26,8 +26,7 @@
 	->collect(o5 | o5.toLower())->sep('.')/]
 
 [comment retourne les types et les nom des attributs pour l'entité (optional + list + type + nom)./]
-[query public inputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = 'final ' + e.defaultTypePk() + ' ' 
-  + e.nameSimplePropertyID().apply_parameterMethodClassicIn() + ',' + e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' 
-  + o1.name().apply_parameterMethodClassicInOut())->sep(', ')->toString() + if (rs->size() > 0) then ', ' 
-  + rs->collect(o2 | 'final ' + o2.referencedType(e) + ' '+ o2.referencedEntity(e).name().apply_parameterMethodClassicIn())
+[query public inputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference)) : String =  
+  e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' + o1.name().apply_parameterMethodClassicInOut())->sep(', ')->toString() 
+  + if (rs->size() > 0) then ', ' + rs->collect(o2 | 'final ' + o2.referencedType(e) + ' ' + o2.referencedEntity(e).name().apply_parameterMethodClassicIn())
   ->sep(', ')->toString() else '' endif/]

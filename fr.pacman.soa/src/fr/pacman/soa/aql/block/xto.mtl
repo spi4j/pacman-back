@@ -20,9 +20,13 @@
 [comment écriture de l'implémentation pour un objet métier sérialisé./]
 [template public implementation(d : environment::DTO)]
   [d.classHeader(d.namePackageXtoImpl())/]
-  [d.defaultImports()/]
-  import java.io.Serializable;
-  import com.fasterxml.jackson.annotation.JsonProperty;
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  
+    [d.defaultImports()/]
+    import java.io.Serializable;
+    import com.fasterxml.jackson.annotation.JsonProperty;
+    
+  [/protected]
   
   [d.commentClass()/]
   public class [d.nameClassXtoImpl()/] implements Serializable

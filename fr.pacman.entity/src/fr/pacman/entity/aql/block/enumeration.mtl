@@ -7,6 +7,7 @@
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
@@ -19,7 +20,11 @@
 [comment écriture du corps de la classe pour une énumération./]
 [template public genEnumeration(e : environment::Enumeration)]
   [e.classHeader(e.namePackageEnumeration())/]
-  [e.defaultImports()/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [e.defaultImports()/]
+    
+  [/protected]
   
   public enum [e.nameClassEnumeration()/]
   {
