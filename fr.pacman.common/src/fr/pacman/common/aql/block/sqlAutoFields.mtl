@@ -1,0 +1,22 @@
+[module sqlAutoFields(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+				
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]
+
+[comment écriture des champs automatiques pour la base de données./]
+[template public sqlAutoFields (any : ecore::EObject)]
+  [any.classHeader(any.namePackageEntityBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [any.defaultsImports()/]
+    
+  [/protected]
+  
+  public abstract class [any.nameClassEntitySqlAutoFieldsImpl()/]
+  {
+
+  }
+[/template]

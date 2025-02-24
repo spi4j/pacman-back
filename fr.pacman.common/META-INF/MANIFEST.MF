@@ -1,20 +1,16 @@
 Manifest-Version: 1.0
-Automatic-Module-Name: fr.pacman.entity
+Automatic-Module-Name: fr.pacman.common
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Entity
-Bundle-SymbolicName: fr.pacman.entity
+Bundle-Name: PacMan - Common
+Bundle-SymbolicName: fr.pacman.common
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: fr.pacman.entity.plugin.Activator
+Bundle-Activator: fr.pacman.common.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,
  fr.pacman.core,
- fr.pacman.common,
- fr.pacman.entity.spring,
- fr.pacman.entity.spi4j,
- org.obeonetwork.dsl.entity,
  org.eclipse.acceleo.aql;bundle-version="4.0.0",
  org.eclipse.acceleo.query;bundle-version="8.0.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
-Export-Package: fr.pacman.entity.main
-
+Export-Package: fr.pacman.common.aql.block, 
+  fr.pacman.common.aql.file

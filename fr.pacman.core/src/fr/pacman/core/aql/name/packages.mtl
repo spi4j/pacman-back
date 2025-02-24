@@ -40,6 +40,9 @@
 [comment retourne le package pour l'implémentation d'un contrôleur soa./]
 [query public namePackageControllerImpl(s : soa::Service) : String = 'app.adapters.' + s.nameComponent()/]
   
+[comment retourne le package racine pour la persistance./]
+[query public namePackageEntityBase(any : ecore::EObject) : String = 'infra.persistence'/]
+  
 [comment retourne le package pour une classe d'implémentation (cas d'une entité)./]
 [query public namePackageEntityImpl(e : entity::Entity) : String = 'infra.persistence' + e.blockHierarchy()/]
   

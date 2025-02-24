@@ -46,6 +46,9 @@
 
 [comment retourne le nom pour l'interface de l'entité./]
 [query public nameClassEntityItf(e : entity::Entity) : String = e.name().apply_classInterface()/]
+
+[comment retourne le nom de la classe abstraite pour les champs automatiques de la base de données./]
+[query public nameClassEntitySqlAutoFieldsImpl(any: ecore::EObject) : String = (any.nameProject() + ' sql auto fields').apply_classImplem()/]
   
 [comment retourne le nom de la classe de démarrage pour une application Spring./]
 [query public nameClassAppBoostrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBoostrap()).apply_classDefault()/]

@@ -43,13 +43,14 @@
     import jakarta.persistence.ManyToOne;
     import jakarta.persistence.OneToMany;
     import jakarta.persistence.SequenceGenerator;
+    import [e.namePackageProject()/].[e.namePackageEntityBase()/].[e.nameClassEntitySqlAutoFieldsImpl()/];
     
     [/protected]
   
   [e.commentClass()/]
   @Entity
   [e.writeAnnotationTable()/]
-  public class [e.nameClassEntityImpl()/] 
+  public class [e.nameClassEntityImpl()/] extends [e.nameClassEntitySqlAutoFieldsImpl()/]
   {   
       
       // CONSTANTES ET ATTRIBUTS
