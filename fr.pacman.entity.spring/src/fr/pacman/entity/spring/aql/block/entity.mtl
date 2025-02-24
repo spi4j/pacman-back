@@ -76,7 +76,7 @@
           [protected (r.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           [r.writeAnnotationsJoin(e)/]
-          private [r.referencedType(e)/] [r.referencedEntity(e).name().apply_attributeDefault()/];
+          private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
           
         [/for]
          
@@ -98,7 +98,8 @@
              [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
            [/for]
            [for (r : environment::Reference | rs)]
-             [e.prefixAffectation()/][r.referencedEntity(e).name().apply_attributeDefault()/] = [r.referencedEntity(e).name().apply_parameterMethodClassicIn()/];
+             [e.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+                  = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
            [/for]
            
            [protected ('constructor with paramaters'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -122,7 +123,8 @@
          */
         public void [e.nameSimplePropertyID().apply_methodSet()/](final [e.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
         {
-            [e.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+            [e.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] 
+               = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
         }
         
         [for (a : environment::Attribute | e.attributesNoPK())]
@@ -135,22 +137,25 @@
           [a.commentSet()/]
           public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
           {
-             [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+             [a.prefixAffectation()/][a.nameAttribute()/] 
+                = [a.nameAttribute().apply_parameterMethodClassicIn()/];
           }
           
         [/for]
         
         [for (r : environment::Reference | rs)]
           [r.referencedEntity(e).commentGet()/]
-          public [r.referencedType(e)/] [r.referencedEntity(e).name().apply_methodGet()/]()
+          public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
           {
-             return [r.prefixAffectation()/][r.referencedEntity(e).name().apply_attributeDefault()/];
+             return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
           }
           
           [r.referencedEntity(e).commentSet()/]
-          public void [r.referencedEntity(e).name().apply_methodSet()/](final [r.referencedType(e)/] [r.referencedEntity(e).name().apply_parameterMethodClassicIn()/])
+          public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
+          	(final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
           {
-             [r.prefixAffectation()/][r.referencedEntity(e).name().apply_attributeDefault()/] = [r.referencedEntity(e).name().apply_parameterMethodClassicIn()/];
+             [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+             	= [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
           }
         [/for]
         
@@ -213,7 +218,8 @@
          @Override
          public String toString() 
          {
-           return "[e.nameClassEntityImpl()/] { [e.writePk()/] = " + [e.prefixAffectation()/][e.writePk()/][for (a : environment::Attribute | e.attributesNoPK())] 
+           return "[e.nameClassEntityImpl()/] { [e.writePk()/] = " + [e.prefixAffectation()/][e.writePk()/]
+             [for (a : environment::Attribute | e.attributesNoPK())] 
              + "[a.nameAttribute()/] = " + [e.prefixAffectation()/][a.nameAttribute()/][/for] + "}"; 
          }
      [/let]
@@ -254,7 +260,9 @@
   '@OneToMany(' + if (r.has_metaCascadeType()) then 'cascade = CascadeType.' + r.get_metaLiteralCascadeType() + ', ' else '' endif 
   + 'fetch = FetchType.LAZY, mappedBy = "' + e.name().apply_attributeDefault() + '")' else '@ManyToOne()' + r.lineSeparator() 
   + '@JoinColumn(name = "' + r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() + '", nullable = false)' 
-  endif  else '@OneToOne(' + if (r.has_metaCascadeType()) then 'cascade = CascadeType.' + r.get_metaLiteralCascadeType() + ', ' else '' endif 
-  + 'fetch = FetchType.LAZY)'  + r.lineSeparator() + '@JoinColumn(name = "'  + r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() 
-  + '", referencedColumnName = "' + r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() + '", nullable = ' 
-  + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
+  endif  else '@ManyToOne(' + if (r.has_metaCascadeType()) then 'cascade = CascadeType.' + r.get_metaLiteralCascadeType() + ', ' else '' endif 
+  + 'fetch = FetchType.LAZY)'  + r.lineSeparator() + '@JoinColumn(name = "' + if (r.isZeroOneRecursive()) then r.nameSimplePropertyID()
+  .apply_attributeDefault() else r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() endif + '", referencedColumnName = "' 
+  + r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) 
+  then 'false' else 'true' endif +')' endif/]
+ 

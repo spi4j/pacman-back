@@ -6,6 +6,7 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::property/]
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
@@ -25,6 +26,7 @@
     [d.defaultImports()/]
     import java.io.Serializable;
     import com.fasterxml.jackson.annotation.JsonProperty;
+    import com.fasterxml.jackson.annotation.JsonIgnore;
     
   [/protected]
   
@@ -55,10 +57,11 @@
        [/for]
        [for (r : environment::Reference | rs)]
          [r.referencedDto(d).comment().commentSingleLine()/]
-         [protected (r.referencedDto(d).name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-           @JsonProperty("[r.referencedDto(d).name().apply_attributeDefault()/]")
+         [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]") 
          [/protected]
-         private [r.referencedRsType(d)/] [r.referencedDto(d).name().apply_attributeDefault()/];
+         [comment r.containingType <> d and r.isMultiple()/]
+         private [r.referencedRsTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
          
        [/for]
         
@@ -106,15 +109,17 @@
        [/for]
        [for (r : environment::Reference | rs)]
          [r.referencedDto(d).commentGet()/]
-         public [r.referencedRsType(d)/] [r.referencedDto(d).name().apply_methodGet()/]()
+         public [r.referencedRsTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
          {
-           return [r.prefixAffectation()/][r.referencedDto(d).name().apply_attributeDefault()/];
+           return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
          }
         
          [r.referencedDto(d).commentSet()/]
-         public void [r.referencedDto(d).name().apply_methodSet()/](final [r.referencedRsType(d)/] [r.referencedDto(d).name().apply_parameterMethodClassicIn()/])
+         public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
+         (final [r.referencedRsTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
          {
-           [r.prefixAffectation()/][r.referencedDto(d).name().apply_attributeDefault()/] = [r.referencedDto(d).name().apply_parameterMethodClassicIn()/];
+           [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
+              = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
          }
        [/for]
        

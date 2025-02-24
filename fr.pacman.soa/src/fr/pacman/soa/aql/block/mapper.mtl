@@ -71,8 +71,8 @@
                [r.writeListInEntityMapper(d)/];
              [/if]
              [if (r.isMultiple() and d <> r.containingType)]
-                [r.writeReferenceInEntityMapper(d)/];
-              [/if]
+               [comment r.writeReferenceInEntityMapper(d)/];
+             [/if]
            [/for]
          [/if]
          
@@ -117,7 +117,7 @@
               [r.writeListInDtoMapper(d)/];
             [/if]
             [if (r.isMultiple() and d <> r.containingType)]
-              [r.writeReferenceInDtoMapper(d)/];
+              [comment r.writeReferenceInDtoMapper(d)/];
             [/if]
           [/for]
           
@@ -182,7 +182,7 @@
                [r.writeListOutDtoMapper(d)/];
              [/if]
              [if (r.isMultiple() and d <> r.containingType)]
-                [r.writeReferenceOutDtoMapper(d)/];
+                [comment r.writeReferenceOutDtoMapper(d)/];
               [/if]
            [/for]
          [/let]
@@ -280,27 +280,31 @@
 
 [comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
 [query private writeReferenceOutXtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
-  d.suffixXto().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
-  + '.' + ('to ' + d.suffixXto()).apply_methodDefault() 
-  + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).name().apply_methodGet() + '()))'/]
+  d.suffixXto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + if (not r.isMandatory()) 
+  then '(' + d.suffixDto().apply_methodDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '() != null) ? ' else '' endif 
+  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixXto()).apply_methodDefault() + '(' + d.suffixDto().apply_parameterMethodClassicIn() 
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '())' + if (not r.isMandatory()) then  ': null' else '' endif  + ')'/]
   
 [comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
 [query private writeReferenceOutDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
-  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
-  + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' 
-  + r.referencedDto(d).name().apply_methodGet() + '()))' /]
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + if (not r.isMandatory()) 
+  then '(' + d.suffixXto().apply_methodDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '() != null) ? ' else '' endif 
+  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixXto().apply_parameterMethodClassicIn() 
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '())' + if (not r.isMandatory()) then  ': null' else '' endif  + ')' /]
   
 [comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
 [query private writeReferenceInDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
-  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '('  + r.referencedDto(d).nameClassMapperImpl() 
-  + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
-  + r.referencedDto(d).name().apply_methodGet() + '()))'/]
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + if (not r.isMandatory()) 
+  then '(' + d.suffixEntity().apply_methodDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '() != null) ? ' else '' endif 
+  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() 
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '())' + if (not r.isMandatory()) then  ': null' else '' endif  + ')'/]
   
 [comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
-[query private writeReferenceInEntityMapper(r : environment::Reference, d : environment::DTO) : String  = 
-  d.suffixEntity().apply_variableDefault() + '.' + r.referencedDto(d).name().apply_methodSet() + '('  + r.referencedDto(d).nameClassMapperImpl() 
-  + '.' + ('to ' + d.suffixEntity()).apply_methodDefault() + '(' + d.suffixDto().apply_parameterMethodClassicIn() 
-  + '.' + r.referencedDto(d).name().apply_methodGet() + '()))'/]
+[query private writeReferenceInEntityMapper(r : environment::Reference, d : environment::DTO) : String  =
+  d.suffixEntity().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + if (not r.isMandatory()) 
+  then '(' + d.suffixDto().apply_methodDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '() != null) ? ' else '' endif 
+  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixEntity()).apply_methodDefault() + '(' + d.suffixDto().apply_parameterMethodClassicIn() 
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '())' + if (not r.isMandatory()) then  ': null' else '' endif  + ')' /]
   
 
 [query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]

@@ -49,7 +49,7 @@
           [/for]
           [for (r : environment::Reference | rs)]
             [r.referencedDto(d).comment().commentSingleLine()/]
-            private [r.referencedType(d)/] [r.referencedDto(d).name().apply_attributeDefault()/];
+            private [r.referencedTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
             
           [/for]
           
@@ -69,9 +69,11 @@
              *
              * @param la valeur de l'identifiant'.
              */
-             public void [e.nameSimplePropertyID().apply_methodSet()/](final [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
+             public void [e.nameSimplePropertyID().apply_methodSet()/]
+             (final [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
              {
-                [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+                [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] 
+                  = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
              }
           [/let]
           
@@ -91,15 +93,17 @@
           [/for]
           [for (r : environment::Reference | rs)]
               [r.referencedDto(d).commentGet()/]
-              public [r.referencedType(d)/] [r.referencedDto(d).name().apply_methodGet()/]()
+              public [r.referencedTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
               {
-                 return [r.prefixAffectation()/][r.referencedDto(d).name().apply_attributeDefault()/];
+                 return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
               }
               
               [r.referencedDto(d).commentSet()/]
-              public void [r.referencedDto(d).name().apply_methodSet()/](final [r.referencedType(d)/] [r.referencedDto(d).name().apply_parameterMethodClassicIn()/])
+              public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
+              (final [r.referencedTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
               {
-                 [r.prefixAffectation()/][r.referencedDto(d).name().apply_attributeDefault()/] = [r.referencedDto(d).name().apply_parameterMethodClassicIn()/];
+                 [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
+                   = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
               }
             [/for]
             

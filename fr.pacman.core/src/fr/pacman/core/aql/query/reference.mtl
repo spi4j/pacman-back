@@ -5,11 +5,20 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::property/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::service::DatabaseUtils/]
 
 [comment liste des requêtes possibles au niveau des références pour les entités./]
+
+[comment retourne le nom pour l'attribut en provenance de la référence./]
+[query public referencedName(e : entity::Entity, r : environment::Reference) : String = 
+	if(r.isZeroOneRecursive()) then r.name else e.name() endif/]
+
+[comment retourne le nom pour l'attribut en provenance de la référence./]
+[query public referencedName(d : environment::DTO, r : environment::Reference) : String = 
+	if(r.isZeroOneRecursive()) then r.name else d.name() endif/]
 	
 [comment raccourci pour l'obtention de l'entité dans le cadre des références (toujours une entité)./]
 [comment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]	
@@ -36,13 +45,17 @@
 [comment vérifie si un référence est de type recursif (0,*)(1,*)./]
 [query public isStarRecursive(r : environment::Reference) : Boolean = 
 	r.referencedType = r.containingType and r.oppositeOf = null and r.isMultiple()/]
-	
-[comment vérifie si la référence est optionnelle (pour l'instant les listes ne sont pas considérées comme tel)./]
-[query public isOptional(r : environment::Reference) : Boolean = if (r.exists()) then r.multiplicity = 
-  environment::MultiplicityKind::ZERO_ONE else true endif/]
+
+[comment vérifie si la référence est de type récursif (0,1) (1)./]
+[query public isZeroOneRecursive(r : environment::Reference) : Boolean = 
+	r.referencedType = r.containingType and not r.isMultiple()/]
+
+[comment vérifie si la référence exige une entité ou un dto/xto (les listes sont considérées comme obligatoire)./]
+[query public isMandatory(r : environment::Reference) : Boolean = if (r.exists()) then not (r.multiplicity = 
+	environment::MultiplicityKind::ZERO_ONE) else false endif/]
 
 [comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto, la requête est 
-		très légèrement différente de 'referencesFK'
+		très légèrement différente de 'referencesFK' (va peut-être remplacer 'referencesFK' !)
 		-> pour spring / spring boot uniquement. /]	
 [query public referencesSB(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
 	st.references
@@ -63,16 +76,16 @@
 		- relations bidirectionnelles (0,*)(1,*) 
 		- relations unidirectionnelles (0,*)(1,*) inversées (A->B devient B->A)
 		-> pour scripts sql et spi4j uniquement./]
-[query public referencesFK(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.references
+[query public referencesFK(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+	st.references
 	->select(o | (o.oppositeOf = null 
 		and not o.isMultiple()) 
 		or (not (o.oppositeOf = null) 
 		and not o.isMultiple()))					
-	->union(e.eContainer(entity::Root).eAllContents(environment::Reference)
+	->union(st.eContainer(entity::Root).eAllContents(environment::Reference)
 	->select(o | o.oppositeOf = null 
 		and o.isMultiple() 
-		and o.referencedType = e
+		and o.referencedType = st
 		and not (o.containingType = o.referencedType)))
 	->sortedByName()/]
 
@@ -106,14 +119,14 @@
 	->sortedByName()/]
   
 [comment écriture du type complet pour les entités ou les dtos référencés (pas d'optional sinon plante jpa)./]
-[query public referencedType(r : environment::Reference, st : environment::StructuredType) : String = 
+[query public referencedTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
   if (r.isMultiple() and r.containingType = st) then 'List<' + if (st.oclIsKindOf(entity::Entity)) then 
   r.referencedEntity(st).nameClassEntityImpl() else r.referencedDto(st.oclAsType(environment::DTO))
   .nameClassDtoImpl() endif + '>' else if (st.oclIsKindOf(entity::Entity)) then  r.referencedEntity(st).nameClassEntityImpl() 
   else r.referencedDto(st.oclAsType(environment::DTO)).nameClassDtoImpl() endif endif /]
   
 [comment écriture du type complet pour les xtos référencés./]
-[query public referencedRsType(r : environment::Reference, st : environment::StructuredType) : String = 
+[query public referencedRsTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
   if (r.isMultiple() and r.containingType = st) then 'List<' +  r.referencedDto(st.oclAsType(environment::DTO))
   .nameClassXtoImpl() + '>' else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]
 
@@ -137,7 +150,9 @@
 
 
 
-
+[comment vérifie si la référence est optionnelle (pour l'instant les listes ne sont pas considérées comme tel)./]
+[comment query public isOptional(r : environment::Reference) : Boolean = if (r.exists()) then r.multiplicity = 
+  environment::MultiplicityKind::ZERO_ONE else true endif/]
 
 [comment retourne les références pour les relations récursives de type (0,*)(1,*) sur une entité./][query public starOwnedAllNavigability(e : entity::Entity) : OrderedSet(environment::Reference) = e.references->select(o | o.isMultiple() 
 	and o.referencedType = e and o.oppositeOf = null)->sortedByName()/]
