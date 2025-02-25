@@ -238,14 +238,14 @@ public final class StringUtils {
 	 */
 	public static String get_userCodeId(final String p_str) {
 		try {
-			MessageDigest v_messageDigest = MessageDigest.getInstance("MD5");
-			v_messageDigest.update(p_str.getBytes());
-			byte[] messageDigestMD5 = v_messageDigest.digest();
-			StringBuffer v_stringBuffer = new StringBuffer();
-			for (byte v_bytes : messageDigestMD5) {
-				v_stringBuffer.append(String.format("%02x", v_bytes & 0xff));
+			MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+			messageDigest.update(p_str.getBytes());
+			byte[] messageDigestMD5 = messageDigest.digest();
+			StringBuffer stringBuffer = new StringBuffer();
+			for (byte bytes : messageDigestMD5) {
+				stringBuffer.append(String.format("%02x", bytes & 0xff));
 			}
-			return v_stringBuffer.toString();
+			return stringBuffer.toString();
 		} catch (NoSuchAlgorithmException exception) {
 			return "";
 		}

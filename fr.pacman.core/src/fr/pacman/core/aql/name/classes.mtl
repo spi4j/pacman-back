@@ -37,6 +37,12 @@
   
 [comment retourne le nom pour l'annotation d'injection des services métier./]
 [query public nameClassAnnotationIn (any : ecore::EObject) : String = any.nameAnnotationAdapter().apply_classDefault()/]
+
+[comment retourne le nom de la classe pour le type spécifique pacman 'XtopSup'./]
+[query public nameClassXtopSupImpl (any : ecore::EObject) : String = any.nameTypeXtopSup().nameClassType()/]
+
+[comment retourne le nom pour la classe d'énumération du statut de la ligne en base de données./]
+[query public nameClassDatabaseStatusImpl (any : ecore::EObject) : String = any.nameDatabaseStatusEnum().apply_classEnum()/]
   
 [comment retourne le nom pour une classe d'énumération./]
 [query public nameClassEnumeration(e : environment::Enumeration) : String = e.name().apply_classEnum()/]
@@ -48,7 +54,7 @@
 [query public nameClassEntityItf(e : entity::Entity) : String = e.name().apply_classInterface()/]
 
 [comment retourne le nom de la classe abstraite pour les champs automatiques de la base de données./]
-[query public nameClassEntitySqlAutoFieldsImpl(any: ecore::EObject) : String = (any.nameProject() + ' sql auto fields').apply_classImplem()/]
+[query public nameClassAutoAttributesImpl(any: ecore::EObject) : String = (any.nameProject() + ' auto attributes').apply_classImplem()/]
   
 [comment retourne le nom de la classe de démarrage pour une application Spring./]
 [query public nameClassAppBoostrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBoostrap()).apply_classDefault()/]

@@ -2,9 +2,6 @@
 						extends fr::pacman::entity::aql::genServer/]
 
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
-[comment enlever ces imports suite a correction bug./]
-[import fr::pacman::common::aql::file::genSqlAutoFields/]
-[comment enlever ces imports suite a correction bug./]
 
 [comment @main/]
 [template public genServer(r : entity::Root)]

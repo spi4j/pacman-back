@@ -962,7 +962,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		for (SqlAutoField sqlAutoField : _sqlAutoFields) {
 			if ("xdmaj".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajName, "XDMAJ");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajComment, "Date de mise à jour de la ligne.");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajComment, "Date de mise à jour de la ligne");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajDefault, "current_date");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajNotnull, "true");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajSize, "");
@@ -970,7 +970,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				sqlFields += ("," + ProjectProperties.c_sql_tableXdmaj);
 			} else if ("xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique.");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupDefault, "0");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupNotnull, "true");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupSize, "1");

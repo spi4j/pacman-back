@@ -1,10 +1,10 @@
 [module genServer(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
-[import fr::pacman::common::aql::file::genSqlAutoFields/]
-	
+[import fr::pacman::common::aql::file::genAutoAttributes/]
+
 [comment écriture des classes et fichiers persistence pour la partie serveur de l'application cible./]
 [template public genServer(r : entity::Root)]
-  [r.fileSqlAutoFieldsImplementation()/]
+    [r.fileAutoAttributesImpl('ety')/]
 [/template]
 

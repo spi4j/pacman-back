@@ -22,6 +22,9 @@
 [comment retourne le package pour l'implémentation du port par l'adaptateur (domain->controller)./]
 [query public namePackageOutImpl(s : soa::Service) : String = s.get_suffixCommon() + '.features'/]
 
+[comment retourne le package pour la racine du projet domain./]
+[query public namePackageDtoBase(any : ecore::EObject) : String = any.get_suffixCommon()/]
+
 [comment retourne le package pour l'interface du port (domain->persistance)./]
 [query public namePackageInItf(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixInterfaceIn().trim() + 's' + '.' + s.nameComponent()/]
 
@@ -29,7 +32,7 @@
 [query public namePackageInImpl(s : soa::Service) : String = 'infra.adapters.' + s.nameComponent()/]
   
 [comment retourne le package pour une classe d'énumération./]
-[query public namePackageEnumeration(e : environment::Enumeration) : String = 'app.enumerations'/]
+[query public namePackageEnumeration(any : ecore::EObject) : String = 'enumerations'/]
 
 [comment retourne le package pour les classes d'annotation./]
 [query public namePackageAnnotation(e : ecore::EObject) : String = 'annotations'/]

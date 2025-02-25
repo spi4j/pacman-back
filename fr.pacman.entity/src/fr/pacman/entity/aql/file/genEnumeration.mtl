@@ -7,7 +7,7 @@
 [import fr::pacman::entity::aql::block::enumeration/]
 
 [comment écriture du fichier d'implémentation pour une énumération./]
-[template public fileEnumerationImplementation(e: environment::Enumeration)]
+[template public fileEnumerationImpl(e: environment::Enumeration)]
   [file (e.nameClassEnumeration().toFileJava(e.namePackageEnumeration()), overwrite, e.defaultFileEncoding())]
     [e.genEnumeration()/]
   [/file]

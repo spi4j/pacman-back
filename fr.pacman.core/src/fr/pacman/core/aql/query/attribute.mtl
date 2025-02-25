@@ -2,9 +2,11 @@
 					'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::query::property/]
 [import fr::pacman::core::service::AnnotationUtils/]
 [import fr::pacman::core::service::DtoEntityUtils/]
+[import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment liste des requêtes possibles sur les attributs./]
 
@@ -38,3 +40,31 @@
 [comment retourne tous les attributs d'une entité qui ne sont pas des clés primaires et ne sont pas versionnés./]
 [query public attributesNoPkNoVersion(e : entity::Entity) : OrderedSet(environment::Attribute) = e.get_attributes()->select(a | not a.isIdentifier 
 	and not a.has_metaVersion())->asOrderedSet()/]
+
+[comment retourne l'ensemble des champs supplémentaires pour la persistance./]
+[query public autoAttributes(any : ecore::EObject) : Sequence(String) = any.get_SQLAutoFields().trim().tokenize(',')/]
+  
+[comment vérifie si il est possible d'écrire l'attribut additionnel (champ auto)./]
+[query public hasToWriteAutoAttribute (prop : String) : Boolean =  prop.keyNameSqlAutoAttribut().get_property().exists() 
+	and  prop.keyNameSqlAutoAttribut().get_property().exists()/]
+	
+[comment vérifie l'existance d'un champ supplémentaire de type xtopsup./]
+[query public hasXtopSup(any : ecore::EObject) : Boolean = any.autoAttributes()->collect(o | o.contains(any.keyXtopSup())) <> false/]
+
+[comment vérifie l'existance d'un champ supplémentaire de type xdmaj./]
+[query public hasXdMaj(any : ecore::EObject) : Boolean = any.autoAttributes()->collect(o | o.contains(any.keyXdMaj())) <> false/]
+
+[comment vérifie l'existance de champ(s) supplémentaire(s) de type xtopsup ou xdmaj./]
+[query public hasXtoSupOrXdMaj(any : ecore::EObject) : Boolean = any.hasXtopSup() or any.hasXdMaj()/]
+
+[comment retourne le type pour l'attribut additionnel (champ auto)./]
+[query public autoAttributeType (prop : String) : String = prop.keyTypeSqlAutoAttribut().get_property().type()/]
+
+[comment retourne le nom pour l'attribut additionnel (champ auto)./]
+[query public autoAttributeName (prop : String) : String = prop.keyNameSqlAutoAttribut().get_property()/]
+
+[comment retourne le nom pour l'attribut additionnel (champ auto)./]
+[query public autoAttributeComment (prop : String) : String = prop.keyCommentSqlAutoAttribut().get_property()/]
+
+[comment retourne la taille pour l'attribut additionnel (champ auto)./]
+[query public autoAttributSize(prop : String) : String = prop.keySizeSqlAutoAttribut().get_property()/]

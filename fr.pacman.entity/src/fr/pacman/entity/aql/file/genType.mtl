@@ -7,7 +7,7 @@
 [import fr::pacman::entity::aql::block::type/]
 
 [comment écriture du fichier d'implémentation pour les types spéciaux de pacman./]
-[template public fileTypeImplementation(any : ecore::EObject , type : String)]
+[template public fileTypeImpl(any : ecore::EObject , type : String)]
    [file (type.nameClassType().toFileJava(any.namePackageType()), overwrite, any.defaultFileEncoding())]
      [any.typeBinary()/]
    [/file]

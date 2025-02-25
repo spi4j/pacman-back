@@ -154,7 +154,6 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		properties.put(ProjectProperties.c_requirement_versionningInitial, _pageOne.getRequirementInitVersion());
 		properties.put(ProjectProperties.c_sql_tablePrefix, _pageOne.getSqlTablePrefix());
 		properties.put(ProjectProperties.c_sql_tableSchema, _pageOne.getSqlTableSchema());
-		properties.put(ProjectProperties.c_sql_oracleIndexTablespace, _pageOne.getSqlTableSpace());
 		properties.put(ProjectProperties.c_project_framework, _pageOne.getTypeFramework());
 		properties.put(ProjectProperties.c_project_crud, _pageOne.getProjectCrud());
 		properties.put(ProjectProperties.c_project_fetchingStrategy, _pageOne.getSpi4jfetchingStrategy());

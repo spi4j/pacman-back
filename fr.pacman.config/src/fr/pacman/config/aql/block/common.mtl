@@ -4,13 +4,228 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::method/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
 
 [comment écriture du type spécial Binary pour le projet./]
 [template public binaryType (any : ecore::EObject)]
   [any.classHeader(any.namePackageType())/]
   [any.defaultImports()/]
+  import java.io.Serializable;
+  
   public class [any.nameTypeBinary().nameClassType()/]
   {
 	  
+  }
+[/template]
+
+[comment écriture du type spécial XtopSup pour le projet./]
+[template public xtopSupType (any : ecore::EObject)]
+  [any.classHeader(any.namePackageType())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Classe représentant un objet [any.nameClassXtopSupImpl()/]. 
+   * Cette classe est utilisée pour stocker
+   * et gérer le statut d'un enregistrement, représenté par
+   * l'énumération {@link DatabaseLineStatus_Enum}.
+   * <p>
+   * Cette classe implémente {@link Serializable} pour permettre la sérialisation
+   * des objets [any.nameClassXtopSupImpl()/].
+   * <p>
+   * Elle fournit des constructeurs pour initialiser un objet avec un statut de
+   * ligne sous forme d'énumération ou de chaîne de caractères. Elle propose
+   * également des méthodes pour obtenir et définir le statut de l'enregistrement'.
+   * 
+   * @see DatabaseLineStatus_Enum
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassXtopSupImpl()/]
+  {
+	  /**
+	  * Numero de serie auto généré pour la sérialisation.
+	  */
+	  private static final long serialVersionUID = 3960447253989916607L;
+
+	  /**
+	  * Statut de l'enregistrement. Ce champ est de type
+	  * {@link [any.nameClassDatabaseStatusImpl()/]}.
+	  */
+	  [any.nameClassDatabaseStatusImpl()/] [any.nameTypeXtopSup().apply_attributeDefault()/];
+
+	  /**
+	   * Constructeur pour initialiser un objet [any.nameClassXtopSupImpl()/] avec un statut de l'enregistrement' *
+	   * sous forme d'énumération.
+	   *
+	   * @param ['record status'.apply_parameterMethodClassicIn()/] Le statut de l'enregistrement sous forme d'énumération
+	   *                     {@link [any.nameClassDatabaseStatusImpl()/]}.
+	   */
+	  public [any.nameClassXtopSupImpl()/](final [any.nameClassDatabaseStatusImpl()/] ['record status'.apply_parameterMethodClassicIn()/]) {
+	  	[any.prefixAffectation()/][any.nameTypeXtopSup().apply_attributeDefault()/] = ['record status'.apply_parameterMethodClassicIn()/];
+	  }
+
+	  /**
+	   * Constructeur pour initialiser un objet [any.nameClassXtopSupImpl()/] avec un statut sous
+	   * forme de chaîne de caractères. Le statut sera converti en valeur d'énumération à l'aide de la méthode
+	   * {@link [any.nameClassDatabaseStatusImpl()/]#['from string value'.apply_methodDefault()/](String)}.
+	   *
+	   * @param ['record status'.apply_parameterMethodClassicIn()/] Le statut de l'enregistrement sous forme de chaîne de caractères.
+	   *                     Il sera converti en un objet
+	   *                     {@link [any.nameClassDatabaseStatusImpl()/]}.
+	   */
+	  public [any.nameClassXtopSupImpl()/](final String ['record status'.apply_parameterMethodClassicIn()/]) {
+	  	[any.prefixAffectation()/][any.nameTypeXtopSup().apply_attributeDefault()/] =  [any.nameClassDatabaseStatusImpl()/]
+	  		.['from string value'.apply_methodDefault()/](['record status'.apply_parameterMethodClassicIn()/]);
+	  }
+
+	  /**
+	   * Méthode pour obtenir la valeur du statut de l'enregistrement.
+	   *
+	   * @return La valeur du statut sous forme de chaîne de caractères.
+	   */
+	  public String ['value'.apply_methodGet()/]() {
+	  	return [any.prefixAffectation()/][any.nameTypeXtopSup().apply_attributeDefault()/].['value'.apply_methodGet()/]();
+	  }
+
+	  /**
+	   * Méthode pour définir le statut de l'enregistrement avec une nouvelle valeur
+	   * d'énumération {@link [any.nameClassDatabaseStatusImpl()/]}.
+	   *
+	   * @param [any.nameTypeXtopSup().apply_parameterMethodClassicIn()/] Le nouveau statut sous forme d'énumération.
+	   */
+	  public void ['value'.apply_methodSet()/](final [any.nameClassDatabaseStatusImpl()/] [any.nameTypeXtopSup().apply_parameterMethodClassicIn()/]) {
+	  	[any.prefixAffectation()/][any.nameTypeXtopSup().apply_attributeDefault()/] = [any.nameTypeXtopSup().apply_parameterMethodClassicIn()/];
+	  }
+  }
+[/template]
+
+[comment écriture de l'énumération pour le statut de la ligne en base de données./]
+[template public databaseStatusEnum (any : ecore::EObject)]
+  [any.classHeader(any.namePackageEnumeration())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Enumération représentant les différents statuts d'un enregistrement dans 
+   * une base de données ou un système. Chaque statut est associé à une valeur 
+   * sous forme de chaîne de caractères et d'une valeur courte (short).
+   * 
+   * Les statuts possibles sont :
+   * <ul>
+   *   <li><strong>['active'.apply_attributeEnum()/]</strong> ("0") : Enregistrement actif.</li>
+   *   <li><strong>['deleted for new reference'.apply_attributeEnum()/]</strong> ("1") : Enregistrement supprimé pour une nouvelle référence.</li>
+   *   <li><strong>['deleted for all'.apply_attributeEnum()/]</strong> ("3") : Enregistrement supprimé pour tous.</li>
+   *   <li><strong>['deleted for trash'.apply_attributeEnum()/]</strong> ("9") : Enregistrement supprimé dans la corbeille.</li>
+   * </ul>
+   * 
+   * <p>Cette énumération fournit des méthodes pour obtenir la valeur associée à un statut, 
+   * effectuer des vérifications de statut (comme pour une sélection, suppression ou mise à jour), 
+   * et convertir une valeur de chaîne en un statut d'énumération.</p>
+   */
+  public enum [any.nameClassDatabaseStatusImpl()/] {
+  
+  	/** Statut représentant un enregistrement actif. */
+  	['active'.apply_attributeEnum()/]("0"),
+
+  	/** Statut représentant un enregistrement supprimé pour une nouvelle référence. */
+  	['deleted for new reference'.apply_attributeEnum()/]("1"),
+
+  	/** Statut représentant un enregistrement supprimé pour tous. */
+  	['deleted for all'.apply_attributeEnum()/]("3"),
+
+  	/** Statut représentant un enregistrement supprimé dans la corbeille. */
+  	['deleted for trash'.apply_attributeEnum()/]("9");
+  	
+  	/** La valeur sous forme de chaîne de caractères associée au statut. */
+  	private String ['value'.apply_attributeDefault()/];
+
+  	/** La valeur courte (short) associée au statut. */
+  	private short ['short value'.apply_attributeDefault()/];
+  	
+  	/**
+  	* Constructeur de l'énumération. Associe une valeur de chaîne et calcule la valeur courte 
+  	* à partir de la chaîne.
+  	* 
+  	* @param ['value'.apply_parameterMethodClassicIn()/] La valeur sous forme de chaîne associée au statut.
+  	*/
+  	[any.nameClassDatabaseStatusImpl()/](final String ['value'.apply_parameterMethodClassicIn()/]) {
+  		[any.prefixAffectation()/]['value'.apply_attributeDefault()/] = ['value'.apply_parameterMethodClassicIn()/];
+  		[any.prefixAffectation()/]['short value'.apply_attributeDefault()/] = Short.parseShort(['value'.apply_parameterMethodClassicIn()/]);
+  	}
+  
+  	/**
+  	* Méthode pour obtenir la valeur sous forme de chaîne du statut.
+  	* 
+  	* @return La valeur sous forme de chaîne du statut.
+  	*/
+  	public String ['value'.apply_methodGet()/]() {
+  		return ['value'.apply_attributeDefault()/];
+  	}
+  
+  	/**
+  	* Vérifie si le statut correspond à une valeur valide pour une sélection.
+  	* La méthode renvoie <code>true</code> si le statut est valide pour une sélection 
+  	* (c'est-à-dire une valeur inférieure à {@link #deletedForAll}), sinon elle renvoie <code>false</code>.
+  	* 
+  	* @param ['value'.apply_parameterMethodClassicIn()/] La valeur à vérifier.
+  	* @return <code>true</code> si la valeur est valide pour une sélection, sinon <code>false</code>.
+  	*/
+  	public static boolean ['for select'.apply_methodDefault()/](final String ['value'.apply_parameterMethodClassicIn()/]) {
+  		if (null != ['value'.apply_parameterMethodClassicIn()/] 
+  			&& Integer.parseInt(['value'.apply_parameterMethodClassicIn()/]) < deletedForAll.['short value'.apply_attributeDefault()/]) {
+  			return true;
+  		}
+  		return false;
+  	}  
+  	/**
+   	* Vérifie si le statut correspond à une valeur valide pour une suppression.
+   	* La méthode renvoie <code>true</code> si le statut est valide pour une suppression 
+   	* (c'est-à-dire une valeur inférieure à {@link #deletedForAll}), sinon elle renvoie <code>false</code>.
+   	* 
+   	* @param ['value'.apply_parameterMethodClassicIn()/] La valeur à vérifier.
+   	* @return <code>true</code> si la valeur est valide pour une suppression, sinon <code>false</code>.
+   	*/
+  	public static boolean ['for delete'.apply_methodDefault()/](final String ['value'.apply_parameterMethodClassicIn()/]) {
+  		if (null != ['value'.apply_parameterMethodClassicIn()/] 
+  			&& Integer.parseInt(['value'.apply_parameterMethodClassicIn()/]) < deletedForAll.['short value'.apply_attributeDefault()/]) {
+  			return true;
+  		}
+  		return false;
+  	}
+
+  	/**
+  	* Vérifie si le statut est valide pour une mise à jour.
+  	* La méthode renvoie <code>true</code> si le statut est <code>active</code>, sinon elle renvoie <code>false</code>.
+  	* 
+  	* @param ['value'.apply_parameterMethodClassicIn()/] La valeur à vérifier.
+  	* @return <code>true</code> si le statut est valide pour une mise à jour, sinon <code>false</code>.
+  	*/
+  	public static boolean ['for update'.apply_methodDefault()/](final String ['value'.apply_parameterMethodClassicIn()/]) {
+  		if (active.['value'.apply_methodGet()/]().equals(['value'.apply_parameterMethodClassicIn()/])) {
+  			return true;
+  		}
+  		return false;
+  	}  
+  /**
+   * Convertit une valeur de chaîne en un statut d'énumération {@link DatabaseLineStatus_Enum}.
+   * Cette méthode parcourt tous les statuts d'énumération et tente de trouver une correspondance avec la valeur donnée.
+   * Si aucune correspondance n'est trouvée, une exception est lancée.
+   * 
+   * @param ['value'.apply_parameterMethodClassicIn()/] La valeur sous forme de chaîne à convertir.
+   * @return Le statut correspondant à la valeur donnée.
+   * @throws RuntimeException Si la valeur ne correspond à aucun statut.
+   */
+  	public static [any.nameClassDatabaseStatusImpl()/] ['from string value'.apply_methodDefault()/](final String ['value'.apply_parameterMethodClassicIn()/]) {
+  		for (final [any.nameClassDatabaseStatusImpl()/] ['line status enum'.apply_variableDefault()/] : [any.nameClassDatabaseStatusImpl()/].values()) {
+  			if (['line status enum'.apply_variableDefault()/].['value'.apply_methodGet()/]().equals(['value'.apply_parameterMethodClassicIn()/])) {
+  				return ['line status enum'.apply_variableDefault()/];
+  			}
+  		}  
+  		throw new RuntimeException(
+  				"XTOPSUP : Impossible de retrouver le statut au niveau de l'énumération, " 
+  				+ "vérifier le statut au niveau de la couche de persistance.");
+  	}
   }
 [/template]

@@ -12,7 +12,7 @@
 [comment import fr::pacman::core::service::DateUtils/]
 
 [comment vérifie si un chaine n'est pas nulle ou vide./]
-[query public exists(str : String ) : Boolean  = str <> null and str.trim()->size() > 0/]
+[query public exists(str : String ) : Boolean  = str <> null and str.trim().size() > 0/]
 
 [comment retourne la ligne expurgée des caractères spéciaux interdits./]
 [query public sanitize(str : String) : String = str.trim().normalize().do_sanitize()/]

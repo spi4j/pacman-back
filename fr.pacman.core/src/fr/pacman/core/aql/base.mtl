@@ -126,7 +126,7 @@
 
 [comment le suffixe pour la classe de démarrage de l'application./]
 [query public suffixApplicationBoostrap(any : ecore::EObject) : String = ' boostrap'/]
-
+  
 [comment le préfixe pour les attributs si besoin./]
 [query public prefixAffectation(any : ecore::EObject) : String = 'this.'/]
   
@@ -154,23 +154,23 @@
 [comment retourne le 'préfixe' (abus de langage) pour le tablespace Oracle SQL. /]
 [query public prefixTableSpace(any : ecore::EObject) : String = any.get_SQLTablePrefix()/] 
 
-[comment : Recuperation de la clé pour le nom de la propriete additionnelle (champ auto). /] 
-[query public keyNameColumnProperty(columnProp : String) : String = columnProp + '.name'/]
+[comment retourne la clé pour le nom de l'attribut additionnel (champ auto)./]
+[query public keyNameSqlAutoAttribut(prop : String) : String = prop + '.name'/]
 
-[comment : Recuperation de la clé pour le type de la propriete additionnelle (champ auto). /]
-[query public keyTypeColumnProperty(columnProp : String) : String = columnProp + '.type'/]
+[comment : Recuperation de la clé pour le type de la propriete additionnelle (champ auto)./]
+[query public keyTypeSqlAutoAttribut(prop : String) : String = prop + '.type'/]
 
-[comment : Recuperation de la clé pour la taille de la propriete additionnelle (champ auto). /]
-[query public keySizeColumnProperty(columnProp : String) : String = columnProp + '.size'/]
+[comment retourne la clé pour la taille de l'attribut additionnel (champ auto)./]
+[query public keySizeSqlAutoAttribut(prop : String) : String = prop + '.size'/]
 
-[comment : Recuperation de la clé pour la valeur de defaut de la propriete additionnelle (champ auto). /]
-[query public keyDefaultColumnProperty(columnProp : String) : String = columnProp + '.default'/]
+[comment retourne la clé pour la valeur par défaut de l'attribut additionnel (champ auto)./]
+[query public keyDefaultSqlAutoAttribut(prop : String) : String = prop + '.default'/]
 
-[comment : Recuperation de la clé pour la decription de la propriete additionnelle (champ auto). /]
-[query public keyDescriptionColumnProperty(columnProp : String) : String = columnProp + '.comment'/]
+[comment retourne la clé pour la nullité de l'attribut additionnel (champ auto)./]
+[query public keyNotnullSqlAutoAttribut(prop : String) : String = prop + '.notnull'/]
 
-[comment : Recuperation de la clé pour la nullite de la propriete additionnelle (champ auto). /]
-[query public keyNotnullColumnProperty(columnProp : String) : String = columnProp + '.notnull'/]
+[comment retourne la clé pour le commentaire de l'attribut additionnel (champ auto)./]
+[query public keyCommentSqlAutoAttribut(prop : String) : String = prop + '.comment'/]
 
 [comment le répertoire pour l'ensemble des sources./]
 [query public dirSources(any : ecore::EObject) : String = 'src/main/java/'/]
@@ -233,6 +233,11 @@
 
 [comment retourne le nom pour un type spécial pacman binaire./]
 [query public nameTypeBinary(any : ecore::EObject) : String = 'binary'/]
+  
+[comment retourne le nom pour un type spécial pacman XtopSup./]
+[query public nameTypeXtopSup(any : ecore::EObject) : String = 'xtop sup'/]
+  
+[comment retourne le nom pour l'énumération du statut de la ligne en base de données./][query public nameDatabaseStatusEnum(any : ecore::EObject) : String = 'record status'/]
 
 [comment retourne le nom pour l'annotation d'injection du service dans la couche métier./]
 [query public nameAnnotationDomainService(any : ecore::EObject) : String = 'service domain'/]
@@ -242,6 +247,9 @@
   
 [comment retourne le nom pour la classe de configuration de la couche métier./]
 [query public nameDomainConfiguration(any : ecore::EObject) : String = 'domain configuration'/]
+
+[comment retourne le nom de  l'auteur (évite de charger le gestionnaire de propriétés si possible)./]
+[query public nameAuthor(any : ecore::EObject) : String = any.get_authorName()/]
   
 [comment vérifie si l'objet utilise la couche de matching./]  
 [comment query public isUseMatching(any : ecore::EObject) : Boolean = any.getUseMatchingJavaService().toBoolean()/]

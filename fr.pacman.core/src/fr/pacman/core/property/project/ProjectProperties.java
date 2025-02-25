@@ -64,7 +64,6 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_sql_tableXtopsupNotnull = "sql.table.field.xtopsup.notnull";
 	public static final String c_sql_tableXtopsupComment = "sql.table.field.xtopsup.comment";
 	public static final String c_sql_tableXtopsupSize = "sql.table.field.xtopsup.size";
-	public static final String c_sql_oracleIndexTablespace = "sql.oracle.index.tablespace";
 	public static final String c_sql_tableXField = "sql.table.field";
 
 	public static final String c_requirement_prefix = "requirement.prefix";
@@ -155,8 +154,6 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_sql_fields, c_noDefaultValue,
 						"Champs additionnels pour les tables de l'application"),
-
-				PacmanProperty.newRequired(c_sql_oracleIndexTablespace, "", "Tablespace specifique (si base Oracle)"),
 
 //				PacmanProperty.newRequired(c_is_debug, "false",
 //						"Flag indiquant si le mode debug pour PacMan est actif (plus d'informations en cas d'erreur de generation)"),
@@ -276,7 +273,7 @@ public final class ProjectProperties extends PropertiesCategory {
 				PacmanProperty.newConditional(c_sql_tableXtopsupNotnull, "true",
 						"Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableXtopsupComment, "Indicateur de suppression logique.",
+				PacmanProperty.newConditional(c_sql_tableXtopsupComment, "Indicateur de suppression logique",
 						"Champ additionnel pour les tables SQL"),
 
 				PacmanProperty.newConditional(c_sql_tableXtopsupSize, "1", "Champ additionnel pour les tables SQL"),
@@ -498,13 +495,17 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_requirement_categoryBaseLevel);
 	}
 
-	public static String get_sqlAutoFields(final Object p_object) {
+	public static String get_SQLAutoFields(final Object p_object) {
 		return PropertiesHandler.getProperty(c_sql_fields);
 	}
 
 //	public static String getLibrariesAdditionalJars(Object p_object) {
 //		return PropertiesHandler.getProperty(c_project_libraries);
 //	}
+	
+	public static final String get_property(final String p_key) {
+		return PropertiesHandler.getProperty(p_key);
+	}
 
 	public static final boolean is_applicationCrud(final Object p_object) {
 		return true;
@@ -535,20 +536,11 @@ public final class ProjectProperties extends PropertiesCategory {
 	}
 
 	public static String get_SQLTablePrefix(final Object p_object) {
-		// return "";
-		return "TBL";
-		// return PropertiesHandler.getProperty(c_sql_tablePrefix);
+		return PropertiesHandler.getProperty(c_sql_tablePrefix);
 	}
 
 	public static String get_SQLTableSchema(final Object p_object) {
-		// return "";
-		return "SCH";
-		// return PropertiesHandler.getProperty(c_sql_tableSchema);
-	}
-
-	public static String get_SQLOracleIndexTableSpace(final Object p_object) {
-		return "TORA";
-		// return PropertiesHandler.getProperty(c_sql_oracleIndexTablespace);
+		 return PropertiesHandler.getProperty(c_sql_tableSchema);
 	}
 
 	public static String get_useDeprecatedSOAUserCodeParams() {
@@ -599,11 +591,11 @@ public final class ProjectProperties extends PropertiesCategory {
 //		return PropertiesHandler.getProperty(c_is_h2EmbeddedDatabase);
 //	}
 
-	public static String get_XtoSupName() {
+	public static String get_XtoSupName(final Object p_object ) {
 		return PropertiesHandler.getProperty(c_sql_tableXtopsupName);
 	}
 
-	public static String get_XdMajName() {
+	public static String get_XdMajName(final Object p_object) {
 		return PropertiesHandler.getProperty(c_sql_tableXdmajName);
 	}
 
@@ -622,18 +614,12 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static boolean isProfilerEnabled() {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_profiler));
 	}
-
-	public static String get_SQLAdditionalFields() {
-		return null;
-		// return
-		// PacmanPropertiesHandler.getProperty(c_server_sql_table_add_fields);
-	}
-
-	public static String get_XtoSupKey() {
+	
+	public static String get_XtoSupKey(final Object p_object) {
 		return c_sql_tableXtopsup;
 	}
 
-	public static String get_XdMajKey() {
+	public static String get_XdMajKey(final Object p_object) {
 		return c_sql_tableXdmaj;
 	}
 

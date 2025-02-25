@@ -32,7 +32,10 @@
   import java.util.Map;
   import [any.namePackageProject()/].[any.namePackageException()/].[any.nameClassMapperExceptionImpl()/];
   import [any.namePackageProject()/].[any.namePackageException()/].[any.nameClassNotImplementedExceptionImpl()/];
+  
   import [any.namePackageProject()/].[any.namePackageType()/].[any.nameTypeBinary().nameClassType()/];
+  import [any.namePackageProject()/].[any.namePackageEnumeration()/].[any.nameClassDatabaseStatusImpl()/];
+  import [any.namePackageProject()/].[any.namePackageType()/].[any.nameClassXtopSupImpl()/];
 [/template]
 
 [comment 	écriture des imports spécifiques pour la classe, on essaye de trouver le maximum des imports 

@@ -2,9 +2,11 @@
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::soa::aql::file::genCommon/]
+[import fr::pacman::common::aql::file::genAutoAttributes/]
 
 [comment écriture des classes et fichiers soa pour la partie métier de l'application cible./]
 [template public genCommon(m : soa::System)]
+  [m.fileAutoAttributesImpl('dto')/]
   [for (s : soa::Service | m.eAllContents(soa::Service))]
   	[s.fileServiceImpl()/]
   	[s.fileServiceOutItf()/]

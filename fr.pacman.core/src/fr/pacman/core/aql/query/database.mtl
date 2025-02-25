@@ -3,6 +3,8 @@
 
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::service::DatabaseUtils/]
+[import fr::pacman::core::service::StringUtils/]
+[import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment demande la réinitialisation complète pour les compteurs de contrainte (nommage)./]
 [query public resetCounters(any : ecore::EObject) : String = true.do_resetCounters()/]

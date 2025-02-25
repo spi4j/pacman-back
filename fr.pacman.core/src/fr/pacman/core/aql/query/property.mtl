@@ -11,7 +11,8 @@
 [comment liste des requêtes possibles sur les propriétés./]
 
 [comment vérifie si la propriété est une liste (1,*)(0,*). /]  
-[query public isMultiple(p : environment::Property) : Boolean = p.multiplicity = environment::MultiplicityKind::ONE_STAR 
+[query public isMultiple(p : environment::Property) : Boolean = 
+  p.multiplicity = environment::MultiplicityKind::ONE_STAR 
   or p.multiplicity = environment::MultiplicityKind::ZERO_STAR/]
   
 [comment retourne le type formaté pour une propriété (attribut, paramètre, etc...)./]
@@ -23,6 +24,18 @@
   else if (t.name.equalsIgnoreCase('TimeStamp')) then 'Instant' 
   else if (t.name.equalsIgnoreCase('Time')) then 'LocalTime' 
   else t.name.sanitize() endif endif endif endif endif endif/] 
+  
+ [comment retourne le type formaté pour une propriété (attribut, paramètre, etc...)./]
+ [query public type(str : String) : String = 
+   if (str.equalsIgnoreCase('Date')) then 'LocalDate' 
+   else if (str.equalsIgnoreCase('TimeStamp')) then 'Instant' 
+   else if (str.equalsIgnoreCase('Time')) then 'LocalTime' 
+   else str.sanitize() endif endif endif   /] 
+
+
+
+
+
 
 
 

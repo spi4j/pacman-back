@@ -64,8 +64,6 @@
   [for (a : environment::Attribute | e.attributesNoPKAndNoComputed())]
     [a.writeAttribut(dbType)/]
   [/for]
-  [if (e.hasAutoAttributs())]
-  [/if]
 [/template]
 
 [comment écriture des clés étrangères pour la table (n'utilise pas l'index des boucles)./]

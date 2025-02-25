@@ -1,0 +1,88 @@
+[module autoAttributes(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]				
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::attributes/]
+[import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::rule::method/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::property::project::ProjectProperties/]
+
+[comment écriture des champs automatiques pour la base de données./]
+[template public persistenceAutoAttributes (any : ecore::EObject, target : String)]
+  [any.classHeader(any.namePackageEntityBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [any.defaultsImports()/]
+    import jakarta.persistence.Column;
+    
+  [/protected]
+  
+  /**
+   * Classe abstraite représentant un modèle avec des champs additionnels pour la
+   * gestion de la couche de persistance. Cette classe est utilisée pour gérer
+   * l'auto-attribution des valeurs sur les différents champs.
+   */
+  public abstract class [any.nameClassAutoAttributesImpl()/]
+  {
+    
+    [for (prop : String | any.autoAttributes())]
+      [if (prop.hasToWriteAutoAttribute ())]
+        [prop.autoAttributeComment().commentSingleLine()/]
+        [prop.writeAnnotationColumn()/]
+        private [prop.autoAttributeType()/] [prop.nameAutoAttribute().apply_attributeDefault()/];
+        
+      [/if]
+    [/for]
+    
+    [for (prop : String | any.autoAttributes())]
+      [prop.automaticGetter()/]
+      [prop.automaticSetter()/]
+    [/for]
+  }
+[/template]
+
+[comment écriture des getters pour les champs automatiques./]
+[template private automaticGetter(prop : String)]
+  [if (prop.hasToWriteAutoAttribute())]
+    /**
+     * Retourne la valeur de [prop.nameAutoAttribute().apply_attributeDefault()/] 
+     *
+     * @return la valeur de [prop.nameAutoAttribute().apply_attributeDefault()/] 
+     */
+    public [prop.autoAttributeType()/] [prop.nameAutoAttribute().apply_methodGet()/] ()
+    {
+      return [prop.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/];
+    }
+  [/if]
+  
+[/template]
+
+[comment écriture des setters pour les champs automatiques./]
+[template private automaticSetter(prop : String)]
+  [if (prop.hasToWriteAutoAttribute())]
+    /**
+     * Affecte la valeur de [prop.nameAutoAttribute().apply_attributeDefault()/] 
+     *
+     * @param la valeur de [prop.nameAutoAttribute().apply_attributeDefault()/] 
+     */
+    public void [prop.nameAutoAttribute().apply_methodSet()/]
+    (final [prop.autoAttributeType()/] [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/])
+    {
+      [prop.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/] 
+      	= [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/];
+    }
+  [/if]
+  
+[/template]
+
+[comment écriture de la ligne pour l'annotation @column./]
+[query private writeAnnotationColumn(prop : String) : String = '@Column(name = "' + prop.nameAutoAttribute() +'", nullable = false' 
+	+ if (prop.autoAttributSize().exists()) then ', length = ' + prop.autoAttributSize() else '' endif + ')'/]

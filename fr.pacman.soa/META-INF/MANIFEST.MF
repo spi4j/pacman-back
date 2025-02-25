@@ -8,6 +8,7 @@ Bundle-Activator: fr.pacman.soa.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,
  fr.pacman.core,
+ fr.pacman.common,
  fr.pacman.soa.spring,
  fr.pacman.soa.spi4j,
  org.eclipse.acceleo.aql;bundle-version="4.0.0",

@@ -11,21 +11,6 @@
 
 [comment retourne le système racine d'un eobjet./]  
 [query public root(any : ecore::EObject) : environment::ObeoDSMObject = any.get_root().oclAsType(environment::ObeoDSMObject)/]
-
-[comment vérifie si l'objet doit contenir des champs supplémentaires (automatiques) pour la persistance./]  
-[query public hasAutoAttributs(any : ecore::EObject) : Boolean = any.get_sqlAutoFields().trim().size() > 0/] 
-
-[comment retourne l'ensemble des champs supplémentaires pour la persistance./]
-[query public autoAttributs(any : ecore::EObject) : Sequence(String) = any.get_sqlAutoFields().trim().tokenize(',')/]
-
-[comment vérifie l'existance d'un champ supplémentaire de type xtopsup./]
-[query public hasXtopSup(any : ecore::EObject) : Boolean = any.autoAttributs()->collect(o | o.contains(any.keyXtopSup())) <> false/]
-
-[comment vérifie l'existance d'un champ supplémentaire de type xdmaj./]
-[query public hasXdMaj(any : ecore::EObject) : Boolean = any.autoAttributs()->collect(o | o.contains(any.keyXdMaj())) <> false/]
-
-[comment vérifie l'existance de champ(s) supplémentaire(s) de type xtopsup ou xdmaj./]
-[query public hasXtoSupOrXdMaj(any : ecore::EObject) : Boolean = any.hasXtopSup() or any.hasXdMaj()/]
  
 [comment vérifie si l'objet est considéré comme persistant ou non./]  
 [query public isPersistent(any : environment::ObeoDSMObject) : Boolean = any.isUseSqlPersistence() and not any.is_metaNotPersistent()/]
