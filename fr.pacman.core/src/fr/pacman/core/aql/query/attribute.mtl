@@ -38,24 +38,18 @@
 	not a.isIdentifier)->asOrderedSet()/]
 
 [comment retourne tous les attributs d'une entité qui ne sont pas des clés primaires et ne sont pas versionnés./]
-[query public attributesNoPkNoVersion(e : entity::Entity) : OrderedSet(environment::Attribute) = e.get_attributes()->select(a | not a.isIdentifier 
-	and not a.has_metaVersion())->asOrderedSet()/]
+[query public attributesNoPkNoVersion(e : entity::Entity) : OrderedSet(environment::Attribute) = e.get_attributes()
+	->select(a | not a.isIdentifier and not a.has_metaVersion())->asOrderedSet()/]
 
-[comment retourne l'ensemble des champs supplémentaires pour la persistance./]
-[query public autoAttributes(any : ecore::EObject) : Sequence(String) = any.get_SQLAutoFields().trim().tokenize(',')/]
-  
 [comment vérifie si il est possible d'écrire l'attribut additionnel (champ auto)./]
 [query public hasToWriteAutoAttribute (prop : String) : Boolean =  prop.keyNameSqlAutoAttribut().get_property().exists() 
 	and  prop.keyNameSqlAutoAttribut().get_property().exists()/]
+
+[comment vérifie si l'attribut automatique est de type xtopsup./]	
+[query public isXtopSup(prop : String) : Boolean = prop.lastIndex(prop.keyXtopSup()) > 0/]
 	
-[comment vérifie l'existance d'un champ supplémentaire de type xtopsup./]
-[query public hasXtopSup(any : ecore::EObject) : Boolean = any.autoAttributes()->collect(o | o.contains(any.keyXtopSup())) <> false/]
-
-[comment vérifie l'existance d'un champ supplémentaire de type xdmaj./]
-[query public hasXdMaj(any : ecore::EObject) : Boolean = any.autoAttributes()->collect(o | o.contains(any.keyXdMaj())) <> false/]
-
-[comment vérifie l'existance de champ(s) supplémentaire(s) de type xtopsup ou xdmaj./]
-[query public hasXtoSupOrXdMaj(any : ecore::EObject) : Boolean = any.hasXtopSup() or any.hasXdMaj()/]
+[comment vérifie si l'attribut automatique est de type xdmaj./]	
+[query public isXdMaj(prop : String) : Boolean = prop.lastIndex(prop.keyXdMaj()) > 0/]
 
 [comment retourne le type pour l'attribut additionnel (champ auto)./]
 [query public autoAttributeType (prop : String) : String = prop.keyTypeSqlAutoAttribut().get_property().type()/]
@@ -68,3 +62,9 @@
 
 [comment retourne la taille pour l'attribut additionnel (champ auto)./]
 [query public autoAttributSize(prop : String) : String = prop.keySizeSqlAutoAttribut().get_property()/]
+
+[comment retourne le type de nullité pour l'attribut additionnel (champ auto)./]
+[query public autoAttributNull(prop : String) : String = prop.keyNullSqlAutoAttribut().get_property()/]
+
+[comment retourne la valeur par défaut pour l'attribut additionnel (champ auto)./]
+[query public autoAttributDefault(prop : String) : String = prop.keyDefaultSqlAutoAttribut().get_property()/]

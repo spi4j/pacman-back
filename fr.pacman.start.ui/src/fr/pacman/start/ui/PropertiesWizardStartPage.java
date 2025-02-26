@@ -661,7 +661,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		row._default = txtDefault;
 		row._type = cbx;
 		row._size = txtLength;
-		row._notNull = cbxNull;
+		row._null = cbxNull;
 		_sqlAutoFields.add(row);
 
 		cbx.addSelectionListener(new SelectionListener() {
@@ -673,29 +673,33 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtName.setEnabled(false);
 					txtLength.setText("1");
 					txtLength.setEnabled(false);
-					txtDefault.setText("current_date");
+					txtDefault.setText("false");
 					txtDefault.setEnabled(false);
 					cbxNull.setEnabled(false);
 					txtDescription.setText("Date de mise à jour de la ligne");
+					txtDescription.setEnabled(false);
 					txtName.getParent();
 				} else if (cbx.getSelectionIndex() == 2) {
 					txtName.setText("XDMAJ");
 					txtName.setEnabled(false);
 					txtLength.setText("1");
 					txtLength.setEnabled(false);
-					txtDefault.setText("0");
+					txtDefault.setText("");
 					txtDefault.setEnabled(false);
 					cbxNull.setEnabled(false);
 					txtDescription.setText("Indicateur de suppression logique");
+					txtDescription.setEnabled(false);
 				} else {
 					txtName.setText("");
 					txtLength.setText("");
 					txtDefault.setText("");
 					cbxNull.setEnabled(true);
+					cbxNull.setSelection(false);
 					txtDescription.setText("");
 					txtLength.setEnabled(true);
 					txtName.setEnabled(true);
 					txtDefault.setEnabled(true);
+					txtDescription.setEnabled(true);
 				}
 				computeValidity();
 			}
@@ -963,27 +967,28 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			if ("xdmaj".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajName, "XDMAJ");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajComment, "Date de mise à jour de la ligne");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajDefault, "current_date");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajNotnull, "true");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajDefault, "");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajNull, "false");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajSize, "");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajType, "Date");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajType, "Instant");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXdmaj);
 			} else if ("xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupDefault, "0");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupNotnull, "true");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupNull, "false");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupSize, "1");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupType, "XtopSup");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupType, "Boolean");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXtopsup);
 			} else if (!sqlAutoField._name.getText().isEmpty() && !sqlAutoField._name.getText().isBlank()) {
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".name", sqlAutoField._name.getText().trim());
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".comment", sqlAutoField._comment.getText().trim());
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".default", sqlAutoField._default.getText().trim());
-				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".notNull", "true");
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".size", sqlAutoField._size.getText().trim());
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".type", sqlAutoField._type.getText());
 				sqlFields += ("," + ProjectProperties.c_sql_tableXField + "." + sqlAutoField._name.getText().trim());
+				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".null", sqlAutoField.isNull());
+
 			}
 		}
 		sqlAutoFields.put(ProjectProperties.c_sql_fields, sqlFields.replaceFirst(",", ""));
@@ -999,11 +1004,19 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		Text _size;
 		Text _comment;
 		Text _default;
-		Button _notNull;
+		Button _null;
 		CCombo _type;
 
 		String getAssociatedKey() {
 			return ProjectProperties.c_sql_tableXField + "." + _name.getText().trim();
+		}
+
+		String isNull() {
+			return String.valueOf(_null.getSelection());
+		}
+		
+		String getXtopSupType() {
+			return _type.getText();
 		}
 	}
 

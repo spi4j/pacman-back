@@ -7,6 +7,7 @@
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::attributes/]
 [import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::output::comments/]
@@ -17,45 +18,57 @@
 
 [comment écriture des champs automatiques pour la base de données./]
 [template public persistenceAutoAttributes (any : ecore::EObject, target : String)]
-  [any.classHeader(any.namePackageEntityBase())/]
+  [any.classHeader(if (any.commandEntity().equalsIgnoreCase(target)) then any.namePackageEntityBase() else any.namePackageDtoBase() endif)/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [any.defaultsImports()/]
     import jakarta.persistence.Column;
+    import jakarta.persistence.MappedSuperclass;
+    import org.hibernate.annotations.SourceType;
+    import org.hibernate.annotations.CreationTimestamp;
+    import org.hibernate.annotations.UpdateTimestamp;
     
   [/protected]
   
   /**
-   * Classe abstraite représentant un modèle avec des champs additionnels pour la
-   * gestion de la couche de persistance. Cette classe est utilisée pour gérer
-   * l'auto-attribution des valeurs sur les différents champs.
+   * Classe abstraite représentant un modèle avec des champs additionnels dans le
+   * cadre de la gestion de la couche de persistance. Cette classe est utilisée
+   * pour gérer l'auto-attribution des valeurs sur les différents champs.
    */
+  [target.writeAnnotationEntity()/]
   public abstract class [any.nameClassAutoAttributesImpl()/]
   {
     
+    // CONSTANTES ET ATTRIBUTS
+    [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+          
     [for (prop : String | any.autoAttributes())]
       [if (prop.hasToWriteAutoAttribute ())]
         [prop.autoAttributeComment().commentSingleLine()/]
-        [prop.writeAnnotationColumn()/]
-        private [prop.autoAttributeType()/] [prop.nameAutoAttribute().apply_attributeDefault()/];
-        
+        [prop.writeAnnotationColumn(target)/]
+        private [prop.writeAttribute(target)/]
       [/if]
+      
     [/for]
     
     [for (prop : String | any.autoAttributes())]
-      [prop.automaticGetter()/]
-      [prop.automaticSetter()/]
+      [prop.writeAutomaticGetter()/]
+      [prop.writeAutomaticSetter()/]
     [/for]
+    // METHODES
+    [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
   }
 [/template]
 
 [comment écriture des getters pour les champs automatiques./]
-[template private automaticGetter(prop : String)]
+[template private writeAutomaticGetter(prop : String)]
   [if (prop.hasToWriteAutoAttribute())]
     /**
-     * Retourne la valeur de [prop.nameAutoAttribute().apply_attributeDefault()/] 
+     * Retourne la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]' 
      *
-     * @return la valeur de [prop.nameAutoAttribute().apply_attributeDefault()/] 
+     * @return la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]'
      */
     public [prop.autoAttributeType()/] [prop.nameAutoAttribute().apply_methodGet()/] ()
     {
@@ -66,12 +79,12 @@
 [/template]
 
 [comment écriture des setters pour les champs automatiques./]
-[template private automaticSetter(prop : String)]
+[template private writeAutomaticSetter(prop : String)]
   [if (prop.hasToWriteAutoAttribute())]
     /**
-     * Affecte la valeur de [prop.nameAutoAttribute().apply_attributeDefault()/] 
+     * Affecte la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]' 
      *
-     * @param la valeur de [prop.nameAutoAttribute().apply_attributeDefault()/] 
+     * @param la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]'
      */
     public void [prop.nameAutoAttribute().apply_methodSet()/]
     (final [prop.autoAttributeType()/] [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/])
@@ -83,6 +96,19 @@
   
 [/template]
 
+[comment écriture de la ligne de définition pour l'attribut./]
+[query private writeAttribute(prop : String, target : String) : String = prop.autoAttributeType() + ' ' 
+	+ prop.nameAutoAttribute().apply_attributeDefault() + if (prop.commandEntity().equalsIgnoreCase(target) 
+	and prop.autoAttributDefault().exists()) then ' = ' + if (prop.autoAttributeType().needsToBeQuoted()) 
+	then '"' + prop.autoAttributDefault() + '"' else prop.autoAttributDefault() endif else '' endif + ';'/]
+
 [comment écriture de la ligne pour l'annotation @column./]
-[query private writeAnnotationColumn(prop : String) : String = '@Column(name = "' + prop.nameAutoAttribute() +'", nullable = false' 
-	+ if (prop.autoAttributSize().exists()) then ', length = ' + prop.autoAttributSize() else '' endif + ')'/]
+[query private writeAnnotationColumn(prop : String, target : String) : String = if (target.commandEntity().equalsIgnoreCase(target)) 
+	then if (prop.isXdMaj()) then '@UpdateTimestamp (source = SourceType.DB)' + prop.lineSeparator() else '' endif 
+	+ '@Column(name = "' + prop.nameAutoAttribute() +'", nullable = ' + if (prop.autoAttributNull().exists()) 
+	then prop.autoAttributNull() else 'true' endif + if (prop.autoAttributSize().exists()) then ', length = ' 
+	+ prop.autoAttributSize() else '' endif + ')' else '' endif/]
+
+[comment écriture de la ligne d'annotation pour l'entité./]
+[query private writeAnnotationEntity(target : String) : String = if (target.commandEntity().equalsIgnoreCase(target)) 
+	then '@MappedSuperclass' else '' endif/]

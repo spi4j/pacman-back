@@ -54,14 +54,14 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_sql_tableXdmajName = "sql.table.field.xdmaj.name";
 	public static final String c_sql_tableXdmajType = "sql.table.field.xdmaj.type";
 	public static final String c_sql_tableXdmajSize = "sql.table.field.xdmaj.size";
-	public static final String c_sql_tableXdmajNotnull = "sql.table.field.xdmaj.notnull";
+	public static final String c_sql_tableXdmajNull = "sql.table.field.xdmaj.null";
 	public static final String c_sql_tableXdmajComment = "sql.table.field.xdmaj.comment";
 	public static final String c_sql_tableXdmajDefault = "sql.table.field.xdmaj.default";
 	public static final String c_sql_tableXtopsup = "sql.table.field.xtopsup";
 	public static final String c_sql_tableXtopsupName = "sql.table.field.xtopsup.name";
 	public static final String c_sql_tableXtopsupType = "sql.table.field.xtopsup.type";
 	public static final String c_sql_tableXtopsupDefault = "sql.table.field.xtopsup.default";
-	public static final String c_sql_tableXtopsupNotnull = "sql.table.field.xtopsup.notnull";
+	public static final String c_sql_tableXtopsupNull = "sql.table.field.xtopsup.null";
 	public static final String c_sql_tableXtopsupComment = "sql.table.field.xtopsup.comment";
 	public static final String c_sql_tableXtopsupSize = "sql.table.field.xtopsup.size";
 	public static final String c_sql_tableXField = "sql.table.field";
@@ -244,6 +244,22 @@ public final class ProjectProperties extends PropertiesCategory {
 //				PacmanProperty.newRequired(c_project_libraries, "",
 //						"Champs additionnels pour les librairies supplémentaires de l'application"),
 
+				PacmanProperty.newRequired(c_paging_mode, c_noDefaultValue,
+						"Mode de fonctionnement pour la pagination (auto, user, vide par defaut)",
+						new PagingModeStrategy()),
+
+				PacmanProperty.newConditional(c_paging_totalCount, "Resource-Count",
+						"Propriete dans l'en-tête pour le stockage du nombre total d'occurences"),
+
+				PacmanProperty.newConditional(c_paging_currentPageIdx, "Current-Page",
+						"Propriete dans l'en-tête pour le stockage de l'index de page courante"),
+
+				PacmanProperty.newConditional(c_paging_pageCount, "Page-Count",
+						"Propriete dans l'en-tête pour le stockage du nombre de pages"),
+
+				PacmanProperty.newConditional(c_paging_currentPageSize, "Current-Page-Size",
+						"Propriete dans l'en-tête pour le stockage du nombre d'occurences pour la page courante"),
+
 				PacmanProperty.newRequired(c_sql_fields, "", "Champs additionnels pour les tables SQL de l'application",
 						new AdditionalFieldsStrategy()),
 
@@ -254,7 +270,7 @@ public final class ProjectProperties extends PropertiesCategory {
 				PacmanProperty.newConditional(c_sql_tableXdmajSize, c_noDefaultValue,
 						"Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableXdmajNotnull, "true", "Champ additionnel pour les tables SQL"),
+				PacmanProperty.newConditional(c_sql_tableXdmajNull, "true", "Champ additionnel pour les tables SQL"),
 
 				PacmanProperty.newConditional(c_sql_tableXdmajDefault, "current_date",
 						"Champ additionnel pour les tables SQL"),
@@ -270,29 +286,14 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newConditional(c_sql_tableXtopsupDefault, "0", "Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableXtopsupNotnull, "true",
-						"Champ additionnel pour les tables SQL"),
+				PacmanProperty.newConditional(c_sql_tableXtopsupNull, "true", "Champ additionnel pour les tables SQL"),
 
 				PacmanProperty.newConditional(c_sql_tableXtopsupComment, "Indicateur de suppression logique",
 						"Champ additionnel pour les tables SQL"),
 
 				PacmanProperty.newConditional(c_sql_tableXtopsupSize, "1", "Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newRequired(c_paging_mode, c_noDefaultValue,
-						"Mode de fonctionnement pour la pagination (auto, user, vide par defaut)",
-						new PagingModeStrategy()),
-
-				PacmanProperty.newConditional(c_paging_totalCount, "Resource-Count",
-						"Propriete dans l'en-tête pour le stockage du nombre total d'occurences"),
-
-				PacmanProperty.newConditional(c_paging_currentPageIdx, "Current-Page",
-						"Propriete dans l'en-tête pour le stockage de l'index de page courante"),
-
-				PacmanProperty.newConditional(c_paging_pageCount, "Page-Count",
-						"Propriete dans l'en-tête pour le stockage du nombre de pages"),
-
-				PacmanProperty.newConditional(c_paging_currentPageSize, "Current-Page-Size",
-						"Propriete dans l'en-tête pour le stockage du nombre d'occurences pour la page courante") };
+		};
 	}
 
 	/**
@@ -394,7 +395,7 @@ public final class ProjectProperties extends PropertiesCategory {
 					if (c_sql_tableXdmaj.equals(key)) {
 						updateProperty(p_pacmanProperties.get(c_sql_tableXdmajName));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXdmajComment));
-						updateProperty(p_pacmanProperties.get(c_sql_tableXdmajNotnull));
+						updateProperty(p_pacmanProperties.get(c_sql_tableXdmajNull));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXdmajSize));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXdmajType));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXdmajDefault));
@@ -403,7 +404,7 @@ public final class ProjectProperties extends PropertiesCategory {
 					if (c_sql_tableXtopsup.equals(key)) {
 						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupName));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupComment));
-						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupNotnull));
+						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupNull));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupSize));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupType));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupDefault));
@@ -502,7 +503,7 @@ public final class ProjectProperties extends PropertiesCategory {
 //	public static String getLibrariesAdditionalJars(Object p_object) {
 //		return PropertiesHandler.getProperty(c_project_libraries);
 //	}
-	
+
 	public static final String get_property(final String p_key) {
 		return PropertiesHandler.getProperty(p_key);
 	}
@@ -540,7 +541,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	}
 
 	public static String get_SQLTableSchema(final Object p_object) {
-		 return PropertiesHandler.getProperty(c_sql_tableSchema);
+		return PropertiesHandler.getProperty(c_sql_tableSchema);
 	}
 
 	public static String get_useDeprecatedSOAUserCodeParams() {
@@ -591,7 +592,7 @@ public final class ProjectProperties extends PropertiesCategory {
 //		return PropertiesHandler.getProperty(c_is_h2EmbeddedDatabase);
 //	}
 
-	public static String get_XtoSupName(final Object p_object ) {
+	public static String get_XtoSupName(final Object p_object) {
 		return PropertiesHandler.getProperty(c_sql_tableXtopsupName);
 	}
 
@@ -614,7 +615,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static boolean isProfilerEnabled() {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_profiler));
 	}
-	
+
 	public static String get_XtoSupKey(final Object p_object) {
 		return c_sql_tableXtopsup;
 	}

@@ -167,7 +167,7 @@
 [query public keyDefaultSqlAutoAttribut(prop : String) : String = prop + '.default'/]
 
 [comment retourne la clé pour la nullité de l'attribut additionnel (champ auto)./]
-[query public keyNotnullSqlAutoAttribut(prop : String) : String = prop + '.notnull'/]
+[query public keyNullSqlAutoAttribut(prop : String) : String = prop + '.null'/]
 
 [comment retourne la clé pour le commentaire de l'attribut additionnel (champ auto)./]
 [query public keyCommentSqlAutoAttribut(prop : String) : String = prop + '.comment'/]
@@ -204,6 +204,12 @@
 
 [comment opérateur de commande pour des modifications (dans les structures conditionnelles)./][query public commandUpdate(any : ecore::EObject) : String = 'U'/]
 
+[comment opérateur de commande pour des opérations sur les entités./]
+[query public commandEntity(any : ecore::EObject) : String = 'E'/]
+
+[comment opérateur de commande pour des opérations sur des dtos/xtos./]
+[query public commandDto(any : ecore::EObject) : String = 'D'/]
+  
 [comment le nom pour le fichier de configuration maven./] 
 [query public namePom(any : ecore::EObject) : String = 'pom'/]  
 

@@ -24,19 +24,32 @@
 [comment vérifie si un objet existe bien./]
 [query public exists(any : ecore::EObject) : Boolean = any <> null/]
   
+[comment retourne l'ensemble des champs supplémentaires pour la persistance./]
+[query public autoAttributes(any : ecore::EObject) : Sequence(String) = any.get_SQLAutoFields().trim().tokenize(',')/]
+	
+[comment vérifie l'existance d'un champ supplémentaire de type xtopsup./]
+[query public hasXtopSup(any : ecore::EObject) : Boolean = any.autoAttributes()->collect(o | o.contains(any.keyXtopSup())) <> false/]
+
+[comment vérifie l'existance d'un champ supplémentaire de type xdmaj./]
+[query public hasXdMaj(any : ecore::EObject) : Boolean = any.autoAttributes()->collect(o | o.contains(any.keyXdMaj())) <> false/]
+
+[comment vérifie l'existance de champ(s) supplémentaire(s) de type xtopsup ou xdmaj./]
+[query public hasXtoSupOrXdMaj(any : ecore::EObject) : Boolean = any.hasXtopSup() or any.hasXdMaj()/]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 [comment ./]
 [query public immutable(any : ecore::EObject) : Boolean = false/]
   
 [comment : vérifie si l'objet existe et est valide. /]
 [comment query public exists(e : environment::ObeoDSMObject) : Boolean = not (e = null)/]
 
-  
-  
-
-  
-  
-  
-  
-  
-  
-  

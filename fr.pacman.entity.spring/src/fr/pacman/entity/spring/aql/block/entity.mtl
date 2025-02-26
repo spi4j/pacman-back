@@ -43,6 +43,8 @@
     import jakarta.persistence.ManyToOne;
     import jakarta.persistence.OneToMany;
     import jakarta.persistence.SequenceGenerator;
+    import org.hibernate.annotations.SQLDelete;
+    import org.hibernate.annotations.SQLRestriction;
     import [e.namePackageProject()/].[e.namePackageEntityBase()/].[e.nameClassAutoAttributesImpl()/];
     
     [/protected]
@@ -248,7 +250,9 @@
 [comment écriture de l'annotation @Table pour l'entité./]
 [query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) 
   then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif + ')' + e.lineSeparator() + '@SequenceGenerator(name = "' + (e.name() 
-  + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() + '")' /]
+  + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() + '")' + if (e.hasXtopSup()) 
+  then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + e.nameTable().toUpper() + ' SET ' + e.keyXtopSup() + ' = true WHERE ' + e.writePk() + ' = ?")' 
+  + e.lineSeparator() + '@SQLRestriction("' + e.keyXtopSup() + ' = false")' else '' endif/]
   
 [comment écriture de l'annotation @column pour chaque attribut de l'entité./]
 [query private writeAnnotationColumn(a : environment::Attribute) : String = '@Column(name = "' + a.nameAttribut() +'", nullable = ' 

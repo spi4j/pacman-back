@@ -71,6 +71,9 @@
 [comment retourne le script SQL débarrasé des lignes vides issues de la génération./]	
 [query private escapeUnwantedBlankLines(str : String): String = str.replaceAll('\\s+@CR','@CR').replaceAll('(?m)^\\s*' + str.lineSeparator(),'')
 	.replaceAll('@CR', str.lineSeparator())/]
+
+[comment vérifie si la chaine que l'on veut écrire doit etre entre guillemets./]
+[query public needsToBeQuoted(type : String) : Boolean = 'String'.equalsIgnoreCase(type) or 'Char'.equalsIgnoreCase(type)/]
 	
 [comment query private escapeUnwantedBlankLines(str : String): String = str.replaceAll('\\s+@CR','@CR').replaceAll('(?m)^\\s+' + str.lineSeparator(),'')
 	.replaceAll('(?m)^@CR','').replaceAll('@CR', str.lineSeparator())/]	

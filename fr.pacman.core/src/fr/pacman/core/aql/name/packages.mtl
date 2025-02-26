@@ -14,7 +14,7 @@
 			de l'application, il n'est donc pas nécessaire de le préciser à ce niveau./]
 			
 [comment retourne le package pour les types spéciaux de Pacman./]
-[query public namePackageType(any : ecore::EObject) : String = 'type'/]
+[query public namePackageType(any : ecore::EObject) : String = 'domain.types'/]
   
 [comment retourne le package pour l'interface du port (domain->controller)./]
 [query public namePackageOutItf(s : soa::Service) : String = s.get_suffixCommon() + '.features' + '.' + s.nameComponent()/]
@@ -32,10 +32,10 @@
 [query public namePackageInImpl(s : soa::Service) : String = 'infra.adapters.' + s.nameComponent()/]
   
 [comment retourne le package pour une classe d'énumération./]
-[query public namePackageEnumeration(any : ecore::EObject) : String = 'enumerations'/]
+[query public namePackageEnumeration(any : ecore::EObject) : String = 'domain.enumerations'/]
 
 [comment retourne le package pour les classes d'annotation./]
-[query public namePackageAnnotation(e : ecore::EObject) : String = 'annotations'/]
+[query public namePackageAnnotation(e : ecore::EObject) : String = 'domain.annotations'/]
  
 [comment retourne le package pour l'implémentation d'un service soa./]
 [query public namePackageServiceImpl(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService() +  's.' + s.nameComponent()/]

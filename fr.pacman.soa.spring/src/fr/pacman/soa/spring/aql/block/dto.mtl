@@ -23,10 +23,11 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
+    import [d.namePackageProject()/].[d.namePackageDtoBase()/].[d.nameClassAutoAttributesImpl()/];
     
   [/protected]
   [d.commentClass()/]
-  public [if (d.immutable())]record[else]class[/if] [d.nameClassDtoImpl()/] [if (d.immutable())][d.dsq()/][/if]
+  public class [d.nameClassDtoImpl()/] extends [d.nameClassAutoAttributesImpl()/]
    {
    
       [if (not d.immutable())]
@@ -117,10 +118,3 @@
 
 [comment raccourci pour l'écriture de la clé primaire./]
 [query private writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]
-
-[comment ./]
-[query private dsq(d : environment::DTO) : String = '( ' + d.attributesNoPKAndNoComputed()->collect(o | o.type() + ' ' + o.nameAttribute() + o.lineSeparator())->sep(',')->toString() + ' )'/]
-
-
-[comment raccourci pour l'écriture de la clé primaire./]
-[comment query private writePk(d : environment::DTO) : String = d.nameSimplePropertyID().apply_attributeDefault()/]
