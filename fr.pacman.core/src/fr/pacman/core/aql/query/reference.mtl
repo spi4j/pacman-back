@@ -56,8 +56,8 @@
 
 [comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto, la requête est 
 		légèrement différente de 'referencesFK' et foonctionne sur les deux diagrammes.
-		-> pour spring / spring boot uniquement. /]	
-[query public referencesSB(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+		-> pour spring | spring boot uniquement./]	
+[query public referencesFKSB(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
 	st.references
 	->select(o | (o.oppositeOf = null 
 		and not (o.isMultiple() 
@@ -70,6 +70,13 @@
 		and o.referencedType = st
 		and not (o.containingType = o.referencedType)))			
 	->sortedByName()/]
+
+[comment retourne les références des tables de jointure niveau entité 	
+ 		-> pour spring | spring boot uniquement (à voir si on conserve)./]
+[query public referencesJTSB(e : entity::Entity) : OrderedSet(environment::Reference) = 
+	e.ownedReferences
+	->referencesJT()
+	->sortedByName()/]	
 
 [comment retourne les références simples niveau entité (FK) : 
 		- relations unidirectionnelles et récursives (0,1)(1)
@@ -104,7 +111,7 @@
 		and o.referencedType = o.containingType))/]
 
 [comment retourne les références des tables de jointure niveau entité 	
- 		-> pour scripts sql et spi4j uniquement./]
+ 		-> pour scripts sql, spi4j./]
 [query public referencesJT(e : entity::Entity) : OrderedSet(environment::Reference) = 
 	e.ownedReferences
 	->referencesJT()
@@ -129,124 +136,6 @@
 [query public referencedRsTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
   if (r.isMultiple() and r.containingType = st) then 'List<' +  r.referencedDto(st.oclAsType(environment::DTO))
   .nameClassXtoImpl() + '>' else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[comment vérifie si la référence est optionnelle (pour l'instant les listes ne sont pas considérées comme tel)./]
-[comment query public isOptional(r : environment::Reference) : Boolean = if (r.exists()) then r.multiplicity = 
-  environment::MultiplicityKind::ZERO_ONE else true endif/]
-
-[comment retourne les références pour les relations récursives de type (0,*)(1,*) sur une entité./][query public starOwnedAllNavigability(e : entity::Entity) : OrderedSet(environment::Reference) = e.references->select(o | o.isMultiple() 
-	and o.referencedType = e and o.oppositeOf = null)->sortedByName()/]
-
-[comment retourne les références navigables de type (*,*) sur une entité./]
-[query public starStarNavigable(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.ownedReferences->select(o | o.isMultiple() and o.navigable and not (o.oppositeOf = null) and o.oppositeOf.isMultiple())->sortedByName()/]
-
-[comment retourne les références de type (0,1)(1) sur une entité./]
-[query private zeroOne(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.references->select(o | not o.isMultiple())->sortedByName()/]
-
-[comment retourne les références de type (0,1)(1), pour une entité référencée (ent) donnée, sur une entité./]
-[query public zeroOne(e : entity::Entity, ent : entity::Entity) : OrderedSet(environment::Reference) = 	e.references->select(o | not o.isMultiple() and o.referencedType.oclAsType(entity::Entity) = ent)->sortedByName()/]
-
-[comment retourne les références de type (0,*)(1,*) d'une entité référençante (ent) vers une entité référencée (sauf recursive (0,*)(1,*)./]
-[query public star(e : entity::Entity, ent : entity::Entity) : OrderedSet(environment::Reference) = 
-	if e.eContainer(entity::Root) = null then Sequence{}->asOrderedSet() else e.eContainer(entity::Root).eAllContents(environment::Reference)
-	->select(o | o.isMultiple() and o.referencedType = e and o.containingType = ent and o.oppositeOf = null)
-	->select(o | not e.starOwnedAllNavigability()->includes(o))->sortedByName() endif/]
-
-[comment retourne les références de type (0,*)(1,*) vers une entité./]
-[query public star(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	if e.eContainer(entity::Root) = null then Sequence{}->asOrderedSet() else e.eContainer(entity::Root).eAllContents(environment::Reference)
-	->select(o | o.isMultiple() and o.referencedType = e and (o.oppositeOf = null or not o.oppositeOf.isMultiple()))->sortedByName() endif/]
-
-[comment retourne les références d'une entité (0,*)(1) ainsi que les références (0,*)(1,*) vers cette entité, pour une entité fk (ent) donnée/]
-[query public noStarAndStarAllNavigability(e : entity::Entity, ent : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.zeroOne(ent)->union(e.star(ent))->asSequence()->sortedByName()/]
-
-[comment retourne toutes les entités référencées ou référencantes, pour une entitée./]
-[query public entitiesReferencedOrReferencing(e : entity::Entity) : OrderedSet(entity::Entity) = 
-	e.zeroOne()->asSequence()->collect(o1 | o1.referencedType)->collect(o2 | o2.oclAsType(entity::Entity))
-	->union(e.star()->asSequence()->collect(o3 | o3.containingType)->collect(o4 | o4.oclAsType(entity::Entity)))
-	->asOrderedSet()/]
-
-[comment retourne les références de type (0,*)(1,*) vers une entité./]
-[comment query public starAllNavigability(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	if e.eContainer(entity::Root) = null then Sequence{}->asOrderedSet() else e.eContainer(entity::Root).eAllContents(environment::Reference)
-	->select(r | r.isMultiple() and r.referencedType = e and (r.oppositeOf = null or not r.oppositeOf.isMultiple()))->sort() endif/]
-
-[comment retourne les références d'une entité (0,*)(1) ainsi que les références (0,*)(1,*) vers cette entité, pour une entité fk (ent) donnée/]
-[comment !!!!!!!! VOIR SI ON DOIT DEPLACER LE RECURSIF PLUTOT AU NIVEAU DE starAllNavigability()  !!!!!!!!!/]
-[comment query public noStarAndStarAllNavigability(e : entity::Entity, ent : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.noStarAllNavigability(ent)->union(e.starAllNavigability(ent))->select(o | not e.starOwnedAllNavigability()->includes(o))->asSequence()->sort()/]
-
-[comment retourne les références pour les relations récursives de type (0,*)(1,*) sur une entité./]
-[comment query public starOwnedAllNavigability(e : entity::Entity) : OrderedSet(environment::Reference) = e.references->select(r | r.isMultiple() 
-	and r.referencedType = e and r.oppositeOf = null)->sort()/]
-
-[comment retourne les références d'une entité (0,*)(1) ainsi que les références (0,*)(1,*) vers cette entité, navigables ou non./]
-[comment query public noStarAndStarAllNavigability(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.noStarAllNavigability()->union(e.starAllNavigability())->asSequence()->sortedByName() /]
-
-
-[comment retourne les références d'une entité sans multiplicité ainsi que les références multiple vers cette entité./]
-[comment query public referencesNoStarAndReferencingStar(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.referencesNoStar()
-	->union(e.referencingStar())
-	->asOrderedSet()
-	->sortedBy(o | o.name.toLower())
-/]
-
-[comment retourne les références d'une entité sans multiplicité./]
-[comment query public referencesNoStar(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.references->select(r | 
-		not r.isMultiple() 
-		and r.navigable)
-	->asOrderedSet()
-	->sortedBy(temp1 | temp1.name.toLower())
-/]
-
-[comment retourne toutes les références d'une entité de type (O,*)(1,*) et navigable./]
-[comment query public referencesStar(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.references->select(r | r.isMultiple() and r.navigable)
-	->asOrderedSet()
-	->sortedBy(temp1 | temp1.name.toLower())
-/]
-
-[comment retourne les références avec multiplicité vers une entité./]
-[comment query public referencingStar(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	if e.eContainer(entity::Root) = null then 
-		Sequence{}->asOrderedSet() 
-	else 
-		e.eContainer(entity::Root).eAllContents(environment::Reference)
-		->select(r | r.isMultiple() 
-			and r.referencedType = e 
-			and r.navigable 
-			and (r.oppositeOf = null 
-			or not r.oppositeOf.isMultiple()))
-		->sortedByName()
-	endif
-/]
-
 
 [template public blockHierarchy(r : environment::Reference) post(self.trim())]
   [if (r.ancestors(environment::Namespace)->size() < 1)]

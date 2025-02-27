@@ -46,7 +46,7 @@
      private [d.defaultTypePk()/] [d.writePk()/];
      
      // ATTRIBUTS
-     [let rs = d.referencesSB()]
+     [let rs = d.referencesFKSB()]
        [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
          [a.comment().commentSingleLine()/]
          [protected (a.nameAttribute().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]

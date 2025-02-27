@@ -38,7 +38,7 @@
         [/protected]
         
         // ATTRIBUTS
-        [let rs = d.referencesSB()]
+        [let rs = d.referencesFKSB()]
         
           ['Id'.commentSingleLine()/]
           private [d.defaultTypePk()/] [d.writePk()/];

@@ -293,6 +293,8 @@
   #spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
   
   # 'create-drop' pour le developpement et les tests, en production placer a 'none'
-  spring.jpa.hibernate.ddl-auto=<create | create-drop | update | validate | none>
-  spring.jpa.hibernate.show-sql=<true | false>
+  spring.jpa.hibernate.ddl-auto=<create | create-drop | update | validate | none>  
+  logging.level.org.hibernate.SQL=DEBUG
+  logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+  logging.level.org.hibernate.orm.jdbc.bind=TRACE
 [/template]
