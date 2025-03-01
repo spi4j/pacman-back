@@ -10,10 +10,12 @@
 [import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::query::operation/]
+[import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
 						
-[comment écriture de l'implémentation d'un service soa./]
+[comment écriture de l'implémentation d'un service soa (couche domain)./]
 [template public implementation (s : soa::Service)]
   [s.classHeader(s.namePackageServiceImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -43,7 +45,7 @@
         @Override
         [o.writeOperation()/]
         {
-          return [o.prefixAffectation()/]['provider'.apply_attributeFinal()/].[o.writeInputs()/];
+          [if (o.hasOutput())]return [/if][o.prefixAffectation()/]['provider'.apply_attributeFinal()/].[o.writeInputs()/];
         }
       [/for]
   }
@@ -86,8 +88,12 @@
   [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
      [o.commentOperation()/]
      [o.writeOperation()/];
+     
   [/for]
 [/template]
+
+[comment écriture de l'ensemble des fournisseurs de couche de persistance qui disponibles pour un service./]
+[comment query private writeProviders(s : soa::Service) : Sequence(String) = s.associatedDtos()->collect(o | 'private ' + o.nameClass + o.name())->sep('; ')/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeOperation(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]

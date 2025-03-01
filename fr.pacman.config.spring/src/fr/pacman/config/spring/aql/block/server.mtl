@@ -292,8 +292,11 @@
   #spring.datasource.password=
   #spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
   
-  # 'create-drop' pour le developpement et les tests, en production placer a 'none'
+  # 'create-drop' pour le developpement et les tests, en production placer a 'none'.
   spring.jpa.hibernate.ddl-auto=<create | create-drop | update | validate | none>  
+  # désactive OSIV afin de gérer correctement le LazyInitializationException.
+  spring.jpa.open-in-view=false
+  # debug des requetes sql pour le devleoppement.
   logging.level.org.hibernate.SQL=DEBUG
   logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
   logging.level.org.hibernate.orm.jdbc.bind=TRACE

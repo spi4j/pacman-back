@@ -24,7 +24,7 @@
 
 [import fr::pacman::core::property::project::ProjectProperties/]
 
-[comment écriture de l'implémentation d'un service soa (couche infrastructure)./]
+[comment écriture de l'implémentation d'un service soa (couche application)./]
 [template public implementation (s : soa::Service)]
   [s.classHeader(s.namePackageControllerImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -110,9 +110,11 @@
   @[s.nameClassAnnotationIn()/]
   public class [s.nameClassServiceInImpl()/] implements [s.nameClassServiceInItf()/]
   {
+      
       [for (d | ds->select(o | o.isPersistent()))]
         ['Le gestionnaire de persistance'.commentMultiLines()/]
-        final [d.associatedEntity().nameClassEntityPersistItf()/] [d.name().apply_attributeFinal()/];
+        final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeFinal()/];
+        
       [/for]
     
       ['Constructeur'.commentMultiLines()/]
@@ -127,7 +129,11 @@
           [o.commentOperation()/]
           @Override
           [o.writePersistSignature()/]
-          { 
+          {
+            
+            [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]
+            
             [o.writePersistOperation()/]
           }
           
@@ -135,7 +141,7 @@
           [o.writePersistSignatureInvoke()/]
           {
               
-              [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              [protected ((o.name + '_invoke').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
                 
                 throw new [s.nameClassNotImplementedExceptionImpl()/] 
                   ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
@@ -147,6 +153,7 @@
   }
 [/template]
 
+[comment ./]
 [query private fsd(o : soa::Operation) : Boolean =  if (o.hasOutput()) then 
   if(o.output->first().type.oclIsKindOf(environment::DTO)) then 
      if (o.output->first().type.oclAsType(environment::DTO).isPersistent()) then 
@@ -166,21 +173,21 @@
 [query private writePersistOperation(o : soa::Operation) : String = if (o.hasOutput()) then if (o.output->first().isOptional()) 
    then if (o.output->first().isMultiple()) then o.writeOptionalOutputStar() else o.writeOptionalOutputOne() endif 
    else if (o.output->first().isMultiple()) then o.writeNonOptionalOutputStar() else o.writeNonOptionalOutputOne() 
-   endif endif else 'XXX' endif/]
+   endif endif else '' endif/]
 
-[comment écriture de l'appel pour une sortie liste optionnelle (normalement jamais appelé pour l'instant)./]
+[comment écriture de l'appel pour une sortie liste et optionnelle (normalement jamais appelé pour l'instant)./]
 [query private writeOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
-  + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
+  + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
   +  o.persistDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
-[comment écriture de l'appel pour une sortie liste./]       	    	
+[comment écriture de l'appel pour une sortie liste (pour l'instant celle qui est toujours appelée)./]       	    	
 [query private writeNonOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
-  + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
+  + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
   +  o.persistDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
-[comment écriture de l'appel pour une sortie simple optionelle./]
-[query private writeOptionalOutputOne(o : soa::Operation) : String =  o.outputPersistType() + ' ' +  o.suffixEntity().apply_variableDefault() 
-  + ' = ' + o.nameOperation() + '_invoke(' + o.input->collect(o | o.name().apply_parameterMethodClassicIn())->sep(', ') + ');' + 'if ( ' 
+[comment écriture de l'appel pour une sortie simple mais optionnelle./]
+[query private writeOptionalOutputOne(o : soa::Operation) : String = o.outputPersistType() + ' ' +  o.suffixEntity().apply_variableDefault() 
+  + ' = ' + o.nameOperation() + '_invoke(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') + ');' + 'if ( ' 
   + o.suffixEntity().apply_variableDefault() + '.isPresent()) ' + '{ return Optional.of( ' + o.output->first().type.oclAsType(environment::DTO)
   .nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(' + o.suffixEntity().apply_variableDefault() 
   + '.get()));} return Optional.empty();'/]
@@ -190,11 +197,11 @@
   
 [comment écriture de la signature pour le constructeur afin d'injecter les couches de persistance./]
 [query private writePersistInputs(ds : OrderedSet(environment::DTO)) : String = ds->select(o1 | o1.isPersistent())->collect(o2 | 'final ' 
-  + o2.associatedEntity().nameClassEntityPersistItf() + ' ' +  o2.name().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
+  + o2.associatedEntity().nameClassEntityPersistItf() + ' ' +  o2.nameRepository().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
 
 [comment écriture de l'affectation pour la couche de persistance dans le constructeur./]
 [query private writePersistAffectation(ds : OrderedSet(environment::DTO)) : String = ds->select(o1 | o1.isPersistent())
-  ->collect(o2 | o2.prefixAffectation() + o2.name().apply_attributeFinal() + ' = ' + o2.name().apply_parameterMethodClassicIn())->sep(';' 
+  ->collect(o2 | o2.prefixAffectation() + o2.nameRepository().apply_attributeFinal() + ' = ' + o2.nameRepository().apply_parameterMethodClassicIn())->sep(';' 
   + ds.lineSeparator())->toString() + ';'/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]

@@ -63,7 +63,7 @@
 
       [/protected]
       [let fk = e.referencesFKSB()]
-      [let jt = e.referencesJTSB()]
+      [let jt = e.referencesJT()]
         
         ['Id'.commentSingleLine()/]
         @Id
@@ -161,21 +161,8 @@
           
         [/for]
         
-        [for (r : environment::Reference | fk)]
-          [r.referencedEntity(e).commentGet()/]
-          public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
-          {
-             return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
-          }
-          
-          [r.referencedEntity(e).commentSet()/]
-          public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
-          	(final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
-          {
-             [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
-             	= [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
-          }
-        [/for]
+        [e.writeGetterAndSetterForReferences(fk)/]
+		[e.writeGetterAndSetterForReferences(jt)/]
         
         // METHODES
         [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -243,6 +230,25 @@
      [/let]
      [/let]
   }
+[/template]
+
+[comment écriture des assesseurs pour les références (liaisons avec les autres entités)./]
+[template private writeGetterAndSetterForReferences(e : entity::Entity, rs : OrderedSet(environment::Reference))]
+  [for (r : environment::Reference | rs)]
+    [r.referencedEntity(e).commentGet()/]
+    public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
+    {
+       return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
+    }
+    
+    [r.referencedEntity(e).commentSet()/]
+    public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
+    	(final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
+    {
+       [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+       	= [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
+    }
+  [/for]
 [/template]
 
 [comment écriture de l'interface pour une entité (au sens Spring)./]

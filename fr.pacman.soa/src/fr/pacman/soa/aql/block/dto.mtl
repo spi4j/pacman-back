@@ -16,8 +16,9 @@
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::method/]
 [import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::soa::aql::block::common/]
 
-[comment écriture de l'implémentation pour l'objet métier (dto / xto)./]
+[comment écriture de l'implémentation pour l'objet métier (dto)./]
 [template public implementation(d : environment::DTO)]
   [d.classHeader(d.namePackageDtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -29,7 +30,7 @@
   [d.commentClass()/]
   public class [d.nameClassDtoImpl()/] extends [d.nameClassAutoAttributesImpl()/]
    {
-   
+      
       [if (not d.immutable())]
         // CONSTANTES
         
@@ -38,8 +39,8 @@
         [/protected]
         
         // ATTRIBUTS
-        [let rs = d.referencesFKSB()]
-        
+        [let rs = d.referencesFKSB()->union(d.referencesJT())]
+          
           ['Id'.commentSingleLine()/]
           private [d.defaultTypePk()/] [d.writePk()/];
           
@@ -78,43 +79,13 @@
              }
           [/let]
           
-          [for (a : environment::Attribute | d.attributesNoPK())]
-            [a.commentGet()/]
-            public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
-            {
-              return [a.prefixAffectation()/][a.nameAttribute()/];
-            }
-          
-            [a.commentSet()/]
-            public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
-            {
-              [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
-            }
-          
-          [/for]
-          [for (r : environment::Reference | rs)]
-              [r.referencedDto(d).commentGet()/]
-              public [r.referencedTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
-              {
-                 return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
-              }
-              
-              [r.referencedDto(d).commentSet()/]
-              public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
-              (final [r.referencedTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
-              {
-                 [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
-                   = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
-              }
-            [/for]
+          [d.writeGetterAndSetterForAttributes(d.attributesNoPK())/]
+          [d.writeGetterAndSetterForReferences(rs, d.commandDto())/]
             
-            // METHODES
-            [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-            [/protected]
+          // METHODES
+          [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
         [/let]
       [/if]
    }
 [/template]
-
-[comment raccourci pour l'écriture de la clé primaire./]
-[query private writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]

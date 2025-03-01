@@ -50,13 +50,17 @@
 [query public isZeroOneRecursive(r : environment::Reference) : Boolean = 
 	r.referencedType = r.containingType and not r.isMultiple()/]
 
+[comment vérifie si la relation est biderectionnlle et multiple (n-n)./]
+[query public isMultipleBidirectionnal(r : environment::Reference) : Boolean = 
+	r.isMultiple() and r.oppositeOf <> null/]
+
 [comment vérifie si la référence exige une entité ou un dto/xto (les listes sont considérées comme obligatoire)./]
 [query public isMandatory(r : environment::Reference) : Boolean = if (r.exists()) then not (r.multiplicity = 
 	environment::MultiplicityKind::ZERO_ONE) else false endif/]
 
 [comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto, la requête est 
-		légèrement différente de 'referencesFK' et foonctionne sur les deux diagrammes.
-		-> pour spring | spring boot uniquement./]	
+		légèrement différente de 'referencesFK' et fonctionne sur les deux diagrammes (entity / soa).
+		-> pour spring boot uniquement./]	
 [query public referencesFKSB(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
 	st.references
 	->select(o | (o.oppositeOf = null 
@@ -70,13 +74,6 @@
 		and o.referencedType = st
 		and not (o.containingType = o.referencedType)))			
 	->sortedByName()/]
-
-[comment retourne les références des tables de jointure niveau entité 	
- 		-> pour spring | spring boot uniquement (à voir si on conserve)./]
-[query public referencesJTSB(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.ownedReferences
-	->referencesJT()
-	->sortedByName()/]	
 
 [comment retourne les références simples niveau entité (FK) : 
 		- relations unidirectionnelles et récursives (0,1)(1)
@@ -110,10 +107,10 @@
 		and o.isMultiple() 
 		and o.referencedType = o.containingType))/]
 
-[comment retourne les références des tables de jointure niveau entité 	
- 		-> pour scripts sql, spi4j./]
-[query public referencesJT(e : entity::Entity) : OrderedSet(environment::Reference) = 
-	e.ownedReferences
+[comment retourne les références des tables de jointure pour les deux diagrammes (entity / soa) 	
+ 		-> pour scripts sql, spi4j, spring boot./]
+[query public referencesJT(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+	st.ownedReferences
 	->referencesJT()
 	->sortedByName()/]	
 
@@ -127,15 +124,17 @@
   
 [comment écriture du type complet pour les entités ou les dtos référencés (pas d'optional sinon plante jpa)./]
 [query public referencedTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
-  if (r.isMultiple() and r.containingType = st) then 'List<' + if (st.oclIsKindOf(entity::Entity)) then 
-  r.referencedEntity(st).nameClassEntityImpl() else r.referencedDto(st.oclAsType(environment::DTO))
-  .nameClassDtoImpl() endif + '>' else if (st.oclIsKindOf(entity::Entity)) then  r.referencedEntity(st).nameClassEntityImpl() 
+  if (r.isMultiple() and r.containingType = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
+  + if (st.oclIsKindOf(entity::Entity)) then r.referencedEntity(st).nameClassEntityImpl() 
+  else r.referencedDto(st.oclAsType(environment::DTO)).nameClassDtoImpl() endif + '>' 
+  else if (st.oclIsKindOf(entity::Entity)) then  r.referencedEntity(st).nameClassEntityImpl() 
   else r.referencedDto(st.oclAsType(environment::DTO)).nameClassDtoImpl() endif endif /]
   
 [comment écriture du type complet pour les xtos référencés./]
 [query public referencedRsTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
-  if (r.isMultiple() and r.containingType = st) then 'List<' +  r.referencedDto(st.oclAsType(environment::DTO))
-  .nameClassXtoImpl() + '>' else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]
+  if (r.isMultiple() and r.containingType = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
+  +  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() + '>' 
+  else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]
 
 [template public blockHierarchy(r : environment::Reference) post(self.trim())]
   [if (r.ancestors(environment::Namespace)->size() < 1)]

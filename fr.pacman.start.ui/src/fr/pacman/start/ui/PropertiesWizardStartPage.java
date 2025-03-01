@@ -682,7 +682,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				} else if (cbx.getSelectionIndex() == 2) {
 					txtName.setText("XDMAJ");
 					txtName.setEnabled(false);
-					txtLength.setText("1");
+					txtLength.setText("");
 					txtLength.setEnabled(false);
 					txtDefault.setText("");
 					txtDefault.setEnabled(false);
@@ -743,8 +743,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 			@Override
 			public void keyPressed(final KeyEvent p_e) {
-				if (cbx.getSelectionIndex() == 4 || cbx.getSelectionIndex() == 5 || cbx.getSelectionIndex() == 6
-						|| cbx.getSelectionIndex() == 7) {
+				if (cbx.getSelectionIndex() == 5 || cbx.getSelectionIndex() == 6 || cbx.getSelectionIndex() == 7
+						|| cbx.getSelectionIndex() == 8) {
 					if (!FormUtil.checkKeyForNumericValue(p_e.character)) {
 						p_e.doit = false;
 					}
@@ -859,21 +859,23 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
-	 * Retourne le préfixe à utiliser pour l'ensemble des tables sql.
+	 * Retourne le préfixe à utiliser pour l'ensemble des tables sql. On supprimme
+	 * l'underscore qui ne servait que pour la validation.
 	 * 
 	 * @return le préfixe pour les tables sql.
 	 */
 	public String getSqlTablePrefix() {
-		return _sqlTablePrefix;
+		return _sqlTablePrefix.replace("_", "");
 	}
 
 	/**
-	 * Retourne le schéma à utiliser pour l'ensemble des tables sql.
+	 * Retourne le schéma à utiliser pour l'ensemble des tables sql. On supprime le
+	 * point qui ne servait que pour la validation.
 	 * 
 	 * @return le schéma à utiliser pour les tables sql.
 	 */
 	public String getSqlTableSchema() {
-		return _sqlTableSchema;
+		return _sqlTableSchema.replace(".", "");
 	}
 
 	/**
@@ -975,7 +977,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			} else if ("xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupDefault, "0");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupDefault, "false");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupNull, "false");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupSize, "1");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupType, "Boolean");
@@ -1014,7 +1016,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		String isNull() {
 			return String.valueOf(_null.getSelection());
 		}
-		
+
 		String getXtopSupType() {
 			return _type.getText();
 		}

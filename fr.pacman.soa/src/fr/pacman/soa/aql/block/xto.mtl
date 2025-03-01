@@ -16,13 +16,14 @@
 [import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::attribute/]
-[import fr::pacman::core::aql::rule::method/]	
+[import fr::pacman::core::aql::rule::method/]
+[import fr::pacman::soa::aql::block::common/]	
 
-[comment écriture de l'implémentation pour un objet métier sérialisé./]
+[comment écriture de l'implémentation pour un objet métier sérialisé (xto)./]
 [template public implementation(d : environment::DTO)]
   [d.classHeader(d.namePackageXtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-  
+    
     [d.defaultImports()/]
     import java.io.Serializable;
     import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,8 +34,9 @@
   [d.commentClass()/]
   public class [d.nameClassXtoImpl()/] implements Serializable
   {
+     
      // CONSTANTES
-      
+     
      ['SerialUid'.commentMultiLines()/]
      private static final long serialVersionUID = -1;
      
@@ -46,7 +48,8 @@
      private [d.defaultTypePk()/] [d.writePk()/];
      
      // ATTRIBUTS
-     [let rs = d.referencesFKSB()]
+     [let rs = d.referencesFKSB()->union(d.referencesJT())]
+       
        [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
          [a.comment().commentSingleLine()/]
          [protected (a.nameAttribute().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -64,7 +67,7 @@
          private [r.referencedRsTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
          
        [/for]
-        
+               
        [('Constructeur sans paramètre pour la classe : ' + d.nameClassXtoImpl()).commentMultiLines()/]
        public [d.nameClassXtoImpl()/] ()
        {
@@ -93,35 +96,8 @@
           }
        [/let]
         
-       [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-         [a.commentGet()/]
-         public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
-         {
-           return [a.prefixAffectation()/][a.nameAttribute()/];
-         }
-          
-         [a.commentSet()/]
-         public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
-         {
-           [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
-         }
-          
-       [/for]
-       [for (r : environment::Reference | rs)]
-         [r.referencedDto(d).commentGet()/]
-         public [r.referencedRsTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
-         {
-           return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
-         }
-        
-         [r.referencedDto(d).commentSet()/]
-         public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
-         (final [r.referencedRsTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
-         {
-           [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
-              = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
-         }
-       [/for]
+       [d.writeGetterAndSetterForAttributes(d.attributesNoPKAndNoComputed())/]
+       [d.writeGetterAndSetterForReferences(rs, d.commandXto())/]
        
        // METHODES
        [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -129,6 +105,3 @@
      [/let]
   }
 [/template]
-
-[comment raccourci pour l'écriture de la clé primaire./]
-[query private writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]

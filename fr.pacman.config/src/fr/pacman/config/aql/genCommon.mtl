@@ -5,6 +5,6 @@
 [comment écriture de l'ensemble de la configuration de base pour le projet métier./]
 [template public genRootConfig(r : overview::Root)]
   [r.fileBinaryType()/]
-  [r.fileXtopSupType()/]
-  [r.fileDatabaseStatusEnum()/]
+  [comment r.fileXtopSupType()/]
+  [comment r.fileDatabaseStatusEnum()/]
 [/template]

@@ -13,19 +13,21 @@
 [comment retourne la liste des paramètres de type 'Entity' (sans doublon) pour toutes les opérations sur un service./]					
 [query public outputEntities(s : soa::Service) : OrderedSet(entity::Entity) = s.ownedInterface.ownedOperations.output.type
   ->select(o | o.oclIsKindOf(entity::Entity))->asOrderedSet()/]
-  
+
 [comment retourne le(s) dto(s) associé(s) au service métier./]  
 [query public associatedDtos(s : soa::Service) : OrderedSet(environment::DTO) = s.eAllContents(soa::Parameter)
   ->select(o1 | o1.type.oclIsTypeOf(environment::DTO))->collect(o2 | o2.type.oclAsType(environment::DTO))->asSet()/]
 
+[comment retourne tous les fournisseurs de persistance éventuellement associés à un service./]
+[comment query public associatedProviders(s : soa::Service) : Sequence(soa::Service) = null /]
+
 [comment vérifie si un service contient des opérations de type rest./]
 [query public isRsService(s : soa::Service) : Boolean = s.exists() and not s.ownedInterface.ownedOperations
   ->select(o | o.exposition = soa::ExpositionKind::REST)->isEmpty() /]
-  
-[comment retourne l'uri (partielle) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
-[query public rsUri(s : soa::Service) : String = if (s.isRsService()) then if (s.URI.exists()) then ('/' +  s.URI).toUri() 
-  else '/' endif else s.cNoModelisation() endif/]
-  
 
+[comment retourne l'uri (partielle) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
+[query public rsUri(s : soa::Service) : String = if (s.isRsService()) then  ( '/' + s.eContainer().oclAsType(soa::Component).URI 
+  + '/' + s.eContainer().oclAsType(soa::Component).apiVersion + '/' + s.URI).toUri() else s.cNoModelisation() endif/]
+  
   
  

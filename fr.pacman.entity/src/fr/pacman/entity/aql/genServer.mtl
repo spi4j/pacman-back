@@ -6,6 +6,7 @@
 
 [comment écriture des classes et fichiers persistence pour la partie serveur de l'application cible./]
 [template public genServer(r : entity::Root)]
-    [r.fileAutoAttributesImpl(r.commandEntity())/]
+  [comment implémentation des champs automatiques pour la base de données./]
+  [r.fileAutoAttributesImpl(r.commandEntity())/]
 [/template]
 

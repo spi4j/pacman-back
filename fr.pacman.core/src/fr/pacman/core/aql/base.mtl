@@ -210,6 +210,9 @@
 [comment opérateur de commande pour des opérations sur des dtos/xtos./]
 [query public commandDto(any : ecore::EObject) : String = 'D'/]
   
+[comment opérateur de commande pour des opérations sur des xtos./]
+[query public commandXto(any : ecore::EObject) : String = 'X'/]
+  
 [comment le nom pour le fichier de configuration maven./] 
 [query public namePom(any : ecore::EObject) : String = 'pom'/]  
 

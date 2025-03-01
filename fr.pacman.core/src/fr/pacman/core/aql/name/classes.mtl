@@ -23,7 +23,7 @@
 [comment retourne le nom pour l'interface d'une classe de service soa (feature)./]  
 [query public nameClassServiceOutItf(s : soa::Service) : String = (s.name() + ' ' + s.suffixService()).apply_classInterface()/]  
 
-[comment retourne le nom pour l'interface d'une classe de service soa (spi)./]  
+[comment retourne le nom pour l'interface d'une classe de service soa (infra)./]  
 [query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + ' ' + s.suffixInterfaceIn()).apply_classInterface()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service de persistance./]

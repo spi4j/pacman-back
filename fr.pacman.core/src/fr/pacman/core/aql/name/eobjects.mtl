@@ -52,11 +52,14 @@
 [comment retourne le nom formatté pour une opération de service./]
 [query public nameOperation(o : soa::Operation) : String = o.name().apply_methodDefault() /]
 
-[comment retourne le nom formattée pour le literal d'une énumération ./]
+[comment retourne le nom formattée pour le literal d'une énumération./]
 [query public nameLiteral(l : environment::Literal) : String = l.name.apply_attributeFinalStatic()/]
   
 [comment retourne le nom du conteneur pour un service soa./]
 [query public nameComponent(s : soa::Service) : String = s.eContainer(soa::Component).name.safeLower()/]
+
+[comment retourne le nom de l'attribut pour un repository spring (couche de persistance)./]
+[query public nameRepository(d : environment::DTO) : String = d.name() + d.suffixEntityDao()/]
 
 
 
