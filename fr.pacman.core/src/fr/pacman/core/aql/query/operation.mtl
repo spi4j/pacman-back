@@ -70,13 +70,39 @@
 [query public uriRs(o : soa::Operation) : String = if (o.isRsOperation()) then if (o.URI.exists()) then ('/' +  o.URI).toUri() 
   else '/' endif else o.cNoModelisation() endif/] 
 
+[comment retourne le type et le nom du paramètre de sortie (si existe) (liste + optional + type + nom)./]
+[query public outputSignature(o : soa::Operation) : String = if(o.hasOutput()) then o.output->first().type(false) 
+  + ' ' + o.output->first().name() else 'void' endif/]
+  
+[comment retourne les types et les noms des paramètres en entrée (si existent) (list + optional + type + nom)./]
+[query public inputSignature(o : soa::Operation) : String = o.input->collect(o1 | 'final ' + o1.type(false) + ' ' 
+  + o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
+  
+  
+  
+  
+[comment retourne le nom de la variable pour le repository de l'opération./]  
+[query public repository(o : soa::Operation) : String = if(o.hasOutput() and o.output->first().oclIsTypeOf(entity::Entity)) 
+  then o.output->first().type.oclAsType(entity::Entity).name()  else '' endif/]
+
+
+
+
+
+
+
+
+
+
+
+
 [comment retourne le dto associé pour la couche de persistance (point d'entrée). 
 	Algo très simple : 
 		- si on trouve un dto en sortie il provient obligatoirement de la persistance et à la priorité sur tout le reste. 
 		- sinon, si on trouve un dto en en entrée, c'est ce dto qui est considéré comme persistant.
 		- sinon, si on trouve plusieurs dtos en entrée, on ne sait pas les distinguer -> zone non générée avec exception.
 		- sinon, si ce ne sont que des 'primitives', on ne connait pas la requête -> zone non générée avec exception.  /]
-[query public persistDto(o :soa::Operation) : environment::DTO = o.persistDto(o.persistOutputDto(), o.persistInputDto())/]
+[query public persistDtosx(o :soa::Operation) : environment::DTO = o.persistDto(o.persistOutputDto(), o.persistInputDto())/]
  
 [comment retourne le DTO persistant en paramètre de sortie (si existe)./]
 [query private persistOutputDto(o : soa::Operation) : environment::DTO = if (o.hasOutput() and o.output->first().type.oclIsKindOf(environment::DTO) 
@@ -88,15 +114,12 @@
   
 [comment retourne le dto associé pour la couche de persistance (si impossible à déterminer on retourne null)./][query private persistDto(o : soa::Operation, d : environment::DTO, ds : Sequence(environment::DTO)) : environment::DTO = if (d.exists()) 
   then d else if (ds->size() = 1) then ds->first() else null endif endif/]
+  
+  
+  
+  
+  
+  
+  
 
-[comment retourne le type et le nom du paramètre de sortie (si existe) (liste + optional + type + nom)./]
-[query public outputSignature(o : soa::Operation) : String = if(o.hasOutput()) then o.output->first().type(false) 
-  + ' ' + o.output->first().name() else 'void' endif/]
-  
-[comment retourne les types et les noms des paramètres en entrée (si existent) (list + optional + type + nom)./]
-[query public inputSignature(o : soa::Operation) : String = o.input->collect(o1 | 'final ' + o1.type(false) + ' ' 
-  + o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
-  
-[comment retourne le nom de la variable pour le repository de l'opération./]  
-[query public repository(o : soa::Operation) : String = if(o.hasOutput() and o.output->first().oclIsTypeOf(entity::Entity)) 
-  then o.output->first().type.oclAsType(entity::Entity).name()  else '' endif/]
+

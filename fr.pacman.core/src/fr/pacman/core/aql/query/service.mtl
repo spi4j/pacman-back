@@ -5,7 +5,9 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]				    
 [import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::service::ServiceUtils/]
 
 [comment retourne toutes les opérations d'un service soa./]
 [query public operations(s : soa::Service) : Sequence(soa::Operation) = s.ownedInterface.ownedOperations/]
@@ -18,8 +20,9 @@
 [query public associatedDtos(s : soa::Service) : OrderedSet(environment::DTO) = s.eAllContents(soa::Parameter)
   ->select(o1 | o1.type.oclIsTypeOf(environment::DTO))->collect(o2 | o2.type.oclAsType(environment::DTO))->asSet()/]
 
-[comment retourne tous les fournisseurs de persistance éventuellement associés à un service./]
-[comment query public associatedProviders(s : soa::Service) : Sequence(soa::Service) = null /]
+[comment retourne tous les fournisseurs de persistance associés à un service./]
+[query public associatedProviders(s : soa::Service, ss : Sequence(soa::Service)) : OrderedSet(environment::DTO) = 
+  s.associatedDtos()->get_associatedProvider(ss)->asSet()/]
 
 [comment vérifie si un service contient des opérations de type rest./]
 [query public isRsService(s : soa::Service) : Boolean = s.exists() and not s.ownedInterface.ownedOperations
@@ -28,6 +31,3 @@
 [comment retourne l'uri (partielle) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
 [query public rsUri(s : soa::Service) : String = if (s.isRsService()) then  ( '/' + s.eContainer().oclAsType(soa::Component).URI 
   + '/' + s.eContainer().oclAsType(soa::Component).apiVersion + '/' + s.URI).toUri() else s.cNoModelisation() endif/]
-  
-  
- 

@@ -38,7 +38,7 @@
 [query public namePackageAnnotation(e : ecore::EObject) : String = 'domain.annotations'/]
  
 [comment retourne le package pour l'implémentation d'un service soa./]
-[query public namePackageServiceImpl(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService() +  's.' + s.nameComponent()/]
+[query public namePackageServiceImpl(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService().trim() + 's.' + s.nameComponent()/]
   
 [comment retourne le package pour l'implémentation d'un contrôleur soa./]
 [query public namePackageControllerImpl(s : soa::Service) : String = 'app.adapters.' + s.nameComponent()/]

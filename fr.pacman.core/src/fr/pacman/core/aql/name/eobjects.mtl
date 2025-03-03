@@ -60,6 +60,12 @@
 
 [comment retourne le nom de l'attribut pour un repository spring (couche de persistance)./]
 [query public nameRepository(d : environment::DTO) : String = d.name() + d.suffixEntityDao()/]
+  
+[comment retourne le nom de l'attribut pour un provider (couche de persistance)./]
+[query public nameProvider(d : environment::DTO) : String = d.name() + d.suffixInterfaceIn()/]
+  
+[comment retourne le nom de l'attribut pour un provider (couche de persistance)./]
+[query public nameProvider(s : soa::Service) : String = s.name() + s.suffixInterfaceIn()/]
 
 
 

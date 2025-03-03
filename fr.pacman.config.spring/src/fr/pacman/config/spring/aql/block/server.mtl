@@ -5,6 +5,7 @@
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
@@ -160,10 +161,36 @@
        [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
          = new [any.nameClassRsErrorBodyResponseImpl()/] (['ex'.apply_parameterMethodClassicIn()/].['status code'.apply_methodGet()/](), 
           ['ex'.apply_parameterMethodClassicIn()/].['message'.apply_methodGet()/]());
+          
+       [protected ('handle data not found'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       [/protected]
+       
        return handleExceptionInternal(['ex'.apply_parameterMethodClassicIn()/], ['body response'.apply_variableDefault()/]
        , new HttpHeaders(), [any.nameClassRsHttpStatusResolverImpl()/].['resolve'.apply_methodDefault()/]
        (['body response'.apply_variableDefault()/].['status code'.apply_methodGet()/]()), ['request'.apply_parameterMethodClassicIn()/]);
     }
+    
+    /**
+      * Gère les exceptions {@link [any.nameClassNotImplementedExceptionImpl()/]} et renvoie une réponse d'erreur avec un code de statut 501.
+      * 
+      * @param ex L'exception {@link [any.nameClassNotImplementedExceptionImpl()/]} capturée.
+      * @param request La requête HTTP associée à l'exception.
+      * @return Une réponse HTTP avec un corps contenant le message d'erreur et le code de statut 501.
+      */
+      @ExceptionHandler(value = { [any.nameClassNotImplementedExceptionImpl()/].class})
+      protected ResponseEntity<Object> ['handle not implemented'.apply_methodDefault()/]
+        ([any.nameClassNotImplementedExceptionImpl()/] ['ex'.apply_parameterMethodClassicIn()/]
+         , WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
+         [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
+           = new [any.nameClassRsErrorBodyResponseImpl()/] (HttpStatus.NOT_IMPLEMENTED.value() 
+            , ['ex'.apply_parameterMethodClassicIn()/].['message'.apply_methodGet()/]());
+            
+         [protected ('handle not implemented'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         [/protected]
+         
+         return handleExceptionInternal(ex, ['body response'.apply_variableDefault()/]
+         , new HttpHeaders(), HttpStatus.NOT_IMPLEMENTED, request);
+      }
     
    /**
     * Gère les exceptions génériques {@link Exception} et renvoie une réponse d'erreur avec un code de statut 500.
@@ -173,13 +200,21 @@
     * @return Une réponse HTTP avec un corps contenant un message générique d'erreur et un code de statut 500.
     */
     @ExceptionHandler(value = { Exception.class })
-    protected ResponseEntity<Object> ['handle server error exception'.apply_methodDefault()/](
+    protected ResponseEntity<Object> ['handle server error'.apply_methodDefault()/](
 	   Exception ['ex'.apply_parameterMethodClassicIn()/], WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
        [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
-         = new [any.nameClassRsErrorBodyResponseImpl()/](HttpStatus.INTERNAL_SERVER_ERROR.value(), "Exception");
+         = new [any.nameClassRsErrorBodyResponseImpl()/](HttpStatus.INTERNAL_SERVER_ERROR.value()
+         , ['ex'.apply_parameterMethodClassicIn()/].getMessage());
+         
+       [protected ('handle server error'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       [/protected]
+       
        return handleExceptionInternal(ex, ['body response'.apply_variableDefault()/]
        , new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
   	}
+  	
+  	[protected (any.nameClassRsExceptionHandlerImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  	[/protected]
   }
 [/template]
 

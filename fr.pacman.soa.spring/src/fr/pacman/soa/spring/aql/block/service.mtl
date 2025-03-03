@@ -111,17 +111,20 @@
   public class [s.nameClassServiceInImpl()/] implements [s.nameClassServiceInItf()/]
   {
       
+      ['Le(s) gestionnaire(s) de persistance disponibles(s)'.commentMultiLines()/]
       [for (d | ds->select(o | o.isPersistent()))]
-        ['Le gestionnaire de persistance'.commentMultiLines()/]
         final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeFinal()/];
-        
       [/for]
     
       ['Constructeur'.commentMultiLines()/]
       @Autowired
       public [s.nameClassServiceInImpl()/] ([ds->writePersistInputs()/])
       {
+         
          [ds->writePersistAffectation()/]
+         
+         [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         [/protected]
       }
    
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
@@ -134,7 +137,7 @@
             [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
             [/protected]
             
-            [o.writePersistOperation()/]
+            [o.writePersistOperation(s)/]
           }
           
           [o.commentOperation()/]
@@ -170,20 +173,21 @@
  
 [comment 	écriture du corps de l'opération pour la couche de persistance, sert d'aiguillage pour les autres queries en fonction du type de sortie.
 			on rappelle juste qu'on ne peut générer qu'a partir du momment ou on a des DTOs en paramètre./] 
-[query private writePersistOperation(o : soa::Operation) : String = if (o.hasOutput()) then if (o.output->first().isOptional()) 
-   then if (o.output->first().isMultiple()) then o.writeOptionalOutputStar() else o.writeOptionalOutputOne() endif 
-   else if (o.output->first().isMultiple()) then o.writeNonOptionalOutputStar() else o.writeNonOptionalOutputOne() 
+[query private writePersistOperation(o : soa::Operation, s : soa::Service) : String = 
+   if (o.hasOutput()) then if (o.output->first().isOptional()) 
+   then if (o.output->first().isMultiple()) then o.writeOptionalOutputStar(s) else o.writeOptionalOutputOne() endif 
+   else if (o.output->first().isMultiple()) then o.writeNonOptionalOutputStar(s) else o.writeNonOptionalOutputOne() 
    endif endif else '' endif/]
 
 [comment écriture de l'appel pour une sortie liste et optionnelle (normalement jamais appelé pour l'instant)./]
-[query private writeOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
+[query private writeOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + o.nameOperation() + '_invoke(' 
   + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
-  +  o.persistDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
+  +  s.nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie liste (pour l'instant celle qui est toujours appelée)./]       	    	
-[query private writeNonOptionalOutputStar(o : soa::Operation) : String = 'return ' + o.nameOperation() + '_invoke(' 
+[query private writeNonOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + o.nameOperation() + '_invoke(' 
   + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
-  +  o.persistDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
+  +  s.nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie simple mais optionnelle./]
 [query private writeOptionalOutputOne(o : soa::Operation) : String = o.outputPersistType() + ' ' +  o.suffixEntity().apply_variableDefault() 

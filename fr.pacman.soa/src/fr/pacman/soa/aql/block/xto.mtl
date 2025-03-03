@@ -64,7 +64,7 @@
            @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]") 
          [/protected]
          [comment r.containingType <> d and r.isMultiple()/]
-         private [r.referencedRsTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+         private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
          
        [/for]
                

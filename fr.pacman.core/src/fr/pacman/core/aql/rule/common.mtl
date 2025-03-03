@@ -9,11 +9,11 @@
 [query public prefixMap(any : ecore::EObject) : String = any.get_mapPrefix().trim()/]
   
 [comment retourne le suffixe pour les entités (si défini)./]
-[query public suffixEntity(any : ecore::EObject) : String = any.get_entitySuffix().trim()/]
+[query public suffixEntity(any : ecore::EObject) : String = ' ' + any.get_entitySuffix().trim()/]
 
 [comment retourne le suffixe pour un service soa (si défini)./]
-[query public suffixService(any : ecore::EObject) : String = any.get_serviceSuffix().trim()/]
+[query public suffixService(any : ecore::EObject) : String = ' ' + any.get_serviceSuffix().trim()/]
     
 [comment retourne le suffixe pour les objets de transfert (si défini)./]
-[query public suffixDto(any : ecore::EObject) : String = any.get_dtoSuffix().trim()/]
+[query public suffixDto(any : ecore::EObject) : String = ' ' + any.get_dtoSuffix().trim()/]
 

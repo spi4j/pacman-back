@@ -7,7 +7,6 @@
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::soa::spring::aql::block::service/]
 [import fr::pacman::soa::spring::aql::block::security/]
-[import fr::pacman::core::aql::query::service/]
 
 [comment écriture du fichier d'implémentation pour le service utilisateur (application)./]
 [template public fileServiceImpl(s: soa::Service)]
@@ -17,9 +16,9 @@
 [/template]
 
 [comment écriture du fichier d'implémentation pour le service de persistance (infrastructure)./]
-[template public fileServiceInImpl(s: soa::Service)]
+[template public fileServiceInImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
   [file (s.nameClassServiceInImpl().toFileJava(s.namePackageInImpl()), overwrite, s.defaultFileEncoding())]
-    [s.implementationIn(s.associatedDtos())/]
+    [s.implementationIn(ds)/]
   [/file]
 [/template]
 

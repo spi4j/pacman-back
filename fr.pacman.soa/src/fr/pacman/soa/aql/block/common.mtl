@@ -51,7 +51,7 @@
 
 [comment écriture du type pour la référence (dépend si on écrit un dto ou un xto)./]
 [query private writeTypeSignature(d : environment::DTO, r : environment::Reference, command : String) : String = if (d.commandDto().equalsIgnoreCase(command)) 
-  then r.referencedTypeSignature(d) else r.referencedRsTypeSignature(d) endif/]
+  then r.referencedTypeSignature(d) else r.referencedOutTypeSignature(d) endif/]
 
 [comment raccourci pour l'écriture de la clé primaire./]
 [query public writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]

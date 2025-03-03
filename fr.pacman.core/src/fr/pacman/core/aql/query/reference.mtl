@@ -130,8 +130,8 @@
   else if (st.oclIsKindOf(entity::Entity)) then  r.referencedEntity(st).nameClassEntityImpl() 
   else r.referencedDto(st.oclAsType(environment::DTO)).nameClassDtoImpl() endif endif /]
   
-[comment écriture du type complet pour les xtos référencés./]
-[query public referencedRsTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
+[comment écriture du type complet pour les types référencés en srotie vers la couche application./]
+[query public referencedOutTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
   if (r.isMultiple() and r.containingType = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
   +  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() + '>' 
   else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]

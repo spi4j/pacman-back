@@ -15,16 +15,19 @@
 [comment query public nameClassEntityMapperItf(e : entity::Entity) : String = (e.name() + e.suffixMapper()).apply_classInterface()/]
 
 [comment retourne le nom pour l'implémentation d'une classe de service soa (feature)./]  
-[query public nameClassServiceImpl(s : soa::Service) : String = (s.name() + ' ' + s.suffixService()).apply_classImplem()/]
+[query public nameClassServiceImpl(s : soa::Service) : String = (s.name() + s.suffixService()).apply_classImplem()/]
   
 [comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
-[query public nameClassControllerImpl(s : soa::Service) : String = (s.name() + ' ' + ' controller').apply_classImplem()/]
+[query public nameClassControllerImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]
   
 [comment retourne le nom pour l'interface d'une classe de service soa (feature)./]  
-[query public nameClassServiceOutItf(s : soa::Service) : String = (s.name() + ' ' + s.suffixService()).apply_classInterface()/]  
+[query public nameClassServiceOutItf(s : soa::Service) : String = (s.name() + s.suffixService()).apply_classInterface()/]  
 
 [comment retourne le nom pour l'interface d'une classe de service soa (infra)./]  
-[query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + ' ' + s.suffixInterfaceIn()).apply_classInterface()/]  
+[query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + s.suffixInterfaceIn()).apply_classInterface()/]  
+
+[comment retourne le nom pour l'interface d'une classe de service soa (infra)./]  
+[query public nameClassServiceInItf(d : environment::DTO) : String = (d.name() + d.suffixInterfaceIn()).apply_classInterface()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service de persistance./]
 [query public nameClassServiceInImpl(s : soa::Service) : String = (s.name() + ' orm' + s.suffixInterfaceOut()).apply_classImplem()/]  
@@ -48,7 +51,7 @@
 [query public nameClassEnumeration(e : environment::Enumeration) : String = e.name().apply_classEnum()/]
 
 [comment retourne le nom pour l'implémentation de l'entité./]
-[query public nameClassEntityImpl(e : entity::Entity) : String = (e.name() + ' ' +  e.suffixEntity()).apply_classImplem()/]
+[query public nameClassEntityImpl(e : entity::Entity) : String = (e.name() + e.suffixEntity()).apply_classImplem()/]
 
 [comment retourne le nom pour l'interface de l'entité./]
 [query public nameClassEntityItf(e : entity::Entity) : String = e.name().apply_classInterface()/]
@@ -60,13 +63,16 @@
 [query public nameClassAppBoostrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBoostrap()).apply_classDefault()/]
   
 [comment retourne le nom de la classe pour un objet métier./]
-[query public nameClassDtoImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixDto()).apply_classDefault()/]
+[query public nameClassDtoImpl(d : environment::DTO) : String = (d.name() + d.suffixDto()).apply_classDefault()/]
   
 [comment retourne le nom de la classe pour un objet sérialisé./]
-[query public nameClassXtoImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixXto()).apply_classDefault()/] 
+[query public nameClassXtoImpl(d : environment::DTO) : String = (d.name() + d.suffixXto()).apply_classDefault()/] 
   
 [comment retourne le nom pour la classe d'implémentation du mapper objet métier <-> objet infrastructure./]
 [query public nameClassMapperImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixMapper()).apply_classDefault()/]
+
+[comment retourne le nom pour la classe d'implémentation du mapper objet métier <-> objet infrastructure./]
+[query public nameClassMapperImpl(s : soa::Service) : String = (s.name() + ' ' + s.suffixMapper()).apply_classDefault()/]
 
 [comment retourne le nom pour l'interface de persistance pour une entité./]
 [query public nameClassEntityPersistItf(e : entity::Entity) : String = (e.name() + e.suffixEntityDao()).apply_classInterface()/]
