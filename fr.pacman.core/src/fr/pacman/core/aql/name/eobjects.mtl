@@ -62,10 +62,11 @@
 [query public nameRepository(d : environment::DTO) : String = d.name() + d.suffixEntityDao()/]
   
 [comment retourne le nom de l'attribut pour un provider (couche de persistance)./]
-[query public nameProvider(d : environment::DTO) : String = d.name() + d.suffixInterfaceIn()/]
+[query public nameProvider(s : soa::Service) : String = s.name() + s.suffixInterfaceIn()/]
   
 [comment retourne le nom de l'attribut pour un provider (couche de persistance)./]
-[query public nameProvider(s : soa::Service) : String = s.name() + s.suffixInterfaceIn()/]
+[query public nameProviderCrud(d : environment::DTO) : String = d.name() + ' crud' + d.suffixInterfaceIn()/]
+
 
 
 

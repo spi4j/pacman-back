@@ -14,11 +14,13 @@
 
 [comment retourne le nom pour l'attribut en provenance de la référence./]
 [query public referencedName(e : entity::Entity, r : environment::Reference) : String = 
-	if(r.isZeroOneRecursive()) then r.name else e.name() endif/]
+	if(r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> e) 
+	or r.isRecursive()) then r.name else e.name() endif/]
 
 [comment retourne le nom pour l'attribut en provenance de la référence./]
 [query public referencedName(d : environment::DTO, r : environment::Reference) : String = 
-	if(r.isZeroOneRecursive()) then r.name else d.name() endif/]
+	if(r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> d) 
+	or r.isRecursive()) then r.name else d.name() endif/]
 	
 [comment raccourci pour l'obtention de l'entité dans le cadre des références (toujours une entité)./]
 [comment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]	
@@ -43,12 +45,15 @@
 	c->do_skipDuplicates()->sortedByName()/]
 
 [comment vérifie si un référence est de type recursif (0,*)(1,*)./]
-[query public isStarRecursive(r : environment::Reference) : Boolean = 
-	r.referencedType = r.containingType and r.oppositeOf = null and r.isMultiple()/]
+[query public isStarRecursive(r : environment::Reference) : Boolean = r.referencedType = r.containingType 
+  and r.oppositeOf = null and r.isMultiple()/]
 
 [comment vérifie si la référence est de type récursif (0,1) (1)./]
-[query public isZeroOneRecursive(r : environment::Reference) : Boolean = 
-	r.referencedType = r.containingType and not r.isMultiple()/]
+[query public isZeroOneRecursive(r : environment::Reference) : Boolean = r.referencedType = r.containingType 
+  and not r.isMultiple()/]
+
+[comment vérifie si la référence est de type récursif./]
+[query public isRecursive(r : environment::Reference) : Boolean = r.isZeroOneRecursive() or r.isStarRecursive()/]
 
 [comment vérifie si la relation est biderectionnlle et multiple (n-n)./]
 [query public isMultipleBidirectionnal(r : environment::Reference) : Boolean = 

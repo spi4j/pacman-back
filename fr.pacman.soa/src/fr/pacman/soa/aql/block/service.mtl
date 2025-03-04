@@ -14,6 +14,7 @@
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::method/]
 						
 [comment écriture de l'implémentation d'un service soa (couche domain)./]
 [template public implementation (s : soa::Service, ds : OrderedSet(environment::DTO))]
@@ -25,18 +26,19 @@
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationOut()/];
     [for (d | ds)]
-      import [s.namePackageProject()/].[s.namePackageInItf()/].[d.nameClassServiceInItf()/];
+      import [s.namePackageProject()/].[d.namePackageCrudInItf()/].[d.nameClassServiceCrudInItf()/];
     [/for]
     
   [/protected]
   
   [s.commentClass()/]
-  @SuppressWarnings("unused")
   @[s.nameClassAnnotationOut()/]
+  @SuppressWarnings("unused")
   public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceOutItf()/]
   {
       
       ['Interface(s) de persistance disponible(s)'.commentMultiLines()/]
+      private final [s.nameClassServiceInItf()/] [s.nameProvider().apply_attributeDefault()/];
       [for (d | ds)]
        [d.writeProviderAttributes()/] 
       [/for]
@@ -47,8 +49,9 @@
       ['Constructeur avec injection de la persistance'.commentMultiLines()/]
       public [s.nameClassServiceImpl()/] ([s.writeProviderParameters(ds)/]) {
          
+         [s.prefixAffectation()/][s.nameProvider().apply_attributeDefault()/] = [s.nameProvider().apply_parameterMethodClassicIn()/];
          [for (d | ds)]
-           [d.prefixAffectation()/][d.nameProvider().apply_attributeFinal()/] = [d.nameProvider().apply_parameterMethodClassicIn()/];
+           [d.prefixAffectation()/][d.nameProviderCrud().apply_attributeFinal()/] = [d.nameProviderCrud().apply_parameterMethodClassicIn()/];
          [/for]
          
          [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -68,6 +71,27 @@
           [if (o.hasOutput())]return [/if][o.prefixAffectation()/][s.nameProvider().apply_attributeFinal()/].[o.writeInputs()/];
         }
       [/for]
+  }
+[/template]
+
+[comment écriture de l'interface 'technique' crud pour le service (domain -> infrastructure)./]
+[template public interfaceCrudIn (d : environment::DTO)]
+  [d.classHeader(d.namePackageCrudInItf())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [d.defaultImports()/]
+    import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
+    
+  [/protected]
+  
+  [d.commentInterface()/]
+  public interface [d.nameClassServiceCrudInItf()/]
+  {
+    public void ['creer'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
+    
+    public void ['modifier'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
+    
+    public void ['supprimer'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
   }
 [/template]
 
@@ -120,8 +144,10 @@
 	->sep(', ') + ')' /]
 
 [comment écriture de la ligne pour la déclaration de l'attribut de type 'provider'./]
-[query private writeProviderAttributes(d: environment::DTO) : String = 'private final ' +  d.nameClassServiceInItf() + ' ' + d.nameProvider().apply_attributeFinal() + ';'/]
+[query private writeProviderAttributes(d: environment::DTO) : String = 'private final ' +  d.nameClassServiceCrudInItf() 
+  + ' ' + d.nameProviderCrud().apply_attributeFinal() + ';'/]
 
 [comment écriture pour les différents paramètres à injecter au niveau du constructeur./]
-[query private writeProviderParameters(s : soa::Service, ds : OrderedSet(environment::DTO)) : String = ds->collect(o1 | 'final ' 
-  + o1.nameClassServiceInItf() + ' ' + o1.nameProvider().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
+[query private writeProviderParameters(s : soa::Service, ds : OrderedSet(environment::DTO)) : String = 'final ' + s.nameClassServiceInItf() 
+  + ' ' + s.nameProvider().apply_parameterMethodClassicIn() + if (not ds->isEmpty()) then ', ' + ds->collect(o1 | 'final ' 
+  + o1.nameClassServiceCrudInItf() + ' ' + o1.nameProviderCrud().apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif/]

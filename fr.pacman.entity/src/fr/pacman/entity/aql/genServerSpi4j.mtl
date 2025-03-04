@@ -4,7 +4,7 @@
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
 [comment enlever ces imports suite a correction bug./]
 [import fr::pacman::core::aql::base/]
-[import fr::pacman::common::aql::file::genAutoAttributes/]
+[import fr::pacman::common::aql::file::genEntityAbs/]
 [comment enlever ces imports suite a correction bug./]
 
 [comment @main/]

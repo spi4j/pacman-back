@@ -86,6 +86,37 @@
   }
 [/template]
 
+[comment écriture de l'implémentation pour le service de persistance crud (couche infrastructure)./]
+[template public implementationCrudIn(d : environment::DTO)]
+  [d.classHeader(d.namePackageCrudInImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [d.defaultImports()/]
+    import [d.namePackageProject()/].[d.namePackageCrudInItf()/].[d.nameClassServiceCrudInItf()/]
+    import [d.namePackageProject()/].[d.namePackageAnnotation()/].[d.nameClassAnnotationIn()/];  
+    
+  [/protected]
+  
+  @[d.nameClassAnnotationIn()/]
+  public class [d.nameClassServiceCrudInImpl()/] implements [d.nameClassServiceCrudInItf()/]
+  {
+    @Override
+    public void ['creer'.apply_methodDefault()/]([d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+    
+    }
+    
+    @Override
+    public void ['modifier'.apply_methodDefault()/]([d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+    
+    }
+    
+    @Override
+    public void ['supprimer'.apply_methodDefault()/]([d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+    
+    }
+  }
+[/template]
+
 [comment écriture de l'implémentation pour le service de persistance (couche infrastructure)./]
 [template public implementationIn(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageInImpl())/]
@@ -182,12 +213,12 @@
 [comment écriture de l'appel pour une sortie liste et optionnelle (normalement jamais appelé pour l'instant)./]
 [query private writeOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + o.nameOperation() + '_invoke(' 
   + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
-  +  s.nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
+  +  o.persistDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie liste (pour l'instant celle qui est toujours appelée)./]       	    	
 [query private writeNonOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + o.nameOperation() + '_invoke(' 
   + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') +').stream().map(o -> ' 
-  +  s.nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
+  +  o.persistDto().nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie simple mais optionnelle./]
 [query private writeOptionalOutputOne(o : soa::Operation) : String = o.outputPersistType() + ' ' +  o.suffixEntity().apply_variableDefault() 

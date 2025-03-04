@@ -2,11 +2,11 @@
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
-[import fr::pacman::common::aql::file::genAutoAttributes/]
+[import fr::pacman::common::aql::file::genEntityAbs/]
 
 [comment écriture des classes et fichiers persistence pour la partie serveur de l'application cible./]
 [template public genServer(r : entity::Root)]
   [comment implémentation des champs automatiques pour la base de données./]
-  [r.fileAutoAttributesImpl(r.commandEntity())/]
+  [r.fileEntityAbs(r.commandEntity())/]
 [/template]
 

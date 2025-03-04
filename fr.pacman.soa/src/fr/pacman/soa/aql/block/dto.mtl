@@ -24,11 +24,11 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
-    import [d.namePackageProject()/].[d.namePackageDtoBase()/].[d.nameClassAutoAttributesImpl()/];
+    import [d.namePackageProject()/].[d.namePackageDtoBase()/].[d.nameClassEntityAbs()/];
     
   [/protected]
   [d.commentClass()/]
-  public class [d.nameClassDtoImpl()/] extends [d.nameClassAutoAttributesImpl()/]
+  public class [d.nameClassDtoImpl()/] extends [d.nameClassEntityAbs()/]
    {
       
       [if (not d.immutable())]

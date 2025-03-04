@@ -26,11 +26,14 @@
 [comment retourne le nom pour l'interface d'une classe de service soa (infra)./]  
 [query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + s.suffixInterfaceIn()).apply_classInterface()/]  
 
-[comment retourne le nom pour l'interface d'une classe de service soa (infra)./]  
-[query public nameClassServiceInItf(d : environment::DTO) : String = (d.name() + d.suffixInterfaceIn()).apply_classInterface()/]  
+[comment retourne le nom pour l'interface d'une classe de service soa crud (infra)./]  
+[query public nameClassServiceCrudInItf(d : environment::DTO) : String = (d.name() + d.suffixInterfaceIn() + ' crud').apply_classInterface()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service de persistance./]
 [query public nameClassServiceInImpl(s : soa::Service) : String = (s.name() + ' orm' + s.suffixInterfaceOut()).apply_classImplem()/]  
+
+[comment retourne le nom d'implémentation d'une classe pour le service crud de persistance./]
+[query public nameClassServiceCrudInImpl(d : environment::DTO) : String = (d.name() + ' orm' + ' crud' + d.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom pour la classe d'implémentation d'un type spécial pacman./]
 [query public nameClassType(s : String) : String = s.apply_classDefault()/]
@@ -57,16 +60,16 @@
 [query public nameClassEntityItf(e : entity::Entity) : String = e.name().apply_classInterface()/]
 
 [comment retourne le nom de la classe abstraite pour les champs automatiques de la base de données./]
-[query public nameClassAutoAttributesImpl(any: ecore::EObject) : String = (any.nameProject() + ' auto attributes').apply_classImplem()/]
+[query public nameClassEntityAbs(any: ecore::EObject) : String = (any.nameProject() + ' entity').apply_classAbstract()/]
   
 [comment retourne le nom de la classe de démarrage pour une application Spring./]
 [query public nameClassAppBoostrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBoostrap()).apply_classDefault()/]
   
 [comment retourne le nom de la classe pour un objet métier./]
-[query public nameClassDtoImpl(d : environment::DTO) : String = (d.name() + d.suffixDto()).apply_classDefault()/]
+[query public nameClassDtoImpl(d : environment::DTO) : String = (d.name() + d.suffixDto()).apply_classImplem()/]
   
 [comment retourne le nom de la classe pour un objet sérialisé./]
-[query public nameClassXtoImpl(d : environment::DTO) : String = (d.name() + d.suffixXto()).apply_classDefault()/] 
+[query public nameClassXtoImpl(d : environment::DTO) : String = (d.name() + d.suffixXto()).apply_classImplem()/] 
   
 [comment retourne le nom pour la classe d'implémentation du mapper objet métier <-> objet infrastructure./]
 [query public nameClassMapperImpl(d : environment::DTO) : String = (d.name() + ' ' + d.suffixMapper()).apply_classDefault()/]

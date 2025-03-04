@@ -22,6 +22,13 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation pour le service de persistance crud (infrastructure)./]
+[template public fileServiceCrudInImpl(d: environment::DTO, ds : OrderedSet(environment::DTO))]
+  [file (d.nameClassServiceCrudInImpl().toFileJava(d.namePackageCrudInImpl()), overwrite, d.defaultFileEncoding())]
+    [d.implementationCrudIn()/]
+  [/file]
+[/template]
+
 [comment écriture du fichier d'implémentation la configuration de la sécurité des services rest./]
 [template public fileRsSecurityConfigImpl(m : soa::System)]
   [file (m.nameClassRsSecurityConfigImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]

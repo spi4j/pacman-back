@@ -21,8 +21,8 @@
   ->select(o1 | o1.type.oclIsTypeOf(environment::DTO))->collect(o2 | o2.type.oclAsType(environment::DTO))->asSet()/]
 
 [comment retourne tous les fournisseurs de persistance associés à un service./]
-[query public associatedProviders(s : soa::Service, ss : Sequence(soa::Service)) : OrderedSet(environment::DTO) = 
-  s.associatedDtos()->get_associatedProvider(ss)->asSet()/]
+[query public associatedProviders(s : soa::Service) : OrderedSet(environment::DTO) = 
+  s.associatedDtos()->get_associatedProvider()->asSet()/]
 
 [comment vérifie si un service contient des opérations de type rest./]
 [query public isRsService(s : soa::Service) : Boolean = s.exists() and not s.ownedInterface.ownedOperations

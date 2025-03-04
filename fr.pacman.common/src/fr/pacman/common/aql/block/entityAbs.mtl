@@ -1,5 +1,5 @@
-[module autoAttributes(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
-						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+[module entityAbs(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]				
@@ -36,7 +36,7 @@
    * pour gérer l'auto-attribution des valeurs sur les différents champs.
    */
   [target.writeAnnotationEntity()/]
-  public abstract class [any.nameClassAutoAttributesImpl()/]
+  public abstract class [any.nameClassEntityAbs()/]
   {
     
     // CONSTANTES ET ATTRIBUTS

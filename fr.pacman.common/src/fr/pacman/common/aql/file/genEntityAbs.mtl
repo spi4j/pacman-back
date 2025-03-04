@@ -1,15 +1,15 @@
-[module genAutoAttributes(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+[module genEntityAbs(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
 							'http://www.obeonetwork.org/dsl/entity/2.0.0/utilities')/]
 
 [import fr::pacman::core::aql::base/]	
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::resources/]
-[import fr::pacman::common::aql::block::autoAttributes/]
+[import fr::pacman::common::aql::block::entityAbs/]
 
 [comment écriture du fichier d'implémentation pour les champs automatiques de la base de données./]
-[template public fileAutoAttributesImpl(any : ecore::EObject, target : String)]
-   [file (any.nameClassAutoAttributesImpl().toFileJava( if (any.commandEntity().equalsIgnoreCase(target)) 
+[template public fileEntityAbs(any : ecore::EObject, target : String)]
+   [file (any.nameClassEntityAbs().toFileJava( if (any.commandEntity().equalsIgnoreCase(target)) 
      then any.namePackageEntityBase() else any.namePackageDtoBase() endif), overwrite, any.defaultFileEncoding())]
      [any.persistenceAutoAttributes(target)/]
    [/file]

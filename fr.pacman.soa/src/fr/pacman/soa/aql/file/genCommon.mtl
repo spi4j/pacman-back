@@ -29,11 +29,16 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'interface pour le service technique de persistance crud (métier -> infrastructure)./]
+[template public fileServiceInCrudItf(d: environment::DTO)]
+  [file (d.nameClassServiceCrudInItf().toFileJava(d.namePackageCrudInItf()), overwrite, d.defaultFileEncoding())]
+    [d.interfaceCrudIn()/]
+  [/file]
+[/template]
+
 [comment écriture du fichier d'implémentation pour objet métier./]
 [template public fileDtoImpl(d : environment::DTO)]
   [file (d.nameClassDtoImpl().toFileJava(d.namePackageDtoImpl()), overwrite, d.defaultFileEncoding())]
     [d.implementation()/]
   [/file]
 [/template]
-
-

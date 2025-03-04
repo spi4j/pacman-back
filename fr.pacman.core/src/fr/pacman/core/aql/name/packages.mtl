@@ -28,8 +28,14 @@
 [comment retourne le package pour l'interface du port (domain->persistance)./]
 [query public namePackageInItf(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixInterfaceIn().trim() + 's' + '.' + s.nameComponent()/]
 
+[comment retourne le package pour l'interface du port crud (domain->persistance)./]
+[query public namePackageCrudInItf(d : environment::DTO) : String = d.get_suffixCommon() + '.' + d.suffixInterfaceIn().trim() + 's' + '.crud' + d.blockHierarchy()/]
+
 [comment retourne le package pour l'implémentation du port par l'adaptateur (domain->persistance)./]
 [query public namePackageInImpl(s : soa::Service) : String = 'infra.adapters.' + s.nameComponent()/]
+  
+[comment retourne le package pour l'implémentation du port crud par l'adaptateur (domain->persistance)./]
+[query public namePackageCrudInImpl(d : environment::DTO) : String = 'infra.adapters.crud' + d.blockHierarchy()/]
   
 [comment retourne le package pour une classe d'énumération./]
 [query public namePackageEnumeration(any : ecore::EObject) : String = 'domain.enumerations'/]

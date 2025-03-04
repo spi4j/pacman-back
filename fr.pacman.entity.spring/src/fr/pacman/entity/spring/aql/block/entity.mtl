@@ -43,19 +43,18 @@
     import jakarta.persistence.OneToOne;
     import jakarta.persistence.ManyToOne;
     import jakarta.persistence.OneToMany;
+    import jakarta.persistence.CascadeType;
     import jakarta.persistence.SequenceGenerator;
-    import org.hibernate.annotations.Cascade;
-    import org.hibernate.annotations.CascadeType;
     import org.hibernate.annotations.SQLDelete;
     import org.hibernate.annotations.SQLRestriction;
-    import [e.namePackageProject()/].[e.namePackageEntityBase()/].[e.nameClassAutoAttributesImpl()/];
+    import [e.namePackageProject()/].[e.namePackageEntityBase()/].[e.nameClassEntityAbs()/];
     
     [/protected]
   
   [e.commentClass()/]
   @Entity
   [e.writeAnnotationTable()/]
-  public class [e.nameClassEntityImpl()/] extends [e.nameClassAutoAttributesImpl()/]
+  public class [e.nameClassEntityImpl()/] extends [e.nameClassEntityAbs()/]
   {   
       
       // CONSTANTES ET ATTRIBUTS
@@ -262,7 +261,10 @@
    * 
    */
   public interface [e.nameClassEntityPersistItf()/] extends JpaRepository<[e.nameClassEntityImpl()/], Long> {
-
+    
+    [protected (e.nameClassEntityPersistItf().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+    
   }
 [/template]
 
@@ -296,8 +298,8 @@
   + r.referencedEntity(e).namePrimaryKey().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (n-n jt)./]
-[query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() +  r.lineSeparator() else '' endif + '@ManyToMany(fetch = FetchType.LAZY)' + e.lineSeparator() 
-   + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '", ' + if (e.get_SQLTableSchema().exists()) 
+[query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() +  r.lineSeparator() else '' endif 
+  + '@ManyToMany(fetch = FetchType.LAZY)' + e.lineSeparator() + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '", ' + if (e.get_SQLTableSchema().exists()) 
   then 'schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' + e.namePrimaryKey().toUpper() 
   + '"), inverseJoinColumns = ' + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() + if (r.isStarRecursive()) 
   then e.suffixSqlPrimaryKeyJoinRecursive() else '' endif + '"))'/]
