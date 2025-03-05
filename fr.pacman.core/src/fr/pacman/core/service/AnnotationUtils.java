@@ -241,12 +241,12 @@ public final class AnnotationUtils {
 		return is_annotationExists(p_object, AnnotationEnum.VERSION);
 	}
 
-	public static boolean is_metaNotPersistent(final ObeoDSMObject p_object) {
-		return is_annotationExistsRecursively(p_object, AnnotationEnum.NOT_PERSISTENT);
-	}
-
 	public static boolean is_metaComputed(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
+	}
+	
+	public static boolean has_metaFetchStrategy(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.FETCHING_STRATEGY);
 	}
 
 	public static String get_metaUser(final ObeoDSMObject p_object) {
@@ -284,15 +284,15 @@ public final class AnnotationUtils {
 	public static String get_metaPhysicalUnique(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.PHYSICAL_UNIQUE);
 	}
+	
+	public static String get_metaFetchStrategy(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.FETCHING_STRATEGY);
+	}
 
 	public static String get_metaVersion(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.VERSION);
 	}
-
-	public static String get_metaNotPersistent(final ObeoDSMObject p_object) {
-		return get_annotationBody(p_object, AnnotationEnum.NOT_PERSISTENT);
-	}
-
+	
 	public static String get_metaComputed(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.COMPUTED);
 	}

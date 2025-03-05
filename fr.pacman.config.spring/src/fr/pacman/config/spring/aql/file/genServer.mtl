@@ -16,30 +16,30 @@
 [/template]
 
 [comment écriture de la classe pour la gestion globale des exceptions rest./]
-[template public fileRsExceptionHandler(any : ecore::EObject)]
+[template public fileRsExceptionHandlerImpl(any : ecore::EObject)]
   [file (any.nameClassRsExceptionHandlerImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
-    [any.rsExceptionhandler()/]
+    [any.rsExceptionhandlerImpl()/]
   [/file]
 [/template]
 
 [comment écriture de la classe d'exception pour le 404/204./]
-[template public fileRsDataNotFoundException(any : ecore::EObject)]
+[template public fileRsDataNotFoundExceptionImpl(any : ecore::EObject)]
   [file (any.nameClassRsDataNotFoundExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
-    [any.rsDataNotFoundException()/]
+    [any.rsDataNotFoundExceptionImpl()/]
   [/file]
 [/template]
 
 [comment écriture de la classe pour le corps de la reponse dans le cadre de la gestion globale des erreurs rest./]
-[template public fileRsErrorBodyResponse(any : ecore::EObject)]
+[template public fileRsErrorBodyResponseImpl(any : ecore::EObject)]
   [file (any.nameClassRsErrorBodyResponseImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
-    [any.rsErrorBodyResponse()/]
+    [any.rsErrorBodyResponseImpl()/]
   [/file]
 [/template]
 
-[comment écriture de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest../]
-[template public fileRsHttpStatusResolver(any : ecore::EObject)]
+[comment écriture de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest./]
+[template public fileRsHttpStatusResolverImpl(any : ecore::EObject)]
   [file (any.nameClassRsHttpStatusResolverImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
-    [any.rsHttpStatusResolver()/]
+    [any.rsHttpStatusResolverImpl()/]
   [/file]
 [/template]
 
@@ -49,4 +49,12 @@
     [any.applicationProperties()/]
   [/file]
 [/template]
+
+[comment écriture de la classe de gestion des transactions jpa./]
+[template public fileJpaTransactionExecutorImpl(any : ecore::EObject)]
+  [file (any.nameClassJpaTransactionExecutorImpl().toFileJava(any.namePackageEntityBase()), overwrite, any.defaultFileEncoding())]
+    [any.jpaTransactionExecutorImpl()/]
+  [/file]
+[/template]
+
 

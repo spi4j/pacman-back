@@ -100,6 +100,9 @@
 
 [comment retourne le nom de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest./]
 [query public nameClassRsHttpStatusResolverImpl(any : ecore::EObject) : String = (any.get_projectName() + ' http status resolver').apply_classDefault()/]
+  
+[comment retourne le nom de la classe getsion des transactions jpa./]
+[query public nameClassJpaTransactionExecutorImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transaction executor').apply_classDefault()/]
 
 [comment retourne le nom de la classe pour la configuration de la sécurité dans le cadre des services rest./]
 [query public nameClassRsSecurityConfigImpl(any : ecore::EObject) : String = (any.get_projectName() + ' security config').apply_classDefault()/]

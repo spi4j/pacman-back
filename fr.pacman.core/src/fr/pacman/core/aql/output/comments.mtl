@@ -48,6 +48,24 @@
    */
 [/template]
 
+[template public commentGet(s : String)]
+  
+  /** 
+   * Retourne l'attribut '[s.apply_attributeDefault()/]'. 
+   *
+   * @return la valeur de l'attribut '[s.apply_attributeDefault()/]'.
+   */
+[/template]
+
+[comment ./]
+[template public commentSet(s : String)]
+  /**
+   * Affectation de l'attribut '[s.apply_attributeDefault()/]'. 
+   *
+   * @param [s.apply_parameterMethodClassicIn()/] la valeur à affecter pour l'attribut '[s.apply_attributeDefault()/]'.
+   */
+[/template]
+
 [comment ./]
 [template public commentGet(d : environment::DTO)]
   

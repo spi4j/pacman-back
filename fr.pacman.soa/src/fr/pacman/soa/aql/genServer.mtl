@@ -3,6 +3,7 @@
 
 [import fr::pacman::soa::aql::file::genServer/]
 [import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::query::reference/]
 
 [comment 	écriture des classes et fichiers soa pour la partie infrastructure de l'application cible, 

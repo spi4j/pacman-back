@@ -32,6 +32,8 @@
   [/protected]
   
   [d.commentClass()/]
+  [protected ('annotations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
   public class [d.nameClassXtoImpl()/] implements Serializable
   {
      
@@ -41,7 +43,6 @@
      private static final long serialVersionUID = -1;
      
      [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-     
      [/protected]
      
      ['Id'.commentSingleLine()/]

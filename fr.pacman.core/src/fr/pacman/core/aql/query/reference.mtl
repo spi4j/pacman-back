@@ -14,13 +14,11 @@
 
 [comment retourne le nom pour l'attribut en provenance de la référence./]
 [query public referencedName(e : entity::Entity, r : environment::Reference) : String = 
-	if(r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> e) 
-	or r.isRecursive()) then r.name else e.name() endif/]
+	if(r.isReferenceName(e)) then r.name else e.name() endif/]
 
 [comment retourne le nom pour l'attribut en provenance de la référence./]
 [query public referencedName(d : environment::DTO, r : environment::Reference) : String = 
-	if(r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> d) 
-	or r.isRecursive()) then r.name else d.name() endif/]
+	if(r.isReferenceName(d)) then r.name else d.name() endif/]
 	
 [comment raccourci pour l'obtention de l'entité dans le cadre des références (toujours une entité)./]
 [comment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]	
@@ -31,6 +29,11 @@
 [comment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]		
 [query public referencedDto(r : environment::Reference, d: environment::DTO) : environment::DTO = 
 	r.structuredType(d).oclAsType(environment::DTO)/]
+
+[comment vérifie si le type référence fait que l'on doit prendre le nom de la référence et non celui de l'attribut./]
+[query private isReferenceName(r : environment::Reference, st : environment::StructuredType) : Boolean = 
+  r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> st) 
+  or r.isRecursive()/]
 	
 [comment retourne le type xxxx (si fonctionne mal peut toujours comparer les identifiants techniques !)./] 
 [query private structuredType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 

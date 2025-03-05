@@ -1,3 +1,5 @@
 [module genEntity('http://www.obeonetwork.org/dsl/entity/3.0.0')/]
 
 [comment ras pour l'instant./]
+
+[comment écriture du fichier d'implémentation pour l'entité./]

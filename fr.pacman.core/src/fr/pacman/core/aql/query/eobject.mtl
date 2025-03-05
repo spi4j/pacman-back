@@ -11,9 +11,6 @@
 
 [comment retourne le système racine d'un eobjet./]  
 [query public root(any : ecore::EObject) : environment::ObeoDSMObject = any.get_root().oclAsType(environment::ObeoDSMObject)/]
- 
-[comment vérifie si l'objet est considéré comme persistant ou non./]  
-[query public isPersistent(any : environment::ObeoDSMObject) : Boolean = any.isUseSqlPersistence() and not any.is_metaNotPersistent()/]
 
 [comment vérifie si une description a été saisie pour l'objet./]
 [query public hasComment(o : environment::ObeoDSMObject) : Boolean = o.description <> null and o.description.trim().escapeComment().size() > 0 /]

@@ -2,6 +2,7 @@
 				'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::service::MandatoryUtils/]
 [import fr::pacman::core::service::AnnotationUtils/]
 
@@ -13,6 +14,9 @@
 [comment vérifie si le dto a des attributs. /]
 [query public hasAttributes(d : environment::DTO) : Boolean = d.attributes->size() > 0 or d.references->size() > 0/]
 
+[comment vérifie si le dto est considéré comme persistant./]  
+[query public isPersistent(d : environment::DTO) : Boolean = d.isUseSqlPersistence() and d.associatedEntity().exists()/]
+  
 [comment retourne l'entité associée au dto (dans le cadre de pacman, toujours une entité)./]
 [query public associatedEntity(d : environment::DTO) : entity::Entity = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
    then d.associatedTypes->first().oclAsType(entity::Entity) else null endif/]

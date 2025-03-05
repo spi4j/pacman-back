@@ -92,27 +92,49 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
-    import [d.namePackageProject()/].[d.namePackageCrudInItf()/].[d.nameClassServiceCrudInItf()/]
-    import [d.namePackageProject()/].[d.namePackageAnnotation()/].[d.nameClassAnnotationIn()/];  
+    import [d.namePackageProject()/].[d.namePackageCrudInItf()/].[d.nameClassServiceCrudInItf()/];
+    import [d.namePackageProject()/].[d.namePackageAnnotation()/].[d.nameClassAnnotationIn()/]; 
+    import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/]; 
+    import [d.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/]; 
+    import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/]; 
     
   [/protected]
   
   @[d.nameClassAnnotationIn()/]
   public class [d.nameClassServiceCrudInImpl()/] implements [d.nameClassServiceCrudInItf()/]
   {
-    @Override
-    public void ['creer'.apply_methodDefault()/]([d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+  
+    ['Le gestionnaire de persistance'.commentSingleLine()/]
+    private [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeDefault()/];
     
+    ['Constructeur avec injection des parametres'.commentMultiLines()/]
+    public [d.nameClassServiceCrudInImpl()/](final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_parameterMethodClassicIn()/]){
+      
+      [d.prefixAffectation()/][d.nameRepository().apply_attributeDefault()/] = [d.nameRepository().apply_parameterMethodClassicIn()/];
     }
     
     @Override
-    public void ['modifier'.apply_methodDefault()/]([d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
-    
+    public void ['save'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+       [d.prefixAffectation()/][d.nameRepository().apply_attributeDefault()/]
+          .save([d.nameClassMapperImpl()/].[('to ' + d.suffixEntity()).apply_methodDefault()/]([d.name().apply_parameterMethodClassicIn()/]));
     }
     
     @Override
-    public void ['supprimer'.apply_methodDefault()/]([d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+    public void ['update'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+       [d.prefixAffectation()/][d.nameRepository().apply_attributeDefault()/]
+          .save([d.nameClassMapperImpl()/].[('to ' + d.suffixEntity()).apply_methodDefault()/]([d.name().apply_parameterMethodClassicIn()/]));
+    }
     
+    @Override
+    public void ['delete'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+       [d.prefixAffectation()/][d.nameRepository().apply_attributeDefault()/]
+         .delete([d.nameClassMapperImpl()/].[('to ' + d.suffixEntity()).apply_methodDefault()/]([d.name().apply_parameterMethodClassicIn()/]));    
+    }
+    
+    @Override
+    public void ['find by id'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]) {
+       [d.prefixAffectation()/][d.nameRepository().apply_attributeDefault()/]
+         .findById([d.name().apply_parameterMethodClassicIn()/].[d.associatedEntity().nameSimplePropertyID().apply_methodGet()/]());
     }
   }
 [/template]

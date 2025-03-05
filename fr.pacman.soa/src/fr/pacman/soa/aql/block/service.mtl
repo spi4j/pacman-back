@@ -14,6 +14,7 @@
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::method/]
 						
 [comment écriture de l'implémentation d'un service soa (couche domain)./]
@@ -65,10 +66,15 @@
         [o.writeOperation()/]
         {
           
+          [if (o.hasOutput())]
+             [o.outputType()/] [o.outputName().apply_variableDefault()/] 
+                = [o.prefixAffectation()/][s.nameProvider().apply_attributeFinal()/].[o.writeInputs()/];
+          [/if]
+         
           [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           
-          [if (o.hasOutput())]return [/if][o.prefixAffectation()/][s.nameProvider().apply_attributeFinal()/].[o.writeInputs()/];
+          [if (o.hasOutput())]return [o.outputName().apply_variableDefault()/];[/if]
         }
       [/for]
   }
@@ -87,11 +93,13 @@
   [d.commentInterface()/]
   public interface [d.nameClassServiceCrudInItf()/]
   {
-    public void ['creer'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
+    public void ['save'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
     
-    public void ['modifier'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
+    public void ['update'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
     
-    public void ['supprimer'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
+    public void ['delete'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
+    
+    public void ['find by id'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
   }
 [/template]
 

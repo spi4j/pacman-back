@@ -7,6 +7,7 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::query::parameter/]
 [import fr::pacman::core::aql::rule::parameter/]
@@ -18,12 +19,15 @@
   
 [comment vérifie si l'opération a des paramètres en entrée (entité, dto, type primitif) (transverse)./]
 [query public hasInputs(o : soa::Operation) : Boolean = o.input <> null and o.input->size() > 0 /]
+
+[comment retourne le nom du paramètre de sortie pour l'operation./]
+[query public outputName(o : soa::Operation) : String = if (o.hasOutput()) then o.output->first().name() else o.cNoModelisation() endif/]
    
 [comment retourne le type complet (optional + list) pour le paramètre de sortie d'une opération (transverse)./]
 [query public outputType(o : soa::Operation) : String = if (o.hasOutput()) then o.output->first().outputType(false, false) else 'void' endif/]
   
 [comment retourne le type complet (optional + list) pour le paramètre de sortie dans le cadre d'une opération rest./]
-[query public outputRsType(o : soa::Operation) : String = if (o.hasOutput()) then o.output->first().outputRsType() else '' endif/]
+[query public outputRsType(o : soa::Operation) : String = if (o.hasOutput()) then o.output->first().outputRsType() else o.cNoModelisation() endif/]
   
 [comment retourne le type complet (optional + list) pour le paramètre en entrée, pour une opération rest./]
 [query public inputRsType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
@@ -91,8 +95,8 @@
   and o.output->first().type.oclAsType(environment::DTO).isPersistent()) then o.output->first().type.oclAsType(environment::DTO) else null endif/]
   
 [comment retourne le(s) DTO(s) persistant(s) au niveau de l'entrée (si existe(nt))./]
-[query private persistInputDto(o : soa::Operation) : Sequence(environment::DTO) =  o.input->select(o1 | o1.type.oclIsKindOf(environment::DTO) and o1.isPersistent())
-  ->collect(o2 | o2.type.oclAsType(environment::DTO))/]
+[query private persistInputDto(o : soa::Operation) : Sequence(environment::DTO) =  o.input->select(o1 | o1.type.oclIsKindOf(environment::DTO) 
+  and o1.type.oclAsType(environment::DTO).isPersistent())->collect(o2 | o2.type.oclAsType(environment::DTO))/]
   
 [comment retourne le dto associé pour la couche de persistance (si impossible à déterminer on retourne null)./][query private persistDto(o : soa::Operation, d : environment::DTO, ds : Sequence(environment::DTO)) : environment::DTO = if (d.exists()) 
   then d else if (ds->size() = 1) then ds->first() else null endif endif/]

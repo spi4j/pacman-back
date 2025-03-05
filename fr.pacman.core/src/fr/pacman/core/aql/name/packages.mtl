@@ -68,7 +68,7 @@
 [query public namePackageDtoImpl(d : environment::DTO) : String = d.get_suffixCommon() + '.objects' + d.blockHierarchy()/]
   
 [comment retourne le package pour une classe d'implémentation (cas d'un objet sérialisé)./]  
-[query public namePackageXtoImpl(d : environment::DTO) : String = 'app.xto' + d.blockHierarchy()/]
+[query public namePackageXtoImpl(d : environment::DTO) : String = 'app.objects' + d.blockHierarchy()/]
   
 [comment retourne le package pour une classe de mapping entre l'objet métier et l'objet d'infrastructure./]  
 [query public namePackageMapperInImpl(d : environment::DTO) : String = 'infra.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]

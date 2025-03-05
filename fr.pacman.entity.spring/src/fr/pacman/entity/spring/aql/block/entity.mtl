@@ -160,8 +160,23 @@
           
         [/for]
         
-        [e.writeGetterAndSetterForReferences(fk)/]
-		[e.writeGetterAndSetterForReferences(jt)/]
+        [for (r : environment::Reference | fk->union(jt))]
+          [let l = r.isLazyReference()]
+            [r.referencedEntity(e).referencedName(r).commentGet()/]
+            public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
+            {
+               return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
+            }
+            
+            [r.referencedEntity(e).referencedName(r).commentSet()/]
+            public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
+              (final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
+            {
+               [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+                  = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
+            }
+          [/let]
+        [/for]
         
         // METHODES
         [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -231,25 +246,6 @@
   }
 [/template]
 
-[comment écriture des assesseurs pour les références (liaisons avec les autres entités)./]
-[template private writeGetterAndSetterForReferences(e : entity::Entity, rs : OrderedSet(environment::Reference))]
-  [for (r : environment::Reference | rs)]
-    [r.referencedEntity(e).commentGet()/]
-    public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
-    {
-       return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
-    }
-    
-    [r.referencedEntity(e).commentSet()/]
-    public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
-    	(final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
-    {
-       [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
-       	= [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
-    }
-  [/for]
-[/template]
-
 [comment écriture de l'interface pour une entité (au sens Spring)./]
 [template public interfacePersist (e : entity::Entity)]
   [e.classHeader(e.namePackageEntityPersistItf())/]
@@ -271,6 +267,10 @@
 [comment simmple raccourci pour l'écriture de la clé primaire./]
 [query private writePk(e : entity::Entity) : String = e.nameSimplePropertyID().apply_attributeDefault()/]
 
+[comment vérifie si la référence a une stratégie de récupération paresseuse (LAZY)./]
+[query private isLazyReference (r : environment::Reference) : Boolean = r.has_metaFetchStrategy() 
+  and 'LAZY'.equalsIgnoreCase(r.get_metaFetchStrategy()) or r.isMultipleBidirectionnal()/]
+
 [comment écriture du type de 'cascade' pour la référence./]  
 [query private writeCascade(r : environment::Reference) : String = '@Cascade(' + if (r.get_metaLiteralCascadeType().index(',') > 0) 
   then '{' + r.get_metaLiteralCascadeType().tokenize(',')->collect(o | 'CascadeType.' + o)->sep(', ') + '})' 
@@ -291,16 +291,18 @@
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk)./]
 [query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() 
-  +  r.lineSeparator() else '' endif + if (r.isMultiple()) then if (r.containingType = e) then '@OneToMany(fetch = FetchType.LAZY, mappedBy = "' 
-  + e.name().apply_attributeDefault() + '")' else '@ManyToOne()' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() 
-  + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.LAZY)' + r.lineSeparator() + '@JoinColumn(name = "' + if (r.isZeroOneRecursive()) 
+  +  r.lineSeparator() else '' endif + if (r.isMultiple()) then if (r.containingType = e) then '@OneToMany(fetch = FetchType.' + if (r.has_metaFetchStrategy()) 
+  then r.get_metaFetchStrategy() else 'LAZY' endif + ', mappedBy = "' + e.name().apply_attributeDefault() + '")' else '@ManyToOne()' + r.lineSeparator() 
+  + '@JoinColumn(name = "' + r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' 
+  + if (r.has_metaFetchStrategy()) then r.get_metaFetchStrategy() else 'EAGER' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' + if (r.isZeroOneRecursive()) 
   then r.nameSimplePropertyID().apply_attributeDefault() else r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() endif + '", referencedColumnName = "' 
   + r.referencedEntity(e).namePrimaryKey().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (n-n jt)./]
-[query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() +  r.lineSeparator() else '' endif 
-  + '@ManyToMany(fetch = FetchType.LAZY)' + e.lineSeparator() + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '", ' + if (e.get_SQLTableSchema().exists()) 
-  then 'schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' + e.namePrimaryKey().toUpper() 
-  + '"), inverseJoinColumns = ' + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() + if (r.isStarRecursive()) 
-  then e.suffixSqlPrimaryKeyJoinRecursive() else '' endif + '"))'/]
+[query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() 
+  +  r.lineSeparator() else '' endif + '@ManyToMany(fetch = FetchType.'+ if (r.has_metaFetchStrategy()()) then r.get_metaFetchStrategy() else 'LAZY' endif 
+  + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '", ' 
+  + if (e.get_SQLTableSchema().exists()) then 'schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' 
+  + e.namePrimaryKey().toUpper() + '"), inverseJoinColumns = ' + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
+  + if (r.isStarRecursive()) then e.suffixSqlPrimaryKeyJoinRecursive() else '' endif + '"))'/]
  

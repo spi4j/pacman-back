@@ -24,8 +24,6 @@ public enum AnnotationEnum {
 
 	REFERENTIAL("REFERENTIAL", ModelEnum.DSL_SOA_DTO, false),
 
-	NOT_PERSISTENT("NOT_PERSISTENT", ModelEnum.DSL_SOA_DTO, false),
-
 	COMPUTED("COMPUTED", ModelEnum.DSL_SOA_DTO, false),
 
 	USER("USER", ModelEnum.DSL_SOA_DTO, false),
@@ -56,7 +54,9 @@ public enum AnnotationEnum {
 
 	LITERALS_PARAMS_STRUCT("LITERALS_PARAMS_STRUCT", ModelEnum.DSL_ENTITY, true),
 	
-	CASCADE_TYPE("CASCADE_TYPE", ModelEnum.DSL_ENTITY, true);
+	CASCADE_TYPE("CASCADE_TYPE", ModelEnum.DSL_ENTITY, true), 
+	
+	FETCHING_STRATEGY("FETCHING_STRATEGY", ModelEnum.DSL_ENTITY, true);
 
 	/** Le nom de l'annotation */
 	private String _annotationName;

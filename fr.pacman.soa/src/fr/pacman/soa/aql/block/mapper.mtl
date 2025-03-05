@@ -107,7 +107,7 @@
     {
         if(null ==[d.suffixEntity().apply_parameterMethodClassicIn()/])
         {
-           throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassDtoImpl()/]");
+           return null;
         }
         [if (d.immutable())]
           return new [d.nameClassDtoImpl()/]([d.dsq1()/]);

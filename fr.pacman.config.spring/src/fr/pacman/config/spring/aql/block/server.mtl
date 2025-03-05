@@ -80,7 +80,7 @@
 [/template]
 
 [comment écriture de la classe d'exception pour les données rest non trouvées./]
-[template public rsDataNotFoundException(any : ecore::EObject)]
+[template public rsDataNotFoundExceptionImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageException())/]
   [any.defaultImports()/]
   
@@ -123,7 +123,7 @@
 [/template]
 
 [comment écriture de la classe de gestion globale des erreurs pour les api rest./]
-[template public rsExceptionhandler(any : ecore::EObject)]
+[template public rsExceptionhandlerImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
   [any.defaultImports()/]
   import org.springframework.http.HttpHeaders;
@@ -219,7 +219,7 @@
 [/template]
 
 [comment écriture de la classe pour le corps des erreurs sur les api rest./]
-[template public rsErrorBodyResponse(any : ecore::EObject)]
+[template public rsErrorBodyResponseImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
   [any.defaultImports()/]
   
@@ -275,7 +275,7 @@
 [/template]
 
 [comment écriture de la classe de résolution des statuts (int <-> HTttpStatus) pour les services rest./]
-[template public rsHttpStatusResolver(any : ecore::EObject)]
+[template public rsHttpStatusResolverImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
   [any.defaultImports()/]
   import org.springframework.http.HttpStatus;
@@ -303,6 +303,17 @@
       static HttpStatus ['resolve'.apply_methodDefault()/](final int ['status code'.apply_parameterMethodClassicIn()/]) {
          return HttpStatus.resolve(['status code'.apply_parameterMethodClassicIn()/]);
       }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour la classe de gestion des transactions jpa./]
+[template public jpaTransactionExecutorImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageEntityBase())/]
+  [any.defaultImports()/]
+  
+  class [any.nameClassJpaTransactionExecutorImpl()/]
+  {
+	  
   }
 [/template]
 

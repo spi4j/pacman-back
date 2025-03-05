@@ -7,57 +7,52 @@
   <metaDataDefinitions 
      technicalid="_dC7qQL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_NAME" 
-     body="Nom défini en base de données." 
+     body="BDD : Nom défini en base (privilégier les underscores)." 
      condition="aql:Sequence{'entity','attribute'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_Cpag8L3sEe-BE5WUAFqNvQ"
      title="PHYSICAL_NAME"
-     body="Nom défini en base de données. Egalement utilisé pour les index et contraintes de clé étrangère (sauf si PHYSICAL_SHORT_NAME est précisé)." 
+     body="BDD :Nom de la référence, aussi utilisé pour les index et contraintes de clé étrangère (sauf si PHYSICAL_SHORT_NAME est précisé)." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>/>
   <metaDataDefinitions 
      technicalid="_gaOWML1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_SHORT_NAME" 
-     body="Nom utilisé pour les noms d'index ou de contraintes en base de données (longues tables)." 
+     body="BDD : Noms d'indexs ou de contraintes (longues tables)." 
      condition="aql:Sequence{'entity','reference'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_hBCekL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_DEFAULT" 
-     body="Valeur par défaut dans la base de données si aucune valeur n'a été précisée." 
+     body="BDD : Valeur par défaut si aucune valeur n'a été précisée." 
      condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_hUgNIL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_CHECK" 
-     body="Contrainte de vérification pour insertion ou modification dans la base de données." 
+     body="BDD : Contrainte de vérification pour insertion ou modification." 
      condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_jNrVQL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_UNIQUE" 
-     body="Contrainte d'unicité pour la colonne dans la base de données." 
+     body="BDD : Contrainte d'unicité pour la colonne." 
      condition="aql:Sequence{'attribute'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_jpDCoL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_SIZE" 
-     body="Taille de l'attribut en base de données (chaine de caractère ou un nombre)." 
+     body="BDD : Taille de l'attribut (chaine de caractère ou un nombre)." 
      condition="aql:Sequence{'attribute'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_j4oWwL1bEe-jcvmoMOdyBg" 
      title="VERSION" 
-     body="Version de l'entité (implique une gestion automatique du Lock Optimiste)." 
+     body="BDD : Version de l'entité (implique la gestion automatique du Lock Optimiste)." 
      condition="aql:Sequence{'system,category,dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_kGDHsL1bEe-jcvmoMOdyBg" 
      title="REFERENTIAL" 
-     body="Cache pour les méthodes 'findById' et 'findAll' du service associé au DTO." 
+     body="BDD : Cache pour les méthodes 'findById' et 'findAll' du service associé au DTO." 
      condition="aql:Sequence{'system','dto'}->includes(self.eClass().name.toLower())"/>
-  <metaDataDefinitions 
-     technicalid="_kWYpwL1bEe-jcvmoMOdyBg" 
-     title="NOT_PERSISTENT" 
-     body="DTO (ou ensemble de DTO) ne doit pas avoir de CRUD automatiquement généré." 
-     condition="aql:Sequence{'system','category','dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_km05gL1bEe-jcvmoMOdyBg" 
      title="COMPUTED" 
-     body="Elément sera calculé par le développeur. Pas d'attribut dans le DTO, ne possèdere pas de setter et le getter, sera en user code." 
+     body="DTO : Champ calculé par le développeur. Pas d'attribut dans le DTO, pas de setter et le getter, en user code." 
      condition="aql:Sequence{'attribute','reference'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_k15QQL1bEe-jcvmoMOdyBg" 
@@ -67,71 +62,75 @@
   <metaDataDefinitions 
      technicalid="_lLBywL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS" 
-     body="Opération à exécuter que si l'utilisateur possède des permissions." 
+     body="ROLE : Opération à exécuter selon persmission(s) l'utilisateur." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_la-TQL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS_OR" 
-     body="Opération à exécuter que si l'utilisateur possède des permissions." 
+     body="ROLE : Opération à exécuter selon persmission(s) l'utilisateur." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_lvyssL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS_AND" 
-     body="Opération à exécuter que si l'utilisateur possède des permissions." 
+     body="ROLE : Opération à exécuter selon persmission(s) l'utilisateur." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_mAQKkL1bEe-jcvmoMOdyBg" 
      title="VOL_NB_ROWS" 
-     body="Peuplement de base : indique le nombre d'entités à créer pour une table." 
+     body="BDD : Nombre d'entités à créer pour une table." 
      condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_mPhVoL1bEe-jcvmoMOdyBg" 
      title="VOL_MIN_OCCURS" 
-     body="Peuplement de base : indique le nombre minimum d'éléments pour la relation." 
+     body="BDD : Nombre minimum d'éléments pour la relation." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_me8RsL1bEe-jcvmoMOdyBg" 
      title="VOL_MAX_OCCURS" 
-     body="Peuplement de base : indique le nombre maximum d'éléments pour la relation." 
+     body="BDD : Nombre maximum d'éléments pour la relation." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_mu0gwL1bEe-jcvmoMOdyBg" 
      title="ACCEPT_UNAUTHENTIFIED" 
-     body="Opération qui accepte un utilisateur non encore authentifié (méthode de connexion, etc...)" 
+     body="ROLE : Opération qui accepte un utilisateur non encore authentifié (méthode de connexion, etc...)" 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_nA1d0L1bEe-jcvmoMOdyBg" 
      title="PAGE_SIZE" 
-     body="Nombre d'éléments (DTO) à retourner par page si le service REST est paginé." 
+     body="LIST : Nombre d'éléments (DTO) à retourner par page." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_pvUA0L1cEe-jcvmoMOdyBg" 
      title="AUTH_TOKEN" 
-     body="Opération REST dédiée à la récupération d'un jeton d'authentification : [AUTH|REFRESH])." 
+     body="REST : opération de récupération d'un jeton d'authentification : [AUTH|REFRESH])." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qLSyML1cEe-jcvmoMOdyBg" 
      title="API_VERSION" 
-     body="Ne prend pas en compte la version précisée dans la modélisation pour l'URI sur la ressource." 
+     body="REST : Ne prend pas en compte la version précisée dans la modélisation pour l'URI sur la ressource." 
      condition="aql:Sequence{'component'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qdmDIL1cEe-jcvmoMOdyBg" 
      title="LIBRARY_NAME" 
-     body="Nom exact de la librairie : [nom de l'application])." 
+     body="LIB : Nom exact de la librairie : [nom de l'application])." 
      condition="aql:Sequence{'dto'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_qsxHkL1cEe-jcvmoMOdyBg" 
      title="LITERAL_PARAM_VALUE" 
-     body="Enumération complexe, affecte la valeur de chaque paramètre attendu. ex : ['toto',2,false,4.5F]" 
+     body="ENUM : Affecte la valeur de chaque paramètre attendu. ex : ['toto',2,false,4.5F]" 
      condition="aql:Sequence{'literal'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_q_mkAL1cEe-jcvmoMOdyBg" 
      title="LITERALS_PARAMS_STRUCT" 
-     body="Enumération complexe, affecte le type de chaque paramètre attendu. ex : [param1:String,param2:Integer,param3:Boolean,param4:Float]." 
+     body="ENUML :  Affecte le type de chaque paramètre attendu. ex : [param1:String,param2:Integer,param3:Boolean,param4:Float]." 
      condition="aql:Sequence{'enumeration'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_tmSXkO4eEe-hJvFgO8ER5w"
      title="CASCADE_TYPE" 
-     body="Relations entre entités sous spring : [ALL|PERSIST|MERGE|REMOVE|REFRESH|DETACH]." 
+     body="JPA : Gestion des relations entre dépendances : [ALL|PERSIST|MERGE|REMOVE|REFRESH|DETACH]." 
+     condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
+   <metaDataDefinitions technicalid="_RoO1gPmIEe-RYZkXAhDdXA"
+     title="FETCHING_STRATEGY" 
+     body="JPA : Type de chargement : [LAZY|EAGER]." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
 </metadatadef:MetaDataDefinitions>
