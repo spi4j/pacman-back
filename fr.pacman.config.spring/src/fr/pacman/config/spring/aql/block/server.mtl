@@ -310,10 +310,153 @@
 [template public jpaTransactionExecutorImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageEntityBase())/]
   [any.defaultImports()/]
+  import java.util.function.Supplier;
+  import org.springframework.transaction.annotation.Transactional;
   
+  /**
+   * Classe responsable de l'exécution d'opérations dans un contexte transactionnel.
+   * Elle utilise l'annotation {@code @Transactional} pour gérer les transactions.
+   * Cette classe permet d'exécuter des blocs de code dans une transaction, facilitant ainsi
+   * la gestion des transactions dans des applications où plusieurs opérations doivent être
+   * atomiquement validées ou annulées.
+   *
+   * @author [any.get_authorName()/]
+   */
   class [any.nameClassJpaTransactionExecutorImpl()/]
   {
-	  
+     /**
+      * Exécute une opération dans une transaction.
+      * Cette méthode prend un {@link Supplier} représentant l'opération à exécuter et renvoie
+      * le résultat de cette opération après l'avoir exécutée dans le cadre d'une transaction.
+      * La transaction est gérée automatiquement grâce à l'annotation {@code @Transactional}.
+      *
+      * @param <T> Le type du résultat de l'exécution.
+      * @param execution Le {@link Supplier} représentant l'opération à exécuter.
+      * @return Le résultat de l'exécution de l'opération.
+      * 
+      * @Author [any.get_authorName()/]
+      */
+     @Transactional
+     <T> T executeInTransaction(Supplier<T> execution) {
+        return execution.get();
+     }
+  }
+[/template]
+
+
+[comment écriture de l'implémentation pour la classe aspect de gestion des transactions jpa./]
+[template public jpaTransactionServiceAspectImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageEntityBase())/]
+  [any.defaultImports()/]
+  import org.aspectj.lang.ProceedingJoinPoint;
+  import org.aspectj.lang.annotation.Around;
+  import org.aspectj.lang.annotation.Aspect;
+  import org.aspectj.lang.annotation.Pointcut;
+  
+  /**
+   * Aspect responsable de l'encapsulation des méthodes annotées avec 
+   * {@link [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationTrans()/]}.
+   * Cet aspect garantit que les méthodes au sein du domaine de service spécifié soient 
+   * exécutées dans un contexte transactionnel.Il utilise le {@link [any.nameClassJpaTransactionExecutorImpl()/]} 
+   * pour exécuter les opérations dans une transaction.
+   *
+   * @author [any.get_authorName()/]
+   */
+  @Aspect
+  class [any.nameClassJpaTransactionServiceAspectImpl()/]
+  {
+    
+    ['Le gestionnaire de transactions'.commentSingleLine()/]
+    private final [any.nameClassJpaTransactionExecutorImpl()/] ['transactional executor'.apply_attributeDefault()/];
+    
+   /**
+    * Constructeur de l'aspect, injectant un {@link [any.nameClassJpaTransactionExecutorImpl()/]} pour la gestion des transactions.
+    *
+    * @param ['transactional executor'.apply_parameterMethodClassicIn()/] L'exécuteur de transactions utilisé pour exécuter les méthodes dans un contexte transactionnel.
+    */
+    public [any.nameClassJpaTransactionServiceAspectImpl()/]([any.nameClassJpaTransactionExecutorImpl()/] ['transactional executor'.apply_parameterMethodClassicIn()/]) {
+       [any.prefixAffectation()/]['transactional executor'.apply_attributeDefault()/] 
+          = ['transactional executor'.apply_parameterMethodClassicIn()/];
+    }
+    
+   /**
+    * Pointcut qui cible toutes les méthodes annotées avec {@link [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationTrans()/]}.
+    * Ce pointcut est utilisé dans l'expression d'annotation {@code @Around} pour identifier les méthodes
+    * devant être exécutées dans une transaction.
+    */
+    @Pointcut("@within([any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationTrans()/])")
+    private void ['within transactionnal operation'.apply_methodDefault()/]() {
+    
+    }
+    
+   /**
+    * Méthode qui exécute les méthodes annotées avec {@link [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationTrans()/]} 
+    * dans un contexte transactionnel. Cette méthode est exécutée avant chaque méthode 
+    * ciblée par le pointcut et garantit que l'exécution de la méthode
+    * se fait dans une transaction en utilisant {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+    * En cas d'exception, elle est capturée et une {@link RuntimeException} est lancée.
+    *
+    * @param proceedingJoinPoint Le point d'exécution de la méthode interceptée.
+    * @return Le résultat de la méthode exécutée dans le contexte transactionnel.
+    * @throws RuntimeException Si une exception est lancée pendant l'exécution de la méthode.
+    */
+    @Around("['within transactionnal operation'.apply_methodDefault()/]()")
+    private Object ['transacationnal operation'.apply_methodDefault()/](ProceedingJoinPoint ['proceeding join point'.apply_parameterMethodClassicIn()/]) {
+       return ['transactional executor'.apply_attributeDefault()/].executeInTransaction(() -> {
+          try {
+             return ['proceeding join point'.apply_parameterMethodClassicIn()/].proceed();
+          } catch (Throwable e) {
+             throw new RuntimeException(e);
+          }
+       });
+    }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour la classe de configuration des transactions jpa./]
+[template public jpaTransactionConfigurationImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageEntityBase())/]
+  [any.defaultImports()/]
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.context.annotation.Configuration;
+  
+  /**
+   * Configuration de la gestion transactionnelle pour l'application [any.nameProject()/].
+   * <p>
+   * Cette classe configure les beans nécessaires à la gestion des transactions dans les services [any.nameProject()/].
+   * Elle définit les beans pour {@link [any.nameClassJpaTransactionServiceAspectImpl()/]} 
+   * et {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+   *
+   * @author [any.get_authorName()/]
+   */
+  @Configuration
+  class [any.nameClassJpaTransactionConfigurationImpl()/]
+  {
+    
+   /**
+    * Crée un bean {@link [any.nameClassJpaTransactionServiceAspectImpl()/]}.
+    * Ce bean est responsable de l'aspect transactionnel pour les services dans l'application.
+    * 
+    * @param transactionalExecutor Le {@link [any.nameClassJpaTransactionExecutorImpl()/]} qui gère l'exécution des transactions.
+    * @return Un nouveau bean {@link [any.nameClassJpaTransactionServiceAspectImpl()/]} configuré 
+    * avec le {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+    */
+    @Bean
+    [any.nameClassJpaTransactionServiceAspectImpl()/] ['transactional aspect'.apply_methodDefault()/]
+        ([any.nameClassJpaTransactionExecutorImpl()/] ['transactional executor'.apply_parameterMethodClassicIn()/]) {
+        return new [any.nameClassJpaTransactionServiceAspectImpl()/](['transactional executor'.apply_parameterMethodClassicIn()/]);
+    }
+    
+   /**
+    * Crée un bean {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+    * Ce bean est responsable de l'exécution des transactions dans l'application.
+    * 
+    * @return Un nouveau bean {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+    */
+    @Bean
+    [any.nameClassJpaTransactionExecutorImpl()/] ['transactional executor'.apply_methodDefault()/]() {
+        return new [any.nameClassJpaTransactionExecutorImpl()/]();
+    }
   }
 [/template]
 

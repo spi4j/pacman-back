@@ -130,7 +130,7 @@
      body="JPA : Gestion des relations entre dépendances : [ALL|PERSIST|MERGE|REMOVE|REFRESH|DETACH]." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_RoO1gPmIEe-RYZkXAhDdXA"
-     title="FETCHING_STRATEGY" 
-     body="JPA : Type de chargement : [LAZY|EAGER]." 
+     title="FETCH_LAZY" 
+     body="JPA : Demande expresse de chargement paresseux." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
 </metadatadef:MetaDataDefinitions>

@@ -57,4 +57,18 @@
   [/file]
 [/template]
 
+[comment écriture de la classe de gestion aspect des transactions jpa./]
+[template public fileJpaTransactionServiceAspectImpl(any : ecore::EObject)]
+  [file (any.nameClassJpaTransactionServiceAspectImpl().toFileJava(any.namePackageEntityBase()), overwrite, any.defaultFileEncoding())]
+    [any.jpaTransactionServiceAspectImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe de configuration pour les transactions jpa./]
+[template public fileJpaTransactionConfigurationImpl(any : ecore::EObject)]
+  [file (any.nameClassJpaTransactionConfigurationImpl().toFileJava(any.namePackageEntityBase()), overwrite, any.defaultFileEncoding())]
+    [any.jpaTransactionConfigurationImpl()/]
+  [/file]
+[/template]
+
 

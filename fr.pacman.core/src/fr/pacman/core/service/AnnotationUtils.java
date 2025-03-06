@@ -245,8 +245,8 @@ public final class AnnotationUtils {
 		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
 	}
 	
-	public static boolean has_metaFetchStrategy(final ObeoDSMObject p_object) {
-		return is_annotationExists(p_object, AnnotationEnum.FETCHING_STRATEGY);
+	public static boolean is_metaFetchLazy(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.FETCH_LAZY);
 	}
 
 	public static String get_metaUser(final ObeoDSMObject p_object) {
@@ -283,10 +283,6 @@ public final class AnnotationUtils {
 
 	public static String get_metaPhysicalUnique(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.PHYSICAL_UNIQUE);
-	}
-	
-	public static String get_metaFetchStrategy(final ObeoDSMObject p_object) {
-		return get_annotationBody(p_object, AnnotationEnum.FETCHING_STRATEGY);
 	}
 
 	public static String get_metaVersion(final ObeoDSMObject p_object) {

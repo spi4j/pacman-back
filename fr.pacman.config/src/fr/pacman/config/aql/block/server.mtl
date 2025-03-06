@@ -44,7 +44,7 @@
      * @param ['message'.apply_parameterMethodClassicIn()/] Le message décrivant la cause de l'exception.
      * @param ['ex'.apply_parameterMethodClassicIn()/]      L'exception initiale qui a levé l'exception.
      */
-    public FilmsMapperException(final String ['message'.apply_parameterMethodClassicIn()/], final Exception ['ex'.apply_parameterMethodClassicIn()/]) {
+    public [any.nameClassMapperExceptionImpl()/](final String ['message'.apply_parameterMethodClassicIn()/], final Exception ['ex'.apply_parameterMethodClassicIn()/]) {
     	super(['message'.apply_parameterMethodClassicIn()/], ['ex'.apply_parameterMethodClassicIn()/]);
     }
   }

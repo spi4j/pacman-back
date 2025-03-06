@@ -253,6 +253,9 @@
 
 [comment retourne le nom pour l'annotation d'injection du service dans la couche persistance./]
 [query public nameAnnotationAdapter(any : ecore::EObject) : String = 'service adapter'/]
+
+[comment retourne le nom pour l'annotation de gestion des transactions dans la couche de persistance./]
+[query public nameAnnotationTransactionnal(any : ecore::EObject) : String = 'transactionnal'/]
   
 [comment retourne le nom pour la classe de configuration de la couche métier./]
 [query public nameDomainConfiguration(any : ecore::EObject) : String = 'domain configuration'/]

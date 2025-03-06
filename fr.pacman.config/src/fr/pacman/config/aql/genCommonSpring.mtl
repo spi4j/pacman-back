@@ -14,5 +14,6 @@
   [r.super:genRootConfig()/]
   [r.fileAnnotationOut()/]
   [r.fileAnnotationIn()/]
+  [r.fileAnnotationTrans()/]
   [r.filePom()/]
 [/template]

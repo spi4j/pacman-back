@@ -43,6 +43,9 @@
   
 [comment retourne le nom pour l'annotation d'injection des services métier./]
 [query public nameClassAnnotationIn (any : ecore::EObject) : String = any.nameAnnotationAdapter().apply_classDefault()/]
+  
+[comment retourne le nom pour l'annotation de gestion des transactions./]
+[query public nameClassAnnotationTrans (any : ecore::EObject) : String = any.nameAnnotationTransactionnal().apply_classDefault()/]
 
 [comment retourne le nom de la classe pour le type spécifique pacman 'XtopSup'./]
 [query public nameClassXtopSupImpl (any : ecore::EObject) : String = any.nameTypeXtopSup().nameClassType()/]
@@ -101,8 +104,13 @@
 [comment retourne le nom de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest./]
 [query public nameClassRsHttpStatusResolverImpl(any : ecore::EObject) : String = (any.get_projectName() + ' http status resolver').apply_classDefault()/]
   
-[comment retourne le nom de la classe getsion des transactions jpa./]
-[query public nameClassJpaTransactionExecutorImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transaction executor').apply_classDefault()/]
+[comment retourne le nom de la classe gestion des transactions jpa./]
+[query public nameClassJpaTransactionExecutorImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transactional executor').apply_classDefault()/]
+  
+[comment retourne le nom de la classe gestion aspect des transactions jpa./][query public nameClassJpaTransactionServiceAspectImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transactional service aspect').apply_classDefault()/]
+  
+[comment retourne le nom de la classe de configuration des transactions jpa./]
+[query public nameClassJpaTransactionConfigurationImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transactional configuration').apply_classDefault()/]
 
 [comment retourne le nom de la classe pour la configuration de la sécurité dans le cadre des services rest./]
 [query public nameClassRsSecurityConfigImpl(any : ecore::EObject) : String = (any.get_projectName() + ' security config').apply_classDefault()/]

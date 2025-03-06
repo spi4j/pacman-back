@@ -76,14 +76,17 @@
   import java.lang.annotation.RetentionPolicy;
 
   /** 
-   * Annotation personnalisée pour marquer les services du domaine dans l'application.
+   * Annotation personnalisée pour marquer les services du domaine dans
+   * l'application.
    * <p>
-   * Cette annotation est utilisée pour indiquer qu'une classe fait partie du domaine métier de l'application,
-   * généralement utilisée pour désigner les services ou les composants qui gèrent la logique métier.
-   * Elle est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
+   * Cette annotation est utilisée pour indiquer qu'une classe fait partie du
+   * domaine métier de l'application, généralement utilisée pour désigner les
+   * services ou les composants qui gèrent la logique métier. Elle est disponible
+   * à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
    * </p>
-   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut être étendue à l'avenir pour  
-   * ajouter des métadonnées supplémentaires si nécessaire.
+   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut
+   * être étendue à l'avenir pour ajouter des métadonnées supplémentaires si
+   * nécessaire.
    *
    * @author [any.get_authorName()/]
    */
@@ -101,20 +104,49 @@
   import java.lang.annotation.RetentionPolicy;
 
   /**
-   * Annotation personnalisée pour marquer les adaptateurs de service dans l'application.
+   * Annotation personnalisée pour marquer les adaptateurs de service dans
+   * l'application.
    * <p>
-   * Cette annotation est utilisée pour identifier les classes qui servent d'adaptateurs pour les services.
-   * Les adaptateurs de service sont généralement utilisés pour intégrer des services externes ou des composants 
-   * spécifiques à l'architecture de l'application tout en offrant une interface uniforme.
-   * Elle est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
+   * Cette annotation est utilisée pour identifier les classes qui servent
+   * d'adaptateurs pour les services. Les adaptateurs de service sont généralement
+   * utilisés pour intégrer des services externes ou des composants spécifiques à
+   * l'architecture de l'application tout en offrant une interface uniforme. Elle
+   * est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
    * </p>
-   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut être étendue à l'avenir pour
-   * ajouter des métadonnées supplémentaires si nécessaire.
+   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut
+   * être étendue à l'avenir pour ajouter des métadonnées supplémentaires si
+   * nécessaire.
    * 
    * @author [any.get_authorName()/]
    */
    @Retention(RetentionPolicy.RUNTIME)
    public @interface [any.nameClassAnnotationIn()/] {
      //RAS.
+   }
+[/template]
+
+[comment écriture de l'annotation pour l'injection de service persistance./]
+[template public annotationTrans(any : ecore::EObject)]
+  [any.classHeader(any.namePackageAnnotation())/]
+  [any.defaultImports()/]
+  import java.lang.annotation.Retention;
+  import java.lang.annotation.RetentionPolicy;
+  
+  /**
+   * Annotation personnalisée marquant les méthodes ou les classes qui doivent
+   * être exécutées dans un contexte transactionnel. Cette annotation peut être
+   * utilisée pour indiquer qu'une méthode ou une classe doit être traitée dans
+   * une transaction.
+   * <p>
+   * Elle peut être utilisée en combinaison avec un gestionnaire de transactions,
+   * tel qu'un aspect, pour appliquer la logique transactionnelle. 
+   * 
+   * @see org.springframework.transaction.annotation.Transactional
+   * @see [any.nameClassJpaTransactionExecutorImpl()/]
+   *   * @author [any.get_authorName()/]
+   */
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface [any.nameClassAnnotationTrans()/] {
+     //RAS
    }
 [/template]

@@ -17,6 +17,8 @@
   [r.fileRsErrorBodyResponseImpl()/]
   [r.fileRsHttpStatusResolverImpl()/]
   [r.fileJpaTransactionExecutorImpl()/]
+  [r.fileJpaTransactionServiceAspectImpl()/]
+  [r.fileJpaTransactionConfigurationImpl()/]
   [r.fileApplicationProperties()/]
   [r.filePom()/]
 [/template]

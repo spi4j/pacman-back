@@ -268,8 +268,7 @@
 [query private writePk(e : entity::Entity) : String = e.nameSimplePropertyID().apply_attributeDefault()/]
 
 [comment vérifie si la référence a une stratégie de récupération paresseuse (LAZY)./]
-[query private isLazyReference (r : environment::Reference) : Boolean = r.has_metaFetchStrategy() 
-  and 'LAZY'.equalsIgnoreCase(r.get_metaFetchStrategy()) or r.isMultipleBidirectionnal()/]
+[query private isLazyReference (r : environment::Reference) : Boolean = r.is_metaFetchLazy() or r.isMultipleBidirectionnal()/]
 
 [comment écriture du type de 'cascade' pour la référence./]  
 [query private writeCascade(r : environment::Reference) : String = '@Cascade(' + if (r.get_metaLiteralCascadeType().index(',') > 0) 
@@ -291,16 +290,16 @@
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk)./]
 [query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() 
-  +  r.lineSeparator() else '' endif + if (r.isMultiple()) then if (r.containingType = e) then '@OneToMany(fetch = FetchType.' + if (r.has_metaFetchStrategy()) 
-  then r.get_metaFetchStrategy() else 'LAZY' endif + ', mappedBy = "' + e.name().apply_attributeDefault() + '")' else '@ManyToOne()' + r.lineSeparator() 
+  +  r.lineSeparator() else '' endif + if (r.isMultiple()) then if (r.containingType = e) then '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) 
+  then 'LAZY' else 'EAGER' endif + ', mappedBy = "' + e.name().apply_attributeDefault() + '")' else '@ManyToOne()' + r.lineSeparator() 
   + '@JoinColumn(name = "' + r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' 
-  + if (r.has_metaFetchStrategy()) then r.get_metaFetchStrategy() else 'EAGER' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' + if (r.isZeroOneRecursive()) 
+  + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' + if (r.isZeroOneRecursive()) 
   then r.nameSimplePropertyID().apply_attributeDefault() else r.referencedEntity(e).nameSimplePropertyID().apply_attributeDefault() endif + '", referencedColumnName = "' 
   + r.referencedEntity(e).namePrimaryKey().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (n-n jt)./]
 [query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() 
-  +  r.lineSeparator() else '' endif + '@ManyToMany(fetch = FetchType.'+ if (r.has_metaFetchStrategy()()) then r.get_metaFetchStrategy() else 'LAZY' endif 
+  +  r.lineSeparator() else '' endif + '@ManyToMany(fetch = FetchType.'+ if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
   + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '", ' 
   + if (e.get_SQLTableSchema().exists()) then 'schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' 
   + e.namePrimaryKey().toUpper() + '"), inverseJoinColumns = ' + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
