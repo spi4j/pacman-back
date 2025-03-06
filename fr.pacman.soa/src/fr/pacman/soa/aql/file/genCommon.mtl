@@ -9,9 +9,9 @@
 [import fr::pacman::soa::aql::block::dto/]
 
 [comment écriture du fichier d'implémentation pour le service./]
-[template public fileServiceImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
+[template public fileServiceImpl(s: soa::Service)]
   [file (s.nameClassServiceImpl().toFileJava(s.namePackageServiceImpl()), overwrite, s.defaultFileEncoding())]
-    [s.implementation(ds)/]
+    [s.implementation()/]
   [/file]
 [/template]
 

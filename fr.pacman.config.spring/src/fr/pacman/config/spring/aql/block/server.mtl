@@ -379,29 +379,33 @@
           = ['transactional executor'.apply_parameterMethodClassicIn()/];
     }
     
-   /**
-    * Pointcut qui cible toutes les méthodes annotées avec {@link [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationTrans()/]}.
-    * Ce pointcut est utilisé dans l'expression d'annotation {@code @Around} pour identifier les méthodes
-    * devant être exécutées dans une transaction.
-    */
-    @Pointcut("@within([any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationTrans()/])")
-    private void ['within transactionnal operation'.apply_methodDefault()/]() {
-    
-    }
-    
-   /**
-    * Méthode qui exécute les méthodes annotées avec {@link [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationTrans()/]} 
-    * dans un contexte transactionnel. Cette méthode est exécutée avant chaque méthode 
-    * ciblée par le pointcut et garantit que l'exécution de la méthode
-    * se fait dans une transaction en utilisant {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
-    * En cas d'exception, elle est capturée et une {@link RuntimeException} est lancée.
-    *
-    * @param proceedingJoinPoint Le point d'exécution de la méthode interceptée.
-    * @return Le résultat de la méthode exécutée dans le contexte transactionnel.
-    * @throws RuntimeException Si une exception est lancée pendant l'exécution de la méthode.
-    */
-    @Around("['within transactionnal operation'.apply_methodDefault()/]()")
-    private Object ['transacationnal operation'.apply_methodDefault()/](ProceedingJoinPoint ['proceeding join point'.apply_parameterMethodClassicIn()/]) {
+    /**
+     * Méthode exécutée autour des méthodes annotées avec
+     * {@link [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationTrans()/]} ou celles qui se trouvent
+     * dans des classes annotées par cette même annotation. Cette méthode garantit
+     * que l'exécution des méthodes annotées se déroule dans un contexte
+     * transactionnel.
+     * <p>
+     * La logique de gestion de la transaction est assurée par l'exécution de la
+     * méthode cible dans le contexte d'une transaction, et en cas d'exception, elle
+     * est capturée et transformée en une {@link RuntimeException} pour une gestion
+     * centralisée.
+     * </p>
+     * 
+     * @param proceedingJoinPoint Le point de jonction pour accéder à la méthode
+     *                            annotée, permettant de procéder à l'exécution de
+     *                            la méthode cible.
+     * 
+     * @return L'objet retourné par la méthode annotée après son exécution dans un
+     *         contexte transactionnel.
+     * 
+     * @throws RuntimeException Si une exception est levée pendant l'exécution de la
+     *                          méthode, elle est enveloppée dans une
+     *                          {@link RuntimeException}.
+     */
+    @Around(value = "@annotation([any.writeTransAnnotation()/]) " 
+          + "|| @within([any.writeTransAnnotation()/])")
+    private Object ['transactionnal operation'.apply_methodDefault()/](ProceedingJoinPoint ['proceeding join point'.apply_parameterMethodClassicIn()/]) {
        return ['transactional executor'.apply_attributeDefault()/].executeInTransaction(() -> {
           try {
              return ['proceeding join point'.apply_parameterMethodClassicIn()/].proceed();
@@ -412,6 +416,10 @@
     }
   }
 [/template]
+
+[comment simple raccourci pur l'écriture de l'annotation./]
+[query private writeTransAnnotation(any : ecore::EObject) : String = any.namePackageProject() + '.' 
+  + any.namePackageAnnotation() + '.' + any.nameClassAnnotationTrans()/]
 
 [comment écriture de l'implémentation pour la classe de configuration des transactions jpa./]
 [template public jpaTransactionConfigurationImpl(any : ecore::EObject)]

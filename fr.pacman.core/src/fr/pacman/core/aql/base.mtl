@@ -249,10 +249,10 @@
 [comment retourne le nom pour l'énumération du statut de la ligne en base de données./][query public nameDatabaseStatusEnum(any : ecore::EObject) : String = 'record status'/]
 
 [comment retourne le nom pour l'annotation d'injection du service dans la couche métier./]
-[query public nameAnnotationDomainService(any : ecore::EObject) : String = 'service domain'/]
+[query public nameAnnotationDomainService(any : ecore::EObject) : String = 'domain service'/]
 
 [comment retourne le nom pour l'annotation d'injection du service dans la couche persistance./]
-[query public nameAnnotationAdapter(any : ecore::EObject) : String = 'service adapter'/]
+[query public nameAnnotationAdapter(any : ecore::EObject) : String = 'adapter service'/]
 
 [comment retourne le nom pour l'annotation de gestion des transactions dans la couche de persistance./]
 [query public nameAnnotationTransactionnal(any : ecore::EObject) : String = 'transactionnal'/]

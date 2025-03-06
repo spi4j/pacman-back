@@ -3,7 +3,6 @@
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::soa::aql::file::genCommon/]
-[import fr::pacman::core::aql::query::service/]
 [import fr::pacman::common::aql::file::genEntityAbs/]
 
 [comment écriture des classes et fichiers soa pour la partie métier de l'application cible./]
@@ -12,7 +11,7 @@
   [m.fileEntityAbs(m.commandDto())/]
   [for (s : soa::Service | m.eAllContents(soa::Service))]
     [comment implémentation du service métier./]
-  	[s.fileServiceImpl(s.associatedProviders())/]
+  	[s.fileServiceImpl()/]
   	[comment interface pour l'adapteur application./]
   	[s.fileServiceOutItf()/]
   	[comment interface pour l'adapteur infrastructure./]

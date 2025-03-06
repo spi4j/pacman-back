@@ -9,9 +9,9 @@
 [import fr::pacman::soa::spring::aql::block::security/]
 
 [comment écriture du fichier d'implémentation pour le service utilisateur (application)./]
-[template public fileServiceImpl(s: soa::Service)]
+[template public fileServiceImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
   [file (s.nameClassControllerImpl().toFileJava(s.namePackageControllerImpl()), overwrite, s.defaultFileEncoding())]
-    [s.implementation()/]
+    [s.implementation(ds)/]
   [/file]
 [/template]
 

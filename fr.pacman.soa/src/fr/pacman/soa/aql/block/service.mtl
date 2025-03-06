@@ -18,7 +18,7 @@
 [import fr::pacman::core::aql::rule::method/]
 						
 [comment écriture de l'implémentation d'un service soa (couche domain)./]
-[template public implementation (s : soa::Service, ds : OrderedSet(environment::DTO))]
+[template public implementation (s : soa::Service)]
   [s.classHeader(s.namePackageServiceImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -26,38 +26,29 @@
     import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationOut()/];
-    [for (d | ds)]
-      import [s.namePackageProject()/].[d.namePackageCrudInItf()/].[d.nameClassServiceCrudInItf()/];
-    [/for]
     
   [/protected]
   
   [s.commentClass()/]
   @[s.nameClassAnnotationOut()/]
-  @SuppressWarnings("unused")
   public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceOutItf()/]
   {
       
-      ['Interface(s) de persistance disponible(s)'.commentMultiLines()/]
+      ['Interface de persistance'.commentSingleLine()/]
       private final [s.nameClassServiceInItf()/] [s.nameProvider().apply_attributeDefault()/];
-      [for (d | ds)]
-       [d.writeProviderAttributes()/] 
-      [/for]
       
       [protected ((s.nameClassServiceImpl() + s.suffixInterfaceIn()).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       [/protected]
       
-      ['Constructeur avec injection de la persistance'.commentMultiLines()/]
-      public [s.nameClassServiceImpl()/] ([s.writeProviderParameters(ds)/]) {
-         
-         [s.prefixAffectation()/][s.nameProvider().apply_attributeDefault()/] = [s.nameProvider().apply_parameterMethodClassicIn()/];
-         [for (d | ds)]
-           [d.prefixAffectation()/][d.nameProviderCrud().apply_attributeFinal()/] = [d.nameProviderCrud().apply_parameterMethodClassicIn()/];
-         [/for]
-         
-         [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-         [/protected]
-      }
+      [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        
+        ['Constructeur avec injection de la persistance'.commentMultiLines()/]
+        public [s.nameClassServiceImpl()/] (final [s.nameClassServiceInItf()/] [s.nameProvider().apply_parameterMethodClassicIn()/]) 
+        {  
+          [s.prefixAffectation()/][s.nameProvider().apply_attributeDefault()/] = [s.nameProvider().apply_parameterMethodClassicIn()/]; 
+        }
+        
+      [/protected]
       
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
         
@@ -150,12 +141,3 @@
 [comment écriture de la signature d'une opération avec le paramètre en sortie./]
 [query private writeInputs(o : soa::Operation) : String = o.nameOperation()  + '(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())
 	->sep(', ') + ')' /]
-
-[comment écriture de la ligne pour la déclaration de l'attribut de type 'provider'./]
-[query private writeProviderAttributes(d: environment::DTO) : String = 'private final ' +  d.nameClassServiceCrudInItf() 
-  + ' ' + d.nameProviderCrud().apply_attributeFinal() + ';'/]
-
-[comment écriture pour les différents paramètres à injecter au niveau du constructeur./]
-[query private writeProviderParameters(s : soa::Service, ds : OrderedSet(environment::DTO)) : String = 'final ' + s.nameClassServiceInItf() 
-  + ' ' + s.nameProvider().apply_parameterMethodClassicIn() + if (not ds->isEmpty()) then ', ' + ds->collect(o1 | 'final ' 
-  + o1.nameClassServiceCrudInItf() + ' ' + o1.nameProviderCrud().apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif/]

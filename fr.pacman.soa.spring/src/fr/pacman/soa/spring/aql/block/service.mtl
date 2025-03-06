@@ -25,7 +25,7 @@
 [import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture de l'implémentation d'un service soa (couche application)./]
-[template public implementation (s : soa::Service)]
+[template public implementation (s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageControllerImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -50,7 +50,7 @@
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
     
-    [for (d | s.associatedDtos())]
+    [for (d | ds)]
       import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
     [/for]
     
