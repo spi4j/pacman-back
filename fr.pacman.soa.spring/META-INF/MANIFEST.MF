@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.soa.spring
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Dto Soa (Spring)
+Bundle-Name: PacMan - Soa - Spring
 Bundle-SymbolicName: fr.pacman.soa.spring
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: fr.pacman.soa.spring.plugin.Activator

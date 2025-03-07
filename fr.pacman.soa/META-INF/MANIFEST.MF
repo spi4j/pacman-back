@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.soa
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Dto Soa
+Bundle-Name: PacMan - Soa
 Bundle-SymbolicName: fr.pacman.soa
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: fr.pacman.soa.plugin.Activator

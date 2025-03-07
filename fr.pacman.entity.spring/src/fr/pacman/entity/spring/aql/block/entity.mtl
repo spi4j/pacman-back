@@ -47,7 +47,7 @@
     import jakarta.persistence.SequenceGenerator;
     import org.hibernate.annotations.SQLDelete;
     import org.hibernate.annotations.SQLRestriction;
-    import [e.namePackageProject()/].[e.namePackageEntityBase()/].[e.nameClassEntityAbs()/];
+    import [e.namePackageProject()/].[e.namePackageInfrastructureBase()/].[e.nameClassEntityAbs()/];
     
     [/protected]
   

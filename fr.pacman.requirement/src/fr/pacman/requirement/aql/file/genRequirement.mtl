@@ -1,0 +1,5 @@
+[module genRequirement(	'http://www.obeonetwork.org/dsl/requirement/1.0')/]
+
+[comment ras pour l'instant./]
+
+[comment écriture du fichier d'implémentation pour l'entité./]

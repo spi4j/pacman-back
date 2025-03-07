@@ -27,3 +27,10 @@
   [/file]
 [/template]
 
+[comment écriture de la classe d'exception pour les erreurs de surface (champs absents ou invalides)./]
+[template public filevalidationExceptionImpl(any : ecore::EObject)]
+  [file (any.nameClassValidationExceptionImpl().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
+    [any.validationExceptionImpl()/]
+  [/file]
+[/template]
+

@@ -17,7 +17,7 @@
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::method/]
 						
-[comment écriture de l'implémentation d'un service soa (couche domain)./]
+[comment écriture de l'implémentation d'un service soa métier (couche domain)./]
 [template public implementation (s : soa::Service)]
   [s.classHeader(s.namePackageServiceImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -30,6 +30,8 @@
   [/protected]
   
   [s.commentClass()/]
+  [protected ((s.nameClassServiceImpl() + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
   @[s.nameClassAnnotationOut()/]
   public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceOutItf()/]
   {
@@ -53,6 +55,8 @@
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
         
         [o.commentOperation()/]
+        [protected ((o.name() + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
         @Override
         [o.writeOperation()/]
         {

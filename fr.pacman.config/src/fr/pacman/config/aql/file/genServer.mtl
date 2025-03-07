@@ -7,18 +7,19 @@
 [import fr::pacman::core::aql::output::resources/]
 
 [comment écriture de la classe d'exception pour le mapper./]
-[template public fileMapperException(any : ecore::EObject)]
+[template public fileMapperExceptionImpl(any : ecore::EObject)]
   [file (any.nameClassMapperExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
     [any.mapperExceptionImpl()/]
   [/file]
 [/template]
 
 [comment écriture de la classe d'exception pour les services non implémentés./]
-[template public fileNotImplementedException(any : ecore::EObject)]
+[template public fileNotImplementedExceptionImpl(any : ecore::EObject)]
   [file (any.nameClassNotImplementedExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
     [any.notImplementedExceptionImpl()/]
   [/file]
 [/template]
+
 
 
 

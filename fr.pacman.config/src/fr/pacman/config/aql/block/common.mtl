@@ -4,10 +4,12 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::method/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture du type spécial Binary pour le projet./]
 [template public binaryType (any : ecore::EObject)]
@@ -227,5 +229,66 @@
   				"XTOPSUP : Impossible de retrouver le statut au niveau de l'énumération, " 
   				+ "vérifier le statut au niveau de la couche de persistance.");
   	}
+  }
+[/template]
+
+[comment écriture de l'implementation pour une exception levée au niveau de la couche de persistance./]
+[template public validationExceptionImpl (any : ecore::EObject)]
+  [any.classHeader(any.namePackageCommonBase())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Exception personnalisée pour gérer les erreurs de validation dans l'application.
+   * Cette exception étend {@link RuntimeException} et permet de signaler des erreurs 
+   * liées à des champs invalides dans un objet spécifique.
+   * <p>
+   * La classe fournit plusieurs constructeurs permettant de spécifier des messages d'erreur
+   * personnalisés et d'indiquer les champs invalides dans un objet.
+   * 
+   * @author [any.get_authorName()/]
+   */
+  public class [any.nameClassValidationExceptionImpl()/] extends RuntimeException 
+  {
+     ['identifiant de sérialisation'.commentMultiLines()/]
+     private static final long serialVersionUID = 1L;
+     
+    /**
+     * Constructeur qui initialise l'exception avec un message détaillant l'erreur.
+     * 
+     * @param ['message'.apply_parameterMethodClassicIn()/] Le message décrivant la cause de l'exception.
+     */
+     public [any.nameClassValidationExceptionImpl()/](final String ['message'.apply_parameterMethodClassicIn()/]) {
+     	super(['message'.apply_parameterMethodClassicIn()/]);
+     }
+     
+    /**
+     * Constructeur qui permet de spécifier une instance d'objet et des champs invalides.
+     * Ce constructeur génère un message d'erreur décrivant les champs invalides pour un objet donné.
+     *
+     * @param ['instance'.apply_parameterMethodClassicIn()/] L'objet pour lequel la validation a échoué.
+     * @param ['fields'.apply_parameterMethodClassicIn()/]   Les noms des champs invalides de l'objet.
+     */
+     public [any.nameClassValidationExceptionImpl()/] (final Object ['instance'.apply_parameterMethodClassicIn()/]
+       , final String... ['fields'.apply_parameterMethodClassicIn()/])
+     {
+        this(['instance'.apply_parameterMethodClassicIn()/], null, ['fields'.apply_parameterMethodClassicIn()/]);
+     }
+     
+   /**
+     * Constructeur qui permet de spécifier une instance d'objet, des champs invalides et une cause d'erreur.
+     * Ce constructeur génère un message d'erreur décrivant les champs invalides pour un objet donné et
+     * permet de spécifier une exception précédente (cause).
+     *
+     * @param ['instance'.apply_parameterMethodClassicIn()/] L'objet pour lequel la validation a échoué.
+     * @param ['cause'.apply_parameterMethodClassicIn()/]    La cause de l'exception précédente (peut être null).
+     * @param ['fields'.apply_parameterMethodClassicIn()/]   Les noms des champs invalides de l'objet.
+     */
+     public [any.nameClassValidationExceptionImpl()/] (final Object ['instance'.apply_parameterMethodClassicIn()/]
+       , final Throwable ['cause'.apply_parameterMethodClassicIn()/], final String... ['fields'.apply_parameterMethodClassicIn()/])
+     {
+        super("Champ(s) " + Arrays.toString(['fields'.apply_parameterMethodClassicIn()/]) 
+          + " invalide(s) pour l'objet " + ['instance'.apply_parameterMethodClassicIn()/]
+          , ['cause'.apply_parameterMethodClassicIn()/]);
+     }
   }
 [/template]

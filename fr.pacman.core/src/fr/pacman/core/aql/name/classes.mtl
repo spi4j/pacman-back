@@ -27,13 +27,13 @@
 [query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + s.suffixInterfaceIn()).apply_classInterface()/]  
 
 [comment retourne le nom pour l'interface d'une classe de service soa crud (infra)./]  
-[query public nameClassServiceCrudInItf(d : environment::DTO) : String = (d.name() + d.suffixInterfaceIn() + ' crud').apply_classInterface()/]  
+[query public nameClassServiceCrudInItf(d : environment::DTO) : String = (d.name() + ' crud ' + d.suffixInterfaceIn()).apply_classInterface()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service de persistance./]
-[query public nameClassServiceInImpl(s : soa::Service) : String = (s.name() + ' orm' + s.suffixInterfaceOut()).apply_classImplem()/]  
+[query public nameClassServiceInImpl(s : soa::Service) : String = (s.name() + ' jpa' + s.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service crud de persistance./]
-[query public nameClassServiceCrudInImpl(d : environment::DTO) : String = (d.name() + ' orm' + ' crud' + d.suffixInterfaceOut()).apply_classImplem()/]  
+[query public nameClassServiceCrudInImpl(d : environment::DTO) : String = (d.name() +' crud jpa' + d.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom pour la classe d'implémentation d'un type spécial pacman./]
 [query public nameClassType(s : String) : String = s.apply_classDefault()/]
@@ -46,6 +46,9 @@
   
 [comment retourne le nom pour l'annotation de gestion des transactions./]
 [query public nameClassAnnotationTrans (any : ecore::EObject) : String = any.nameAnnotationTransactionnal().apply_classDefault()/]
+  
+[comment retourne le nom pour l'utilitaire de validation des champs pour les objets métier./]
+[query public nameClassValidatorUtilsImpl (any : ecore::EObject) : String = 'validator utils'.apply_classDefault()/]
 
 [comment retourne le nom de la classe pour le type spécifique pacman 'XtopSup'./]
 [query public nameClassXtopSupImpl (any : ecore::EObject) : String = any.nameTypeXtopSup().nameClassType()/]
@@ -97,6 +100,9 @@
   
 [comment retourne le nom de la classe d'exception dans le cas d'une problématique dans les mappers./]
 [query public nameClassNotImplementedExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' not implemented exception').apply_classDefault()/]
+  
+[comment retourne le nom de la classe d'exception dans le cas d'une erreur de validation (champs absent ou invalide)./]
+[query public nameClassValidationExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' validation exception').apply_classDefault()/]
 
 [comment retourne le nom de la classe contenant le corps de la reponse pour la gestion globale des erreurs rest./]
 [query public nameClassRsErrorBodyResponseImpl(any : ecore::EObject) : String = (any.get_projectName() + ' error body response').apply_classDefault()/]

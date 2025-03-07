@@ -308,7 +308,7 @@
 
 [comment écriture de l'implémentation pour la classe de gestion des transactions jpa./]
 [template public jpaTransactionExecutorImpl(any : ecore::EObject)]
-  [any.classHeader(any.namePackageEntityBase())/]
+  [any.classHeader(any.namePackageInfrastructureBase())/]
   [any.defaultImports()/]
   import java.util.function.Supplier;
   import org.springframework.transaction.annotation.Transactional;
@@ -346,7 +346,7 @@
 
 [comment écriture de l'implémentation pour la classe aspect de gestion des transactions jpa./]
 [template public jpaTransactionServiceAspectImpl(any : ecore::EObject)]
-  [any.classHeader(any.namePackageEntityBase())/]
+  [any.classHeader(any.namePackageInfrastructureBase())/]
   [any.defaultImports()/]
   import org.aspectj.lang.ProceedingJoinPoint;
   import org.aspectj.lang.annotation.Around;
@@ -423,7 +423,7 @@
 
 [comment écriture de l'implémentation pour la classe de configuration des transactions jpa./]
 [template public jpaTransactionConfigurationImpl(any : ecore::EObject)]
-  [any.classHeader(any.namePackageEntityBase())/]
+  [any.classHeader(any.namePackageInfrastructureBase())/]
   [any.defaultImports()/]
   import org.springframework.context.annotation.Bean;
   import org.springframework.context.annotation.Configuration;

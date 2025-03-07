@@ -30,10 +30,9 @@
 [query public referencedDto(r : environment::Reference, d: environment::DTO) : environment::DTO = 
 	r.structuredType(d).oclAsType(environment::DTO)/]
 
-[comment vérifie si le type référence fait que l'on doit prendre le nom de la référence et non celui de l'attribut./]
+[comment vérifie si le type référence implique que l'on doit prendre le nom de la référence et non celui de l'attribut./]
 [query private isReferenceName(r : environment::Reference, st : environment::StructuredType) : Boolean = 
-  r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> st) 
-  or r.isRecursive()/]
+  r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> st) or r.isRecursive()/]
 	
 [comment retourne le type xxxx (si fonctionne mal peut toujours comparer les identifiants techniques !)./] 
 [query private structuredType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 

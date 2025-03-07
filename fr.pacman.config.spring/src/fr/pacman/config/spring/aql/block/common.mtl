@@ -4,6 +4,9 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::method/]
 
 [import fr::pacman::core::property::project::ProjectProperties/]
 
@@ -149,4 +152,68 @@
    public @interface [any.nameClassAnnotationTrans()/] {
      //RAS
    }
+[/template]
+
+[comment écriture du valideur pour l'ensemble des objets métiers./]
+[template public validatorUtilsImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageCommonUtils())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Classe utilitaire contenant des méthodes de validation pour vérifier certaines contraintes
+   * sur des champs de données. Ces méthodes vérifient des conditions telles que la présence 
+   * d'une valeur obligatoire ou la taille d'une chaîne de caractères.
+   * <p>
+   * Cette classe n'a pas besoin d'être instanciée, car elle contient uniquement des méthodes statiques.</p>
+   * 
+   * @author [any.get_authorName()/]
+   */
+  public class [any.nameClassValidatorUtilsImpl()/]
+  {
+   /**
+    * Vérifie si une valeur obligatoire (non nulle) est fournie pour un champ.
+    * Si la valeur est nulle, le nom du champ est ajouté à la liste des champs invalides.
+    *
+    * @param ['field name'.apply_parameterMethodClassicIn()/] Le nom du champ à valider.
+    * @param ['value'.apply_parameterMethodClassicIn()/]   La valeur du champ à vérifier.
+    * @param ['invalid fields'.apply_parameterMethodClassicIn()/] La liste des champs invalides à laquelle ajouter le nom du champ en cas de validation échouée.
+    */
+    public static void ['check mandatory'.apply_methodDefault()/](final String ['field name'.apply_parameterMethodClassicIn()/]
+       , final Object ['value'.apply_parameterMethodClassicIn()/], List<String> ['invalid fields'.apply_parameterMethodClassicIn()/]) 
+       {
+       if (['value'.apply_parameterMethodClassicIn()/] == null) {
+          if (['invalid fields'.apply_parameterMethodClassicIn()/] == null) {
+             ['invalid fields'.apply_parameterMethodClassicIn()/] = new ArrayList<>();
+          }
+          ['invalid fields'.apply_parameterMethodClassicIn()/].add(['field name'.apply_parameterMethodClassicIn()/]);
+       }
+    }
+    
+   /**
+    * Vérifie si la taille d'une chaîne de caractères est comprise dans une plage spécifiée.
+    * Si la taille dépasse la taille maximale autorisée, une entrée est ajoutée à la liste des champs invalides
+    * indiquant la taille actuelle de la chaîne et la taille maximale autorisée. 
+    * <p>
+    * Si la chaîne est nulle, cette méthode ne fait aucune vérification.</p>
+    *
+    * @param ['field name'.apply_parameterMethodClassicIn()/] Le nom du champ à valider.
+    * @param ['value'.apply_parameterMethodClassicIn()/]   La valeur du champ (une chaîne de caractères) à vérifier.
+    * @param ['min size'.apply_parameterMethodClassicIn()/]  La taille minimale autorisée pour la chaîne.
+    * @param ['max size'.apply_parameterMethodClassicIn()/]  La taille maximale autorisée pour la chaîne.
+    * @param ['invalid fields'.apply_parameterMethodClassicIn()/] La liste des champs invalides à laquelle ajouter une entrée en cas de validation échouée.
+    */
+    public static void ['check size'.apply_methodDefault()/](final String ['field name'.apply_parameterMethodClassicIn()/]
+       , final String ['value'.apply_parameterMethodClassicIn()/], final int ['min size'.apply_parameterMethodClassicIn()/] 
+       , final int ['max size'.apply_parameterMethodClassicIn()/], List<String> ['invalid fields'.apply_parameterMethodClassicIn()/]) 
+         {
+       if (['value'.apply_parameterMethodClassicIn()/] != null && ['value'.apply_parameterMethodClassicIn()/]
+          .length() > ['max size'.apply_parameterMethodClassicIn()/]) {
+          if (['invalid fields'.apply_parameterMethodClassicIn()/] == null) {
+              ['invalid fields'.apply_parameterMethodClassicIn()/] = new ArrayList<>();
+          }
+          ['invalid fields'.apply_parameterMethodClassicIn()/].add(['field name'.apply_parameterMethodClassicIn()/] 
+             + " (" + ['value'.apply_parameterMethodClassicIn()/].length() + " > " + ['max size'.apply_parameterMethodClassicIn()/] + ")");
+    	}
+    }
+  }
 [/template]

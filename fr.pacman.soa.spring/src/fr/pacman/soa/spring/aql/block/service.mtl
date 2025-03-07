@@ -24,7 +24,7 @@
 
 [import fr::pacman::core::property::project::ProjectProperties/]
 
-[comment écriture de l'implémentation d'un service soa (couche application)./]
+[comment écriture de l'implémentation d'un service contrôleur soa (couche application)./]
 [template public implementation (s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageControllerImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]

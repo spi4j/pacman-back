@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.entity.spring
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Entity Spring
+Bundle-Name: PacMan - Entity - Spring
 Bundle-SymbolicName: fr.pacman.entity.spring
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: fr.pacman.entity.spring.plugin.Activator

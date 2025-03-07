@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.soa.spi4j
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Dto Soa (Spi4j)
+Bundle-Name: PacMan - Soa - Spi4j
 Bundle-SymbolicName: fr.pacman.soa.spi4j
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: fr.pacman.soa.spi4j.plugin.Activator

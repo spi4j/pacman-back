@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.entity.spi4j
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Entity Spi4j
+Bundle-Name: PacMan - Entity - Spi4j
 Bundle-SymbolicName: fr.pacman.entity.spi4j
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: fr.pacman.entity.spi4j.plugin.Activator

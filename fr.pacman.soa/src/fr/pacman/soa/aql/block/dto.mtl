@@ -16,6 +16,7 @@
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::method/]
 [import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::soa::aql::block::common/]
 
 [comment écriture de l'implémentation pour l'objet métier (dto)./]
@@ -24,7 +25,9 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
-    import [d.namePackageProject()/].[d.namePackageDtoBase()/].[d.nameClassEntityAbs()/];
+    import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassEntityAbs()/];
+    import [d.namePackageProject()/].[d.namePackageCommonUtils()/].[d.nameClassValidatorUtilsImpl()/];
+    import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassValidationExceptionImpl()/];
     
   [/protected]
   [d.commentClass()/]
@@ -78,6 +81,26 @@
                   = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
              }
           [/let]
+          
+          public void ['validate'.apply_methodDefault()/]() throws [d.nameClassValidationExceptionImpl()/]
+          {
+              List<String> ['errors'.apply_variableDefault()/] = null;
+              [for (a | d.attributesNoPK())]
+                [if (a.isMandatory())]
+                [d.nameClassValidatorUtilsImpl()/].['check mandatory'.apply_methodDefault()/]
+                     ("[a.nameAttribute()/]", [a.nameAttribute()/], ['errors'.apply_variableDefault()/]);[/if]
+                     
+                [a.minimum/] - [a.maximum/] - [a.pattern/]
+                [if (a.hasSizeConstraints())]
+                [d.nameClassValidatorUtilsImpl()/].['check size'.apply_methodDefault()/]
+                     (['errors'.apply_variableDefault()/]);[/if]
+              [/for]
+              
+              if(null != ['errors'.apply_variableDefault()/] ){
+                  throw new [d.nameClassValidationExceptionImpl()/](this, ['errors'.apply_variableDefault()/]
+                    .toArray(new String['['/] ['errors'.apply_variableDefault()/].size()[']'/]));
+              }
+          }
           
           [d.writeGetterAndSetterForAttributes(d.attributesNoPK())/]
           [d.writeGetterAndSetterForReferences(rs, d.commandDto())/]

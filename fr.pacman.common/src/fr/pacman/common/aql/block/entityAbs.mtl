@@ -18,7 +18,7 @@
 
 [comment écriture des champs automatiques pour la base de données./]
 [template public persistenceAutoAttributes (any : ecore::EObject, target : String)]
-  [any.classHeader(if (any.commandEntity().equalsIgnoreCase(target)) then any.namePackageEntityBase() else any.namePackageDtoBase() endif)/]
+  [any.classHeader(if (any.commandEntity().equalsIgnoreCase(target)) then any.namePackageInfrastructureBase() else any.namePackageCommonBase() endif)/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [any.defaultsImports()/]

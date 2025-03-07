@@ -33,3 +33,10 @@
     [any.annotationTrans()/]
   [/file]
 [/template]
+
+[comment écriture de la classe d'annotation pour la gestion des transactions./]
+[template public fileValidatorUtilsImpl(any : ecore::EObject)]
+  [file (any.nameClassValidatorUtilsImpl().toFileJava(any.namePackageCommonUtils()), overwrite, any.defaultFileEncoding())]
+    [any.validatorUtilsImpl()/]
+  [/file]
+[/template]

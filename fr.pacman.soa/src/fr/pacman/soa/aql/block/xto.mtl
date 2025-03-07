@@ -46,6 +46,7 @@
      [/protected]
      
      ['Id'.commentSingleLine()/]
+     @JsonProperty("id")
      private [d.defaultTypePk()/] [d.writePk()/];
      
      // ATTRIBUTS

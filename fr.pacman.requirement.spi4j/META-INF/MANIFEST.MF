@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.requirement.spi4j
+Bundle-ManifestVersion: 2
+Bundle-Name: PacMan - Requirement - Spi4j
+Bundle-SymbolicName: fr.pacman.requirement.spi4j
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: fr.pacman.requirement.spi4j.plugin.Activator
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.core.runtime,
+ fr.pacman.core,
+ org.obeonetwork.dsl.requirement,
+ org.eclipse.acceleo.aql;bundle-version="4.0.0",
+ org.eclipse.acceleo.query;bundle-version="8.0.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: fr.pacman.requirement.spi4j.aql.block
+

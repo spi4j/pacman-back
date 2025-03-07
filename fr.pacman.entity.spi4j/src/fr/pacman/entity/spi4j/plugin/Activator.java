@@ -8,7 +8,7 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends Plugin {
 
-	public static final String c_pluginId = "fr.pacman.entity";
+	public static final String c_pluginId = "fr.pacman.entity.spi4j";
 	private static Activator plugin;
 
 	@Override
