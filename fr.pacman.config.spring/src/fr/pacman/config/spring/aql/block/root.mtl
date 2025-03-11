@@ -34,8 +34,29 @@
       <module>[any.nameProjectWebapp()/]</module>
     </modules>
     
+    <!-- Repository specifique pour les pilotes Oracle. -->
+    <repositories>
+    	<repository>
+        	<id>hand-china-repo</id>
+        	<name>HandChinaRepo</name>
+        	<url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
+    	</repository>
+    </repositories>
+    
     <dependencyManagement>
        <dependencies>
+          <dependency>
+             <groupId>org.junit.jupiter</groupId>
+             <artifactId>junit-jupiter</artifactId>
+             <version>[any.versionJupiter()/]</version>
+             <scope>test</scope>
+          </dependency>
+          <dependency>
+             <groupId>org.assertj</groupId>
+             <artifactId>assertj-core</artifactId>
+             <version>[any.versionAssertJ()/]</version>
+             <scope>test</scope>
+          </dependency>
           <dependency>
              <groupId>org.springframework.boot</groupId>
              <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -46,20 +67,15 @@
              <artifactId>spring-boot-starter-web</artifactId>
              <version>[any.versionSpringBoot()/]</version>
           </dependency>
-          <dependency>
-             <groupId>org.junit.jupiter</groupId>
-             <artifactId>junit-jupiter</artifactId>
-             <version>[any.versionJupiter()/]</version>
-          </dependency>
+          <dependency> 
+             <groupId>org.springframework.boot</groupId> 
+             <artifactId>spring-boot-starter-security</artifactId>              <version>[any.versionSpringBoot()/]</version>
+          </dependency>          
           <dependency>
              <groupId>com.h2database</groupId>
              <artifactId>h2</artifactId>
              <version>[any.versionH2()/]</version>
-          </dependency>
-          <dependency>
-          	<groupId>org.springframework.boot</groupId>
-          	<artifactId>spring-boot-starter-security</artifactId>
-          	<version>[any.versionSpringBoot()/]</version>
+             <scope>runtime</scope>
           </dependency>
           <dependency>
           	<groupId>org.springframework.boot</groupId>
@@ -84,12 +100,46 @@
             <scope>runtime</scope>
             <optional>true</optional>
           </dependency>
-          <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>[any.versionPostgres()/]</version>
-            <scope>runtime</scope>
-          </dependency>
+          [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
+            <dependency>
+              <groupId>org.postgresql</groupId>
+              <artifactId>postgresql</artifactId>
+              <version>[any.versionPostgres()/]</version>
+              <scope>runtime</scope>
+            </dependency>
+          [/if]
+          [if (any.get_dataBasesNames().toLower().index('mysql') != -1)]
+            <dependency>
+              <groupId>mysql</groupId>
+              <artifactId>mysql-connector-java</artifactId>
+              <version>[any.versionMySql()/]</version>
+              <scope>runtime</scope>
+            </dependency>
+          [/if]
+          [if (any.get_dataBasesNames().toLower().index('mariadb') != -1)]
+            <dependency>
+              <groupId>org.mariadb.jdbc</groupId>
+              <artifactId>mariadb-java-client</artifactId>
+              <version>[any.versionMariaDb()/]</version>
+              <scope>runtime</scope>
+            </dependency>
+          [/if]
+          [if (any.get_dataBasesNames().toLower().index('oracle-') != -1)]
+            <dependency>
+              <groupId>com.oracle</groupId>
+              <artifactId>ojdbc7</artifactId>
+              <version>[any.versionOracle()/]</version>
+              <scope>runtime</scope>
+            </dependency>
+          [/if]
+          [if (any.get_dataBasesNames().toLower().index('oracle+') != -1)]
+            <dependency>
+              <groupId>com.oracle.database.jdbc</groupId>
+              <artifactId>ojdbc8</artifactId>
+              <version>[any.versionOracle32()/]</version>
+              <scope>runtime</scope>
+            </dependency>
+          [/if]
        </dependencies>
     </dependencyManagement>
     

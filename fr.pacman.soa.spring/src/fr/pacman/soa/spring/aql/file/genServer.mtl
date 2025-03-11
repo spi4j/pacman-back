@@ -16,16 +16,16 @@
 [/template]
 
 [comment écriture du fichier d'implémentation pour le service de persistance (infrastructure)./]
-[template public fileServiceInImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
-  [file (s.nameClassServiceInImpl().toFileJava(s.namePackageInImpl()), overwrite, s.defaultFileEncoding())]
-    [s.inImpl(ds)/]
+[template public fileServiceOutImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
+  [file (s.nameClassServiceOutImpl().toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
+    [s.outImpl(ds)/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'implémentation pour le service de persistance crud (infrastructure)./]
-[template public fileServiceCrudInImpl(d: environment::DTO, ds : OrderedSet(environment::DTO))]
-  [file (d.nameClassServiceCrudInImpl().toFileJava(d.namePackageCrudInImpl()), overwrite, d.defaultFileEncoding())]
-    [d.crudInImpl()/]
+[template public fileServiceCrudOutImpl(d: environment::DTO, ds : OrderedSet(environment::DTO))]
+  [file (d.nameClassServiceCrudOutImpl().toFileJava(d.namePackageCrudOutImpl()), overwrite, d.defaultFileEncoding())]
+    [d.crudOutImpl()/]
   [/file]
 [/template]
 

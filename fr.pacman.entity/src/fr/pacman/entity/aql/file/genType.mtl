@@ -1,4 +1,4 @@
-[module genType('http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+[module genType(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]	
 [import fr::pacman::core::aql::name::classes/]	

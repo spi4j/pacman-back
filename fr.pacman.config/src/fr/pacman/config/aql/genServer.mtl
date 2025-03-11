@@ -4,7 +4,6 @@
 
 [comment écriture de l'ensemble de la configuration de base pour le projet d'infrastructure./]
 [template public genServerConfig(r : overview::Root)]
-  [r.fileNotImplementedExceptionImpl()/]
   [r.fileMapperExceptionImpl()/]
 [/template]
 

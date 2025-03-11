@@ -1,0 +1,128 @@
+[module test(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::method/]
+
+[comment écriture de l'implémentation du résolveur de paramètres pour les tests junit (domain + infra)./]
+[template public serviceOutResolverImpl(s : soa::Service)] 
+  [s.classHeader(s.namePackageServiceImpl())/]
+  
+  import org.junit.jupiter.api.extension.ExtensionContext;
+  import org.junit.jupiter.api.extension.ParameterContext;
+  import org.junit.jupiter.api.extension.ParameterResolutionException;
+  import org.junit.jupiter.api.extension.ParameterResolver;
+  import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+  import [s.namePackageProject()/].[s.namePackageOutStubImpl()/].[s.nameClassServiceOutStubImpl()/];
+  
+ /**
+  * Cette classe implémente l'interface {@link ParameterResolver} et sert à
+  * résoudre les paramètres dans le contexte d'un test, en fournissant une
+  * instance de {@link GestionPersonneServiceImpl}. Elle est utilisée pour
+  * injecter une instance de {@link GestionPersonneServiceImpl} dans les tests de
+  * manière automatique.
+  * 
+  * La méthode {@link #supportsParameter(ParameterContext, ExtensionContext)}
+  * vérifie si le paramètre peut être résolu par ce résolveur, et la méthode
+  * {@link #resolveParameter(ParameterContext, ExtensionContext)} résout le
+  * paramètre en créant une instance de {@link GestionPersonneServiceImpl}.
+  * 
+  * Cette classe est typiquement utilisée dans le cadre des tests unitaires avec
+  * JUnit 5 et l'extension de test JUnit Jupiter.
+  *
+  * @Author [s.nameAuthor()/] 
+  * 
+  * @see ParameterResolver
+  * @see [s.nameClassServiceImpl()/]
+  * @see [s.nameClassServiceOutItf()/]
+  * @see [s.nameClassServiceOutStubImpl()/]
+  */
+  class [s.nameClassServiceOutResolverImpl()/] implements ParameterResolver 
+  {
+  
+    /**
+     * Vérifie si ce résolveur prend en charge le paramètre en question.
+     * 
+     * @param parameterContext le contexte du paramètre à vérifier
+     * @param extensionContext le contexte de l'extension du test
+     * @return true si ce résolveur prend en charge le paramètre, sinon false
+     * @throws ParameterResolutionException si une erreur se produit lors de la
+     *                                      résolution du paramètre
+     */
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+    		throws ParameterResolutionException {
+    	return parameterContext.getParameter().getType() == [s.nameClassServiceImpl()/].class;
+    }
+    
+    /**
+    * Résout le paramètre en créant une instance de
+    * {@link [s.nameClassServiceImpl()/]} avec un {@link [s.nameClassServiceOutItf()/]}.
+    * Dans cet exemple, un stub de {@link [s.nameClassServiceOutItf()/]} est utilisé pour
+    * les tests.
+    * 
+    * @param parameterContext le contexte du paramètre à résoudre
+    * @param extensionContext le contexte de l'extension du test
+    * @return une instance de {@link [s.nameClassServiceImpl()/]} prête à être
+    *         utilisée dans le test
+    * @throws ParameterResolutionException si une erreur se produit lors de la
+    *                                      résolution du paramètre
+    */
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+    		throws ParameterResolutionException {
+    	[s.nameClassServiceOutItf()/] [s.suffixInterfaceOut().apply_variableDefault()/] = new [s.nameClassServiceOutStubImpl()/]();
+    	return new [s.nameClassServiceImpl()/]([s.suffixInterfaceOut().apply_variableDefault()/]);
+    }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour les tests du domaine./]
+[template public serviceTestImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageServiceImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    import org.junit.jupiter.api.Test;
+    import static org.junit.jupiter.api.Assertions.*;
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
+    
+  [/protected]
+  
+  /**
+   * Classe de test pour {@link [s.nameClassServiceImpl()/]}.
+   * 
+   * Cette classe contient des tests unitaires pour les méthodes du service
+   * {@link [s.nameClassServiceImpl()/]}. Les tests sont exécutés avec l'extension 
+   * {@link [s.nameClassServiceOutResolverImpl()/]} pour la gestion des paramètres.
+   * 
+   * @see [s.nameClassServiceImpl()/]
+   * @see [s.nameClassServiceOutResolverImpl()/]
+   */
+  @ExtendWith([s.nameClassServiceOutResolverImpl()/].class)
+  public class [s.nameClassServiceTestImpl()/]
+  {
+  
+    [for (o | s.ownedInterface.ownedOperations)]
+      @Test
+      public void [o.name().apply_methodDefault()/](final [s.nameClassServiceImpl()/] [s.name().apply_parameterMethodClassicIn()/]){
+        
+        [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          throw new SafranNotImplementedException
+            ("Le test n'a pas été implémenté pour le service : [s.nameClassServiceImpl()/]");
+          
+        [/protected]
+      }
+    [/for]
+    
+    [protected (s.nameClassServiceTestImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+  }
+[/template]

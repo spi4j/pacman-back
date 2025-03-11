@@ -47,11 +47,11 @@
     import org.springframework.web.bind.annotation.RequestAttribute;  
     import org.springframework.web.bind.annotation.RequestHeader;
     import org.springframework.web.bind.annotation.ResponseBody;
-    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
     import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
     
     [for (d | ds)]
-      import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
+      import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];
     [/for]
     
   [/protected]
@@ -87,28 +87,28 @@
 [/template]
 
 [comment écriture de l'implémentation pour le service de persistance crud (couche infrastructure)./]
-[template public crudInImpl(d : environment::DTO)]
-  [d.classHeader(d.namePackageCrudInImpl())/]
+[template public crudOutImpl(d : environment::DTO)]
+  [d.classHeader(d.namePackageCrudOutImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
-    import [d.namePackageProject()/].[d.namePackageCrudInItf()/].[d.nameClassServiceCrudInItf()/];
+    import [d.namePackageProject()/].[d.namePackageCrudOutItf()/].[d.nameClassServiceCrudOutItf()/];
     import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassAnnotationIn()/]; 
     import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/]; 
-    import [d.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/]; 
+    import [d.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/]; 
     import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/]; 
     
   [/protected]
   
-  @[d.nameClassAnnotationIn()/]
-  public class [d.nameClassServiceCrudInImpl()/] implements [d.nameClassServiceCrudInItf()/]
+  @[d.nameClassAnnotationStubOut()/]
+  public class [d.nameClassServiceCrudOutImpl()/] implements [d.nameClassServiceCrudOutItf()/]
   {
   
     ['Le gestionnaire de persistance'.commentSingleLine()/]
     private [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeDefault()/];
     
     ['Constructeur avec injection des parametres'.commentMultiLines()/]
-    public [d.nameClassServiceCrudInImpl()/](final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_parameterMethodClassicIn()/]){
+    public [d.nameClassServiceCrudOutImpl()/](final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_parameterMethodClassicIn()/]){
       
       [d.prefixAffectation()/][d.nameRepository().apply_attributeDefault()/] = [d.nameRepository().apply_parameterMethodClassicIn()/];
     }
@@ -140,17 +140,18 @@
 [/template]
 
 [comment écriture de l'implémentation pour le service de persistance (couche infrastructure)./]
-[template public inImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
-  [s.classHeader(s.namePackageInImpl())/]
+[template public outImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
+  [s.classHeader(s.namePackageOutImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
+    import org.springframework.stereotype.Component;
     import org.springframework.beans.factory.annotation.Autowired;
-    import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
-    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];  
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationStubOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/]  
   
     [for (d | ds)]
-      import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];
+      import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
       [if (d.isPersistent())]
         import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
         import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/];
@@ -160,8 +161,8 @@
   [/protected]
   
   [s.commentInterface()/]
-  @[s.nameClassAnnotationIn()/]
-  public class [s.nameClassServiceInImpl()/] implements [s.nameClassServiceInItf()/]
+  @Component
+  public class [s.nameClassServiceOutImpl()/] implements [s.nameClassServiceOutItf()/]
   {
       
       ['Le(s) gestionnaire(s) de persistance disponibles(s)'.commentMultiLines()/]
@@ -171,7 +172,7 @@
     
       ['Constructeur'.commentMultiLines()/]
       @Autowired
-      public [s.nameClassServiceInImpl()/] ([ds->writePersistInputs()/])
+      public [s.nameClassServiceOutImpl()/] ([ds->writePersistInputs()/])
       {
          
          [ds->writePersistAffectation()/]
@@ -249,8 +250,10 @@
   .nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '(' + o.suffixEntity().apply_variableDefault() 
   + '.get()));} return Optional.empty();'/]
                   
-[comment écriture de l'appel pour une sortie simple./]
-[query private writeNonOptionalOutputOne(o : soa::Operation) : String = ''/]
+[comment écriture de l'appel pour une sortie simple (voir si on complexifie plus tard)./]
+[query private writeNonOptionalOutputOne(o : soa::Operation) : String = 'return ' + o.output->first().type.oclAsType(environment::DTO)
+  .nameClassMapperImpl() + ('.to ' + o.suffixDto()).apply_methodDefault() + '('  + o.nameOperation() + '_invoke(' 
+ + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') + '));'  /]
   
 [comment écriture de la signature pour le constructeur afin d'injecter les couches de persistance./]
 [query private writePersistInputs(ds : OrderedSet(environment::DTO)) : String = ds->select(o1 | o1.isPersistent())->collect(o2 | 'final ' 

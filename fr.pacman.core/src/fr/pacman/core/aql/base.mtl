@@ -110,10 +110,10 @@
 [query public suffixMapper(any : ecore::EObject) : String = ' mapper'/] 
 
 [comment le suffixe par défaut pour les interfaces domain -> persistance./]
-[query public suffixInterfaceIn(any : ecore::EObject) : String = ' provider'/]
+[query public suffixInterfaceOut(any : ecore::EObject) : String = ' provider'/]
   
 [comment le suffixe par défaut pour les interfaces domain -> controller./]
-[query public suffixInterfaceOut(any : ecore::EObject) : String = ' adapter'/]
+[query public suffixInterfaceIn(any : ecore::EObject) : String = ' adapter'/]
 
 [comment le suffixe pour le dao d'une entité./]
 [query public suffixEntityDao(any : ecore::EObject) : String = ' repository'/]
@@ -179,7 +179,7 @@
 [query public dirResources(any : ecore::EObject) : String = 'src/main/resources/'/]
   
 [comment le répertoire pour l'ensemble des tests unitaires./]
-[query public dirUnitTests(any : ecore::EObject) : String = 'src/test/java/'/]
+[query public dirTests(any : ecore::EObject) : String = 'src/test/java/'/]
   
 [comment le répertoire pour la génération des scripts sql./]
 [query public dirSqlScripts(any : ecore::EObject) : String = 'sql/'/]
@@ -251,8 +251,8 @@
 [comment retourne le nom pour l'annotation d'injection du service dans la couche métier./]
 [query public nameAnnotationDomainService(any : ecore::EObject) : String = 'domain service'/]
 
-[comment retourne le nom pour l'annotation d'injection du service dans la couche persistance./]
-[query public nameAnnotationAdapter(any : ecore::EObject) : String = 'adapter service'/]
+[comment retourne le nom pour l'annotation d'injection du service stub dans la couche persistance./]
+[query public nameAnnotationStub(any : ecore::EObject) : String = 'stub service'/]
 
 [comment retourne le nom pour l'annotation de gestion des transactions dans la couche de persistance./]
 [query public nameAnnotationTransactionnal(any : ecore::EObject) : String = 'transactionnal'/]

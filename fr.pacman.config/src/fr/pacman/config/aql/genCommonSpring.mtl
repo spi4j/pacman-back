@@ -12,7 +12,7 @@
 [comment écriture de l'ensemble de la configuration de base pour le projet métier (Spring)./]
 [template public genCommonConfig(r : overview::Root)]
   [r.super:genCommonConfig()/]
-  [r.fileAnnotationOut()/]
+  [r.fileAnnotationStubOut()/]
   [r.fileAnnotationIn()/]
   [r.fileAnnotationTrans()/]
   [r.fileValidatorUtilsImpl()/]

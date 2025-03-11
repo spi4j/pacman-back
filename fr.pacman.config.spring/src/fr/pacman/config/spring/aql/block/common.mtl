@@ -30,7 +30,10 @@
        <dependency>
           <groupId>org.junit.jupiter</groupId>
           <artifactId>junit-jupiter</artifactId>
-          <scope>test</scope>
+       </dependency>
+       <dependency>
+          <groupId>org.assertj</groupId>
+          <artifactId>assertj-core</artifactId>
        </dependency>
     </dependencies>
     
@@ -72,8 +75,9 @@
 
 
 [comment écriture de l'annotation pour l'injection de service métier./]
-[template public annotationOut(any : ecore::EObject)]
+[template public annotationIn(any : ecore::EObject)]
   [any.classHeader(any.namePackageCommonBase())/]
+  
   [any.defaultImports()/]
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
@@ -94,14 +98,15 @@
    * @author [any.nameAuthor()/]
    */
    @Retention(RetentionPolicy.RUNTIME)
-   public @interface [any.nameClassAnnotationOut()/] {
+   public @interface [any.nameClassAnnotationIn()/] {
      //RAS.
    }
 [/template]
 
 [comment écriture de l'annotation pour l'injection de service persistance./]
-[template public annotationIn(any : ecore::EObject)]
+[template public annotationOut(any : ecore::EObject)]
   [any.classHeader(any.namePackageCommonBase())/]
+  
   [any.defaultImports()/]
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
@@ -123,13 +128,14 @@
    * @author [any.nameAuthor()/]
    */
    @Retention(RetentionPolicy.RUNTIME)
-   public @interface [any.nameClassAnnotationIn()/] {
+   public @interface [any.nameClassAnnotationStubOut()/] {
      //RAS.
    }
 [/template]
 
 [comment écriture de l'annotation pour l'injection de service persistance./]
 [template public annotationTrans(any : ecore::EObject)]
+  
   [any.classHeader(any.namePackageCommonBase())/]
   [any.defaultImports()/]
   import java.lang.annotation.Retention;
@@ -157,6 +163,7 @@
 [comment écriture du valideur pour l'ensemble des objets métiers./]
 [template public validatorUtilsImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageCommonBase())/]
+  
   [any.defaultImports()/]
   
   /**
@@ -221,6 +228,7 @@
 [comment écriture de l'interface pour un requirement (règle de gestion)./]
 [template public requirementItf(any : ecore::EObject)]
   [any.classHeader(any.namePackageRequirement())/]
+  
   [any.defaultImports()/]
   
   /**
@@ -266,6 +274,7 @@
 [comment écriture de l'immplémentation pour la classe utilitaire de gestion des requirements./]
 [template public requirementUtilsImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageRequirement())/]
+  
   [any.defaultImports()/]
   import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassRequirementExceptionImpl()/];
   
@@ -344,6 +353,7 @@
 [comment écriture de l'implémentation pour la classe d'exception concernat les requirements./]
 [template public requirementExceptionImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageCommonException())/]
+  
   [any.defaultImports()/]
   import [any.namePackageProject()/].[any.namePackageRequirement()/].[any.nameClassRequirementItf()/];
   

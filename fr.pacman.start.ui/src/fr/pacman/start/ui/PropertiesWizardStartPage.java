@@ -351,7 +351,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private Combo addComboFramework(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Framework",
 				"Le framework à utiliser pour la génération des classes issues de la modélisation.",
-				new String[] { "Spring Boot", "Spring Web", "Spi4j" }, 0);
+				new String[] { "Spring Boot", "Spi4j" }, 0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
@@ -939,11 +939,15 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
+	 * Retourne la liste des base de données. On en profite pour supprimer les
+	 * versions oracle et suffixer simplement les dernières versions par "+" et les
+	 * premières versions par "-" . Le procédé est un peu cavalier, mais faut le
+	 * job.
 	 * 
-	 * @return
+	 * @return la liste des bases de données pour l'application cible.
 	 */
 	public String getDatabases() {
-		return "h2" + _databases;
+		return "h2" + _databases.replace(" (< 12.2)", "-").replace(" (> 12.1)", "+");
 	}
 
 	/**

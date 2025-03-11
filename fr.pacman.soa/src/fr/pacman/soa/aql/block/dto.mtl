@@ -89,6 +89,24 @@
           [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           
+          /**
+           * Valide les informations de l'objet en vérifiant la présence des valeurs
+           * obligatoires, les contraintes de taille et un pattern spécifique pour
+           * certains champs.
+           * 
+           * Cette méthode utilise des utilitaires de validation pour vérifier que
+           * certains des champs modélisés ne sont pas vides, respectent une taille
+           * minimale et/ou maximale, ainsi qu'un format spécifique grâce à une expression
+           * régulière qui est fournie (toujours par le biais de la modélisation).
+           * 
+           * Si des erreurs de validation sont trouvées, une exception
+           * {@link [d.nameClassValidationExceptionImpl()/]} est lancée avec les messages d'erreur
+           * correspondants.
+           * 
+           * @throws [d.nameClassValidationExceptionImpl()/] si des erreurs de validation sont trouvées.
+           *                                  L'exception contient une liste des erreurs
+           *                                  sous forme de tableau de chaînes.
+           */
           @SuppressWarnings("unused")
           public void ['validate'.apply_methodDefault()/]() throws [d.nameClassValidationExceptionImpl()/]
           {

@@ -49,20 +49,33 @@
   import org.springframework.context.annotation.EnableAspectJAutoProxy;
   import org.springframework.context.annotation.FilterType;
   import org.springframework.context.annotation.ComponentScan;
-  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationOut()/];
+  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationStubOut()/];
   import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationIn()/];
   
-  
   /**
-   * Classe principale de démarrage de l'application {@code [any.nameClassAppBoostrap()/]}.
-   * Cette classe démarre l'application Spring Boot et configure le scan des composants
-   * en incluant spécifiquement des services annotés avec {@link [any.nameClassAnnotationOut()/]} 
-   * ou {@link [any.nameClassAnnotationIn()/]}.
+   * Classe de démarrage de l'application Spring Boot. Cette classe est annotée
+   * avec {@link SpringBootApplication}, ce qui permet de configurer
+   * automatiquement les composants nécessaires à l'exécution de l'application.
+   * Elle active également la gestion des aspects avec
+   * {@link EnableAspectJAutoProxy} et configure un scan de composants
+   * personnalisé pour inclure les services annotés avec {@link [any.nameClassAnnotationStubOut()/]} et
+   * {@link [any.nameClassAnnotationIn()/]}.
+   * <p>
+   * La méthode {@link #main(String...)} est le point d'entrée principal de
+   * l'application, qui démarre l'application Spring Boot.
+   *
+   * @author [any.nameAuthor()/] 
+   *
+   * @see SpringBootApplication
+   * @see EnableAspectJAutoProxy
+   * @see ComponentScan
+   * @see DomainService
+   * @see AdapterService
    */
   @SpringBootApplication
   @EnableAspectJAutoProxy
   @ComponentScan(basePackages = {"[any.namePackageProject()/]"}, includeFilters = {
-  @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationOut()/].class, [any.nameClassAnnotationIn()/].class })})
+  @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationStubOut()/].class, [any.nameClassAnnotationIn()/].class })})
   public class [any.nameClassAppBoostrap()/]
   {
   
@@ -84,10 +97,10 @@
 	   * @param ctx Le contexte de l'application Spring contenant les beans.
 	   * @return Un {@link CommandLineRunner} qui est exécuté au démarrage de l'application.
 	   */
-	  @Bean
+	  //@Bean
 	  public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
 	    return args -> {
-			System.out.println("Let's inspect the beans provided by Spring Boot:");
+			System.out.println("Liste des beans disponibles pour Spring Boot:");
 	    	String['['/][']'/] beanNames = ctx.getBeanDefinitionNames();
 	    	Arrays.sort(beanNames);
 	    	for (String beanName : beanNames) {

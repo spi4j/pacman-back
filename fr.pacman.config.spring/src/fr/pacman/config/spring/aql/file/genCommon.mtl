@@ -14,16 +14,16 @@
 [/template]
 
 [comment écriture de la classe d'annotation pour l'injection du service domain./]
-[template public fileAnnotationOut(any : ecore::EObject)]
-  [file (any.nameClassAnnotationOut().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
-    [any.annotationOut()/]
+[template public fileAnnotationIn(any : ecore::EObject)]
+  [file (any.nameClassAnnotationIn().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
+    [any.annotationIn()/]
   [/file]
 [/template]
 
 [comment écriture de la classe d'annotation pour l'injection du sercice infra./]
-[template public fileAnnotationIn(any : ecore::EObject)]
-  [file (any.nameClassAnnotationIn().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
-    [any.annotationIn()/]
+[template public fileAnnotationStubOut(any : ecore::EObject)]
+  [file (any.nameClassAnnotationStubOut().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
+    [any.annotationOut()/]
   [/file]
 [/template]
 

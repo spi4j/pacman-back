@@ -9,16 +9,16 @@
 [import fr::pacman::soa::aql::block::xto/]
 
 [comment écriture du fichier d'implémentation pour un mapper (objet métier -> objet infrastructure)./]
-[template public fileMapperInImpl(d: environment::DTO, rs : OrderedSet(environment::Reference))]
-  [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperInImpl()), overwrite, d.defaultFileEncoding())]
-    [d.mapperInImpl(rs)/]
+[template public fileMapperOutImpl(d: environment::DTO, rs : OrderedSet(environment::Reference))]
+  [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperOutImpl()), overwrite, d.defaultFileEncoding())]
+    [d.mapperOutImpl(rs)/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'implémentation pour un mapper (objet métier -> application)./]
-[template public fileMapperOutImpl(d: environment::DTO, rs : OrderedSet(environment::Reference))]
-  [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperOutImpl()), overwrite, d.defaultFileEncoding())]
-    [d.mapperOutImpl(rs)/]
+[template public fileMapperInImpl(d: environment::DTO, rs : OrderedSet(environment::Reference))]
+  [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperInImpl()), overwrite, d.defaultFileEncoding())]
+    [d.mapperInImpl(rs)/]
   [/file]
 [/template]
 

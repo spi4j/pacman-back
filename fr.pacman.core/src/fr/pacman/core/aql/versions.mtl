@@ -1,23 +1,30 @@
 [module versions(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
-
-
 [query public versionMavenCompilerPlugin(any : ecore::EObject) : String = '3.10.1'/]
 [query public versionMavenEnforcerPlugin(any : ecore::EObject) : String = '3.0.0-M2'/]
 [query public versionMaven(any : ecore::EObject) : String = '3.6.3'/]
 [query public versionSpringBoot(any : ecore::EObject) : String = '3.4.1'/]
 [query public versionH2(any : ecore::EObject) : String = '2.2.224'/]
 [query public versionJupiter(any : ecore::EObject) : String = '5.11.4'/]
+[query public versionAssertJ(any : ecore::EObject) : String = '3.27.3'/]
 [query public versionPostgres(any : ecore::EObject) : String = '42.7.5'/]
+[query public versionMySql(any : ecore::EObject) : String = '8.0.33'/]
+[query public versionMariaDb(any : ecore::EObject) : String = '3.5.2'/]
+[query public versionOracle(any : ecore::EObject) : String = '12.1.0.2'/]
+[query public versionOracle32(any : ecore::EObject) : String = '12.2.0.1'/]
+
+
+
+
+
+
 
 
 
 [query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
-[query public mvnCompilerVersion(any : eoecore::EObject) : String = ''/]
 [query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]
 [query public mvnAssemblyVersion(any : eoecore::EObject) : String = ''/]
 [query public mvnSiteVersion(any : eoecore::EObject) : String = ''/]
-[query public mvnEnforcerVersion(any : eoecore::EObject) : String = ''/]
   
 [query public tychoVersion(any : eoecore::EObject) : String = ''/]
 [query public javaVersion(any : eoecore::EObject) : String = ''/]
@@ -26,9 +33,4 @@
 [query public jerseyVersion(any : eoecore::EObject) : String = '3.1.2'/]
 [query public jsonVersion(any : eoecore::EObject) : String = '20240303'/]
 [query public tomcatVersion(any : eoecore::EObject) : String = '3.1.2'/]
-  
-[query public dbPostgresVersion(any : eoecore::EObject) : String = '3.1.2'/]
-[query public dbOracleVersion(any : eoecore::EObject) : String = '3.1.2'/]
-[query public dbMysqlVersion(any : eoecore::EObject) : String = '3.1.2'/]
-[query public dbH2Version(any : eoecore::EObject) : String = '3.1.2'/]
-[query public dbMariaVersion(any : eoecore::EObject) : String = '3.1.2'/]
+ 

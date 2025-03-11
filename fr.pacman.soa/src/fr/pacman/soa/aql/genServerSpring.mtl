@@ -21,11 +21,11 @@
       [comment implémentation du service application (rest, etc..)./]
       [s.fileServiceImpl(ds)/]
       [comment implémentation du service infrastructure (persistance)./]
-      [s.fileServiceInImpl(ds)/]
+      [s.fileServiceOutImpl(ds)/]
     [/let]
   [/for]
   [comment implémentation du service crud infrastructure (persistance)./]
   [for (d : environment::DTO | m.eAllContents(environment::DTO))]
-    [d.fileServiceCrudInImpl(null)/]
+    [d.fileServiceCrudOutImpl(null)/]
   [/for]
 [/template]S

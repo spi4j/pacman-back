@@ -29,24 +29,33 @@
   
 [comment retourne le nom pour l'implémentation d'une classe de service soa (feature)./]  
 [query public nameClassServiceImpl(s : soa::Service) : String = (s.name() + s.suffixService()).apply_classImplem()/]
+
+[comment retourne le nom pour l'implémentation de la classe de test pour le service soa (domain)./]
+[query public nameClassServiceTestImpl(s : soa::Service) : String = (s.name() + s.suffixService() + ' test').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation de la classe de stub (mock) pour le service soa (domain)./]
+[query public nameClassServiceOutStubImpl(s : soa::Service) : String = (s.name() + s.suffixInterfaceOut() + ' stub').apply_classImplem()/]
+
+[comment retourne le nom de l'implémentation du résolveur de paramètres dans le cadre des tests junit./]
+[query public nameClassServiceOutResolverImpl(s : soa::Service) : String = (s.name() + s.suffixService() + ' param resolver').apply_classDefault()/]
   
 [comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
 [query public nameClassControllerImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]
   
 [comment retourne le nom pour l'interface d'une classe de service soa (feature)./]  
-[query public nameClassServiceOutItf(s : soa::Service) : String = (s.name() + s.suffixService()).apply_classInterface()/]  
+[query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + s.suffixService()).apply_classInterface()/]  
 
 [comment retourne le nom pour l'interface d'une classe de service soa (infra)./]  
-[query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + s.suffixInterfaceIn()).apply_classInterface()/]  
+[query public nameClassServiceOutItf(s : soa::Service) : String = (s.name() + s.suffixInterfaceOut()).apply_classInterface()/]  
 
 [comment retourne le nom pour l'interface d'une classe de service soa crud (infra)./]  
-[query public nameClassServiceCrudInItf(d : environment::DTO) : String = (d.name() + ' crud ' + d.suffixInterfaceIn()).apply_classInterface()/]  
+[query public nameClassServiceCrudOutItf(d : environment::DTO) : String = (d.name() + ' crud ' + d.suffixInterfaceOut()).apply_classInterface()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service de persistance./]
-[query public nameClassServiceInImpl(s : soa::Service) : String = (s.name() + ' jpa' + s.suffixInterfaceOut()).apply_classImplem()/]  
+[query public nameClassServiceOutImpl(s : soa::Service) : String = (s.name() + ' jpa' + s.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service crud de persistance./]
-[query public nameClassServiceCrudInImpl(d : environment::DTO) : String = (d.name() +' crud jpa' + d.suffixInterfaceOut()).apply_classImplem()/]  
+[query public nameClassServiceCrudOutImpl(d : environment::DTO) : String = (d.name() +' crud jpa' + d.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom de l'implémentation pour les règles de gestion associées au service./]
 [query public nameClassServiceRequirementImpl(s : soa::Service) : String = (s.name() + ' requirement').apply_classImplem()/]
@@ -55,10 +64,10 @@
 [query public nameClassType(s : String) : String = s.apply_classDefault()/]
 
 [comment retourne le nom pour l'annotation d'injection des services métier./]
-[query public nameClassAnnotationOut (any : ecore::EObject) : String = any.nameAnnotationDomainService().apply_classDefault()/]
+[query public nameClassAnnotationIn (any : ecore::EObject) : String = any.nameAnnotationDomainService().apply_classDefault()/]
   
-[comment retourne le nom pour l'annotation d'injection des services métier./]
-[query public nameClassAnnotationIn (any : ecore::EObject) : String = any.nameAnnotationAdapter().apply_classDefault()/]
+[comment retourne le nom pour l'annotation stub d'injection des services métier./]
+[query public nameClassAnnotationStubOut (any : ecore::EObject) : String = any.nameAnnotationStub().apply_classDefault()/]
   
 [comment retourne le nom pour l'annotation de gestion des transactions./]
 [query public nameClassAnnotationTrans (any : ecore::EObject) : String = any.nameAnnotationTransactionnal().apply_classDefault()/]

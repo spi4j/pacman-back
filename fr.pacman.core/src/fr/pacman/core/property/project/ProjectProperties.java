@@ -423,8 +423,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	}
 
 	public static String get_dataBasesNames(final Object p_object) {
-		return "H2,MySQL,MariaDB,PostgreSQL,Oracle,Oracle_32";
-		// return PropertiesHandler.getProperty(c_project_databaseTypes);
+		 return PropertiesHandler.getProperty(c_project_databases);
 	}
 
 	public static boolean get_useServiceRequirements(final Object p_object) {

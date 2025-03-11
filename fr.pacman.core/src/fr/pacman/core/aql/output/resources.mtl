@@ -27,6 +27,10 @@
 [comment écriture d'un fichier de type 'classe Java'./]
 [query public toFileJava(fName : String, pkName : String) : String = fName.toFile(fName.dirSources() + (fName.namePackageProject() 
 	+ if(pkName.exists()) then '.' + pkName else '' endif).toPackage(), fName.extensionJava())/]
+	
+[comment écriture d'un fichier junit pour les tests./]
+[query public toFileTest(fName : String, pkName : String) : String = fName.toFile(fName.dirTests() + (fName.namePackageProject() 
+	+ if(pkName.exists()) then '.' + pkName else '' endif).toPackage(), fName.extensionJava())/]
   
 [comment écriture d'un fichier de type 'script sql'./]
 [comment query public toFileSql(fName : String, dName : String) : String =  fName.toFile(fName.dirResources() + dName, fName.extensionSql()) /]  

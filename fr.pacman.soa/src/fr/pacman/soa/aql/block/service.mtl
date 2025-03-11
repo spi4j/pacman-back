@@ -31,7 +31,7 @@
     [s.defaultImports()/]
     import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
-    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];
     import [s.namePackageProject()/].[s.namePackageServiceImpl()/].[s.nameClassServiceRequirementImpl()/];
     
   [/protected]
@@ -39,27 +39,28 @@
   [s.commentClass()/]
   [protected ((s.nameClassServiceImpl() + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
   [/protected]
-  @[s.nameClassAnnotationOut()/]
-  public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceOutItf()/]
+  @[s.nameClassAnnotationIn()/]
+  public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceInItf()/]
   {
+   
       [s.writeRequirement()/]
       
       ['Interface de persistance'.commentSingleLine()/]
-      private final [s.nameClassServiceInItf()/] [s.nameProvider().apply_attributeDefault()/];
+      private final [s.nameClassServiceOutItf()/] [s.nameProvider().apply_attributeDefault()/];
       
       [protected ((s.nameClassServiceImpl() + s.suffixInterfaceIn()).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       [/protected]
       
       [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
         
         ['Constructeur avec injection de la persistance'.commentMultiLines()/]
-        public [s.nameClassServiceImpl()/] (final [s.nameClassServiceInItf()/] [s.nameProvider().apply_parameterMethodClassicIn()/]) 
+        public [s.nameClassServiceImpl()/] (final [s.nameClassServiceOutItf()/] [s.nameProvider().apply_parameterMethodClassicIn()/]) 
         {  
           [s.prefixAffectation()/][s.nameProvider().apply_attributeDefault()/] = [s.nameProvider().apply_parameterMethodClassicIn()/]; 
         }
-        
-      [/protected]
-      
+       
+       
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
         
         [o.commentOperation()/]
@@ -84,8 +85,8 @@
 [/template]
 
 [comment écriture de l'interface 'technique' crud pour le service (domain -> infrastructure)./]
-[template public crudInItf (d : environment::DTO)]
-  [d.classHeader(d.namePackageCrudInItf())/]
+[template public crudOutItf (d : environment::DTO)]
+  [d.classHeader(d.namePackageCrudOutItf())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
@@ -94,7 +95,7 @@
   [/protected]
   
   [d.commentInterface()/]
-  public interface [d.nameClassServiceCrudInItf()/]
+  public interface [d.nameClassServiceCrudOutItf()/]
   {
     public void ['save'.apply_methodDefault()/](final [d.nameClassDtoImpl()/] [d.name().apply_parameterMethodClassicIn()/]);
     
@@ -107,22 +108,6 @@
 [/template]
 
 [comment écriture de l'interface d'un service (domain -> application)./]
-[template public outItf (s : soa::Service)]
-  [s.classHeader(s.namePackageOutItf())/]
-  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-    
-    [s.defaultImports()/]
-    
-  [/protected]
-  
-  [s.commentInterface()/]
-  public interface [s.nameClassServiceOutItf()/]
-  {
-	  [s.writeInterface()/]
-  }
-[/template]
-
-[comment écriture de l'interface d'un service (domain -> infrastructure)./]
 [template public inItf (s : soa::Service)]
   [s.classHeader(s.namePackageInItf())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -133,6 +118,22 @@
   
   [s.commentInterface()/]
   public interface [s.nameClassServiceInItf()/]
+  {
+	  [s.writeInterface()/]
+  }
+[/template]
+
+[comment écriture de l'interface d'un service (domain -> infrastructure)./]
+[template public outItf (s : soa::Service)]
+  [s.classHeader(s.namePackageOutItf())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    
+  [/protected]
+  
+  [s.commentInterface()/]
+  public interface [s.nameClassServiceOutItf()/]
   {
 	  [s.writeInterface()/]
   }

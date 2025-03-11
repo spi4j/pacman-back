@@ -7,10 +7,18 @@
 [import fr::pacman::soa::aql::file::genCommon/]
 [comment enlever ces imports suite a correction bug./]
 
+[import fr::pacman::soa::spring::aql::file::genCommon/]
+
 [comment @main/]
 [comment écriture des classes et fichiers soa pour la partie métier de l'application cible./]
 [template public genCommon(m : soa::System)]
   [m.super:genCommon()/]
+  [for (s : soa::Service | m.eAllContents(soa::Service))]
+    [comment implémentation du resolver junit pour les tests./]
+    [s.fileServiceOutResolverImpl()/]
+    [comment implémentation des tests métier./]
+    [s.fileServiceTestImpl()/]
+  [/for]
 [/template]
 
 

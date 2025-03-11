@@ -41,4 +41,11 @@
   [/file]
 [/template]
 
+[comment écriture de la classe d'exception pour les services non implémentés./]
+[template public fileNotImplementedExceptionImpl(any : ecore::EObject)]
+  [file (any.nameClassNotImplementedExceptionImpl().toFileJava(any.namePackageCommonException()), overwrite, any.defaultFileEncoding())]
+    [any.notImplementedExceptionImpl()/]
+  [/file]
+[/template]
+
 
