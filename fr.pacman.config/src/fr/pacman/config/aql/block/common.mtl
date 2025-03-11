@@ -9,7 +9,6 @@
 [import fr::pacman::core::aql::rule::method/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
-[import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture du type spécial Binary pour le projet./]
 [template public binaryType (any : ecore::EObject)]
@@ -234,7 +233,7 @@
 
 [comment écriture de l'implementation pour une exception levée au niveau de la couche de persistance./]
 [template public validationExceptionImpl (any : ecore::EObject)]
-  [any.classHeader(any.namePackageCommonBase())/]
+  [any.classHeader(any.namePackageCommonException())/]
   [any.defaultImports()/]
   
   /**
@@ -245,7 +244,7 @@
    * La classe fournit plusieurs constructeurs permettant de spécifier des messages d'erreur
    * personnalisés et d'indiquer les champs invalides dans un objet.
    * 
-   * @author [any.get_authorName()/]
+   * @author [any.nameAuthor()/]
    */
   public class [any.nameClassValidationExceptionImpl()/] extends RuntimeException 
   {
@@ -290,5 +289,37 @@
           + " invalide(s) pour l'objet " + ['instance'.apply_parameterMethodClassicIn()/]
           , ['cause'.apply_parameterMethodClassicIn()/]);
      }
+  }
+[/template]
+
+[comment écriture de l'annotation pour l'injection des règles de gestion./]
+[template public annotationRequirement(any : ecore::EObject)]
+  [any.classHeader(any.namePackageCommonBase())/]
+  [any.defaultImports()/]
+  import java.lang.annotation.ElementType;
+  import java.lang.annotation.Inherited;
+  import java.lang.annotation.Retention;
+  import java.lang.annotation.RetentionPolicy;
+  import java.lang.annotation.Target;
+  
+  /**
+   * Annotation marquant une méthode comme nécessitant des conditions ou des
+   * prérequis spécifiques.
+   * <p>
+   * Cette annotation peut être utilisée pour indiquer qu'une méthode doit
+   * respecter certains critères ou conditions spéciales, mais la logique exacte
+   * des prérequis doit être définie ailleurs dans le code.
+   * </p>
+   * L'annotation est héritée (via {@link Inherited}), ce qui signifie qu'elle
+   * sera également présente sur les sous-classes d'une classe qui contient cette
+   * annotation.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  @Inherited
+  @Target(ElementType.METHOD)
+  @Retention(RetentionPolicy.RUNTIME)
+  public @interface [any.nameCassAnnotationRequirement()/] {
+    //RAS
   }
 [/template]

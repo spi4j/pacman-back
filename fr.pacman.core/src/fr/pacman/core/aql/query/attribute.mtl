@@ -22,8 +22,9 @@
 [query public isMandatory(a : environment::Attribute) : Boolean = a.multiplicity = environment::MultiplicityKind::ONE 
   or a.multiplicity = environment::MultiplicityKind::ONE_STAR/] 
 
-[comment vérifie si l'attribut a des contraintes de taille (min | max)./]
-[query public hasSizeConstraints(a: environment::Attribute) : Boolean = a.maximum.exists() or a.maximum.exists()/]
+[comment vérifie si l'attribut a des contraintes de taille (min | max) pour sa valeur./]
+[query public hasSizeConstraints(a: environment::Attribute) : Boolean =  a.type.name.equalsIgnoreCase('string') 
+  and (a.maximum.exists() or a.maximum.exists())/]
 	
 [comment retourne tous les attributs d'une entité qui ne sont pas des clés primaires. /]
 [query public attributesNoPK(e : entity::Entity) : OrderedSet(environment::Attribute) = e.get_attributes()->select(a | 

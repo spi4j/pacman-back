@@ -4,6 +4,7 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::soa::aql::file::genCommon/]
 [import fr::pacman::common::aql::file::genEntityAbs/]
+[import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture des classes et fichiers soa pour la partie métier de l'application cible./]
 [template public genCommon(m : soa::System)]
@@ -16,6 +17,8 @@
   	[s.fileServiceOutItf()/]
   	[comment interface pour l'adapteur infrastructure./]
   	[s.fileServiceInItf()/]
+  	[comment implémentation pour les règles de gestions associées au service métier./]
+  	[if (s.get_useServiceRequirements())][s.fileServiceRequirementImpl()/][/if]
   [/for]
   [for (d : environment::DTO | m.eAllContents(environment::DTO))]
   	[comment implémentation des classes 'entité' pour le domaine./]
@@ -24,3 +27,4 @@
   	[d.fileServiceInCrudItf()/]
   [/for]
 [/template]
+

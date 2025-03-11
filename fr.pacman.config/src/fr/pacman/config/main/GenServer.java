@@ -74,7 +74,7 @@ public class GenServer extends PacmanGeneratorStart {
 	@Override
 	protected Map<String, SelectionType_Enum> getMainTemplates() {
 		Map<String, SelectionType_Enum> templates = new HashMap<>();
-		templates.put("genRootConfig", SelectionType_Enum.ROOT);
+		templates.put("genServerConfig", SelectionType_Enum.ROOT);
 		return templates;
 	}
 }

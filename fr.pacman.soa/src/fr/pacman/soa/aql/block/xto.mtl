@@ -20,7 +20,7 @@
 [import fr::pacman::soa::aql::block::common/]	
 
 [comment écriture de l'implémentation pour un objet métier sérialisé (xto)./]
-[template public implementation(d : environment::DTO)]
+[template public xtoImpl(d : environment::DTO)]
   [d.classHeader(d.namePackageXtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     

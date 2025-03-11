@@ -20,14 +20,14 @@
 [import fr::pacman::soa::aql::block::common/]
 
 [comment écriture de l'implémentation pour l'objet métier (dto)./]
-[template public implementation(d : environment::DTO)]
+[template public dtoImpl(d : environment::DTO)]
   [d.classHeader(d.namePackageDtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
     import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassEntityAbs()/];
-    import [d.namePackageProject()/].[d.namePackageCommonUtils()/].[d.nameClassValidatorUtilsImpl()/];
-    import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassValidationExceptionImpl()/];
+    import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassValidatorUtilsImpl()/];
+    import [d.namePackageProject()/].[d.namePackageCommonException()/].[d.nameClassValidationExceptionImpl()/];
     
   [/protected]
   [d.commentClass()/]
@@ -82,18 +82,21 @@
              }
           [/let]
           
+          [d.writeGetterAndSetterForAttributes(d.attributesNoPK())/]
+          [d.writeGetterAndSetterForReferences(rs, d.commandDto())/]
+            
+          // METHODES
+          [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+          
+          @SuppressWarnings("unused")
           public void ['validate'.apply_methodDefault()/]() throws [d.nameClassValidationExceptionImpl()/]
           {
               List<String> ['errors'.apply_variableDefault()/] = null;
               [for (a | d.attributesNoPK())]
-                [if (a.isMandatory())]
-                [d.nameClassValidatorUtilsImpl()/].['check mandatory'.apply_methodDefault()/]
-                     ("[a.nameAttribute()/]", [a.nameAttribute()/], ['errors'.apply_variableDefault()/]);[/if]
-                     
-                [a.minimum/] - [a.maximum/] - [a.pattern/]
-                [if (a.hasSizeConstraints())]
-                [d.nameClassValidatorUtilsImpl()/].['check size'.apply_methodDefault()/]
-                     (['errors'.apply_variableDefault()/]);[/if]
+                [a.writeNotNullValidation()/]
+                [a.writePatternValidation()/]
+                [a.writeSizeValidation()/]
               [/for]
               
               if(null != ['errors'.apply_variableDefault()/] ){
@@ -101,14 +104,20 @@
                     .toArray(new String['['/] ['errors'.apply_variableDefault()/].size()[']'/]));
               }
           }
-          
-          [d.writeGetterAndSetterForAttributes(d.attributesNoPK())/]
-          [d.writeGetterAndSetterForReferences(rs, d.commandDto())/]
-            
-          // METHODES
-          [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-          [/protected]
         [/let]
       [/if]
    }
 [/template]
+
+[comment écriture de la ligne de validation pour le caractère obligatoire de l'attribut./]
+[query private writeNotNullValidation(a : environment::Attribute) : String = if (a.isMandatory()) then 
+  a.nameClassValidatorUtilsImpl() + '.' + 'check mandatory'.apply_methodDefault() + '("' + a.nameAttribute() + '", ' 
+  + a.nameAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif /]
+  
+[comment écriture de la ligne de validation pour la valeur de l'attribut./]
+[query private writeSizeValidation(a : environment::Attribute) : String = if (a.hasSizeConstraints()) then 
+  a.nameClassValidatorUtilsImpl() + '.' + 'check size'.apply_methodDefault() + '("' + a.nameAttribute() + '", ' 
+  + a.nameAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif /]
+
+[comment écriture de la ligne de validation pour la regex de l'attribut./]
+[query private writePatternValidation(a : environment::Attribute) : String = ''/]

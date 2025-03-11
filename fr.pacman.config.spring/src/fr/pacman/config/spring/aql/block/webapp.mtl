@@ -38,7 +38,7 @@
 [/template]
 
 [comment écriture du boostrap pour l'application./]
-[template public applicationBoostrap(any : ecore::EObject)]
+[template public applicationBoostrapImpl(any : ecore::EObject)]
   [any.classHeader(null)/]
   [any.defaultImports()/]
   import org.springframework.boot.CommandLineRunner;
@@ -49,8 +49,8 @@
   import org.springframework.context.annotation.EnableAspectJAutoProxy;
   import org.springframework.context.annotation.FilterType;
   import org.springframework.context.annotation.ComponentScan;
-  import [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationOut()/];
-  import [any.namePackageProject()/].[any.namePackageAnnotation()/].[any.nameClassAnnotationIn()/];
+  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationOut()/];
+  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationIn()/];
   
   
   /**

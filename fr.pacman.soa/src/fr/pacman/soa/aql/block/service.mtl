@@ -1,8 +1,10 @@
 [module service(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
 					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/requirement/1.0',
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
-[import fr::pacman::core::aql::base/]						
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]						
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
@@ -15,17 +17,22 @@
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::class/]
 [import fr::pacman::core::aql::rule::method/]
+
+[import fr::pacman::core::service::RequirementUtils/]
+[import fr::pacman::core::property::project::ProjectProperties/]
 						
 [comment écriture de l'implémentation d'un service soa métier (couche domain)./]
-[template public implementation (s : soa::Service)]
+[template public serviceImpl (s : soa::Service)]
   [s.classHeader(s.namePackageServiceImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
     import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
-    import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
+    import [s.namePackageProject()/].[s.namePackageServiceImpl()/].[s.nameClassServiceRequirementImpl()/];
     
   [/protected]
   
@@ -35,6 +42,7 @@
   @[s.nameClassAnnotationOut()/]
   public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceOutItf()/]
   {
+      [s.writeRequirement()/]
       
       ['Interface de persistance'.commentSingleLine()/]
       private final [s.nameClassServiceInItf()/] [s.nameProvider().apply_attributeDefault()/];
@@ -76,7 +84,7 @@
 [/template]
 
 [comment écriture de l'interface 'technique' crud pour le service (domain -> infrastructure)./]
-[template public interfaceCrudIn (d : environment::DTO)]
+[template public crudInItf (d : environment::DTO)]
   [d.classHeader(d.namePackageCrudInItf())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -99,7 +107,7 @@
 [/template]
 
 [comment écriture de l'interface d'un service (domain -> application)./]
-[template public interfaceOut (s : soa::Service)]
+[template public outItf (s : soa::Service)]
   [s.classHeader(s.namePackageOutItf())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -115,7 +123,7 @@
 [/template]
 
 [comment écriture de l'interface d'un service (domain -> infrastructure)./]
-[template public interfaceIn (s : soa::Service)]
+[template public inItf (s : soa::Service)]
   [s.classHeader(s.namePackageInItf())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -138,6 +146,32 @@
      
   [/for]
 [/template]
+
+[comment écriture de l'implémentation pour les requirements associés au service./]
+[template public requirementImpl(s : soa::Service)]
+  [s.classHeader(s.namePackageServiceImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    
+  [/protected]
+  
+  /**
+   * Implémentations des exigences métiers pour le service '[s.nameClassServiceRequirementImpl()/]'.
+   * @author [s.nameAuthor()/]
+   */
+  public class [s.nameClassServiceRequirementImpl()/]
+  {
+     [for (r : requirement::Requirement | s.get_allRequirements())]
+       [r.id /]
+     [/for]
+  }
+[/template]
+
+[comment écriture de la ligne pour l'instanciation de la classe associées des reuirements./]
+[query private writeRequirement(s: soa::Service) : String = if (s.get_useServiceRequirements()) then 'Règles de gestion associées'.commentSingleLine() 
+  + 'private final ' + s.nameClassServiceRequirementImpl() + ' '+ 'requirements'.apply_attributeFinal() + ' = new ' 
+  + s.nameClassServiceRequirementImpl() + '();'  else '' endif/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeOperation(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]

@@ -5,4 +5,4 @@
 							
 [comment @main/]
 [comment écriture de l'ensemble de la configuration de base pour le projet d'exposition (Spi4j)./]
-[template public genRootConfig(r : overview::Root)][r.super:genRootConfig()/][/template]
+[template public genWebappConfig(r : overview::Root)][r.super:genWebappConfig()/][/template]

@@ -1,5 +1,6 @@
 [module databases(	'http://www.obeonetwork.org/dsl/environment/3.0.0',
-					'http://www.obeonetwork.org/dsl/entity/3.0.0', 'http://www.eclipse.org/emf/2002/Ecore')/]
+					'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.eclipse.org/emf/2002/Ecore')/]
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]

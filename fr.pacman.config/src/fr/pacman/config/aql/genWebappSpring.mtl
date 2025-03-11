@@ -7,8 +7,8 @@
 
 [comment @main/]
 [comment écriture de l'ensemble de la configuration de base pour le projet d'exposition (Spring)./]
-[template public genRootConfig(r : overview::Root)]
-  [r.super:genRootConfig()/]
+[template public genWebappConfig(r : overview::Root)]
+  [r.super:genWebappConfig()/]
   [r.fileApplicationBootstrap()/]
   [r.filePom()/]
 [/template]

@@ -9,14 +9,14 @@
 [comment écriture du fichier d'implémentation pour l'entité./]
 [template public fileEntityImpl(e: entity::Entity)]
   [file (e.nameClassEntityImpl().toFileJava(e.namePackageEntityImpl()), overwrite, e.defaultFileEncoding())]
-    [e.implementation()/]
+    [e.entityImpl()/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'interface pour la persistance de l'entité./]
 [template public fileEntityPersistItf(e : entity::Entity)]
   [file (e.nameClassEntityPersistItf().toFileJava(e.namePackageEntityPersistItf()), overwrite, e.defaultFileEncoding())]
-    [e.interfacePersist()/]
+    [e.persistItf()/]
   [/file]
 [/template]
 

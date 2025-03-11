@@ -24,7 +24,7 @@
 			wrapper 'Optional' si besoin, aucun contrôle n'est effectué au niveau des 
 			types dits 'primitifs'./]
 			
-[template public mapperIn(d : environment::DTO, rs : OrderedSet(environment::Reference))]
+[template public mapperInImpl(d : environment::DTO, rs : OrderedSet(environment::Reference))]
   [d.classHeader(d.namePackageMapperInImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -150,7 +150,7 @@
 [/template]
 
 [comment écriture de la classe utilitaire de mapping pour la couche application./]
-[template public mapperOut(d : environment::DTO, rs : OrderedSet(environment::Reference))]
+[template public mapperOutImpl(d : environment::DTO, rs : OrderedSet(environment::Reference))]
   [d.classHeader(d.namePackageMapperOutImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     

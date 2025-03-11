@@ -901,6 +901,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @return
 	 */
 	public String getRequirementLevel() {
+		if (_requirementLevel.isEmpty() || _requirementLevel.isBlank())
+			_requirementLevel = "0";
 		return _requirementLevel;
 	}
 

@@ -28,4 +28,5 @@ Export-Package: fr.pacman.core.aql,
  fr.pacman.core.property,
  fr.pacman.core.property.project,
  fr.pacman.core.service
+Import-Package: org.obeonetwork.dsl.requirement
 

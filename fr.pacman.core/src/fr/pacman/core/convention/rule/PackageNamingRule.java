@@ -157,99 +157,51 @@ public class PackageNamingRule extends PropertiesCategory {
 	 * Bien que la classe soit nommee "PackageRule" elle est aussi utilisée pour
 	 * récupérer directement les noms de package.
 	 */
-	public static String getPackagePersistence() {
+	public static String get_packagePersistence(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packagePersistence);
 	}
 
-	public static String getPackagePersistenceJavaService(Object object) {
-		return getPackagePersistence();
-	}
-
-	public static String getPackageImplemJdbc() {
+	public static String get_packageImplemJdbc(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packageImplemJdbc);
 	}
 
-	public static String getPackageImplemJdbcJavaService(Object object) {
-		return getPackageImplemJdbc();
-	}
-
-	public static String getPackageApi() {
+	public static String get_packageApi(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packageApi);
 	}
 
-	public static String getPackageApiJavaService(Object object) {
-		return getPackageApi();
-	}
-
-	public static String getPackageOverload() {
+	public static String get_packageOverload(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packageOverload);
 	}
 
-	public static String getPackageOverloadJavaService(Object object) {
-		return getPackageOverload();
-	}
-
-	public static String getPackageReferentiel() {
+	public static String get_packageReferentiel(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packageReferentiel);
 	}
 
-	public static String getPackageReferentielJavaService(Object object) {
-		return getPackageReferentiel();
-	}
-
-	public static String getPackageImplemServer() {
+	public static String get_packageImplemServer(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packageImplemServer);
 	}
 
-	public static String getPackageImplemServerJavaService(Object object) {
-		return getPackageImplemServer();
-	}
-
-	public static String getPackagePgeJsf() {
+	public static String get_packagePgeJsf(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packagePgeJsf);
 	}
 
-	public static String getPackagePgeJsfJavaService(Object object) {
-		return getPackagePgeJsf();
-	}
-
-	public static String getPackageMatching() {
+	public static String get_packageMatching(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packageMatching);
 	}
 
-	public static String getPackageMatchingJavaService(Object object) {
-		return getPackageMatching();
-	}
-
-	public static String getPackageBusiness() {
+	public static String get_packageBusiness(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packageBusiness);
 	}
 
-	public static String getPackageBusinessJavaService(Object object) {
-		return getPackageBusiness();
-	}
-
-	public static String getPackageRequirement() {
+	public static String get_packageRequirement(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packageRequirement);
 	}
 
-	public static String getPackageRequirementJavaService(Object object) {
-		return getPackageRequirement();
-	}
-
-	public static String getPackagePgeSwing() {
+	public static String get_packagePgeSwing(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packagePgeSwing);
 	}
 
-	public static String getPackagePgeSwingJavaService(Object object) {
-		return getPackagePgeSwing();
-	}
-
-	public static String getPackagePgeGwt() {
+	public static String get_packagePgeGwt(Object object) {
 		return PropertiesHandler.getProperty(c_idParam_packagePgeGwt);
-	}
-
-	public static String getPackagePgeGwtJavaService(Object object) {
-		return getPackagePgeGwt();
 	}
 }

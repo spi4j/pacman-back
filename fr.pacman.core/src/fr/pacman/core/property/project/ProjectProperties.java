@@ -492,7 +492,7 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_project_validation_init_on_error);
 	}
 
-	public static String get_requirementCategoryBaseLevel() {
+	public static String get_requirementCategoryBaseLevel(final Object p_object) {
 		return PropertiesHandler.getProperty(c_requirement_categoryBaseLevel);
 	}
 
@@ -527,7 +527,7 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_project_author);
 	}
 
-	public static String get_requirementPrefix() {
+	public static String get_requirementPrefix(Object p_object) {
 		return PropertiesHandler.getProperty(c_requirement_prefix);
 	}
 

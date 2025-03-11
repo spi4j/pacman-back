@@ -8,6 +8,6 @@
 
 [comment @main/]
 [comment écriture de l'ensemble de la configuration de base pour le projet métier (Spi4j)./]
-[template public genRootConfig(r : overview::Root)]
-  [r.super:genRootConfig()/]
+[template public genCommonConfig(r : overview::Root)]
+  [r.super:genCommonConfig()/]
 [/template]

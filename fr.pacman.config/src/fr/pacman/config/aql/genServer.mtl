@@ -3,7 +3,7 @@
 [import fr::pacman::config::aql::file::genServer/]
 
 [comment écriture de l'ensemble de la configuration de base pour le projet d'infrastructure./]
-[template public genRootConfig(r : overview::Root)]
+[template public genServerConfig(r : overview::Root)]
   [r.fileNotImplementedExceptionImpl()/]
   [r.fileMapperExceptionImpl()/]
 [/template]

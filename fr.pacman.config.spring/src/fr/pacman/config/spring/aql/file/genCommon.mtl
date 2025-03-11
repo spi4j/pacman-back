@@ -15,28 +15,52 @@
 
 [comment écriture de la classe d'annotation pour l'injection du service domain./]
 [template public fileAnnotationOut(any : ecore::EObject)]
-  [file (any.nameClassAnnotationOut().toFileJava(any.namePackageAnnotation()), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassAnnotationOut().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
     [any.annotationOut()/]
   [/file]
 [/template]
 
 [comment écriture de la classe d'annotation pour l'injection du sercice infra./]
 [template public fileAnnotationIn(any : ecore::EObject)]
-  [file (any.nameClassAnnotationIn().toFileJava(any.namePackageAnnotation()), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassAnnotationIn().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
     [any.annotationIn()/]
   [/file]
 [/template]
 
 [comment écriture de la classe d'annotation pour la gestion des transactions./]
 [template public fileAnnotationTrans(any : ecore::EObject)]
-  [file (any.nameClassAnnotationTrans().toFileJava(any.namePackageAnnotation()), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassAnnotationTrans().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
     [any.annotationTrans()/]
   [/file]
 [/template]
 
 [comment écriture de la classe d'annotation pour la gestion des transactions./]
 [template public fileValidatorUtilsImpl(any : ecore::EObject)]
-  [file (any.nameClassValidatorUtilsImpl().toFileJava(any.namePackageCommonUtils()), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassValidatorUtilsImpl().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
     [any.validatorUtilsImpl()/]
   [/file]
 [/template]
+
+[comment écriture de l'interface pour la gestion des requirements./]
+[template public fileRequirementItf(any : ecore::EObject)]
+  [file (any.nameClassRequirementItf().toFileJava(any.namePackageRequirement()), overwrite, any.defaultFileEncoding())]
+    [any.requirementItf()/]
+  [/file]
+[/template]
+
+[comment écriture de l'implémentation pour la classe utilitaire de gestion des requirements./]
+[template public fileRequirementUtilsImpl(any : ecore::EObject)]
+  [file (any.nameClassRequirementUtilsImpl().toFileJava(any.namePackageRequirement()), overwrite, any.defaultFileEncoding())]
+    [any.requirementUtilsImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de l'implémentation pour la classe d'exception concernant les requirements./]
+[template public fileRequirementExceptionImpl(any : ecore::EObject)]
+  [file (any.nameClassRequirementExceptionImpl().toFileJava(any.namePackageCommonException()), overwrite, any.defaultFileEncoding())]
+    [any.requirementExceptionImpl()/]
+  [/file]
+[/template]
+
+
+

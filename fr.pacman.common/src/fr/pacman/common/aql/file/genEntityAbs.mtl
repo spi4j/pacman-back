@@ -11,6 +11,6 @@
 [template public fileEntityAbs(any : ecore::EObject, target : String)]
    [file (any.nameClassEntityAbs().toFileJava( if (any.commandEntity().equalsIgnoreCase(target)) 
      then any.namePackageInfrastructureBase() else any.namePackageCommonBase() endif), overwrite, any.defaultFileEncoding())]
-     [any.persistenceAutoAttributes(target)/]
+     [any.autoAttributesImpl(target)/]
    [/file]
 [/template]

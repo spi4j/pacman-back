@@ -3,9 +3,10 @@
 [import fr::pacman::config::aql::file::genCommon/]
 
 [comment écriture de l'ensemble de la configuration de base pour le projet métier./]
-[template public genRootConfig(r : overview::Root)]
+[template public genCommonConfig(r : overview::Root)]
   [r.fileBinaryType()/]
-  [r.filevalidationExceptionImpl()/]
+  [r.fileAnnotationRequirement()/]
+  [r.fileValidationExceptionImpl()/]
   [comment r.fileXtopSupType()/]
   [comment r.fileDatabaseStatusEnum()/]
 [/template]

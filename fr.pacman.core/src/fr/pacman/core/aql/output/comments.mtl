@@ -11,8 +11,6 @@
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::attribute/]
 
-[import fr::pacman::core::property::project::ProjectProperties/]
-
 [comment ./]
 [template public commentMultiLines(s : String)]
   [if (s.exists())]
@@ -108,7 +106,7 @@
   /**
    * [any.writeDescription()/]
    *
-   * @Author [any.get_authorName()/]
+   * @Author [any.nameAuthor()/]
    */
 [/template]
 
@@ -117,7 +115,7 @@
   /**
    * [any.writeDescription()/]
    * 
-   * @Author [any.get_authorName()/]
+   * @Author [any.nameAuthor()/]
    */
 [/template]
 

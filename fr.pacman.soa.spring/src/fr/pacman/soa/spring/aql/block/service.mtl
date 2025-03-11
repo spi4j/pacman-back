@@ -25,7 +25,7 @@
 [import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture de l'implémentation d'un service contrôleur soa (couche application)./]
-[template public implementation (s : soa::Service, ds : OrderedSet(environment::DTO))]
+[template public serviceImpl (s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageControllerImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -87,13 +87,13 @@
 [/template]
 
 [comment écriture de l'implémentation pour le service de persistance crud (couche infrastructure)./]
-[template public implementationCrudIn(d : environment::DTO)]
+[template public crudInImpl(d : environment::DTO)]
   [d.classHeader(d.namePackageCrudInImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
     import [d.namePackageProject()/].[d.namePackageCrudInItf()/].[d.nameClassServiceCrudInItf()/];
-    import [d.namePackageProject()/].[d.namePackageAnnotation()/].[d.nameClassAnnotationIn()/]; 
+    import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassAnnotationIn()/]; 
     import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/]; 
     import [d.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/]; 
     import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/]; 
@@ -140,14 +140,14 @@
 [/template]
 
 [comment écriture de l'implémentation pour le service de persistance (couche infrastructure)./]
-[template public implementationIn(s : soa::Service, ds : OrderedSet(environment::DTO))]
+[template public inImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageInImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
     import org.springframework.beans.factory.annotation.Autowired;
     import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
-    import [s.namePackageProject()/].[s.namePackageAnnotation()/].[s.nameClassAnnotationIn()/];  
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];  
   
     [for (d | ds)]
       import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];

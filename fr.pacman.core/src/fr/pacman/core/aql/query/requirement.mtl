@@ -1,0 +1,22 @@
+[module requirement(	'http://www.obeonetwork.org/dsl/requirement/1.0')/]
+
+[import fr::pacman::core::property::project::ProjectProperties/]
+
+[comment retourne la liste des règles de gestion qui ont été modélisées par l'utilisateur./]
+[query public requirements (cs : Sequence(requirement::Category), pMax : Integer) : Sequence(requirement::Requirement) = 
+  if pMax < 0 then cs->collect(o1 | o1.eAllContents(requirement::Requirement)) else if pMax > 1 then 
+  cs->collect(o2 | o2.eContents(requirement::Requirement))->union(cs->collect(o3 | o3.eContents(requirement::Category))
+  ->asSequence()->requirements(pMax - 1)) else cs->collect(o4 | o4.eContents(requirement::Requirement)) endif endif/]
+  
+[comment vérifie et retourne le niveau si un niveau spécifique de catégorie a été demandé par l'utilisateur./]
+[query public baseCategoryLevel(any : ecore::EObject) : Integer = 
+  if (any.get_requirementCategoryBaseLevel() <> null) then any.get_requirementCategoryBaseLevel().toInteger() else 0 endif/]
+
+[comment retourne ./]
+[query public baseCategory(r : requirement::Requirement) : requirement::Category = 
+  if (r = null or r.baseCategoryLevel() = 0) then null else r.ancestors(requirement::Category)->reverse()
+  ->at(r.baseCategoryLevel()) endif/]
+
+[comment vérifie si des règles de gestion ont été définies par l'utilisateur)./]
+[query public isEmpty (r : requirement::Repository) : Boolean = r.mainCategories->asSequence()
+  ->requirements(r.baseCategoryLevel() - 1)->isEmpty()/]

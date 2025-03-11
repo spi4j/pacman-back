@@ -1,6 +1,7 @@
 [module classes(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
 					'http://www.obeonetwork.org/dsl/entity/3.0.0',
-					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+					'http://www.obeonetwork.org/dsl/soa/4.0.0',
+					'http://www.obeonetwork.org/dsl/requirement/1.0')/]
 						
 [import fr::pacman::core::aql::base/]						
 [import fr::pacman::core::aql::name::eobjects/]
@@ -14,6 +15,18 @@
 [comment retourne le nom pour les interfaces des classes de mapping./]
 [comment query public nameClassEntityMapperItf(e : entity::Entity) : String = (e.name() + e.suffixMapper()).apply_classInterface()/]
 
+[comment retourne le nom pour l'implémentation de l'énumération générale des requirements./]
+[query public nameClassRequirementEnumerationImpl (any : ecore::EObject) : String = 'requirements'.apply_classEnum()/]
+
+[comment retourne le nom pour l'implémentation de l'énumération des requirements (pour une catégorie)./]
+[query public nameClassCategoryRequirementEnumerationImpl (c : requirement::Category) : String = ('requirements ' + c.id).apply_classEnum()/]
+
+[comment retourne le nom pour l'interface d'un requirement./]
+[query public nameClassRequirementItf (any : ecore::EObject) : String = 'requirement'.apply_classInterface()/]
+  
+[comment retourne le nom pour l'impémentation de la clase utilitaire de gestion d'un requirement./]
+[query public nameClassRequirementUtilsImpl(any : ecore::EObject) : String = 'requirement utils'.apply_classImplem()/]
+  
 [comment retourne le nom pour l'implémentation d'une classe de service soa (feature)./]  
 [query public nameClassServiceImpl(s : soa::Service) : String = (s.name() + s.suffixService()).apply_classImplem()/]
   
@@ -35,6 +48,9 @@
 [comment retourne le nom d'implémentation d'une classe pour le service crud de persistance./]
 [query public nameClassServiceCrudInImpl(d : environment::DTO) : String = (d.name() +' crud jpa' + d.suffixInterfaceOut()).apply_classImplem()/]  
 
+[comment retourne le nom de l'implémentation pour les règles de gestion associées au service./]
+[query public nameClassServiceRequirementImpl(s : soa::Service) : String = (s.name() + ' requirement').apply_classImplem()/]
+
 [comment retourne le nom pour la classe d'implémentation d'un type spécial pacman./]
 [query public nameClassType(s : String) : String = s.apply_classDefault()/]
 
@@ -46,6 +62,9 @@
   
 [comment retourne le nom pour l'annotation de gestion des transactions./]
 [query public nameClassAnnotationTrans (any : ecore::EObject) : String = any.nameAnnotationTransactionnal().apply_classDefault()/]
+
+[comment retourne le nom de l'annotation pour la gestion des règles de gestion./]  
+[query public nameCassAnnotationRequirement(any : ecore::EObject) : String = any.nameAnnotationRequirement().apply_classDefault()/]
   
 [comment retourne le nom pour l'utilitaire de validation des champs pour les objets métier./]
 [query public nameClassValidatorUtilsImpl (any : ecore::EObject) : String = 'validator utils'.apply_classDefault()/]
@@ -103,6 +122,9 @@
   
 [comment retourne le nom de la classe d'exception dans le cas d'une erreur de validation (champs absent ou invalide)./]
 [query public nameClassValidationExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' validation exception').apply_classDefault()/]
+  
+[comment retourne le nom de la classe d'exception dans le cas d'une erreur concernat les requirements./]
+[query public nameClassRequirementExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' requirement exception').apply_classDefault()/]
 
 [comment retourne le nom de la classe contenant le corps de la reponse pour la gestion globale des erreurs rest./]
 [query public nameClassRsErrorBodyResponseImpl(any : ecore::EObject) : String = (any.get_projectName() + ' error body response').apply_classDefault()/]

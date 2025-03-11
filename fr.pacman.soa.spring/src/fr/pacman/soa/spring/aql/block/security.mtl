@@ -13,7 +13,7 @@
 [import fr::pacman::core::service::RestUtils/]
 
 [comment écriture de l'implémentation pour la configuration de la sécurité des services rest./]						
-[template public implementation(m : soa::System)]
+[template public securityImpl(m : soa::System)]
   [m.classHeader(m.namePackageRsBase())/]
   
   import javax.crypto.spec.SecretKeySpec;

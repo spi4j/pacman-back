@@ -4,11 +4,11 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::method/]
-
-[import fr::pacman::core::property::project::ProjectProperties/]
+[import fr::pacman::core::aql::rule::attribute/]
 
 [comment écriture du fichier de configuration Maven pour le sous-projet métier (domain)./]
 [template public pom (any : ecore::EObject)]
@@ -73,7 +73,7 @@
 
 [comment écriture de l'annotation pour l'injection de service métier./]
 [template public annotationOut(any : ecore::EObject)]
-  [any.classHeader(any.namePackageAnnotation())/]
+  [any.classHeader(any.namePackageCommonBase())/]
   [any.defaultImports()/]
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
@@ -91,7 +91,7 @@
    * être étendue à l'avenir pour ajouter des métadonnées supplémentaires si
    * nécessaire.
    *
-   * @author [any.get_authorName()/]
+   * @author [any.nameAuthor()/]
    */
    @Retention(RetentionPolicy.RUNTIME)
    public @interface [any.nameClassAnnotationOut()/] {
@@ -101,7 +101,7 @@
 
 [comment écriture de l'annotation pour l'injection de service persistance./]
 [template public annotationIn(any : ecore::EObject)]
-  [any.classHeader(any.namePackageAnnotation())/]
+  [any.classHeader(any.namePackageCommonBase())/]
   [any.defaultImports()/]
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
@@ -120,7 +120,7 @@
    * être étendue à l'avenir pour ajouter des métadonnées supplémentaires si
    * nécessaire.
    * 
-   * @author [any.get_authorName()/]
+   * @author [any.nameAuthor()/]
    */
    @Retention(RetentionPolicy.RUNTIME)
    public @interface [any.nameClassAnnotationIn()/] {
@@ -130,7 +130,7 @@
 
 [comment écriture de l'annotation pour l'injection de service persistance./]
 [template public annotationTrans(any : ecore::EObject)]
-  [any.classHeader(any.namePackageAnnotation())/]
+  [any.classHeader(any.namePackageCommonBase())/]
   [any.defaultImports()/]
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
@@ -146,7 +146,7 @@
    * 
    * @see org.springframework.transaction.annotation.Transactional
    * @see [any.nameClassJpaTransactionExecutorImpl()/]
-   *   * @author [any.get_authorName()/]
+   *   * @author [any.nameAuthor()/]
    */
    @Retention(RetentionPolicy.RUNTIME)
    public @interface [any.nameClassAnnotationTrans()/] {
@@ -156,7 +156,7 @@
 
 [comment écriture du valideur pour l'ensemble des objets métiers./]
 [template public validatorUtilsImpl(any : ecore::EObject)]
-  [any.classHeader(any.namePackageCommonUtils())/]
+  [any.classHeader(any.namePackageCommonBase())/]
   [any.defaultImports()/]
   
   /**
@@ -166,7 +166,7 @@
    * <p>
    * Cette classe n'a pas besoin d'être instanciée, car elle contient uniquement des méthodes statiques.</p>
    * 
-   * @author [any.get_authorName()/]
+   * @author [any.nameAuthor()/]
    */
   public class [any.nameClassValidatorUtilsImpl()/]
   {
@@ -214,6 +214,215 @@
           ['invalid fields'.apply_parameterMethodClassicIn()/].add(['field name'.apply_parameterMethodClassicIn()/] 
              + " (" + ['value'.apply_parameterMethodClassicIn()/].length() + " > " + ['max size'.apply_parameterMethodClassicIn()/] + ")");
     	}
+    }
+  }
+[/template]
+
+[comment écriture de l'interface pour un requirement (règle de gestion)./]
+[template public requirementItf(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRequirement())/]
+  [any.defaultImports()/]
+  
+  /**
+   * L'interface {@code [any.nameClassRequirementItf()/]} définit les méthodes nécessaires pour
+   * gérer les informations relatives à une exigence (requirement). Elle permet
+   * de récupérer l'identifiant, le nom, et la version d'implémentation d'une
+   * exigence, ainsi que d'en définir la version d'implémentation.
+   * <p>
+   * Cette interface définit également des constantes utilisées pour indiquer
+   * des statuts d'implémentation.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public interface [any.nameClassRequirementItf()/]
+  {
+     
+     ['Constante indiquant qu\'une exigence n\'est pas implémentée'.commentSingleLine()/]
+     String ['not implemented'.apply_attributeFinalStatic()/] = "notImplemented";
+     
+     ['Constante indiquant qu\'une exigence n\'est pas implémentable'.commentSingleLine()/]
+     String ['not implementable'.apply_attributeFinalStatic()/] = "notImplementable";
+     
+     ['l\'identifiant de l\'exigence'.commentSingleLine()/]
+     String ['id'.apply_methodGet()/]();
+     
+     ['le nom de l\'exigence'.commentSingleLine()/]
+     String ['name'.apply_methodGet()/]();
+     
+     ['Le No de version implémentée (ex : "0.9")'.commentSingleLine()/]
+     String ['version implem'.apply_methodGet()/]();
+     
+     ['Indique qu\'une exigence n\'est pas implémentée'.commentSingleLine()/]
+     void ['version implem'.apply_methodSet()/]();
+     
+     ['Le No de version du modèle (ex : "1.0")'.commentSingleLine()/]
+     void ['version implem'.apply_methodSet()/](final String ['version implem'.apply_parameterMethodClassicIn()/]);
+     
+     ['Le No de version du modèle (ex : "1.0")'.commentSingleLine()/]
+     String ['version model'.apply_methodGet()/]();
+  }
+[/template]
+
+[comment écriture de l'immplémentation pour la classe utilitaire de gestion des requirements./]
+[template public requirementUtilsImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRequirement())/]
+  [any.defaultImports()/]
+  import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassRequirementExceptionImpl()/];
+  
+  /**
+   * Classe utilitaire contenant des méthodes de validation pour les exigences.
+   * Cette classe est conçue pour valider la version d'implémentation d'une exigence, et lance des exceptions
+   * spécifiques si des erreurs sont détectées, telles que des versions déjà définies ou des incohérences entre
+   * la version du modèle et la version implémentée.
+   * <p>
+   * Cette classe est une classe utilitaire qui ne peut pas être instanciée.</p>
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public final class [any.nameClassRequirementUtilsImpl()/]
+  {
+    
+    /**
+     * Constructeur privé pour empêcher l'instanciation de cette classe utilitaire.
+     */
+    private [any.nameClassRequirementUtilsImpl()/] ()
+    {
+      // RAS
+    }
+    
+    /**
+     * Vérifie la version d'implémentation d'une exigence donnée et lance des exceptions
+     * en cas de problèmes de version.
+     * 
+     * <ul>
+     *   <li>Si une version d'implémentation est déjà affectée à l'exigence, une exception est lancée.</li>
+     *   <li>Si la version spécifiée est {@code [any.nameClassRequirementItf()/].['not implemented'.apply_attributeFinalStatic()/]}, une exception est lancée pour indiquer
+     *       que l'exigence n'est pas encore implémentée.</li>
+     *   <li>Si la version spécifiée est {@code [any.nameClassRequirementItf()/].['not implementable'.apply_attributeFinalStatic()/]}, aucune action n'est effectuée, mais la
+     *       situation est enregistrée dans le log.</li>
+     *   <li>Si la version spécifiée ne correspond pas à la version du modèle, une exception est lancée pour indiquer
+     *       une incohérence de version.</li>
+     * </ul>
+     * 
+     * @param ['requirement'.apply_parameterMethodClassicIn()/] L'exigence à vérifier, qui contient les informations sur la version du modèle et de l'implémentation.
+     * @param ['version implem'.apply_parameterMethodClassicIn()/] La version d'implémentation à vérifier.
+     * @throws [any.nameClassRequirementExceptionImpl()/] Si une erreur est détectée lors de la vérification des versions.
+     */
+    public static void ['check requirement version'.apply_methodDefault()/] 
+        (final [any.nameClassRequirementItf()/] ['requirement'.apply_parameterMethodClassicIn()/]
+        , final String ['version implem'.apply_parameterMethodClassicIn()/])
+    {
+       if (['requirement'.apply_parameterMethodClassicIn()/].['version implem'.apply_methodGet()/]() != null)
+       {
+          throw new [any.nameClassRequirementExceptionImpl()/](['requirement'.apply_parameterMethodClassicIn()/], "La version a déjà été affectée",
+             "Vérifier que le ['version implem'.apply_methodSet()/]() n'a été appelé qu'une seule fois pour l'exigence : "
+              + ['requirement'.apply_parameterMethodClassicIn()/].['name'.apply_methodGet()/]());
+       }
+       else if ([any.nameClassRequirementItf()/].['not implemented'.apply_attributeFinalStatic()/].equals(['version implem'.apply_parameterMethodClassicIn()/]))
+       {
+          throw new [any.nameClassRequirementExceptionImpl()/](['requirement'.apply_parameterMethodClassicIn()/], "Exigence pas encore implémentée", "Pour l'exigence "
+              + ['requirement'.apply_parameterMethodClassicIn()/].['name'.apply_methodGet()/]() + ", il faut :\n" + "   - soit faire un appel à : " 
+              + ['requirement'.apply_parameterMethodClassicIn()/] + ".['version implem'.apply_methodSet()/]([any.nameClassRequirementItf()/].['not implementable'.apply_attributeFinalStatic()/])\n"
+              + "   - soit spécifier la version comme suit : " + ['requirement'.apply_parameterMethodClassicIn()/] + ".['version implem'.apply_methodSet()/](\""
+              + ['requirement'.apply_parameterMethodClassicIn()/].['version model'.apply_methodGet()/]() + "\")");
+       }
+       else if ([any.nameClassRequirementItf()/].['not implementable'.apply_attributeFinalStatic()/].equals(['version implem'.apply_parameterMethodClassicIn()/]))
+       {
+         //LoggerFactory.getLogger([any.nameClassRequirementUtilsImpl()/].class).debug("Exigence non implémentable : " + ['requirement'.apply_parameterMethodClassicIn()/]);
+       }
+       else if (['requirement'.apply_parameterMethodClassicIn()/].['version model'.apply_methodGet()/]().equals(['version implem'.apply_parameterMethodClassicIn()/]) == false)
+       {
+          throw new [any.nameClassRequirementExceptionImpl()/](['requirement'.apply_parameterMethodClassicIn()/], "La version du modèle (="
+              + ['requirement'.apply_parameterMethodClassicIn()/].['version model'.apply_methodGet()/]() + ") ne correspond pas à la version implémentée (= "
+              + ['version implem'.apply_parameterMethodClassicIn()/] + ")", "Vérifier l'implémentation de l'exigence : " 
+              + ['requirement'.apply_parameterMethodClassicIn()/].['name'.apply_methodGet()/]());
+       }
+    }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour la classe d'exception concernat les requirements./]
+[template public requirementExceptionImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageCommonException())/]
+  [any.defaultImports()/]
+  import [any.namePackageProject()/].[any.namePackageRequirement()/].[any.nameClassRequirementItf()/];
+  
+  /**
+   * Cette exception est lancée lorsque des problèmes sont rencontrés liés à une exigence spécifique.
+   * Elle permet de fournir un message d'erreur et un message supplémentaire concernant la possibilité de correction.
+   * 
+   * <p>Cette exception hérite de {@link RuntimeException} et permet d'ajouter des détails concernant l'exigence
+   * (de type {@link [any.nameClassRequirementItf()/]}) associée à l'erreur.</p>
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRequirementExceptionImpl()/] extends RuntimeException
+  {
+    ['identifiant de sérialisation'.commentMultiLines()/]
+    private static final long serialVersionUID = 1L;
+    
+    /**
+     * Message par défaut suggérant une vérification du service ou du test de l'exigence.
+     */
+    private static final String ['messageCorrectionPossible'.apply_attributeFinalStatic()/] = "Vérifier l'implémentation du service ou du test de l'exigence";
+    
+    /**
+     * L'exigence liée à cette exception.
+     */
+    private final [any.nameClassRequirementItf()/] ['requirement'.apply_attributeFinal()/];
+    
+    /**
+     * Constructeur par défaut qui initialise l'exception avec une exigence et un message spécifique.
+     * Le message de correction possible est défini par défaut.
+     * 
+     * @param ['requirement'.apply_parameterMethodClassicIn()/] L'exigence liée à cette exception.
+     * @param ['message'.apply_parameterMethodClassicIn()/] Le message d'erreur détaillant le problème.
+     */
+    public [any.nameClassRequirementExceptionImpl()/] (final [any.nameClassRequirementItf()/] ['requirement'.apply_parameterMethodClassicIn()/]
+     , final String ['message'.apply_parameterMethodClassicIn()/])
+    {
+      this(['requirement'.apply_parameterMethodClassicIn()/], ['message'.apply_parameterMethodClassicIn()/]
+       , ['messageCorrectionPossible'.apply_attributeFinalStatic()/]);
+    }
+    
+    /**
+     * Constructeur qui initialise l'exception avec une exigence, un message spécifique et un message pour la correction possible.
+     * 
+     * @param ['requirement'.apply_parameterMethodClassicIn()/] L'exigence liée à cette exception.
+     * @param ['message'.apply_parameterMethodClassicIn()/] Le message d'erreur détaillant le problème.
+     * @param ['messageCorrectionPossible'.apply_parameterMethodClassicIn()/] Le message suggérant une correction possible pour le problème.
+     */
+    public [any.nameClassRequirementExceptionImpl()/] (final [any.nameClassRequirementItf()/] ['requirement'.apply_parameterMethodClassicIn()/]
+     , final String ['message'.apply_parameterMethodClassicIn()/],
+            final String ['messageCorrectionPossible'.apply_parameterMethodClassicIn()/])
+    {
+      //super(['message'.apply_parameterMethodClassicIn()/], ['messageCorrectionPossible'.apply_parameterMethodClassicIn()/]);
+      [any.prefixAffectation()/]['requirement'.apply_attributeFinal()/] = ['requirement'.apply_parameterMethodClassicIn()/];
+    }
+    
+    /**
+     * Constructeur qui initialise l'exception avec une exigence, un message spécifique et un message pour la correction possible.
+     * 
+     * @param ['requirement'.apply_parameterMethodClassicIn()/] L'exigence liée à cette exception.
+     * @param ['message'.apply_parameterMethodClassicIn()/] Le message d'erreur détaillant le problème.
+     * @param ['messageCorrectionPossible'.apply_parameterMethodClassicIn()/] Le message suggérant une correction possible pour le problème.
+     */
+    public [any.nameClassRequirementExceptionImpl()/] (final [any.nameClassRequirementItf()/] ['requirement'.apply_parameterMethodClassicIn()/]
+     , final String ['message'.apply_parameterMethodClassicIn()/], final Throwable ['root cause'.apply_parameterMethodClassicIn()/])
+    {
+      //super(['root cause'.apply_parameterMethodClassicIn()/], ['message'.apply_parameterMethodClassicIn()/]
+      //  , ['messageCorrectionPossible'.apply_attributeFinalStatic()/]);
+      [any.prefixAffectation()/]['requirement'.apply_attributeFinal()/] = ['requirement'.apply_parameterMethodClassicIn()/];
+    }
+    
+    /**
+     * Retourne l'exigence liée à cette exception.
+     * 
+     * @return L'exigence associée à cette exception.
+     */
+    public [any.nameClassRequirementItf()/] getRequirement ()
+    {
+      return ['requirement'.apply_attributeFinal()/];
     }
   }
 [/template]

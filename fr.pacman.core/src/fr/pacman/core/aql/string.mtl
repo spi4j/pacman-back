@@ -20,6 +20,9 @@
 [comment retourne la ligne expurgée des caractères spéciaux interdits./]
 [query public sanitizeSql(str : String) : String = str.sanitize().replaceAll(' ','')/]
 
+[comment retourne l'énumération de requirement expurgée des caractères spéciaux interdits../]  
+[query public sanitizeReqID(s : String) : String = if not (s = null) then s.replaceAll('-', '_') else 'ID_INVALID' endif/]
+
 [comment retourne la ligne avec suppression des caractères spéciaux et remplacement par leurs équivalents./]
 [query public normalize(str : String) : String = str.do_normalize()/]
 

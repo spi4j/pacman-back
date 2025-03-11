@@ -23,7 +23,7 @@
 [import fr::pacman::core::property::project::ProjectProperties/]	
 
 [comment écriture du corps pour la classe d'implémentation d'une entité./]
-[template public implementation (e : entity::Entity)]
+[template public entityImpl (e : entity::Entity)]
   [e.classHeader(e.namePackageEntityImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -247,7 +247,7 @@
 [/template]
 
 [comment écriture de l'interface pour une entité (au sens Spring)./]
-[template public interfacePersist (e : entity::Entity)]
+[template public persistItf (e : entity::Entity)]
   [e.classHeader(e.namePackageEntityPersistItf())/]
   [e.defaultImports()/]
   import org.springframework.data.jpa.repository.JpaRepository;

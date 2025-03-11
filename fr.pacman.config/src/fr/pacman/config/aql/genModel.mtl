@@ -4,7 +4,7 @@
 
 [comment @main/]
 [comment écriture de l'ensemble de la configuration de base pour le projet de modélisation./]
-[template public genRootConfig(r : overview::Root)]
+[template public genModelConfig(r : overview::Root)]
   [r.filePom()/]
   [r.fileReadMe()/]
 [/template]

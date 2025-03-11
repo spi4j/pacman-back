@@ -1,12 +1,13 @@
 [module server(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
+[import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::rule::parameter/]
 
-[import fr::pacman::core::property::project::ProjectProperties/]
+
 
 [comment écriture de l'implémentation pour une exception levée au niveau des mappers./]
 [template public mapperExceptionImpl (any : ecore::EObject)]
@@ -14,14 +15,14 @@
   [any.defaultImports()/]
   
   /**
-   * Exception personnalisée pour le mappage dans l'application [any.get_projectName()/].
+   * Exception personnalisée pour le mappage dans l'application [any.nameProject()/].
    * <p>
    * Cette exception est une extension de {@link RuntimeException} et est utilisée pour signaler des erreurs spécifiques
-   * liées au processus de mappage des données dans l'application [any.get_projectName()/].
+   * liées au processus de mappage des données dans l'application [any.nameProject()/].
    * </p>
    * Cette classe prend un message d'erreur en paramètre lors de la création de l'exception.
    * 
-   * @author [any.get_authorName()/]
+   * @author [any.nameAuthor()/]
    */
   public class [any.nameClassMapperExceptionImpl()/] extends RuntimeException 
   {
@@ -56,14 +57,14 @@
   [any.defaultImports()/]
   
   /**
-   * Exception personnalisée pour indiquer qu'une fonctionnalité n'est pas encore implémentée dans l'application [any.get_projectName()/].
+   * Exception personnalisée pour indiquer qu'une fonctionnalité n'est pas encore implémentée dans l'application [any.nameProject()/].
    * <p>
    * Cette exception est une extension de {@link RuntimeException} et est utilisée pour signaler des tentatives d'utilisation
    * de fonctionnalités qui n'ont pas encore été développées ou qui ne sont pas supportées.
    * </p>
    * Cette classe prend un message d'erreur en paramètre lors de la création de l'exception.
    *
-   * @author [any.get_authorName()/]
+   * @author [any.nameAuthor()/]
    */
   public class [any.nameClassNotImplementedExceptionImpl()/] extends RuntimeException 
   {
