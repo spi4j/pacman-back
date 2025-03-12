@@ -9,8 +9,6 @@
 [comment écriture de l'ensemble de la configuration de base pour le projet d'exposition (Spring)./]
 [template public genWebappConfig(r : overview::Root)]
   [r.super:genWebappConfig()/]
-  [r.fileApplicationBootstrap()/]
-  [r.filePom()/]
 [/template]
 
 

@@ -16,7 +16,9 @@
   [s.classHeader(s.namePackageOutStubImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
-    [s.nameProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationStubOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationStubOut()/];
+    import [s.namePackageProject()/].[s.namePackageOutStubImpl()/].[s.nameClassServiceOutStubImpl()/];
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
     
   [/protected]
   
@@ -47,7 +49,8 @@
         
         [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           
-        [if (o.hasOutput())] return null; [/if]
+          throw new [s.nameClassNotImplementedExceptionImpl()/]
+             ("Le test n'a pas été implémenté pour le stub : [s.nameClassServiceImpl()/]");
           
         [/protected]
       }

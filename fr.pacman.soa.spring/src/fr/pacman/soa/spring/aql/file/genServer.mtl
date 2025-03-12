@@ -7,6 +7,7 @@
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::soa::spring::aql::block::service/]
 [import fr::pacman::soa::spring::aql::block::security/]
+[import fr::pacman::soa::spring::aql::block::test/]
 
 [comment écriture du fichier d'implémentation pour le service utilisateur (application)./]
 [template public fileServiceImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
@@ -33,6 +34,13 @@
 [template public fileRsSecurityConfigImpl(m : soa::System)]
   [file (m.nameClassRsSecurityConfigImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
     [m.securityImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation les tests d'intégration pour un service./]
+[template public fileServiceTestImpl(s : soa::Service)]
+  [file (s.nameClassServiceTestImpl().toFileTest(s.namePackageServiceImpl()), overwrite, s.defaultFileEncoding())]
+    [s.serviceIntegrationTestImpl()/]
   [/file]
 [/template]
 

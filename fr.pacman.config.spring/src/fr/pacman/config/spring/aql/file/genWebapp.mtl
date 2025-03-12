@@ -12,10 +12,3 @@
     [any.pom()/]
   [/file]
 [/template]
-
-[comment écriture du fichier d'implémentation pour le bootstrap de l'application./]
-[template public fileApplicationBootstrap(any : ecore::EObject)]
-  [file (any.nameClassAppBoostrap().toFileJava(null), overwrite, any.defaultFileEncoding())]
-    [any.applicationBoostrapImpl()/]
-  [/file]
-[/template]

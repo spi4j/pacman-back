@@ -223,9 +223,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			generator.setModelFile(file);
 			generator.generate(monitor);
 
-			generator = new GenWebapp();
-			generator.setModelFile(file);
-			generator.generate(monitor);
+			//generator = new GenWebapp();
+			//generator.setModelFile(file);
+			//generator.generate(monitor);
 
 			generator = new GenRoot();
 			generator.setModelFile(file);

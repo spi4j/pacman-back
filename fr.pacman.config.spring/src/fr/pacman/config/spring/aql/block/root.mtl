@@ -31,7 +31,6 @@
       <module>[any.nameProjectCommon()/]</module>
       <module>[any.nameProjectServer()/]</module>
       <module>[any.nameProjectModel()/]</module>
-      <module>[any.nameProjectWebapp()/]</module>
     </modules>
     
     <!-- Repository specifique pour les pilotes Oracle. -->
@@ -99,6 +98,12 @@
             <version>[any.versionSpringBoot()/]</version>
             <scope>runtime</scope>
             <optional>true</optional>
+          </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>[any.versionSpringBoot()/]</version>
+            <scope>test</scope>
           </dependency>
           [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
             <dependency>

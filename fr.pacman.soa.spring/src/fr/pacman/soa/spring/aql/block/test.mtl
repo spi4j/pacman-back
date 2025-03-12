@@ -5,15 +5,18 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::resources/]
+[import fr::pacman::core::aql::query::service/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::method/]
 
 [comment écriture de l'implémentation du résolveur de paramètres pour les tests junit (domain + infra)./]
 [template public serviceOutResolverImpl(s : soa::Service)] 
-  [s.classHeader(s.namePackageServiceImpl())/]
+  [s.classHeader(s.namePackageCommonResolver())/]
   
   import org.junit.jupiter.api.extension.ExtensionContext;
   import org.junit.jupiter.api.extension.ParameterContext;
@@ -21,19 +24,23 @@
   import org.junit.jupiter.api.extension.ParameterResolver;
   import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
   import [s.namePackageProject()/].[s.namePackageOutStubImpl()/].[s.nameClassServiceOutStubImpl()/];
+  import [s.namePackageProject()/].[s.namePackageServiceImpl()/].[s.nameClassServiceImpl()/];
   
  /**
   * Cette classe implémente l'interface {@link ParameterResolver} et sert à
   * résoudre les paramètres dans le contexte d'un test, en fournissant une
-  * instance de {@link GestionPersonneServiceImpl}. Elle est utilisée pour
-  * injecter une instance de {@link GestionPersonneServiceImpl} dans les tests de
+  * instance de {@link [s.nameClassServiceImpl()/]}. Elle est utilisée pour
+  * injecter une instance de {@link [s.nameClassServiceImpl()/]} dans les tests de
   * manière automatique.
   * 
   * La méthode {@link #supportsParameter(ParameterContext, ExtensionContext)}
   * vérifie si le paramètre peut être résolu par ce résolveur, et la méthode
   * {@link #resolveParameter(ParameterContext, ExtensionContext)} résout le
-  * paramètre en créant une instance de {@link GestionPersonneServiceImpl}.
-  * 
+  * paramètre en créant une instance de {@link [s.nameClassServiceImpl()/]}.
+  * <p>
+  * Le resolveur permet d'injecter automatiquement le stub (au lieu de la couche
+  * de persistance) dans l'instance de {@link [s.nameClassServiceImpl()/]}.
+  * <p>
   * Cette classe est typiquement utilisée dans le cadre des tests unitaires avec
   * JUnit 5 et l'extension de test JUnit Jupiter.
   *
@@ -44,7 +51,7 @@
   * @see [s.nameClassServiceOutItf()/]
   * @see [s.nameClassServiceOutStubImpl()/]
   */
-  class [s.nameClassServiceOutResolverImpl()/] implements ParameterResolver 
+  public class [s.nameClassServiceOutResolverImpl()/] implements ParameterResolver 
   {
   
     /**
@@ -92,6 +99,7 @@
     import org.junit.jupiter.api.Test;
     import static org.junit.jupiter.api.Assertions.*;
     import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
+    import [s.namePackageProject()/].[s.namePackageCommonResolver()/].[s.nameClassServiceOutResolverImpl()/];
     
   [/protected]
   
@@ -111,11 +119,12 @@
   
     [for (o | s.ownedInterface.ownedOperations)]
       @Test
-      public void [o.name().apply_methodDefault()/](final [s.nameClassServiceImpl()/] [s.name().apply_parameterMethodClassicIn()/]){
+      public void [o.name().apply_methodDefault()/](final [s.nameClassServiceImpl()/] [s.name().apply_parameterMethodClassicIn()/])
+      {
         
         [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           
-          throw new SafranNotImplementedException
+          throw new [s.nameClassNotImplementedExceptionImpl()/]
             ("Le test n'a pas été implémenté pour le service : [s.nameClassServiceImpl()/]");
           
         [/protected]
@@ -124,5 +133,115 @@
     
     [protected (s.nameClassServiceTestImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     [/protected]
+  }
+[/template]
+
+[comment écriture de l'implémentation pour les tests de l'infrastructure./]
+[template public serviceIntegrationTestImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageServiceImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    import org.junit.jupiter.api.Test;
+    import org.junit.jupiter.api.extension.ExtendWith;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+    import org.springframework.boot.test.context.SpringBootTest; 
+    import org.springframework.boot.test.context.TestConfiguration;
+    import org.springframework.context.annotation.ComponentScan;
+    import org.springframework.context.annotation.FilterType;
+    import org.springframework.test.context.TestPropertySource;
+    import org.springframework.test.context.junit.jupiter.SpringExtension;
+    import org.springframework.test.web.servlet.MockMvc;
+    import org.springframework.http.MediaType;
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationStubOut()/];
+    import [s.namePackageProject()/].[s.namePackageOutStubImpl()/].[s.nameClassServiceOutStubImpl()/];
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
+    [for (d | s.associatedDtos())]
+      import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
+    [/for]
+    
+  [/protected]
+  
+  /**
+   * Test d'intégration pour la classe {@link [s.nameClassServiceTestImpl()/]}.
+   * 
+   * Cette classe est utilisée pour tester les fonctionnalités de la gestion des personnes
+   * via les tests d'intégration avec un environnement Spring Boot simulé. Elle utilise
+   * des annotations Spring comme {@link SpringBootTest}, {@link TestPropertySource}, et
+   * {@link AutoConfigureMockMvc} pour configurer un environnement de test spécifique.
+   * <p>
+   * Il est à noter que le fichier de propriétés chargé avec
+   * {@link @TestPropertySource} remplacera le fichier application.properties
+   * existant, il contient les détails pour configurer le stockage de persistance.
+   *
+   * @author [s.nameAuthor()/]
+   */
+  [protected ((s.nameClassServiceTestImpl() + 'anno').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
+  @AutoConfigureMockMvc
+  @ExtendWith(SpringExtension.class)
+  @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+  @TestPropertySource(locations = "classpath:[s.nameApplicationIntegrationResources()/].properties")
+  public class [s.nameClassServiceTestImpl()/]
+  {
+     
+    /**
+     * Instance de {@link MockMvc} pour effectuer des requêtes HTTP simulées dans les tests.
+     */
+     @Autowired
+     private MockMvc mvc;
+     
+    /**
+     * Instance de {@link [s.nameClassServiceOutItf()/]} qui est utilisée pour gérer 
+     * les opérations de persistance au niveau des tests.
+     */
+     @Autowired
+     private [s.nameClassServiceOutItf()/] ['provider'.apply_attributeDefault()/];
+     
+     [for (o | s.ownedInterface.ownedOperations)]
+       @Test
+       public void [o.name().apply_methodDefault()/]() throws Exception
+       {
+       
+          [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            
+            throw new [s.nameClassNotImplementedExceptionImpl()/]
+               ("Le test n'a pas été implémenté pour le service : [s.nameClassServiceImpl()/]");
+              
+          [/protected]
+       }
+       
+     [/for]
+     
+     [protected (s.nameClassServiceTestImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       
+     [/protected]
+     
+    /**
+     * Configuration des composants spécifiques pour les tests d'intégration.
+     * 
+     * Cette configuration permet de scanner des classes spécifiques et d'inclure ou exclure
+     * certains beans dans le contexte Spring utilisé pour les tests.
+     * 
+     * Les classes annotées avec {@link TestConfiguration} sont exclues de l'analyse
+     * des composants. Les services annotés avec {@link [s.nameClassAnnotationIn()/]} 
+     * et {@link [s.nameClassAnnotationStubOut()/]} sont inclus.
+     *
+     */
+     [protected ((s.nameClassServiceTestImpl() + 'config').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       
+       @TestConfiguration
+       @ComponentScan(
+             basePackages = { "[s.namePackageProject()/]" },
+             includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION
+              , classes = {[s.nameClassAnnotationIn()/].class, [s.nameClassAnnotationStubOut()/].class})},
+             excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE
+              , classes = {[s.nameClassServiceOutStubImpl()/].class})})
+       static class StubConfiguration {
+       }
+       
+     [/protected]
   }
 [/template]

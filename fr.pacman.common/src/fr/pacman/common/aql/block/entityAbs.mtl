@@ -18,7 +18,8 @@
 
 [comment écriture de la classe abstraite pour champs automatiques pour la base de données./]
 [template public autoAttributesImpl (any : ecore::EObject, target : String)]
-  [any.classHeader(if (any.commandEntity().equalsIgnoreCase(target)) then any.namePackageInfrastructureBase() else any.namePackageCommonBase() endif)/]
+  [any.classHeader(if (any.commandEntity().equalsIgnoreCase(target)) then any.namePackageInfrastructureBase() 
+    else any.namePackageCommonEntityBase() endif)/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [any.defaultsImports()/]

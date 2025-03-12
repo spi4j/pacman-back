@@ -15,6 +15,13 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation pour le bootstrap de l'application./]
+[template public fileApplicationBootstrap(any : ecore::EObject)]
+  [file (any.nameClassAppBoostrap().toFileJava(null), overwrite, any.defaultFileEncoding())]
+    [any.applicationBoostrapImpl()/]
+  [/file]
+[/template]
+
 [comment écriture de la classe pour la gestion globale des exceptions rest./]
 [template public fileRsExceptionHandlerImpl(any : ecore::EObject)]
   [file (any.nameClassRsExceptionHandlerImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
@@ -47,6 +54,13 @@
 [template public fileApplicationProperties(any : ecore::EObject)]
   [file (any.nameApplicationResources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')]
     [any.applicationProperties()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de propriété pour les datasources dans le cadre des tests d'intégration./]
+[template public fileApplicationIntegrationProperties(any : ecore::EObject)]
+  [file (any.nameApplicationIntegrationResources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')]
+    [any.applicationIntegrationProperties()/]
   [/file]
 [/template]
 

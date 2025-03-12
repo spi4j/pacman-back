@@ -29,6 +29,12 @@
 
 [comment retourne le package pour la racine du projet domain./]
 [query public namePackageCommonBase(any : ecore::EObject) : String = any.get_suffixCommon()/]
+
+[comment retourne le package pour la racine des dto dans le projet domain./]
+[query public namePackageCommonEntityBase(any : ecore::EObject) : String = any.get_suffixCommon() + '.entities'/]
+ 
+[comment retourn le package pour l'ensemble des resolveurs de paramètres dans le cadre des tests métier (domain + infra)./]
+[query public namePackageCommonResolver(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService().trim() + 's.resolvers.' + s.nameComponent()/]
   
 [comment retourne le package pour les exceptions métier du domain/]
 [query public namePackageCommonException(any : ecore::EObject) : String = any.get_suffixCommon() + '.a.exceptions'/]

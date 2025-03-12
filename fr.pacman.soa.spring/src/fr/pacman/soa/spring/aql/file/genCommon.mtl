@@ -9,7 +9,7 @@
 
 [comment écriture du fichier d'implémentation pour le resolver junit (domain + infra)./]
 [template public fileServiceOutResolverImpl(s : soa::Service)]
-  [file (s.nameClassServiceOutResolverImpl().toFileTest(s.namePackageServiceImpl()), overwrite, s.defaultFileEncoding())]
+  [file (s.nameClassServiceOutResolverImpl().toFileTest(s.namePackageCommonResolver()), overwrite, s.defaultFileEncoding())]
     [s.serviceOutResolverImpl()/]
   [/file]
 [/template]

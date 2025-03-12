@@ -7,6 +7,9 @@
 
 [comment le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
 [query public nameApplicationResources(any : ecore::EObject) : String = 'application'/]
+  
+[comment le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
+[query public nameApplicationIntegrationResources(any : ecore::EObject) : String = 'application-integration'/]
 
 
 

@@ -278,9 +278,10 @@
 [comment écriture de l'annotation @Table pour l'entité./]
 [query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) 
   then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif + ')' + e.lineSeparator() + '@SequenceGenerator(name = "' + (e.name() 
-  + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() + '")' + if (e.hasXtopSup()) 
-  then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + e.nameTable().toUpper() + ' SET ' + e.keyXtopSup() + ' = true WHERE ' 
-  + e.namePrimaryKey().toUpper() + ' = ?")' + e.lineSeparator() + '@SQLRestriction("' + e.keyXtopSup() + ' = false")' else '' endif/]
+  + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() + ',allocationSize=1")' 
+  + if (e.hasXtopSup()) then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + e.nameTable().toUpper() + ' SET ' + e.keyXtopSup() 
+  + ' = true WHERE ' + e.namePrimaryKey().toUpper() + ' = ?")' + e.lineSeparator() + '@SQLRestriction("' + e.keyXtopSup() 
+  + ' = false")' else '' endif/]
   
 [comment écriture de l'annotation @column pour chaque attribut de l'entité./]
 [query private writeAnnotationColumn(a : environment::Attribute) : String = '@Column(name = "' + a.nameAttribut().toUpper() +'", nullable = ' 

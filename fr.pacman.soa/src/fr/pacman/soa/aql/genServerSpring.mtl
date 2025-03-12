@@ -22,6 +22,8 @@
       [s.fileServiceImpl(ds)/]
       [comment implémentation du service infrastructure (persistance)./]
       [s.fileServiceOutImpl(ds)/]
+      [comment implémentation des tests pour le service infrastructure./]
+      [s.fileServiceTestImpl()/]
     [/let]
   [/for]
   [comment implémentation du service crud infrastructure (persistance)./]
