@@ -1,18 +1,28 @@
 [module test(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0', 
 				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::name::resources/]
+[import fr::pacman::core::aql::name::databases/]
 [import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::query::database/]
+[import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::method/]
+
+[import fr::pacman::core::service::DatabaseUtils/]
 
 [comment écriture de l'implémentation du résolveur de paramètres pour les tests junit (domain + infra)./]
 [template public serviceOutResolverImpl(s : soa::Service)] 
@@ -97,6 +107,7 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     import org.junit.jupiter.api.Test;
+    import org.junit.jupiter.api.extension.ExtendWith;
     import static org.junit.jupiter.api.Assertions.*;
     import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
     import [s.namePackageProject()/].[s.namePackageCommonResolver()/].[s.nameClassServiceOutResolverImpl()/];
@@ -138,7 +149,7 @@
 
 [comment écriture de l'implémentation pour les tests de l'infrastructure./]
 [template public serviceIntegrationTestImpl (s : soa::Service)]
-  [s.classHeader(s.namePackageServiceImpl())/]
+  [s.classHeader(s.namePackageServiceIntegrationImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     import org.junit.jupiter.api.Test;
@@ -146,16 +157,19 @@
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
     import org.springframework.boot.test.context.SpringBootTest; 
+    import org.springframework.test.context.ContextConfiguration;
     import org.springframework.boot.test.context.TestConfiguration;
     import org.springframework.context.annotation.ComponentScan;
     import org.springframework.context.annotation.FilterType;
     import org.springframework.test.context.TestPropertySource;
+    import org.springframework.test.context.jdbc.Sql;
     import org.springframework.test.context.junit.jupiter.SpringExtension;
     import org.springframework.test.web.servlet.MockMvc;
     import org.springframework.http.MediaType;
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationStubOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
     import [s.namePackageProject()/].[s.namePackageOutStubImpl()/].[s.nameClassServiceOutStubImpl()/];
     import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
     [for (d | s.associatedDtos())]
@@ -180,6 +194,7 @@
    */
   [protected ((s.nameClassServiceTestImpl() + 'anno').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
   [/protected]
+  @Sql("/[s.nameScriptInit(s.defaultSqlDatabaseType())/].sql")
   @AutoConfigureMockMvc
   @ExtendWith(SpringExtension.class)
   @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -236,7 +251,8 @@
        @ComponentScan(
              basePackages = { "[s.namePackageProject()/]" },
              includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION
-              , classes = {[s.nameClassAnnotationIn()/].class, [s.nameClassAnnotationStubOut()/].class})},
+              , classes = {[s.nameClassAnnotationIn()/].class, [s.nameClassAnnotationStubOut()/].class
+              , [s.nameClassAnnotationOut()/].class})},
              excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE
               , classes = {[s.nameClassServiceOutStubImpl()/].class})})
        static class StubConfiguration {

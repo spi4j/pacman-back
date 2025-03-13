@@ -13,6 +13,7 @@
 [template public genCommonConfig(r : overview::Root)]
   [r.super:genCommonConfig()/]
   [r.fileAnnotationStubOut()/]
+  [r.fileAnnotationOut()/]
   [r.fileAnnotationIn()/]
   [r.fileAnnotationTrans()/]
   [r.fileValidatorUtilsImpl()/]

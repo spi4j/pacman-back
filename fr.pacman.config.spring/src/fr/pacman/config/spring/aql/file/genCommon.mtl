@@ -21,9 +21,16 @@
 [/template]
 
 [comment écriture de la classe d'annotation pour l'injection du sercice infra./]
+[template public fileAnnotationOut(any : ecore::EObject)]
+  [file (any.nameClassAnnotationOut().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
+    [any.annotationOut()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe d'annotation pour l'injection du sercice infra (stub pour les tests)./]
 [template public fileAnnotationStubOut(any : ecore::EObject)]
   [file (any.nameClassAnnotationStubOut().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
-    [any.annotationOut()/]
+    [any.annotationStubOut()/]
   [/file]
 [/template]
 

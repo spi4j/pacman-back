@@ -93,14 +93,14 @@
     
     [d.defaultImports()/]
     import [d.namePackageProject()/].[d.namePackageCrudOutItf()/].[d.nameClassServiceCrudOutItf()/];
-    import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassAnnotationIn()/]; 
+    import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassAnnotationOut()/]; 
     import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/]; 
     import [d.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/]; 
     import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/]; 
     
   [/protected]
   
-  @[d.nameClassAnnotationStubOut()/]
+  @[d.nameClassAnnotationOut()/]
   public class [d.nameClassServiceCrudOutImpl()/] implements [d.nameClassServiceCrudOutItf()/]
   {
   
@@ -147,7 +147,7 @@
     [s.defaultImports()/]
     import org.springframework.stereotype.Component;
     import org.springframework.beans.factory.annotation.Autowired;
-    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationStubOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
     import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/]  
   
     [for (d | ds)]
@@ -161,7 +161,7 @@
   [/protected]
   
   [s.commentInterface()/]
-  @Component
+  @[s.nameClassAnnotationOut()/]
   public class [s.nameClassServiceOutImpl()/] implements [s.nameClassServiceOutItf()/]
   {
       

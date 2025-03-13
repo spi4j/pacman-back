@@ -3,13 +3,13 @@
 [import fr::pacman::core::aql::base/]	
 [import fr::pacman::core::aql::string/]	
 [import fr::pacman::core::aql::query::database/]
+[import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::sql::aql::script::schemas/]
 [import fr::pacman::sql::aql::script::sequences/]	
 [import fr::pacman::sql::aql::script::tables/]
 [import fr::pacman::sql::aql::script::constraints/]
 [import fr::pacman::sql::aql::script::headers/]
 [import fr::pacman::sql::aql::script::initialization/]
-
 [import fr::pacman::core::service::DateUtils/]
 
 [comment script de création des tables pour la base de données de type 'dbType'/]
@@ -42,17 +42,17 @@
 
 [comment script d'initialisation pour la base de données de test (de type H2)./]
 [template public initSqlData(r : entity::Root, dbType : String) post(self.escapeFile())]
-  [r.resetCounters()/]
+  [comment r.resetCounters()/]
   [r.scriptsHeader(dbType)/]
   [r.initCommentHeader()/]
-  [r.dropConstraints()/]
+  [comment r.dropConstraints()/]
   [r.insertsHeader()/]
   [r.initDatabase(dbType)/]
   [r.ensureBlankLine()/]
   /*
-   Start of user code init data
+   [protected ('init data'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')] 
    */   [r.ensureBlankLine()/]
    /*
-   End of user code
+   [/protected]
    */ 
 [/template]

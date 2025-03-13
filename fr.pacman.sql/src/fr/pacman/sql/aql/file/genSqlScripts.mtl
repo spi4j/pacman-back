@@ -23,7 +23,7 @@
 
 [comment écriture du script d'initialisation pour la base de données H2./]
 [template public genSqlInitScript(r : entity::Root, dbType : String)]			
-  [file (r.nameScriptInit(dbType).toFileSql(r.dirSqlScripts()), overwrite, r.defaultFileEncoding())]
+  [file (r.nameScriptInit(dbType).toFileSqlT(), overwrite, r.defaultFileEncoding())]
     [r.initSqlData(dbType)/]
   [/file]
 [/template]

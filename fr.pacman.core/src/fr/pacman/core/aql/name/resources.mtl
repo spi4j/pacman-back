@@ -1,7 +1,8 @@
 [module resources(	'http://www.obeonetwork.org/dsl/environment/3.0.0',
-					'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::eobjects/]
 
 [comment retourne les noms de toutes les ressources (fichiers) autres que classes java, packages, etc.../]
 
@@ -9,7 +10,10 @@
 [query public nameApplicationResources(any : ecore::EObject) : String = 'application'/]
   
 [comment le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
-[query public nameApplicationIntegrationResources(any : ecore::EObject) : String = 'application-integration'/]
+[query public nameApplicationIntegrationResources(any : ecore::EObject) : String = 'tests'/]
+  
+[comment le nom du fichier script sql pour l'initialisation d'un service pour les tests d'intégration (spring)./]
+[query public nameSqlInitIntegration(s : soa::Service) : String = 'service_' + s.name().toLower()/]
 
 
 

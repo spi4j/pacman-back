@@ -64,10 +64,12 @@
 [query public nameClassType(s : String) : String = s.apply_classDefault()/]
 
 [comment retourne le nom pour l'annotation d'injection des services métier./]
-[query public nameClassAnnotationIn (any : ecore::EObject) : String = any.nameAnnotationDomainService().apply_classDefault()/]
+[query public nameClassAnnotationIn (any : ecore::EObject) : String = any.nameAnnotationIn().apply_classDefault()/]
   
-[comment retourne le nom pour l'annotation stub d'injection des services métier./]
-[query public nameClassAnnotationStubOut (any : ecore::EObject) : String = any.nameAnnotationStub().apply_classDefault()/]
+[comment retourne le nom pour l'annotation stub d'injection des services infra./][query public nameClassAnnotationOut (any : ecore::EObject) : String = any.nameAnnotationOut().apply_classDefault()/]
+  
+[comment retourne le nom pour l'annotation stub d'injection des services infra (pour les tests)./]
+[query public nameClassAnnotationStubOut (any : ecore::EObject) : String = any.nameAnnotationOutStub().apply_classDefault()/]
   
 [comment retourne le nom pour l'annotation de gestion des transactions./]
 [query public nameClassAnnotationTrans (any : ecore::EObject) : String = any.nameAnnotationTransactionnal().apply_classDefault()/]

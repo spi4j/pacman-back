@@ -59,7 +59,7 @@
 
 [comment écriture du fichier de propriété pour les datasources dans le cadre des tests d'intégration./]
 [template public fileApplicationIntegrationProperties(any : ecore::EObject)]
-  [file (any.nameApplicationIntegrationResources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')]
+  [file (any.nameApplicationIntegrationResources().toFile(any.namePackageTestResources(), '.properties'), overwrite, 'ISO-8859-1')]
     [any.applicationIntegrationProperties()/]
   [/file]
 [/template]

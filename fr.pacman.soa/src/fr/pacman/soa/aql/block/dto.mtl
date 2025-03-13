@@ -25,7 +25,7 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
-    import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassEntityAbs()/];
+    import [d.namePackageProject()/].[d.namePackageCommonEntityBase()/].[d.nameClassEntityAbs()/];
     import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassValidatorUtilsImpl()/];
     import [d.namePackageProject()/].[d.namePackageCommonException()/].[d.nameClassValidationExceptionImpl()/];
     

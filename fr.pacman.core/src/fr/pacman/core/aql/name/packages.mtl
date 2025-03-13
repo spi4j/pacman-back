@@ -60,6 +60,9 @@
 [comment retourne le package pour l'implémentation d'un service soa./]
 [query public namePackageServiceImpl(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService().trim() + 's.' + s.nameComponent()/]
   
+[comment retourne le package pour l'implémentation d'un service soa (tests d'intégration)./]
+[query public namePackageServiceIntegrationImpl(s : soa::Service) : String = s.get_suffixServer() + '.' + s.suffixService().trim() + 's.' + s.nameComponent()/]
+  
 [comment retourne le package pour l'implémentation d'un contrôleur soa./]
 [query public namePackageControllerImpl(s : soa::Service) : String = 'app.adapters.controllers.' + s.nameComponent()/]
   
@@ -98,6 +101,9 @@
   
 [comment retourne le package pour les stockage des fichiers de ressources./]
 [query public namePackageResources(any : ecore::EObject) : String = any.dirResources()/]
+  
+[comment retourne le package pour les stockage des fichiers de ressources (partie tests)./]
+[query public namePackageTestResources(any : ecore::EObject) : String = any.dirTestResources()/]
 
 [comment la packahe des requirements, spécifiques pour une catégorie./]  
 [query public namePackageRequirementCategory(c : requirement::Category) : String = if (c.parentCategory = null) 

@@ -4,6 +4,7 @@
 [import fr::pacman::core::aql::base/]	
 [import fr::pacman::core::aql::name::classes/]	
 [import fr::pacman::core::aql::name::packages/]	
+[import fr::pacman::core::aql::name::resources/]	
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::soa::spring::aql::block::service/]
 [import fr::pacman::soa::spring::aql::block::security/]
@@ -38,10 +39,8 @@
 [/template]
 
 [comment écriture du fichier d'implémentation les tests d'intégration pour un service./]
-[template public fileServiceTestImpl(s : soa::Service)]
-  [file (s.nameClassServiceTestImpl().toFileTest(s.namePackageServiceImpl()), overwrite, s.defaultFileEncoding())]
+[template public fileServiceIntegrationImpl(s : soa::Service)]
+  [file (s.nameClassServiceTestImpl().toFileJavaT(s.namePackageServiceIntegrationImpl()), overwrite, s.defaultFileEncoding())]
     [s.serviceIntegrationTestImpl()/]
   [/file]
 [/template]
-
-

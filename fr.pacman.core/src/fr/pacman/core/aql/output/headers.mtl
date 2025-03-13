@@ -33,7 +33,7 @@
   import java.util.LinkedHashMap;
   import java.util.Map;
   import [any.namePackageProject()/].[any.namePackageException()/].[any.nameClassMapperExceptionImpl()/];
-  import [any.namePackageProject()/].[any.namePackageException()/].[any.nameClassNotImplementedExceptionImpl()/];
+  import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassNotImplementedExceptionImpl()/];
   import [any.namePackageProject()/].[any.namePackageType()/].[any.nameTypeBinary().nameClassType()/];
 [/template]
 

@@ -25,10 +25,10 @@
 [query public autoAttributes(any : ecore::EObject) : Sequence(String) = any.get_SQLAutoFields().trim().tokenize(',')/]
 	
 [comment vérifie l'existance d'un champ supplémentaire de type xtopsup./]
-[query public hasXtopSup(any : ecore::EObject) : Boolean = any.autoAttributes()->collect(o | o.contains(any.keyXtopSup())) <> false/]
+[query public hasXtopSup(any : ecore::EObject) : Boolean = not any.autoAttributes()->collect(o | o.contains(any.keyXtopSup()))->isEmpty()/]
 
 [comment vérifie l'existance d'un champ supplémentaire de type xdmaj./]
-[query public hasXdMaj(any : ecore::EObject) : Boolean = any.autoAttributes()->collect(o | o.contains(any.keyXdMaj())) <> false/]
+[query public hasXdMaj(any : ecore::EObject) : Boolean = not any.autoAttributes()->collect(o | o.contains(any.keyXdMaj()))->isEmpty()/]
 
 [comment vérifie l'existance de champ(s) supplémentaire(s) de type xtopsup ou xdmaj./]
 [query public hasXtoSupOrXdMaj(any : ecore::EObject) : Boolean = any.hasXtopSup() or any.hasXdMaj()/]

@@ -278,7 +278,7 @@
 [comment écriture de l'annotation @Table pour l'entité./]
 [query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) 
   then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif + ')' + e.lineSeparator() + '@SequenceGenerator(name = "' + (e.name() 
-  + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() + ',allocationSize=1")' 
+  + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() + '", allocationSize = 1)' 
   + if (e.hasXtopSup()) then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + e.nameTable().toUpper() + ' SET ' + e.keyXtopSup() 
   + ' = true WHERE ' + e.namePrimaryKey().toUpper() + ' = ?")' + e.lineSeparator() + '@SQLRestriction("' + e.keyXtopSup() 
   + ' = false")' else '' endif/]
@@ -301,8 +301,8 @@
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (n-n jt)./]
 [query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() 
   +  r.lineSeparator() else '' endif + '@ManyToMany(fetch = FetchType.'+ if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
-  + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '", ' 
-  + if (e.get_SQLTableSchema().exists()) then 'schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' 
+  + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '"' 
+  + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' 
   + e.namePrimaryKey().toUpper() + '"), inverseJoinColumns = ' + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
   + if (r.isStarRecursive()) then e.suffixSqlPrimaryKeyJoinRecursive() else '' endif + '"))'/]
  

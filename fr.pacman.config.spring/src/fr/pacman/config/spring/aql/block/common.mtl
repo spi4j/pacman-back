@@ -107,11 +107,10 @@
 [template public annotationOut(any : ecore::EObject)]
   [any.classHeader(any.namePackageCommonBase())/]
   
-  [any.defaultImports()/]
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
 
-  /**
+    /**
    * Annotation personnalisée pour marquer les adaptateurs de service dans
    * l'application.
    * <p>
@@ -120,10 +119,31 @@
    * utilisés pour intégrer des services externes ou des composants spécifiques à
    * l'architecture de l'application tout en offrant une interface uniforme. Elle
    * est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
-   * </p>
-   * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut
-   * être étendue à l'avenir pour ajouter des métadonnées supplémentaires si
-   * nécessaire.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+   @Retention(RetentionPolicy.RUNTIME)
+   public @interface [any.nameClassAnnotationOut()/] {
+     //RAS.
+   }
+[/template]
+
+[comment écriture de l'annotation pour l'injection de service persistance (stub)./]
+[template public annotationStubOut(any : ecore::EObject)]
+  [any.classHeader(any.namePackageCommonBase())/]
+  
+  import java.lang.annotation.Retention;
+  import java.lang.annotation.RetentionPolicy;
+
+  /**
+   * Annotation personnalisée pour marquer les adaptateurs de service dans
+   * l'application dans le cadre des tests du domaine ou de l'infrastructure'.
+   * <p>
+   * Cette annotation est utilisée pour identifier les classes qui servent
+   * d'adaptateurs pour les services. Les adaptateurs de service sont généralement
+   * utilisés pour intégrer des services externes ou des composants spécifiques à
+   * l'architecture de l'application tout en offrant une interface uniforme. Elle
+   * est disponible à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
    * 
    * @author [any.nameAuthor()/]
    */
@@ -135,9 +155,8 @@
 
 [comment écriture de l'annotation pour l'injection de service persistance./]
 [template public annotationTrans(any : ecore::EObject)]
-  
   [any.classHeader(any.namePackageCommonBase())/]
-  [any.defaultImports()/]
+
   import java.lang.annotation.Retention;
   import java.lang.annotation.RetentionPolicy;
   

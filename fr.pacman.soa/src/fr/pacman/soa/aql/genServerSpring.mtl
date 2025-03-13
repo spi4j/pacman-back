@@ -23,11 +23,11 @@
       [comment implémentation du service infrastructure (persistance)./]
       [s.fileServiceOutImpl(ds)/]
       [comment implémentation des tests pour le service infrastructure./]
-      [s.fileServiceTestImpl()/]
+      [s.fileServiceIntegrationImpl()/]
     [/let]
   [/for]
   [comment implémentation du service crud infrastructure (persistance)./]
   [for (d : environment::DTO | m.eAllContents(environment::DTO))]
     [d.fileServiceCrudOutImpl(null)/]
   [/for]
-[/template]S
+[/template]

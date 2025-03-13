@@ -123,6 +123,7 @@
   import org.springframework.context.annotation.FilterType;
   import org.springframework.context.annotation.ComponentScan;
   import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationIn()/];
+  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationOut()/];
   
   /**
    * Classe de démarrage de l'application Spring Boot. Cette classe est annotée
@@ -147,7 +148,8 @@
   @SpringBootApplication
   @EnableAspectJAutoProxy
   @ComponentScan(basePackages = {"[any.namePackageProject()/]"}, includeFilters = {
-  @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationIn()/].class })})
+  @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationIn()/].class
+    ,  [any.nameClassAnnotationOut()/].class})})
   public class [any.nameClassAppBoostrap()/]
   {
   

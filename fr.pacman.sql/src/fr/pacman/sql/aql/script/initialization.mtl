@@ -3,6 +3,7 @@
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
+[import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::query::database/]
@@ -12,9 +13,9 @@
 
 [template public initDatabase(r : entity::Root, dbType : String) post(self.removeEmptyLines())]
   [for (e : entity::Entity | r.eAllContents(entity::Entity))]
-    [e.writeInsert(e.referencesFK(), dbType)/]
+    // [e.writeInsert(e.referencesFK(), dbType)/]
   [/for]
-  [r.initJoinTables(dbType)/]
+  // [r.initJoinTables(dbType)/]
 [/template]
 
 [comment initialisation spécifique pour les tables de jointure./]
@@ -41,7 +42,8 @@
 	+ rs->collect(o | o.nameReferenceId(o.referencedEntity(e),o.get_namingIndex(rs)))->sep(',')/]
 	
 [comment écriture de la ligne pour la liste des valeurs à insérer dans les colonnes de la table./]
-[query private writeValues (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = ('1,' + e.attributesNoPKAndNoComputed()
+[query private writeValues (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = ('nextval(\'' 
+	+ (e.name() + '_SEQ').toUpper() + '\'),' + e.attributesNoPKAndNoComputed()
 	->asSequence()->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') + ',' 
 	+ rs->asSequence()->collect(o | o.defaultSqlForeignkey())->sep(','))/]
 

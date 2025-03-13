@@ -44,7 +44,7 @@
 [comment la valeur par défaut pour l'initialisation d'une séquence SQL./]  [query public defaultSqlStartSequence(any : ecore::EObject) : String = '1000'/]
 
 [comment la base de données par défaut pour les tests de non-régression./]
-[query public defaultSqlDatabaseType(any : ecore::EObject) : String = 'H2'/]
+[query public defaultSqlDatabaseType(any : ecore::EObject) : String = 'h2'/]
 
 [comment le type par défaut pour les clés primaires (PK)./]
 [query public defaultTypePk(any : ecore::EObject) : String = 'Long'/]
@@ -178,6 +178,9 @@
 [comment le répertoire pour l'ensemble des ressources./] 
 [query public dirResources(any : ecore::EObject) : String = 'src/main/resources/'/]
   
+[comment le répertoire pour l'ensemble des ressources de test./] 
+[query public dirTestResources(any : ecore::EObject) : String = 'src/test/resources/'/]
+  
 [comment le répertoire pour l'ensemble des tests unitaires./]
 [query public dirTests(any : ecore::EObject) : String = 'src/test/java/'/]
   
@@ -249,10 +252,13 @@
 [comment retourne le nom pour l'énumération du statut de la ligne en base de données./][query public nameDatabaseStatusEnum(any : ecore::EObject) : String = 'record status'/]
 
 [comment retourne le nom pour l'annotation d'injection du service dans la couche métier./]
-[query public nameAnnotationDomainService(any : ecore::EObject) : String = 'domain service'/]
+[query public nameAnnotationIn(any : ecore::EObject) : String = 'domain service'/]
+  
+[comment retourne le nom pour l'annotation d'injection du service stub dans la couche persistance./]
+[query public nameAnnotationOut(any : ecore::EObject) : String = 'adapter service'/]
 
 [comment retourne le nom pour l'annotation d'injection du service stub dans la couche persistance./]
-[query public nameAnnotationStub(any : ecore::EObject) : String = 'stub service'/]
+[query public nameAnnotationOutStub(any : ecore::EObject) : String = 'stub service'/]
 
 [comment retourne le nom pour l'annotation de gestion des transactions dans la couche de persistance./]
 [query public nameAnnotationTransactionnal(any : ecore::EObject) : String = 'transactionnal'/]
