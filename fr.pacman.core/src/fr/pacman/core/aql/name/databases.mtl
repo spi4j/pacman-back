@@ -58,7 +58,7 @@
 [query public nameScriptDrop(any : ecore::EObject, dbType : String) : String = any.prefixSqlScriptDrop() + any.nameProject() + '_' + dbType/]
 
 [comment retourne le nom du fichier pour le script d'initialisation des tables SQL./]
-[query public nameScriptInit(any : ecore::EObject, dbType : String) : String = any.prefixSqlScriptInit() + any.nameProject() + '_' + dbType/]
+[query public nameScriptIntegrationInit(any : ecore::EObject, dbType : String) : String = any.prefixSqlScriptInit() + any.nameProject() + '_' + dbType/]
 
 [comment retourne le nom complet pour le préfixe des tables (si existe)./]
 [query public namePrefixTable (any : ecore::EObject): String = if (any.prefixTable().exists()) then any.prefixTable() + '_' else '' endif/]

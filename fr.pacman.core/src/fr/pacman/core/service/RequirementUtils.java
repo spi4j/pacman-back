@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature.Setting;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.sirius.business.api.session.Session;
 import org.obeonetwork.dsl.requirement.Category;
 import org.obeonetwork.dsl.requirement.Repository;
 import org.obeonetwork.dsl.requirement.Requirement;
@@ -35,36 +36,51 @@ public class RequirementUtils {
 	 * @return la liste des requirements liés à l'objet
 	 */
 	public List<Requirement> get_requirements(final EObject p_object) {
-		// définition du CrossReferencer et récupération des utilisations de l'objet
-		final Collection<Setting> settings = new EcoreUtil.UsageCrossReferencer(p_object.eResource().getResourceSet()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected boolean crossReference(final EObject p_eObject, final EReference p_eReference,
-					final EObject p_referencedObj) {
-				return p_eReference == RequirementPackage.Literals.REQUIREMENT__REFERENCED_OBJECT
-						&& super.crossReference(p_eObject, p_eReference, p_referencedObj);
-			}
-
-			@Override
-			protected boolean containment(final EObject p_eObject) {
-				return (p_eObject instanceof Repository) || (p_eObject instanceof Category)
-						|| (p_eObject instanceof Requirement);
-			}
-
-			@Override
-			public Collection<Setting> findUsage(final EObject p_eObject) {
-				return super.findUsage(p_eObject);
-			}
-		}.findUsage(p_object);
-
-		// Cast des objets récupérés en Requirement
-		final List<Requirement> requirements = new ArrayList<Requirement>();
-		for (final Setting setting : settings) {
-			requirements.add((Requirement) setting.getEObject());
-		}
-		orderRequirements(requirements);
-		return requirements;
+		
+		Session session = Session.of(p_object).get();
+		return    session.getSemanticCrossReferencer().getInverseReferences(p_object, RequirementPackage.Literals.REQUIREMENT__REFERENCED_OBJECT , true)
+				.stream().map(s -> s.getEObject())
+				.filter(Requirement.class::isInstance)
+				.map(Requirement.class::cast)
+				.toList();
+		
+		
+		
+		
+		
+		
+		
+//		
+//		// définition du CrossReferencer et récupération des utilisations de l'objet
+//		final Collection<Setting> settings = new EcoreUtil.UsageCrossReferencer(p_object.eResource().getResourceSet()) {
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//			protected boolean crossReference(final EObject p_eObject, final EReference p_eReference,
+//					final EObject p_referencedObj) {
+//				return p_eReference == RequirementPackage.Literals.REQUIREMENT__REFERENCED_OBJECT
+//						&& super.crossReference(p_eObject, p_eReference, p_referencedObj);
+//			}
+//
+//			@Override
+//			protected boolean containment(final EObject p_eObject) {
+//				return (p_eObject instanceof Repository) || (p_eObject instanceof Category)
+//						|| (p_eObject instanceof Requirement);
+//			}
+//
+//			@Override
+//			public Collection<Setting> findUsage(final EObject p_eObject) {
+//				return super.findUsage(p_eObject);
+//			}
+//		}.findUsage(p_object);
+//
+//		// Cast des objets récupérés en Requirement
+//		final List<Requirement> requirements = new ArrayList<Requirement>();
+//		for (final Setting setting : settings) {
+//			requirements.add((Requirement) setting.getEObject());
+//		}
+//		orderRequirements(requirements);
+//		return requirements;
 	}
 
 	/**

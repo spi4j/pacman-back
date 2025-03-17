@@ -57,13 +57,6 @@
   [/file]
 [/template]
 
-[comment écriture du fichier de propriété pour les datasources dans le cadre des tests d'intégration./]
-[template public fileApplicationIntegrationProperties(any : ecore::EObject)]
-  [file (any.nameApplicationIntegrationResources().toFile(any.namePackageTestResources(), '.properties'), overwrite, 'ISO-8859-1')]
-    [any.applicationIntegrationProperties()/]
-  [/file]
-[/template]
-
 [comment écriture de la classe de gestion des transactions jpa./]
 [template public fileJpaTransactionExecutorImpl(any : ecore::EObject)]
   [file (any.nameClassJpaTransactionExecutorImpl().toFileJava(any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
@@ -82,6 +75,20 @@
 [template public fileJpaTransactionConfigurationImpl(any : ecore::EObject)]
   [file (any.nameClassJpaTransactionConfigurationImpl().toFileJava(any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
     [any.jpaTransactionConfigurationImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de propriété pour les datasources dans le cadre des tests d'intégration (infra)./]
+[template public fileIntegrationTestProperties(any : ecore::EObject)]
+  [file (any.nameIntegrationResources().toFile(any.namePackageTestResources(), '.properties'), overwrite, 'ISO-8859-1')]
+    [any.integrationProperties()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe abstraite pour les tests d'intégration (infra)./]
+[template public fileIntegrationTestAbstract(any : ecore::EObject)]
+  [file (any.nameClassOutIntegrationTestAbstract().toFileJavaT(any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
+    [any.integrationTestAbstract()/]
   [/file]
 [/template]
 

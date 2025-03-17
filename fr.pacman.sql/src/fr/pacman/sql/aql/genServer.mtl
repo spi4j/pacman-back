@@ -11,10 +11,14 @@
 [template public genSqlScripts(r : entity::Root)]
   [let dbTypes : Sequence(String) = r.typeDatabases().trim().tokenize(',')]
     [for (dbType : String | dbTypes)]
-    	[r.genSqlCreateScript(dbType)/]
-    	[r.genSqlDropScript(dbType)/]
+       [comment écriture des scripts de production./]
+       [r.genSqlCreateScript(dbType)/]
+       [r.genSqlDropScript(dbType)/]
     [/for]
   [/let]
-  [r.genSqlInitScript(r.defaultSqlDatabaseType())/]
+  
+  [comment écriture des scripts pour les tests d'intégration./]
+  [r.genSqlIntegrationInitScript(r.defaultSqlDatabaseType())/]
+  [r.genSqlIntegrationCreateScript(r.defaultSqlDatabaseType())/]
 [/template]
 

@@ -137,11 +137,11 @@
 
 [comment écriture de la ligne pour une table./]
 [query private writeTable(e : entity::Entity, command : String) : String = if (command.equalsIgnoreCase(e.commandCreate())) then 'create ' else 'drop ' endif 
-	+ 'table' + e.nameTableSchema().toUpper()/]
+	+ 'table ' + e.nameTableSchema().toUpper()/]
 
 [comment écriture de la ligne pour une table de jointure./]
 [query private writeJoinTable(r : environment::Reference, command : String) : String = if (command.equalsIgnoreCase(r.commandCreate())) then 'create ' 
-	else 'drop ' endif + 'table' + r.nameTableSchemaJoin().toUpper()/]
+	else 'drop ' endif + 'table ' + r.nameTableSchemaJoin().toUpper()/]
 	
 [comment écriture de la ligne pour la clé primaire de la table./]
 [query private writePrimaryKey(e : entity::Entity, dbType : String) : String = e.namePrimaryKey().toUpper() + ' ' + dbType.typeColumnID() + ','/]
@@ -157,7 +157,7 @@
 [query private writePrimaryKeyJoinConstraint(r : environment::Reference, dbType : String, idx : Integer) : String = if not dbType.is_mySqlType() then 'constraint ' 
 	+ r.nameConstraintPrimaryKeyJoin().toUpper() + ' ' else '' endif + 'primary key (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() 
 	+ ', ' + if r.isStarRecursive() then r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() 
-	else r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() endif +');'/]
+	else r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() endif +')'/]
   
 [comment écriture de la ligne pour chaque attribut de l'entité./]  
 [query private writeAttribut(a : environment::Attribute, dbType : String) : String = a.nameColumn().toUpper() + ' ' + a.get_columnTypeForDatabase(dbType) 

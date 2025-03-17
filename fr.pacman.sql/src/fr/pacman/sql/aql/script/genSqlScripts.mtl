@@ -23,7 +23,7 @@
     [r.createSequences()/]
   [/if]
   [r.createTables(dbType)/]
-  [r.createConstraints()/]
+  [r.createConstraints(dbType)/]
 [/template]
 
 [comment script de suppression des tables pour la base de données de type 'dbType'/]
@@ -31,28 +31,42 @@
   [r.resetCounters()/]
   [r.scriptsHeader(dbType)/]
   [if (dbType.hasSequence())]
-    [r.dropSequences()/]
+    [r.dropSequences(dbType)/]
   [/if]
-  [r.dropConstraints()/]
+  [r.dropConstraints(dbType)/]
   [r.dropTables(dbType)/]
   [if (r.hasSchema())]
     [r.dropSchema()/]
   [/if]
 [/template]
 
+[comment script de création des tables pour les tests d'intégration avec la base de données de type 'h2'/]
+[template public createSqlIntegrationTables(r : entity::Root, dbType : String) post(self.escapeFile())]
+  [r.resetCounters()/]
+  [r.scriptsHeader(dbType)/]
+  [if (r.hasSchema())]
+    [r.createSchema()/]
+  [/if]
+  [if (dbType.hasSequence())]
+    [r.createSequences()/]
+  [/if]
+  [r.createTables(dbType)/]
+[/template]
+
 [comment script d'initialisation pour la base de données de test (de type H2)./]
-[template public initSqlData(r : entity::Root, dbType : String) post(self.escapeFile())]
+[template public initSqlIntegrationData(r : entity::Root, dbType : String) post(self.escapeFile())]
   [comment r.resetCounters()/]
   [r.scriptsHeader(dbType)/]
   [r.initCommentHeader()/]
-  [comment r.dropConstraints()/]
   [r.insertsHeader()/]
   [r.initDatabase(dbType)/]
+  [r.createConstraints(dbType)/]
   [r.ensureBlankLine()/]
   /*
-   [protected ('init data'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')] 
-   */   [r.ensureBlankLine()/]
-   /*
-   [/protected]
-   */ 
+  [protected ('init data'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')] 
+  */
+  [r.ensureBlankLine()/]
+  /*
+  [/protected]
+  */ 
 [/template]

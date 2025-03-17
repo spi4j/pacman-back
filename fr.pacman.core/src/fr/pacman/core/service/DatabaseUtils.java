@@ -378,6 +378,17 @@ public class DatabaseUtils {
 	}
 
 	/**
+	 * Vérifie si la base de données qui a été sélectionnée est de type H2.
+	 * 
+	 * @param p_dbType le type de la base de données.
+	 * @return la valeur 'true' si le type de base de données est de type H2 sinon
+	 *         'false'.
+	 */
+	public static boolean is_h2Type(final String p_dbType) {
+		return (p_dbType.trim().toUpperCase().equals(c_typeH2)) ? true : false;
+	}
+
+	/**
 	 * Demande la remise à blanc de l'ensemble des compteurs pour le nommage des
 	 * indexs et des contraintes au niveau des différents scripts SQL.
 	 * 

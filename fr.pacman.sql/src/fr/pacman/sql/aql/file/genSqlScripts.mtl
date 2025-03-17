@@ -22,8 +22,15 @@
 [/template]
 
 [comment écriture du script d'initialisation pour la base de données H2./]
-[template public genSqlInitScript(r : entity::Root, dbType : String)]			
-  [file (r.nameScriptInit(dbType).toFileSqlT(), overwrite, r.defaultFileEncoding())]
-    [r.initSqlData(dbType)/]
+[template public genSqlIntegrationInitScript(r : entity::Root, dbType : String)]			
+  [file (r.nameScriptIntegrationInit(dbType).toFileSqlT(), overwrite, r.defaultFileEncoding())]
+    [r.initSqlIntegrationData(dbType)/]
+  [/file]
+[/template]
+
+[comment écriture du script de création pour la base de données des tests d'intégration sur h2./]
+[template public genSqlIntegrationCreateScript(r : entity::Root, dbType : String)]				
+  [file (r.nameScriptCreate(dbType).toFileSqlT(), overwrite, r.defaultFileEncoding())]
+    [r.createSqlIntegrationTables(dbType)/]
   [/file]
 [/template]

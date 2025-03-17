@@ -13,17 +13,17 @@
 [import fr::pacman::core::service::DatabaseUtils/]
 
 [comment création de l'ensemble des contraintes pour la base de données./]
-[template public createConstraints(r : entity::Root)]
-  [r.constraints(r.commandCreate())/]
+[template public createConstraints(r : entity::Root, dbType : String)]
+  [r.constraints(r.commandCreate(), dbType)/]
 [/template]
 
 [comment suppression de l'ensemble des contraintes pour la base de données./]
-[template public dropConstraints(r : entity::Root)]
-  [r.constraints(r.commandDelete())/]
+[template public dropConstraints(r : entity::Root, dbType : String)]
+  [r.constraints(r.commandDelete(), dbType)/]
 [/template]
 
 [comment écriture des lignes pour les contraintes de la base de données./]
-[template private constraints(r : entity::Root, command : String)]
+[template private constraints(r : entity::Root, command : String, dbType : String)]
   [r.constraintsHeader()/]
   [for (e : entity::Entity | r.eAllContents(entity::Entity))]
     [for (a : environment::Attribute | e.attributes)]

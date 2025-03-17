@@ -41,7 +41,7 @@
 [comment le type de média par défaut pour le retour de l'ensemble des services rest./]
 [query public defaultRsMediaType (any : ecore::EObject) : String = 'MediaType.APPLICATION_JSON_VALUE'/]
 
-[comment la valeur par défaut pour l'initialisation d'une séquence SQL./]  [query public defaultSqlStartSequence(any : ecore::EObject) : String = '1000'/]
+[comment la valeur par défaut pour l'initialisation d'une séquence SQL./]  [query public defaultSqlStartSequence(any : ecore::EObject) : String = '1'/]
 
 [comment la base de données par défaut pour les tests de non-régression./]
 [query public defaultSqlDatabaseType(any : ecore::EObject) : String = 'h2'/]

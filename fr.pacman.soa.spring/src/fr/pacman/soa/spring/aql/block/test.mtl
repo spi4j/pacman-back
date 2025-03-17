@@ -115,9 +115,9 @@
   [/protected]
   
   /**
-   * Classe de test pour {@link [s.nameClassServiceImpl()/]}.
+   * Classe de test métier pour {@link [s.nameClassServiceImpl()/]}.
    * 
-   * Cette classe contient des tests unitaires pour les méthodes du service
+   * Cette classe contient des tests unitaires métier pour les méthodes du service
    * {@link [s.nameClassServiceImpl()/]}. Les tests sont exécutés avec l'extension 
    * {@link [s.nameClassServiceOutResolverImpl()/]} pour la gestion des paramètres.
    * 
@@ -149,7 +149,7 @@
 
 [comment écriture de l'implémentation pour les tests de l'infrastructure./]
 [template public serviceIntegrationTestImpl (s : soa::Service)]
-  [s.classHeader(s.namePackageServiceIntegrationImpl())/]
+  [s.classHeader(s.namePackageInIntegrationTestImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     import org.junit.jupiter.api.Test;
@@ -162,6 +162,8 @@
     import org.springframework.context.annotation.ComponentScan;
     import org.springframework.context.annotation.FilterType;
     import org.springframework.test.context.TestPropertySource;
+    import org.springframework.test.context.jdbc.SqlConfig;
+    import org.springframework.test.context.jdbc.SqlGroup;
     import org.springframework.test.context.jdbc.Sql;
     import org.springframework.test.context.junit.jupiter.SpringExtension;
     import org.springframework.test.web.servlet.MockMvc;
@@ -194,11 +196,12 @@
    */
   [protected ((s.nameClassServiceTestImpl() + 'anno').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
   [/protected]
-  @Sql("/[s.nameScriptInit(s.defaultSqlDatabaseType())/].sql")
   @AutoConfigureMockMvc
   @ExtendWith(SpringExtension.class)
   @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-  @TestPropertySource(locations = "classpath:[s.nameApplicationIntegrationResources()/].properties")
+  @TestPropertySource(locations = "classpath:[s.nameIntegrationResources()/].properties")
+  @SqlGroup({ @Sql(scripts = "/[s.nameScriptCreate(s.defaultSqlDatabaseType())/].sql", config = @SqlConfig(commentPrefix = "//"))
+    , @Sql("/[s.nameScriptIntegrationInit(s.defaultSqlDatabaseType())/].sql") })
   public class [s.nameClassServiceTestImpl()/]
   {
      

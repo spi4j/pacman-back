@@ -1,0 +1,154 @@
+[module test(		'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]	
+[import fr::pacman::core::aql::string/]
+[import fr::pacman::core::aql::name::classes/]	
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::resources/]
+[import fr::pacman::core::aql::name::databases/]
+[import fr::pacman::core::aql::name::eobjects/]	
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]	
+[import fr::pacman::core::aql::rule::method/]	
+[import fr::pacman::core::aql::rule::attribute/]	
+[import fr::pacman::core::aql::rule::parameter/]	
+
+[comment écriture de l'implémentation des tests de persistance sur une entité./]
+[template public outIntegrationTestImpl(e : entity::Entity)]
+  [e.classHeader(e.namePackageOutIntegrationTestImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [e.defaultImports()/]
+    
+    import javax.sql.DataSource;
+    import org.junit.jupiter.api.Test;
+    import org.junit.jupiter.api.TestInstance;
+    import org.junit.jupiter.api.TestInstance.Lifecycle;
+    import org.springframework.test.context.ActiveProfiles;
+    import org.springframework.test.context.TestPropertySource;
+    import org.junit.jupiter.api.extension.ExtendWith;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.boot.test.context.SpringBootTest;
+    import org.springframework.test.context.TestPropertySource;
+    import org.springframework.test.context.junit.jupiter.SpringExtension;
+    import static org.junit.jupiter.api.Assertions.*;
+    import [e.namePackageProject()/].[e.namePackageInfrastructureBase()/].[e.nameClassOutIntegrationTestAbstract()/];
+    import [e.namePackageProject()/].[e.namePackageEntityPersistItf()/].[e.nameClassEntityPersistItf()/];
+    
+    [/protected]
+    
+  @SpringBootTest
+  @ActiveProfiles("test")
+  @ExtendWith(SpringExtension.class)
+  @TestInstance(Lifecycle.PER_CLASS)
+  @TestPropertySource(locations = "classpath:[e.nameIntegrationResources()/].properties")
+  public class [e.nameClassOutIntegrationTestImpl()/] extends [e.nameClassOutIntegrationTestAbstract()/]
+  {
+  
+    ['Couche de persistance'.commentSingleLine()/]
+    private final [e.nameClassEntityPersistItf()/] [e.nameRepository().apply_attributeFinal()/];
+    
+    ['Constructeur avec injection de la couche de persistance'.commentMultiLines()/]
+    @Autowired
+    [e.nameClassOutIntegrationTestImpl()/]([e.nameClassEntityPersistItf()/] [e.nameRepository().apply_parameterMethodClassicIn()/], 
+    	DataSource ['data source'.apply_parameterMethodClassicIn()/]) {
+       [e.prefixAffectation()/][e.nameRepository().apply_attributeFinal()/] = [e.nameRepository().apply_parameterMethodClassicIn()/];
+       ['init sql'.apply_methodDefault()/](['data source'.apply_parameterMethodClassicIn()/]);
+   }
+  
+  //testAllFieldInserted 
+  //-> mettre de la transaction...
+    [e.writeTestFindAll()/]
+    [e.writeTestFindById()/]
+    [e.writetestFindByColumn()/]
+    [e.writeTestValidate()/]
+    [e.writeTestCreate()/]
+    [e.writeTestCreateWithNull()/]
+    [e.writeTestCreateWithNullOnMandatory()/]
+    [e.writeTestUpdate()/]
+    [e.writeTestDelete()/]
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writeTestFindAll(e : entity::Entity)]
+  @Test
+  public void ['test find all'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writeTestCreate(e : entity::Entity)]
+  @Test
+  public void ['test create'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writeTestCreateWithNullOnMandatory(e : entity::Entity)]
+  @Test
+  public void ['test create with null on mandatory'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writeTestCreateWithNull(e : entity::Entity)]
+  @Test
+  public void ['test create with null'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writeTestFindById(e : entity::Entity)]
+  @Test
+  public void ['test find by id'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writeTestValidate(e : entity::Entity)]
+  @Test
+  public void ['test validate'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writetestFindByColumn(e : entity::Entity)]
+  @Test
+  public void ['test find by column'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writeTestUpdate(e : entity::Entity)]
+  @Test
+  public void ['test update'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
+
+[comment écriture du test ./]
+[template private writeTestDelete(e : entity::Entity)]
+  @Test
+  public void ['test delete'.apply_methodDefault()/]()
+  {
+    
+  }
+[/template]
