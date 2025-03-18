@@ -23,6 +23,9 @@
 [comment l'incrément par défaut dans les compteurs pour le nommage des contraintes SQL./]
 [query public defaultSqlIndexIncrement(any : ecore::EObject) : Integer = 1/]
 
+[comment l pour les séquences dans les test (démarre à 1000 pour ne pas percuter les séquence de prod)./]
+[query public defaultSqlIntegrationTestSequenceStart(any : ecore::EObject) : Integer = 1000/]
+
 [comment l'identifiant par défaut pour les clés étrangères./]
 [query public defaultSqlForeignkey(any : ecore::EObject) : Integer = 1/]
 

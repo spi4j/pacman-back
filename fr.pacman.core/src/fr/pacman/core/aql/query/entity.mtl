@@ -19,6 +19,9 @@
 [comment retourne true si l'entité possède un attribut avec l'annotation Version./]
 [query public hasVersion(e : entity::Entity) : Boolean = if e = null then false else e.attributes->exists(o | o.has_metaVersion()) endif/]
 
+[comment retourne true si l'entité a au moins un attribut obligatoire./]
+[query public hasMandatoryAttributes(e : entity::Entity) : Boolean = not e.attributesNoPK()->select(o | o.isMandatory())->isEmpty()/]
+
 [comment retourne l'enchainement des packages (namespaces) pour l'entité./]
 [query public blockHierarchy(e : entity::Entity) : String = if (e.ancestors(environment::Namespace)->size() < 1) then '' 
 	else '.' + e.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()

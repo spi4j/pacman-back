@@ -674,12 +674,33 @@
   logging.level.org.hibernate.orm.jdbc.bind=TRACE
 [/template]
 
+[comment écriture de la classe utilitaire pour les tests d'intégration./]
+[template public integrationTestUtils(any : ecore::EObject)]
+  [any.classHeader(null)/]
+  
+  [any.defaultImports()/]
+  
+  public final class [any.nameClassIntegrationTestUtils()/]
+  {
+     
+     ['Constructeur privé'.commentMultiLines()/]
+     private [any.nameClassIntegrationTestUtils()/](){
+        //RAS.
+     }
+     
+     //public static boolean ['find in collection by id'.apply_methodDefault()/]
+     //    (['all'.apply_parameterMethodClassicIn()/], ['crud id'.apply_parameterMethodClassicIn()/]){
+     //} 
+  }
+[/template]
+
 [comment écriture de la classe abstraite pour les tests d'intégration (infra)./]
 [template public integrationTestAbstract(any : ecore::EObject)]
-  [any.classHeader(any.namePackageInfrastructureBase())/]
+  [any.classHeader(null)/]
   
   [any.defaultImports()/]
   import javax.sql.DataSource;
+  import jakarta.persistence.EntityManager;
   import org.springframework.core.io.ClassPathResource;
   import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
   
@@ -694,8 +715,15 @@
   * 
   * @Author [any.nameAuthor()/]
   */
-  public abstract class [any.nameClassOutIntegrationTestAbstract()/]
+  public abstract class [any.nameClassIntegrationTestAbstract()/]
   {
+     
+    /**
+     * L'instance de {@link EntityManager} utilisée pour effectuer des opérations de
+     * persistance des entités dans la base de données. Elle est protégée afin
+     * d'être accessible dans les sous-classes de {@code [any.nameClassIntegrationTestAbstract()/]}.
+     */
+     protected final EntityManager ['entity manager'.apply_attributeFinal()/];
      
     /**
      * Variable statique indiquant si l'initialisation de la base de données a déjà

@@ -9,6 +9,7 @@
 [comment enlever ces imports suite a correction bug./]
 
 [import fr::pacman::entity::spring::aql::file::genEntity/]
+[import fr::pacman::core::aql::query::reference/]
 
 [comment @main/]
 [comment écriture de l'ensemble des entités et des classes pour la couche de persistance./]
@@ -20,6 +21,6 @@
     [comment écriture de l'interface pour la couche de persistance (repo)./]
     [e.fileEntityPersistItf()/]
     [comment écriture des tests d'intégration pour la persistance./]
-    [e.fileOutIntegrationTestImpl()/]
+    [e.fileOutIntegrationTestImpl(e.referencesFKSB())/]
   [/for]
 [/template]

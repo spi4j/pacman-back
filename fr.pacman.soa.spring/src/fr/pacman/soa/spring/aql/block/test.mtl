@@ -162,12 +162,10 @@
     import org.springframework.context.annotation.ComponentScan;
     import org.springframework.context.annotation.FilterType;
     import org.springframework.test.context.TestPropertySource;
-    import org.springframework.test.context.jdbc.SqlConfig;
-    import org.springframework.test.context.jdbc.SqlGroup;
-    import org.springframework.test.context.jdbc.Sql;
     import org.springframework.test.context.junit.jupiter.SpringExtension;
     import org.springframework.test.web.servlet.MockMvc;
     import org.springframework.http.MediaType;
+    import [s.namePackageProject()/].[s.nameClassIntegrationTestAbstract()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationStubOut()/];
@@ -200,9 +198,7 @@
   @ExtendWith(SpringExtension.class)
   @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
   @TestPropertySource(locations = "classpath:[s.nameIntegrationResources()/].properties")
-  @SqlGroup({ @Sql(scripts = "/[s.nameScriptCreate(s.defaultSqlDatabaseType())/].sql", config = @SqlConfig(commentPrefix = "//"))
-    , @Sql("/[s.nameScriptIntegrationInit(s.defaultSqlDatabaseType())/].sql") })
-  public class [s.nameClassServiceTestImpl()/]
+  public class [s.nameClassServiceTestImpl()/] extends [s.nameClassIntegrationTestAbstract()/]
   {
      
     /**
@@ -258,7 +254,7 @@
               , [s.nameClassAnnotationOut()/].class})},
              excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE
               , classes = {[s.nameClassServiceOutStubImpl()/].class})})
-       static class StubConfiguration {
+       static class [s.nameClassServiceTestImpl()/]Configuration {
        }
        
      [/protected]

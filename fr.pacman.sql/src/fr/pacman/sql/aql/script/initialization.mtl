@@ -30,7 +30,8 @@
 [query private writeInsert(r : environment::Reference, dbType : String) : String = 'insert into ' + r.nameTableSchemaJoin().toUpper() 
 	+ ' (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ',' + if (r.isStarRecursive()) then 
 	r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(), r.suffixSqlId()).toUpper() 
-	else r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() endif + ')' + ' values (1, 1);'/]
+	else r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() endif + ')' + ' values (' 
+	+ r.defaultSqlIntegrationTestSequenceStart() + ', ' + r.defaultSqlIntegrationTestSequenceStart() + ');'/]
 
 [comment écriture de la ligne d'insertion pour une table./]
 [query private writeInsert(e : entity::Entity, rs : OrderedSet(environment::Reference), dbType : String) : String = 
@@ -43,7 +44,8 @@
 	+ rs->collect(o | o.nameReferenceId(o.referencedEntity(e),o.get_namingIndex(rs)))->sep(',')/]
 	
 [comment écriture de la ligne pour la liste des valeurs à insérer dans les colonnes de la table./]
-[query private writeValues (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = ('1,' + e.attributesNoPKAndNoComputed()
+[query private writeValues (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = 
+	(e.defaultSqlIntegrationTestSequenceStart() + ',' + e.attributesNoPKAndNoComputed()
 	->asSequence()->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') + ',' 
 	+ rs->asSequence()->collect(o | o.defaultSqlForeignkey())->sep(','))/]
 

@@ -37,7 +37,10 @@
 [query public nameClassOutIntegrationTestImpl(e : entity::Entity) : String = (e.nameClassEntityPersistItf() + ' test').apply_classImplem()/]
 
 [comment retourne le nom pour la classe abstraite de test pour l'entité (infra persistance)./]
-[query public nameClassOutIntegrationTestAbstract(any : ecore::EObject) : String = (any.nameProject() + ' test').apply_classAbstract()/]
+[query public nameClassIntegrationTestAbstract(any : ecore::EObject) : String = (any.nameProject() + ' test').apply_classAbstract()/]
+  
+[comment retourne le nom pour la classe utilitaire pour les tests  (infra, app)./]
+[query public nameClassIntegrationTestUtils(any : ecore::EObject) : String = (any.nameProject() + ' test utils').apply_classDefault()/]
   
 [comment retourne le nom pour l'implémentation de la classe de stub (mock) pour le service soa (domain)./]
 [query public nameClassServiceOutStubImpl(s : soa::Service) : String = (s.name() + s.suffixInterfaceOut() + ' stub').apply_classImplem()/]

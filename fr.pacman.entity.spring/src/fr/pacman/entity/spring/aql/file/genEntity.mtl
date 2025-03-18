@@ -1,4 +1,5 @@
-[module genEntity('http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+[module genEntity(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]	
 [import fr::pacman::core::aql::name::classes/]	
@@ -23,8 +24,8 @@
 [/template]
 
 [comment écriture du fichier d'implémentation des tests d'intégration pour la persistance (infra)./]
-[template public fileOutIntegrationTestImpl(e : entity::Entity)]
+[template public fileOutIntegrationTestImpl(e : entity::Entity, rs : OrderedSet(environment::Reference))]
   [file (e.nameClassOutIntegrationTestImpl().toFileJavaT(e.namePackageOutIntegrationTestImpl()), overwrite, e.defaultFileEncoding())]
-    [e.outIntegrationTestImpl()/]
+    [e.outIntegrationTestImpl(rs)/]
   [/file]
 [/template]

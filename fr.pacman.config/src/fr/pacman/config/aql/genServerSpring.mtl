@@ -34,6 +34,8 @@
   [r.fileIntegrationTestProperties()/]
   [comment écriture de la classe abstraite pour l'intégration (test)./]
   [r.fileIntegrationTestAbstract()/]
+  [comment écriture de la classe utilitaire pour l'intégration (test)./]
+  [r.fileIntegrationTestUtilsImpl()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]
