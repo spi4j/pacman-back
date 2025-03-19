@@ -148,7 +148,7 @@
     import org.springframework.stereotype.Component;
     import org.springframework.beans.factory.annotation.Autowired;
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
-    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/]  
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];  
   
     [for (d | ds)]
       import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
@@ -277,11 +277,11 @@
   
 [comment écriture des annotations au niveau de l'opération rest./]
 [query private writeRsAnnotations(o : soa::Operation) : String = 
-  if (o.verb = soa::Verb::GET) then '@GetMapping(value = "'+ o.uriRs()
-  else if (o.verb = soa::Verb::POST) then '@PostMapping(value = "'+ o.uriRs()
-  else if (o.verb = soa::Verb::PUT) then '@PutMapping(value = "'+ o.uriRs()
+  if (o.verb = soa::Verb::GET) then '@GetMapping(value = "'+ o.rsUri()
+  else if (o.verb = soa::Verb::POST) then '@PostMapping(value = "'+ o.rsUri()
+  else if (o.verb = soa::Verb::PUT) then '@PutMapping(value = "'+ o.rsUri()
   else if (o.verb = soa::Verb::OPTIONS) then ''
-  else if (o.verb = soa::Verb::DELETE) then '@DeleteMapping(value = "'+ o.uriRs()
+  else if (o.verb = soa::Verb::DELETE) then '@DeleteMapping(value = "'+ o.rsUri()
   else if (o.verb = soa::Verb::HEAD) then ''
   else if (o.verb = soa::Verb::PATCH) then ''
   else if (o.verb = soa::Verb::TRACE) then ''

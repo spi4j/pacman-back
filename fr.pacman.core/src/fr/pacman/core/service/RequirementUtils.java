@@ -1,7 +1,6 @@
 package fr.pacman.core.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -10,12 +9,7 @@ import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EStructuralFeature.Setting;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.sirius.business.api.session.Session;
-import org.obeonetwork.dsl.requirement.Category;
-import org.obeonetwork.dsl.requirement.Repository;
+import org.eclipse.emf.ecore.util.ECrossReferenceAdapter;
 import org.obeonetwork.dsl.requirement.Requirement;
 import org.obeonetwork.dsl.requirement.RequirementPackage;
 import org.obeonetwork.dsl.soa.Interface;
@@ -36,20 +30,30 @@ public class RequirementUtils {
 	 * @return la liste des requirements liés à l'objet
 	 */
 	public List<Requirement> get_requirements(final EObject p_object) {
-		
-		Session session = Session.of(p_object).get();
-		return    session.getSemanticCrossReferencer().getInverseReferences(p_object, RequirementPackage.Literals.REQUIREMENT__REFERENCED_OBJECT , true)
-				.stream().map(s -> s.getEObject())
-				.filter(Requirement.class::isInstance)
-				.map(Requirement.class::cast)
-				.toList();
-		
-		
+
+//		Session session = Session.of(p_object).get();
+//		return    session.getSemanticCrossReferencer().getInverseReferences(p_object, RequirementPackage.Literals.REQUIREMENT__REFERENCED_OBJECT , true)
+//				.stream().map(s -> s.getEObject())
+//				.filter(Requirement.class::isInstance)
+//				.map(Requirement.class::cast)
+//				.toList();
 		
 		
 		
 		
+
+//		ECrossReferenceAdapter crossReferencer = p_object.eAdapters().stream()
+//				.filter(ECrossReferenceAdapter.class::isInstance).map(ECrossReferenceAdapter.class::cast).findFirst()
+//				.orElse(null);
+//		
+//		List<Requirement> f = crossReferencer.getInverseReferences(p_object, RequirementPackage.Literals.REQUIREMENT__REFERENCED_OBJECT , true)
+//		.stream().map(s -> s.getEObject())
+//		.filter(Requirement.class::isInstance)
+//		.map(Requirement.class::cast)
+//		.toList();
 		
+		return new ArrayList<>();
+
 //		
 //		// définition du CrossReferencer et récupération des utilisations de l'objet
 //		final Collection<Setting> settings = new EcoreUtil.UsageCrossReferencer(p_object.eResource().getResourceSet()) {

@@ -32,6 +32,7 @@
     import javax.sql.DataSource;
     import org.hibernate.Session;
     import org.hibernate.query.Query;
+    import java.time.temporal.ChronoUnit;
     import org.junit.jupiter.api.Test;
     import org.junit.jupiter.api.TestInstance;
     import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -94,8 +95,11 @@
     ['Couche de persistance'.commentSingleLine()/]
     private final [e.nameClassEntityPersistItf()/] [e.nameRepository().apply_attributeFinal()/];
     
-    ['L\'identifiant de l\'entité stockée en base'.commentSingleLine()/]
+    ['Identifiant d\'une entité créé par le script d\'initialisation des données'.commentSingleLine()/]
     private [e.defaultTypePk()/] ['crud id'.apply_attributeDefault()/] = [e.defaultSqlIntegrationTestSequenceStart()/]L;
+    
+    ['Identifiant de travail pour l\'entité'.commentSingleLine()/]
+    private [e.defaultTypePk()/] ['crud id run'.apply_attributeDefault()/] = 1L;
     
    /**
     * Constructeur avec injection de la couche de persistance.
@@ -109,7 +113,7 @@
     	DataSource ['data source'.apply_parameterMethodClassicIn()/], 
     	EntityManager ['entity manager'.apply_parameterMethodClassicIn()/]) {
        [e.prefixAffectation()/][e.nameRepository().apply_attributeFinal()/] = [e.nameRepository().apply_parameterMethodClassicIn()/];
-       [e.prefixAffectation()/]['entity manager'.apply_attributeFinal()/] = ['entity manager'.apply_parameterMethodClassicIn()/];
+       [e.prefixAffectation()/]['entity manager'.apply_attributeDefault()/] = ['entity manager'.apply_parameterMethodClassicIn()/];
        ['init sql'.apply_methodDefault()/](['data source'.apply_parameterMethodClassicIn()/]);
    }
   
@@ -175,7 +179,7 @@
       [/for]
       [e.writeReferencedFK(rs)/]
       [e.nameRepository().apply_attributeFinal()/].save([eName/]);
-      [e.prefixAffectation()/]['crud id'.apply_attributeDefault()/] 
+      [e.prefixAffectation()/]['crud id run'.apply_attributeDefault()/] 
          = [eName/].[e.nameSimplePropertyID().apply_methodGet()/](); 
       
       assertNotNull([eName/].[e.nameSimplePropertyID().apply_methodGet()/]()
@@ -310,22 +314,22 @@
   {
      
      [let eName = e.name().apply_variableDefault()]
-       Session ['session'.apply_variableDefault()/] = ['entity manager'.apply_attributeFinal()/].unwrap(org.hibernate.Session.class);
+       Session ['session'.apply_variableDefault()/] = ['entity manager'.apply_attributeDefault()/].unwrap(org.hibernate.Session.class);
        CriteriaBuilder ['cb'.apply_variableDefault()/] = ['session'.apply_variableDefault()/].getCriteriaBuilder();
        CriteriaQuery<[e.nameClassEntityImpl()/]> ['cr'.apply_variableDefault()/] = ['cb'.apply_variableDefault()/]
           .createQuery([e.nameClassEntityImpl()/].class);
        Root<[e.nameClassEntityImpl()/]> ['root'.apply_variableDefault()/] = ['cr'.apply_variableDefault()/]
           .from([e.nameClassEntityImpl()/].class);
        ['cr'.apply_variableDefault()/].select(['root'.apply_variableDefault()/]).where(['cb'.apply_variableDefault()/]
-          .gt(['root'.apply_variableDefault()/]
+          .equal(['root'.apply_variableDefault()/]
           .get("[e.nameSimplePropertyID().apply_attributeDefault()/]"), ['crud id'.apply_attributeDefault()/]));
        Query<[e.nameClassEntityImpl()/]> ['query'.apply_variableDefault()/] = ['session'.apply_variableDefault()/]
           .createQuery(['cr'.apply_variableDefault()/]);
        List<[e.nameClassEntityImpl()/]> [eName/] = ['query'.apply_variableDefault()/].getResultList();
       
-       //assertTrue(![eName/].isEmpty(), "Aucune entite n'a ete recuperee");
-       //assertTrue([eName/].get().[e.nameSimplePropertyID().apply_methodGet()/]() 
-       //   == ['crud id'.apply_attributeDefault()/], "L'entite recuperee n'est pas la bonne entite");
+       assertTrue(![eName/].isEmpty(), "Aucune entite n'a ete recuperee");
+       assertTrue(['crud id'.apply_attributeDefault()/].equals([eName/].get(0)
+          .[e.nameSimplePropertyID().apply_methodGet()/]()), "L'entite recuperee n'est pas la bonne entite");
      [/let]
      
      [protected ('test find by column'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -347,7 +351,7 @@
     [let eName = e.name().apply_variableDefault()]
       ['test create'.apply_methodDefault()/]();
       Optional<[e.nameClassEntityImpl()/]> [eName/] = [e.nameRepository().apply_attributeFinal()/]
-         .findById(['crud id'.apply_attributeDefault()/]);
+         .findById(['crud id run'.apply_attributeDefault()/]);
          
       [protected ('test update'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       [/protected]
@@ -377,12 +381,12 @@
     [let eName = e.name().apply_variableDefault()]
       ['test create'.apply_methodDefault()/]();
       Optional<[e.nameClassEntityImpl()/]> [eName/] = [e.nameRepository().apply_attributeFinal()/]
-         .findById(['crud id'.apply_attributeDefault()/]);
+         .findById(['crud id run'.apply_attributeDefault()/]);
       
       [e.nameRepository().apply_attributeFinal()/].delete([eName/].get());
       
       [eName/] = [e.nameRepository().apply_attributeFinal()/]
-         .findById(['crud id'.apply_attributeDefault()/]);
+         .findById(['crud id run'.apply_attributeDefault()/]);
           
       assertTrue([eName/].isEmpty(), "L'entity devrait avoir ete supprimee");
     [/let]
@@ -419,7 +423,7 @@
         
         [e.nameRepository().apply_attributeFinal()/].save([eName/]);
         Optional<[e.nameClassEntityImpl()/]> [eName/]2 = 
-            [e.nameRepository().apply_attributeFinal()/].findById(['crud id'.apply_attributeDefault()/]);
+            [e.nameRepository().apply_attributeFinal()/].findById(['crud id run'.apply_attributeDefault()/]);
         
         [for (a : environment::Attribute | e.attributesNoPK())]
           assertEquals([eName/].[a.nameAttribute().apply_methodGet()/]()
@@ -459,8 +463,13 @@
   [/let]
 [/template]
 
-[comment écriture de la valeur par défaut à injecter dans le setter./]  
-[query private defaultValue(a : environment::Attribute) : String = if (a.isMultiple()) then 
+[comment écriture de la valeur par defaut à injecter dans le setter./]
+[query private defaultValue(a : environment::Attribute) : String = if ('Time'.equalsIgnoreCase(a.type.name) 
+	or 'Timestamp'.equalsIgnoreCase(a.type.name)) then a.get_defaulValueForType() + '.truncatedTo(ChronoUnit.MILLIS)' 
+	else a.get_defaulValueForType() endif/]
+
+[comment écriture de la valeur par défaut à injecter dans le setter (non à priori impossible d'avoir des listes sur attribut !!!!)./]  
+[comment query private defaultValue(a : environment::Attribute, timeType :  Boolean ) : String = if (a.isMultiple()) then 
 	'new ArrayList<' + a.type.type() + '>(List.of(' + a.get_defaulValueForType() + '))' else a.get_defaulValueForType() endif/]
 	
 [comment écriture de la valeur par défaut à injecter dans le setter./]  

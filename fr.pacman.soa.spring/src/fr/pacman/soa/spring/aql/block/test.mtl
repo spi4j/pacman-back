@@ -13,6 +13,7 @@
 [import fr::pacman::core::aql::query::database/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::output::headers/]
@@ -156,6 +157,7 @@
     import org.junit.jupiter.api.extension.ExtendWith;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+    import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
     import org.springframework.boot.test.context.SpringBootTest; 
     import org.springframework.test.context.ContextConfiguration;
     import org.springframework.boot.test.context.TestConfiguration;
@@ -164,6 +166,7 @@
     import org.springframework.test.context.TestPropertySource;
     import org.springframework.test.context.junit.jupiter.SpringExtension;
     import org.springframework.test.web.servlet.MockMvc;
+    import org.springframework.test.web.servlet.ResultActions;
     import org.springframework.http.MediaType;
     import [s.namePackageProject()/].[s.nameClassIntegrationTestAbstract()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
@@ -205,7 +208,7 @@
      * Instance de {@link MockMvc} pour effectuer des requêtes HTTP simulées dans les tests.
      */
      @Autowired
-     private MockMvc mvc;
+     private MockMvc ['rest helper'.apply_attributeDefault()/];
      
     /**
      * Instance de {@link [s.nameClassServiceOutItf()/]} qui est utilisée pour gérer 
@@ -219,11 +222,10 @@
        public void [o.name().apply_methodDefault()/]() throws Exception
        {
        
+          
+          [o.writeRsOperation(s)/]
+          
           [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-            
-            throw new [s.nameClassNotImplementedExceptionImpl()/]
-               ("Le test n'a pas été implémenté pour le service : [s.nameClassServiceImpl()/]");
-              
           [/protected]
        }
        
@@ -260,3 +262,20 @@
      [/protected]
   }
 [/template]
+
+[comment ./]
+[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'ResultActions ' +  'result'.apply_variableDefault() 
+	+ ' = ' + 'rest helper'.apply_attributeDefault() + '.perform(' + o.typeOperation(s) +  '.contentType(MediaType.APPLICATION_JSON)' + ');'/]
+
+
+[comment écriture des annotations au niveau de l'opération rest./]
+[query private typeOperation(o : soa::Operation, s : soa::Service) : String = 
+  if (o.verb = soa::Verb::GET) then 'get("' + s.rsUri() + o.rsUri()
+  else if (o.verb = soa::Verb::POST) then 'post("'+ o.rsUri()
+  else if (o.verb = soa::Verb::PUT) then '@PutMapping(value = "'+ o.rsUri()
+  else if (o.verb = soa::Verb::OPTIONS) then ''
+  else if (o.verb = soa::Verb::DELETE) then '@DeleteMapping(value = "'+ o.rsUri()
+  else if (o.verb = soa::Verb::HEAD) then ''
+  else if (o.verb = soa::Verb::PATCH) then ''
+  else if (o.verb = soa::Verb::TRACE) then ''
+  else '' endif endif endif endif endif endif endif endif + '")'/]

@@ -93,7 +93,15 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 		
 		_resources = new ArrayList<>();
 		_resources.add(p_selectedResource.getLocation().toString());
-		_resources.add("C:/Travail/runtime-EclipseApplication/safran/safran-model/safran.requirement");
+		
+//		try {
+//		IResource[] d =	p_selectedResource.getParent().members();
+//		} catch (CoreException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//		_resources.add("C:/Travail/runtime-EclipseApplication/safran/safran-model/safran.requirement");
 		
 		
 		

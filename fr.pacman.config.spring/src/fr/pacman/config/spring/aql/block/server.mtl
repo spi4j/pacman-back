@@ -115,6 +115,7 @@
 [template public applicationBoostrapImpl(any : ecore::EObject)]
   [any.classHeader(null)/]
   [any.defaultImports()/]
+  import java.util.TimeZone;
   import org.springframework.boot.CommandLineRunner;
   import org.springframework.boot.SpringApplication;
   import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -162,7 +163,9 @@
       * @param args Les arguments de la ligne de commande.
       */
 	  public static void main(String... args) {
-		    SpringApplication.run([any.nameClassAppBoostrap()/].class, args);
+	    
+	    TimeZone.setDefault(TimeZone.getTimeZone("GMT+08:00"));	
+	    SpringApplication.run([any.nameClassAppBoostrap()/].class, args);
 	  }
 	  
 	  /**
@@ -723,7 +726,7 @@
      * persistance des entités dans la base de données. Elle est protégée afin
      * d'être accessible dans les sous-classes de {@code [any.nameClassIntegrationTestAbstract()/]}.
      */
-     protected final EntityManager ['entity manager'.apply_attributeFinal()/];
+     protected EntityManager ['entity manager'.apply_attributeDefault()/];
      
     /**
      * Variable statique indiquant si l'initialisation de la base de données a déjà

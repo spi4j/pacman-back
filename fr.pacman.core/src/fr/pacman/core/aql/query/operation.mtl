@@ -71,7 +71,7 @@
 [query public isRsOperation(o : soa::Operation) : Boolean = o.exists() and o.public and o.exposition = soa::ExpositionKind::REST/]
 
 [comment retourne l'uri (partielle) pour une opération rest, si rien de renseigné renvoie '/' par défaut./]
-[query public uriRs(o : soa::Operation) : String = if (o.isRsOperation()) then if (o.URI.exists()) then ('/' +  o.URI).toUri() 
+[query public rsUri(o : soa::Operation) : String = if (o.isRsOperation()) then if (o.URI.exists()) then ('/' +  o.URI).toUri() 
   else '/' endif else o.cNoModelisation() endif/] 
 
 [comment retourne le type et le nom du paramètre de sortie (si existe) (liste + optional + type + nom)./]
