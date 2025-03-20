@@ -11,6 +11,12 @@
   
 [comment le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
 [query public nameIntegrationResources(any : ecore::EObject) : String = 'tests'/]
+  
+[comment le nom du fichier de ressources pour l'api de santé (info)./]
+[query public nameInfoResources(any : ecore::EObject) : String = 'info'/]
+    
+[comment le nom du fichier de ressources pour l'api de santé (health))./]
+[query public namehealthResources(any : ecore::EObject) : String = 'health'/]
 
 
 

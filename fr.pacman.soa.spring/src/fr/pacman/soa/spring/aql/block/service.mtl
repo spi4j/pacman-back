@@ -25,8 +25,8 @@
 [import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture de l'implémentation d'un service contrôleur soa (couche application)./]
-[template public serviceImpl (s : soa::Service, ds : OrderedSet(environment::DTO))]
-  [s.classHeader(s.namePackageControllerImpl())/]
+[template public serviceRsImpl (s : soa::Service, ds : OrderedSet(environment::DTO))]
+  [s.classHeader(s.namePackageRsControllerImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
@@ -59,7 +59,7 @@
   [s.commentClass()/]  
   @Controller
   @RequestMapping("[s.rsUri()/]")
-  class [s.nameClassControllerImpl()/]
+  class [s.nameClassRsServiceImpl()/]
   {
     
     ['Interface service métier'.commentMultiLines()/]
@@ -67,7 +67,7 @@
     
     ['Constructeur'.commentMultiLines()/]
     @Autowired
-    public [s.nameClassControllerImpl()/](final [s.nameClassServiceOutItf()/] [s.name().apply_parameterMethodClassicInOut()/])
+    public [s.nameClassRsServiceImpl()/](final [s.nameClassServiceOutItf()/] [s.name().apply_parameterMethodClassicInOut()/])
     {
       [s.prefixAffectation()/][s.name().apply_attributeFinal()/] = [s.name().apply_parameterMethodClassicInOut()/];
     }

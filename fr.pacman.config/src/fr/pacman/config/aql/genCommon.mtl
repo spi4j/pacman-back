@@ -4,9 +4,13 @@
 
 [comment écriture de l'ensemble de la configuration de base pour le projet métier./]
 [template public genCommonConfig(r : overview::Root)]
+  [comment écriture de l'implémentation pour le type binaire./]
   [r.fileBinaryType()/]
+  [comment écriture de l'annotation pour les requirements./]
   [r.fileAnnotationRequirement()/]
+  [comment écriture de l'exception pour les erreurs de validation des objets métier./]
   [r.fileValidationExceptionImpl()/]
+  [comment écriture de l'exception pour les méthodes non implémentées./]
   [r.fileNotImplementedExceptionImpl()/]
   [comment r.fileXtopSupType()/]
   [comment r.fileDatabaseStatusEnum()/]

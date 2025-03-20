@@ -16,8 +16,10 @@
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::dto/]
+[import fr::pacman::core::aql::query::property/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::attribute/]
@@ -158,6 +160,7 @@
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
     import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+    import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
     import org.springframework.boot.test.context.SpringBootTest; 
     import org.springframework.test.context.ContextConfiguration;
     import org.springframework.boot.test.context.TestConfiguration;
@@ -168,6 +171,7 @@
     import org.springframework.test.web.servlet.MockMvc;
     import org.springframework.test.web.servlet.ResultActions;
     import org.springframework.http.MediaType;
+    import com.fasterxml.jackson.databind.ObjectMapper;
     import [s.namePackageProject()/].[s.nameClassIntegrationTestAbstract()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];
@@ -217,16 +221,33 @@
      @Autowired
      private [s.nameClassServiceOutItf()/] ['provider'.apply_attributeDefault()/];
      
+     /**
+      * Instance de {@link ObjectMapper} utilisée pour gérer les opérations de
+      * conversion entre une entité et json.
+      */
+     @Autowired
+     ObjectMapper ['object mapper'.apply_attributeDefault()/];
+     
      [for (o | s.ownedInterface.ownedOperations)]
        @Test
+       [protected ((o.name() + ' annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       [/protected]
        public void [o.name().apply_methodDefault()/]() throws Exception
        {
-       
+          
+          [protected ((o.name() + ' init').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             
+             [o.writeRsInitInputParams()/]
+             
+          [/protected]
           
           [o.writeRsOperation(s)/]
           
-          [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [protected ((o.name() + ' result').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            
           [/protected]
+          
+          .andExpect(status().is(['expected status'.apply_variableDefault()/]));
        }
        
      [/for]
@@ -244,6 +265,10 @@
      * Les classes annotées avec {@link TestConfiguration} sont exclues de l'analyse
      * des composants. Les services annotés avec {@link [s.nameClassAnnotationIn()/]} 
      * et {@link [s.nameClassAnnotationStubOut()/]} sont inclus.
+     * <p>
+     * Pour couper l'acces à la couche de persistance et passer sur le bouchon ,
+     * modifier le nom de la classe '[s.nameClassServiceOutStubImpl()/]' en
+     * '[s.nameClassServiceOutImpl()/]'.
      *
      */
      [protected ((s.nameClassServiceTestImpl() + 'config').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -263,19 +288,40 @@
   }
 [/template]
 
-[comment ./]
-[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'ResultActions ' +  'result'.apply_variableDefault() 
-	+ ' = ' + 'rest helper'.apply_attributeDefault() + '.perform(' + o.typeOperation(s) +  '.contentType(MediaType.APPLICATION_JSON)' + ');'/]
+[comment écriture de liste des paramètres d'entrée de l'opération pour initialisation./]
+[query private writeRsInitInputParams(o : soa::Operation) : String = o.input->asOrderedSet()->collect(o1 | o1.description.commentSingleLine() 
+	+  o1.type.type() + ' ' + o1.name().apply_attributeDefault() + ' = null;')->sep(o.lineSeparator() + o.lineSeparator())->toString() 
+	+ o.lineSeparator() + o.lineSeparator() + 'Le statut attendu suite au test'.commentSingleLine() + 'int ' 
+	+ 'expected status'.apply_variableDefault() + ' = 200;'/]
 
+[comment écriture du corps de l'opération./]
+[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'ResultActions ' + 'result'.apply_variableDefault() 
+	+ ' = ' + 'rest helper'.apply_attributeDefault() + '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() 
+	+ '.contentType(' + if (o.hasMediaRsType()) then '' else o.defaultRsMediaType() endif + ')' + ')'/]
 
-[comment écriture des annotations au niveau de l'opération rest./]
-[query private typeOperation(o : soa::Operation, s : soa::Service) : String = 
-  if (o.verb = soa::Verb::GET) then 'get("' + s.rsUri() + o.rsUri()
-  else if (o.verb = soa::Verb::POST) then 'post("'+ o.rsUri()
-  else if (o.verb = soa::Verb::PUT) then '@PutMapping(value = "'+ o.rsUri()
+[comment écriture de l'uri (avec les paramètres) pour l'opération rest./]
+[query private writeRsUri(o : soa::Operation, s : soa::Service) : String = 
+  if (o.verb = soa::Verb::GET) then 'get("' + s.rsUri() + o.rsUri() + '"' + o.writeRsInputParams()
+  else if (o.verb = soa::Verb::POST) then 'post("'+ o.rsUri() + '"'
+  else if (o.verb = soa::Verb::PUT) then ''
   else if (o.verb = soa::Verb::OPTIONS) then ''
-  else if (o.verb = soa::Verb::DELETE) then '@DeleteMapping(value = "'+ o.rsUri()
+  else if (o.verb = soa::Verb::DELETE) then ''
   else if (o.verb = soa::Verb::HEAD) then ''
   else if (o.verb = soa::Verb::PATCH) then ''
   else if (o.verb = soa::Verb::TRACE) then ''
-  else '' endif endif endif endif endif endif endif endif + '")'/]
+  else '' endif endif endif endif endif endif endif endif + ')'/]
+  
+[comment vérifie si le paramètre est passé par l'uri de l'envoi./][query private isParam(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::PATH 
+	or p.restData.passingMode = soa::ParameterPassingMode::QUERY/]
+	
+[comment vérifie si le paramètre est passé dans le corps de l'envoi./]
+[query private isBody(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::BODY/]
+  
+[comment écriture des différents paramètres à injecter pour l'opération (uri)./]
+[query private writeRsInputParams(o : soa::Operation) : String = if (o.hasInputs() and not o.input->select(o1 | o1.isParam())->isEmpty()) then ', ' +
+	o.input->asOrderedSet()->select(o1 | o1.isParam())->collect(o2 | o2.name().apply_variableDefault())->sep(', ')->toString() else '' endif /]
+
+[comment écriture des différents paramètres à injecter pour l'opération (corps)./]
+[query private writeRsInputBodyParams(o : soa::Operation) : String = if (o.hasInputs() and not o.input->select(o1 | o1.isBody())->isEmpty()) 
+	then o.input->asOrderedSet()->select(o1 | o1.isBody())->collect(o2 | '.content(' + 'object mapper'.apply_variableDefault() 
+	+ '.writeValueAsString(' + o2.name().apply_attributeDefault() + '))')->sep(', ')->toString() else '' endif/]

@@ -5,8 +5,11 @@
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::rule::parameter/]
-
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::method/]
 
 
 [comment écriture de l'implémentation pour une exception levée au niveau des mappers./]
@@ -50,3 +53,222 @@
     }
   }
 [/template]
+
+[comment écriture de la structure par défaut pour les information de type 'info' pour l'api de santé./]
+[template public infoXmlProperties (any : ecore::EObject)]
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!-- Creez ici votre structure avec l'ensemble des informations -->
+  <!-- Exemple de structure a modifier et completer selon les besoins -->
+  <info>
+  	<data>
+  		<system>
+  			<nom>[any.nameProject().toUpper()/]</nom>
+  			<description>Description pour l'application</description>
+  			<version>1.0.0-SNAPSHOT</version>
+  		</system>
+  		<environnement>developpement</environnement>
+  	</data>
+  </info>
+[/template]
+
+[comment écriture de la structure par défaut pour les information de type 'health' pour l'api de santé./]
+[template public healthXmlProperties (any : ecore::EObject)]
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!-- Creez ici votre structure avec l'ensemble des informations -->
+  <!-- Exemple de structure a modifier et completer selon les besoins -->
+  <health>
+  	<data>
+  		<system>
+  			<nom>[any.nameProject().toUpper()/]</nom>
+  			<description>Description pour l'application</description>
+  			<version>1.0.0-SNAPSHOT</version>
+  		</system>
+  		<services/>
+  	</data>
+  </health>
+[/template]
+
+[comment écriture de l'interface pour le service de santé de l'application./]
+[template public serviceHealthItf(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  
+  import net.minidev.json.JSONObject;
+  import org.json.JSONPropertyName;
+  
+  /**
+   * Interface représentant les opérations liées à la santé et aux informations de l'application.
+   * Cette interface définit deux méthodes pour obtenir des informations sur l'état de l'application 
+   * et sa santé générale.
+   * <p>
+   * Les méthodes retournent des objets {@link JSONObject} qui contiennent respectivement des informations
+   * sur l'application et son état de santé.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public interface [any.nameClassServiceHealthItf()/] {
+  
+    /**
+     * Récupère les informations générales de l'application.
+     * 
+     * @return un objet {@link JSONObject} contenant des informations sur l'application,
+     *         comme sa version, son nom, ou d'autres données pertinentes.
+     */
+     JSONObject ['application info'.apply_methodGet()/]();
+     
+    /**
+     * Récupère l'état de santé de l'application.
+     * 
+     * @return un objet {@link JSONObject} contenant des informations sur l'état de santé de l'application,
+     *         telles que la disponibilité des services, les erreurs éventuelles, ou d'autres données de diagnostic.
+     */
+     JSONObject ['application health'.apply_methodGet()/]();
+  }
+[/template]
+  
+[comment écriture de l'implémentation pour l'api de santé./][template public externalHealthImpl(any : ecore::EObject)]
+   [any.classHeader(any.namePackageRsBase())/]
+   
+   import net.minidev.json.JSONArray;
+   import net.minidev.json.JSONObject;
+   
+   /**
+    * Liste et prépare l'ensemble des informations de santé pour tous les services
+    * externes qui sont utilisés par l'application [any.nameProject()/].
+    * 
+    * @author [any.nameAuthor()/].
+    */
+   public class [any.nameClassExternalHealthImpl()/]
+   { 
+    /**
+     * Retourne les informations de santé pour l'ensemble des services externes dont
+     * a besoin l'application pour pouvoir fonctionner. Compléter la structure
+     * désirée au niveau de la classe {@code [any.nameClassExternalInfoImpl()/]} puis, 
+     * pour chaque service renseigner la structure avant de l'ajouter au tableau json à 
+     * l'aide de la méthode {@code put()}.
+     *  
+     * @return la liste des informations de santé pour chaque service externe.
+     */
+     static JSONArray ['info external services'.apply_methodGet()/]() {
+     
+        JSONArray ['info external services'.apply_variableMultipleDefault()/] = new JSONArray();
+        
+        [protected (any.nameClassExternalInfoImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          // Code à reproduire pour chaque service concerné.
+          [any.nameClassExternalInfoImpl()/] ['info external service'.apply_variableDefault()/] = new [any.nameClassExternalInfoImpl()/]();
+          ['info external service'.apply_variableDefault()/].setName("un service externe");
+          ['info external service'.apply_variableDefault()/].setStatus("up");
+          ['info external service'.apply_variableDefault()/].setResponseTime(1L);
+          //['info external services'.apply_variableMultipleDefault()/]
+          //   .put(new JSONObject(['info external service'.apply_variableDefault()/]));
+        
+        [/protected]
+        
+        return ['info external services'.apply_variableMultipleDefault()/];
+     }
+   }[/template]
+    
+[comment écriture de l'implémentation pour l'api de santé./][template public externalInfoImpl (any : ecore::EObject)]
+   [any.classHeader(any.namePackageRsBase())/]
+   
+   import com.fasterxml.jackson.annotation.JsonProperty;
+   
+   /**
+    * Structure pour l'ensemble des informations de santé pour chaque service
+    * externe dont a besoin l'application 'safran' afin de 
+    * pouvoir fonctionner correctement.
+    * <p>
+    * Définir ici la structure (variables et assesseurs) pour l'ensemble des
+    * informations à renvoyer sur l'api de santé pour l'application.
+    *
+    * @author [any.nameAuthor()/].
+    */
+   public class [any.nameClassExternalInfoImpl()/]
+   {
+     
+    /**
+     * Nom du service externe.
+     */ 
+     private String ['name'.apply_attributeDefault()/];
+     
+    /**
+      * Etat du service externe.
+      */ 
+      private String ['status'.apply_attributeDefault()/];
+      
+     /**
+      * Temps de réponse du service externe.
+      */
+      private Long ['response time'.apply_attributeDefault()/];
+      
+      [protected (any.nameClassExternalHealthImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        
+        // Définir ici la liste des attributs et des assesseurs pour compléter la
+        // structure de l'état de santé d'un service externe avec lequel l'application
+        // doit converser.
+        
+      [/protected]
+      
+      /**
+       * Retourne le nom du service externe
+       * 
+       * @return le nom du service externe
+       */
+       [protected ('name'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         @JsonProperty("nom")
+       [/protected]
+       public String ['name'.apply_methodGet()/]() {
+         return [any.prefixAffectation()/]['name'.apply_attributeDefault()/];
+       }
+       
+       /**
+        * Positionne le nom du service externe
+        * 
+        * @param ['name'.apply_parameterMethodClassicIn()/] le nom du service externe
+        */
+        public void ['name'.apply_methodSet()/](final String ['name'.apply_parameterMethodClassicIn()/]) {
+          [any.prefixAffectation()/]['name'.apply_attributeDefault()/] = ['name'.apply_parameterMethodClassicIn()/];
+        }
+          
+       /**
+        * Retourne le statut du service externe
+        * 
+        * @return le statut du service externe
+        */
+        [protected ('status'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          @JsonProperty("statut")
+        [/protected]
+        public String ['status'.apply_methodGet()/]() {
+          return [any.prefixAffectation()/]['status'.apply_attributeDefault()/];
+        }
+        
+       /**
+        * Positionne le statut du service externe
+        * 
+        * @param ['status'.apply_parameterMethodClassicIn()/] le statut du service externe
+        */
+        public void ['status'.apply_methodSet()/](final String ['status'.apply_parameterMethodClassicIn()/]) {
+          [any.prefixAffectation()/]['status'.apply_attributeDefault()/] = ['status'.apply_parameterMethodClassicIn()/];
+        }
+        
+       /**
+        * Retourne le temps de réponse pour le service externe
+        * 
+        * @return le temps de réponse pour le service externe
+        */
+        [protected ('response time'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          @JsonProperty("tempsReponse")
+        [/protected]
+        public Long ['response time'.apply_methodGet()/]() {
+          return [any.prefixAffectation()/]['response time'.apply_attributeDefault()/];
+        }
+        
+       /**
+        * Positionne le temps de réponse pour le service externe
+        * 
+        * @param ['response time'.apply_parameterMethodClassicIn()/] le temps de réponse pour le service externe
+        */
+        public void ['response time'.apply_methodSet()/](final Long ['response time'.apply_parameterMethodClassicIn()/]) {
+          [any.prefixAffectation()/]['response time'.apply_attributeDefault()/] = ['response time'.apply_parameterMethodClassicIn()/];
+        }
+   }[/template]

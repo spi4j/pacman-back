@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.acceleo.aql.AcceleoUtil;
+import org.eclipse.acceleo.query.AQLUtils;
 import org.eclipse.acceleo.query.ast.TypeLiteral;
 import org.eclipse.acceleo.query.runtime.namespace.IQualifiedNameQueryEnvironment;
 import org.eclipse.emf.common.util.Monitor;
@@ -46,6 +47,7 @@ public class GenCommon extends PacmanGenerator {
 		Map<String, String> options = new LinkedHashMap<>();
 		options.put(AcceleoUtil.LOG_URI_OPTION, c_defaultLogFileName);
 		options.put(AcceleoUtil.NEW_LINE_OPTION, c_defaultNewLine);
+		options.put(AQLUtils.INSTALL_CROSS_REFERENCE_ADAPTER_OPTION, Boolean.TRUE.toString());
 		return options;
 	}
 

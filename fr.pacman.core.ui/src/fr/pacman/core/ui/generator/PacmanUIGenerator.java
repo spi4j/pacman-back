@@ -45,6 +45,9 @@ import fr.pacman.core.ui.service.PlugInUtils;
  */
 public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 
+	/**
+	 * Message d'avertissement en cas d'annulation de la génération
+	 */
 	private static final String c_txtErrIncompatiblesOptions = "Les options prises lors de la création "
 			+ "de ce projet ne permettent pas l'utilisation de ce générateur. \n\r La génération va être stoppée.";
 
@@ -86,28 +89,15 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * ressources (évolution future si besoin).
 	 * 
 	 * @param p_selectedResource la ressource sélectionnée par le développeur.
+	 * @throws CoreException
 	 */
 	public PacmanUIGenerator(IResource p_selectedResource) {
-		//_resources = Collections.singletonList(p_selectedResource.getLocation().toString());
-		
-		
+
 		_resources = new ArrayList<>();
 		_resources.add(p_selectedResource.getLocation().toString());
-		
-//		try {
-//		IResource[] d =	p_selectedResource.getParent().members();
-//		} catch (CoreException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		_resources.add("C:/Travail/runtime-EclipseApplication/safran/safran-model/safran.requirement");
-		
-		
-		
+		_resources.addAll(loadAdditionnalResources(p_selectedResource));
 		_rootPath = new File(p_selectedResource.getLocation().toString()).getParentFile();
 		_values = Collections.emptyList();
-		
 	}
 
 	/**
@@ -182,6 +172,32 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * @return le logger pour le plugin.
 	 */
 	protected abstract Logger getLogger();
+
+	/**
+	 * Retourne la liste de ressources additionnlles en fonction de la ressource
+	 * initialement sélectionnée par le développeur de l'application cible.
+	 * 
+	 * @param p_selectedResource la ressource initiale, sélectionnée par le
+	 *                           développeur de l'application cible.
+	 * @return la liste des ressources additionnelles.
+	 */
+	private List<String> loadAdditionnalResources(IResource p_selectedResource) {
+		List<String> resources = new ArrayList<>();
+		try {
+			IResource[] allResources = p_selectedResource.getParent().members();
+			for (int i = 0; i < allResources.length; i++) {
+				if (!p_selectedResource.getName().equalsIgnoreCase(allResources[i].getName())
+						&& (allResources[i].getName().contains(".requirement")
+								|| allResources[i].getName().contains(".soa")
+								|| allResources[i].getName().contains(".entity"))) {
+					resources.add(allResources[i].getLocation().toString());
+				}
+			}
+		} catch (CoreException e) {
+			throw new RuntimeException("Erreur de récupération des ressources additionnelles.", e);
+		}
+		return resources;
+	}
 
 	/**
 	 * Méthode principale, point d'entrée pour les générateurs au niveau de la

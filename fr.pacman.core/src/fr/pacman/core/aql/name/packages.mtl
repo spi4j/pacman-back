@@ -67,7 +67,10 @@
 [query public namePackageOutIntegrationTestImpl(e : entity::Entity) : String = 'infra.adapters' + e.blockHierarchy()/]
   
 [comment retourne le package pour l'implémentation d'un contrôleur soa./]
-[query public namePackageControllerImpl(s : soa::Service) : String = 'app.adapters.controllers.' + s.nameComponent()/]
+[query public namePackageRsControllerImpl(s : soa::Service) : String = 'app.adapters.controllers.' + s.nameComponent()/]
+
+[comment retourne le package de base pour l'implémentation d'un contrôleur soa./]
+[query public namePackageRsControllerBase(any : ecore::EObject) : String = 'app.adapters.controllers'/]
   
 [comment retourne le package racine pour la persistance./]
 [query public namePackageInfrastructureBase(any : ecore::EObject) : String = 'infra'/]

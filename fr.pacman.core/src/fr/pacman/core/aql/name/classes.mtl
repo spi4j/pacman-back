@@ -15,6 +15,21 @@
 [comment retourne le nom pour les interfaces des classes de mapping./]
 [comment query public nameClassEntityMapperItf(e : entity::Entity) : String = (e.name() + e.suffixMapper()).apply_classInterface()/]
 
+[comment retourne le nom pour l'implémentation du service de santé de l'application./]
+[query public nameClassRsServiceHealthImpl  (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classImplem()/]
+  
+[comment retourne le nom pour l'interface du service de santé de l'application./]
+[query public nameClassServiceHealthItf  (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classInterface()/]
+  
+[comment retourne le nom pour l'implémentation du service de santé de l'application./]
+[query public nameClassExternalInfoImpl (any : ecore::EObject) : String = (any.nameProject() + ' health external info').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation du service de santé de l'application./]
+[query public nameClassExternalHealthImpl (any : ecore::EObject) : String = (any.nameProject() + ' health external service').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation du service de santé de l'application./]
+[query public nameClassServiceHealthImpl (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classImplem()/]
+  
 [comment retourne le nom pour l'implémentation de l'énumération générale des requirements./]
 [query public nameClassRequirementEnumerationImpl (any : ecore::EObject) : String = 'requirements'.apply_classEnum()/]
 
@@ -49,7 +64,7 @@
 [query public nameClassServiceOutResolverImpl(s : soa::Service) : String = (s.name() + s.suffixService() + ' param resolver').apply_classDefault()/]
   
 [comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
-[query public nameClassControllerImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]
+[query public nameClassRsServiceImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]
   
 [comment retourne le nom pour l'interface d'une classe de service soa (feature)./]  
 [query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + s.suffixService()).apply_classInterface()/]  

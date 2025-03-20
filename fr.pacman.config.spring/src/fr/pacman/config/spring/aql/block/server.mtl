@@ -762,3 +762,92 @@
      }
   }
 [/template]
+
+[comment écriture de l'implémentation pour le service de santé de l'application./]
+[template public serviceHealthImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  
+  import java.io.IOException;
+  import java.nio.file.Files;
+  import java.nio.file.Path;
+  import net.minidev.json.JSONObject;
+  import [any.nameProject()/].[any.namePackageRsBase()/].[any.nameClassServiceHealthItf()/];
+    
+  public class [any.nameClassServiceHealthImpl()/] implements [any.nameClassServiceHealthItf()/]
+  {
+    private static String xmlInfoData;
+    
+    private static String xmlHealthData;
+    
+    static {
+      try {
+         Path path = Path.of(System.getenv("SAFRAN" + "") + "/safranInfo.properties");
+         xmlInfoData = Files.readString(path);
+         path = Path.of(System.getenv("SAFRAN" + "") + "/safranHealth.properties");
+         xmlHealthData = Files.readString(path);
+      } catch (IOException e) {
+         throw new RuntimeException("Impossible de charger et/ou de " + "lire les fichiers de santé pour l'application.");
+      }
+    }
+    	
+    @Override
+    public JSONObject ['application info'.apply_methodGet()/]() {
+      //JSONObject applicationInfo = XML.toJSONObject(xmlInfoData);
+      //return applicationInfo;
+      return null;
+    }
+    
+    @Override
+    public JSONObject ['application health'.apply_methodGet()/]() {
+      //JSONObject applicationHealth = XML.toJSONObject(xmlHealthData);
+      //JSONObject healthNode = (JSONObject) applicationHealth.get("health");
+      //JSONObject dataNode = (JSONObject) healthNode.get("data");
+      //dataNode.put("services", SafranHealthExternalServices.getInfoExternalServices());
+      //return applicationHealth;
+      return null;
+    }
+  }
+    
+[/template]
+
+[comment écriture de l'implémentation pour le service de santé (contrôleur) de l'application./]
+[template public serviceRsHealthImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  
+  [any.defaultImports()/]
+  import org.springframework.stereotype.Controller;
+  import org.springframework.web.bind.annotation.RequestMapping;
+  import [any.namePackageProject()/].[any.namePackageRsBase()/].[any.nameClassExternalHealthImpl()/];
+  import [any.namePackageProject()/].[any.namePackageRsBase()/].[any.nameClassExternalInfoImpl()/];
+  
+  @Controller
+  @RequestMapping("/")
+  class [any.nameClassRsServiceHealthImpl()/]
+  {
+  
+  private 	SafranHealthService healthService;
+
+   @Autowired
+   public serviceHealthImpl(SafranHealthService healthService){
+	   
+   }
+   
+    @GET
+    @Path("/info")
+    @Produces(RsMediaType.c_application_json_utf8)
+    public Response getApplicationInfo() {
+  
+  	  return RsResponseHelper.responseForJSONObject(healthService.getApplicationInfo()
+  			, RsStatusType.create(200, "OK"));
+    }
+
+    @GET
+    @Path("/health")
+    @Produces(RsMediaType.c_application_json_utf8)
+    public Response getApplicationHealth() {
+
+  		return RsResponseHelper.responseForJSONObject(healthService.getApplicationHealth()
+  			, RsStatusType.create(200, "OK"));
+    }
+  }
+[/template]

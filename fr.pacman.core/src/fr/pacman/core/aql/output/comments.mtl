@@ -13,18 +13,14 @@
 
 [comment ./]
 [template public commentMultiLines(s : String)]
-  [if (s.exists())]
-    /**
-     * [s/].
-     */
-   [/if]
+  /**
+   * [if (s.exists())][s/][else][s.cNoDescription()/][/if].
+   */
 [/template]
 
 [comment ./]
 [template public commentSingleLine(s : String)]
-  [if (s.exists())]
-    /** [s/]. */
-  [/if]
+  /** [if (s.exists())][s/][else][s.cNoDescription()/][/if]. */
 [/template]
 
 [comment ./]

@@ -11,9 +11,9 @@
 [import fr::pacman::soa::spring::aql::block::test/]
 
 [comment écriture du fichier d'implémentation pour le contrôleur utilisateur (application)./]
-[template public fileServiceImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
-  [file (s.nameClassControllerImpl().toFileJava(s.namePackageControllerImpl()), overwrite, s.defaultFileEncoding())]
-    [s.serviceImpl(ds)/]
+[template public fileRsServiceImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
+  [file (s.nameClassRsServiceImpl().toFileJava(s.namePackageRsControllerImpl()), overwrite, s.defaultFileEncoding())]
+    [s.serviceRsImpl(ds)/]
   [/file]
 [/template]
 

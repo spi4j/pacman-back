@@ -158,13 +158,18 @@
   [/protected]
   
   /**
-   * Implémentations des exigences métiers pour le service '[s.nameClassServiceRequirementImpl()/]'.
+   * Implémentations des exigences métiers pour le service : [s.nameClassServiceImpl()/].
+   *
    * @author [s.nameAuthor()/]
    */
   public class [s.nameClassServiceRequirementImpl()/]
   {
+     
      [for (r : requirement::Requirement | s.get_allRequirements())]
-       [r.id /]
+       public void [r.get_requirementPrefix()/][r.name/]()
+       {
+       
+       }
      [/for]
   }
 [/template]
