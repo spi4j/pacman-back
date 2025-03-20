@@ -36,7 +36,7 @@
 
 [comment écriture de la classe d'annotation pour la gestion des règles de gestion./]
 [template public fileAnnotationRequirement(any : ecore::EObject)]
-  [file (any.nameCassAnnotationRequirement().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassAnnotationRequirement().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
     [any.annotationRequirement()/]
   [/file]
 [/template]

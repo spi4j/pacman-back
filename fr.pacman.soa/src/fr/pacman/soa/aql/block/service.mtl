@@ -8,6 +8,7 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::resources/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::output::resources/]
@@ -33,6 +34,8 @@
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];
     import [s.namePackageProject()/].[s.namePackageServiceImpl()/].[s.nameClassServiceRequirementImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRequirement()/].[s.nameClassRequirementEnumerationImpl()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationRequirement()/];
     
   [/protected]
   
@@ -63,23 +66,32 @@
        
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
         
-        [o.commentOperation()/]
-        [protected ((o.name() + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-        [/protected]
-        @Override
-        [o.writeOperation()/]
-        {
-          
-          [if (o.hasOutput())]
-             [o.outputType()/] [o.outputName().apply_variableDefault()/] 
-                = [o.prefixAffectation()/][s.nameProvider().apply_attributeFinal()/].[o.writeInputs()/];
-          [/if]
-         
-          [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [let rs = o.get_requirements()]
+          [o.commentOperation()/]
+          [protected ((o.name() + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
-          
-          [if (o.hasOutput())]return [o.outputName().apply_variableDefault()/];[/if]
-        }
+          @Override
+          [o.writeRequirement(rs)/]
+          [o.writeOperation()/]
+          {
+            
+            // Appel des exigences en provenance de la modélisation
+            [o.writeRequirements(rs)/]
+            
+            [protected ((o.name() + 'before').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]
+            
+            [if (o.hasOutput())]
+               [o.outputType()/] [o.outputName().apply_variableDefault()/] 
+                  = [o.prefixAffectation()/][s.nameProvider().apply_attributeFinal()/].[o.writeInputs()/];
+            [/if]
+           
+            [protected ((o.name() + 'after').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]
+            
+            [if (o.hasOutput())]return [o.outputName().apply_variableDefault()/];[/if]
+          }
+        [/let]
       [/for]
   }
 [/template]
@@ -154,6 +166,8 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationRequirement()/];
+    import [s.namePackageProject()/].[s.namePackageRequirement()/].[s.nameClassRequirementEnumerationImpl()/];
     
   [/protected]
   
@@ -166,13 +180,35 @@
   {
      
      [for (r : requirement::Requirement | s.get_allRequirements())]
-       public void [r.get_requirementPrefix()/][r.name/]()
-       {
+       [(r.name + '  ' + r.statement).commentMultiLines()/]
+       @Requirement([r.nameClassRequirementEnumerationImpl()/].[r.nameRequirementId()/])
+       [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         
+         public void [r.nameRequirement()/]()
+         {
+           
+           throw new [r.nameClassNotImplementedExceptionImpl()/]
+           	    ("la règle de gestion [r.name/] n'a pas été implémentée.");
+         }
+         
+       [/protected]
        
-       }
      [/for]
+     
+     [protected (s.nameClassServiceRequirementImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+     [/protected]
   }
 [/template]
+
+[comment écriture du rappel pour l'execution des exigences./]
+[query private writeRequirements(o : soa::Operation, rs : Sequence(requirement::Requirement)) : String = if (not rs->isEmpty()) then 
+  rs->collect(o2 | '// ' + 'requirements'.apply_attributeFinal() + '.' + o2.nameRequirementId().apply_methodGet() + '();')
+  ->sep(o.lineSeparator())->toString() else '' endif/]
+
+[comment écriture de l'annotation de rattachement des exigence (si existent)./]
+[query private writeRequirement(o :soa::Operation, rs : Sequence(requirement::Requirement)) : String =  if (not rs->isEmpty()) then 
+  '@Requirement(value = {' + rs->collect(o1 | o.nameClassRequirementEnumerationImpl() + '.' + o1.nameRequirementId())->sep(', ') 
+  + '})' else '' endif/]
 
 [comment écriture de la ligne pour l'instanciation de la classe associées des reuirements./]
 [query private writeRequirement(s: soa::Service) : String = if (s.get_useServiceRequirements()) then 'Règles de gestion associées'.commentSingleLine() 

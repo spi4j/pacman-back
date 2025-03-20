@@ -99,7 +99,7 @@
 [query public nameClassAnnotationTrans (any : ecore::EObject) : String = any.nameAnnotationTransactionnal().apply_classDefault()/]
 
 [comment retourne le nom de l'annotation pour la gestion des règles de gestion./]  
-[query public nameCassAnnotationRequirement(any : ecore::EObject) : String = any.nameAnnotationRequirement().apply_classDefault()/]
+[query public nameClassAnnotationRequirement(any : ecore::EObject) : String = any.nameAnnotationRequirement().apply_classDefault()/]
   
 [comment retourne le nom pour l'utilitaire de validation des champs pour les objets métier./]
 [query public nameClassValidatorUtilsImpl (any : ecore::EObject) : String = 'validator utils'.apply_classDefault()/]

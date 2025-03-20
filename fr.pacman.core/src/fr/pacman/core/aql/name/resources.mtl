@@ -1,22 +1,35 @@
 [module resources(	'http://www.obeonetwork.org/dsl/environment/3.0.0',
+					'http://www.obeonetwork.org/dsl/requirement/1.0',
 					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::rule::method/]
+[import fr::pacman::core::aql::rule::attribute/]
+
+[import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment retourne les noms de toutes les ressources (fichiers) autres que classes java, packages, etc.../]
 
-[comment le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
+[comment retourne le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
 [query public nameApplicationResources(any : ecore::EObject) : String = 'application'/]
   
-[comment le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
+[comment retourne le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
 [query public nameIntegrationResources(any : ecore::EObject) : String = 'tests'/]
   
-[comment le nom du fichier de ressources pour l'api de santé (info)./]
+[comment retourne le nom du fichier de ressources pour l'api de santé (info)./]
 [query public nameInfoResources(any : ecore::EObject) : String = 'info'/]
     
-[comment le nom du fichier de ressources pour l'api de santé (health))./]
+[comment retourne le nom du fichier de ressources pour l'api de santé (health))./]
 [query public namehealthResources(any : ecore::EObject) : String = 'health'/]
+
+[comment retourne le nom pour l'exigence métier (requirement)./]
+[query public nameRequirement(r : requirement::Requirement) : String = ('exigence ' + r.id).apply_methodDefault()/]  
+	
+[comment retourne le nom pour l'exigence métier (requirement)./]
+[query public nameRequirementId(r : requirement::Requirement) : String = (r.get_requirementPrefix() 
+  + r.id.sanitizeReqID()).apply_attributeFinalStatic()/]
 
 
 

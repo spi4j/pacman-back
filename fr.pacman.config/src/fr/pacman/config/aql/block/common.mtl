@@ -326,7 +326,9 @@
 [comment écriture de l'annotation pour l'injection des règles de gestion./]
 [template public annotationRequirement(any : ecore::EObject)]
   [any.classHeader(any.namePackageCommonBase())/]
+  
   [any.defaultImports()/]
+  import [any.namePackageProject()/].[any.namePackageRequirement()/].[any.nameClassRequirementEnumerationImpl()/];
   import java.lang.annotation.ElementType;
   import java.lang.annotation.Inherited;
   import java.lang.annotation.Retention;
@@ -350,11 +352,11 @@
   @Inherited
   @Target(ElementType.METHOD)
   @Retention(RetentionPolicy.RUNTIME)
-  public @interface [any.nameCassAnnotationRequirement()/] {
+  public @interface [any.nameClassAnnotationRequirement()/] {
     
      /**
      * La liste des exigences.
      */
-     //RequirementsEnum['['/][']'/] value();
+     RequirementsEnum['['/][']'/] value();
   }
 [/template]

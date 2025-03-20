@@ -5,6 +5,7 @@
 [import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::resources/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::query::requirement/]
 [import fr::pacman::core::aql::rule::attribute/]
@@ -103,9 +104,9 @@
 [/template]
 
 [comment écriture de la ligne d'énumération pour le requirement./]
-[query private writeEnumeration (r : requirement::Requirement, cs : Sequence(requirement::Category)) : String = (r.get_requirementPrefix() 
-  + r.id.sanitizeReqID()).apply_attributeFinalStatic() + '("' + r.name.sanitize() + '", "' + r.version + '")' 
-  + if (r <> cs->collect(o1 | o1.eAllContents(requirement::Requirement))->last()) then ','  else ';' endif/]
+[query private writeEnumeration (r : requirement::Requirement, cs : Sequence(requirement::Category)) : String = r.nameRequirementId() 
+  + '("' + r.name.sanitize() + '", "' + r.version + '")' + if (r <> cs->collect(o1 | o1.eAllContents(requirement::Requirement))->last()) 
+  then ','  else ';' endif/]
 
 [comment écriture des lignes de commentaire pour la ligne d'énumération./]
 [query private writeComment(r : requirement::Requirement, nameT : String) : String = r.name + ' :' + ''.encodeJavadoc(r.statement) 
