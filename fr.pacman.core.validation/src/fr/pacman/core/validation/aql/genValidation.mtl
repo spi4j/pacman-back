@@ -1,0 +1,13 @@
+[module genValidation(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+						'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::validation::aql::file::genValidation/]
+
+[comment ./]
+[comment @main/]						
+[template public genValidation(r : entity::Root)]
+  [r.fileValidationReport()/]
+[/template]

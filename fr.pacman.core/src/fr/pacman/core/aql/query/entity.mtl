@@ -27,9 +27,3 @@
 	else '.' + e.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()
 	->collect(o2 | o2.oclAsType(environment::Namespace))->collect(o3 | o3.name)->collect(o4 | o4.safeCamelCase())
 	->collect(o5 | o5.toLower())->sep('.')/]
-
-[comment retourne les types et les nom des attributs pour l'entité (optional + list + type + nom)./]
-[query public inputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference)) : String =  
-  e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' + o1.name().apply_parameterMethodClassicInOut())->sep(', ')->toString() 
-  + if (rs->size() > 0) then ', ' + rs->collect(o2 | 'final ' + o2.referencedTypeSignature(e) + ' ' + o2.referencedEntity(e)
-  .referencedName(o2).apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif/]

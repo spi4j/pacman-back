@@ -48,6 +48,7 @@ public class Activator extends PacmanUIActivator {
 	 * @author cedric
 	 */
 	public static class Implementation extends EclipsePlugin {
+
 		/**
 		 * Create the Eclipse Implementation.
 		 */

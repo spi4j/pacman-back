@@ -69,7 +69,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	protected PropertiesWizardStartPage() {
 		super("Propriétés du projet Cali");
 		setTitle("Nouveau projet Cali (BackEnd)");
-		setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.c_pluginId, Activator.c_pluginLogo));
+		//setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.c_pluginId, Activator.c_pluginLogo));
 		setDescription("Saisir les différents paramètres pour la création du projet.");
 	}
 
@@ -323,10 +323,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private Combo addComboProjectType(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Type ",
 				"Le type du (ou des) service(s) à exposer pour le projet de type FrontEnd.",
-				new String[] { "Librairie de services internes", "Exposition de services externes de type rest",
-						"Exposition de micro-services externes", "Librairie client services externes",
-						"POC (base H2 embedded)" },
-				0);
+				new String[] { "Exposition de services externes de type rest" }, 0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
@@ -351,7 +348,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private Combo addComboFramework(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Framework",
 				"Le framework à utiliser pour la génération des classes issues de la modélisation.",
-				new String[] { "Spring Boot", "Spi4j" }, 0);
+				new String[] { "Spring Boot"}, 0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
@@ -978,7 +975,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajDefault, "");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajNull, "false");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajSize, "");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajType, "Instant");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajType, "Timestamp");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXdmaj);
 			} else if ("xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");

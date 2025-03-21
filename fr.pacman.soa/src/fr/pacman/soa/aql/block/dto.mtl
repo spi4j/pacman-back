@@ -6,6 +6,7 @@
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::attributes/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::attribute/]
@@ -25,6 +26,7 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
+    import java.util.Objects;
     import [d.namePackageProject()/].[d.namePackageCommonEntityBase()/].[d.nameClassEntityAbs()/];
     import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassValidatorUtilsImpl()/];
     import [d.namePackageProject()/].[d.namePackageCommonException()/].[d.nameClassValidationExceptionImpl()/];
@@ -89,39 +91,116 @@
           [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           
-          /**
-           * Valide les informations de l'objet en vérifiant la présence des valeurs
-           * obligatoires, les contraintes de taille et un pattern spécifique pour
-           * certains champs.
-           * 
-           * Cette méthode utilise des utilitaires de validation pour vérifier que
-           * certains des champs modélisés ne sont pas vides, respectent une taille
-           * minimale et/ou maximale, ainsi qu'un format spécifique grâce à une expression
-           * régulière qui est fournie (toujours par le biais de la modélisation).
-           * 
-           * Si des erreurs de validation sont trouvées, une exception
-           * {@link [d.nameClassValidationExceptionImpl()/]} est lancée avec les messages d'erreur
-           * correspondants.
-           * 
-           * @throws [d.nameClassValidationExceptionImpl()/] si des erreurs de validation sont trouvées.
-           *                                  L'exception contient une liste des erreurs
-           *                                  sous forme de tableau de chaînes.
-           */
-          @SuppressWarnings("unused")
-          public void ['validate'.apply_methodDefault()/]() throws [d.nameClassValidationExceptionImpl()/]
-          {
-              List<String> ['errors'.apply_variableDefault()/] = null;
-              [for (a | d.attributesNoPK())]
-                [a.writeNotNullValidation()/]
-                [a.writePatternValidation()/]
-                [a.writeSizeValidation()/]
-              [/for]
-              
-              if(null != ['errors'.apply_variableDefault()/] ){
-                  throw new [d.nameClassValidationExceptionImpl()/](this, ['errors'.apply_variableDefault()/]
-                    .toArray(new String['['/] ['errors'.apply_variableDefault()/].size()[']'/]));
+          [let oas = d.autoAttributes()->select(o | o.hasToWriteAutoAttribute())]
+            /**
+             * Valide les informations de l'objet en vérifiant la présence des valeurs
+             * obligatoires, les contraintes de taille et un pattern spécifique pour
+             * certains champs.
+             * 
+             * Cette méthode utilise des utilitaires de validation pour vérifier que
+             * certains des champs modélisés ne sont pas vides, respectent une taille
+             * minimale et/ou maximale, ainsi qu'un format spécifique grâce à une expression
+             * régulière qui est fournie (toujours par le biais de la modélisation).
+             * 
+             * Si des erreurs de validation sont trouvées, une exception
+             * {@link [d.nameClassValidationExceptionImpl()/]} est lancée avec les messages d'erreur
+             * correspondants.
+             * 
+             * @throws [d.nameClassValidationExceptionImpl()/] si des erreurs de validation sont trouvées.
+             *                                  L'exception contient une liste des erreurs
+             *                                  sous forme de tableau de chaînes.
+             */
+            @SuppressWarnings("unused")
+            public void ['validate'.apply_methodDefault()/]() throws [d.nameClassValidationExceptionImpl()/]
+            {
+                
+                List<String> ['errors'.apply_variableDefault()/] = null;
+                [for (a | d.attributesNoPK())]
+                  [a.writeNotNullValidation()/]
+                  [a.writePatternValidation()/]
+                  [a.writeSizeValidation()/]
+                [/for]
+                
+                [for (o | oas)]
+                  [o.writeNotNullValidation()/]
+                [/for]
+                
+                if(null != ['errors'.apply_variableDefault()/] ){
+                    throw new [d.nameClassValidationExceptionImpl()/](this, ['errors'.apply_variableDefault()/]
+                      .toArray(new String['['/] ['errors'.apply_variableDefault()/].size()[']'/]));
+                }
+            }
+            
+            /** 
+             * Compare cet objet avec l'objet spécifié pour déterminer s'ils sont égaux.
+             *
+             * Cette méthode vérifie si l'instance actuelle et l'objet fourni sont la même instance,
+             * puis compare les attributs des deux objets pour en vérifier l'égalité. La comparaison
+             * est effectuée à l'aide de la méthode {@link Objects#equals(Object, Object)} afin de gérer 
+             * correctement les valeurs de type 'null'.
+             *
+             * @param ['obj'.apply_parameterMethodClassicIn()/] L'objet à comparer avec l'instance actuelle. 
+             * Celui-ci doit être une instance de {@link [d.nameClassDtoImpl()/]} pour une comparaison valide.
+             *
+             * @return {@code true} si l'objet spécifié est égal à l'instance actuelle, {@code false} sinon.
+             */
+             @Override
+             public boolean equals(Object ['obj'.apply_parameterMethodClassicIn()/])
+             {
+               if (this == ['obj'.apply_parameterMethodClassicIn()/]) {
+                   return true;
+               }	  
+                 
+               if (!(['obj'.apply_parameterMethodClassicIn()/] instanceof [d.nameClassDtoImpl()/])) {
+                  return false;
+               }
+                
+               [d.nameClassDtoImpl()/] [d.name()/] = ([d.nameClassDtoImpl()/]) ['obj'.apply_parameterMethodClassicIn()/];
+               return Objects.equals([d.prefixAffectation()/][d.writePk()/], [d.writePk()/])
+               
+               [for (a : environment::Attribute | d.attributesNoPK())]
+                 && Objects.equals([d.prefixAffectation()/][a.nameAttribute()/], [d.name()/].[a.nameAttribute()/])
+               [/for]
+               
+               [for (o | oas)]
+                 && Objects.equals([d.prefixAffectation()/][o.nameAutoAttribute()/], [d.name()/].[o.nameAutoAttribute()/])
+               [/for];
+             }
+             
+             /**
+              * Retourne un code de hachage pour l'objet actuel.
+              *
+              * Elle utilise la méthode {@link Objects#hash(Object...)} pour générer un code de hachage combiné 
+              * basé sur ces attributs. Ce code de hachage est utilisé dans des structures de données 
+              * telles que les tables de hachage.
+              *
+              * @return Le code de hachage pour l'objet actuel.
+              */
+              @Override
+              public int hashCode() 
+              {
+                return Objects.hash([d.prefixAffectation()/][d.writePk()/][for (a : environment::Attribute | d.attributesNoPK())], 
+                  [d.prefixAffectation()/][a.nameAttribute()/][/for]
+                  [for (o | oas)],
+                  [d.prefixAffectation()/][o.nameAutoAttribute()/][/for]);
               }
-          }
+              
+              /**
+               * Retourne une représentation sous forme de chaîne de caractères de l'objet actuel.
+               * 
+               * Cette méthode est utile pour obtenir une représentation lisible de l'objet, notamment pour les 
+               * opérations de débogage ou de journalisation.
+               */
+               @Override
+               public String toString() 
+               {
+                 return "[d.nameClassDtoImpl()/] { [d.writePk()/] = " + [d.prefixAffectation()/][d.writePk()/]
+                   [for (a : environment::Attribute | d.attributesNoPK())] 
+                   + "[a.nameAttribute()/] = " + [d.prefixAffectation()/][a.nameAttribute()/][/for]
+                   [for (o | oas)] 
+                   + "[o.nameAutoAttribute()/] = " + [d.prefixAffectation()/][o.nameAutoAttribute()/][/for] + "}"; 
+               }
+          [/let]
         [/let]
       [/if]
    }
@@ -131,6 +210,10 @@
 [query private writeNotNullValidation(a : environment::Attribute) : String = if (a.isMandatory()) then 
   a.nameClassValidatorUtilsImpl() + '.' + 'check mandatory'.apply_methodDefault() + '("' + a.nameAttribute() + '", ' 
   + a.nameAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif /]
+  
+[query private writeNotNullValidation(s: String) : String = if('false'.equalsIgnoreCase(s.autoAttributNull())) 
+  then s.nameClassValidatorUtilsImpl() + '.' + 'check mandatory'.apply_methodDefault() + '("' + s.nameAutoAttribute() 
+  + '", ' + s.nameAutoAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif/]
   
 [comment écriture de la ligne de validation pour la valeur de l'attribut./]
 [query private writeSizeValidation(a : environment::Attribute) : String = if (a.hasSizeConstraints()) then 

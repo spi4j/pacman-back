@@ -47,6 +47,7 @@
     import org.springframework.web.bind.annotation.RequestAttribute;  
     import org.springframework.web.bind.annotation.RequestHeader;
     import org.springframework.web.bind.annotation.ResponseBody;
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
     import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
     
@@ -147,6 +148,7 @@
     [s.defaultImports()/]
     import org.springframework.stereotype.Component;
     import org.springframework.beans.factory.annotation.Autowired;
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
     import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];  
   

@@ -1,0 +1,10 @@
+[module validation(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[comment ./]					
+[template public validation (r : entity::Root)]
+  [for (e | r.eAllContents(entity::Entity))]
+    [e.name/]
+  [/for]
+[/template]

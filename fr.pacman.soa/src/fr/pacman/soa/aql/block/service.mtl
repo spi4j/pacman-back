@@ -76,9 +76,12 @@
           {
             
             // Appel des exigences en provenance de la modélisation
-            [o.writeRequirements(rs)/]
+            [o.writeRequirements(rs, true)/]
             
             [protected ((o.name() + 'before').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              
+              [o.writeRequirements(rs, false)/]
+              
             [/protected]
             
             [if (o.hasOutput())]
@@ -160,7 +163,7 @@
   [/for]
 [/template]
 
-[comment écriture de l'implémentation pour les requirements associés au service./]
+[comment écriture de l'implémentation pour les exigences associées au service./]
 [template public requirementImpl(s : soa::Service)]
   [s.classHeader(s.namePackageServiceImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -201,16 +204,16 @@
 [/template]
 
 [comment écriture du rappel pour l'execution des exigences./]
-[query private writeRequirements(o : soa::Operation, rs : Sequence(requirement::Requirement)) : String = if (not rs->isEmpty()) then 
-  rs->collect(o2 | '// ' + 'requirements'.apply_attributeFinal() + '.' + o2.nameRequirementId().apply_methodGet() + '();')
-  ->sep(o.lineSeparator())->toString() else '' endif/]
+[query private writeRequirements(o : soa::Operation, rs : Sequence(requirement::Requirement), comment : Boolean) : String = 
+  if (not rs->isEmpty()) then rs->collect(o2 | if (comment) then '// ' else '' endif + 'requirements'.apply_attributeFinal() 
+  + '.' + o2.nameRequirement() + '();')->sep(o.lineSeparator())->toString() else '' endif/]
 
-[comment écriture de l'annotation de rattachement des exigence (si existent)./]
+[comment écriture de l'annotation de rattachement des exigences (si existent)./]
 [query private writeRequirement(o :soa::Operation, rs : Sequence(requirement::Requirement)) : String =  if (not rs->isEmpty()) then 
   '@Requirement(value = {' + rs->collect(o1 | o.nameClassRequirementEnumerationImpl() + '.' + o1.nameRequirementId())->sep(', ') 
   + '})' else '' endif/]
 
-[comment écriture de la ligne pour l'instanciation de la classe associées des reuirements./]
+[comment écriture de la ligne pour l'instanciation de la classe associées des exigences./]
 [query private writeRequirement(s: soa::Service) : String = if (s.get_useServiceRequirements()) then 'Règles de gestion associées'.commentSingleLine() 
   + 'private final ' + s.nameClassServiceRequirementImpl() + ' '+ 'requirements'.apply_attributeFinal() + ' = new ' 
   + s.nameClassServiceRequirementImpl() + '();'  else '' endif/]

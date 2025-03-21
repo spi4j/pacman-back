@@ -54,7 +54,7 @@
       <command
             categoryId="fr.pacman.soa.ui.commands.generatorsCategory"
             id="fr.pacman.soa.ui.commands.SoaGeneratorCommand"
-            name="fr::pacman::entity::api::service::generateServerSoa">
+            name="fr::pacman::soa::service::generateServerSoa">
       </command>
    </extension>
 </plugin>

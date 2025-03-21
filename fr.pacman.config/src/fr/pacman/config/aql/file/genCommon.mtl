@@ -41,6 +41,13 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation vide (enum) pour l'ensemble des requirements de l'application./]
+[template public fileRequirementsEnumImpl(any : ecore::EObject)]
+  [file (any.nameClassRequirementEnumerationImpl().toFileJava(any.namePackageRequirement()), overwrite, any.defaultFileEncoding())]
+    [ any.enumImpl()/]
+  [/file]
+[/template]
+
 [comment écriture de la classe d'exception pour les services non implémentés./]
 [template public fileNotImplementedExceptionImpl(any : ecore::EObject)]
   [file (any.nameClassNotImplementedExceptionImpl().toFileJava(any.namePackageCommonException()), overwrite, any.defaultFileEncoding())]

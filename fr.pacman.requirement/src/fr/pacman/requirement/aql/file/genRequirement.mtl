@@ -13,7 +13,7 @@
   [/file]
 [/template]
 
-[comment écriture du fichier d'implémentation pour les requirements spécifiques d'une catégorie./]
+[comment écriture du fichier d'implémentation pour les exigences spécifiques d'une catégorie./]
 [template public fileRequirementsEnumImpl(c : requirement::Category, nameT : String)]
   [file (c.nameClassCategoryRequirementEnumerationImpl().toFileJava(c.namePackageRequirementCategory()), overwrite, c.defaultFileEncoding())]
     [c.enumImpl(c.namePackageRequirementCategory(), c.nameClassCategoryRequirementEnumerationImpl(), Sequence{c}, -1, nameT)/]

@@ -360,3 +360,13 @@
      RequirementsEnum['['/][']'/] value();
   }
 [/template]
+
+[comment écriture de l'enumération pour la centralisation pour l'ensemble des règles de gestion./]
+[template public enumImpl (any : ecore::EObject)]
+  [any.classHeader(any.namePackageRequirement())/]
+
+  public enum [any.nameClassRequirementEnumerationImpl()/]
+  { 
+    // Vide en attendant la génération des exigences.
+  }
+[/template]

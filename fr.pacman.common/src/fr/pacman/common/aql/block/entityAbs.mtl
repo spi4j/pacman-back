@@ -8,6 +8,7 @@
 [import fr::pacman::core::aql::name::attributes/]
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::property/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::output::comments/]
@@ -48,7 +49,7 @@
       [if (prop.hasToWriteAutoAttribute ())]
         [prop.autoAttributeComment().commentSingleLine()/]
         [prop.writeAnnotationColumn(target)/]
-        private [prop.writeAttribute(target)/]
+        protected [prop.writeAttribute(target)/]
       [/if]
       
     [/for]
@@ -71,7 +72,7 @@
      *
      * @return la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]'
      */
-    public [prop.autoAttributeType()/] [prop.nameAutoAttribute().apply_methodGet()/] ()
+    public [prop.autoAttributeType().type()/] [prop.nameAutoAttribute().apply_methodGet()/] ()
     {
       return [prop.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/];
     }
@@ -88,7 +89,7 @@
      * @param la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]'
      */
     public void [prop.nameAutoAttribute().apply_methodSet()/]
-    (final [prop.autoAttributeType()/] [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/])
+    (final [prop.autoAttributeType().type()/] [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/])
     {
       [prop.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/] 
       	= [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/];
@@ -98,9 +99,9 @@
 [/template]
 
 [comment écriture de la ligne de définition pour l'attribut./]
-[query private writeAttribute(prop : String, target : String) : String = prop.autoAttributeType() + ' ' 
+[query private writeAttribute(prop : String, target : String) : String = prop.autoAttributeType().type() + ' ' 
 	+ prop.nameAutoAttribute().apply_attributeDefault() + if (prop.commandEntity().equalsIgnoreCase(target) 
-	and prop.autoAttributDefault().exists()) then ' = ' + if (prop.autoAttributeType().needsToBeQuoted()) 
+	and prop.autoAttributDefault().exists()) then ' = ' + if (prop.autoAttributeType().type().needsToBeQuoted()) 
 	then '"' + prop.autoAttributDefault() + '"' else prop.autoAttributDefault() endif else '' endif + ';'/]
 
 [comment écriture de la ligne pour l'annotation @column./]

@@ -158,7 +158,7 @@
 [comment retourne le nom de la classe d'exception dans le cas d'une erreur de validation (champs absent ou invalide)./]
 [query public nameClassValidationExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' validation exception').apply_classDefault()/]
   
-[comment retourne le nom de la classe d'exception dans le cas d'une erreur concernat les requirements./]
+[comment retourne le nom de la classe d'exception dans le cas d'une erreur concernant les exigences./]
 [query public nameClassRequirementExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' requirement exception').apply_classDefault()/]
 
 [comment retourne le nom de la classe contenant le corps de la reponse pour la gestion globale des erreurs rest./]

@@ -56,10 +56,10 @@
 [query public isXdMaj(prop : String) : Boolean = prop.lastIndex(prop.keyXdMaj()) > 0/]
 
 [comment retourne le type pour l'attribut additionnel (champ auto)./]
-[query public autoAttributeType (prop : String) : String = prop.keyTypeSqlAutoAttribut().get_property().type()/]
+[query public autoAttributeType(prop : String) : String = prop.keyTypeSqlAutoAttribut().get_property()/]
 
 [comment retourne le nom pour l'attribut additionnel (champ auto)./]
-[query public autoAttributeName (prop : String) : String = prop.keyNameSqlAutoAttribut().get_property()/]
+[query public autoAttributeName(prop : String) : String = prop.keyNameSqlAutoAttribut().get_property()/]
 
 [comment retourne le nom pour l'attribut additionnel (champ auto)./]
 [query public autoAttributeComment (prop : String) : String = prop.keyCommentSqlAutoAttribut().get_property()/]

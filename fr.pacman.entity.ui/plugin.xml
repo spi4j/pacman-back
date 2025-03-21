@@ -54,7 +54,7 @@
       <command
             categoryId="fr.pacman.entity.ui.commands.generatorsCategory"
             id="fr.pacman.entity.ui.commands.EntityGeneratorCommand"
-            name="fr::pacman::entity::api::entity::generateServerEntity">
+            name="fr::pacman::entity::entity::generateServerEntity">
       </command>
    </extension>
 </plugin>

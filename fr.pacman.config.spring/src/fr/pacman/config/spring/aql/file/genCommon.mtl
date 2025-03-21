@@ -62,7 +62,7 @@
   [/file]
 [/template]
 
-[comment écriture de l'implémentation pour la classe d'exception concernant les requirements./]
+[comment écriture de l'implémentation pour la classe d'exception concernant les exigences./]
 [template public fileRequirementExceptionImpl(any : ecore::EObject)]
   [file (any.nameClassRequirementExceptionImpl().toFileJava(any.namePackageCommonException()), overwrite, any.defaultFileEncoding())]
     [any.requirementExceptionImpl()/]

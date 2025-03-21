@@ -7,6 +7,7 @@
 [import fr::pacman::core::aql::name::databases/]	
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::attributes/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::query::reference/]
@@ -28,7 +29,6 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [e.defaultImports()/]
-    import java.util.Objects;
     import jakarta.persistence.Column;
     import jakarta.persistence.Entity;
     import jakarta.persistence.FetchType;
@@ -104,23 +104,30 @@
            [/protected]
         }
         
-        [('Constructeur avec paramètres pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
-        public [e.nameClassEntityImpl()/] ([e.inputSignature(fk)/])
-        {
-           
-           super();
-           [for (a : environment::Attribute | e.attributesNoPK())]
-             [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
-           [/for]
-           [for (r : environment::Reference | fk)]
-             [e.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
-                  = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
-           [/for]
-           
-           [protected ('constructor with parameters'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-           [/protected]
-        }
-        
+        [let oas = e.autoAttributes()->select(o | o.hasToWriteAutoAttribute())]
+          [('Constructeur avec paramètres pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
+          public [e.nameClassEntityImpl()/] ([e.writeInputSignature(fk, oas)/])
+          {
+             
+             super();
+             [for (a : environment::Attribute | e.attributesNoPK())]
+               [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
+             [/for]
+             [for (r : environment::Reference | fk)]
+               [e.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+                    = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
+             [/for]
+             
+             [for (prop : String | oas)]
+               [e.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/] 
+                   = [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/]; 
+             [/for]
+             
+             
+             [protected ('constructor with parameters'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             [/protected]
+          }
+        [/let]
         /**
          * Retourne l'identifiant pour l'entité'. 
          *
@@ -182,65 +189,6 @@
         [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
 
         [/protected]
-        
-        /** 
-         * Compare cet objet avec l'objet spécifié pour déterminer s'ils sont égaux.
-         *
-         * Cette méthode vérifie si l'instance actuelle et l'objet fourni sont la même instance,
-         * puis compare les attributs des deux objets pour en vérifier l'égalité. La comparaison
-         * est effectuée à l'aide de la méthode {@link Objects#equals(Object, Object)} afin de gérer 
-         * correctement les valeurs de type 'null'.
-         *
-         * @param ['obj'.apply_parameterMethodClassicIn()/] L'objet à comparer avec l'instance actuelle. 
-         * Celui-ci doit être une instance de {@link [e.nameClassEntityImpl()/]} pour une comparaison valide.
-         *
-         * @return {@code true} si l'objet spécifié est égal à l'instance actuelle, {@code false} sinon.
-         */
-         @Override
-         public boolean equals(Object ['obj'.apply_parameterMethodClassicIn()/])
-         {
-           if (this == ['obj'.apply_parameterMethodClassicIn()/]) {
-              return true;
-           }	  
-             
-           if (!(['obj'.apply_parameterMethodClassicIn()/] instanceof [e.nameClassEntityImpl()/])) {
-              return false;
-           }
-            
-           [e.nameClassEntityImpl()/] [e.name()/] = ([e.nameClassEntityImpl()/]) ['obj'.apply_parameterMethodClassicIn()/];
-           return Objects.equals([e.prefixAffectation()/][e.writePk()/], [e.writePk()/]) [for (a : environment::Attribute | e.attributesNoPK())] 
-              && Objects.equals([a.prefixAffectation()/][a.nameAttribute()/], [e.name()/].[a.nameAttribute()/])[/for];
-        }
-          
-        /**
-         * Retourne un code de hachage pour l'objet actuel.
-         * 
-         * Elle utilise la méthode {@link Objects#hash(Object...)} pour générer un code de hachage combiné 
-         * basé sur ces attributs. Ce code de hachage est utilisé dans des structures de données 
-         * telles que les tables de hachage.
-         *
-         * @return Le code de hachage pour l'objet actuel.
-         */
-        @Override
-        public int hashCode() 
-        {
-          return Objects.hash([e.prefixAffectation()/][e.writePk()/][for (a : environment::Attribute | e.attributesNoPK())], 
-            [e.prefixAffectation()/][a.nameAttribute()/][/for]);
-        }
-        
-        /**
-         * Retourne une représentation sous forme de chaîne de caractères de l'objet actuel.
-         * 
-         * Cette méthode est utile pour obtenir une représentation lisible de l'objet, notamment pour les 
-         * opérations de débogage ou de journalisation.
-         */
-         @Override
-         public String toString() 
-         {
-           return "[e.nameClassEntityImpl()/] { [e.writePk()/] = " + [e.prefixAffectation()/][e.writePk()/]
-             [for (a : environment::Attribute | e.attributesNoPK())] 
-             + "[a.nameAttribute()/] = " + [e.prefixAffectation()/][a.nameAttribute()/][/for] + "}"; 
-         }
      [/let]
      [/let]
   }
@@ -274,6 +222,14 @@
 [query private writeCascade(r : environment::Reference) : String = '@Cascade(' + if (r.get_metaLiteralCascadeType().index(',') > 0) 
   then '{' + r.get_metaLiteralCascadeType().tokenize(',')->collect(o | 'CascadeType.' + o)->sep(', ') + '})' 
   else 'CascadeType.' + r.get_metaLiteralCascadeType()  + ')'endif /]
+  
+[comment retourne les types et les nom des attributs pour l'entité (optional + list + type + nom)./]
+[query public writeInputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference), props : Sequence(String)) : String =  
+  e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' + o1.name().apply_parameterMethodClassicInOut())->sep(', ')->toString() 
+  + if (rs->size() > 0) then ', ' + rs->collect(o2 | 'final ' + o2.referencedTypeSignature(e) + ' ' + o2.referencedEntity(e)
+  .referencedName(o2).apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif + if (not props->isEmpty()) then ', ' +
+  props->collect(o | 'final ' + o.autoAttributeType().type() + ' ' + o.nameAutoAttribute().apply_parameterMethodClassicIn())->sep(', ') 
+  else '' endif/]
 
 [comment écriture de l'annotation @Table pour l'entité./]
 [query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) 

@@ -4,6 +4,7 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::databases/]
+[import fr::pacman::core::aql::name::attributes/]
 [import fr::pacman::core::aql::query::namespace/]
 [import fr::pacman::core::aql::query::database/]
 [import fr::pacman::core::aql::query::eobject/]
@@ -29,7 +30,8 @@
       [e.writeTable(e.commandCreate())/]
       (
         [e.primaryKey(dbType)/]
-        [e.attributs(dbType)/]
+        [e.attributes(dbType)/]
+        [e.autoAttributes(dbType)/]
         [e.foreignKeys(rs,dbType)/]
         [e.primaryKeyConstraint(dbType)/]
       );
@@ -60,9 +62,16 @@
 [/template]
 
 [comment écriture des attributs pour la table./]
-[template private attributs(e : entity::Entity, dbType : String)]
+[template private attributes(e : entity::Entity, dbType : String)]
   [for (a : environment::Attribute | e.attributesNoPKAndNoComputed())]
-    [a.writeAttribut(dbType)/]
+    [a.writeAttribute(dbType)/]
+  [/for]
+[/template]
+
+[comment écriture des champs automatiques pour l'entité./]
+[template private autoAttributes(e : entity::Entity, dbType : String)]
+  [for (prop | e.autoAttributes()->select(o | o.hasToWriteAutoAttribute()))]
+    [prop.writeAutoAttribute(dbType)/]
   [/for]
 [/template]
 
@@ -136,62 +145,74 @@
 [/template]
 
 [comment écriture de la ligne pour une table./]
-[query private writeTable(e : entity::Entity, command : String) : String = if (command.equalsIgnoreCase(e.commandCreate())) then 'create ' else 'drop ' endif 
-	+ 'table ' + e.nameTableSchema().toUpper()/]
+[query private writeTable(e : entity::Entity, command : String) : String = if (command.equalsIgnoreCase(e.commandCreate())) 
+	then 'create ' else 'drop ' endif + 'table ' + e.nameTableSchema().toUpper()/]
 
 [comment écriture de la ligne pour une table de jointure./]
-[query private writeJoinTable(r : environment::Reference, command : String) : String = if (command.equalsIgnoreCase(r.commandCreate())) then 'create ' 
-	else 'drop ' endif + 'table ' + r.nameTableSchemaJoin().toUpper()/]
+[query private writeJoinTable(r : environment::Reference, command : String) : String = if (command.equalsIgnoreCase(r.commandCreate())) 
+	then 'create ' else 'drop ' endif + 'table ' + r.nameTableSchemaJoin().toUpper()/]
 	
 [comment écriture de la ligne pour la clé primaire de la table./]
-[query private writePrimaryKey(e : entity::Entity, dbType : String) : String = e.namePrimaryKey().toUpper() + ' ' + dbType.typeColumnID() + ','/]
+[query private writePrimaryKey(e : entity::Entity, dbType : String) : String = e.namePrimaryKey().toUpper() + ' ' 
+	+ dbType.typeColumnID() + ','/]
 
 [comment écriture de la ligne pour la contrainte interne table associée à la clé primaire de la table./]		
 [query private primaryKeyConstraint (e : entity::Entity, dbType : String) : String = if not dbType.is_mySqlType() then 'constraint ' 
 	+ e.nameConstraintPrimaryKey().toUpper() + ' ' else '' endif + 'primary key (' + e.namePrimaryKey().toUpper() + ')'/]
 	
 [comment écriture de la ligne pour la clé primaire dans les tables de jointure (0,*)(1,*)./]
-[query private writePrimaryKeyJoin(e : entity::Entity, dbType : String) : String = e.namePrimaryKey().toUpper() + ' ' + dbType.typeColumnIDJoin() + ','/]
+[query private writePrimaryKeyJoin(e : entity::Entity, dbType : String) : String = e.namePrimaryKey().toUpper() + ' ' 
+	+ dbType.typeColumnIDJoin() + ','/]
 
 [comment écriture de la ligne pour la contrainte interne table de jointure sur les clés primaires./]
-[query private writePrimaryKeyJoinConstraint(r : environment::Reference, dbType : String, idx : Integer) : String = if not dbType.is_mySqlType() then 'constraint ' 
-	+ r.nameConstraintPrimaryKeyJoin().toUpper() + ' ' else '' endif + 'primary key (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() 
-	+ ', ' + if r.isStarRecursive() then r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() 
+[query private writePrimaryKeyJoinConstraint(r : environment::Reference, dbType : String, idx : Integer) : String = 
+	if not dbType.is_mySqlType() then 'constraint ' + r.nameConstraintPrimaryKeyJoin().toUpper() + ' ' else '' endif 
+	+ 'primary key (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ', ' + if r.isStarRecursive() then 
+	r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() 
 	else r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() endif +')'/]
-  
+	
+[comment écriture de la ligne pour chaque attribut automatique de l'entité./]  
+[query private writeAutoAttribute(s : String, dbType : String) : String = s.nameAutoAttribute().toUpper() + ' ' 
+	+ dbType.get_columnTypeForDatabase(s.autoAttributeType()) + if ('false'.equalsIgnoreCase(s.autoAttributNull())) then ' not null' 
+	else '' endif + if (dbType.is_mySqlType() and s.autoAttributeComment().exists()) then ' ' + s.autoAttributeComment().escapeComment() 
+	else '' endif + if (s.autoAttributDefault().exists()) then ' DEFAULT' + '\'' + s.autoAttributDefault() + '\'' else '' endif + ',' /]
+
 [comment écriture de la ligne pour chaque attribut de l'entité./]  
-[query private writeAttribut(a : environment::Attribute, dbType : String) : String = a.nameColumn().toUpper() + ' ' + a.get_columnTypeForDatabase(dbType) 
-	+ a.writeEndLine(dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT' + '\'' + a.get_metaPhysicalDefault() + '\'' else '' endif + ','/]
+[query private writeAttribute(a : environment::Attribute, dbType : String) : String = a.nameColumn().toUpper() + ' ' 
+	+ a.get_columnTypeForDatabase(dbType) + a.writeEndLine(dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT' 
+	+ '\'' + a.get_metaPhysicalDefault() + '\'' else '' endif + ','/]
 
 [comment écriture de la ligne pour chacune des tables référencées./]
-[query private writeReference(r : environment::Reference, e : entity::Entity, dbType : String, idx : Integer) : String = r.nameReferenceId(r.referencedEntity(e),idx).toUpper() 
-	+ ' ' + r.typeColumnRef(dbType) + r.writeEndLine(dbType) + ','/]
+[query private writeReference(r : environment::Reference, e : entity::Entity, dbType : String, idx : Integer) : String = 
+	r.nameReferenceId(r.referencedEntity(e),idx).toUpper() + ' ' + r.typeColumnRef(dbType) + r.writeEndLine(dbType) + ','/]
 
 [comment écriture d'un segment commun pour certaines lignes./]
 [query private writeEndLine (any : environment::Property, dbType : String) : String = if (any.is_mandatoryEntity()) then ' not null' else '' endif + 
 	if (dbType.is_mySqlType() and any.description.exists()) then ' ' + any.description.toString().escapeComment() else '' endif/]
 
 [comment écriture de la ligne pour un index unique associé à la table./]
-[query private writeUniqueIndex(e : entity::Entity, dbType : String, columns : String, idx : Integer, command : String) : String = if (command.equalsIgnoreCase(e.commandCreate())) 
-	then 'create ' else 'drop ' endif + 'unique index ' + e.nameIndexUnique(columns.get_nbColumnsInUniqueIndex(), idx).toUpper() + ' on ' + e.nameTableSchema().toUpper() 
+[query private writeUniqueIndex(e : entity::Entity, dbType : String, columns : String, idx : Integer, command : String) : String = 
+	if (command.equalsIgnoreCase(e.commandCreate())) then 'create ' else 'drop ' endif + 'unique index ' 
+	+ e.nameIndexUnique(columns.get_nbColumnsInUniqueIndex(), idx).toUpper() + ' on ' + e.nameTableSchema().toUpper() 
 	+ if (command.equalsIgnoreCase(e.commandCreate())) then '(' + columns.replaceAll(':',' ').toUpper() + ')' else '' endif + ';'/]
   
 [comment écriture de la ligne pour un index unique sur un attribut A TERMINER !!!!!./]
-[query private writeUniqueIndex(e : entity::Entity, a : environment::Attribute, dbType : String, idx : Integer, command : String) : String = if (command.equalsIgnoreCase(e.commandCreate())) 
-	then 'create ' else 'drop ' endif + 'unique index ' + ';'/]
+[query private writeUniqueIndex(e : entity::Entity, a : environment::Attribute, dbType : String, idx : Integer, command : String) : String = 
+	if (command.equalsIgnoreCase(e.commandCreate())) then 'create ' else 'drop ' endif + 'unique index ' + ';'/]
 
 [comment écriture de la ligne pour un index portant sur un ou plusieurs attribut(s) (colonne(s))./]
 [query private writeIndex(e : entity::Entity, r : environment::Reference, dbType : String, columnNameForId : String, idx : Integer, command : String) : String = 
-	if (command.equalsIgnoreCase(e.commandCreate())) then 'create ' else 'drop ' endif + 'index ' + r.nameIndex(idx).toUpper() + ' on ' + e.nameTableSchema().toUpper() 
-	+ if (command.equalsIgnoreCase(e.commandCreate())) then '(' + columnNameForId.toUpper() + ')' else '' endif + ';'/]
+	if (command.equalsIgnoreCase(e.commandCreate())) then 'create ' else 'drop ' endif + 'index ' + r.nameIndex(idx).toUpper() 
+	+ ' on ' + e.nameTableSchema().toUpper() + if (command.equalsIgnoreCase(e.commandCreate())) 
+	then '(' + columnNameForId.toUpper() + ')' else '' endif + ';'/]
 
 [comment écriture de la ligne de commentaire pour la table (si description sur l'entité)./]	
 [query private writeComment(e : entity::Entity) : String = 'comment on table ' + e.nameTableSchema().toUpper()
 	+ ' is \'' + e.description.escapeComment() + '\';'/]
 
 [comment écriture de la ligne de commentaire pour la clé primaire de l'entité (commentaire automatique)./]	
-[query private writeComment(e : entity::Entity, str : String) : String = 'comment on column ' + (e.nameTableSchema() + '.' +  e.namePrimaryKey()).toUpper() 
-	+ ' is \'' + str + ' ' + e.nameTableSchema().toUpper() + '\';'/]
+[query private writeComment(e : entity::Entity, str : String) : String = 'comment on column ' + (e.nameTableSchema() + '.' 
+	+  e.namePrimaryKey()).toUpper() + ' is \'' + str + ' ' + e.nameTableSchema().toUpper() + '\';'/]
 	
 [comment écriture de la ligne de commentaire pour la colonne (si description sur l'attribut)./]		
 [query private writeComment(a : environment::Attribute, e : entity::Entity) : String = 'comment on column ' + e.nameTableSchema().toUpper() 

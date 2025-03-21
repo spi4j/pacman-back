@@ -44,7 +44,7 @@
   [/file]
 [/template]
 
-[comment écriture du fichier d'implémentation pour les requirements associés au service./]
+[comment écriture du fichier d'implémentation pour les exigences associées au service./]
 [template public fileServiceRequirementImpl(s : soa::Service)]
   [file (s.nameClassServiceRequirementImpl().toFileJava(s.namePackageServiceImpl()), overwrite, s.defaultFileEncoding())]
     [s.requirementImpl()/]

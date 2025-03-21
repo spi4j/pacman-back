@@ -72,7 +72,7 @@ public class ValidatorUtil {
 			return "Le préfixe des tables SQL n'est pas valide ( format : xxx_ ).";
 
 		if (!_requirementPrefixOK)
-			return "Le préfixe pour les requirements n'est pas valide";
+			return "Le préfixe pour les exigences (requirements) n'est pas valide";
 
 		if (!_databaseOK)
 			return "Il est impossible de générer pour deux versions différentes d'Oracle.";

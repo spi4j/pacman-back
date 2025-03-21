@@ -24,7 +24,6 @@ import org.obeonetwork.dsl.soa.Service;
  */
 public class RequirementUtils {
 	/**
-	 * Récupère les requirements liés à un objet.
 	 * 
 	 * @param p_object l'objet source
 	 * @return la liste des requirements liés à l'objet

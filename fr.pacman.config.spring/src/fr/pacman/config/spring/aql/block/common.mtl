@@ -369,7 +369,7 @@
   }
 [/template]
 
-[comment écriture de l'implémentation pour la classe d'exception concernat les requirements./]
+[comment écriture de l'implémentation pour la classe d'exception concernant les exigences./]
 [template public requirementExceptionImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageCommonException())/]
   
