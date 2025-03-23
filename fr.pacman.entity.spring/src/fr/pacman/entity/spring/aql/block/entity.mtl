@@ -104,7 +104,7 @@
            [/protected]
         }
         
-        [let oas = e.autoAttributes()->select(o | o.hasToWriteAutoAttribute())]
+        [let oas = e.autoAttributes()]
           [('Constructeur avec paramètres pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
           public [e.nameClassEntityImpl()/] ([e.writeInputSignature(fk, oas)/])
           {

@@ -70,7 +70,7 @@
 
 [comment écriture des champs automatiques pour l'entité./]
 [template private autoAttributes(e : entity::Entity, dbType : String)]
-  [for (prop | e.autoAttributes()->select(o | o.hasToWriteAutoAttribute()))]
+  [for (prop | e.autoAttributes())]
     [prop.writeAutoAttribute(dbType)/]
   [/for]
 [/template]

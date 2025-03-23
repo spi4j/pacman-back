@@ -91,7 +91,7 @@
           [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           
-          [let oas = d.autoAttributes()->select(o | o.hasToWriteAutoAttribute())]
+          [let oas = d.autoAttributes()]
             /**
              * Valide les informations de l'objet en vérifiant la présence des valeurs
              * obligatoires, les contraintes de taille et un pattern spécifique pour

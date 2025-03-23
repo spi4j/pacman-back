@@ -706,6 +706,7 @@
   import jakarta.persistence.EntityManager;
   import org.springframework.core.io.ClassPathResource;
   import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+  import static org.junit.jupiter.api.Assertions.assertTrue;
   
   /**
   * Classe abstraite qui sert de base pour les tests utilisant une source de
@@ -753,9 +754,16 @@
      protected void initSql(DataSource ['data source'.apply_parameterMethodClassicIn()/])  {
         
         if(!initialized) {
+           
+           ClassPathResource ['script create'.apply_variableDefault()/] = new ClassPathResource("/[any.nameScriptCreate(any.defaultSqlDatabaseType())/].sql");
+           assertTrue(['script create'.apply_variableDefault()/].exists(), "Le fichier de création des tables n'a pas été trouvé.");
+           
+           ClassPathResource ['script init'.apply_variableDefault()/] = new ClassPathResource("/[any.nameScriptIntegrationInit(any.defaultSqlDatabaseType())/].sql");
+           assertTrue(['script init'.apply_variableDefault()/].exists(), "Le fichier d'initialisation des tables n'a pas été trouvé.");
+            
            ResourceDatabasePopulator ['populator'.apply_variableDefault()/] = new ResourceDatabasePopulator();
-           ['populator'.apply_variableDefault()/].addScript(new ClassPathResource("/[any.nameScriptCreate(any.defaultSqlDatabaseType())/].sql"));
-           ['populator'.apply_variableDefault()/].addScript(new ClassPathResource("/[any.nameScriptIntegrationInit(any.defaultSqlDatabaseType())/].sql"));
+           ['populator'.apply_variableDefault()/].addScript(['script create'.apply_variableDefault()/]);
+           ['populator'.apply_variableDefault()/].addScript(['script init'.apply_variableDefault()/]);
            ['populator'.apply_variableDefault()/].execute(['data source'.apply_parameterMethodClassicIn()/]);
            ['initialized'.apply_attributeStatic()/] = true;
         }

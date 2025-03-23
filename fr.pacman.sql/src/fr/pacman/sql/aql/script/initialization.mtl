@@ -4,6 +4,9 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::attributes/]
+[import fr::pacman::core::aql::query::property/]
+[import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::query::database/]
@@ -14,7 +17,7 @@
 
 [template public initDatabase(r : entity::Root, dbType : String) post(self.removeEmptyLines())]
   [for (e : entity::Entity | r.eAllContents(entity::Entity))]
-    // [e.writeInsert(e.referencesFK(), dbType)/]
+    // [e.writeInsert(e.referencesFK(), e.autoAttributes(), dbType)/]
   [/for]
   // [r.initJoinTables(dbType)/]
 [/template]
@@ -28,26 +31,19 @@
 
 [comment écriture de la ligne d'insertion pour une table de jointure./]
 [query private writeInsert(r : environment::Reference, dbType : String) : String = 'insert into ' + r.nameTableSchemaJoin().toUpper() 
-	+ ' (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ',' + if (r.isStarRecursive()) then 
+	+ ' (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ', ' + if (r.isStarRecursive()) then 
 	r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(), r.suffixSqlId()).toUpper() 
 	else r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() endif + ')' + ' values (' 
 	+ r.defaultSqlIntegrationTestSequenceStart() + ', ' + r.defaultSqlIntegrationTestSequenceStart() + ');'/]
 
 [comment écriture de la ligne d'insertion pour une table./]
-[query private writeInsert(e : entity::Entity, rs : OrderedSet(environment::Reference), dbType : String) : String = 
-	('insert into ' + e.nameTableSchema().toUpper() + ' ('+ e.writeColumns(rs).toUpper() +')' + ' values (' 
-	+ e.writeValues(rs) + ');').eraseLastComma()/]
+[query private writeInsert(e : entity::Entity, rs : OrderedSet(environment::Reference), oas : Sequence(String) , dbType : String) : String = 
+	('insert into ' + e.nameTableSchema().toUpper() + ' ('+ e.writeColumns(rs).toUpper() + oas->collect(o | o.nameAutoAttribute().toUpper())
+	->sep(', ') +')' + ' values (' + (e.defaultSqlIntegrationTestSequenceStart() + ',' + e.attributesNoPKAndNoComputed()->asSequence()
+	->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(', ') + rs->asSequence()->collect(o | o.defaultSqlForeignkey())
+	->sep(', ')) + oas->collect(o | o.autoAttributeType().get_defaulValueForColumn())->sep(', ') + ');')/]
 
 [comment écriture de la ligne pour la liste des colonnes de la table./]
-[query private writeColumns (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = e.namePrimaryKey() + ',' 
-	+ e.attributesNoPKAndNoComputed()->collect(o : environment::Attribute | o.nameColumn())->sep(',') + ',' 
-	+ rs->collect(o | o.nameReferenceId(o.referencedEntity(e),o.get_namingIndex(rs)))->sep(',')/]
-	
-[comment écriture de la ligne pour la liste des valeurs à insérer dans les colonnes de la table./]
-[query private writeValues (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = 
-	(e.defaultSqlIntegrationTestSequenceStart() + ',' + e.attributesNoPKAndNoComputed()
-	->asSequence()->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') + ',' 
-	+ rs->asSequence()->collect(o | o.defaultSqlForeignkey())->sep(','))/]
-
-[comment supprime la dernière virgule non nécessaire dans la liste des colonnes et des valeurs./]
-[query private eraseLastComma(s : String) : String = s.replaceAll(',\\)','\\)').replaceAll(',',', ')/]
+[query private writeColumns (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = e.namePrimaryKey() + ', ' 
+	+ e.attributesNoPKAndNoComputed()->collect(o : environment::Attribute | o.nameColumn())->sep(', ') + ', ' 
+	+ rs->collect(o | o.nameReferenceId(o.referencedEntity(e),o.get_namingIndex(rs)))->sep(', ')/]

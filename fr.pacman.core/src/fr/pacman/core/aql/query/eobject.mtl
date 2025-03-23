@@ -2,6 +2,7 @@
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
+[import fr::pacman::core::aql::query::attribute/]
 
 [import fr::pacman::core::service::EObjectUtils/]
 [import fr::pacman::core::service::AnnotationUtils/]
@@ -10,25 +11,31 @@
 [comment liste des requêtes possibles et qui sont communes aux différents objets de modélisation./]
 
 [comment retourne le système racine d'un eobjet./]  
-[query public root(any : ecore::EObject) : environment::ObeoDSMObject = any.get_root().oclAsType(environment::ObeoDSMObject)/]
+[query public root(any : ecore::EObject) : environment::ObeoDSMObject = 
+	any.get_root().oclAsType(environment::ObeoDSMObject)/]
 
 [comment vérifie si une description a été saisie pour l'objet./]
-[query public hasComment(o : environment::ObeoDSMObject) : Boolean = o.description <> null and o.description.trim().escapeComment().size() > 0 /]
+[query public hasComment(o : environment::ObeoDSMObject) : Boolean = o.description <> null 
+	and o.description.trim().escapeComment().size() > 0 /]
 
 [comment retourne le commentaire éventuellement attaché pour l'objet./]
-[query public comment(o : environment::ObeoDSMObject) : String = if (o.hasComment()) then o.description.trim().escapeComment() else o.cNoDescription() endif/]
+[query public comment(o : environment::ObeoDSMObject) : String = if (o.hasComment()) 
+	then o.description.trim().escapeComment() else o.cNoDescription() endif/]
 
 [comment vérifie si un objet existe bien./]
 [query public exists(any : ecore::EObject) : Boolean = any <> null/]
   
 [comment retourne l'ensemble des champs supplémentaires pour la persistance./]
-[query public autoAttributes(any : ecore::EObject) : Sequence(String) = any.get_SQLAutoFields().trim().tokenize(',')/]
+[query public autoAttributes(any : ecore::EObject) : Sequence(String) = any.get_SQLAutoFields()
+	.trim().tokenize(',')->select(o | o.hasToWriteAutoAttribute())/]
 	
 [comment vérifie l'existance d'un champ supplémentaire de type xtopsup./]
-[query public hasXtopSup(any : ecore::EObject) : Boolean = not any.autoAttributes()->collect(o | o.contains(any.keyXtopSup()))->isEmpty()/]
+[query public hasXtopSup(any : ecore::EObject) : Boolean = not any.autoAttributes()
+	->collect(o | o.contains(any.keyXtopSup()))->isEmpty()/]
 
 [comment vérifie l'existance d'un champ supplémentaire de type xdmaj./]
-[query public hasXdMaj(any : ecore::EObject) : Boolean = not any.autoAttributes()->collect(o | o.contains(any.keyXdMaj()))->isEmpty()/]
+[query public hasXdMaj(any : ecore::EObject) : Boolean = not any.autoAttributes()
+	->collect(o | o.contains(any.keyXdMaj()))->isEmpty()/]
 
 [comment vérifie l'existance de champ(s) supplémentaire(s) de type xtopsup ou xdmaj./]
 [query public hasXtoSupOrXdMaj(any : ecore::EObject) : Boolean = any.hasXtopSup() or any.hasXdMaj()/]

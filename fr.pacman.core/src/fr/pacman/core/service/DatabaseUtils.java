@@ -346,6 +346,18 @@ public class DatabaseUtils {
 		}
 		return "Unknown default value !!!";
 	}
+
+	/**
+	 * Retourne une valeur par défaut en fonction du type de l'attribut.
+	 * 
+	 * @param p_type le type pour lequel retourner une valeur par défaut.
+	 * @return la valeur par défaut (pour les tests de non-régression par expample).
+	 */
+	public static String get_defaulValueForColumn(final String p_type) {
+		if (_defaultValues.containsKey(p_type))
+			return _defaultValues.get(p_type);
+		return "Unknown default value !!!";
+	}
 //
 //
 //	if(not (a = null)
