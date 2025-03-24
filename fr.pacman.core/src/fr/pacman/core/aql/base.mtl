@@ -27,7 +27,7 @@
 [query public defaultSqlIntegrationTestSequenceStart(any : ecore::EObject) : Integer = 1000/]
 
 [comment l'identifiant par défaut pour les clés étrangères./]
-[query public defaultSqlForeignkey(any : ecore::EObject) : Integer = 1/]
+[query public defaultSqlForeignkey(any : ecore::EObject) : Integer = 1000/]
 
 [comment le type d'encodage par défaut pour les fichiers./]
 [query public defaultFileEncoding(any : ecore::EObject) : String = 'UTF-8'/]

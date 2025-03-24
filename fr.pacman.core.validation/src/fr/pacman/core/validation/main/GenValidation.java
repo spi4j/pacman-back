@@ -61,4 +61,9 @@ public class GenValidation extends PacmanGenerator {
 				p_resourceSetForModels.getResources(), p_valuesCache, p_monitor);
 		return values;
 	}
+
+	@Override
+	public boolean hasPostTreatments() {
+		return false;
+	}
 }

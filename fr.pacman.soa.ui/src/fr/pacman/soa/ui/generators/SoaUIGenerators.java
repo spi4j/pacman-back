@@ -8,6 +8,7 @@ import org.eclipse.emf.common.util.Logger;
 
 import fr.pacman.core.generator.PacmanGenerator;
 import fr.pacman.core.ui.generator.PacmanUIGenerator;
+import fr.pacman.core.validation.main.GenValidation;
 import fr.pacman.soa.main.GenCommon;
 import fr.pacman.soa.main.GenServer;
 import fr.pacman.soa.ui.plugin.Activator;
@@ -34,6 +35,7 @@ public class SoaUIGenerators extends PacmanUIGenerator {
 	@Override
 	protected List<PacmanGenerator> getGenerators() {
 		final List<PacmanGenerator> v_generators = new ArrayList<>();
+		v_generators.add(new GenValidation());
 		v_generators.add(new GenServer());
 		v_generators.add(new GenCommon());
 		return v_generators;
@@ -56,8 +58,8 @@ public class SoaUIGenerators extends PacmanUIGenerator {
 	}
 
 	@Override
-	protected boolean isOrganizeImports() {
-		return false;
+	protected boolean hasPostTreatments() {
+		return true;
 	}
 
 	@Override

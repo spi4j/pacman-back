@@ -26,6 +26,7 @@ import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.soa.Component;
 
 import fr.pacman.core.generator.PacmanGenerator;
+import fr.pacman.core.generator.PacmanValidatorsReport;
 import fr.pacman.core.property.PropertiesHandler;
 import fr.pacman.core.property.project.ProjectProperties;
 import fr.pacman.core.ui.plugin.Activator;
@@ -48,8 +49,16 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	/**
 	 * Message d'avertissement en cas d'annulation de la génération
 	 */
-	private static final String c_txtErrIncompatiblesOptions = "Les options prises lors de la création "
+	private static final String c_errOptions = "Les options prises lors de la création "
 			+ "de ce projet ne permettent pas l'utilisation de ce générateur. \n\r La génération va être stoppée.";
+
+	/**
+	 * Message d'avertissement en cas d'erreurs de validation sur un fichier de
+	 * modélisation.
+	 */
+	private static final String c_errValidation = "Des erreurs de modélisation on été detéctées, se reporter au "
+			+ "fichier de validation qui a été généré au niveau du projet de modélisation afin "
+			+ "de corriger ces erreurs et de pouvoir relancer une génération";
 
 	/**
 	 * Le profiler pour le réglage des performances lors des générations.
@@ -131,16 +140,18 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	protected abstract List<String> getIncompatibleOptions();
 
 	/**
-	 * Flag d'activation pour la demande de délégation de la gestion des imports à
-	 * l'IDE (récupération et organisation automatique des imports pour les classes
-	 * Java générées).
+	 * Flag d'activation pour la demande de délégation de certaines opérations de
+	 * post-traitement, comme par exemple, la gestion des imports à l'IDE
+	 * (récupération et organisation automatique des imports pour les classes Java
+	 * générées) ou le formattage automatique des données.
 	 * <p>
-	 * Ici, cette propriété n'a aucune relation avec la demande plus globale du
-	 * développeur (par configuration) d'activer ou non l'organisation automatique
-	 * des imports. Il s'agit de faire un contrôle plus fin au niveau du générateur
-	 * : si l'option d'organisation automatique est activée (de manière globale),
-	 * est-ce que ce générateur spécifique permet lui aussi l'organisation
-	 * automatique des imports à son niveau.
+	 * Ici (plus particulièrement pour l'organisation des imports), la propriété n'a
+	 * aucune relation avec la demande plus globale du développeur (par
+	 * configuration) d'activer ou non l'organisation automatique des imports. Il
+	 * s'agit de faire un contrôle plus fin au niveau du générateur : si l'option
+	 * d'organisation est activée (de manière globale), est-ce que ce générateur
+	 * spécifique permet lui aussi l'organisation automatique des imports à son
+	 * niveau.
 	 * <p>
 	 * Pour exemple, il n'y a aucun intérêt à bénéficier de l'organisation
 	 * automatique des imports si le générateur ne crée pas de classe Java.
@@ -148,7 +159,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * @return positionner à la valeur 'true' pour demander l'organisation
 	 *         automatique des imports, sinon mettre à 'false'.
 	 */
-	protected abstract boolean isOrganizeImports();
+	protected abstract boolean hasPostTreatments();
 
 	/**
 	 * Retourne la liste des générateurs à executer pour la demande de génération de
@@ -201,7 +212,15 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 
 	/**
 	 * Méthode principale, point d'entrée pour les générateurs au niveau de la
-	 * couche UI.
+	 * couche UI. Sur certains générateur, une pré-validation du modèle est
+	 * effectuée, on stoppe la génération si le rapport de validation du modèle a
+	 * retourné des erreurs de modélisation. Le rapport est visible au niveau de la
+	 * console 'ErrorLog' et/ou dans un fichier présent au niveau dyu projet de
+	 * modélisation.
+	 * <p>
+	 * La validation est elle même un générateur qui peut être rajouté (ou non) au
+	 * niveau de la couche UI. Elle est toujours exécutée en premier, le premier
+	 * tests est donc toujours passant, en cas d'echec, on sort de la boucle.
 	 * <p>
 	 * Lance l'ensemble des générateurs internes qui ont préalablement été
 	 * enregistrés auprès du générateur de la couche UI (en l'occurence, l'ensemble
@@ -214,7 +233,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 				Monitor monitor = new BasicMonitor();
 				PacmanUIAcceleoProfiler.set_project(null);
 				PropertiesHandler.init(_rootPath.getPath());
-				// PacmanUIGeneratorsReport.reset();
+				PacmanValidatorsReport.reset();
 				if (hasSelectionIncompatibilities())
 					return;
 
@@ -222,6 +241,9 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 					_profiler = new PacmanUIAcceleoProfiler();
 
 				for (PacmanGenerator generator : getGenerators()) {
+					if (PacmanValidatorsReport.hasReport())
+						throw new RuntimeException(c_errValidation);
+
 					generator.setRootPath(_rootPath.getParent());
 					generator.setResources(_resources);
 					generator.setValues(_values);
@@ -242,7 +264,6 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 		} finally {
 			try {
 				postTreatment();
-				// PacmanUIGeneratorsReport.log(Boolean.valueOf(ProjectProperties.getIsDisplayGeneratorReport()));
 				PropertiesHandler.exit();
 
 			} catch (Exception p_e) {
@@ -280,7 +301,9 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * Par ailleurs, on en profite pour lire les différents options supplémentaires
 	 * au demandées niveau de l'IDE. Pour l'instant il s'agit de la demande
 	 * d'organisation automatique des imports ainsi que le formattage automatique
-	 * des fichiers générés. A compléter selon les besoins.
+	 * des fichiers générés. On vérifie de manière globale si le générateur UI a des
+	 * opérations de post traitement, et si c'est le cas, de manière plus fine au
+	 * niveau de chaque générateur. A compléter selon les besoins.
 	 * 
 	 * @throws CoreException une exception levée lors de l'exécution du traitement.
 	 */
@@ -294,9 +317,10 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 				try {
 					targetWorkspaceContainer.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 					final IWorkbenchPartSite targetSite = getTargetSite();
-					doImportsAction(targetWorkspaceContainer, targetSite);
-					doFormatAction(targetWorkspaceContainer, targetSite);
-
+					if (hasPostTreatments() && generator.hasPostTreatments()) {
+						doImportsAction(targetWorkspaceContainer, targetSite);
+						doFormatAction(targetWorkspaceContainer, targetSite);
+					}
 				} catch (CoreException p_e) {
 					Activator.getDefault().getLog().log(new Status(IStatus.ERROR, getPluginId(),
 							"Impossible de rafraîchir " + targetWorkspaceContainer.getFullPath(), p_e));
@@ -322,7 +346,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 			return false;
 		for (String valueOfProperty : getIncompatibleOptions()) {
 			if (Boolean.valueOf(valueOfProperty)) {
-				PacmanUIGeneratorHelper.displayPopUpAlert(c_txtErrIncompatiblesOptions);
+				PacmanUIGeneratorHelper.displayPopUpAlert(c_errOptions);
 				return true;
 			}
 		}

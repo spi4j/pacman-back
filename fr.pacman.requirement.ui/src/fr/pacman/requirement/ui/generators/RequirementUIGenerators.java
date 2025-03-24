@@ -53,8 +53,8 @@ public class RequirementUIGenerators extends PacmanUIGenerator {
 	}
 
 	@Override
-	protected boolean isOrganizeImports() {
-		return false;
+	protected boolean hasPostTreatments() {
+		return true;
 	}
 
 	@Override

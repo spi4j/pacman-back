@@ -75,4 +75,9 @@ public class GenModel extends PacmanGeneratorStart {
 		templates.put("genModelConfig", SelectionType_Enum.ROOT);
 		return templates;
 	}
+
+	@Override
+	public boolean hasPostTreatments() {
+		return false;
+	}
 }

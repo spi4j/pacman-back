@@ -77,4 +77,9 @@ public class GenWebapp extends PacmanGeneratorStart {
 		templates.put("genWebappConfig", SelectionType_Enum.ROOT);
 		return templates;
 	}
+
+	@Override
+	public boolean hasPostTreatments() {
+		return true;
+	}
 }

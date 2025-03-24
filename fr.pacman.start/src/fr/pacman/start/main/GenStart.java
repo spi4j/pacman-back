@@ -58,4 +58,9 @@ public class GenStart extends PacmanGeneratorStart {
 		values.add(OverviewFactoryImpl.init().createRoot());
 		return values;
 	}
+
+	@Override
+	public boolean hasPostTreatments() {
+		return true;
+	}
 }

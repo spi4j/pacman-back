@@ -77,4 +77,9 @@ public class GenRoot extends PacmanGeneratorStart {
 		templates.put("genRootConfig", SelectionType_Enum.ROOT);
 		return templates;
 	}
+
+	@Override
+	public boolean hasPostTreatments() {
+		return true;
+	}
 }

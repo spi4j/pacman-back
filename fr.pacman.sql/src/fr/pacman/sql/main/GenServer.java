@@ -62,4 +62,9 @@ public class GenServer extends PacmanGenerator {
 		templates.put("genSqlScripts", SelectionType_Enum.FILE);
 		return templates;
 	}
+	
+	@Override
+	public boolean hasPostTreatments() {
+		return false;
+	}
 }

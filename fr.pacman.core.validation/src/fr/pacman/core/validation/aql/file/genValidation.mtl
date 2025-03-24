@@ -6,9 +6,9 @@
 [import fr::pacman::core::aql::output::resources/]		
 [import fr::pacman::core::validation::aql::block::validation/]			
 						
-[comment écriture du fichier d'implémentation pour les types spéciaux de pacman./]
+[comment écriture du fichier de validation pour la modélisation./]
 [template public fileValidationReport(r : entity::Root)]
-   [file ('validationReport'.toFile(null, '.log'), overwrite, r.defaultFileEncoding())]
+   [file ('validation'.toFile(null, '.log'), overwrite, r.defaultFileEncoding())]
      [r.validation()/]
    [/file]
 [/template]

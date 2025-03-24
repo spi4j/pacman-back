@@ -2,9 +2,66 @@
 					'http://www.obeonetwork.org/dsl/soa/4.0.0', 
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
+[import  fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::aql::query::entity/]
+[import fr::pacman::core::aql::query::dto/]
+[import fr::pacman::core::aql::output::headers/]
+
+[import fr::pacman::core::generator::PacmanValidatorsReport/]
+
 [comment ./]					
 [template public validation (r : entity::Root)]
   [for (e | r.eAllContents(entity::Entity))]
-    [e.name/]
+    [if (e.attributes->isEmpty())][e.add(e.msge1())/][/if]
+    [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.msge2())/][/if]
+  [/for]
+  [for (re | r.eAllContents(environment::Reference))]
+    [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.msgr1())/][/if]
+    [if ( re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.msgr2())/][/if]
+  [/for]
+  
+  [comment écriture du rapport dans le fichier./]
+  [for (s | r.get_report())]
+    [s/]
   [/for]
 [/template]
+
+[comment ./]
+[template public validation (m : soa::System)]
+  /* **************************** */
+  /* Vérification des services... */
+  /* **************************** */
+  [for (s | m.eAllContents(soa::Service))]
+    [if (s.ownedInterface <> null)]
+      [for (o | s.ownedInterface.ownedOperations)]
+      [comment s.name/]
+      [/for]
+    [/if]
+  [/for]
+ 
+[/template]
+
+[comment écriture du nom de l'entité pour le rapport./]
+[query private nameEntity(e : entity::Entity) : String = e.namePackageProject() + e.blockHierarchy() + '.' + e.name/]
+
+[comment écriture du nom de la référence pour le rapport./]
+[query private nameReference(r : environment::Reference) : String = r.namePackageProject() + r.blockHierarchy() + '.' + r.name/]
+
+[comment impossible de créer des entités sans attribut./]
+[query private msge1 (e : entity::Entity) : String = e.nameEntity() + ' : L\'entité ne contient aucun attribut -> ajoutez au moins un attribut au niveau de l\'entité.'/]
+  
+[comment impossible de créer des entités avec un attribut de type 'Identifier'./]
+[query private msge2 (e : entity::Entity) : String = e.nameEntity() + ' : L\'entité contient un attribut marqué comme \'Identifier\'' +  
+  '-> ne pas marquer l\'attribut(s) et laisser le générateur gérer l\'identifiant de l\'entité.'/]
+  
+[comment impossible de créer des entités .............../]
+[query private msge3 (e : entity::Entity) : String = e.nameEntity() + ' : xxxxxxxxx' /]
+  
+[comment impossible de créer des relations bidirectionnelles navigables dans les deux sens./]
+[query private msgr1 (r : environment::Reference) : String = r.nameReference() + ' : La référence est de type bidirectionnel mais est navigable dans les deux sens ' 
++ ' -> décochez la navigabilité sur un des deux liens.'/]
+
+[comment impossible de créer des relations bidirectionnelles avec des cardinalités (1 - 0,1)./]
+[query private msgr2 (r : environment::Reference) : String = r.nameReference() + ' : La référence est de type bidirectionnel mais de cardinalité (0,1)' 
+	+ ' ou (1) sur au moins une des pattes, seules las cardinalités (0,n)(1,n) sont authorisées -> utilisez des relations non bidirectionnelles.'/]

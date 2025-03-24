@@ -109,9 +109,9 @@
     * @param ['entity manager'.apply_parameterMethodClassicIn()/] L'EntityManager utilisé pour manipuler la base de données.
     */
     @Autowired
-    [e.nameClassOutIntegrationTestImpl()/]([e.nameClassEntityPersistItf()/] [e.nameRepository().apply_parameterMethodClassicIn()/], 
-    	DataSource ['data source'.apply_parameterMethodClassicIn()/], 
-    	EntityManager ['entity manager'.apply_parameterMethodClassicIn()/]) {
+    [e.nameClassOutIntegrationTestImpl()/](final [e.nameClassEntityPersistItf()/] [e.nameRepository().apply_parameterMethodClassicIn()/], 
+    	final DataSource ['data source'.apply_parameterMethodClassicIn()/], 
+    	final EntityManager ['entity manager'.apply_parameterMethodClassicIn()/]) {
        [e.prefixAffectation()/][e.nameRepository().apply_attributeFinal()/] = [e.nameRepository().apply_parameterMethodClassicIn()/];
        [e.prefixAffectation()/]['entity manager'.apply_attributeDefault()/] = ['entity manager'.apply_parameterMethodClassicIn()/];
        ['init sql'.apply_methodDefault()/](['data source'.apply_parameterMethodClassicIn()/]);
@@ -177,7 +177,9 @@
       [for (a : environment::Attribute | e.attributesNoPK())]
         [eName/].[a.nameAttribute().apply_methodSet()/]([a.defaultValue()/]);
       [/for]
+      
       [e.writeReferencedFK(rs)/]
+      
       [e.nameRepository().apply_attributeFinal()/].save([eName/]);
       [e.prefixAffectation()/]['crud id run'.apply_attributeDefault()/] 
          = [eName/].[e.nameSimplePropertyID().apply_methodGet()/](); 
@@ -214,7 +216,9 @@
              [eName/].[a.nameAttribute().apply_methodSet()/]([a.defaultValue()/]);
            [/if]
          [/for]
+         
          [e.writeReferencedFK(rs)/]
+         
          [e.nameRepository().apply_attributeFinal()/].save([eName/]);
       } catch (DataIntegrityViolationException e) {
           return;
@@ -249,9 +253,10 @@
           [eName/].[a.nameAttribute().apply_methodSet()/]([a.defaultValue()/]);
         [/if]
       [/for]
-      [e.writeReferencedFK(rs)/]
-      [e.nameRepository().apply_attributeFinal()/].save([eName/]);
       
+      [e.writeReferencedFK(rs)/]
+      
+      [e.nameRepository().apply_attributeFinal()/].save([eName/]);
       
       assertNotNull([eName/].[e.nameSimplePropertyID().apply_methodGet()/]()
          , "L'entity creee devrait avoir une cle primaire renseignee");
@@ -407,17 +412,18 @@
   *                   du test.
   */
   @Test
-  public void ['test all field inserted'.apply_methodDefault()/]() throws Exception
+  public void ['test all fields inserted'.apply_methodDefault()/]() throws Exception
   {
      
      [let eName = e.name().apply_variableDefault()]
         [e.nameClassEntityImpl()/] [eName/] = new [e.nameClassEntityImpl()/]();
         
-        [protected ('test all field inserted'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [protected ('test all fields inserted'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
         
         [for (a : environment::Attribute | e.attributesNoPK())]
           [eName/].[a.nameAttribute().apply_methodSet()/]([a.defaultValue()/]);
         [/for]
+        
         [e.writeReferencedFK(rs)/]
         
         [/protected]
@@ -432,7 +438,7 @@
              , "[a.nameAttribute()/] : Les champs ne correspondent pas");
         [/for]
         
-        [protected ('test all field inserted 2'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [protected ('test all fields inserted 2'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
         [/protected]
      [/let]
      
@@ -444,23 +450,27 @@
 [template private writeReferencedFK(e : entity::Entity, rs : OrderedSet(environment::Reference))]
   [for (r | rs)]
     [if (r.isMandatory())]
-      [e.writeReferencedEntity(r.referencedEntity(e), r)/]
+      [e.writeReferencedEntity(r)/]
     [/if]
   [/for]
+  
 [/template]
 
 [comment écriture pour la prise en compte des références de l'entité./]
-[template private writeReferencedEntity (e : entity::Entity, e1 : entity::Entity, r : environment::Reference)]
-  [let e1Name = e1.name().apply_variableDefault()]
-    [e1.nameClassEntityImpl()/] [e1Name/] = new [e1.nameClassEntityImpl()/]();
-    [e1Name/].[e1.nameSimplePropertyID().apply_methodSet()/](['crud id'.apply_attributeDefault()/]);
-    [e.name().apply_variableDefault()/].[r.referencedEntity(e).referencedName(r).apply_methodSet()/]([r.defaultReference(e1, e1Name)/]);
-    [for (r1 | e1.referencesFK())]
-      [comment on coupe si l'entité référencée reprend l'entité référancante./]
-      [if (r1.isMandatory() and r1.containingType <> e)]
-        [e.writeReferencedEntity(r.referencedEntity(e1), r1)/]
-      [/if]
+[template private writeReferencedEntity (e : entity::Entity, r : environment::Reference)]
+  [let e1 =  r.referencedEntity(e)]
+    [let e1Name = e1.name().apply_variableDefault()]
+      [e1.nameClassEntityImpl()/] [e1Name/] = new [e1.nameClassEntityImpl()/]();
+      [e1Name/].[e1.nameSimplePropertyID().apply_methodSet()/](['crud id'.apply_attributeDefault()/]);
+      [e.name().apply_variableDefault()/].[r.referencedEntity(e).referencedName(r).apply_methodSet()/]([r.defaultReference(e1, e1Name)/]);
+    
+      [for (r1 | e1.referencesFK())]
+        [comment on coupe si l'entité référencée reprend l'entité référancante./]
+        [if (r1.isMandatory() and r1.containingType <> e)]
+          [comment e.writeReferencedEntity(r.referencedEntity(e1), r1)/]
+        [/if]
     [/for]
+    [/let]
   [/let]
 [/template]
 

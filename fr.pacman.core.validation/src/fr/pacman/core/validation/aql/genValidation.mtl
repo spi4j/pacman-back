@@ -5,9 +5,12 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::validation::aql::file::genValidation/]
+[import fr::pacman::core::validation::aql::block::validation/]
 
 [comment ./]
 [comment @main/]						
 [template public genValidation(r : entity::Root)]
+  [comment écriture d'un fichier de validation pour la modélisation./]
   [r.fileValidationReport()/]
+  [comment r.validation()/]
 [/template]

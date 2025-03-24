@@ -14,8 +14,9 @@ public class PacmanUIGeneratorHelper {
 		if (p_e.getCause() != null) {
 			msg = p_e.getCause().getMessage();
 		}
-		PlugInUtils.displayError("Pacman", "Une erreur fatale a été détectée lors de la génération : " + p_e
-				+ "\n\rCause de l'erreur : " + msg + "\n\rLa génération va être stoppée.");
+		PlugInUtils.displayError("Pacman",
+				"Une erreur fonctionnelle ou technique a été détectée lors de la génération : " + p_e
+						+ "\n\rCause de l'erreur : " + msg + "\n\rLa génération va être stoppée.");
 	}
 
 	static void displayPopUpAlert(final String p_msg) {

@@ -55,7 +55,7 @@ public class SqlUIGenerators extends PacmanUIGenerator {
 	}
 
 	@Override
-	protected boolean isOrganizeImports() {
+	protected boolean hasPostTreatments() {
 		return false;
 	}
 

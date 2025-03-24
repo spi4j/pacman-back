@@ -77,4 +77,9 @@ public class GenCommon extends PacmanGeneratorStart {
 		templates.put("genCommonConfig", SelectionType_Enum.ROOT);
 		return templates;
 	}
+
+	@Override
+	public boolean hasPostTreatments() {
+		return true;
+	}
 }

@@ -62,4 +62,9 @@ public class GenCommon extends PacmanGenerator {
 		templates.put("genCommon", SelectionType_Enum.FILE);
 		return templates;
 	}
+
+	@Override
+	public boolean hasPostTreatments() {
+		return true;
+	}
 }

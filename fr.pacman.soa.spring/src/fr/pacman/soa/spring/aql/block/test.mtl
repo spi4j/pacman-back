@@ -155,6 +155,7 @@
   [s.classHeader(s.namePackageInIntegrationTestImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
+    import javax.sql.DataSource;
     import org.junit.jupiter.api.Test;
     import org.junit.jupiter.api.extension.ExtendWith;
     import org.springframework.beans.factory.annotation.Autowired;
@@ -211,22 +212,31 @@
     /**
      * Instance de {@link MockMvc} pour effectuer des requêtes HTTP simulées dans les tests.
      */
-     @Autowired
      private MockMvc ['rest helper'.apply_attributeDefault()/];
      
     /**
      * Instance de {@link [s.nameClassServiceOutItf()/]} qui est utilisée pour gérer 
      * les opérations de persistance au niveau des tests.
      */
-     @Autowired
      private [s.nameClassServiceOutItf()/] ['provider'.apply_attributeDefault()/];
      
      /**
       * Instance de {@link ObjectMapper} utilisée pour gérer les opérations de
       * conversion entre une entité et json.
       */
-     @Autowired
      ObjectMapper ['object mapper'.apply_attributeDefault()/];
+     
+     ['Constructeur'.commentMultiLines()/]
+     [s.nameClassServiceTestImpl()/](final DataSource ['data source'.apply_parameterMethodClassicIn()/]
+        , final [s.nameClassServiceOutItf()/] ['provider'.apply_parameterMethodClassicIn()/]
+        , final MockMvc ['rest helper'.apply_parameterMethodClassicIn()/]
+        , final ObjectMapper ['object mapper'.apply_parameterMethodClassicIn()/]){
+        
+        [s.prefixAffectation()/]['provider'.apply_attributeDefault()/] = ['provider'.apply_parameterMethodClassicIn()/];
+        [s.prefixAffectation()/]['object mapper'.apply_attributeDefault()/] = ['object mapper'.apply_parameterMethodClassicIn()/];
+        [s.prefixAffectation()/]['rest helper'.apply_attributeDefault()/] = ['rest helper'.apply_parameterMethodClassicIn()/];
+        ['init sql'.apply_methodDefault()/](['data source'.apply_parameterMethodClassicIn()/]);
+     }
      
      [for (o | s.ownedInterface.ownedOperations)]
        @Test

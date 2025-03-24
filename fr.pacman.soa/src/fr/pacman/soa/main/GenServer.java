@@ -63,4 +63,9 @@ public class GenServer extends PacmanGenerator {
 		templates.put("genServer", SelectionType_Enum.FILE);
 		return templates;
 	}
+	
+	@Override
+	public boolean hasPostTreatments() {
+		return true;
+	}
 }

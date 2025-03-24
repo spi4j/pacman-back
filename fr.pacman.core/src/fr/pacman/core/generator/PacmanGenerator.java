@@ -66,7 +66,7 @@ public abstract class PacmanGenerator {
 	protected final static String c_defaultLogFileName = "acceleo.log";
 
 	/**
-	 * 
+	 * Le système de retour à la ligne dfinit par défaut.
 	 */
 	protected final static String c_defaultNewLine = System.lineSeparator();
 
@@ -194,6 +194,19 @@ public abstract class PacmanGenerator {
 	 * @return une liste d'options pour la génération.
 	 */
 	protected abstract Map<String, String> getOptions();
+
+	/**
+	 * Flag d'activation pour la demande de délégation de certaine opérations de
+	 * post-traitement. Cette option est aussi présente au niveau de la couche UI.
+	 * Ainsi on peut agir de manière plus ou moins fine au niveau de la couche
+	 * globale UI qui lance plusieurs générateurs ou au niveau indivuduel de chaque
+	 * générateur.
+	 * <p>
+	 * Cela est par example partique pour le générateur de validation qui peut être
+	 * embarqué au niveau des couches entité, soa, etc.. et qui lui spécifiquement,
+	 * n'a pas besoin d'opérations de post traitement.
+	 */
+	public abstract boolean hasPostTreatments();
 
 	/**
 	 * Retourne la liste des {@link EObject} qui vont être manipulés par le

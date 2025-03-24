@@ -49,7 +49,7 @@
 [template public insertsHeader(any : ecore::EObject)]
   [any.ensureBlankLine()/]
   [any.cLine()/]
-  ['Insertions'.ensureSlashLine(any.defaultMaxSizeSqlHeader())/]
+  ['Insertions à recopier suite à regénération(s)'.ensureSlashLine(any.defaultMaxSizeSqlHeader())/]
   [any.cLine()/]
 [/template]
 

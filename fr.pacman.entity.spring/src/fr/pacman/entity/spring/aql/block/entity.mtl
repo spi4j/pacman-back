@@ -124,7 +124,7 @@
              [/for]
              
              
-             [protected ('constructor with parameters'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             [protected ('constructeur avec parametres'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
              [/protected]
           }
         [/let]

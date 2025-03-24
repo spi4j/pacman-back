@@ -57,9 +57,9 @@
 [comment vérifie si la référence est de type récursif./]
 [query public isRecursive(r : environment::Reference) : Boolean = r.isZeroOneRecursive() or r.isStarRecursive()/]
 
-[comment vérifie si la relation est biderectionnlle et multiple (n-n)./]
+[comment vérifie si la relation est bidirectionnelle et multiple (n-n)./]
 [query public isMultipleBidirectionnal(r : environment::Reference) : Boolean = 
-	r.isMultiple() and r.oppositeOf <> null/]
+	r.isMultiple() and r.oppositeOf <> null and r.oppositeOf.isMultiple()/]
 
 [comment vérifie si la référence exige une entité ou un dto/xto (les listes sont considérées comme obligatoire)./]
 [query public isMandatory(r : environment::Reference) : Boolean = if (r.exists()) then not (r.multiplicity = 

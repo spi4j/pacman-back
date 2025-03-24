@@ -59,14 +59,22 @@
   [r.scriptsHeader(dbType)/]
   [r.initCommentHeader()/]
   [r.insertsHeader()/]
+  /**
   [r.initDatabase(dbType)/]
-  [r.createConstraints(dbType)/]
-  [r.ensureBlankLine()/]
-  /*
-  [protected ('init data'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')] 
   */
   [r.ensureBlankLine()/]
-  /*
+  /** 
+  [protected ('init data'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    */
+    [r.ensureBlankLine()/]
+    /** Code insertions à recopier. */
+    [r.ensureBlankLine()/]
+    [r.initDatabase(dbType)/]
+    [r.ensureBlankLine()/]
+    /** Vos données de test. */
+    [r.ensureBlankLine()/]
+    /**
   [/protected]
-  */ 
+  */
+  [r.createConstraints(dbType)/]
 [/template]
