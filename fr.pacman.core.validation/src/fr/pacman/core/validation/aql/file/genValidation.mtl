@@ -6,9 +6,16 @@
 [import fr::pacman::core::aql::output::resources/]		
 [import fr::pacman::core::validation::aql::block::validation/]			
 						
-[comment écriture du fichier de validation pour la modélisation./]
+[comment écriture du fichier de validation pour la modélisation (entity)./]
 [template public fileValidationReport(r : entity::Root)]
-   [file ('validation'.toFile(null, '.log'), overwrite, r.defaultFileEncoding())]
+   [file (r.nameProject().toLower().toFile(null, '.log'), overwrite, r.defaultFileEncoding())]
      [r.validation()/]
+   [/file]
+[/template]
+
+[comment écriture du fichier de validation pour la modélisation (soa)./]
+[template public fileValidationReport(s : soa::System)]
+   [file (s.nameProject().toLower().toFile(null, '.log'), overwrite, s.defaultFileEncoding())]
+     [s.validation()/]
    [/file]
 [/template]

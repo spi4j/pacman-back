@@ -227,6 +227,7 @@
      ObjectMapper ['object mapper'.apply_attributeDefault()/];
      
      ['Constructeur'.commentMultiLines()/]
+     @Autowired
      [s.nameClassServiceTestImpl()/](final DataSource ['data source'.apply_parameterMethodClassicIn()/]
         , final [s.nameClassServiceOutItf()/] ['provider'.apply_parameterMethodClassicIn()/]
         , final MockMvc ['rest helper'.apply_parameterMethodClassicIn()/]

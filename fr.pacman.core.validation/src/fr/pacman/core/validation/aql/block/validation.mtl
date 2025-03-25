@@ -2,7 +2,8 @@
 					'http://www.obeonetwork.org/dsl/soa/4.0.0', 
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
-[import  fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::core::aql::query::dto/]
@@ -10,43 +11,61 @@
 
 [import fr::pacman::core::generator::PacmanValidatorsReport/]
 
-[comment ./]					
+[comment : 	attention, effet de bord (à voir si désiré ou non). Comme avec les requirements on a demandé 
+			le chargement express des ressources associées et que dans la cas de la validation, on a deux templates @main, 
+			que l'on clique sur '.entity' ou '.soa', les eux sont analysés en même temps, ce qui peut être perturbant 
+			pour l'utilisateur./]
+
+[comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
 [template public validation (r : entity::Root)]
+  ddfsdfds
   [for (e | r.eAllContents(entity::Entity))]
+    [comment pas d'entité vide./]
     [if (e.attributes->isEmpty())][e.add(e.msge1())/][/if]
+    [comment pas d'attribut avec identifier./] 
     [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.msge2())/][/if]
   [/for]
   [for (re | r.eAllContents(environment::Reference))]
+    [comment pas de relation bidir avec double navigabilité./]
     [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.msgr1())/][/if]
+    [comment pas de relation bidir avec (1 ou 0,1)./]
     [if ( re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.msgr2())/][/if]
   [/for]
-  
   [comment écriture du rapport dans le fichier./]
-  [for (s | r.get_report())]
-    [s/]
-  [/for]
+  [r.writeReport()/]
 [/template]
 
-[comment ./]
+[comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
 [template public validation (m : soa::System)]
-  /* **************************** */
-  /* Vérification des services... */
-  /* **************************** */
   [for (s | m.eAllContents(soa::Service))]
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
-      [comment s.name/]
+      [comment pas de service mappé sur une entité./]
+      [if (not o.output->select(o | o.type.oclIsKindOf(entity::Entity))->isEmpty())][s.add(s.msgs1())/][/if]
+      [comment pas de service sans paramètre de retour./]
+      [if (o.output->isEmpty())][s.add(s.msgs2())/][/if]
       [/for]
     [/if]
   [/for]
- 
+  [comment écriture du rapport dans le fichier./]
+  [m.writeReport()/]
 [/template]
+
+[comment écriture du rapport de validation./]
+[template private writeReport (any : ecore::EObject)]
+  [for (s | any.get_report())]
+    [s/]
+  [/for]
+ [/template]
 
 [comment écriture du nom de l'entité pour le rapport./]
 [query private nameEntity(e : entity::Entity) : String = e.namePackageProject() + e.blockHierarchy() + '.' + e.name/]
 
 [comment écriture du nom de la référence pour le rapport./]
 [query private nameReference(r : environment::Reference) : String = r.namePackageProject() + r.blockHierarchy() + '.' + r.name/]
+  
+[comment écriture du nom de la référence pour le rapport./]
+[query private nameService(s : soa::Service) : String = s.namePackageProject() + s.nameComponent() + '.' + s.name/]
 
 [comment impossible de créer des entités sans attribut./]
 [query private msge1 (e : entity::Entity) : String = e.nameEntity() + ' : L\'entité ne contient aucun attribut -> ajoutez au moins un attribut au niveau de l\'entité.'/]
@@ -65,3 +84,11 @@
 [comment impossible de créer des relations bidirectionnelles avec des cardinalités (1 - 0,1)./]
 [query private msgr2 (r : environment::Reference) : String = r.nameReference() + ' : La référence est de type bidirectionnel mais de cardinalité (0,1)' 
 	+ ' ou (1) sur au moins une des pattes, seules las cardinalités (0,n)(1,n) sont authorisées -> utilisez des relations non bidirectionnelles.'/]
+
+[comment impossible d'avoir un service directement mappé sur des entités./]	
+[query private msgs1 (s : soa::Service)  : String = s.nameService() + ' : Le service référence une (ou plusieurs) entité(s) -> ' 
+	+ 'ne référencez que des objets de transfert (dto) au niveau des services.'/]
+
+[comment impossible d'avoir un service sans paramètre de retour./]
+[query private msgs2 (s : soa::Service)  : String = s.nameService() + ' : Le service n\'a aucun paramètre de retour -> ' 
+	+ 'modélisez obligatoirement un paramètre de retour pour un service.'/]

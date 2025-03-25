@@ -7,10 +7,14 @@
 [import fr::pacman::core::validation::aql::file::genValidation/]
 [import fr::pacman::core::validation::aql::block::validation/]
 
-[comment ./]
-[comment @main/]						
+[comment @main/]	
+[comment écriture d'un fichier de validation pour la modélisation./]					
 [template public genValidation(r : entity::Root)]
-  [comment écriture d'un fichier de validation pour la modélisation./]
   [r.fileValidationReport()/]
-  [comment r.validation()/]
+[/template]
+
+[comment @main/]
+[comment écriture d'un fichier de validation pour la modélisation./]
+[template public genValidation(s : soa::System)]
+  [s.fileValidationReport()/]
 [/template]
