@@ -139,6 +139,26 @@ public final class StringUtils {
 	}
 
 	/**
+	 * Ecriture d'une ligne au format /* ABCDEF \*\/
+	 * 
+	 * @param p_str  la chaine à écrire à la place de ABCDEF
+	 * @param p_size la taille de la ligne à générer
+	 * @return la ligne générée
+	 */
+	public static String do_tabCell(final String p_str, final Integer p_size, final String p_separator) {
+		final StringBuilder sb = new StringBuilder(" ");
+		if (p_str != null) {
+			sb.append(p_str);
+		}
+		while (sb.length() < p_size) {
+			sb.append(' ');
+		}
+		sb.append(p_separator);
+		System.out.println(">>" + sb.length());
+		return sb.toString();
+	}
+	
+	/**
 	 * Echappement des caractères spéciaux d'une chaine, tels que les guillemets,
 	 * les retours chariots et les tabulations.
 	 * 

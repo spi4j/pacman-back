@@ -14,6 +14,7 @@
 
 [comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
 [template public validation (r : entity::Root) post(self.escapeFile())]
+  [r.writeTabHeader()/]
   [for (e | r.eAllContents(entity::Entity))]
     [comment pas d'entité vide./]
     [if (e.attributes->isEmpty())][e.add(e.msge1())/][/if]
@@ -21,9 +22,9 @@
     [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.msge2())/][/if]
   [/for]
   [for (re | r.eAllContents(environment::Reference))]
-    [comment pas de relation bidir avec double navigabilité./]
+    [comment pas de relation bidirectionnelle avec double navigabilité./]
     [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.msgr1())/][/if]
-    [comment pas de relation bidir avec (1 ou 0,1)./]
+    [comment pas de relation bidirectionnelle avec (1 ou 0,1)./]
     [if ( re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.msgr2())/][/if]
   [/for]
   [comment écriture du rapport dans le fichier./]
@@ -32,6 +33,7 @@
 
 [comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
 [template public validation (m : soa::System) post(self.escapeFile())]
+  [m.writeTabHeader()/]
   [for (s | m.eAllContents(soa::Service))]
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
@@ -46,12 +48,22 @@
   [m.writeReport()/]
 [/template]
 
+[comment écriture de l'en-tête pour le raport de validation./]
+[template private writeTabHeader(any : ecore::EObject)]
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  ['objet'.ensureTabCell(70, '|')/]['erreur rencontrée'.ensureTabCell(70, '|')/]['solution potentielle'.ensureTabCell(70, '|')/]
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[/template]
+
 [comment écriture du rapport de validation./]
 [template private writeReport (any : ecore::EObject)]
   [for (s | any.get_report())]
-    [s/]
+    [s.writeTabLine()/]
   [/for]
  [/template]
+ 
+[comment écriture d'un eligne pour un tableau (avec taille de la cellule et séparateur)./]
+[query private writeTabLine(s: String) : String = s.tokenize('@')->collect(o | o.ensureTabCell(70, '|'))->toString()/]
 
 [comment écriture du nom de l'entité pour le rapport./]
 [query private nameEntity(e : entity::Entity) : String = e.namePackageProject() + e.blockHierarchy() + '.' + e.name/]
@@ -63,27 +75,27 @@
 [query private nameService(s : soa::Service) : String = s.namePackageProject() + s.nameComponent() + '.' + s.name/]
 
 [comment impossible de créer des entités sans attribut./]
-[query private msge1 (e : entity::Entity) : String = e.nameEntity() + ' : L\'entité ne contient aucun attribut -> ajoutez au moins un attribut au niveau de l\'entité.'/]
+[query private msge1 (e : entity::Entity) : String = e.nameEntity() + '@Entité sans aucun attribut@Ajoutez au moins un attribut au niveau de l\'entité'/]
   
 [comment impossible de créer des entités avec un attribut de type 'Identifier'./]
-[query private msge2 (e : entity::Entity) : String = e.nameEntity() + ' : L\'entité contient un attribut marqué comme \'Identifier\'' +  
-  '-> ne pas marquer l\'attribut(s) et laisser le générateur gérer l\'identifiant de l\'entité.'/]
+[query private msge2 (e : entity::Entity) : String = e.nameEntity() + '@Entité avec un attribut marqué comme \'Identifier\'' +  
+  '@Ne pas marquer l\'attribut(s) et laisser le générateur gérer l\'identifiant de l\'entité'/]
   
 [comment impossible de créer des entités .............../]
-[query private msge3 (e : entity::Entity) : String = e.nameEntity() + ' : xxxxxxxxx' /]
+[query private msge3 (e : entity::Entity) : String = e.nameEntity() + 'xxxxxxxxx' /]
   
 [comment impossible de créer des relations bidirectionnelles navigables dans les deux sens./]
-[query private msgr1 (r : environment::Reference) : String = r.nameReference() + ' : La référence est de type bidirectionnel mais est navigable dans les deux sens ' 
-+ ' -> décochez la navigabilité sur un des deux liens.'/]
+[query private msgr1 (r : environment::Reference) : String = r.nameReference() + '@Référence bidirectionnel navigable dans les deux sens ' 
++ '@Décochez la navigabilité sur un des deux liens'/]
 
 [comment impossible de créer des relations bidirectionnelles avec des cardinalités (1 - 0,1)./]
-[query private msgr2 (r : environment::Reference) : String = r.nameReference() + ' : La référence est de type bidirectionnel mais de cardinalité (0,1)' 
-	+ ' ou (1) sur au moins une des pattes, seules las cardinalités (0,n)(1,n) sont authorisées -> utilisez des relations non bidirectionnelles.'/]
+[query private msgr2 (r : environment::Reference) : String = r.nameReference() + '@Référence bidirectionnel avec une cardinalité (1 - 0,1)' 
+	+ '@Utilisez des relations non bidirectionnelles'/]
 
 [comment impossible d'avoir un service directement mappé sur des entités./]	
-[query private msgs1 (s : soa::Service)  : String = s.nameService() + ' : Le service référence une (ou plusieurs) entité(s) -> ' 
-	+ 'ne référencez que des objets de transfert (dto) au niveau des services.'/]
+[query private msgs1 (s : soa::Service)  : String = s.nameService() + 'Service référencant une (ou plusieurs) entité(s)@' 
+	+ 'Ne référencez que des objets de transfert (dto) au niveau des services'/]
 
 [comment impossible d'avoir un service sans paramètre de retour./]
-[query private msgs2 (s : soa::Service)  : String = s.nameService() + ' : Le service n\'a aucun paramètre de retour -> ' 
-	+ 'modélisez obligatoirement un paramètre de retour pour un service.'/]
+[query private msgs2 (s : soa::Service)  : String = s.nameService() + 'Service sans paramètre de retour@' 
+	+ 'Modélisez obligatoirement un paramètre de retour pour un service'/]

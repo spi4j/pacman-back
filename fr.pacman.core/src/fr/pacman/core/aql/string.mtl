@@ -49,7 +49,10 @@
   
 [comment affecte un marqueur pour demander une ligne vide avec retour à la ligne./]
 [query public ensureBlankLine(any : ecore::EObject) : String  = '@CR'/]
-
+ 
+[comment retourne la ligne pour le tableau avec une taille et un séparateur./]
+[query public ensureTabCell(str : String, size : Integer, separator : String) : String = str.do_tabCell(size, separator)/]
+  
 [comment insère une chaine de caractères (c) avant une chaîne (r)./]
 [query public insert(str : String, c : String, r : String) : String = str.replace(r, c + r)/]
 
