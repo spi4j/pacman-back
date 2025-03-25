@@ -101,7 +101,6 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * @throws CoreException
 	 */
 	public PacmanUIGenerator(IResource p_selectedResource) {
-
 		_resources = new ArrayList<>();
 		_resources.add(p_selectedResource.getLocation().toString());
 		_resources.addAll(loadAdditionnalResources(p_selectedResource));
@@ -155,6 +154,12 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * <p>
 	 * Pour exemple, il n'y a aucun intérêt à bénéficier de l'organisation
 	 * automatique des imports si le générateur ne crée pas de classe Java.
+	 * <p>
+	 * Il est à noter qu'il est possible de profiter de cette méthode pour aussi
+	 * positionner ici du code spécifique à exécuter pour un générateur UI. Par
+	 * ailleurs, ce code va s'exécuter uniquement dans le cas ou le générateur UI
+	 * fonctionne en 'standalone' et non dans le cas ou le générateur associé est
+	 * exécuté en collaboration avec d'autres générateurs.
 	 * 
 	 * @return positionner à la valeur 'true' pour demander l'organisation
 	 *         automatique des imports, sinon mettre à 'false'.
@@ -198,11 +203,15 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 			IResource[] allResources = p_selectedResource.getParent().members();
 			for (int i = 0; i < allResources.length; i++) {
 				if (!p_selectedResource.getName().equalsIgnoreCase(allResources[i].getName())
-						&& (allResources[i].getName().contains(".requirement")
-								|| allResources[i].getName().contains(".soa")
-								|| allResources[i].getName().contains(".entity"))) {
+						&& (allResources[i].getName().contains(".requirement"))) {
 					resources.add(allResources[i].getLocation().toString());
 				}
+//				if (!p_selectedResource.getName().equalsIgnoreCase(allResources[i].getName())
+//						&& (allResources[i].getName().contains(".requirement")
+//								|| allResources[i].getName().contains(".soa")
+//								|| allResources[i].getName().contains(".entity"))) {
+//					resources.add(allResources[i].getLocation().toString());
+//				}
 			}
 		} catch (CoreException e) {
 			throw new RuntimeException("Erreur de récupération des ressources additionnelles.", e);
@@ -234,6 +243,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 				PacmanUIAcceleoProfiler.set_project(null);
 				PropertiesHandler.init(_rootPath.getPath());
 				PacmanValidatorsReport.reset();
+
 				if (hasSelectionIncompatibilities())
 					return;
 
@@ -249,9 +259,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 					generator.setValues(_values);
 					generator.generate(monitor);
 				}
-
-				if (ProjectProperties.isProfilerEnabled())
-					_profiler.write();
+				postTreatment();
 			}
 		};
 
@@ -263,7 +271,6 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 
 		} finally {
 			try {
-				postTreatment();
 				PropertiesHandler.exit();
 
 			} catch (Exception p_e) {
@@ -307,7 +314,11 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * 
 	 * @throws CoreException une exception levée lors de l'exécution du traitement.
 	 */
-	protected void postTreatment() throws CoreException {
+	protected void postTreatment() {
+
+		if (ProjectProperties.isProfilerEnabled())
+			_profiler.write();
+
 		for (PacmanGenerator generator : getGenerators()) {
 			final File targetFolder = new File(_rootPath.getParent() + File.separator + generator.getSubProjectName());
 			final IContainer targetWorkspaceContainer = ResourcesPlugin.getWorkspace().getRoot()

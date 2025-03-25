@@ -7,7 +7,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.emf.common.util.Logger;
 
 import fr.pacman.core.generator.PacmanGenerator;
+import fr.pacman.core.generator.PacmanValidatorsReport;
 import fr.pacman.core.ui.generator.PacmanUIGenerator;
+import fr.pacman.core.ui.generator.PacmanUIGeneratorHelper;
 import fr.pacman.core.validation.main.GenValidation;
 import fr.pacman.core.validation.ui.plugin.Activator;
 
@@ -52,8 +54,15 @@ public class ValidationUIGenerators extends PacmanUIGenerator {
 		return null;
 	}
 
+	/**
+	 * Pour ce générateur, traitement particulier post génération.
+	 */
 	@Override
 	protected boolean hasPostTreatments() {
+
+		if (PacmanValidatorsReport.hasReport())
+			PacmanUIGeneratorHelper.displayPopUpAlert("Le rapport a remonté des erreurs de validation, "
+					+ " consultez le fichier de log au niveau du projet de modélisation.");
 		return false;
 	}
 

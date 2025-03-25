@@ -3,6 +3,7 @@
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::entity/]
@@ -11,14 +12,8 @@
 
 [import fr::pacman::core::generator::PacmanValidatorsReport/]
 
-[comment : 	attention, effet de bord (à voir si désiré ou non). Comme avec les requirements on a demandé 
-			le chargement express des ressources associées et que dans la cas de la validation, on a deux templates @main, 
-			que l'on clique sur '.entity' ou '.soa', les eux sont analysés en même temps, ce qui peut être perturbant 
-			pour l'utilisateur./]
-
 [comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
-[template public validation (r : entity::Root)]
-  ddfsdfds
+[template public validation (r : entity::Root) post(self.escapeFile())]
   [for (e | r.eAllContents(entity::Entity))]
     [comment pas d'entité vide./]
     [if (e.attributes->isEmpty())][e.add(e.msge1())/][/if]
@@ -36,7 +31,7 @@
 [/template]
 
 [comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
-[template public validation (m : soa::System)]
+[template public validation (m : soa::System) post(self.escapeFile())]
   [for (s | m.eAllContents(soa::Service))]
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]

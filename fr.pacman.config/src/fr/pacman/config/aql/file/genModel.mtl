@@ -13,7 +13,13 @@
 
 [comment écriture du readme.txt dans le répertoire des fichiers de propriétés (permet de préparer le répertoire)/]
 [template public fileReadMe(any : ecore::EObject)]
-  [file ('Readme'.toFile(any.namePropertiesDirectory(), '.txt'), overwrite, any.defaultFileEncoding())]
+  [file (any.nameProject().toLower().toFile(null, '.txt'), overwrite, any.defaultFileEncoding())]
     [any.readMe()/]
+  [/file]
+[/template]
+
+[comment écriture du rapport (vide) de validation des modèles./]
+[template public fileValidation(any : ecore::EObject)]
+  [file (any.nameProject().toLower().toFile(null, '.log'), overwrite, any.defaultFileEncoding())]
   [/file]
 [/template]
