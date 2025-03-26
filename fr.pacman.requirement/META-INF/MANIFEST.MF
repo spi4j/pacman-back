@@ -12,8 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  fr.pacman.requirement.spi4j,
  fr.pacman.requirement.spring,
  org.obeonetwork.dsl.requirement,
- org.eclipse.acceleo.aql;bundle-version="4.0.0",
- org.eclipse.acceleo.query;bundle-version="8.0.2"
+ org.eclipse.acceleo.aql;bundle-version="[4.0.0,5.0.0)",
+ org.eclipse.acceleo.query;bundle-version="[8.0.2,9.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: fr.pacman.requirement.main

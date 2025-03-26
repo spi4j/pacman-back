@@ -15,9 +15,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.obeonetwork.dsl.soa,
   org.apache.commons.io, 
  fr.pacman.core,
- org.eclipse.acceleo.query.ide;bundle-version="[8.0.2,9.0.0)",
- org.eclipse.acceleo.query;bundle-version="8.0.2",
- org.eclipse.acceleo.aql;bundle-version="4.0.0"
+ org.eclipse.acceleo.query;bundle-version="[8.0.2,9.0.0)",
+ org.eclipse.acceleo.aql;bundle-version="[4.0.0,5.0.0)"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: fr.pacman.core.validation.main
