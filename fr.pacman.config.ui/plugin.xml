@@ -21,7 +21,7 @@
                   commandId="fr.pacman.config.ui.commands.ConfigGeneratorCommand"
                   id="fr.pacman.config.ui.commands.ConfigGeneratorCommand" 
                   icon="icons/cali.png" 
-                  label="Génération de la couche de service">
+                  label="Génération de la configuration du projet">
                <visibleWhen
                      checkEnabled="false">
                   <with

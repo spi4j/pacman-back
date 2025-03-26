@@ -154,7 +154,6 @@ public final class StringUtils {
 			sb.append(' ');
 		}
 		sb.append(p_separator);
-		System.out.println(">>" + sb.length());
 		return sb.toString();
 	}
 	

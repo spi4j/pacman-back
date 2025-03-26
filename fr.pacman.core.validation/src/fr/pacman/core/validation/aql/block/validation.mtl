@@ -38,9 +38,15 @@
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
       [comment pas de service mappé sur une entité./]
-      [if (not o.output->select(o1 | o1.type.oclIsKindOf(entity::Entity))->isEmpty())][s.add(s.msgs1())/][/if]
+      [if (not o.output->select(o1 | o1.type.oclIsKindOf(entity::Entity))->isEmpty())][o.add(s.msgs1(o))/][/if]
       [comment pas de service sans paramètre de retour./]
-      [if (o.output->isEmpty())][s.add(s.msgs2())/][/if]
+      [if (o.output->isEmpty())][o.add(s.msgs2(o))/][/if]
+      [comment pas de service sans code de retour./]
+      [if (not o.output->first().statusCode.exists())][o.add(s.msgs3(o))/][/if]
+      [comment pas de service non rest (temporaire)./]
+      [if (not (o.exposition = soa::ExpositionKind::REST))][o.add(s.msgs4(o))/][/if]
+      [comment pas de fault sans code de retour./]
+      [if (not o.fault->select(f | not (f.statusCode.exists()))->isEmpty())][o.add(s.msgs5(o))/][/if]
       [/for]
     [/if]
   [/for]
@@ -66,13 +72,13 @@
 [query private writeTabLine(s: String) : String = s.tokenize('@')->collect(o | o.ensureTabCell(70, '|'))->toString()/]
 
 [comment écriture du nom de l'entité pour le rapport./]
-[query private nameEntity(e : entity::Entity) : String = e.namePackageProject() + e.blockHierarchy() + '.' + e.name/]
+[query private nameEntity(e : entity::Entity) : String =  e.blockHierarchy().replaceFirst('.','') + '.' + e.name/]
 
 [comment écriture du nom de la référence pour le rapport./]
-[query private nameReference(r : environment::Reference) : String = r.namePackageProject() + r.blockHierarchy() + '.' + r.name/]
+[query private nameReference(r : environment::Reference) : String = r.blockHierarchy().replaceFirst('.','')  + '.' + r.name/]
   
 [comment écriture du nom de la référence pour le rapport./]
-[query private nameService(s : soa::Service) : String = s.namePackageProject() + s.nameComponent() + '.' + s.name/]
+[query private nameService(s : soa::Service) : String = s.nameComponent() + '.' + s.name/]
 
 [comment impossible de créer des entités sans attribut./]
 [query private msge1 (e : entity::Entity) : String = e.nameEntity() + '@Entité sans aucun attribut@Ajoutez au moins un attribut au niveau de l\'entité'/]
@@ -93,9 +99,21 @@
 	+ '@Utilisez des relations non bidirectionnelles'/]
 
 [comment impossible d'avoir un service directement mappé sur des entités./]	
-[query private msgs1 (s : soa::Service)  : String = s.nameService() + 'Service référencant une (ou plusieurs) entité(s)@' 
-	+ 'Ne référencez que des objets de transfert (dto) au niveau des services'/]
+[query private msgs1 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Service référencant une (ou plusieurs) entité(s)@Ne référencez que des objets de transfert (dto) au niveau des services'/]
 
 [comment impossible d'avoir un service sans paramètre de retour./]
-[query private msgs2 (s : soa::Service)  : String = s.nameService() + 'Service sans paramètre de retour@' 
-	+ 'Modélisez obligatoirement un paramètre de retour pour un service'/]
+[query private msgs2 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération sans paramètre de retour@Modélisez un paramètre de retour pour une opération'/]
+	
+[comment impossible d'avoir un service sans statut de retour./]
+[query private msgs3 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération sans statut de retour@Attachez un code statut au paramètre de retour pour une opération'/]
+	
+[comment impossible d'avoir un service non rest (temporaire)./]
+[query private msgs4 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération exposition non définie@Attachez une exposition de typê \'REST\' pour une opération'/]
+	
+[comment impossible d'avoir un service avec une fault sans code statut./]
+[query private msgs5 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Paramètre \'fault\' sans statut@Attachez un code statut au paramètre \'fault\' pour une opération'/]
