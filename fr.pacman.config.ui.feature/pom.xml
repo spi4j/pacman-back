@@ -10,7 +10,7 @@
 		<version>5.0.0</version>
 	</parent>
 	
-	<artifactId>fr.pacman.congfig.ui.feature</artifactId>
+	<artifactId>fr.pacman.config.ui.feature</artifactId>
 	<packaging>eclipse-feature</packaging>
 	<name>fr.pacman.config.ui.feature</name>
 	<description>Feature Pacman Configuration UI.</description>

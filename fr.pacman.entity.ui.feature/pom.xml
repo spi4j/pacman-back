@@ -10,8 +10,8 @@
 		<version>5.0.0</version>
 	</parent>
 	
-	<artifactId>fr.pacman.entity.api.feature</artifactId>
+	<artifactId>fr.pacman.entity.ui.feature</artifactId>
 	<packaging>eclipse-feature</packaging>
-	<name>fr.pacman.entity.api.feature</name>
+	<name>fr.pacman.entity.ui.feature</name>
 	<description>Feature UI Pacman Entity.</description>
 </project>
