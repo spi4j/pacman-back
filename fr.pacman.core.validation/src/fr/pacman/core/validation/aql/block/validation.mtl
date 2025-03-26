@@ -38,7 +38,7 @@
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
       [comment pas de service mappé sur une entité./]
-      [if (not o.output->select(o | o.type.oclIsKindOf(entity::Entity))->isEmpty())][s.add(s.msgs1())/][/if]
+      [if (not o.output->select(o1 | o1.type.oclIsKindOf(entity::Entity))->isEmpty())][s.add(s.msgs1())/][/if]
       [comment pas de service sans paramètre de retour./]
       [if (o.output->isEmpty())][s.add(s.msgs2())/][/if]
       [/for]

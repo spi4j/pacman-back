@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.core.ui
 Bundle-ManifestVersion: 2
-Bundle-Name: Pacman - Core UI
+Bundle-Name: Pacman - Core - UI
 Bundle-SymbolicName: fr.pacman.core.ui;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.core.ui.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,

@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.core.validation
 Bundle-ManifestVersion: 2
 Bundle-Name: Pacman - Core - Validation
 Bundle-SymbolicName: fr.pacman.core.validation
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.core.validation.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,

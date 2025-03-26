@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import fr.pacman.core.property.project.ProjectProperties;
-import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.util.FormUtil;
 import fr.pacman.start.ui.util.ValidatorUtil;
 

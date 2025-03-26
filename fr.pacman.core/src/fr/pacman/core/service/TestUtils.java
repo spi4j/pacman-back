@@ -1,9 +1,5 @@
 package fr.pacman.core.service;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,11 +12,11 @@ public class TestUtils {
 	/**
 	 * Liste des types de colonne gérés par Pacman.
 	 */
-	private static final String c_typeColumnId = "Id";
-	private static final String c_typeColumnIdJoin = "IdJoin";
-	private static final String c_typeColumnReference = "Reference";
+//	private static final String c_typeColumnId = "Id";
+//	private static final String c_typeColumnIdJoin = "IdJoin";
+//	private static final String c_typeColumnReference = "Reference";
 	private static final String c_typeColumnXtopSup = "XtopSup";
-	private static final String c_typeColumnDefault = "Default";
+//	private static final String c_typeColumnDefault = "Default";
 	private static final String c_typeColumnLong = "Long";
 	private static final String c_typeColumnInt = "Integer";
 	private static final String c_typeColumnFloat = "Float";

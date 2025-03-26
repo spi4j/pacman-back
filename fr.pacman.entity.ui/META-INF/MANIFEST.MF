@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.entity.ui
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Entity UI
+Bundle-Name: PacMan - Entity - UI
 Bundle-SymbolicName: fr.pacman.entity.ui;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.entity.ui.plugin.Activator$Implementation
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.emf.ecore,

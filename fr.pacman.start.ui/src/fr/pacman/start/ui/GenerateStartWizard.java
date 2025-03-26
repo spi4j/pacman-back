@@ -32,7 +32,6 @@ import fr.pacman.config.main.GenCommon;
 import fr.pacman.config.main.GenModel;
 import fr.pacman.config.main.GenRoot;
 import fr.pacman.config.main.GenServer;
-import fr.pacman.config.main.GenWebapp;
 import fr.pacman.core.generator.PacmanGeneratorStart;
 import fr.pacman.core.property.PropertiesHandler;
 import fr.pacman.core.property.project.ProjectProperties;

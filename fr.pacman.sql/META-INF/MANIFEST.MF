@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.sql
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Entity SQL
+Bundle-Name: PacMan - SQL
 Bundle-SymbolicName: fr.pacman.sql
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.sql.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,

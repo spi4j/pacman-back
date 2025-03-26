@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.requirement.ui
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Requirement UI
+Bundle-Name: PacMan - Requirement - UI
 Bundle-SymbolicName: fr.pacman.requirement.ui;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.requirement.ui.plugin.Activator$Implementation
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.emf.ecore,

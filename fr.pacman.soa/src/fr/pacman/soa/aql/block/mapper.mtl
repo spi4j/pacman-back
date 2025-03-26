@@ -356,5 +356,5 @@
   + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));' /]
   
 
-[query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]
-[query private dsq2(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'xto'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')/]
+[query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')->toString()/]
+[query private dsq2(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'xto'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')->toString()/]

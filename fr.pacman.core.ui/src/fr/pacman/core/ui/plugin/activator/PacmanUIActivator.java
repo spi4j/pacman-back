@@ -20,6 +20,7 @@ public abstract class PacmanUIActivator extends EMFPlugin {
 	 *                  <code>False</code> to log it as a warning.
 	 */
 	public static void log(Exception exception, boolean blocker) {
+		@SuppressWarnings("unused")
 		final int severity;
 		if (blocker) {
 			severity = IStatus.ERROR;
@@ -38,6 +39,7 @@ public abstract class PacmanUIActivator extends EMFPlugin {
 	 *                <code>False</code> to log it as a warning.
 	 */
 	public static void log(String message, boolean blocker) {
+		@SuppressWarnings("unused")
 		int severity = IStatus.WARNING;
 		if (blocker) {
 			severity = IStatus.ERROR;

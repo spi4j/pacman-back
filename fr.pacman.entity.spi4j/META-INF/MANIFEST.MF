@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.entity.spi4j
 Bundle-ManifestVersion: 2
 Bundle-Name: PacMan - Entity - Spi4j
 Bundle-SymbolicName: fr.pacman.entity.spi4j
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.entity.spi4j.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,

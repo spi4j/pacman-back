@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.branding
 Bundle-ManifestVersion: 2
 Bundle-Name: Cali
 Bundle-SymbolicName: fr.pacman.branding;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Require-Bundle: org.eclipse.osgi
 Bundle-Activator: fr.pacman.branding.Activator
 Bundle-Vendor: Cali

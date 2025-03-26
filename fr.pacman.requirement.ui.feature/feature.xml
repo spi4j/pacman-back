@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="fr.pacman.requirement.ui.feature"
+      label="PacMan - Exigence - Produit"
+      version="5.0.0.qualifier"
+      provider-name="Cali"
+      plugin="fr.pacman.branding">
+         
+   <includes
+      id="fr.pacman.core.ui.feature"
+      version="0.0.0"/>
+      
+   <plugin
+         id="fr.pacman.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="fr.pacman.requirement"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="fr.pacman.requirement.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="fr.pacman.requirement.spi4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="fr.pacman.requirement.spring"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+</feature>

@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.entity
 Bundle-ManifestVersion: 2
 Bundle-Name: PacMan - Entity
 Bundle-SymbolicName: fr.pacman.entity
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.entity.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,

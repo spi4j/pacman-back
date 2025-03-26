@@ -72,6 +72,7 @@ public final class DtoEntityUtils {
 	 * @param p_entity l'entité pour laquelle retourner l'ensemble des attributs
 	 * @return les attributs de l'entité (hérités ou non)
 	 */
+	@SuppressWarnings("unused")
 	public static List<Attribute> get_attributes(final Entity p_entity) {
 		final List<Attribute> attributes = new ArrayList<Attribute>(p_entity.getAttributes());
 		if (p_entity.getAssociatedTypes() != null) {
@@ -92,6 +93,7 @@ public final class DtoEntityUtils {
 	 * @param p_entityAttribute l'attribut d'entité
 	 * @return true si le DTO contient déjà cet attribut d'entité, false sinon
 	 */
+	@SuppressWarnings("unused")
 	private static boolean entityContainsDTOAttribute(final Entity p_entity, final Attribute p_entityAttribute) {
 		boolean retour = false;
 		for (Attribute entityAttribute : p_entity.getAttributes()) {
@@ -119,6 +121,7 @@ public final class DtoEntityUtils {
 		 * @param p_entity       le Entity qui contiendra l'attribut
 		 * @param p_dtoAttribute l'attribut d'entité
 		 */
+		@SuppressWarnings("unused")
 		public EntityAttributeIntern(final Entity p_entity,
 				final org.obeonetwork.dsl.environment.Attribute p_dtoAttribute) {
 			super();

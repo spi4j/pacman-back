@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.config.spring
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan - Configuration Spring
+Bundle-Name: PacMan - Configuration - Spring
 Bundle-SymbolicName: fr.pacman.config.spring
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.config.spring.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,
