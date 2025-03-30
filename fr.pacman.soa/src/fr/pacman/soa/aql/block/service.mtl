@@ -4,7 +4,7 @@
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
-[import fr::pacman::core::aql::string/]						
+[import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
@@ -219,8 +219,10 @@
   + s.nameClassServiceRequirementImpl() + '();'  else '' endif/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writeOperation(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]
+[query private writeOperation(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')'/]
 
 [comment écriture de la signature d'une opération avec le paramètre en sortie./]
-[query private writeInputs(o : soa::Operation) : String = o.nameOperation()  + '(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())
-	->sep(', ') + ')' /]
+[query private writeInputs(o : soa::Operation) : String = o.nameOperation()  
+  + '(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())->sep(', ') + if (o.paged) then ', ' 
+  + 'sort by'.apply_parameterMethodClassicIn() else '' endif + ')' /]
+  

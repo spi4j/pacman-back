@@ -33,9 +33,11 @@
 [query public inputRsType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
   + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif else p.type(false) endif/]
 
-[comment retourne le type complet (optional + list) pour le paramètre de sortie pour une opération de persistance./]
-[query public outputPersistType(o : soa::Operation) : String = if (o.hasOutput() and o.output->first().type.oclIsKindOf(environment::DTO)) 
-  then o.output->first().outputType(false, true) else o.outputType() endif/]
+[comment retourne le type complet (optional + list) pour le paramètre de sortie pour une opération de persistance (si paginé obligatoirement un param de sortie)./]
+[query public outputPersistType(o : soa::Operation) : String = if (o.paged) then 'Page<' + if (o.output->first().type.oclIsKindOf(environment::DTO)) then 
+  o.output->first().type.oclAsType(environment::DTO).associatedEntity().nameClassEntityImpl() else o.output->first().type endif +  '>' 
+  else  if (o.hasOutput() and o.output->first().type.oclIsKindOf(environment::DTO)) then o.output->first().outputType(false, true) 
+  else o.outputType() endif endif/]
   
 [comment retourne le type complet pour le paramètre de sortie (transverse) (optional + list)./]
 [query private outputType(p : soa::Parameter, serialized : Boolean, associatedEntity : Boolean) : String =  if (not serialized and p.isOptional()) 
@@ -80,7 +82,8 @@
   
 [comment retourne les types et les noms des paramètres en entrée (si existent) (list + optional + type + nom)./]
 [query public inputSignature(o : soa::Operation) : String = o.input->collect(o1 | 'final ' + o1.type(false) + ' ' 
-  + o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
+  + o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString() + if (o.paged) then ', String ' 
+  + 'sort by'.apply_parameterMethodClassicIn() else '' endif/]
 
 [comment retourne le dto associé pour la couche de persistance (point d'entrée). 
 	Algo très simple : 

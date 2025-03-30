@@ -5,6 +5,7 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::parameter/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::core::aql::query::dto/]
@@ -47,6 +48,15 @@
       [if (not (o.exposition = soa::ExpositionKind::REST))][o.add(s.msgs4(o))/][/if]
       [comment pas de fault sans code de retour./]
       [if (not o.fault->select(f | not (f.statusCode.exists()))->isEmpty())][o.add(s.msgs5(o))/][/if]
+      [comment pas de pagination sur une opération qui ne retourne pas une liste./]
+      [if (o.paged and not o.output->first().isMultiple())][o.add(s.msgs6(o))/][/if]
+      [comment pas de service paginé sans paramètres de pagination./]
+      [if (o.paged and (not o.page.name.exists() or not o.size.name.exists()))][o.add(s.msgs7(o))/][/if]
+      [comment pas de service paginé si les paramètres de pagination de sont pas des entiers./]
+      [if (o.paged and not o.page.type.name.equalsIgnoreCase('integer'))][o.add(s.msgs8(o))/][/if]
+      [comment pas de service paginé si les paramètres de pagination de sont pas des entiers./]
+      [if (o.paged and not o.size.type.name.equalsIgnoreCase('integer'))][o.add(s.msgs8(o))/][/if]
+      [comment pas de service avec un doute sur l'URI./]
       [/for]
     [/if]
   [/for]
@@ -117,3 +127,15 @@
 [comment impossible d'avoir un service avec une fault sans code statut./]
 [query private msgs5 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
 	+ '@Paramètre \'fault\' sans statut@Attachez un code statut au paramètre \'fault\' pour une opération'/]
+	
+[comment impossible d'avoir un service paginé sans liste en sortie./]
+[query private msgs6 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération paginée sans liste en retour@Définissez une liste en retour pour l\'opération'/]
+	
+[comment impossible d'avoir un service paginé sans liste en sortie./]
+[query private msgs7 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération paginée sans paramètre de pagination@Définissez les paramètres page et size'/]
+	
+[comment impossible d'avoir un service paginé avec paramètre de pagination autre que Integer./]
+[query private msgs8 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération paginée avec paramètre de pagination mal typé@Définissez le type \'Integer\' pour page et size'/]

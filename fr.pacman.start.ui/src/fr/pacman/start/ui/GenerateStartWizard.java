@@ -56,13 +56,13 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	private PropertiesWizardStartPage _pageOne;
 
 	/**
-	 * La version de spi4J à utiliser.
+	 * La version du générateur.
 	 */
-	private static final String c_spi4JVersion = "4.6.0";
+	private static final String c_version = "5.0.0";
 
 	@Override
 	public void init(IWorkbench p_workbench, IStructuredSelection p_selection) {
-		setWindowTitle("Pacman : générateur de code JAVA [version " + c_spi4JVersion + "]");
+		setWindowTitle("Pacman : générateur de code JAVA [version " + c_version + "]");
 	}
 
 	/**

@@ -334,5 +334,6 @@
 
 [comment écriture des différents paramètres à injecter pour l'opération (corps)./]
 [query private writeRsInputBodyParams(o : soa::Operation) : String = if (o.hasInputs() and not o.input->select(o1 | o1.isBody())->isEmpty()) 
-	then o.input->asOrderedSet()->select(o1 | o1.isBody())->collect(o2 | '.content(' + 'object mapper'.apply_variableDefault() 
-	+ '.writeValueAsString(' + o2.name().apply_attributeDefault() + '))')->sep(', ')->toString() else '' endif/]
+	then '.' +  o.input->asOrderedSet()->select(o1 | o1.isBody())->collect(o2 | 'content(' + 'object mapper'.apply_variableDefault() 
+	+ '.writeValueAsString(' + o2.name().apply_attributeDefault() + '))')->sep('.')->toString() else '' endif/]
+	

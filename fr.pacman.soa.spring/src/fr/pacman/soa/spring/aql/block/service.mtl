@@ -80,7 +80,13 @@
         [o.writeRsSignature()/]
         {
            [o.lineSeparator()/]
-           [o.writeRsOperation(s)/]; 
+           [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             [o.writeCheckPageParam()/]
+             [o.writeCheckSizeParam()/]
+             [o.writeSortByParam()/]
+           [/protected]
+           
+           [o.writeRsOperation(s)/] 
         }
       [/if]
     [/for]
@@ -148,6 +154,9 @@
     [s.defaultImports()/]
     import org.springframework.stereotype.Component;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.data.domain.Page;
+    import org.springframework.data.domain.PageRequest;
+    import org.springframework.data.domain.Sort;
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
     import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];  
@@ -219,14 +228,35 @@
 [query private fsd(o : soa::Operation) : Boolean =  if (o.hasOutput()) then 
   if(o.output->first().type.oclIsKindOf(environment::DTO)) then if (o.output->first().type.oclAsType(environment::DTO).isPersistent()) 
   then true  else  false  endif else  true endif  else  true endif /]
+  
+[comment écriture de l'éventuel paramètre de pagination./]
+[query private writeSortByParam(o : soa::Operation) : String = 'final String ' + 'sort by'.apply_variableDefault() + '= "' 
+	+ '";'/]
+  
+[comment écriture de la vérification et de l'affectation des éventuels paramètres de pagination./]
+[query private writeCheckPageParam(o : soa::Operation) : String = if (o.paged) then o.input
+	->select(o1 | o1.technicalid.equalsIgnoreCase(o.page.technicalid) and not o1.isMandatory())
+	->collect(o2 | 'if(null == ' + o2.name() + ')' +  o2.name + ' = 0;')->first() else '' endif/]
+  
+[comment écriture de la vérification et de l'affectation des éventuels paramètres de pagination./]
+[query private writeCheckSizeParam(o : soa::Operation) : String = if (o.paged) then o.input
+	->select(o1 | o1.technicalid.equalsIgnoreCase(o.size.technicalid) and not o1.isMandatory())
+	->collect(o2 | 'if(null == ' + o2.name() + ')' +  o2.name + ' = 20;')->first() else '' endif/]
  
 [comment 	écriture du corps de l'opération pour la couche de persistance, sert d'aiguillage pour les autres queries en fonction du type de sortie.
 			on rappelle juste qu'on ne peut générer qu'a partir du momment ou on a des DTOs en paramètre./] 
-[query private writePersistOperation(o : soa::Operation, s : soa::Service) : String = 
-   if (o.hasOutput()) then if (o.output->first().isOptional()) 
-   then if (o.output->first().isMultiple()) then o.writeOptionalOutputStar(s) else o.writeOptionalOutputOne() endif 
-   else if (o.output->first().isMultiple()) then o.writeNonOptionalOutputStar(s) else o.writeNonOptionalOutputOne() 
-   endif endif else o.cNoModelisation() endif/]
+[query private writePersistOperation(o : soa::Operation, s : soa::Service) : String = if (o.paged) then o.writePagedNonOptionalOutputStar() 
+  else if (o.hasOutput()) then if (o.output->first().isOptional()) then if (o.output->first().isMultiple()) then o.writeOptionalOutputStar(s) 
+  else o.writeOptionalOutputOne() endif else if (o.output->first().isMultiple()) then o.writeNonOptionalOutputStar(s) 
+  else o.writeNonOptionalOutputOne() endif endif else o.cNoModelisation() endif endif/]
+
+[comment écriture spécifique pour une opération de liste paginée./]
+[query private writePagedNonOptionalOutputStar(o : soa::Operation) : String = 'Page<' + if (o.output->first().type.oclIsKindOf(environment::DTO)) 
+  then o.output->first().type.oclAsType(environment::DTO).associatedEntity().nameClassEntityImpl() else o.output->first().type endif 
+  + '>' + 'page entity'.apply_variableDefault() + ' = ' + o.nameOperation() + '_invoke(' + 'PageRequest.of(' + o.page.name().apply_variableDefault() 
+  + ', ' + o.size.name().apply_variableDefault() + ', Sort.by(' + 'sort by'.apply_variableDefault() + ')));' + o.lineSeparator() + 'return '
+  + 'page entity'.apply_variableDefault() + '.getContent().stream().map(o -> ' + o.persistDto().nameClassMapperImpl() + ('.to ' 
+  + o.suffixDto()).apply_methodDefault() +  + '(o)).collect(Collectors.toList());'/]
 
 [comment écriture de l'appel pour une sortie liste et optionnelle (normalement jamais appelé pour l'instant)./]
 [query private writeOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + if (o.output->first().type.oclIsKindOf(environment::DTO)) 
@@ -269,7 +299,7 @@
   
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writePersistSignatureInvoke(o : soa::Operation) : String = 'private ' + o.outputPersistType() + ' ' + o.nameOperation() + '_invoke' 
-  + '(' + o.inputSignature() + ')' /]
+  + '(' + if (o.paged) then 'final PageRequest ' + 'page request'.apply_parameterMethodClassicIn() else o.inputSignature() endif  + ')' /]
   
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeRsSignature(o : soa::Operation) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 
@@ -290,13 +320,15 @@
   + o.output->first().mediaRsType() + '"'else o.defaultRsMediaType() endif + ')'/]
 
 [comment écriture des annotations au niveau des paramètres rest./]
-[query private writeRsAnnotation(p : soa::Parameter) : String = 
- if (p.restData.passingMode = soa::ParameterPassingMode::PATH) then '@PathVariable(name = "' + p.restData.restId + '", '
+[query private writeRsAnnotation(p : soa::Parameter, o : soa::Operation) : String = 
+ if (o.paged and p.technicalid.equalsIgnoreCase(o.page.technicalid)) then '@RequestParam(name = "' + p.name() + '", '
+ else if (o.paged and p.technicalid.equalsIgnoreCase(o.size.technicalid)) then '@RequestParam(name = "' + p.name() + '", '
+ else if (p.restData.passingMode = soa::ParameterPassingMode::PATH) then '@PathVariable(name = "' + p.restData.restId + '", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::QUERY) then '@RequestParam(name = "' + p.restData.restId + '", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::HEADER) then '@RequestHeader(name = "' + p.restData.restId + '", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::BODY) then '@RequestBody(' 
  else if (p.restData.passingMode = soa::ParameterPassingMode::COOKIE) then '' 
- else '' endif endif endif endif endif + 'required = ' + p.isMandatory() +  ')'/]
+ else '' endif endif endif endif endif endif endif + 'required = ' + p.isMandatory() +  ')'/]
 
 [comment écriture du statut modélisé pour la réponse, si aucun statut on prend celui par défaut./]
 [query private writeRsStatus(o : soa::Operation) : String = if (o.hasRsStatusCode()) then o.output->first().statusCode 
@@ -304,7 +336,7 @@
 
 [comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
 [query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
-  ->collect(p : soa::Parameter | 'final ' + p.writeRsAnnotation() + ' ' + p.inputRsType() + ' ' + p.name().apply_parameterMethodClassicIn())
+  ->collect(o1 : soa::Parameter |  o1.writeRsAnnotation(o)  + ' ' + o1.inputRsType() + ' ' + o1.name().apply_parameterMethodClassicIn())
   ->sep(', ')->toString() else '' endif/]
   
 [comment écriture du paramètre de sortie (si existe) pour une opération de type rest./]
@@ -313,12 +345,13 @@
 
 [comment écriture de la chaine complète (avec mapper) pour les paramètres en entrée du service domaine./]
 [query private writeRsInputsForService(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
-  ->collect(p : soa::Parameter | p.writeRsInputForService())->sep(', ')->toString() else '' endif/]
+  ->collect(p : soa::Parameter | p.writeRsInputForService())->sep(', ')->toString() + if(o.paged) then ', ' 
+  + 'sort by'.apply_variableDefault() else '' endif else '' endif/]
 
 [comment écriture de la requête pour le service rest, sert d'aiguillage pour les autres queries en fonction du type de sortie./]
 [query private writeRsOperation(o : soa::Operation, s : soa::Service) : String =  if (o.hasOutput()) then 
  if (o.output->first().rsIsOptional()) then if(o.output->first().isMultiple()) then o.writeRsOptionalOutputStar(s) else o.writeRsOptionalOutputOne(s) endif 
- else if(o.output->first().isMultiple()) then o.writeRsNonOptionalOutputStar(s) else o.writeRsNonOptionalOutputOne(s) endif endif else 'null' endif/]
+ else if(o.output->first().isMultiple()) then o.writeRsNonOptionalOutputStar(s) else o.writeRsNonOptionalOutputOne(s) endif endif + ';' else 'null' endif/]
  
 [comment écriture pour un résultat optionnel sur un enregistrement (plus compliqué car deux réponses complétement différentes si dto ou primitif)./]
 [query private writeRsOptionalOutputOne(o : soa::Operation, s : soa::Service) : String =  if (o.output->first().type.oclIsKindOf(environment::DTO)) 
