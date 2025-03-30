@@ -14,4 +14,5 @@
 	<packaging>eclipse-plugin</packaging>
 	<name>fr.pacman.requirement.ui</name>
 	<description>Projet Pacman Génération Exigences UI.</description>
+	
 </project>

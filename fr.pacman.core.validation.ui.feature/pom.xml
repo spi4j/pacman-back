@@ -14,4 +14,5 @@
 	<packaging>eclipse-feature</packaging>
 	<name>fr.pacman.core.validation.ui.feature</name>
 	<description>Feature Pacman Validation UI.</description>
+	
 </project>

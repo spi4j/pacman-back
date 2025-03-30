@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="fr.pacman.core.validation.ui.feature"
-      label="PacMan - Core - Validation - Produit"
+      label="PacMan - Validation"
       version="5.0.0.qualifier"
       provider-name="Cali"
       plugin="fr.pacman.branding">

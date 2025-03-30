@@ -14,4 +14,5 @@
 	<packaging>eclipse-feature</packaging>
 	<name>fr.pacman.entity.ui.feature</name>
 	<description>Feature UI Pacman Entity.</description>
+	
 </project>

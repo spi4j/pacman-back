@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="fr.pacman.config.ui.feature"
-      label="PacMan - Configuration - Produit"
+      label="PacMan - Configuration"
       version="5.0.0.qualifier"
       provider-name="Cali"
       plugin="fr.pacman.branding">

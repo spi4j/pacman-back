@@ -15,42 +15,4 @@
 	<name>fr.pacman.start.ui.feature</name>
 	<description>Feature UI Pacman Start.</description>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.eclipse.tycho
-										</groupId>
-										<artifactId>
-											tycho-packaging-plugin
-										</artifactId>
-										<versionRange>
-											[${tycho-version},)
-										</versionRange>
-										<goals>
-											<goal>
-												build-qualifier-aggregator
-											</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
 </project>

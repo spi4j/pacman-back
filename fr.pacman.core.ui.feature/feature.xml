@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="fr.pacman.core.ui.feature"
-      label="PacMan - Core - Produit"
+      label="PacMan - Core"
       version="5.0.0.qualifier"
       provider-name="Cali"
       plugin="fr.pacman.branding">

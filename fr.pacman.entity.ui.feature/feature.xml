@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="fr.pacman.entity.ui.feature"
-      label="PacMan - Entity - Produit"
+      label="PacMan - Entity"
       version="5.0.0.qualifier"
       provider-name="Cali"
       plugin="fr.pacman.branding">
@@ -19,6 +19,13 @@
          
    <plugin
          id="fr.pacman.entity"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="fr.pacman.entity.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

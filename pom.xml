@@ -13,7 +13,6 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<acceleo-version>3.6.4</acceleo-version>
 		<tycho-version>4.0.8</tycho-version>
 		<properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
 		<central-repository-url>https://repo.maven.apache.org/maven2</central-repository-url>
