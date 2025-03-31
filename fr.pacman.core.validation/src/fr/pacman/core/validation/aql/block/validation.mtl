@@ -5,6 +5,9 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::query::parameter/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::entity/]
@@ -21,6 +24,12 @@
     [if (e.attributes->isEmpty())][e.add(e.msge1())/][/if]
     [comment pas d'attribut avec identifier./] 
     [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.msge2())/][/if]
+    [comment pas d'attribut avec (1,*) ou (0,*)./]
+    [if (not e.attributes->select(o | o.isMultiple())->isEmpty())][e.add(e.msge3())/][/if]
+    [comment pas d'attribut sans nom défini./]
+    [if (not e.attributes->select(o | not o.name.exists())->isEmpty())][e.add(e.msge4())/][/if]
+    [comment pas d'attribut sans type défini./]
+    [if (not e.attributes->select(o | not o.type.exists())->isEmpty())][e.add(e.msge5())/][/if]
   [/for]
   [for (re | r.eAllContents(environment::Reference))]
     [comment pas de relation bidirectionnelle avec double navigabilité./]
@@ -33,8 +42,21 @@
 [/template]
 
 [comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
+[comment pour les dtos on est pas relié directement à la base de données, doit on être plus souple sur les références ?/]
 [template public validation (m : soa::System) post(self.escapeFile())]
   [m.writeTabHeader()/]
+  [for (d | m.eAllContents(environment::DTO))]
+    [comment pas de dto vide./]
+    [if (d.attributesNoPK()->isEmpty())][d.add(d.msgd1())/][/if]
+    [comment pas d'attribut avec identifier./] 
+    [if (not d.attributesNoPK()->select(o | o.isIdentifier)->isEmpty())][d.add(d.msgd2())/][/if]
+    [comment pas d'attribut avec (1,*) ou (0,*)./]
+    [if (not d.attributesNoPK()->select(o | o.isMultiple())->isEmpty())][d.add(d.msgd3())/][/if]
+    [comment pas d'attribut sans nom défini./]
+    [if (not d.attributesNoPK()->select(o | not o.name.exists())->isEmpty())][d.add(d.msgd4())/][/if]
+    [comment pas d'attribut sans type défini./]
+    [if (not d.attributesNoPK()->select(o | not o.type.exists())->isEmpty())][d.add(d.msgd5())/][/if]
+  [/for]
   [for (s | m.eAllContents(soa::Service))]
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
@@ -83,6 +105,9 @@
 
 [comment écriture du nom de l'entité pour le rapport./]
 [query private nameEntity(e : entity::Entity) : String =  e.blockHierarchy().replaceFirst('.','') + '.' + e.name/]
+  
+[comment écriture du nom du dto pour le rapport./]
+[query private nameDto(d : environment::DTO) : String = d.blockHierarchy().replaceFirst('.','') + '.' + d.name/]
 
 [comment écriture du nom de la référence pour le rapport./]
 [query private nameReference(r : environment::Reference) : String = r.blockHierarchy().replaceFirst('.','')  + '.' + r.name/]
@@ -92,13 +117,47 @@
 
 [comment impossible de créer des entités sans attribut./]
 [query private msge1 (e : entity::Entity) : String = e.nameEntity() + '@Entité sans aucun attribut@Ajoutez au moins un attribut au niveau de l\'entité'/]
-  
+
 [comment impossible de créer des entités avec un attribut de type 'Identifier'./]
 [query private msge2 (e : entity::Entity) : String = e.nameEntity() + '@Entité avec un attribut marqué comme \'Identifier\'' +  
   '@Ne pas marquer l\'attribut(s) et laisser le générateur gérer l\'identifiant de l\'entité'/]
   
+[comment impossible de créer des entités avec une multiplicité de type (0,*) ou (1,*)./]
+[query private msge3 (e : entity::Entity) : String = e.nameEntity() + '@Entité avec un attribut de multiplicité (0,*) ou (1,*)' +  
+  '@Supprimez la multiplicité (0,*) ou (1,*) sur l\'attribut'/]
+  
+[comment impossible de créer des entités avec un attribut sans nom./]
+[query private msge4 (e : entity::Entity) : String = e.nameEntity() + '@Entité avec un attribut sans nom' 
+  + '@Définissez un nom pour l\'attribut'/]
+  
+[comment impossible de créer des entités avec un attribut sans type./]
+[query private msge5 (e : entity::Entity) : String = e.nameEntity() + '@Entité avec un attribut sans type' 
+  +  '@Définissez un type pour l\'attribut' /]
+  
 [comment impossible de créer des entités .............../]
-[query private msge3 (e : entity::Entity) : String = e.nameEntity() + 'xxxxxxxxx' /]
+[query private msge6 (e : entity::Entity) : String = e.nameEntity() + 'xxxxxxxxx' /]
+  
+[comment impossible de créer des dtos sans attribut./]
+[query private msgd1 (d : environment::DTO) : String = d.nameDto() + '@Dto sans aucun attribut@Ajoutez au moins un attribut au niveau du dto'/]
+
+[comment impossible de créer des dtos avec un attribut de type 'Identifier'./]
+[query private msgd2 (d : environment::DTO) : String = d.nameDto() + '@Dto avec un attribut marqué comme \'Identifier\'' +  
+  '@Ne pas marquer l\'attribut(s) et laisser le générateur gérer l\'identifiant du dto'/]
+  
+[comment impossible de créer des dtos avec une multiplicité de type (0,*) ou (1,*)./]
+[query private msgd3 (d : environment::DTO) : String = d.nameDto() + '@Dto avec un attribut de multiplicité (0,*) ou (1,*)' +  
+  '@Supprimez la multiplicité (0,*) ou (1,*) sur l\'attribut'/]
+  
+[comment impossible de créer des dtos avec un attribut sans nom./]
+[query private msgd4 (d : environment::DTO) : String = d.nameDto() + '@Dto avec un attribut sans nom' 
+  + '@Définissez un nom pour l\'attribut'/]
+  
+[comment impossible de créer des dtos avec un attribut sans type./]
+[query private msgd5 (d : environment::DTO) : String = d.nameDto() + '@Dto avec un attribut sans type' 
+  +  '@Définissez un type pour l\'attribut' /]
+  
+[comment impossible de créer des dtos .............../]
+[query private msgd6 (d : environment::DTO) : String = d.nameDto() + 'xxxxxxxxx' /]
   
 [comment impossible de créer des relations bidirectionnelles navigables dans les deux sens./]
 [query private msgr1 (r : environment::Reference) : String = r.nameReference() + '@Référence bidirectionnel navigable dans les deux sens ' 
@@ -122,7 +181,7 @@
 	
 [comment impossible d'avoir un service non rest (temporaire)./]
 [query private msgs4 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
-	+ '@Opération exposition non définie@Attachez une exposition de typê \'REST\' pour une opération'/]
+	+ '@Opération sans exposition de définie@Attachez une exposition de type \'REST\' pour une opération'/]
 	
 [comment impossible d'avoir un service avec une fault sans code statut./]
 [query private msgs5 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 

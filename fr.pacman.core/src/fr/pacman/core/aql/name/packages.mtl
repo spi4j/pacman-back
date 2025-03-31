@@ -119,12 +119,12 @@
 [comment ESSAYER DE MUTUALISER ?????./]
   
 [comment retourne le package en fonction de la hiérarchie des namespaces (cas d'une entité)./] 
-[query private blockHierarchy(e : entity::Entity) : String = if (e.ancestors(environment::Namespace)->size() < 1) then '' else '.' 
+[query public blockHierarchy(e : entity::Entity) : String = if (e.ancestors(environment::Namespace)->size() < 1) then '' else '.' 
   + e.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()->collect(o2 | o2.oclAsType(environment::Namespace))
   ->collect(o3 | o3.name)->collect(o4 | o4.sanitize())->collect(o5 | o5.toLower())->sep('.') endif/]
 
 [comment ./]
-[query private blockHierarchy(r : environment::Reference) : String = if (r.ancestors(environment::Namespace)->size() < 1) then '' else '.' 
+[query public blockHierarchy(r : environment::Reference) : String = if (r.ancestors(environment::Namespace)->size() < 1) then '' else '.' 
   + r.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()->collect(o2 | o2.oclAsType(environment::Namespace))
   ->collect(o3 | o3.name)->collect(o4 | o4.sanitize())->collect(o5 | o5.toLower())->sep('.') endif/]
   

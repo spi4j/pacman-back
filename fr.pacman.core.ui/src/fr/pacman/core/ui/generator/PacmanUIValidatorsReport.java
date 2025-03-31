@@ -38,15 +38,15 @@ class PacmanUIValidatorsReport {
 	 */
 	static void log() {
 
-		for (Entry<EObject, String> entry : PacmanValidatorsReport.getReport().entrySet()) {
-			System.out.println(">>>>" + entry.getValue());
-			String location = null;
-			EObject o = entry.getKey();
-			if (o instanceof ASTNode) {
-				location = AcceleoUtil.getLocation((ASTNode) o);
-			}
-			Activator.getDefault().getLog()
-					.log(new Status(IStatus.ERROR, "id", location + " : " + entry.getValue(), null));
-		}
+//		for (Entry<EObject, String> entry : PacmanValidatorsReport.getReport().entrySet()) {
+//			System.out.println(">>>>" + entry.getValue());
+//			String location = null;
+//			EObject o = entry.getKey();
+//			if (o instanceof ASTNode) {
+//				location = AcceleoUtil.getLocation((ASTNode) o);
+//			}
+//			Activator.getDefault().getLog()
+//					.log(new Status(IStatus.ERROR, "id", location + " : " + entry.getValue(), null));
+//		}
 	}
 }

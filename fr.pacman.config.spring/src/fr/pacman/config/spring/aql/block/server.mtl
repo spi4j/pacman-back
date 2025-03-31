@@ -56,6 +56,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
         </dependency>
@@ -580,6 +584,34 @@
 
 [comment écriture de l'ensemble des informations pour les datasources./]
 [template public applicationProperties(any : ecore::EObject)]
+  
+  # /auditevents Liste les evenements lies aux audits de securite (connexion/deconnexion, etc..).
+  # /beans Liste les beans disponibles.
+  # /conditions Rapport des conditions pour l'autoconfiguration.
+  # /configprops Liste les beans de type @ConfigurationProperties.
+  # /env Renvoie les proprietes de l'environnement.
+  # /health Etat de sante de l'application.
+  # /heapdump Cree un dump à partir de la JVM utilisee par l'application.
+  # /info Renvoie les informations generales pour l'application.
+  # /flyway Details sur les migrations de bases de donnees Flyway.
+  # /liquibase se comporte comme /flyway mais pour Liquibase.
+  # /logfile Renvoie les journaux d'application ordinaires.
+  # /loggers Interroge le niveau de journalisation de notre application.
+  # /metrics Renvoie les métriques de l'application.
+  # /prometheus Renvoie des métriques, mais formatées pour fonctionner avec un serveur Prometheus.
+  # /scheduledtasks Détails sur chaque tâche planifiée dans l'application.
+  # /sessions Repertorie les sessions HTTP.
+  # /shutdown effectue un arret progressif de l'application.
+  # /threaddump vide les informations de thread de la JVM sous-jacente.
+  
+  # Par defaut, seuls /health et /info sont actifs.
+  # Activation des endpoints disponibles pour l'api de sante.
+  # management.endpoints.web.exposure.include=*
+  
+  # Definition de la racine des points de terminaison pour actuator 
+  # (a changer au niveau du filtre si besoin de modification). 
+  management.endpoints.web.base-path=/actuator
+  
   # Note : il n'est pas utile de specifier le nom de classe du pilote, puisque Spring Boot 
   # peut le deduire pour la plupart des bases de donnees a partir de l'URL de connexion.
   

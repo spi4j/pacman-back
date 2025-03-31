@@ -21,9 +21,3 @@
 
 [comment retourne true si l'entité a au moins un attribut obligatoire./]
 [query public hasMandatoryAttributes(e : entity::Entity) : Boolean = not e.attributesNoPK()->select(o | o.isMandatory())->isEmpty()/]
-
-[comment retourne l'enchainement des packages (namespaces) pour l'entité./]
-[query public blockHierarchy(e : entity::Entity) : String = if (e.ancestors(environment::Namespace)->size() < 1) then '' 
-	else '.' + e.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()
-	->collect(o2 | o2.oclAsType(environment::Namespace))->collect(o3 | o3.name)->collect(o4 | o4.safeCamelCase())
-	->collect(o5 | o5.toLower())->sep('.') endif/]

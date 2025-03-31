@@ -21,6 +21,10 @@
 [comment vérifie si l'attribut est obligatoire./]
 [query public isMandatory(a : environment::Attribute) : Boolean = a.multiplicity = environment::MultiplicityKind::ONE 
   or a.multiplicity = environment::MultiplicityKind::ONE_STAR/] 
+  
+[comment vérifie si l'attribut est une liste (0,*)(1,*) (utilisé uniquement pour la validation). /]
+[query public isMultiple(a : environment::Attribute) : Boolean = a.multiplicity = environment::MultiplicityKind::ONE_STAR 
+  or a.multiplicity = environment::MultiplicityKind::ZERO_STAR/]
 
 [comment vérifie si l'attribut a des contraintes de taille (min | max) pour sa valeur./]
 [query public hasSizeConstraints(a: environment::Attribute) : Boolean =  a.type.name.equalsIgnoreCase('string') 

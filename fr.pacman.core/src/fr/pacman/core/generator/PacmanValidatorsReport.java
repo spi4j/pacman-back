@@ -1,10 +1,8 @@
 package fr.pacman.core.generator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.emf.ecore.EObject;
 
@@ -25,9 +23,9 @@ import org.eclipse.emf.ecore.EObject;
 public class PacmanValidatorsReport {
 
 	/**
-	 * Le rapport des erreurs de validation sous forme de Map.
+	 * Le rapport des erreurs de validation.
 	 */
-	private static Map<EObject, String> _report = new HashMap<>();
+	private static List<String> _report = new ArrayList<>();
 
 	/**
 	 * Ajoute une erreur de validation au rapport.
@@ -36,7 +34,7 @@ public class PacmanValidatorsReport {
 	 * @param p_msg    Le message décrivant l'erreur de validation.
 	 */
 	public static void add(final EObject p_object, final String p_msg) {
-		_report.put(p_object, p_msg);
+		_report.add(p_msg);
 
 	}
 
@@ -51,33 +49,10 @@ public class PacmanValidatorsReport {
 	/**
 	 * Obtient le rapport complet des erreurs de validation.
 	 * 
-	 * @return Une {@link Map} contenant les objets et leurs messages d'erreur
-	 *         associés.
-	 */
-	public static Map<EObject, String> getReport() {
-		return _report;
-	}
-
-	/**
-	 * Récupère une liste de messages associés aux entrées du rapport.
-	 * 
-	 * Cette méthode parcourt les entrées d'un rapport interne (représenté par la
-	 * collection `_report`) et extrait les valeurs (messages) associées à chaque
-	 * entrée sous forme d'une liste de chaînes de caractères. La liste retournée
-	 * contient tous les messages du rapport.
-	 * 
-	 * @param p_object Un objet de type {@link EObject} utilisé comme paramètre
-	 *                 d'entrée. (Bien que ce paramètre soit fourni, il n'est pas
-	 *                 utilisé dans la méthode actuelle.)
-	 * @return Une liste de chaînes de caractères contenant tous les messages
-	 *         présents dans le rapport.
+	 * @return Une simple {@link List} contenant les messages d'erreur.
 	 */
 	public static List<String> get_report(EObject p_object) {
-		List<String> messages = new ArrayList<>();
-		for (Entry<EObject, String> entry : _report.entrySet()) {
-			messages.add(entry.getValue());
-		}
-		return messages;
+		return _report;
 	}
 
 	/**

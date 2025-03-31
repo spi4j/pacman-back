@@ -105,6 +105,11 @@
             <version>[any.versionSpringBoot()/]</version>
             <scope>test</scope>
           </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>[any.versionSpringBoot()/]</version>
+          </dependency>
           [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
             <dependency>
               <groupId>org.postgresql</groupId>
