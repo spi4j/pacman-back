@@ -582,8 +582,12 @@
   }
 [/template]
 
-[comment écriture de l'ensemble des informations pour les datasources./]
+[comment écriture de l'ensemble des informations pour les datasources, etc.../]
 [template public applicationProperties(any : ecore::EObject)]
+  
+  # ----------------------------------------------------------------------------------------------
+  # API DE SANTE
+  # ----------------------------------------------------------------------------------------------
   
   # /auditevents Liste les evenements lies aux audits de securite (connexion/deconnexion, etc..).
   # /beans Liste les beans disponibles.
@@ -604,13 +608,36 @@
   # /shutdown effectue un arret progressif de l'application.
   # /threaddump vide les informations de thread de la JVM sous-jacente.
   
-  # Par defaut, seuls /health et /info sont actifs.
-  # Activation des endpoints disponibles pour l'api de sante.
-  # management.endpoints.web.exposure.include=*
+  # Activation des points de terminaison pour l'api de sante, par defaut, seuls '/health' et '/info' sont actifs.
+  management.endpoints.web.exposure.include=health,info
+  # Securite si demande d'activation de l'ensemble des points de terminaison.
+  management.endpoints.web.exposure.exclude=mappings,heapdump
   
-  # Definition de la racine des points de terminaison pour actuator 
-  # (a changer au niveau du filtre si besoin de modification). 
+  # Definition du port et de la racine des points de terminaison pour l'actuator.
+  # (a changer aussi au niveau du filtre de securite si besoin de modifications). 
   management.endpoints.web.base-path=/actuator
+  management.server.port=8080
+  
+  # Configuration du point de terminaison '/health', valeurs possibles <never|always|when_authorized>
+  # Pattern: management.endpoint.{endpoint-name}.{property}={value}
+  management.endpoint.health.show-details=never
+  management.health.defaults.enabled=false
+  
+  # Activation du point de terminaison '/health' personnalise pour l'application [any.nameProject()/].
+  # Si non actif, c'est le parametrage du '/health' par defaut qui est utilise.
+  management.health.[any.nameProject()/]_health.enabled=false
+  
+  # Configuration du point  de terminaison /info, definir ici les informations necessaires.
+  management.info.env.enabled=true
+  app.cusomInfo=This is Custom Info
+  info.app.cusomInfo=${app.cusomInfo}
+  info.app.java-version=${java.version}
+  info.app.java-vendor=${java.vendor}
+  info.app.excluded-actuator-enpoints=${management.endpoints.web.exposure.exclude}
+  
+  # ----------------------------------------------------------------------------------------------
+  # DATASOURCES
+  # ----------------------------------------------------------------------------------------------
   
   # Note : il n'est pas utile de specifier le nom de classe du pilote, puisque Spring Boot 
   # peut le deduire pour la plupart des bases de donnees a partir de l'URL de connexion.
@@ -805,6 +832,11 @@
 
 [comment écriture de l'implémentation pour le service de santé de l'application./]
 [template public serviceHealthImpl(any : ecore::EObject)]
+  
+[/template]
+
+[comment écriture de l'implémentation pour le service de santé de l'application (ancien système)./]
+[template public serviceHealthImpl_old(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsControllerBase())/]
   
   import java.io.IOException;
@@ -850,8 +882,56 @@
     
 [/template]
 
-[comment écriture de l'implémentation pour le service de santé (contrôleur) de l'application./]
+[comment écriture de l'implémentation pour le service de santé (nouveau systeme actuator)./]
 [template public serviceRsHealthImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  
+  [any.defaultImports()/]
+  import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
+  import org.springframework.boot.actuate.health.Health;
+  import org.springframework.boot.actuate.health.HealthIndicator;
+  import org.springframework.stereotype.Component;  
+  /**
+   * Implémentation de l'interface {@link HealthIndicator} pour vérifier l'état de santé du service [any.nameProject()/].
+   * Cette classe est conditionnellement activée en fonction de la présence d'un indicateur de santé nommé
+   * {@code [any.nameProject()/]_health} dans le contexte de l'application.
+   * <p>
+   * La méthode {@link #health()} crée un état de santé "healthy" par défaut, mais peut être étendue pour fournir
+   * une vérification de santé plus complexe si nécessaire.
+   * 
+   * @see HealthIndicator
+   * @see Health
+   *
+   * @Author [any.nameAuthor()/]
+   */
+  @Component
+  @ConditionalOnEnabledHealthIndicator("[any.nameProject()/]_health")
+  class [any.nameClassRsServiceHealthImpl()/] implements HealthIndicator
+  {
+     
+     /**
+       * Vérifie l'état de santé du service [any.nameProject()/] et retourne un objet {@link Health} indiquant l'état.
+       * <p>
+       * Dans cette implémentation, la méthode retourne simplement un état de santé "healthy" par défaut,
+       * mais peut être enrichie pour effectuer des vérifications supplémentaires.
+       * </p>
+       *
+       * @return l'état de santé du service, sous la forme d'un objet {@link Health}.
+       */
+     @Override
+     public Health health() {
+        Health.Builder ['healthBuilder'.apply_variableDefault()/] = new Health.Builder();
+        
+        [protected ('health'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
+         
+        return ['healthBuilder'.apply_variableDefault()/].build();
+     }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour le service de santé (contrôleur) de l'application (ancien système)./]
+[template public serviceRsHealthImpl_old(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsControllerBase())/]
   
   [any.defaultImports()/]

@@ -38,12 +38,10 @@
   [r.fileIntegrationTestUtilsImpl()/]
   [comment implémentation de l'api de santé pour l'application./]
   [r.fileRsServiceHealthImpl()/]
-  
-  
-  [comment ./]
-  [r.fileServiceHealthImpl()/]
-  
-  
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]
+
+[comment implémentation de l'api de santé pour l'application./]
+[comment r.fileServiceHealthImpl()/]
+
