@@ -865,13 +865,12 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
-	 * Retourne le schéma à utiliser pour l'ensemble des tables sql. On supprime le
-	 * point qui ne servait que pour la validation.
+	 * Retourne le schéma à utiliser pour l'ensemble des tables sql.
 	 * 
 	 * @return le schéma à utiliser pour les tables sql.
 	 */
 	public String getSqlTableSchema() {
-		return _sqlTableSchema.replace(".", "");
+		return _sqlTableSchema;
 	}
 
 	/**

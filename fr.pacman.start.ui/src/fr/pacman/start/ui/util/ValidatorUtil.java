@@ -66,7 +66,7 @@ public class ValidatorUtil {
 			return "Le nom de l'auteur ou de l'organisme n'est pas renseigné.";
 
 		if (!_sqlTableSchemaOK)
-			return "Le schéma des tables SQL n'est pas valide ( format : xxx. ).";
+			return "Le schéma des tables SQL n'est pas valide ( format : xxx ).";
 
 		if (!_sqlTablePrefixOK)
 			return "Le préfixe des tables SQL n'est pas valide ( format : xxx_ ).";
