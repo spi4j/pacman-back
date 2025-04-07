@@ -175,7 +175,7 @@
    
    /**
     * Structure pour l'ensemble des informations de santé pour chaque service
-    * externe dont a besoin l'application 'safran' afin de 
+    * externe dont a besoin l'application 'cali' afin de 
     * pouvoir fonctionner correctement.
     * <p>
     * Définir ici la structure (variables et assesseurs) pour l'ensemble des
