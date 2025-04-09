@@ -65,6 +65,12 @@
   
 [comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
 [query public nameClassRsServiceImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]
+
+[comment retourne le nom pour l'implémentation du contrôleur servant à l'authentification (apikey , http basic)./]
+[query public nameClassRsServiceTokenImpl(any : ecore::EObject) : String = (any.nameProject() + ' token controller').apply_classImplem()/]
+
+[comment retourne le nom pour l'implémentation de la classe d'erreur spécialisée pour l'authentification (http - apikey)./]
+[query public nameClassRsAuthenticationEntryPointImpl(any : ecore::EObject) : String = (any.nameProject() + ' auth entry point').apply_classDefault()/]
   
 [comment retourne le nom pour l'interface d'une classe de service soa (feature)./]  
 [query public nameClassServiceInItf(s : soa::Service) : String = (s.name() + s.suffixService()).apply_classInterface()/]  
@@ -148,6 +154,12 @@
 
 [comment retourne le nom de la classe d'exception dans le cas ou les données ne sont pas trouvées./]
 [query public nameClassRsDataNotFoundExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' not found exception').apply_classDefault()/]
+  
+[comment retourne le nom de la classe d'exception dans le cas d'une erreur d'authentification (http - apikey)./]
+[query public nameClassRsAuthenticationExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' authentication exception').apply_classDefault()/]
+
+[comment retourne le nom de la classe de service pour la création d'un jeton jwt./]
+[query public nameClassRsTokenServiceImpl(any : ecore::EObject) : String = (any.get_projectName() + ' jwt token service').apply_classDefault()/]
   
 [comment retourne le nom de la classe d'exception dans le cas d'une problématique dans les mappers./]
 [query public nameClassMapperExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' mapper exception').apply_classDefault()/]

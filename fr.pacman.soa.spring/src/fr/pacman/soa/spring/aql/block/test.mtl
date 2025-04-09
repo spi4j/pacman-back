@@ -308,7 +308,7 @@
 [comment écriture du corps de l'opération./]
 [query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'ResultActions ' + 'result'.apply_variableDefault() 
 	+ ' = ' + 'rest helper'.apply_attributeDefault() + '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() 
-	+ '.contentType(' + if (o.hasMediaRsType()) then '' else o.defaultRsMediaType() endif + ')' + ')'/]
+	+ '.contentType("' + if (o.hasMediaRsType()) then  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '")' + ')'/]
 
 [comment écriture de l'uri (avec les paramètres) pour l'opération rest./]
 [query private writeRsUri(o : soa::Operation, s : soa::Service) : String = 

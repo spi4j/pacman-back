@@ -20,7 +20,6 @@ import fr.pacman.core.convention.rule.ParameterNamingRule;
 import fr.pacman.core.convention.rule.VariableNamingRule;
 import fr.pacman.core.enumeration.PropertyStatus;
 import fr.pacman.core.property.project.ProjectProperties;
-import fr.pacman.core.property.project.Spi4jProperties;
 import fr.pacman.core.service.LoggerUtils;
 
 /**
@@ -165,14 +164,15 @@ public class PropertiesHandler {
 	 * les différents générateurs. Cela comprend la liste des propriétés pour le
 	 * projet et celles qui sont utilisée pour les normes de nommage.
 	 * 
+	 * , new Spi4jProperties()......
+	 * 
 	 * @return le référentiel pour le model courant.
 	 */
 	protected static PropertiesCategory[] createReferential() {
 		return new PropertiesCategory[] {
 
-				new ProjectProperties(), new Spi4jProperties(), new AttributeNamingRule(), new MethodNamingRule(),
-				new ClassNamingRule(), new VariableNamingRule(), new ParameterNamingRule(), new PackageNamingRule(),
-				new CommonNamingRule() };
+				new ProjectProperties(), new AttributeNamingRule(), new MethodNamingRule(), new ClassNamingRule(),
+				new VariableNamingRule(), new ParameterNamingRule(), new PackageNamingRule(), new CommonNamingRule() };
 	}
 
 	/**

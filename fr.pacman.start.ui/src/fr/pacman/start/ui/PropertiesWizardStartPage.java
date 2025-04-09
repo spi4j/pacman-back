@@ -39,7 +39,8 @@ import fr.pacman.start.ui.util.ValidatorUtil;
 public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 	/**
-	 * Liste des paramètres.
+	 * Liste des paramètres. Pour l'instant on traite tout sous format string
+	 * (erreur ou pas ?)
 	 */
 	private String _projectName = "";
 	private String _packageName = "";
@@ -58,6 +59,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _spi4jSecurity = "";
 	private String _projectCrud = "";
 	private String _databases = "";
+	private String _uuid = "";
 
 	private List<SqlAutoField> _sqlAutoFields = new ArrayList<>();
 
@@ -68,7 +70,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	protected PropertiesWizardStartPage() {
 		super("Propriétés du projet Cali");
 		setTitle("Nouveau projet Cali (BackEnd)");
-		//setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.c_pluginId, Activator.c_pluginLogo));
+		// setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.c_pluginId,
+		// Activator.c_pluginLogo));
 		setDescription("Saisir les différents paramètres pour la création du projet.");
 	}
 
@@ -119,6 +122,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		registerWidget("txt_sqlTPrefix", addTextDbTablePrefix(database2));
 		// registerWidget("txt_sqlTSpace", addTextDbTableSpace(database2));
 		registerWidget("txt_sqlTSpace", addTextDbTableSchema(database2));
+		registerWidget("ck_sqlUuid", addCheckBoxUUID(database2));
 		registerWidget("txt_reqPrefix", addTextReqPrefix(options1));
 		registerWidget("txt_reqLevel", addTextReqLevel(options1));
 		registerWidget("cb_reqInitVerion", addComboReqInitVersion(options1));
@@ -158,6 +162,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		_spi4jfetchingStrategy = "false";
 		_spi4jSecurity = "false";
 		_projectCrud = "false";
+		_uuid = "false";
 
 		getWidget("ck_jerseyCdi").setEnabled(false);
 		getWidget("ck_fileConfig").setEnabled(false);
@@ -347,7 +352,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private Combo addComboFramework(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Framework",
 				"Le framework à utiliser pour la génération des classes issues de la modélisation.",
-				new String[] { "Spring Boot"}, 0);
+				new String[] { "Spring Boot" }, 0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
@@ -512,6 +517,33 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	private Button addCheckBoxCdi(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Api REST - Utilisation de l'injection CDI", "");
+		return cbx;
+	}
+
+	/**
+	 * Ajoute une case à cocher pour activer les UUID au niveau des identifiants de
+	 * base de données.
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
+	private Button addCheckBoxUUID(final Composite p_parent) {
+		Button cbx = addCheckBox(p_parent, "Activation des identifiants uniques universels (uuid)", "");
+		cbx.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if ("false".equalsIgnoreCase(_uuid)) {
+					_uuid = "true";
+				} else {
+					_uuid = "false";
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
 		return cbx;
 	}
 
@@ -951,6 +983,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getProjectCrud() {
 		return _projectCrud;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getUuid() {
+		return _uuid;
 	}
 
 	/**

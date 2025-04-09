@@ -36,10 +36,24 @@
   [/file]
 [/template]
 
+[comment écriture de la classe d'exception pour le 401/403./]
+[template public fileRsAuthenticationExceptionImpl(any : ecore::EObject)]
+  [file (any.nameClassRsAuthenticationExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
+    [any.rsAuthenticationExceptionImpl()/]
+  [/file]
+[/template]
+
 [comment écriture de la classe pour le corps de la reponse dans le cadre de la gestion globale des erreurs rest./]
 [template public fileRsErrorBodyResponseImpl(any : ecore::EObject)]
   [file (any.nameClassRsErrorBodyResponseImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
     [any.rsErrorBodyResponseImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe pourla reponse dans le cadre d'une errueur d'authentification rest./]
+[template public fileRsAuthenticationEntryPointImpl(any : ecore::EObject)]
+  [file (any.nameClassRsAuthenticationEntryPointImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsAuthenticationEntryPointImpl()/]
   [/file]
 [/template]
 

@@ -3,6 +3,7 @@
 				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::eobjects/]
@@ -218,7 +219,9 @@
 [comment écriture de la ligne de validation pour la valeur de l'attribut./]
 [query private writeSizeValidation(a : environment::Attribute) : String = if (a.hasSizeConstraints()) then 
   a.nameClassValidatorUtilsImpl() + '.' + 'check size'.apply_methodDefault() + '("' + a.nameAttribute() + '", ' 
-  + a.nameAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif /]
+  + a.nameAttribute() + ',' + if (a.minimum.exists()) then a.minimum else 'null' endif + ',' 
+  + if (a.maximum.exists()) then a.maximum else 'null' endif + ', ' + 'errors'.apply_variableDefault() 
+  + ');' else '' endif /]
 
 [comment écriture de la ligne de validation pour la regex de l'attribut./]
 [query private writePatternValidation(a : environment::Attribute) : String = ''/]

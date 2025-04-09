@@ -158,6 +158,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		properties.put(ProjectProperties.c_project_fetchingStrategy, _pageOne.getSpi4jfetchingStrategy());
 		properties.put(ProjectProperties.c_project_security, _pageOne.getSpi4jSecurity());
 		properties.put(ProjectProperties.c_project_databases, _pageOne.getDatabases());
+		properties.put(ProjectProperties.c_sql_tableUUID, _pageOne.getUuid());
 		properties.putAll(_pageOne.getsqlAutoFields());
 		return properties;
 	}

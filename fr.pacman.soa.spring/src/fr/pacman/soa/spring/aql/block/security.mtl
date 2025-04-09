@@ -1,69 +1,164 @@
 [module security(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
-					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+					'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.eclipse.org/emf/2002/Ecore')/]
 
+[import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::query::eobject/]
-[import fr::pacman::core::aql::query::application/]
+[import fr::pacman::core::aql::query::service/]
 [import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::method/]
 
-[import fr::pacman::core::service::RestUtils/]
-
-[comment écriture de l'implémentation pour la configuration de la sécurité des services rest./]						
-[template public securityImpl(m : soa::System)]
+[comment écriture de l'implémentation pour la configuration de la sécurité des services rest./]
+[template public securityRsConfigImpl(m : soa::System)]
   [m.classHeader(m.namePackageRsBase())/]
   
   import javax.crypto.spec.SecretKeySpec;
+  import org.springframework.beans.factory.annotation.Autowired;
+  import org.springframework.beans.factory.annotation.Qualifier;
+  import org.springframework.beans.factory.annotation.Value;
   import org.springframework.context.annotation.Bean;
   import org.springframework.context.annotation.Configuration;
   import org.springframework.security.config.Customizer;
   import org.springframework.security.config.annotation.web.builders.HttpSecurity;
   import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
   import org.springframework.security.config.http.SessionCreationPolicy;
+  import org.springframework.security.core.userdetails.User;
+  import org.springframework.security.core.userdetails.UserDetails;
+  import org.springframework.security.core.userdetails.UserDetailsService;
   import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
   import org.springframework.security.oauth2.jwt.JwtDecoder;
   import org.springframework.security.oauth2.jwt.JwtEncoder;
   import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
   import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
   import org.springframework.security.web.SecurityFilterChain;
+  import org.springframework.security.web.AuthenticationEntryPoint;
+  import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+  import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+  import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+  import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
   import com.nimbusds.jose.jwk.source.ImmutableSecret;
+  import [m.namePackageProject()/].[m.namePackageRsBase()/].[m.nameClassRsAuthenticationEntryPointImpl()/];
   
+  /**
+   * Configuration de la sécurité pour l'API avec Spring Security. Cette classe
+   * configure la sécurité des requêtes HTTP, la gestion des sessions, et la
+   * gestion des JWT (JSON Web Tokens). Elle implémente la sécurité pour les
+   * endpoints spécifiques tout en permettant certaines routes non sécurisées.
+   * 
+   * Elle utilise des clés JWT pour l'authentification, avec une clé secrète
+   * définie pour signer et vérifier les JWT. La configuration applique une
+   * politique de création de session stateless et désactive la protection CSRF
+   * pour les API.
+   * 
+   * Par défaut, les règles de sécurité suivantes sont appliquées :
+   * 
+   * Les requêtes vers "/actuator/**" sont accessibles sans authentification. 
+   * Certaines autres routes non sécurisées sont définies explicitement. Toutes
+   * les autres requêtes sont sécurisées et nécessitent une authentification.
+   *
+   * @Author [m.nameAuthor()/]
+   */
   @Configuration 
   @EnableWebSecurity
   class [m.nameClassRsSecurityConfigImpl()/] 
   {
-    [let uris = m.rsSecuredURIs()]
-        // privilégier les clés asymétrique et ne pas le stocker en dur sur le serveur.
-        private String ['jwt key'.apply_attributeDefault()/] = "HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F";
-     
+    
+    [let ops = m.nonSecuredOperations()]
+    [let opsRole = m.securedOperationsWithRole()]
+        
+        [protected ('attibutes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         
+          /**
+          * Clé secrète utilisée pour l'encodage et le décodage des JWT.
+          * Cette clé ne doit pas être stockée en dur sur le serveur en production, 
+          * elle devrait être stockée de manière sécurisée. Elle est données à titre 
+          * d'exemple et de simplification pour les développements
+          */
+          private String ['jwt key'.apply_attributeDefault()/] = "HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F";
+          
+          ['Possibilité de positionner des propriétés dans le fichier de configuration de l\'application'.commentSingleLine()/]
+          //@Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+          //String issuerUri;
+          
+        [/protected]
+        
+        ['Gestion des erreurs sur obtention du jeton'.commentSingleLine()/]
+        @Autowired
+        @Qualifier("[m.nameClassRsAuthenticationEntryPointImpl()/]")
+        AuthenticationEntryPoint ['auth entry point'.apply_attributeDefault()/];
+        
        /**
+        * Définition de la chaîne de filtres de sécurité HTTP pour l'application. Cette
+        * méthode configure les règles de sécurité des différents endpoints et la
+        * gestion des sessions (toujours stateless par défaut pour les API REST).
+        * 
         * Pour les API REST sans état, en particulier celles utilisant
         * l’authentification basée sur des jetons, la désactivation du CSRF est une
-        * décision courante et généralement sûre, ne modifier que si besoin express.
+        * décision courante et sûre.
+        * <p>
+        * On part sur le postulat suivant : la majorité des requêtes sont (et doivent)
+        * être sécurisées, les requêtes non sécurisées sont donc l'exception. Si Aucune
+        * requête n'est sécurisée au niveau de l'application, supprimer manuellement le
+        * filtre après génération -> aucun contrôle n'est effectué à ce niveau pour la
+        * génération ou la non génération d'un filtre de sécurité.
         *
-        * @param ['http'.apply_parameterMethodClassicIn()/]
-        * @return
-        * @throws Exception
+        * Quelle que soit la stratégie de sécurité, le retour d'authentification se
+        * matérialise par l'obtention d'un jeton (jwt), comme Spring Security ne prend pas
+        * directement en charge JWT, on profite donc de la librairie oauth2 dans tous
+        * les cas pour le codage / décodage du jeton
+        *
+        * @param ['http'.apply_parameterMethodClassicIn()/] l'objet HttpSecurity qui permet de configurer la sécurité des requêtes HTTP.
+        * @return un objet SecurityFilterChain configuré avec les règles de sécurité.
+        * @throws Exception si une erreur se produit lors de la configuration.
         */
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity ['http'.apply_parameterMethodClassicIn()/]) throws Exception {
-           return ['http'.apply_parameterMethodClassicIn()/].csrf(csrf -> csrf.disable())
+           return ['http'.apply_parameterMethodClassicIn()/].cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-              .authorizeHttpRequests(['auth'.apply_variableDefault()/] -> {
-               auth.requestMatchers("/actuator/**").permitAll()
-               //.anyRequest().authenticated()
-               [uris->writeRsSecuredURIs(m)/]
-               .anyRequest().permitAll();
+              .authorizeHttpRequests(['request'.apply_variableDefault()/] -> {
+              
+              [protected ('actuator'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+                
+                /**
+                * Gestion de la sécurité pour les apis de santé. Ne pas oublier que toute
+                * modification au niveau du fichier application.properties doit être reportée
+                * au niveau du filtre de sécurité (et réciproquement).
+                */
+                request.requestMatchers("/actuator/**").permitAll()
+                
+              [/protected]
+              
+              ['Liste des uris non sécurisées'.commentSingleLine()/]
+              [ops->writeRsSecurityFilterChain(m, false)/]
+              
+              ['Liste des uris sécurisées avec un rôle spécifique'.commentSingleLine()/]
+              [comment opsRole->writeRsSecurityFilterChain(true)/]
+              
+              ['Par défaut, tout le reste est sécurisé'.commentSingleLine()/]
+              .anyRequest().authenticated();
+              
            })
-           .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())).build();
+           .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
+           .exceptionHandling(Customizer.withDefaults())
+           [ m.securityRsScheme().writeRsSecurityFilterScheme()/]
+           .build();
         }
      
        /**
+        * Bean pour la décodification des JWT à l'aide de la clé secrète. Cette méthode
+        * définit la manière dont les JWT seront décodés à l'aide d'une clé secrète
+        * symétrique ou asymétrique. Ne pas oublier de faire toujours précéder le jeton
+        * obtenu avec 'Bearer + jeton' et préférer le standard, à savoir, le passage du
+        * jeton dans l'en-tête avec comme clé de propriété 'authorization'.
         * 
-        * @return
+        * @return un objet JwtDecoder utilisé pour décoder les JWT entrants.
         */
        @Bean
        public JwtDecoder jwtDecoder() {
@@ -71,25 +166,250 @@
            .getBytes(), 0, this.['jwt key'.apply_attributeDefault()/].getBytes().length, "RSA");
           return NimbusJwtDecoder.withSecretKey(['secret key'.apply_variableDefault()/]).macAlgorithm(MacAlgorithm.HS256).build();
        }
-
-       /**
-        * 
-        * @return
-        */
+       
+      /**
+       * Bean pour l'encodage des JWT avec la clé secrète définie.
+       * Cette méthode crée un JwtEncoder qui utilise la clé secrète pour signer les JWT.
+       * 
+       * @return un objet JwtEncoder utilisé pour encoder les JWT sortants.
+       */
        @Bean
        public JwtEncoder jwtEncoder() {
           return new NimbusJwtEncoder(new ImmutableSecret<>(this.['jwt key'.apply_attributeDefault()/].getBytes()));
        }
+       
+       /**
+        * Crée un bean {@link UserDetailsService} en mémoire avec un utilisateur de
+        * base.
+        * 
+        * Cet utilisateur possède le nom d'utilisateur "user", un mot de passe encodé
+        * avec {@link BCryptPasswordEncoder} et le rôle "USER" par défaut.
+        * 
+        * @return Un {@link UserDetailsService} qui gère l'utilisateur en mémoire.
+        */
+       @Bean
+       public UserDetailsService users() {
+          
+          [protected ('users'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            
+            UserDetails user = User.builder().username("user")
+               .password(passwordEncoder()
+               .encode("password")).roles("USER")
+               .build();
+               
+            return new InMemoryUserDetailsManager(user);
+           
+         [/protected]
+       }
+       
+       /**
+        * Crée un bean pour l'encodeur de mot de passe {@link BCryptPasswordEncoder}.
+        * 
+        * Ce bean est utilisé pour encoder les mots de passe des utilisateurs dans
+        * l'application.
+        * 
+        * @return Un {@link BCryptPasswordEncoder} qui permet de hacher les mots de
+        *         passe.
+        */
+       @Bean
+       public BCryptPasswordEncoder passwordEncoder() {
+           return new BCryptPasswordEncoder();
+       }
+       
+       /**
+        * Crée un bean {@link RoleHierarchy} pour gérer de manière plus précise la
+        * hiérarchie des rôles.
+        * 
+        * Dans cet exemple,cette hiérarchie déclare que le rôle "USER" a une autorité
+        * supérieure à "permission:read". Cela signifie que les utilisateurs ayant le
+        * rôle "USER" peuvent accéder aux permissions associées à "permission:read". 
+        * A modifier et faire évoluer selon les besoins.
+        * 
+        * @return Un {@link RoleHierarchy} qui définit les relations de hiérarchie
+        *         entre les rôles.
+        */
+       @Bean
+       static RoleHierarchy roleHierarchy() {
+          
+          [protected ('role hierarchy'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            
+            return RoleHierarchyImpl.fromHierarchy("USER > permission:read");
+            
+          [/protected]
+       }
+    [/let]
     [/let]
   }
 [/template]
 
-[comment retourne l'ensemble des URIs sécurisées dans le cadre de services rest./]
-[query private rsSecuredURIs(m : soa::System) : Sequence(String) = m.root().eAllContents(soa::Service)->get_securedURIs()/]
+[comment écriture de l'implémentation pour le service de création d'un jeton jwt./]
+[template public securityRsTokenServiceImpl(any : ecore::EObject)]
+   [any.classHeader(any.namePackageRsBase())/]
+   
+   import java.time.Instant;
+   import java.time.Duration;
+   import java.time.temporal.ChronoUnit;
+   import org.springframework.beans.factory.annotation.Autowired;
+   import org.springframework.security.core.Authentication;
+   import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+   import org.springframework.security.oauth2.jwt.JwsHeader;
+   import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+   import org.springframework.security.oauth2.jwt.JwtEncoder;
+   import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+   import org.springframework.stereotype.Service;
+   
+   /**
+    * Service de génération de jetons JWT pour l'API.
+    *
+    * Cette classe fournit une méthode pour générer des jetons JWT basés sur un utilisateur authentifié.
+    * Le jeton généré est signé avec l'algorithme HS256 et doit avoir une durée de validité limitée.
+    *
+    * @Author [any.nameAuthor()/]
+    */
+   @Service
+   public class [any.nameClassRsTokenServiceImpl()/]
+   {
+      
+     /**
+      * L'encodeur JWT utilisé pour générer le jeton (fourni par la classe de gestion
+      * de la sécurité {@link [any.nameClassRsSecurityConfigImpl()/]}).
+      */
+      private final JwtEncoder ['jwtEncoder'.apply_attributeFinal()/];
+      
+     /**
+      * Constructeur du service de génération de jetons JWT.
+      * 
+      * @param ['jwt encoder'.apply_parameterMethodClassicIn()/] L'encodeur JWT à utiliser pour signer et générer les jetons.
+      */
+      @Autowired
+      public [any.nameClassRsTokenServiceImpl()/](JwtEncoder ['jwt encoder'.apply_parameterMethodClassicIn()/]) {
+         [any.prefixAffectation()/]['jwtEncoder'.apply_attributeFinal()/] = ['jwt encoder'.apply_parameterMethodClassicIn()/];
+      }
+      
+      /**
+      * Génère un jeton JWT pour un utilisateur authentifié.
+      * 
+      * Par défaut, Le jeton généré a un sujet correspondant au nom de l'utilisateur
+      * authentifié, une date de création (émise) égale à l'instant actuel, et une
+      * date d'expiration à définir par le développeur après l'émission. Modifier et
+      * ajouter l'ensemble des informations nécessaires pour l'emission et (par la
+      * suite) la validation du jeton.
+      * 
+      * @param authentication L'objet d'authentification contenant les informations de l'utilisateur.
+      * @return Le jeton JWT encodé sous forme de chaîne de caractères.
+      * @throws RuntimeException Si l'objet d'authentification est null.
+      */
+      public String ['generate token'.apply_methodDefault()/](Authentication ['authentication'.apply_parameterMethodClassicIn()/]) {
+      
+         [protected ('jwt set revendications'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           
+           if (null == ['authentication'.apply_parameterMethodClassicIn()/])
+               throw new RuntimeException("Les paramètres d'authentication n'ont pas été trouvés !");
+           
+           Instant now = Instant.now();
+           
+           ['Création du set de revendications JWT'.commentSingleLine()/]
+           JwtClaimsSet claims = JwtClaimsSet.builder()
+                .id("123")
+                .issuer("self")
+                .issuedAt(now)
+                .expiresAt(now.plus(30, ChronoUnit.MINUTES))
+                .subject(['authentication'.apply_parameterMethodClassicIn()/].getName())
+                .build();
+                
+         [/protected]
+            
+         ['Création des paramètres JWT (incluant les en-têtes)'.commentSingleLine()/]
+         JwtEncoderParameters jwtEncoderParameters = JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims);
+         
+         ['Génération et retour du jeton JWT encodé'.commentSingleLine()/]
+         return this.jwtEncoder.encode(jwtEncoderParameters).getTokenValue();
+      }
+   }
+[/template]
 
-[comment écriture de la chaine de sécurité pour l'ensemble des URIs de l'application./]
-[query private writeRsSecuredURIs(uris : Sequence(String), m : soa::System) : String = if (uris->size() > 0) then uris->collect(o | o.writeRsSecuredURI())
-  ->sep(';' + m.lineSeparator()) + ';' else '' endif/]
+[comment écriture du service (contrôleur) pour les authentifications dans le cadre apikey - http basic./]
+[template public securityRsTokenImpl(m : soa::System)]
+  [m.classHeader(m.namePackageRsControllerBase())/]
+  [protected ('import'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    import org.springframework.stereotype.Controller;
+    import org.springframework.http.ResponseEntity;
+    import org.springframework.security.core.Authentication;
+    import org.springframework.web.bind.annotation.PostMapping;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import [m.namePackageProject()/].[m.namePackageRsBase()/].[m.nameClassRsTokenServiceImpl()/];
+    
+  [/protected]
+  
+  /**
+   * Contrôleur de l'API pour l'authentification des utilisateurs.
+   * 
+   * Ce contrôleur gère la demande d'authentification en générant un jeton JWT basé sur l'objet {@link Authentication}.
+   * Il expose un point d'accès REST permettant d'obtenir un jeton JWT pour un utilisateur authentifié.
+   *
+   * @Author [m.nameAuthor()/]
+   */  [protected ('annotation'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
+  @Controller
+  @RequestMapping("[m.nameRsTokenUri()/]")
+  public class [m.nameClassRsServiceTokenImpl()/] {
+  
+   ['Décodeur pour le jeton jwt'.commentSingleLine()/]
+   private final [m.nameClassRsTokenServiceImpl()/] ['jwt service'.apply_attributeFinal()/];
+   
+  /**
+   * Constructeur du contrôleur d'authentification.
+   * 
+   * @param jwtService Le service qui génère les jetons JWT.
+   */
+   public [m.nameClassRsServiceTokenImpl()/]([m.nameClassRsTokenServiceImpl()/] ['jwt service'.apply_parameterMethodClassicIn()/]) {
+      [m.prefixAffectation()/]['jwt service'.apply_attributeFinal()/] = ['jwt service'.apply_parameterMethodClassicIn()/];
+   }
 
-[comment écriture de la chaine de sécurité pour une URI./]
-[query private writeRsSecuredURI (s : String) : String = 'auth'.apply_variableDefault() + '.requestMatchers("' + s + '").hasRole("' + '")'/]
+  /**
+   * Méthode pour effectuer l'authentification et obtenir un jeton JWT.
+   * Cette méthode génère un jeton JWT à partir des informations d'authentification de l'utilisateur.
+   * 
+   * @param authentication L'objet {@link Authentication} qui contient les informations de l'utilisateur authentifié.
+   * @return Le jeton JWT généré.
+   */
+   @PostMapping
+   public ResponseEntity<?> ['authenticate'.apply_methodDefault()/](Authentication ['authentication'.apply_parameterMethodClassicIn()/]) {
+      
+      [protected ('get token'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        
+        String ['token'.apply_variableDefault()/] = [m.prefixAffectation()/]['jwt service'.apply_attributeFinal()/]
+          .['generate token'.apply_methodDefault()/](['authentication'.apply_parameterMethodClassicIn()/]);
+        return ResponseEntity.status(200).body(['token'.apply_variableDefault()/]);
+      [/protected]
+    }
+  }
+[/template]
+
+[comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
+[query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.eAllContents(soa::Operation)->select(o | o.securitySchemes->isEmpty()) /]
+  
+[comment retourne l'ensemble des opérations sécurisées (et avec rôle) dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
+[query private securedOperationsWithRole(m : soa::System) : Sequence(soa::Operation) = m.eAllContents(soa::Operation)->select(o | o.securitySchemes->isEmpty()) /]
+  
+[comment écriture de la chaine de sécurité pour l'ensemble de l'application./]
+[query private writeRsSecurityFilterChain(ops : Sequence(soa::Operation), m : soa::System, role : Boolean) : String = ops->collect(o | '.requestMatchers("' 
+  + (o.eContainer(soa::Service).rsUri() + '/' + o.URI).toUri() + '")' + if (role) then '.hasRole("' + '")' else '.permitAll()' endif)
+  ->sep('.')->toString() + if (m.securityRsScheme().type = soa::SecuritySchemeType::API_KEY) then '.requestMatchers("' + m.nameRsTokenUri() 
+  + '").permitAll()' else '' endif/]
+
+[comment écriture du reste de la chaine de sécurité pour le filtre./]
+[query private writeRsSecurityFilterScheme(ss : soa::SecurityScheme) : String = 
+  if (ss.type = soa::SecuritySchemeType::OAUTH2) then '' 
+  else if (ss.type = soa::SecuritySchemeType::OPEN_ID_CONNECT) then ''
+  else if (ss.type = soa::SecuritySchemeType::API_KEY) then 
+     '.httpBasic(basic -> basic.authenticationEntryPoint(' + 'auth entry point'.apply_attributeDefault() + '))'
+  else if (ss.type = soa::SecuritySchemeType::HTTP) then 
+     '.httpBasic(basic -> basic.authenticationEntryPoint(' + 'auth entry point'.apply_attributeDefault() + '))' 
+  else ss.cNoModelisation() endif endif endif endif/]
+
+[comment récupération du schéma de sécurité (pour l'instant impossible d'avoir plusieurs types de sécurité)./]
+[query private securityRsScheme (m : soa::System) : soa::SecurityScheme = m.eAllContents(soa::SecurityScheme)->first()/]
+
+

@@ -240,6 +240,18 @@ public final class AnnotationUtils {
 	public static boolean has_metaVersion(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.VERSION);
 	}
+	
+	public static boolean has_metaPermission(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS);
+	}
+	
+	public static boolean has_metaPermissionOr(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS_OR);
+	}
+	
+	public static boolean has_metaPermissionAnd(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS_AND);
+	}
 
 	public static boolean is_metaComputed(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
@@ -287,6 +299,18 @@ public final class AnnotationUtils {
 
 	public static String get_metaVersion(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.VERSION);
+	}
+	
+	public static String get_metaPermission(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.PERMISSIONS);
+	}
+	
+	public static String get_metaPermissionOr(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.PERMISSIONS_OR);
+	}
+	
+	public static String get_metaPermissionAnd(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.PERMISSIONS_AND);
 	}
 	
 	public static String get_metaComputed(final ObeoDSMObject p_object) {

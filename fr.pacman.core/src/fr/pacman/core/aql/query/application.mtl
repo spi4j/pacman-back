@@ -1,7 +1,0 @@
-[module application(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
-                        'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
-                        
-[import fr::pacman::core::service::RestUtils/]
-[import fr::pacman::core::aql::query::eobject/]
-
-

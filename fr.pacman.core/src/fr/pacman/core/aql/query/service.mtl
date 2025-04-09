@@ -24,6 +24,8 @@
   ->select(o | o.exposition = soa::ExpositionKind::REST)->isEmpty() /]
 
 [comment retourne l'uri (partielle) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
-[query public rsUri(s : soa::Service) : String = if (s.isRsService()) then  ( '/' + s.eContainer().oclAsType(soa::Component).URI 
-  + '/' + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 'v' + s.eContainer().oclAsType(soa::Component)
-  .apiVersion.substring(1,2) else '' endif + '/' + s.URI).toUri() else s.cNoModelisation() endif/]
+[query public rsUri(s : soa::Service) : String = if (s.isRsService()) then ('/' 
+  + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 'v' 
+  + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif 
+  + '/' + s.eContainer().oclAsType(soa::Component).URI + '/' + s.URI).toUri() 
+  else s.cNoModelisation() endif/]

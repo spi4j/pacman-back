@@ -12,25 +12,16 @@
 [query public versionMariaDb(any : ecore::EObject) : String = '3.5.2'/]
 [query public versionOracle(any : ecore::EObject) : String = '12.1.0.2'/]
 [query public versionOracle32(any : ecore::EObject) : String = '12.2.0.1'/]
+[query public versionSl4j(any : ecore::EObject) : String = '2.0.2'/]
 
-
-
-
-
-
-
-
-
-[query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
-[query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]
-[query public mvnAssemblyVersion(any : eoecore::EObject) : String = ''/]
-[query public mvnSiteVersion(any : eoecore::EObject) : String = ''/]
-  
-[query public tychoVersion(any : eoecore::EObject) : String = ''/]
-[query public javaVersion(any : eoecore::EObject) : String = ''/]
-[query public junitVersion(any : eoecore::EObject) : String = '5.9.3'/]
-[query public log4jVersion(any : eoecore::EObject) : String = '2.20.0'/]
-[query public jerseyVersion(any : eoecore::EObject) : String = '3.1.2'/]
-[query public jsonVersion(any : eoecore::EObject) : String = '20240303'/]
-[query public tomcatVersion(any : eoecore::EObject) : String = '3.1.2'/]
+[comment query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
+[comment query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]
+[comment query public mvnAssemblyVersion(any : eoecore::EObject) : String = ''/]
+[comment query public mvnSiteVersion(any : eoecore::EObject) : String = ''/]
+[comment query public tychoVersion(any : eoecore::EObject) : String = ''/]
+[comment query public javaVersion(any : eoecore::EObject) : String = ''/]
+[comment query public junitVersion(any : eoecore::EObject) : String = '5.9.3'/]
+[comment query public jerseyVersion(any : eoecore::EObject) : String = '3.1.2'/]
+[comment query public jsonVersion(any : eoecore::EObject) : String = '20240303'/]
+[comment query public tomcatVersion(any : eoecore::EObject) : String = '3.1.2'/]
  

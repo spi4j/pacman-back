@@ -69,6 +69,7 @@ public class SiriusUtil {
 	/**
 	 * Initialisation des représentations disponibles.
 	 */
+	// ISD consolidated view
 	static {
 		_openedRepresentations = new ArrayList<String>();
 		_openedRepresentations.add("Entities Namespaces Hierarchy");

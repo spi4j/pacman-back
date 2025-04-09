@@ -17,6 +17,13 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation pour le contrôleur d'authentification (jeton) (application)./]
+[template public fileRsServiceTokenImpl(m : soa::System)]
+  [file (m.nameClassRsServiceTokenImpl().toFileJava(m.namePackageRsControllerBase()), overwrite, m.defaultFileEncoding())]
+    [m.securityRsTokenImpl()/]
+  [/file]
+[/template]
+
 [comment écriture du fichier d'implémentation pour le service de persistance (infra)./]
 [template public fileServiceOutImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
   [file (s.nameClassServiceOutImpl().toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
@@ -34,7 +41,14 @@
 [comment écriture du fichier d'implémentation la configuration de la sécurité des services rest (application)./]
 [template public fileRsSecurityConfigImpl(m : soa::System)]
   [file (m.nameClassRsSecurityConfigImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
-    [m.securityImpl()/]
+    [m.securityRsConfigImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de l'implémentation pour le service de création d'un jeton jwt (application)./]
+[template public fileRsSecurityTokenServiceImpl(any : ecore::EObject)]
+  [file (any.nameClassRsTokenServiceImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.securityRsTokenServiceImpl()/]
   [/file]
 [/template]
 

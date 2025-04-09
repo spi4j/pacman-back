@@ -28,7 +28,7 @@
 
 [comment vérifie si l'attribut a des contraintes de taille (min | max) pour sa valeur./]
 [query public hasSizeConstraints(a: environment::Attribute) : Boolean =  a.type.name.equalsIgnoreCase('string') 
-  and (a.maximum.exists() or a.maximum.exists())/]
+  and (a.minimum.exists() or a.maximum.exists())/]
 	
 [comment retourne tous les attributs d'une entité qui ne sont pas des clés primaires. /]
 [query public attributesNoPK(e : entity::Entity) : OrderedSet(environment::Attribute) = e.get_attributes()->select(a | 

@@ -16,7 +16,7 @@
     <artifactId>[any.nameProject()/]</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
-    <name>safran2</name>
+    <name>cali</name>
     <description></description>
     <issueManagement>
     </issueManagement>
@@ -44,6 +44,11 @@
     
     <dependencyManagement>
        <dependencies>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>[any.versionSl4j()/]</version>
+          </dependency>
           <dependency>
              <groupId>org.junit.jupiter</groupId>
              <artifactId>junit-jupiter</artifactId>

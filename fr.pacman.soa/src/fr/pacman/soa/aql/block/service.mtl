@@ -41,6 +41,7 @@
   
   [s.commentClass()/]
   [protected ((s.nameClassServiceImpl() + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    @SuppressWarnings("unused")
   [/protected]
   @[s.nameClassAnnotationIn()/]
   public class [s.nameClassServiceImpl()/] implements [s.nameClassServiceInItf()/]
@@ -48,21 +49,20 @@
    
       [s.writeRequirement()/]
       
+      ['Le logger pour la classe'.commentSingleLine()/]
+      private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([s.nameClassServiceImpl()/].class);
+      
       ['Interface de persistance'.commentSingleLine()/]
       private final [s.nameClassServiceOutItf()/] [s.nameProvider().apply_attributeDefault()/];
       
       [protected ((s.nameClassServiceImpl() + s.suffixInterfaceIn()).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       [/protected]
       
-      [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-      [/protected]
-        
-        ['Constructeur avec injection de la persistance'.commentMultiLines()/]
-        public [s.nameClassServiceImpl()/] (final [s.nameClassServiceOutItf()/] [s.nameProvider().apply_parameterMethodClassicIn()/]) 
-        {  
-          [s.prefixAffectation()/][s.nameProvider().apply_attributeDefault()/] = [s.nameProvider().apply_parameterMethodClassicIn()/]; 
-        }
-       
+      ['Constructeur avec injection de la persistance'.commentMultiLines()/]
+      public [s.nameClassServiceImpl()/] (final [s.nameClassServiceOutItf()/] [s.nameProvider().apply_parameterMethodClassicIn()/]) 
+      {  
+        [s.prefixAffectation()/][s.nameProvider().apply_attributeDefault()/] = [s.nameProvider().apply_parameterMethodClassicIn()/]; 
+      }
        
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
         

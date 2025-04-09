@@ -23,6 +23,7 @@
 [import fr::pacman::core::aql::rule::common/]
 
 [import fr::pacman::core::property::project::ProjectProperties/]
+[import fr::pacman::core::service::AnnotationUtils/]
 
 [comment écriture de l'implémentation d'un service contrôleur soa (couche application)./]
 [template public serviceRsImpl (s : soa::Service, ds : OrderedSet(environment::DTO))]
@@ -47,6 +48,7 @@
     import org.springframework.web.bind.annotation.RequestAttribute;  
     import org.springframework.web.bind.annotation.RequestHeader;
     import org.springframework.web.bind.annotation.ResponseBody;
+    import org.springframework.security.access.prepost.PreAuthorize;
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
     import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
@@ -76,14 +78,18 @@
     [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
       [if (o.isRsOperation())]
         [o.commentOperation()/]
+        [protected ((o.name + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
         [o.writeRsAnnotations()/]
         [o.writeRsSignature()/]
         {
            [o.lineSeparator()/]
            [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             
              [o.writeCheckPageParam()/]
              [o.writeCheckSizeParam()/]
              [o.writeSortByParam()/]
+             
            [/protected]
            
            [o.writeRsOperation(s)/] 
@@ -230,8 +236,8 @@
   then true  else  false  endif else  true endif  else  true endif /]
   
 [comment écriture de l'éventuel paramètre de pagination./]
-[query private writeSortByParam(o : soa::Operation) : String = 'final String ' + 'sort by'.apply_variableDefault() + '= "' 
-	+ '";'/]
+[query private writeSortByParam(o : soa::Operation) : String = if (o.paged) then 'final String ' + 'sort by'.apply_variableDefault() + '= "' 
+	+ '";' else '' endif/]
   
 [comment écriture de la vérification et de l'affectation des éventuels paramètres de pagination./]
 [query private writeCheckPageParam(o : soa::Operation) : String = if (o.paged) then o.input
@@ -306,8 +312,8 @@
   + ' (' + o.writeRsInputs() + ')'/]
   
 [comment écriture des annotations au niveau de l'opération rest./]
-[query private writeRsAnnotations(o : soa::Operation) : String = 
-  if (o.verb = soa::Verb::GET) then '@GetMapping(value = "'+ o.rsUri()
+[query private writeRsAnnotations(o : soa::Operation) : String = o.writeRsPreAuthorize() 
+  + if (o.verb = soa::Verb::GET) then '@GetMapping(value = "'+ o.rsUri()
   else if (o.verb = soa::Verb::POST) then '@PostMapping(value = "'+ o.rsUri()
   else if (o.verb = soa::Verb::PUT) then '@PutMapping(value = "'+ o.rsUri()
   else if (o.verb = soa::Verb::OPTIONS) then ''
@@ -316,8 +322,16 @@
   else if (o.verb = soa::Verb::PATCH) then ''
   else if (o.verb = soa::Verb::TRACE) then ''
   else '' endif endif endif endif endif endif endif endif 
-  + '", produces = ' + if (o.hasMediaRsType()) then '"' 
-  + o.output->first().mediaRsType() + '"'else o.defaultRsMediaType() endif + ')'/]
+  + '", produces = ' + '"' + if (o.hasMediaRsType()) then  
+  o.output->first().mediaRsType() else o.defaultRsMediaType() endif 
+  + o.defaultRsEncoding() + '")'/]
+
+[comment écriture si besoin de rôles spécifiques en plus de l'authentification pour un service./]  
+[query private writeRsPreAuthorize(o : soa::Operation) : String = 
+  if (o.has_metaPermission()) then '@PreAuthorize("hasRole(\'' + o.get_metaPermission() + '\')'  
+  + if (o.has_metaPermissionOr()()) then ' || hasRole(\'' + o.get_metaPermissionOr() + '\')' else '' endif 
+  + if (o.has_metaPermissionAnd()()) then ' && hasRole(\'' + o.get_metaPermissionAnd() + '\')' else '' endif 
+  + '")' + o.lineSeparator() else '' endif /]
 
 [comment écriture des annotations au niveau des paramètres rest./]
 [query private writeRsAnnotation(p : soa::Parameter, o : soa::Operation) : String = 

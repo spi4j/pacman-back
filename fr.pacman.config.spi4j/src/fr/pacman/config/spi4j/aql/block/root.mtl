@@ -14,7 +14,7 @@
     <artifactId>[any.nameProject()/]</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
-    <name>safran2</name>
+    <name>cali</name>
     <description></description>
     <issueManagement>
     </issueManagement>

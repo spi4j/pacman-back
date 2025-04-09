@@ -14,8 +14,12 @@
 [comment @main/]
 [template protected genServer(m : soa::System)]
   [m.super:genServer()/]
-  [comment implémentation pour la sécurité des services rest./]
+  [comment implémentation de la configuration pour la sécurité rest./]
   [m.fileRsSecurityConfigImpl()/]
+  [comment implémentation du service de création du jeton jwt./]
+  [m.fileRsSecurityTokenServiceImpl()/]
+  [comment implémentation du service d'authentification jwt./]
+  [m.fileRsServiceTokenImpl()/]
   
   [for (s : soa::Service | m.eAllContents(soa::Service))]
     [let ds = s.associatedDtos()]

@@ -26,7 +26,7 @@ public class GenerateStartWizardAction extends PacmanUIProjectAction {
 	}
 
 	/**
-	 * Ne fonctionne pas si on veut effectuer le traitement dierctement à la racine,
+	 * Ne fonctionne pas si on veut effectuer le traitement directement à la racine,
 	 * il faut itérer sur chaque sous-projet.
 	 * 
 	 * @param p_subProjectNames

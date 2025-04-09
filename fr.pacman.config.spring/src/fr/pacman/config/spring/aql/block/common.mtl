@@ -28,6 +28,10 @@
     
     <dependencies>
        <dependency>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+       </dependency>
+       <dependency>
           <groupId>org.junit.jupiter</groupId>
           <artifactId>junit-jupiter</artifactId>
        </dependency>
@@ -218,7 +222,7 @@
    /**
     * Vérifie si la taille d'une chaîne de caractères est comprise dans une plage spécifiée.
     * Si la taille dépasse la taille maximale autorisée, une entrée est ajoutée à la liste des champs invalides
-    * indiquant la taille actuelle de la chaîne et la taille maximale autorisée. 
+    * indiquant la taille actuelle de la chaîne et la taille maximale autorisée. Idem pour la taille minimale.
     * <p>
     * Si la chaîne est nulle, cette méthode ne fait aucune vérification.</p>
     *
@@ -229,17 +233,26 @@
     * @param ['invalid fields'.apply_parameterMethodClassicIn()/] La liste des champs invalides à laquelle ajouter une entrée en cas de validation échouée.
     */
     public static void ['check size'.apply_methodDefault()/](final String ['field name'.apply_parameterMethodClassicIn()/]
-       , final String ['value'.apply_parameterMethodClassicIn()/], final int ['min size'.apply_parameterMethodClassicIn()/] 
-       , final int ['max size'.apply_parameterMethodClassicIn()/], List<String> ['invalid fields'.apply_parameterMethodClassicIn()/]) 
+       , final String ['value'.apply_parameterMethodClassicIn()/], final Integer ['min size'.apply_parameterMethodClassicIn()/] 
+       , final Integer ['max size'.apply_parameterMethodClassicIn()/], List<String> ['invalid fields'.apply_parameterMethodClassicIn()/]) 
          {
-       if (['value'.apply_parameterMethodClassicIn()/] != null && ['value'.apply_parameterMethodClassicIn()/]
-          .length() > ['max size'.apply_parameterMethodClassicIn()/]) {
-          if (['invalid fields'.apply_parameterMethodClassicIn()/] == null) {
-              ['invalid fields'.apply_parameterMethodClassicIn()/] = new ArrayList<>();
-          }
-          ['invalid fields'.apply_parameterMethodClassicIn()/].add(['field name'.apply_parameterMethodClassicIn()/] 
-             + " (" + ['value'.apply_parameterMethodClassicIn()/].length() + " > " + ['max size'.apply_parameterMethodClassicIn()/] + ")");
-    	}
+         
+          if (['value'.apply_parameterMethodClassicIn()/] == null) 
+              return;
+              
+          if (['max size'.apply_parameterMethodClassicIn()/] != null && ['value'.apply_parameterMethodClassicIn()/]
+             .length() > ['max size'.apply_parameterMethodClassicIn()/]) {
+             if (['invalid fields'.apply_parameterMethodClassicIn()/] == null) 
+               ['invalid fields'.apply_parameterMethodClassicIn()/] = new ArrayList<>();
+             ['invalid fields'.apply_parameterMethodClassicIn()/].add(['field name'.apply_parameterMethodClassicIn()/] 
+                + " (" + ['value'.apply_parameterMethodClassicIn()/].length() + " > " + ['max size'.apply_parameterMethodClassicIn()/] + ")");}
+                
+           if (['min size'.apply_parameterMethodClassicIn()/] != null && ['value'.apply_parameterMethodClassicIn()/]
+              .length() < ['min size'.apply_parameterMethodClassicIn()/]) {
+              if (['invalid fields'.apply_parameterMethodClassicIn()/] == null) 
+                 ['invalid fields'.apply_parameterMethodClassicIn()/] = new ArrayList<>();
+               ['invalid fields'.apply_parameterMethodClassicIn()/].add(['field name'.apply_parameterMethodClassicIn()/] 
+                   + " (" + ['value'.apply_parameterMethodClassicIn()/].length() + " < " + ['min size'.apply_parameterMethodClassicIn()/] + ")");}
     }
   }
 [/template]

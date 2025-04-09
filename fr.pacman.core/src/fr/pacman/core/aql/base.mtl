@@ -32,6 +32,9 @@
 [comment le type d'encodage par défaut pour les fichiers./]
 [query public defaultFileEncoding(any : ecore::EObject) : String = 'UTF-8'/]
 
+[comment le type d'encodage par défaut pour les réponses des services rest./]
+[query public defaultRsEncoding(any : ecore::EObject) : String = ';charset=utf8'/]
+
 [comment le code de retour par défaut pour les services rest./]
 [query public defaultRsStatusCode(any : ecore::EObject) : String = '200'/]
 
@@ -42,7 +45,7 @@
 [query public defaultRsNotFoundStatusCode2(any : ecore::EObject) : String = '204'/]
 
 [comment le type de média par défaut pour le retour de l'ensemble des services rest./]
-[query public defaultRsMediaType (any : ecore::EObject) : String = 'MediaType.APPLICATION_JSON_VALUE'/]
+[query public defaultRsMediaType (any : ecore::EObject) : String = 'application/json'/]
 
 [comment la valeur par défaut pour l'initialisation d'une séquence SQL./]  [query public defaultSqlStartSequence(any : ecore::EObject) : String = '1'/]
 
@@ -245,6 +248,9 @@
  
 [comment retourne le nom pour le répoertoire de stockage des fichiers de propriétés pacman./]
 [query public namePropertiesDirectory(any : ecore::EObject) : String = 'pacman-properties'/]
+
+[comment retourne le 'nom' pour l'uri d'authentification (jeton) pour les services rest sécurisés./]
+[query public nameRsTokenUri(any : ecore::EObject) : String = '/token'/]
 
 [comment retourne le nom pour un type spécial pacman binaire./]
 [query public nameTypeBinary(any : ecore::EObject) : String = 'binary'/]

@@ -65,6 +65,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_sql_tableXtopsupComment = "sql.table.field.xtopsup.comment";
 	public static final String c_sql_tableXtopsupSize = "sql.table.field.xtopsup.size";
 	public static final String c_sql_tableXField = "sql.table.field";
+	public static final String c_sql_tableUUID = "sql.table.uuid";
 
 	public static final String c_requirement_prefix = "requirement.prefix";
 	public static final String c_requirement_versionningInitial = "requirement.versionning.initial";
@@ -151,6 +152,10 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_sql_tableSchema, c_noDefaultValue,
 						"Nom du schema pour les tables de l'application ( format : xxx. )"),
+
+				PacmanProperty.newRequired(c_sql_tableUUID, c_noDefaultValue,
+						"Utilisation des identifiants uniques universels (non actif par défaut)"
+								+ "\n# ATTENTION : NE JAMAIS CHANGER EN COURS DE PRODUCTION !"),
 
 				PacmanProperty.newRequired(c_sql_fields, c_noDefaultValue,
 						"Champs additionnels pour les tables de l'application"),
@@ -423,7 +428,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	}
 
 	public static String get_dataBasesNames(final Object p_object) {
-		 return PropertiesHandler.getProperty(c_project_databases);
+		return PropertiesHandler.getProperty(c_project_databases);
 	}
 
 	public static boolean get_useServiceRequirements(final Object p_object) {
@@ -465,6 +470,10 @@ public final class ProjectProperties extends PropertiesCategory {
 
 	public static boolean isModeDebug() {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_debug));
+	}
+
+	public static Boolean is_useUUID(final Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_sql_tableUUID));
 	}
 
 //	public static String get_useWMS() {
