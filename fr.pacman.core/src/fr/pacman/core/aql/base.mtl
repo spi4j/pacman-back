@@ -131,7 +131,7 @@
 [query public suffixRsExceptionHandler(any : ecore::EObject) : String = ' exception handler'/]
 
 [comment le suffixe pour la classe de démarrage de l'application./]
-[query public suffixApplicationBoostrap(any : ecore::EObject) : String = ' boostrap'/]
+[query public suffixApplicationBootstrap(any : ecore::EObject) : String = ' bootstrap'/]
   
 [comment le préfixe pour les attributs si besoin./]
 [query public prefixAffectation(any : ecore::EObject) : String = 'this.'/]

@@ -58,3 +58,10 @@
     [s.serviceIntegrationTestImpl()/]
   [/file]
 [/template]
+
+[comment écriture de la classe de résolution du jeton JWT pour les services sécurisés rest./]
+[template public fileRsTokenResolverImpl(m : soa::System)]
+  [file (m.nameClassRsTokenResolverImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
+    [m.rsTokenResolverImpl()/]
+  [/file]
+[/template]

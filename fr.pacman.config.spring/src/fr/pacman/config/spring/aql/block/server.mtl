@@ -63,14 +63,17 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
         </dependency>
-        
+        <!-- Circuit breaker -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot2</artifactId>
+        </dependency>
         <!-- Projet métier (domaine). -->
         <dependency>
            <groupId>[any.namePackageProject()/]</groupId>
            <artifactId>[any.nameProjectCommon()/]</artifactId>
            <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        
         <!-- Base H2 embarquée pour les tests. -->
         <dependency>
            <groupId>com.h2database</groupId>
@@ -106,17 +109,39 @@
             <artifactId>ojdbc8</artifactId>
     	  </dependency>
     	[/if]
+    	<!-- (à voir si demande génération war et non jar..)
+    	<dependency>
+    	   <groupId>org.springframework.boot</groupId>
+    	   <artifactId>spring-boot-starter-tomcat</artifactId>
+    	   <scope>provided</scope>
+    	</dependency>
+    	-->
     </dependencies>
     
     <build>
       <plugins>
+         <!-- Génération du jar executable. -->
+         <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrap()/]</mainClass>
+            </configuration>
+         </plugin>
       </plugins>
     </build>
   </project>
 [/template]
 
-[comment écriture du boostrap pour l'application./]
-[template public applicationBoostrapImpl(any : ecore::EObject)]
+[comment écriture du bootstrap pour l'application./]
+[template public applicationBootstrapImpl(any : ecore::EObject)]
   [any.classHeader(null)/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -160,18 +185,18 @@
   @ComponentScan(basePackages = {"[any.namePackageProject()/]"}, includeFilters = {
   @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationIn()/].class
     ,  [any.nameClassAnnotationOut()/].class})})
-  public class [any.nameClassAppBoostrap()/]
+  public class [any.nameClassAppBootstrap()/]
   {
      
     /**
      * Le logger pour la classe.
      */
-     private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([any.nameClassAppBoostrap()/].class);
+     private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([any.nameClassAppBootstrap()/].class);
      
      /**
       * Point d'entrée de l'application Spring Boot. Il démarre l'application en appelant
       * {@link SpringApplication#run(Class, String...)} avec la 
-      * classe {@code  [any.nameClassAppBoostrap()/]}.
+      * classe {@code  [any.nameClassAppBootstrap()/]}.
       *
       * @param args Les arguments de la ligne de commande.
       */
@@ -182,7 +207,7 @@
         [/protected]
         
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+08:00"));	
-        SpringApplication.run([any.nameClassAppBoostrap()/].class, args);
+        SpringApplication.run([any.nameClassAppBootstrap()/].class, args);
 	  }
 	  
 	  /**
@@ -204,7 +229,7 @@
 	  	};
 	  }
 	  
-	  [protected (any.nameClassAppBoostrap().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+	  [protected (any.nameClassAppBootstrap().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
 	  [/protected]
   }
 [/template]
@@ -480,6 +505,71 @@
   }
 [/template]
 
+[comment écriture d'une classe utilitaire pour la mise à disposition du jeton JWT./]
+[template public rsCurrentTokenHelperImpl (any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  [any.defaultImports()/]
+  
+  import org.springframework.security.core.Authentication;
+  import org.springframework.security.core.context.SecurityContextHolder;
+  import org.springframework.security.oauth2.jwt.Jwt; 
+  import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;  
+  /**
+   * Classe utilitaire permettant d'accéder aux informations du token JWT courant
+   * à partir du contexte de sécurité Spring Security.
+   * Fournit des méthodes pratiques pour récupérer le JWT, l'ID utilisateur, les rôles, et tous les claims.
+   *
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRsCurrentTokenHelperImpl()/] {
+    
+   /**
+    * Récupère le token JWT courant à partir du {@link SecurityContextHolder}.
+    *
+    * @return un {@link Optional} contenant le {@link Jwt} si disponible, sinon vide
+    */
+    public static Optional<Jwt> getJwt() {
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       if (auth instanceof JwtAuthenticationToken jwtAuth) {
+          return Optional.of(jwtAuth.getToken());
+       }
+       return Optional.empty();
+    }
+    
+   /**
+    * Récupère l'identifiant de l'utilisateur (claim {@code sub}) depuis le token JWT.
+    *
+    * @return un {@link Optional} contenant l'identifiant de l'utilisateur, sinon vide
+    */
+    public static Optional<String> getUserId() {
+       return getJwt().map(Jwt::getSubject);
+    }
+    
+   /**
+    * Récupère la liste des rôles définis dans le claim {@code roles} du JWT.
+    *
+    * @return la liste des rôles, ou une liste vide si non définis
+    */
+    public static List<String> getRoles() {
+       return getJwt()
+          .map(jwt -> jwt.getClaimAsStringList("roles"))
+          .orElse(List.of());
+    }
+    
+   /**
+    * Récupère tous les claims du token JWT courant.
+    *
+    * @return une {@link Map} contenant les noms et valeurs 
+    * des claims, ou une map vide si aucun token n'est présent
+    */
+    public static Map<String, Object> getClaims() {
+       return getJwt()
+           .map(Jwt::getClaims)
+           .orElse(Map.of());
+    }
+  }
+[/template]
+
 [comment écriture de l'implémentation pour la classe de gestion des transactions jpa./]
 [template public jpaTransactionExecutorImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageInfrastructureBase())/]
@@ -702,7 +792,17 @@
   server.port=80
   
   # Un exemple de cle sysmetrique pour le developpement.
-  jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+  security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+  
+  # ----------------------------------------------------------------------------------------------
+  # CIRCUIT BREAKER
+  # ----------------------------------------------------------------------------------------------
+  
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.registerHealthIndicator=true
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.failureRateThreshold=50
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.waitDurationInOpenState=10000ms
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.permittedNumberOfCallsInHalfOpenState=3
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.slidingWindowSize=10
   
   # ----------------------------------------------------------------------------------------------
   # DATASOURCES

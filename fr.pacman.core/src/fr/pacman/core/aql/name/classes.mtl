@@ -36,6 +36,9 @@
 [comment retourne le nom pour l'implémentation de l'énumération des requirements (pour une catégorie)./]
 [query public nameClassCategoryRequirementEnumerationImpl (c : requirement::Category) : String = ('requirements ' + c.id).apply_classEnum()/]
 
+[comment retourne le nom pour l'implémentation pour la classe de résolution du jeton jwt./]
+[query public nameClassRsTokenResolverImpl (any : ecore::EObject) : String = (any.nameProject() + ' bearer token resolver').apply_classDefault()/]
+
 [comment retourne le nom pour l'interface d'un requirement./]
 [query public nameClassRequirementItf (any : ecore::EObject) : String = 'requirement'.apply_classInterface()/]
   
@@ -129,7 +132,7 @@
 [query public nameClassEntityAbs(any: ecore::EObject) : String = (any.nameProject() + ' entity').apply_classAbstract()/]
   
 [comment retourne le nom de la classe de démarrage pour une application Spring./]
-[query public nameClassAppBoostrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBoostrap()).apply_classDefault()/]
+[query public nameClassAppBootstrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBootstrap()).apply_classDefault()/]
   
 [comment retourne le nom de la classe pour un objet métier./]
 [query public nameClassDtoImpl(d : environment::DTO) : String = (d.name() + d.suffixDto()).apply_classImplem()/]
@@ -178,6 +181,9 @@
 
 [comment retourne le nom de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest./]
 [query public nameClassRsHttpStatusResolverImpl(any : ecore::EObject) : String = (any.get_projectName() + ' http status resolver').apply_classDefault()/]
+  
+[comment retourne le nom de la classe helper pour obtenir des informations sur le jeton courant (rien à voir avec le décodage) (rest)./]
+[query public nameClassRsCurrentTokenHelperImpl(any : ecore::EObject) : String = (any.get_projectName() + ' current token helper').apply_classDefault()/]
   
 [comment retourne le nom de la classe gestion des transactions jpa./]
 [query public nameClassJpaTransactionExecutorImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transactional executor').apply_classDefault()/]

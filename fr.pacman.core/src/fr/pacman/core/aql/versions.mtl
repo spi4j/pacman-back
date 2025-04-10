@@ -13,6 +13,7 @@
 [query public versionOracle(any : ecore::EObject) : String = '12.1.0.2'/]
 [query public versionOracle32(any : ecore::EObject) : String = '12.2.0.1'/]
 [query public versionSl4j(any : ecore::EObject) : String = '2.0.2'/]
+[query public versionResilience4j(any : ecore::EObject) : String = '2.3.0'/]
 
 [comment query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
 [comment query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]

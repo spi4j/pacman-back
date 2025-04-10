@@ -24,6 +24,8 @@
   [r.fileRsAuthenticationEntryPointImpl()/]
   [comment écriture de la définition pour la structure des erreurs (rest)./]
   [r.fileRsErrorBodyResponseImpl()/]
+  [comment écriture d'une classe utilitaire pour utiliser les infos du jeton (rest)./]
+  [r.fileRsCurrentTokenHelperImpl()/]
   [comment écriture de la classe de résolution des status http./]
   [r.fileRsHttpStatusResolverImpl()/]
   [comment écriture du gestionnaire de transactions pour la persistance./]

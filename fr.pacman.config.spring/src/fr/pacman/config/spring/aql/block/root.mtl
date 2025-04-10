@@ -115,6 +115,11 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>[any.versionSpringBoot()/]</version>
           </dependency>
+          <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot2</artifactId>
+            <version>[any.versionResilience4j()/]</version>
+          </dependency>
           [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
             <dependency>
               <groupId>org.postgresql</groupId>
@@ -155,6 +160,15 @@
               <scope>runtime</scope>
             </dependency>
           [/if]
+          <!-- (voir si déclaratif ou non...)
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>3.2.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+          </dependency>
+          -->
        </dependencies>
     </dependencyManagement>
     
@@ -185,6 +199,11 @@
                    </configuration>
                 </execution>
              </executions>
+          </plugin>
+          <plugin>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-maven-plugin</artifactId>
+              <version>[any.versionSpringBoot()/]</version>
           </plugin>
        </plugins>
        </pluginManagement>

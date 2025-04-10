@@ -65,6 +65,9 @@
                               <!-- Placer ici les librairies authorisées. -->
                               <!-- Pour l'instant uniquement librairies de test. -->
                               <include>*:*:*:*:test</include>
+                              <include>org.junit.jupiter:junit-jupiter</include>
+                              <include>org.assertj:assertj-core</include>
+                              <include>org.slf4j:slf4j-api</include>
                            </includes>
                         </bannedDependencies>
                      </rules>

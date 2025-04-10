@@ -20,6 +20,8 @@
   [m.fileRsSecurityTokenServiceImpl()/]
   [comment implémentation du service d'authentification jwt./]
   [m.fileRsServiceTokenImpl()/]
+  [comment écriture pour la classe de résolution du jeton jwt (rest)./]
+  [m.fileRsTokenResolverImpl()/]
   
   [for (s : soa::Service | m.eAllContents(soa::Service))]
     [let ds = s.associatedDtos()]

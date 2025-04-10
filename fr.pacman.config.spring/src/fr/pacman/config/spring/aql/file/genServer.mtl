@@ -17,8 +17,8 @@
 
 [comment écriture du fichier d'implémentation pour le bootstrap de l'application./]
 [template public fileApplicationBootstrap(any : ecore::EObject)]
-  [file (any.nameClassAppBoostrap().toFileJava(null), overwrite, any.defaultFileEncoding())]
-    [any.applicationBoostrapImpl()/]
+  [file (any.nameClassAppBootstrap().toFileJava(null), overwrite, any.defaultFileEncoding())]
+    [any.applicationBootstrapImpl()/]
   [/file]
 [/template]
 
@@ -61,6 +61,13 @@
 [template public fileRsHttpStatusResolverImpl(any : ecore::EObject)]
   [file (any.nameClassRsHttpStatusResolverImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
     [any.rsHttpStatusResolverImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe helper pour obtenir des informations sur le jeton jwt courant (partout dans l'application hors domain)./]
+[template public fileRsCurrentTokenHelperImpl(any : ecore::EObject)]
+  [file (any.nameClassRsCurrentTokenHelperImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsCurrentTokenHelperImpl()/]
   [/file]
 [/template]
 
