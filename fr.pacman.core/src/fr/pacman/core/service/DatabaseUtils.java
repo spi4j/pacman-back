@@ -43,6 +43,7 @@ public class DatabaseUtils {
 	private static final String c_typeColumnIdJoin = "IdJoin";
 	private static final String c_typeColumnReference = "Reference";
 	private static final String c_typeColumnXtopSup = "XtopSup";
+	private static final String c_typeColumnUuid = "UUID";
 	private static final String c_typeColumnDefault = "Default";
 	private static final String c_typeColumnLong = "Long";
 	private static final String c_typeColumnInt = "Integer";
@@ -123,6 +124,7 @@ public class DatabaseUtils {
 		_defaultColumnLengths.put(c_typeColumnFloat, "14,2");
 		_defaultColumnLengths.put(c_typeColumnDouble, "14,2");
 		_defaultColumnLengths.put(c_typeColumnString, "100");
+		_defaultColumnLengths.put(c_typeColumnUuid, "36");
 
 		_defaultValues = new HashMap<>();
 		_defaultValues.put(c_typeColumnString, "'S'");
@@ -136,7 +138,8 @@ public class DatabaseUtils {
 		_defaultValues.put(c_typeColumnChar, "C");
 		_defaultValues.put(c_typeColumnTime, "current_timestamp");
 		_defaultValues.put(c_typeColumnTimestamp, "current_timestamp");
-		_defaultColumnLengths.put(c_typeColumnXtopSup, "'0'");
+		_defaultValues.put(c_typeColumnUuid, "'a81bc81b-dead-4e5d-abff-90865d1e13b1'");
+		_defaultValues.put(c_typeColumnXtopSup, "'0'");
 
 		_columnTypes = new HashMap<>();
 		_columnTypes.put(c_typeOracle, new HashMap<>());
@@ -150,6 +153,7 @@ public class DatabaseUtils {
 		_columnTypes.get(c_typeOracle).put(c_typeColumnIdJoin, "NUMBER(19) not null");
 		_columnTypes.get(c_typeOracle).put(c_typeColumnReference, "NUMBER(19)");
 		_columnTypes.get(c_typeOracle).put(c_typeColumnXtopSup, "VARCHAR(1)");
+		_columnTypes.get(c_typeOracle).put(c_typeColumnUuid, "VARCHAR(36)");
 		_columnTypes.get(c_typeOracle).put(c_typeColumnDefault, "VARCHAR(200)");
 		_columnTypes.get(c_typeOracle).put(c_typeColumnLong, "NUMBER(?)");
 		_columnTypes.get(c_typeOracle).put(c_typeColumnInt, "NUMBER(?)");
@@ -166,6 +170,7 @@ public class DatabaseUtils {
 		_columnTypes.get(c_typeMySql).put(c_typeColumnIdJoin, "BIGINT(19) unsigned not null");
 		_columnTypes.get(c_typeMySql).put(c_typeColumnReference, "BIGINT(19) unsigned");
 		_columnTypes.get(c_typeMySql).put(c_typeColumnXtopSup, "VARCHAR(1)");
+		_columnTypes.get(c_typeMySql).put(c_typeColumnUuid, "VARCHAR(36)");
 		_columnTypes.get(c_typeMySql).put(c_typeColumnDefault, "VARCHAR(200)");
 		_columnTypes.get(c_typeMySql).put(c_typeColumnLong, "BIGINT(?)");
 		_columnTypes.get(c_typeMySql).put(c_typeColumnInt, "INT(?)");
@@ -181,6 +186,7 @@ public class DatabaseUtils {
 		_columnTypes.get(c_typePostgres).put(c_typeColumnIdJoin, "BIGINT not null");
 		_columnTypes.get(c_typePostgres).put(c_typeColumnReference, "BIGINT");
 		_columnTypes.get(c_typePostgres).put(c_typeColumnXtopSup, "VARCHAR(1)");
+		_columnTypes.get(c_typePostgres).put(c_typeColumnUuid, "VARCHAR(36)");
 		_columnTypes.get(c_typePostgres).put(c_typeColumnDefault, "VARCHAR(200)");
 		_columnTypes.get(c_typePostgres).put(c_typeColumnLong, "BIGINT|NUMERIC(?)");
 		_columnTypes.get(c_typePostgres).put(c_typeColumnInt, "INTEGER|NUMERIC(?)");
@@ -197,6 +203,7 @@ public class DatabaseUtils {
 		_columnTypes.get(c_typeH2).put(c_typeColumnIdJoin, "NUMBER(19) not null");
 		_columnTypes.get(c_typeH2).put(c_typeColumnReference, "NUMBER(19)");
 		_columnTypes.get(c_typeH2).put(c_typeColumnXtopSup, "VARCHAR(1)");
+		_columnTypes.get(c_typeH2).put(c_typeColumnUuid, "VARCHAR(36)");
 		_columnTypes.get(c_typeH2).put(c_typeColumnDefault, "VARCHAR(200)");
 		_columnTypes.get(c_typeH2).put(c_typeColumnLong, "NUMBER(?)");
 		_columnTypes.get(c_typeH2).put(c_typeColumnInt, "NUMBER(?)");
@@ -207,7 +214,7 @@ public class DatabaseUtils {
 		_columnTypes.get(c_typeH2).put(c_typeColumnTimestamp, "TIMESTAMP");
 		_columnTypes.get(c_typeH2).put(c_typeColumnTime, "TIMESTAMP");
 		_columnTypes.get(c_typeH2).put(c_typeColumnBinary, "BLOB");
-		_columnTypes.get(c_typeH2).put(c_typeColumnBoolean, "NUMBER(1)");
+		_columnTypes.get(c_typeH2).put(c_typeColumnBoolean, "BOOLEAN");
 
 		_columnTypes.get(c_typeMariaDb).putAll(_columnTypes.get(c_typeMySql));
 		_columnTypes.get(c_typeOracle32).putAll(_columnTypes.get(c_typeOracle32));

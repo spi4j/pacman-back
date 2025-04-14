@@ -21,7 +21,7 @@
 [query public sanitizeSql(str : String) : String = str.sanitize().replaceAll(' ','')/]
   
 [comment retourne la ligne expurgée des caractères spéciaux interdits./]
-[query public sanitizeComment(str : String) : String = str.sanitize().replaceAll('\\*','')/]
+[query public sanitizeComment(str : String) : String = str.replaceAll('\\*','')/]
 
 [comment retourne l'énumération de requirement expurgée des caractères spéciaux interdits../]  
 [query public sanitizeReqID(s : String) : String = if not (s = null) then s.replaceAll('-', '_') else 'ID_INVALID' endif/]

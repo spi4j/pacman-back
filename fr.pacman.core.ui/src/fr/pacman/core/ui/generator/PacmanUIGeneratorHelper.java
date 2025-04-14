@@ -2,12 +2,23 @@ package fr.pacman.core.ui.generator;
 
 import fr.pacman.core.ui.service.PlugInUtils;
 
+/**
+ * Classe utilitaire pour l'affichage de messages d'erreur ou d'information dans
+ * l'interface utilisateur du plugin Pacman.
+ *
+ * Cette classe fournit des méthodes statiques pour afficher des popups
+ * d'alerte, d'information ou des messages d'erreur détaillés à l'utilisateur.
+ */
 public class PacmanUIGeneratorHelper {
 
 	/**
+	 * Affiche une popup d'erreur avec un message détaillé à partir d'une exception.
 	 * 
-	 * @param p_e
-	 * @param p_statusCode
+	 * Si l'exception contient une cause, son message est également inclus dans la
+	 * popup. Ce message est destiné à informer l'utilisateur qu'une erreur a
+	 * interrompu la génération.
+	 * 
+	 * @param p_e L'exception levée pendant la génération.
 	 */
 	public static void showErrors(final Exception p_e) {
 		String msg = p_e.getMessage();
@@ -19,7 +30,21 @@ public class PacmanUIGeneratorHelper {
 						+ "\n\rCause de l'erreur : " + msg + "\n\rLa génération va être stoppée.");
 	}
 
+	/**
+	 * Affiche une popup d'alerte contenant le message spécifié.
+	 * 
+	 * @param p_msg Le message à afficher dans la popup d'alerte.
+	 */
 	public static void displayPopUpAlert(final String p_msg) {
 		PlugInUtils.displayError("Pacman", p_msg);
+	}
+
+	/**
+	 * Affiche une popup d'information contenant le message spécifié.
+	 * 
+	 * @param p_msg Le message à afficher dans la popup d'information.
+	 */
+	public static void displayPopUpInfo(final String p_msg) {
+		PlugInUtils.displayInformation("Pacman", p_msg);
 	}
 }

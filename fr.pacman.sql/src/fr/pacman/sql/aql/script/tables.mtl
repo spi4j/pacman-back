@@ -175,7 +175,7 @@
 [query private writeAutoAttribute(s : String, dbType : String) : String = s.nameAutoAttribute().toUpper() + ' ' 
 	+ dbType.get_columnTypeForDatabase(s.autoAttributeType()) + if ('false'.equalsIgnoreCase(s.autoAttributNull())) then ' not null' 
 	else '' endif + if (dbType.is_mySqlType() and s.autoAttributeComment().exists()) then ' ' + s.autoAttributeComment().escapeComment() 
-	else '' endif + if (s.autoAttributDefault().exists()) then ' DEFAULT' + '\'' + s.autoAttributDefault() + '\'' else '' endif + ',' /]
+	else '' endif + if (s.autoAttributDefault().exists()) then ' DEFAULT ' + '\'' + s.autoAttributDefault() + '\'' else '' endif + ',' /]
 
 [comment écriture de la ligne pour chaque attribut de l'entité./]  
 [query private writeAttribute(a : environment::Attribute, dbType : String) : String = a.nameColumn().toUpper() + ' ' 

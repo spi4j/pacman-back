@@ -1168,7 +1168,7 @@
    * 
    * @author [any.nameAuthor()/]
    */
-  @Component
+  @Component(value = "[any.nameClassRsAuthenticationEntryPointImpl()/]")
   public class [any.nameClassRsAuthenticationEntryPointImpl()/] implements AuthenticationEntryPoint {
   
     /**
@@ -1192,7 +1192,7 @@
           
           ['response'.apply_parameterMethodClassicIn()/].setContentType("application/json;charset=UTF-8");
           ['response'.apply_parameterMethodClassicIn()/].setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          ['response'.apply_parameterMethodClassicIn()/].getWriter().write("{\"message\": \"Please log in to access this resource.\"}");
+          ['response'.apply_parameterMethodClassicIn()/].getWriter().write("{\"message\": \"Veuillez vous identifier pour accéder à cette ressource.\"}");
           
         [/protected]
      }

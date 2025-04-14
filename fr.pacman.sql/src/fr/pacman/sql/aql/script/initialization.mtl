@@ -48,5 +48,5 @@
 	+ e.attributesNoPKAndNoComputed()->collect(o : environment::Attribute | o.nameColumn())->sep(',') + ',' 
 	+ rs->collect(o | o.nameReferenceId(o.referencedEntity(e), o.get_namingIndex(rs)))->sep(',')/]
 	
-[comment supprime les virgules non nécessaires dans la liste des colonnes et des valeurs./]
-[query private sanitize(s : String) : String = s.replaceAll(',+\\)','\\)').replaceAll(',',', ')/]
+[comment supprime les virgules non nécessaires dans la liste des colonnes et des valeurs (on y va pas à pas...)./]
+[query private sanitize(s : String) : String = s.replaceAll(',+',',').replaceAll(',\\)', '\\)')/]

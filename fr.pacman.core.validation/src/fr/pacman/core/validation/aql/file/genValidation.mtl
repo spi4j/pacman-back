@@ -3,19 +3,20 @@
 						'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 						
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::resources/]	
 [import fr::pacman::core::aql::output::resources/]		
 [import fr::pacman::core::validation::aql::block::validation/]			
 						
 [comment écriture du fichier de validation pour la modélisation (entity)./]
 [template public fileValidationReport(r : entity::Root)]
-   [file (r.nameProject().toLower().toFile(null, '.log'), overwrite, r.defaultFileEncoding())]
+   [file (r.nameModelValidationFile().toFile(null, '.log'), overwrite, r.defaultFileEncoding())]
      [r.validation()/]
    [/file]
 [/template]
 
 [comment écriture du fichier de validation pour la modélisation (soa)./]
 [template public fileValidationReport(s : soa::System)]
-   [file (s.nameProject().toLower().toFile(null, '.log'), overwrite, s.defaultFileEncoding())]
+   [file (s.nameModelValidationFile().toFile(null, '.log'), overwrite, s.defaultFileEncoding())]
      [s.validation()/]
    [/file]
 [/template]

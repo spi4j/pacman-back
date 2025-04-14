@@ -8,6 +8,14 @@
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::output::resources/]
 
+[comment retourne tous les service 'provided' de l'application./]
+[query public providedServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)
+  ->select(o | o.kind = soa::InterfaceKind::provided)/]
+
+[comment retourne tous les service 'required' de l'application./]
+[query public requiredServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)
+  ->select(o | o.kind = soa::InterfaceKind::required)/]
+
 [comment retourne toutes les opérations d'un service soa./]
 [query public operations(s : soa::Service) : Sequence(soa::Operation) = s.ownedInterface.ownedOperations/]
 

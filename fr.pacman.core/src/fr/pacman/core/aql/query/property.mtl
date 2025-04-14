@@ -30,7 +30,8 @@
    if (str.equalsIgnoreCase('Date')) then 'LocalDate' 
    else if (str.equalsIgnoreCase('TimeStamp')) then 'Instant' 
    else if (str.equalsIgnoreCase('Time')) then 'LocalTime' 
-   else str.sanitize() endif endif endif   /] 
+   else if (str.equalsIgnoreCase('UUID')) then 'UUID'
+   else str.sanitize() endif endif endif endif/] 
 
 
 

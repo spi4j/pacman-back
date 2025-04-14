@@ -1,6 +1,7 @@
 [module genModel(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::resources/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::config::aql::block::model/]
 
@@ -26,6 +27,6 @@
 
 [comment écriture du rapport (vide) de validation des modèles./]
 [template public fileValidation(any : ecore::EObject)]
-  [file (any.nameProject().toLower().toFile(null, '.log'), overwrite, any.defaultFileEncoding())]
+  [file (any.nameModelValidationFile().toFile(null, '.log'), overwrite, any.defaultFileEncoding())]
   [/file]
 [/template]

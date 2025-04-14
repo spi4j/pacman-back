@@ -24,10 +24,17 @@
   [/file]
 [/template]
 
-[comment écriture du fichier d'implémentation pour le service de persistance (infra)./]
+[comment écriture du fichier d'implémentation pour un service de persistance (infra)./]
 [template public fileServiceOutImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
   [file (s.nameClassServiceOutImpl().toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
     [s.outImpl(ds)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour un service d'appel externe (infra)./]
+[template public fileServiceOutExtImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
+  [file (s.nameClassServiceOutExtImpl().toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
+    [s.outExtImpl(ds)/]
   [/file]
 [/template]
 

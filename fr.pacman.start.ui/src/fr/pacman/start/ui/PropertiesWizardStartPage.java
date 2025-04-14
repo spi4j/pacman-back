@@ -59,7 +59,6 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _spi4jSecurity = "";
 	private String _projectCrud = "";
 	private String _databases = "";
-	private String _uuid = "";
 
 	private List<SqlAutoField> _sqlAutoFields = new ArrayList<>();
 
@@ -122,7 +121,6 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		registerWidget("txt_sqlTPrefix", addTextDbTablePrefix(database2));
 		// registerWidget("txt_sqlTSpace", addTextDbTableSpace(database2));
 		registerWidget("txt_sqlTSpace", addTextDbTableSchema(database2));
-		registerWidget("ck_sqlUuid", addCheckBoxUUID(database2));
 		registerWidget("txt_reqPrefix", addTextReqPrefix(options1));
 		registerWidget("txt_reqLevel", addTextReqLevel(options1));
 		registerWidget("cb_reqInitVerion", addComboReqInitVersion(options1));
@@ -162,7 +160,6 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		_spi4jfetchingStrategy = "false";
 		_spi4jSecurity = "false";
 		_projectCrud = "false";
-		_uuid = "false";
 
 		getWidget("ck_jerseyCdi").setEnabled(false);
 		getWidget("ck_fileConfig").setEnabled(false);
@@ -521,33 +518,6 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
-	 * Ajoute une case à cocher pour activer les UUID au niveau des identifiants de
-	 * base de données.
-	 * 
-	 * @param p_parent le composite parent sur lequel accrocher le composant.
-	 * @return
-	 */
-	private Button addCheckBoxUUID(final Composite p_parent) {
-		Button cbx = addCheckBox(p_parent, "Activation des identifiants uniques universels (uuid)", "");
-		cbx.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if ("false".equalsIgnoreCase(_uuid)) {
-					_uuid = "true";
-				} else {
-					_uuid = "false";
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-		return cbx;
-	}
-
-	/**
 	 * 
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
@@ -661,18 +631,19 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		TableEditor editor = new TableEditor(p_parent);
 		CCombo cbx = new CCombo(p_parent, SWT.NONE);
 		cbx.add("", 0);
-		cbx.add("XtopSup", 1);
-		cbx.add("XdMaj", 2);
-		cbx.add("Char", 3);
-		cbx.add("String", 4);
-		cbx.add("Integer", 5);
-		cbx.add("Long", 6);
-		cbx.add("Double", 7);
-		cbx.add("Float", 8);
-		cbx.add("Date", 9);
-		cbx.add("Timestamp", 10);
-		cbx.add("Time", 11);
-		cbx.add("Boolean", 12);
+		cbx.add("XTOPSUP", 1);
+		cbx.add("XDMAJ", 2);
+		cbx.add("UUID", 3);
+		cbx.add("Char", 4);
+		cbx.add("String", 5);
+		cbx.add("Integer", 6);
+		cbx.add("Long", 7);
+		cbx.add("Double", 8);
+		cbx.add("Float", 9);
+		cbx.add("Date", 10);
+		cbx.add("Timestamp", 11);
+		cbx.add("Time", 12);
+		cbx.add("Boolean", 13);
 		editor.grabHorizontal = true;
 		editor.setEditor(cbx, p_item, 0);
 
@@ -716,6 +687,16 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtDefault.setEnabled(false);
 					cbxNull.setEnabled(false);
 					txtDescription.setText("Indicateur de suppression logique");
+					txtDescription.setEnabled(false);
+				} else if (cbx.getSelectionIndex() == 3) {
+					txtName.setText("UUID");
+					txtName.setEnabled(false);
+					txtLength.setText("");
+					txtLength.setEnabled(false);
+					txtDefault.setText("");
+					txtDefault.setEnabled(false);
+					cbxNull.setEnabled(false);
+					txtDescription.setText("Indentifiant unique universel");
 					txtDescription.setEnabled(false);
 				} else {
 					txtName.setText("");
@@ -771,8 +752,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 			@Override
 			public void keyPressed(final KeyEvent p_e) {
-				if (cbx.getSelectionIndex() == 5 || cbx.getSelectionIndex() == 6 || cbx.getSelectionIndex() == 7
-						|| cbx.getSelectionIndex() == 8) {
+				if (cbx.getSelectionIndex() == 6 || cbx.getSelectionIndex() == 7 || cbx.getSelectionIndex() == 8
+						|| cbx.getSelectionIndex() == 9) {
 					if (!FormUtil.checkKeyForNumericValue(p_e.character)) {
 						p_e.doit = false;
 					}
@@ -816,17 +797,20 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private boolean computeAdditionalFieldsValidity() {
 		int xtopsup = 0;
 		int xdmaj = 0;
+		int uuid = 0;
 		for (SqlAutoField sqlAutoField : _sqlAutoFields) {
-			if ("xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
+			if ("XTOPSUP".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
 				xtopsup++;
-			if ("xdmaj".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
+			if ("XDMAJ".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
 				xdmaj++;
+			if ("UUID".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
+				uuid++;
 			if (!sqlAutoField._type.getText().isEmpty() && sqlAutoField._name.getText().isEmpty())
 				return false;
 			if (!sqlAutoField._name.getText().isEmpty() && sqlAutoField._type.getText().isEmpty())
 				return false;
 		}
-		if (xtopsup > 1 || xdmaj > 1)
+		if (xtopsup > 1 || xdmaj > 1 || uuid > 1)
 			return false;
 		return true;
 	}
@@ -986,14 +970,6 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
-	 * 
-	 * @return
-	 */
-	public String getUuid() {
-		return _uuid;
-	}
-
-	/**
 	 * On transfert l'ensemble des données du tableau dans une classe interne afin
 	 * de rendre les données plus lisibles pour la classe chargée de la création du
 	 * projet. Pour xdmaj et xtopsup il n'y a même pas besoin d'aller lire les
@@ -1007,7 +983,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		String sqlFields = "";
 
 		for (SqlAutoField sqlAutoField : _sqlAutoFields) {
-			if ("xdmaj".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
+			if ("XDMAJ".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajName, "XDMAJ");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajComment, "Date de mise à jour de la ligne");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajDefault, "");
@@ -1015,7 +991,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajSize, "");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajType, "Timestamp");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXdmaj);
-			} else if ("xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
+			} else if ("XTOPSUP".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupDefault, "false");
@@ -1023,6 +999,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupSize, "1");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupType, "Boolean");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXtopsup);
+			} else if ("UUID".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
+				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidName, "UUID");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidComment, "Identifiant unique universel");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidDefault, "");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidNull, "false");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidSize, "");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidType, "UUID");
+				sqlFields += ("," + ProjectProperties.c_sql_tableUuid);
 			} else if (!sqlAutoField._name.getText().isEmpty() && !sqlAutoField._name.getText().isBlank()) {
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".name", sqlAutoField._name.getText().trim());
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".comment", sqlAutoField._comment.getText().trim());

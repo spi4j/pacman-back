@@ -62,7 +62,10 @@ public class ValidationUIGenerators extends PacmanUIGenerator {
 
 		if (PacmanValidatorsReport.hasReport())
 			PacmanUIGeneratorHelper.displayPopUpAlert("Le rapport a remonté des erreurs de validation, "
-					+ " consultez le fichier de log au niveau du projet de modélisation.");
+					+ "\n consultez le fichier de log ([nom de l'application]-validation.log) "
+					+ " au niveau du projet de modélisation.");
+		else
+			PacmanUIGeneratorHelper.displayPopUpInfo("Le fichier de modélisation est valide.");
 		return false;
 	}
 

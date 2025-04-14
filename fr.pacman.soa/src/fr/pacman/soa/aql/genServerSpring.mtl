@@ -23,7 +23,8 @@
   [comment écriture pour la classe de résolution du jeton jwt (rest)./]
   [m.fileRsTokenResolverImpl()/]
   
-  [for (s : soa::Service | m.eAllContents(soa::Service))]
+  [comment écriture pour les services sur couche de persistance./]
+  [for (s : soa::Service | m.providedServices())]
     [let ds = s.associatedDtos()]
       [comment implémentation du service application (rest, etc..)./]
       [s.fileRsServiceImpl(ds)/]
@@ -32,6 +33,11 @@
       [comment implémentation des tests pour le contrôleur (application)./]
       [s.fileInIntegrationTestImpl()/]
     [/let]
+  [/for]
+  
+  [comment écriture pour les services sur appel exterieur./]
+  [for (s : soa::Service | m.requiredServices())]
+    [s.fileServiceOutExtImpl(s.associatedDtos())/]
   [/for]
   
   [comment implémentation du service crud infrastructure (persistance)./]

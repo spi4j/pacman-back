@@ -23,7 +23,7 @@
 
 [comment écriture du fichier de propriétés pour l'api de santé (health)./]
 [template public fileHealthXmlProperties(any : ecore::EObject)]
-  [file (any.namehealthResources().toFile(any.namePackageResources(), '.properties'), overwrite, any.defaultFileEncoding())]
+  [file (any.nameHealthResources().toFile(any.namePackageResources(), '.properties'), overwrite, any.defaultFileEncoding())]
     [any.healthXmlProperties()/]
   [/file]
 [/template]

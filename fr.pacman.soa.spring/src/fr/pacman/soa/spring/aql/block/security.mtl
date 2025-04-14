@@ -478,41 +478,80 @@
   import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
   import jakarta.servlet.http.HttpServletRequest;
   
+  /**   * Implémentation personnalisée de {@link BearerTokenResolver} permettant de
+   * résoudre un token d'accès Bearer à partir de différentes sources dans une
+   * requête HTTP. Pour l'instant la recherche dans les cookies n'est pas activée.
+   * Par contre cette classe prépare déjà la possibilité d'avoir de multiples
+   * schémas de sécurité pour un service, d'ou le format de ce code.
+   *
+   * Cette classe tente de récupérer le token dans l'ordre suivant 
+   * (selon la nature de la sécurité, tous les étapes ne sont pas présentes):
+   * 
+   * <ol>
+   * <li>L'en-tête HTTP {@code Authorization} avec le préfixe {@code Bearer } (le plus fréquent)</li>
+   * <li>Le paramètre de requête {@code token}</li>
+   * <li>L'en-tête HTTP personnalisé de type {@code X-Auth-Token...}</li>
+   * </ol>
+   * 
+   * Si aucun token n'est trouvé, la méthode {@code resolve} retourne
+   * {@code null}.
+   * 
+   * @author [m.nameAuthor()/]
+   */
   public class [m.nameClassRsTokenResolverImpl()/] implements BearerTokenResolver {
      
     @Override
     public String resolve(HttpServletRequest ['request'.apply_parameterMethodClassicIn()/]) {
-    
-    // 1. Authorization Header
-    String authHeader = request.getHeader("Authorization");
-    if (authHeader != null && authHeader.startsWith("Bearer ")) {
-    	return authHeader.substring(7);
-    }
-
-    		// 2. Query parameter
-    String token = request.getParameter("token");
-    if (token != null && !token.isEmpty()) {
-    	return token;
-    }
-
-    		// 3. Custom header
-    String customHeader = request.getHeader("X-Auth-Token");
-    if (customHeader != null && !customHeader.isEmpty()) {
-    	return customHeader;
-    }
-
-    		return null; // Pas de token trouvé
+       
+       [let ss = m.rsSecurityScheme()]
+         ['Recherche dans l\'en-tête, le plus courant (toujours présent)'.commentSingleLine()/]
+         
+         String ['auth header'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getHeader("Authorization");
+         if (['auth header'.apply_variableDefault()/] != null && ['auth header'.apply_variableDefault()/].startsWith("Bearer ")) {
+             return ['auth header'.apply_variableDefault()/].substring(7);
+         }
+         
+         [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::QUERY)]
+           ['Recherche dans la requete avec un paramètre xxx'.commentSingleLine()/]
+           
+           String ['token'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getParameter("[ss.key/]");
+           if (['token'.apply_variableDefault()/] != null && !['token'.apply_variableDefault()/].isEmpty()) {
+              return ['token'.apply_variableDefault()/];
+           }
+         [/if]
+         
+         [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::HEADER)]
+           ['Recherche dans l\'en-tête avec un paramètre personnalisé'.commentSingleLine()/]
+           
+           String ['custom header'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getHeader("[ss.key/]");
+           if (['custom header'.apply_variableDefault()/] != null && !['custom header'.apply_variableDefault()/].isEmpty()) {
+             return ['custom header'.apply_variableDefault()/];
+           }
+         [/if]
+         
+         [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::COOKIE)]
+         [/if]
+         
+         [if (ss.type = soa::SecuritySchemeType::HTTP and ss.httpScheme = soa::HttpScheme::BEARER)]
+         [/if]
+         
+         [if (ss.type = soa::SecuritySchemeType::HTTP and ss.httpScheme = soa::HttpScheme::BASIC)]
+         [/if]
+       [/let]
+       
+       return null; // Aucun token trouvé.
     }
   }
 [/template]
 
 
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
-[query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.eAllContents(soa::Operation)->select(o | o.securitySchemes->isEmpty()) /]
+[query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
+  ->select(o | o.securitySchemes->isEmpty()) /]
   
 [comment retourne l'ensemble des opérations sécurisées (et avec rôle) dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
-[query private securedOperationsWithRole(m : soa::System) : Sequence(soa::Operation) = m.eAllContents(soa::Operation)->select(o | not o.securitySchemes->isEmpty() 
-  and o.has_metaPermission()) /]
+[query private securedOperationsWithRole(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
+  ->select(o | not o.securitySchemes->isEmpty() and o.has_metaPermission()) /]
   
 [comment écriture de la chaine de sécurité pour l'ensemble de l'application (à faire évoluer, pas finalisé, ne gère pas le permissionAnd...)./]
 [query private writeRsSecurityFilterChain(ops : Sequence(soa::Operation), m : soa::System, role : Boolean) : String = ops->collect(o | '.requestMatchers("' 

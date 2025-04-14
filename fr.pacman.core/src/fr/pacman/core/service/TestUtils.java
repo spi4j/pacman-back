@@ -28,6 +28,7 @@ public class TestUtils {
 	private static final String c_typeColumnBinary = "Binary";
 	private static final String c_typeColumnBoolean = "Boolean";
 	private static final String c_typeColumnChar = "Char";
+	private static final String c_typeColumnUuid = "UUID";
 
 	/**
 	 * La liste des valeurs par défaut pour l'initialisation des entités en fonction
@@ -48,6 +49,7 @@ public class TestUtils {
 		_defaultValues.put(c_typeColumnChar, "C");
 		_defaultValues.put(c_typeColumnTime, "LocalTime.now()");
 		_defaultValues.put(c_typeColumnTimestamp, "Instant.now()");
+		_defaultValues.put(c_typeColumnUuid, "UUID.randomUUID()");
 		_defaultValues.put(c_typeColumnXtopSup, "false");
 	}
 
@@ -60,6 +62,12 @@ public class TestUtils {
 			if (_defaultValues.containsKey(p_attribute.getType().getName()))
 				return _defaultValues.get(p_attribute.getType().getName());
 		}
+		return "Unknown default value !!!";
+	}
+
+	public static String get_defaulValueForType(final String p_prop) {
+		if (_defaultValues.containsKey(p_prop))
+			return _defaultValues.get(p_prop);
 		return "Unknown default value !!!";
 	}
 }

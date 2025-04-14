@@ -152,13 +152,66 @@
   }
 [/template]
 
+[comment écriture de l'implémentation pour le service avec appel externe (couche infrastructure)./]
+[template public outExtImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
+  [s.classHeader(s.namePackageOutImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];  
+    
+  [/protected]
+  
+  [s.commentInterface()/]
+  @[s.nameClassAnnotationOut()/]
+  public class [s.nameClassServiceOutExtImpl()/] implements [s.nameClassServiceOutItf()/]
+  {
+    [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+      [o.commentOperation()/]
+      @Override
+      @CircuitBreaker(name = "[(o.name().apply_variableDefault() + ' circuit breaker').apply_attributeDefault()/]"
+         , fallbackMethod = "[(o.name() + ' fallback').apply_methodDefault()/]")
+      [o.writePersistSignature()/]
+      {
+         
+         [protected ((o.name() + ' circuit breaker').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           
+           throw new [s.nameClassNotImplementedExceptionImpl()/] 
+                    ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
+                    
+         [/protected]
+      }
+      
+      /**
+      * Méthode de repli pour {@link #[o.name()/]} en cas d'échec ou d'indisponibilité
+      * du service externe. Il est à noter que cette méthode doit avoir exactement
+      * les mêmes paramètres (dans le même ordre) que la méthode principale, seule
+      * une exception de type 'Throwable' est ajoutée en fin de signature.
+      */
+      [o.writeFallbackSignature()/] {
+         
+         [protected ((o.name() + ' fallback').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           
+           // Logique de repli (par exemple, retourner une réponse par défaut)
+           throw new [s.nameClassNotImplementedExceptionImpl()/] 
+                   ("La méthode '[o.nameOperation()/]' de fallback n'a pas été implémentée");
+               
+         [/protected]
+      }
+      
+    [/for]
+  }
+[/template]
+
 [comment écriture de l'implémentation pour le service de persistance (couche infrastructure)./]
 [template public outImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageOutImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
-    import org.springframework.stereotype.Component;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.data.domain.Page;
     import org.springframework.data.domain.PageRequest;
@@ -302,6 +355,10 @@
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writePersistSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]
+
+[comment écriture de la signature complète d'une opération de fallback avec le paramètre en sortie et les paramètres en entrée./]
+[query private writeFallbackSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + (o.name() + ' fallback').apply_methodDefault() 
+  + '(' + o.inputSignature() + ')' /]
   
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writePersistSignatureInvoke(o : soa::Operation) : String = 'private ' + o.outputPersistType() + ' ' + o.nameOperation() + '_invoke' 

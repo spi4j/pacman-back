@@ -37,7 +37,7 @@
 [query public nameClassCategoryRequirementEnumerationImpl (c : requirement::Category) : String = ('requirements ' + c.id).apply_classEnum()/]
 
 [comment retourne le nom pour l'implémentation pour la classe de résolution du jeton jwt./]
-[query public nameClassRsTokenResolverImpl (any : ecore::EObject) : String = (any.nameProject() + ' bearer token resolver').apply_classDefault()/]
+[query public nameClassRsTokenResolverImpl (any : ecore::EObject) : String = (any.nameProject() + ' token resolver').apply_classDefault()/]
 
 [comment retourne le nom pour l'interface d'un requirement./]
 [query public nameClassRequirementItf (any : ecore::EObject) : String = 'requirement'.apply_classInterface()/]
@@ -84,8 +84,11 @@
 [comment retourne le nom pour l'interface d'une classe de service soa crud (infra)./]  
 [query public nameClassServiceCrudOutItf(d : environment::DTO) : String = (d.name() + ' crud ' + d.suffixInterfaceOut()).apply_classInterface()/]  
 
-[comment retourne le nom d'implémentation d'une classe pour le service de persistance./]
+[comment retourne le nom d'implémentation d'une classe pour un service de persistance./]
 [query public nameClassServiceOutImpl(s : soa::Service) : String = (s.name() + ' jpa' + s.suffixInterfaceOut()).apply_classImplem()/]  
+
+[comment retourne le nom d'implémentation d'une classe pour un service avec appel externe./]
+[query public nameClassServiceOutExtImpl(s : soa::Service) : String = (s.name() + ' external' + s.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service crud de persistance./]
 [query public nameClassServiceCrudOutImpl(d : environment::DTO) : String = (d.name() +' crud jpa' + d.suffixInterfaceOut()).apply_classImplem()/]  
