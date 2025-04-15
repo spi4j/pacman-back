@@ -15,4 +15,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.acceleo.query
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
-Export-Package: fr.pacman.start.main
+Export-Package: fr.pacman.start.main,
+ fr.pacman.start.plugin

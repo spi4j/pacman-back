@@ -100,7 +100,7 @@
         {
            super();
            
-           [protected ('constructor without paramater'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           [protected ('constructeur sans parametre'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
            [/protected]
         }
         
@@ -235,7 +235,7 @@
 [query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) 
   then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif + ')' + e.lineSeparator() + '@SequenceGenerator(name = "' + (e.name() 
   + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() + '", allocationSize = 1)' 
-  + if (e.hasXtopSup()) then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + e.nameTable().toUpper() + ' SET ' + e.keyXtopSup() 
+  + if (e.hasXtopSup()) then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + e.nameTableSchema().toUpper() + ' SET ' + e.keyXtopSup() 
   + ' = true WHERE ' + e.namePrimaryKey().toUpper() + ' = ?")' + e.lineSeparator() + '@SQLRestriction("' + e.keyXtopSup() 
   + ' = false")' else '' endif/]
   
@@ -253,7 +253,7 @@
   then 'LAZY' else 'EAGER' endif + ', mappedBy = "' + e.name().apply_attributeDefault() + '")' else '@ManyToOne()' + r.lineSeparator() 
   + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' 
   + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' + if (r.isZeroOneRecursive()) 
-  then r.nameSimplePropertyID().apply_attributeDefault() else r.referencedEntity(e).namePrimaryKey().toUpper() endif + '", referencedColumnName = "' 
+  then r.nameSimplePropertyID().apply_attributeDefault().toUpper() else r.referencedEntity(e).namePrimaryKey().toUpper() endif + '", referencedColumnName = "' 
   + r.referencedEntity(e).namePrimaryKey().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (n-n jt)./]

@@ -123,13 +123,8 @@
 [comment écriture du service rest (contrôleur) pour l'api de santé (health, infra)./]
 [template public fileRsServiceHealthImpl(any : ecore::EObject)]
   [file (any.nameClassRsServiceHealthImpl().toFileJava(any.namePackageRsControllerBase()), overwrite, any.defaultFileEncoding())]
-    [any.serviceRsHealthImpl()/]
+    [any.rsServiceHealthImpl()/]
   [/file]
 [/template]
 
-[comment écriture de l'implémentation service pour l'api de santé (health, infra)./]
-[template public fileServiceHealthImpl(any : ecore::EObject)]
-  [file (any.nameClassServiceHealthImpl().toFileJava(any.namePackageRsControllerBase()), overwrite, any.defaultFileEncoding())]
-    [any.serviceHealthImpl()/]
-  [/file]
-[/template]
+

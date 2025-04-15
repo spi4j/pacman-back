@@ -72,3 +72,10 @@
     [m.rsTokenResolverImpl()/]
   [/file]
 [/template]
+
+[comment écriture d'un filtre pour gérer notamment les en-têtes génériques si besoin./]
+[template public fileRsHeaderFilterImpl(any : ecore::EObject)]
+  [file (any.nameClassRsHeaderFilterImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsHeaderFilterImpl()/]
+  [/file]
+[/template]

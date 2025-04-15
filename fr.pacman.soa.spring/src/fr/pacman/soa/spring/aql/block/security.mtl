@@ -148,7 +148,7 @@
                 * modification au niveau du fichier application.properties doit être reportée
                 * au niveau du filtre de sécurité (et réciproquement).
                 */
-                request.requestMatchers("/actuator/**").permitAll()
+                request.requestMatchers("/actuator/**").permitAll().requestMatchers("/swagger-ui/**").permitAll()
                 
               [/protected]
               
@@ -544,6 +544,80 @@
   }
 [/template]
 
+[comment écriture d'un filtre pour la gestion génrique des en-têtes./]
+[template public rsHeaderFilterImpl(m : soa::System)]
+  [m.classHeader(m.namePackageRsBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [m.defaultImports()/]
+    import java.io.IOException;
+    import org.springframework.core.Ordered;
+    import org.springframework.core.annotation.Order;
+    import org.springframework.web.filter.OncePerRequestFilter;
+    import jakarta.servlet.FilterChain;
+    import jakarta.servlet.ServletException;
+    import jakarta.servlet.http.HttpServletRequest;
+    import jakarta.servlet.http.HttpServletResponse;
+    
+  [/protected]
+  
+  /**
+  * {@code any.nameClassRsHeaderFilterImpl()/]} est un filtre HTTP qui s'exécute une seule fois
+  * par requête et ajoute des en-têtes personnalisés à toutes les réponses HTTP
+  * sortantes.
+  *
+  * Ce filtre est annoté avec {@link Order} pour s'assurer qu'il est exécuté (par
+  * défaut) avec la plus haute priorité dans la chaîne des filtres Spring, ce qui
+  * peut être utile pour que les en-têtes soient toujours présents, même en cas
+  * d'échec ultérieur.
+  * 
+  * Placer le filtre avant les filtres de Spring Security s'il y a besoin de
+  * modifier la requête avant l’authentification.
+  * 
+  * Placer le filtre après si on désire accéder aux informations
+  * d’authentification (comme SecurityContextHolder) dans le filtre.
+  *
+  * Utilise {@link OncePerRequestFilter} pour garantir que le filtre ne s'exécute
+  * qu'une seule fois par requête HTTP, évitant ainsi les comportements
+  * inattendus lors de redirections ou erreurs.
+  *
+  * @author [m.nameAuthor()/]
+  * @see OncePerRequestFilter
+  */
+  [protected ('annotation'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+  [/protected]
+  public class [m.nameClassRsHeaderFilterImpl()/] extends OncePerRequestFilter {
+    
+    /**
+    * Méthode appelée une fois par requête HTTP pour insérer un en-tête
+    * personnalisé dans la réponse.
+    *
+    * @param ['request'.apply_parameterMethodClassicIn()/]     la requête HTTP entrante
+    * @param ['response'.apply_parameterMethodClassicIn()/]    la réponse HTTP sortante
+    * @param ['filter chain'.apply_parameterMethodClassicIn()/] la chaîne de filtres à poursuivre
+    * @throws ServletException en cas d'erreur de traitement
+    * @throws IOException      en cas d'erreur d'entrée/sortie
+    */
+    @Override
+    protected void doFilterInternal( HttpServletRequest ['request'.apply_parameterMethodClassicIn()/], 
+       HttpServletResponse ['response'.apply_parameterMethodClassicIn()/], 
+       FilterChain ['filter chain'.apply_parameterMethodClassicIn()/]) throws ServletException, IOException {
+       
+       [for (c | m.eAllContents(soa::Component))]
+         [for (md | c.metadatas)]
+           [for (x | md.metadatas)]
+             ['response'.apply_parameterMethodClassicIn()/].addHeader("[x.toString()/]", "[x.toString()/]");
+           [/for]
+         [/for]
+       [/for]
+       
+       ['filter chain'.apply_parameterMethodClassicIn()/].doFilter(['request'.apply_parameterMethodClassicIn()/],
+          ['response'.apply_parameterMethodClassicIn()/]);
+    }
+  }
+[/template]
+
 
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
 [query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
@@ -557,4 +631,4 @@
 [query private writeRsSecurityFilterChain(ops : Sequence(soa::Operation), m : soa::System, role : Boolean) : String = ops->collect(o | '.requestMatchers("' 
   + (o.eContainer(soa::Service).rsUri() + '/' + o.URI).toUri() + '")' + if (role) then if( not o.has_metaPermissionOr() and not o.has_metaPermissionAnd()) 
   then   '.hasRole("' + o.get_metaPermission() + '")'  else '.hasAnyRole("' + o.get_metaPermission() + '", "' + o.get_metaPermissionOr() + '")' 
-  endif else '.permitAll()' endif)->sep('.')->toString()/]
+  endif else '.permitAll()' endif)->toString()/]

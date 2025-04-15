@@ -1,7 +1,7 @@
 [module Root('http://www.eclipse.org/ocl/1.1.0/Ecore')/]
 
 [comment encoding = UTF-8 /]
-[template public RootBuild(any : ecore::EObject) post(self.trim())]
+[template public rootBuild(any : ecore::EObject) post(self.trim())]
   <?xml version="1.0" encoding="UTF-8"?>
   
   <project basedir="." default="checkIfLostExists" name="Lost">
@@ -15,7 +15,7 @@
       </target>
   </project>[/template]
 
-[template public RootAssembly(any : ecore::EObject) post(self.trim())]
+[template public rootAssembly(any : ecore::EObject) post(self.trim())]
   <?xml version='1.0' encoding='UTF-8'?>
   <assembly>
     <id>project</id>

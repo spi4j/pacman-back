@@ -187,6 +187,9 @@
   
 [comment retourne le nom de la classe helper pour obtenir des informations sur le jeton courant (rien à voir avec le décodage) (rest)./]
 [query public nameClassRsCurrentTokenHelperImpl(any : ecore::EObject) : String = (any.get_projectName() + ' current token helper').apply_classDefault()/]
+
+[comment retourne le nom de la classe pour le filtre de gestion générique des en-têtes./]
+[query public nameClassRsHeaderFilterImpl(any : ecore::EObject) : String = (any.get_projectName() + ' header filter').apply_classDefault()/]
   
 [comment retourne le nom de la classe gestion des transactions jpa./]
 [query public nameClassJpaTransactionExecutorImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transactional executor').apply_classDefault()/]

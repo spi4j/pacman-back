@@ -39,6 +39,7 @@ import fr.pacman.start.main.GenStart;
 import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.exception.PacmanInitModelException;
 import fr.pacman.start.ui.util.SiriusUtil;
+import fr.pacman.start.ui.util.SwaggerUtils;
 import fr.pacman.start.ui.util.WizardUtil;
 import fr.pacman.start.ui.util.WizardUtil.IParametrizedExternalWizard;
 
@@ -59,6 +60,11 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 * La version du générateur.
 	 */
 	private static final String c_version = "5.0.0";
+
+	/***
+	 * Le répertoire cible pour la copie des fichiers swagger-ui.
+	 */
+	private static final String c_swaggerUiFolder = "/src/main/resources/static/swagger-ui/";
 
 	@Override
 	public void init(IWorkbench p_workbench, IStructuredSelection p_selection) {
@@ -87,6 +93,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 
 					subMonitor.setTaskName("Mise à jour du projet vers la norme Cali");
 					upgradeProjectWithCali(subMonitor, project, startProperties);
+
+					subMonitor.setTaskName("Copie des fichiers swagger dans l'application cible");
+					addSwaggerUiToProject(subMonitor, project, startProperties);
 
 					subMonitor.setTaskName("Ajout de la nature Maven au projet");
 					addMavenNatureToProject(subMonitor, project);
@@ -120,7 +129,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	}
 
 	/**
-	 * Retourne une liste de sous-projets pour l'ensemble des traittements qui sont
+	 * Retourne une liste de sous-projets pour l'ensemble des traitements qui sont
 	 * posterieurs à la création du projet principal.
 	 * 
 	 * @return la liste des suffixes pour les sous-projets à traiter suite à la
@@ -192,8 +201,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 * @param p_monitor    l'objet de monitoring pour contrôler les fichiers créés
 	 *                     sous l'IDE.
 	 * @param p_project    le nouveau projet en cours de création.
-	 * @param p_properties
-	 * @throws CoreException
+	 * @param p_properties l'ensemble des propriétés définies par le formulaire de
+	 *                     création.
+	 * @throws CoreException une exception levée lors de l'excécution du traitement.
 	 */
 	private void upgradeProjectWithCali(final SubMonitor p_monitor, IProject p_project,
 			Map<String, String> p_properties) throws CoreException {
@@ -206,6 +216,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			PropertiesHandler.init(modelPath, p_properties);
 			Monitor monitor = new BasicMonitor();
 			// PacmanUIGeneratorsReport.reset();
+
 			PacmanGeneratorStart generator = new GenStart();
 			generator.setModelFile(file);
 			generator.generate(monitor);
@@ -222,9 +233,9 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			generator.setModelFile(file);
 			generator.generate(monitor);
 
-			//generator = new GenWebapp();
-			//generator.setModelFile(file);
-			//generator.generate(monitor);
+			// generator = new GenWebapp();
+			// generator.setModelFile(file);
+			// generator.generate(monitor);
 
 			generator = new GenRoot();
 			generator.setModelFile(file);
@@ -248,12 +259,35 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	}
 
 	/**
+	 * Copie des fichier swagger-ui dans le projet serveur pour embarquer
+	 * l'itnterface d'intérogation swagger (dans le cadre d'un projet spj4i ou si
+	 * simplement l'utilisateur ne veux pas de la librairie de spring boot pour
+	 * gérer swagger).
+	 * 
+	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
+	 *                  l'IDE.
+	 * @param p_project le nouveau projet en cours de création. * @param
+	 *                  p_properties l'ensemble des propriétés définies par le
+	 *                  formulaire de création.
+	 * @throws CoreException une exception levée lors de l'excécution du traitement.
+	 * @throws IOException
+	 */
+	private void addSwaggerUiToProject(final SubMonitor p_monitor, final IProject p_project,
+			Map<String, String> p_properties) throws CoreException, IOException {
+
+		File target = new File((p_project).getLocation().toString() + File.separator
+				+ ProjectProperties.get_projectServerName(null) + c_swaggerUiFolder);
+		SwaggerUtils swaggerUtils = new SwaggerUtils(Activator.getDefault().getLog());
+		swaggerUtils.copyFiles(target.getAbsolutePath());
+	}
+
+	/**
 	 * Ajout de la nature "Maven" au projet principal (projet parent).
 	 * 
 	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
 	 *                  l'IDE.
 	 * @param p_project le nouveau projet en cours de création.
-	 * @throws CoreException
+	 * @throws CoreException une exception levée lors de l'excécution du traitement.
 	 */
 	private void addMavenNatureToProject(final SubMonitor p_monitor, final IProject p_project) throws CoreException {
 
@@ -279,7 +313,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	/**
 	 * 
 	 * @param p_project le nouveau projet en cours de création.
-	 * @throws CoreException
+	 * @throws CoreException une exception levée lors de l'excécution du traitement.
 	 */
 	private void configureSubProjectsWithMaven(final IProject p_project) throws CoreException {
 
@@ -324,7 +358,8 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
 	 *                  l'IDE.
 	 * @param p_project le nouveau projet en cours de création.
-	 * @throws CoreException
+	 * @throws CoreException            une exception levée lors de l'excécution du
+	 *                                  traitement.
 	 * @throws InterruptedException
 	 * @throws PacmanInitModelException
 	 */
@@ -366,7 +401,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
 	 *                  l'IDE.
 	 * @param p_project le nouveau projet en cours de création.
-	 * @throws CoreException
+	 * @throws CoreException une exception levée lors de l'excécution du traitement.
 	 */
 	private void updateIDEAfterCodeGeneration(final SubMonitor p_monitor, final IProject p_project)
 			throws CoreException {

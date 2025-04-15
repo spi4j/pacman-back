@@ -732,8 +732,138 @@
   }
 [/template]
 
+[comment ./]
+[template public applicationYaml(any : ecore::EObject)]
+  # En production, externaliser le fichier : 
+  # java -jar mon-app.jar --spring.config.location=file:/chemin/externe/application.yaml
+  
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info
+          exclude: mappings,heapdump
+        base-path: /actuator
+    server:
+      port: 8080
+    endpoint:
+      health:
+        show-details: never  
+      # Remplacez "[any.nameProject()/]" par le nom réel de votre health custom si besoin
+      [any.nameProject()/]_health:
+        enabled: false
+    health:
+      defaults:
+        enabled: false
+    info:
+      env:
+        enabled: true
+
+  app:
+    cusomInfo: Une information de type custom...
+
+  info:
+    app:
+      cusomInfo: "${app.cusomInfo}"
+      java-version: "${java.version}"
+      java-vendor: "${java.vendor}"
+      excluded-actuator-enpoints: "${management.endpoints.web.exposure.exclude}"
+
+  server:
+    port: 80
+  security:
+    jwt:
+      secret: HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+      
+  resilience4j:
+    circuitbreaker:
+      instances:
+        externalServiceCircuitBreaker:
+          registerHealthIndicator: true
+          failureRateThreshold: 50
+          waitDurationInOpenState: 10000ms
+          permittedNumberOfCallsInHalfOpenState: 3
+          slidingWindowSize: 10
+
+  spring:
+    datasource:
+      hikari:
+        connectionTimeout: 20000
+        maximumPoolSize: 5
+      testWhileIdle: true
+      validationQuery: SELECT 1
+      url: jdbc:h2:file:C:/h2/test
+      username: sa
+      password:
+    jpa:
+      hibernate:
+        ddl-auto: create-drop
+        naming:
+          implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+      open-in-view: false
+      database-platform: org.hibernate.dialect.H2Dialect
+
+  logging:
+    level:
+      org:
+        hibernate:
+          SQL: DEBUG
+          type:
+            descriptor:
+              sql:
+                BasicBinder: TRACE
+        hibernate.orm.jdbc.bind: TRACE
+
+  # -----------------------------------------
+  # Exemples pour PostgreSQL, MySQL, etc.
+  # (à activer en commentant H2 et décommentant ici)
+  # -----------------------------------------
+  
+  [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
+    spring:
+      datasource:
+        url: jdbc:postgresql://localhost:5432/<votre base de donnees>
+        username: <nom utilisateur>
+        password: <mot de passe utilisateur>
+      jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+  [/if]
+  [if (any.get_dataBasesNames().toLower().index('mysql') != -1)]
+    spring:
+      datasource:
+        url: jdbc:mysql://localhost:3306/<votre base de donnees>
+        username: <nom utilisateur>
+        password: <mot de passe utilisateur>
+      jpa:
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  [/if]
+  [if (any.get_dataBasesNames().toLower().index('mariadb') != -1)]
+    spring:
+      datasource:
+        url: jdbc:mariadb://localhost:3306/<votre base de donnees>
+        username: <nom utilisateur>
+        password: <mot de passe utilisateur>
+      jpa:
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  [/if]
+  [if (any.get_dataBasesNames().toLower().index('oracle-') != -1)]
+    spring:
+      datasource:
+        url: jdbc:oracle:thin:<votre base de donnees>
+        username: <nom utilisateur>
+        password: <mot de passe utilisateur>
+      jpa:
+        database-platform: org.hibernate.dialect.Oracle10gDialect
+  [/if]
+[/template]
+
 [comment écriture de l'ensemble des informations pour les datasources, etc.../]
 [template public applicationProperties(any : ecore::EObject)]
+  
+  # En production, externaliser le fichier : 
+  # java -jar mon-app.jar --spring.config.location=file:/chemin/externe/application.properties
   
   # ----------------------------------------------------------------------------------------------
   # API DE SANTE
@@ -774,12 +904,14 @@
   management.health.defaults.enabled=false
   
   # Activation du point de terminaison '/health' personnalise pour l'application [any.nameProject()/].
-  # Si non actif, c'est le parametrage du '/health' par defaut qui est utilise.
+  # Si non actif, c'est le parametrage du '/health' par defaut qui est utilise. Si actif, 
+  # avec des options de détail, ne pas oublier de positionner correctement le parametre 
+  # 'management.endpoint.health.show-details' afin de visualiser aussi le detail.
   management.health.[any.nameProject()/]_health.enabled=false
   
   # Configuration du point  de terminaison /info, definir ici les informations necessaires.
   management.info.env.enabled=true
-  app.cusomInfo=This is Custom Info
+  app.cusomInfo=Une information de type custom...
   info.app.cusomInfo=${app.cusomInfo}
   info.app.java-version=${java.version}
   info.app.java-vendor=${java.vendor}
@@ -791,7 +923,7 @@
   # Le port par defaut.
   server.port=80
   
-  # Un exemple de cle sysmetrique pour le developpement.
+  # Un exemple de cle symetrique (pour le developpement uniquement).
   security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
   
   # ----------------------------------------------------------------------------------------------
@@ -999,11 +1131,6 @@
   }
 [/template]
 
-[comment écriture de l'implémentation pour le service de santé de l'application./]
-[template public serviceHealthImpl(any : ecore::EObject)]
-  
-[/template]
-
 [comment écriture de l'implémentation pour le service de santé de l'application (ancien système)./]
 [template public serviceHealthImpl_old(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsControllerBase())/]
@@ -1052,7 +1179,7 @@
 [/template]
 
 [comment écriture de l'implémentation pour le service de santé (nouveau systeme actuator)./]
-[template public serviceRsHealthImpl(any : ecore::EObject)]
+[template public rsServiceHealthImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsControllerBase())/]
   
   [any.defaultImports()/]
@@ -1061,7 +1188,7 @@
   import org.springframework.boot.actuate.health.HealthIndicator;
   import org.springframework.stereotype.Component;  
   /**
-   * Implémentation de l'interface {@link HealthIndicator} pour vérifier l'état de santé du service [any.nameProject()/].
+   * Implémentation de l'interface {@link HealthIndicator} pour vérifier l'état de santé d'un service.
    * Cette classe est conditionnellement activée en fonction de la présence d'un indicateur de santé nommé
    * {@code [any.nameProject()/]_health} dans le contexte de l'application.
    * <p>
@@ -1079,7 +1206,7 @@
   {
      
      /**
-       * Vérifie l'état de santé du service [any.nameProject()/] et retourne un objet {@link Health} indiquant l'état.
+       * Vérifie l'état de santé d'un service et retourne un objet {@link Health} indiquant l'état.
        * <p>
        * Dans cette implémentation, la méthode retourne simplement un état de santé "healthy" par défaut,
        * mais peut être enrichie pour effectuer des vérifications supplémentaires.
@@ -1092,6 +1219,9 @@
         Health.Builder ['healthBuilder'.apply_variableDefault()/] = new Health.Builder();
         
         [protected ('health'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          ['healthBuilder'.apply_variableDefault()/].withDetail("version", "0.0.0").withDetail("latency", "0ms");
+          
         [/protected]
          
         return ['healthBuilder'.apply_variableDefault()/].build();

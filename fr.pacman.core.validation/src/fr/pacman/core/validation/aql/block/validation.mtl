@@ -79,6 +79,8 @@
       [if (o.paged and not o.page.type.name.equalsIgnoreCase('integer'))][o.add(s.msgs8(o))/][/if]
       [comment pas de service paginé si les paramètres de pagination de sont pas des entiers./]
       [if (o.paged and not o.size.type.name.equalsIgnoreCase('integer'))][o.add(s.msgs8(o))/][/if]
+      [comment pas de service avec un '/' à la fin de l'URI (on pourrait le supprimer mais sensibilise le dévelopeur)./]
+      [if (o.URI.exists() and '/'.equalsIgnoreCase(o.URI.last(1)))][o.add(s.msgs9(o))/][/if]
       [comment pas de service avec un doute sur l'URI./]
       [/for]
     [/if]
@@ -200,4 +202,8 @@
 	
 [comment impossible d'avoir un service paginé avec paramètre de pagination autre que Integer./]
 [query private msgs8 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
-	+ '@Opération paginée avec paramètre de pagination mal typé@Définissez le type \'Integer\' pour page et size'/]
+	+ '@Opération paginée avec un mauvais typage du paramètre de pagination@Définissez le type \'Integer\' pour page et size'/]
+	
+[comment impossible d'avoir un service avec une URI qui se termine par '/'./]
+[query private msgs9 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec une mauvaise spécification pour l\'URI@Supprimer le caractère \'/\' présent à la fin de l\'URI'/]

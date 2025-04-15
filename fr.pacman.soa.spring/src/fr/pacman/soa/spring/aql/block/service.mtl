@@ -370,18 +370,22 @@
   
 [comment écriture des annotations au niveau de l'opération rest./]
 [query private writeRsAnnotations(o : soa::Operation) : String = o.writeRsPreAuthorize() 
-  + if (o.verb = soa::Verb::GET) then '@GetMapping(value = "'+ o.rsUri()
-  else if (o.verb = soa::Verb::POST) then '@PostMapping(value = "'+ o.rsUri()
-  else if (o.verb = soa::Verb::PUT) then '@PutMapping(value = "'+ o.rsUri()
+  + if (o.verb = soa::Verb::GET) then '@GetMapping(' + o.writeRsUri()
+  else if (o.verb = soa::Verb::POST) then '@PostMapping(' + o.writeRsUri()
+  else if (o.verb = soa::Verb::PUT) then '@PutMapping(' + o.writeRsUri()
   else if (o.verb = soa::Verb::OPTIONS) then ''
-  else if (o.verb = soa::Verb::DELETE) then '@DeleteMapping(value = "'+ o.rsUri()
+  else if (o.verb = soa::Verb::DELETE) then '@DeleteMapping(' + o.writeRsUri()
   else if (o.verb = soa::Verb::HEAD) then ''
   else if (o.verb = soa::Verb::PATCH) then ''
   else if (o.verb = soa::Verb::TRACE) then ''
   else '' endif endif endif endif endif endif endif endif 
-  + '", produces = ' + '"' + if (o.hasMediaRsType()) then  
+  + 'produces = ' + '"' + if (o.hasMediaRsType()) then  
   o.output->first().mediaRsType() else o.defaultRsMediaType() endif 
   + o.defaultRsEncoding() + '")'/]
+
+[comment écriture de l'uri pour l'opération./]
+[query private writeRsUri(o : soa::Operation) : String =  if (o.rsUri().exists()) then 'value = "'+ o.rsUri() + '", ' 
+  else '' endif/]
 
 [comment écriture si besoin de rôles spécifiques en plus de l'authentification pour un service./]  
 [query private writeRsPreAuthorize(o : soa::Operation) : String = 

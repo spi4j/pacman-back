@@ -1,6 +1,6 @@
 [module genStart(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
-[import fr::pacman::start::files::genRoot/]
+[import fr::pacman::start::aql::files::genRoot/]
 
 [comment @main/]
 [template public genRootStart(r : overview::Root)]

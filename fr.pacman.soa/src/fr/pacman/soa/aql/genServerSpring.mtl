@@ -22,7 +22,8 @@
   [m.fileRsServiceTokenImpl()/]
   [comment écriture pour la classe de résolution du jeton jwt (rest)./]
   [m.fileRsTokenResolverImpl()/]
-  
+  [comment écriture d'un filtre pour la gestion générique des en-têtes./]
+  [m.fileRsHeaderFilterImpl()/]
   [comment écriture pour les services sur couche de persistance./]
   [for (s : soa::Service | m.providedServices())]
     [let ds = s.associatedDtos()]
