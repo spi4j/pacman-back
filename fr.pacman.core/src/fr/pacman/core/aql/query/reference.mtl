@@ -56,6 +56,10 @@
 
 [comment vérifie si la référence est de type récursif./]
 [query public isRecursive(r : environment::Reference) : Boolean = r.isZeroOneRecursive() or r.isStarRecursive()/]
+  
+[comment vérifie si pour une entité il existe plusieurs références récursive avec le même nom./]
+[query public hasRecursivesWithSameName(c : OrderedSet(environment::Reference)) : Boolean = c->select(o | o.isRecursive())
+	->collect(o | o.name)->asSet()->size() = c->select(o | o.isRecursive())->size()/]
 
 [comment vérifie si la relation est bidirectionnelle et multiple (n-n)./]
 [query public isMultipleBidirectionnal(r : environment::Reference) : Boolean = 

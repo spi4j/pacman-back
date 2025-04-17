@@ -40,13 +40,14 @@
 [query private writeInsert(e : entity::Entity, rs : OrderedSet(environment::Reference), oas : Sequence(String) , dbType : String) : String = 
 	('insert into ' + e.nameTableSchema().toUpper() + ' ('+ e.writeColumns(rs).toUpper() + ',' + oas->collect(o | o.nameAutoAttribute().toUpper())
 	->sep(',') +')' + ' values (' + (e.defaultSqlIntegrationTestSequenceStart() + ',' + e.attributesNoPKAndNoComputed()->asSequence()
-	->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') + ',' + rs->collect(o | o.defaultSqlForeignkey())
+	->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') + ',' + rs->asSequence()->collect(o | o.defaultSqlForeignkey())
 	->sep(',')) + ',' + oas->collect(o | o.autoAttributeType().get_defaulValueForColumn())->sep(',') + ');').sanitize()/]
 
 [comment écriture de la ligne pour la liste des colonnes de la table./]
-[query private writeColumns (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = e.namePrimaryKey() + ',' 
+[query private writeColumns (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String =  e.namePrimaryKey() + ',' 
 	+ e.attributesNoPKAndNoComputed()->collect(o : environment::Attribute | o.nameColumn())->sep(',') + ',' 
-	+ rs->collect(o | o.nameReferenceId(o.referencedEntity(e), o.get_namingIndex(rs)))->sep(',')/]
+	+ rs->collect(o | if (o.isZeroOneRecursive()) then o.nameSimplePropertyID().toUpper() 
+	else o.nameReferenceId(o.referencedEntity(e), o.get_namingIndex(rs)) endif)->sep(',')/]
 	
 [comment supprime les virgules non nécessaires dans la liste des colonnes et des valeurs (on y va pas à pas...)./]
 [query private sanitize(s : String) : String = s.replaceAll(',+',',').replaceAll(',\\)', '\\)')/]

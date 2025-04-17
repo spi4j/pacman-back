@@ -31,14 +31,15 @@
     [if (not e.attributes->select(o | not o.name.exists())->isEmpty())][e.add(e.msge4())/][/if]
     [comment pas d'attribut sans type défini./]
     [if (not e.attributes->select(o | not o.type.exists())->isEmpty())][e.add(e.msge5())/][/if]
+    [comment pas de multiples relations recursives avec le même nom./]
+    [if (not e.referencesFKSB()->union(e.referencesJT())->hasRecursivesWithSameName())][e.add(e.msge6())/][/if]
   [/for]
   [for (re | r.eAllContents(environment::Reference))]
     [comment pas de relation bidirectionnelle avec double navigabilité./]
     [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.msgr1())/][/if]
     [comment pas de relation bidirectionnelle avec (1 ou 0,1)./]
-    [if ( re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.msgr2())/][/if]
+    [if (re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.msgr2())/][/if]
   [/for]
-  [comment écriture du rapport dans le fichier./]
   [r.writeReport()/]
 [/template]
 
@@ -139,8 +140,9 @@
 [query private msge5 (e : entity::Entity) : String = e.nameEntity() + '@Entité avec un attribut sans type' 
   +  '@Définissez un type pour l\'attribut' /]
   
-[comment impossible de créer des entités .............../]
-[query private msge6 (e : entity::Entity) : String = e.nameEntity() + 'xxxxxxxxx' /]
+[comment impossible de créer des références récursives avec le même nom./]
+[query private msge6 (e : entity::Entity) : String = e.nameEntity() + '@Des références récursives ont le même nom' 
+  + '@Modifier les noms des références afin que chaque nom soit unique'/]
   
 [comment impossible de créer des dtos sans attribut./]
 [query private msgd1 (d : environment::DTO) : String = d.nameDto() + '@Dto sans aucun attribut@Ajoutez au moins un attribut au niveau du dto'/]
@@ -171,6 +173,10 @@
 [comment impossible de créer des relations bidirectionnelles avec des cardinalités (1 - 0,1)./]
 [query private msgr2 (r : environment::Reference) : String = r.nameReference() + '@Référence bidirectionnel avec une cardinalité (1 - 0,1)' 
 	+ '@Utilisez des relations non bidirectionnelles'/]
+	
+[comment impossible de créer des relations de type composition (non géré)./]
+[query private msgr3 (r : environment::Reference) : String = r.nameReference() + '@Référence de type \'composition\' détectée' 
+	+ '@Ne pas utiliser ce type de référence (non géré)'/]
 
 [comment impossible d'avoir un service directement mappé sur des entités./]	
 [query private msgs1 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 

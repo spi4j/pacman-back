@@ -5,6 +5,7 @@
 [import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::databases/]
 [import fr::pacman::core::aql::name::attributes/]
+[import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::namespace/]
 [import fr::pacman::core::aql::query::database/]
 [import fr::pacman::core::aql::query::eobject/]
@@ -96,7 +97,7 @@
     [/if]
   [/for]
   [for (r : environment::Reference | rs)]
-    [e.writeIndex(r, dbType, r.nameReferenceId(r.referencedEntity(e), r.get_namingIndex(rs)), 
+    [e.writeIndex(r, dbType, r.writeReferenceId(e, rs), 
     	e.get_counterIDX(e.defaultSqlIndexIncrement()), command)/]
   [/for]
 [/template]
@@ -184,11 +185,16 @@
 
 [comment écriture de la ligne pour chacune des tables référencées./]
 [query private writeReference(r : environment::Reference, e : entity::Entity, dbType : String, idx : Integer) : String = 
-	r.nameReferenceId(r.referencedEntity(e),idx).toUpper() + ' ' + r.typeColumnRef(dbType) + r.writeEndLine(dbType) + ','/]
+	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e),idx).toUpper() endif 
+	+ ' ' + r.typeColumnRef(dbType) + r.writeEndLine(dbType) + ','/]
 
 [comment écriture d'un segment commun pour certaines lignes./]
 [query private writeEndLine (any : environment::Property, dbType : String) : String = if (any.is_mandatoryEntity()) then ' not null' else '' endif + 
 	if (dbType.is_mySqlType() and any.description.exists()) then ' ' + any.description.toString().escapeComment() else '' endif/]
+	
+[comment écriture de la référence ciblée pour la création de l'index (dépend si la référence est récursive ou pas)./]
+[query private writeReferenceId(r: environment::Reference, e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = 
+	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e), r.get_namingIndex(rs)) endif/]
 
 [comment écriture de la ligne pour un index unique associé à la table./]
 [query private writeUniqueIndex(e : entity::Entity, dbType : String, columns : String, idx : Integer, command : String) : String = 

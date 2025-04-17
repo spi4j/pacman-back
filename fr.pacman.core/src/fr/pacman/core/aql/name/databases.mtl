@@ -93,7 +93,7 @@
 	e.ownedAttributes->select(a | a.isIdentifier)->asSequence()->collect(o | o.nameColumn())->first() else e.nameDefaultPrimaryKey() endif/] 
 
 [comment retourne le nom de la clé principale par défaut si aucun attribut n'a été déclaré en tant que clé./]
-[query private nameDefaultPrimaryKey(e : entity::Entity) : String =  e.nameTable().first(e.maxColumnPKSize()) + e.suffixSqlId()/]
+[query private nameDefaultPrimaryKey(e : entity::Entity) : String = e.nameTable().first(e.maxColumnPKSize()) + e.suffixSqlId()/]
 
 [comment retourne le nom de la colonne pour l'attribut dans l'entité./]
 [query public nameColumn(a : environment::Attribute) : String = a.nameAttribut().first(a.maxColumnSize())/] 

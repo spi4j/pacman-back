@@ -607,7 +607,9 @@
        [for (c | m.eAllContents(soa::Component))]
          [for (md | c.metadatas)]
            [for (x | md.metadatas)]
-             ['response'.apply_parameterMethodClassicIn()/].addHeader("[x.toString()/]", "[x.toString()/]");
+             ['response'.apply_parameterMethodClassicIn()/]
+                .addHeader("[x.oclAsType(environment::Annotation).title /]"
+               , "[x.oclAsType(environment::Annotation).body /]");
            [/for]
          [/for]
        [/for]

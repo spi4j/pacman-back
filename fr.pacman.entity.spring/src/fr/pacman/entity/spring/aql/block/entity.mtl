@@ -261,6 +261,6 @@
   +  r.lineSeparator() else '' endif + '@ManyToMany(fetch = FetchType.'+ if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
   + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '"' 
   + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' 
-  + e.namePrimaryKey().toUpper() + '"), inverseJoinColumns = ' + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
-  + if (r.isStarRecursive()) then e.suffixSqlPrimaryKeyJoinRecursive() else '' endif + '"))'/]
+  + e.namePrimaryKey().toUpper() + '"), inverseJoinColumns = @JoinColumn(name = "' + if (r.isStarRecursive()) then r.referencedType.oclAsType(entity::Entity)
+  .namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper()  else r.referencedEntity(e).namePrimaryKey().toUpper()  endif + '"))'/]
  

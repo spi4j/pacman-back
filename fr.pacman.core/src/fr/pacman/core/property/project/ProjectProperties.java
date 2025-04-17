@@ -64,13 +64,13 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_sql_tableXtopsupNull = "sql.table.field.xtopsup.null";
 	public static final String c_sql_tableXtopsupComment = "sql.table.field.xtopsup.comment";
 	public static final String c_sql_tableXtopsupSize = "sql.table.field.xtopsup.size";
-	public static final String c_sql_tableUuid = "sql.table.field.uuid";
-	public static final String c_sql_tableUuidName = "sql.table.field.uuid.name";
-	public static final String c_sql_tableUuidType = "sql.table.field.uuid.type";
-	public static final String c_sql_tableUuidDefault = "sql.table.field.uuid.default";
-	public static final String c_sql_tableUuidNull = "sql.table.field.uuid.null";
-	public static final String c_sql_tableUuidComment = "sql.table.field.uuid.comment";
-	public static final String c_sql_tableUuidSize = "sql.table.field.uuid.size";
+	public static final String c_sql_tableXuuId = "sql.table.field.xuuid";
+	public static final String c_sql_tableXuuIdName = "sql.table.field.xuuid.name";
+	public static final String c_sql_tableXuuIdType = "sql.table.field.xuuid.type";
+	public static final String c_sql_tableXuuIdDefault = "sql.table.field.xuuid.default";
+	public static final String c_sql_tableXuuIdNull = "sql.table.field.xuuid.null";
+	public static final String c_sql_tableXuuIdComment = "sql.table.field.xuuid.comment";
+	public static final String c_sql_tableXuuIdSize = "sql.table.field.xuuid.size";
 	public static final String c_sql_tableXField = "sql.table.field";
 
 	public static final String c_requirement_prefix = "requirement.prefix";
@@ -300,18 +300,18 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newConditional(c_sql_tableXtopsupSize, "1", "Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableUuidName, "UUID", "Champ additionnel pour les tables SQL"),
+				PacmanProperty.newConditional(c_sql_tableXuuIdName, "UUID", "Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableUuidType, "UUID", "Champ additionnel pour les tables SQL"),
+				PacmanProperty.newConditional(c_sql_tableXuuIdType, "UUID", "Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableUuidDefault, "", "Champ additionnel pour les tables SQL"),
+				PacmanProperty.newConditional(c_sql_tableXuuIdDefault, "", "Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableUuidNull, "false", "Champ additionnel pour les tables SQL"),
+				PacmanProperty.newConditional(c_sql_tableXuuIdNull, "false", "Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableUuidComment, "Iddentifiant unique universel",
+				PacmanProperty.newConditional(c_sql_tableXuuIdComment, "Iddentifiant unique universel",
 						"Champ additionnel pour les tables SQL"),
 
-				PacmanProperty.newConditional(c_sql_tableUuidSize, "", "Champ additionnel pour les tables SQL"),
+				PacmanProperty.newConditional(c_sql_tableXuuIdSize, "", "Champ additionnel pour les tables SQL"),
 
 		};
 	}
@@ -430,13 +430,13 @@ public final class ProjectProperties extends PropertiesCategory {
 						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupDefault));
 					}
 					
-					if (c_sql_tableUuid.equals(key)) {
-						updateProperty(p_pacmanProperties.get(c_sql_tableUuidName));
-						updateProperty(p_pacmanProperties.get(c_sql_tableUuidComment));
-						updateProperty(p_pacmanProperties.get(c_sql_tableUuidNull));
-						updateProperty(p_pacmanProperties.get(c_sql_tableUuidSize));
-						updateProperty(p_pacmanProperties.get(c_sql_tableUuidType));
-						updateProperty(p_pacmanProperties.get(c_sql_tableUuidDefault));
+					if (c_sql_tableXuuId.equals(key)) {
+						updateProperty(p_pacmanProperties.get(c_sql_tableXuuIdName));
+						updateProperty(p_pacmanProperties.get(c_sql_tableXuuIdComment));
+						updateProperty(p_pacmanProperties.get(c_sql_tableXuuIdNull));
+						updateProperty(p_pacmanProperties.get(c_sql_tableXuuIdSize));
+						updateProperty(p_pacmanProperties.get(c_sql_tableXuuIdType));
+						updateProperty(p_pacmanProperties.get(c_sql_tableXuuIdDefault));
 					}
 				}
 			}
@@ -628,8 +628,8 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_sql_tableXdmajName);
 	}
 	
-	public static String get_UuidName(final Object p_object) {
-		return PropertiesHandler.getProperty(c_sql_tableUuidName);
+	public static String get_XuuIdName(final Object p_object) {
+		return PropertiesHandler.getProperty(c_sql_tableXuuIdName);
 	}
 
 //	public static String is_displayGeneratorReport() {
@@ -656,8 +656,8 @@ public final class ProjectProperties extends PropertiesCategory {
 		return c_sql_tableXdmaj;
 	}
 
-	public static String get_UuidKey(final Object p_object) {
-		return c_sql_tableUuid;
+	public static String get_XuuIdKey(final Object p_object) {
+		return c_sql_tableXuuId;
 	}
 
 	public static String get_projectServerName(final Object p_object) {

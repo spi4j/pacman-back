@@ -64,8 +64,8 @@
 [comment le nom par défaut de la clé pour xdmaj./]  
 [query public keyXdMaj(any : ecore::EObject) : String = 'xdmaj'/]
   
-[comment le nom par défaut de la clé pour uuid./]  
-[query public keyXUuid(any : ecore::EObject) : String = 'uuid'/]
+[comment le nom par défaut de la clé pour xuuid./]  
+[query public keyXuId(any : ecore::EObject) : String = 'uuid'/]
 
 [comment suffixe par défaut pour les clés primaires (PK)./]
 [query public suffixIdPk (any : ecore::EObject) : String  = '_id'/]

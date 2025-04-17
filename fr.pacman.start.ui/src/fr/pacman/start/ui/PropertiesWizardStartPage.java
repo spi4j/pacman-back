@@ -631,9 +631,9 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		TableEditor editor = new TableEditor(p_parent);
 		CCombo cbx = new CCombo(p_parent, SWT.NONE);
 		cbx.add("", 0);
-		cbx.add("XTOPSUP", 1);
-		cbx.add("XDMAJ", 2);
-		cbx.add("UUID", 3);
+		cbx.add("Xtopsup", 1);
+		cbx.add("Xdmaj", 2);
+		cbx.add("Xuuid", 3);
 		cbx.add("Char", 4);
 		cbx.add("String", 5);
 		cbx.add("Integer", 6);
@@ -668,7 +668,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (cbx.getSelectionIndex() == 1) {
-					txtName.setText("XTOPSUP");
+					txtName.setText("Xtopsup");
 					txtName.setEnabled(false);
 					txtLength.setText("1");
 					txtLength.setEnabled(false);
@@ -679,7 +679,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtDescription.setEnabled(false);
 					txtName.getParent();
 				} else if (cbx.getSelectionIndex() == 2) {
-					txtName.setText("XDMAJ");
+					txtName.setText("Xdmaj");
 					txtName.setEnabled(false);
 					txtLength.setText("");
 					txtLength.setEnabled(false);
@@ -689,7 +689,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtDescription.setText("Indicateur de suppression logique");
 					txtDescription.setEnabled(false);
 				} else if (cbx.getSelectionIndex() == 3) {
-					txtName.setText("UUID");
+					txtName.setText("Xuuid");
 					txtName.setEnabled(false);
 					txtLength.setText("");
 					txtLength.setEnabled(false);
@@ -799,11 +799,11 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		int xdmaj = 0;
 		int uuid = 0;
 		for (SqlAutoField sqlAutoField : _sqlAutoFields) {
-			if ("XTOPSUP".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
+			if ("Xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
 				xtopsup++;
-			if ("XDMAJ".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
+			if ("Xdmaj".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
 				xdmaj++;
-			if ("UUID".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
+			if ("Xuuid".equalsIgnoreCase(sqlAutoField._name.getText().trim()))
 				uuid++;
 			if (!sqlAutoField._type.getText().isEmpty() && sqlAutoField._name.getText().isEmpty())
 				return false;
@@ -983,30 +983,30 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		String sqlFields = "";
 
 		for (SqlAutoField sqlAutoField : _sqlAutoFields) {
-			if ("XDMAJ".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajName, "XDMAJ");
+			if ("Xdmaj".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajName, "Xdmaj");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajComment, "Date de mise à jour de la ligne");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajDefault, "");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajNull, "false");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajSize, "");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXdmajType, "Timestamp");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXdmaj);
-			} else if ("XTOPSUP".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupName, "XTOPSUP");
+			} else if ("Xtopsup".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupName, "Xtopsup");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupComment, "Indicateur de suppression logique");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupDefault, "false");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupNull, "false");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupSize, "1");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXtopsupType, "Boolean");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXtopsup);
-			} else if ("UUID".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
-				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidName, "UUID");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidComment, "Identifiant unique universel");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidDefault, "");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidNull, "false");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidSize, "");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableUuidType, "UUID");
-				sqlFields += ("," + ProjectProperties.c_sql_tableUuid);
+			} else if ("Xuuid".equalsIgnoreCase(sqlAutoField._name.getText().trim())) {
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdName, "Xuuid");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdComment, "Identifiant unique universel");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdDefault, "");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdNull, "false");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdSize, "");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdType, "UUID");
+				sqlFields += ("," + ProjectProperties.c_sql_tableXuuId);
 			} else if (!sqlAutoField._name.getText().isEmpty() && !sqlAutoField._name.getText().isBlank()) {
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".name", sqlAutoField._name.getText().trim());
 				sqlAutoFields.put(sqlAutoField.getAssociatedKey() + ".comment", sqlAutoField._comment.getText().trim());

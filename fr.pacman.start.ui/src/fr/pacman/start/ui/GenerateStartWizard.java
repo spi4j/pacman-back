@@ -95,7 +95,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 					upgradeProjectWithCali(subMonitor, project, startProperties);
 
 					subMonitor.setTaskName("Copie des fichiers swagger dans l'application cible");
-					addSwaggerUiToProject(subMonitor, project, startProperties);
+					addSwaggerUiToProject(subMonitor, project);
 
 					subMonitor.setTaskName("Ajout de la nature Maven au projet");
 					addMavenNatureToProject(subMonitor, project);
@@ -260,9 +260,8 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 
 	/**
 	 * Copie des fichier swagger-ui dans le projet serveur pour embarquer
-	 * l'itnterface d'intérogation swagger (dans le cadre d'un projet spj4i ou si
-	 * simplement l'utilisateur ne veux pas de la librairie de spring boot pour
-	 * gérer swagger).
+	 * l'itnterface d'intérogation swagger dans le cadre d'un projet spj4i. Si
+	 * Spring Boot alors on est full Spring et on utilise les librairies dédiées.
 	 * 
 	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
 	 *                  l'IDE.
@@ -272,13 +271,15 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 * @throws CoreException une exception levée lors de l'excécution du traitement.
 	 * @throws IOException
 	 */
-	private void addSwaggerUiToProject(final SubMonitor p_monitor, final IProject p_project,
-			Map<String, String> p_properties) throws CoreException, IOException {
+	private void addSwaggerUiToProject(final SubMonitor p_monitor, final IProject p_project)
+			throws CoreException, IOException {
 
-		File target = new File((p_project).getLocation().toString() + File.separator
-				+ ProjectProperties.get_projectServerName(null) + c_swaggerUiFolder);
-		SwaggerUtils swaggerUtils = new SwaggerUtils(Activator.getDefault().getLog());
-		swaggerUtils.copyFiles(target.getAbsolutePath());
+		if (!ProjectProperties.is_spring(p_project)) {
+			File target = new File((p_project).getLocation().toString() + File.separator
+					+ ProjectProperties.get_projectServerName(null) + c_swaggerUiFolder);
+			SwaggerUtils swaggerUtils = new SwaggerUtils(Activator.getDefault().getLog());
+			swaggerUtils.copyFiles(target.getAbsolutePath());
+		}
 	}
 
 	/**

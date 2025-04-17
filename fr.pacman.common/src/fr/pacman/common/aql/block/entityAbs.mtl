@@ -48,7 +48,7 @@
     ['Constructeur'.commentMultiLines()/]
     protected [any.nameClassEntityAbs()/]()
     {
-       [if (any.hasXUuid())][any.prefixAffectation()/][any.get_UuidKey().nameAutoAttribute()/] 
+       [if (any.hasXuuId())][any.prefixAffectation()/][any.get_XuuIdKey().nameAutoAttribute()/] 
          = UUID.randomUUID();[else]//RAS.[/if]
     }
           
@@ -116,7 +116,7 @@
 	then if (prop.isXdMaj()) then '@UpdateTimestamp (source = SourceType.DB)' + prop.lineSeparator() else '' endif 
 	+ '@Column(name = "' + prop.nameAutoAttribute() +'", nullable = ' + if (prop.autoAttributNull().exists()) 
 	then prop.autoAttributNull() else 'true' endif + if (prop.autoAttributSize().exists()) then ', length = ' 
-	+ prop.autoAttributSize() else '' endif + if (prop.equalsIgnoreCase(prop.get_UuidKey())) then 
+	+ prop.autoAttributSize() else '' endif + if (prop.equalsIgnoreCase(prop.get_XuuIdKey())) then 
 	', unique = true, updatable = false' else '' endif + ')' else '' endif/]
 
 [comment écriture de la ligne d'annotation pour l'entité./]

@@ -34,6 +34,7 @@
     </modules>
     
     <!-- Repository specifique pour les pilotes Oracle. -->
+    <!-- 
     <repositories>
     	<repository>
         	<id>hand-china-repo</id>
@@ -41,6 +42,7 @@
         	<url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
     	</repository>
     </repositories>
+    -->
     
     <dependencyManagement>
        <dependencies>
@@ -115,16 +117,29 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>[any.versionSpringBoot()/]</version>
           </dependency>
+          <!-- block swagger-ui -->
           <dependency>
              <groupId>org.springdoc</groupId>
              <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
              <version>[any.versionOpenApiSwagger()/]</version>
           </dependency>
           <dependency>
+              <groupId>org.hibernate.validator</groupId>
+              <artifactId>hibernate-validator</artifactId>
+              <version>[any.versionHibernateValidator()/]</version>
+          </dependency>
+          <dependency>
+              <groupId>jakarta.el</groupId>
+              <artifactId>jakarta.el-api</artifactId>
+              <version>[any.versionJakartaEl()/]</version>
+          </dependency>
+          <!-- circuit-breaker -->
+          <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring-boot2</artifactId>
             <version>[any.versionResilience4j()/]</version>
           </dependency>
+          <!-- bases de données -->
           [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
             <dependency>
               <groupId>org.postgresql</groupId>
