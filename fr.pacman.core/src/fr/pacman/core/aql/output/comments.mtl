@@ -133,7 +133,7 @@
 [/template]
 
 [comment ./]
-[query private writeDescription(any :: environment::ObeoDSMObject) : String = if(any.description.exists()) then 
+[query public writeDescription(any :: environment::ObeoDSMObject) : String = if(any.description.exists()) then 
    (any.description.escapeComment() + '.').lineCut(130, ' ') else any.cNoDescription() endif/]
 
 [comment ./]

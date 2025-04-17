@@ -24,6 +24,13 @@
     
     [m.defaultImports()/]
     import javax.crypto.spec.SecretKeySpec;
+    
+    import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+    import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+    import io.swagger.v3.oas.annotations.info.Info;
+    import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+    import io.swagger.v3.oas.annotations.security.SecurityScheme;
+    
     import org.springframework.core.annotation.Order;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,6 +61,7 @@
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
     import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
     import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+    
     import com.nimbusds.jose.jwk.source.ImmutableSecret;
     import [m.namePackageProject()/].[m.namePackageRsBase()/].[m.nameClassRsAuthenticationEntryPointImpl()/];
     
@@ -80,6 +88,7 @@
    */
   @Configuration 
   @EnableWebSecurity
+  [m.writeSwaggerAnnotations()/]
   class [m.nameClassRsSecurityConfigImpl()/] 
   {
     
@@ -620,6 +629,9 @@
   }
 [/template]
 
+[comment écriture des annotations explicatives pour la documentation swagger-ui./]
+[query private writeSwaggerAnnotations(m : soa::System) : String = '@OpenAPIDefinition(info = @Info(title = "API sécurisée"), security = @SecurityRequirement(name = "bearerAuth"))
+@SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")'/]
 
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
 [query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)

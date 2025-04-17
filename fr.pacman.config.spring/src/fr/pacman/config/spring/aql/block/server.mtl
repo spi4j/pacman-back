@@ -160,6 +160,7 @@
     
     [any.defaultImports()/]
     import java.util.TimeZone;
+    
     import org.springframework.boot.CommandLineRunner;
     import org.springframework.boot.SpringApplication;
     import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -168,6 +169,10 @@
     import org.springframework.context.annotation.EnableAspectJAutoProxy;
     import org.springframework.context.annotation.FilterType;
     import org.springframework.context.annotation.ComponentScan;
+    
+    import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+    import io.swagger.v3.oas.annotations.info.Info;
+    
     import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationIn()/];
     import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationOut()/];
     
@@ -195,6 +200,8 @@
    */
   @SpringBootApplication
   @EnableAspectJAutoProxy
+  @OpenAPIDefinition(info = @Info(title = "API de Mon Application", version = "1.0", description = 
+     "Cette API permet de gérer les utilisateurs, produits, etc."))
   @ComponentScan(basePackages = {"[any.namePackageProject()/]"}, includeFilters = {
   @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationIn()/].class
     ,  [any.nameClassAnnotationOut()/].class})})
@@ -781,7 +788,15 @@
       java-version: "${java.version}"
       java-vendor: "${java.vendor}"
       excluded-actuator-enpoints: "${management.endpoints.web.exposure.exclude}"
-
+    
+  springdoc:
+    api-docs:
+      path: /api-docs
+    swagger-ui:
+      path: /swagger-ui
+      operationsSorter: method
+      tagsSorter: alpha
+    
   server:
     port: 80
   security:
@@ -929,6 +944,16 @@
   info.app.java-version=${java.version}
   info.app.java-vendor=${java.vendor}
   info.app.excluded-actuator-enpoints=${management.endpoints.web.exposure.exclude}
+  
+  # ----------------------------------------------------------------------------------------------
+  # SWAGGER UI
+  # ----------------------------------------------------------------------------------------------
+  # Documentation JSON (brute) ex: http://localhost:8080/v1/api-docs
+  springdoc.api-docs.path=/api-docs
+  # Documentation Swagger UI (ihm) ex: http://localhost:8080/v1/swagger-ui.html
+  springdoc.swagger-ui.path=/swagger-ui
+  springdoc.swagger-ui.operations-sorter=method
+  springdoc.swagger-ui.tags-sorter=alpha
   
   # ----------------------------------------------------------------------------------------------
   # HTTP SERVER

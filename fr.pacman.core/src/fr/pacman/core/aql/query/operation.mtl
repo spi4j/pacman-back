@@ -76,6 +76,9 @@
 [query public rsUri(o : soa::Operation) : String = if (o.isRsOperation()) then if (o.URI.exists()) then ('/' +  o.URI).toUri() 
   else null endif else o.cNoModelisation() endif/] 
 
+[comment vérifie si une opération est sécurisée au niveau service rest./]
+[query public isRsSecured(o : soa::Operation) : Boolean = false /]
+
 [comment retourne le type et le nom du paramètre de sortie (si existe) (liste + optional + type + nom)./]
 [query public outputSignature(o : soa::Operation) : String = if(o.hasOutput()) then o.output->first().type(false) 
   + ' ' + o.output->first().name() else 'void' endif/]
