@@ -55,9 +55,9 @@
     import io.swagger.v3.oas.annotations.enums.ParameterIn;
     import io.swagger.v3.oas.annotations.media.Content;
     import io.swagger.v3.oas.annotations.media.Schema;
-    import io.swagger.v3.oas.annotations.parameters.RequestBody;
     import io.swagger.v3.oas.annotations.responses.ApiResponse;
     import io.swagger.v3.oas.annotations.responses.ApiResponses;
+    import io.swagger.v3.oas.annotations.security.SecurityRequirement;
     import io.swagger.v3.oas.annotations.tags.Tag;
     
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
@@ -93,7 +93,7 @@
         [protected ((o.name + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
         [/protected]
         [o.writeRsAnnotations()/]
-        [o.writeRsSwaggerAnnotation()/]
+        [o.writeRsSwaggerAnnotation(o.securityRsScheme())/]
         [o.writeRsSignature()/]
         {
            [o.lineSeparator()/]
@@ -382,14 +382,15 @@
   + ' (' + o.writeRsInputs() + ')'/]
   
 [comment écriture de l'annotion explicative pour swagger-ui (pour paramètre en body un seul, mais plus simple d'utiliser la boucle)./]
-[query private writeRsSwaggerAnnotation(o : soa::Operation) : String = '@Operation(operationId = "' + o.name() + '", description = "' 
-  + o.writeDescription() + '", tags = {"' + o.eContainer(soa::Service).name() + '"}' + if (o.isRsSecured()) then ', security = ' 
-  + '@SecurityRequirement(name = "bearerAuth")' else '' endif + if (o.hasInputs() and not o.input->select(o1 | o1.restData.passingMode 
-  = soa::ParameterPassingMode::BODY)->isEmpty()) then ', requestBody = @RequestBody(' +  o.input->select(o1 | o1.restData.passingMode 
-  = soa::ParameterPassingMode::BODY)->collect(o2 | ' required = true, description = "' + o2.writeDescription() + '", content = @Content( mediaType = "' 
-  + if (o2.hasMediaRsType()) then o2.mediaRsType() else o2.defaultRsMediaType() endif + '", schema = @Schema(implementation = ' 
-  + o2.inputRsType().replaceAll('\\b(?:List|Set)<([^<>]+)>', '$1')  + '.class)))') else '' endif + if (o.hasInputs() and not 
-  o.input->select(o3 | o3.restData.passingMode <> soa::ParameterPassingMode::BODY)->isEmpty() ) then ', parameters = {' 
+[query private writeRsSwaggerAnnotation(o : soa::Operation, ss : soa::SecurityScheme) : String = '@Operation(operationId = "' + o.name() + '", description = "' 
+  + o.writeDescription() + '", tags = {"' + o.eContainer(soa::Service).name() + '"}' + if (o.rsIsSecured()) then ', security = ' 
+  + '@SecurityRequirement(name = "' + ss.name + if (ss.type = soa::SecuritySchemeType::OAUTH2 or ss.type = soa::SecuritySchemeType::OPEN_ID_CONNECT) then '_' 
+  + ss.flows->first().flowType.toString().toLower() else '' endif + '")' else '' endif + if (o.hasInputs() and not o.input->select(o1 | o1.restData.passingMode 
+  = soa::ParameterPassingMode::BODY)->isEmpty()) then ', requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(' 
+  +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)->collect(o2 | ' required = true, description = "' 
+  + o2.writeDescription() + '", content = @Content( mediaType = "' + if (o2.hasMediaRsType()) then o2.mediaRsType() else o2.defaultRsMediaType() endif 
+  + '", schema = @Schema(implementation = ' + o2.inputRsType().replaceAll('\\b(?:List|Set)<([^<>]+)>', '$1')  + '.class)))') else '' endif 
+  + if (o.hasInputs() and not o.input->select(o3 | o3.restData.passingMode <> soa::ParameterPassingMode::BODY)->isEmpty() ) then ', parameters = {' 
   + o.input->select(o4 | o4.restData.passingMode <> soa::ParameterPassingMode::BODY)->collect(o5 | '@Parameter( '+ 'name = "' + o5.name() 
   + '", description = "' + o5.writeDescription() + '", required = ' + o5.isMandatory() + ', in = ParameterIn.' + o5.restData.passingMode 
   + ', example = "")')->sep(', ') +  '}' else '' endif + ')' + '@ApiResponses(value = { ' + if (o.hasOutput()) then '@ApiResponse(responseCode = "'

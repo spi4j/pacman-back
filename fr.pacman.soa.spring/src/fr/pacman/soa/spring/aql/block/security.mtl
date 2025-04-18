@@ -7,6 +7,7 @@
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::query::application/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::output::comments/]
@@ -30,6 +31,10 @@
     import io.swagger.v3.oas.annotations.info.Info;
     import io.swagger.v3.oas.annotations.security.SecurityRequirement;
     import io.swagger.v3.oas.annotations.security.SecurityScheme;
+    import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+    import io.swagger.v3.oas.annotations.security.OAuthFlow;
+    import io.swagger.v3.oas.annotations.security.OAuthFlows;
+    import io.swagger.v3.oas.annotations.security.OAuthScope;
     
     import org.springframework.core.annotation.Order;
     import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +93,7 @@
    */
   @Configuration 
   @EnableWebSecurity
-  [m.writeSwaggerAnnotations()/]
+  [m.rsSecurityScheme().writeRsSwaggerAnnotations()/]
   class [m.nameClassRsSecurityConfigImpl()/] 
   {
     
@@ -481,7 +486,7 @@
 [/template]
 
 [comment écriture de la classe pour la résolution (récupération) du jeton jwt./]
-[template public rsTokenResolverImpl(m : soa::System)]
+[template public tokenRsResolverImpl(m : soa::System)]
   [m.classHeader(m.namePackageRsBase())/]
   
   import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -553,8 +558,8 @@
   }
 [/template]
 
-[comment écriture d'un filtre pour la gestion génrique des en-têtes./]
-[template public rsHeaderFilterImpl(m : soa::System)]
+[comment écriture d'un filtre pour la gestion générique des en-têtes./]
+[template public headerRsFilterImpl(m : soa::System)]
   [m.classHeader(m.namePackageRsBase())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -630,8 +635,32 @@
 [/template]
 
 [comment écriture des annotations explicatives pour la documentation swagger-ui./]
-[query private writeSwaggerAnnotations(m : soa::System) : String = '@OpenAPIDefinition(info = @Info(title = "API sécurisée"), security = @SecurityRequirement(name = "bearerAuth"))
-@SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")'/]
+[query private writeRsSwaggerAnnotations(s : soa::SecurityScheme) : String = '@OpenAPIDefinition(info = @Info(title = "' + s.writeDescription() + '")' 
+  + ', security = { ' + if(s.type = soa::SecuritySchemeType::API_KEY or s.type = soa::SecuritySchemeType::HTTP) then '@SecurityRequirement(name = "' 
+  + s.name + '")' else s.flows->collect(o | '@SecurityRequirement(name = "' + s.name + '_' + o.flowType.toString().toLower() + '")')->sep(', ') endif + '})' 
+  + s.lineSeparator() + if (s.type = soa::SecuritySchemeType::API_KEY or s.type = soa::SecuritySchemeType::HTTP) then s.writeRsSecuritySchemeSwaggerAnnotations(null) 
+  else s.flows->collect(o | s.writeRsSecuritySchemeSwaggerAnnotations(o))->sep(s.lineSeparator()) endif/]
+
+[comment écriture de la seconde annotation explicative (pour oauth2 et openid si plusieurs flows, plusieurs annotations)./]
+[comment pour l'instant il faudrait bloquer à un seul flow, sinon on ne sait pas comment raccorder au niveau de l'opération./]
+[query private writeRsSecuritySchemeSwaggerAnnotations(s : soa::SecurityScheme, f : soa::Flow) : String = '@SecurityScheme(name = "' 
+  + s.name + if(s.type = soa::SecuritySchemeType::OAUTH2 or s.type = soa::SecuritySchemeType::OPEN_ID_CONNECT) then '_' + f.flowType.toString().toLower() else '' endif 
+  + '", type = SecuritySchemeType.' + s.type.toString().toUpper() + if (s.type = soa::SecuritySchemeType::API_KEY) then ', in = SecuritySchemeIn.' 
+  + s.apiKeyLocation.toString().toUpper() + ', paramName = "' + s.key + '"' else if (s.type = soa::SecuritySchemeType::HTTP) then ', scheme="' 
+  + s.httpScheme + '"' + if (s.httpScheme = soa::HttpScheme::BEARER) then ', bearerFormat  = "' + s.format.toUpper() + '"' else '' endif 
+  else ', flows = @OAuthFlows(' + f.transcodeRsFlow() + ' = @OAuthFlow(' + if (f.flowType = soa::FlowType::AUTHORIZATIONCODE 
+  or f.flowType = soa::FlowType::IMPLICIT) then 'authorizationUrl = "' + f.authorizationURL + '"' else '' endif + if (f.flowType <> soa::FlowType::IMPLICIT) 
+  then if (f.flowType = soa::FlowType::AUTHORIZATIONCODE) then ', ' else '' endif + 'tokenUrl = "'+ f.tokenURL + '"' else '' endif  + ', scopes = {' 
+  + f.scopes->collect(o | '@OAuthScope(name = "'+ o.name + '", description = "'+ o.writeDescription() + '")')->sep(', ' + f.lineSeparator()) + '}' 
+  + '))' endif endif + ')'/]
+
+[comment simple transcodage entre la dénomination du flow modélisée et celle attendue par springdoc./]
+[query private transcodeRsFlow(f : soa::Flow) : String = 
+  if (f.flowType = soa::FlowType::IMPLICIT) then 'implicit' 
+  else if (f.flowType = soa::FlowType::CREDENTIALS) then 'clientCredentials' 
+  else if (f.flowType = soa::FlowType::AUTHORIZATIONCODE) then 'authorizationCode ' 
+  else if (f.flowType = soa::FlowType::PASSWORD) then 'password' 
+  else f.cNoModelisation() endif endif endif endif/]
 
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
 [query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)

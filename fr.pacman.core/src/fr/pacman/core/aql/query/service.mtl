@@ -37,7 +37,3 @@
   + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif 
   + '/' + s.eContainer().oclAsType(soa::Component).URI + '/' + s.URI).toUri() 
   else s.cNoModelisation() endif/]
-  
-[comment récupération du schéma de sécurité pour un service./]
-[comment (pour l'instant impossible d'avoir plusieurs types de sécurité) on travaille donc avec System et non Service./]
-[query public rsSecurityScheme (m : soa::System) : soa::SecurityScheme = m.eAllContents(soa::SecurityScheme)->first()/]

@@ -1,0 +1,9 @@
+[module application(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+				    	'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+				    	
+[comment récupération du schéma de sécurité./]
+[comment (pour l'instant impossible d'avoir plusieurs types de sécurité) on travaille donc avec System./]
+[query public rsSecurityScheme (m : soa::System) : soa::SecurityScheme = m.eAllContents(soa::SecurityScheme)->first()/]
+
+[comment vérifie si l'application est sécurisée par un schéma de sécurité./]
+[query public rsIsSecured(m : soa::System) : Boolean = not m.eAllContents(soa::SecurityScheme)->isEmpty()/]

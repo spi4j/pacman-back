@@ -1,5 +1,5 @@
 [module genServer(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
-					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+					'http://www.obeonetwork.org/dsl/soa/4.0.0', 'http://www.eclipse.org/emf/2002/Ecore')/]
 
 [import fr::pacman::core::aql::base/]	
 [import fr::pacman::core::aql::name::classes/]	
@@ -69,13 +69,13 @@
 [comment écriture de la classe de résolution du jeton JWT pour les services sécurisés rest./]
 [template public fileRsTokenResolverImpl(m : soa::System)]
   [file (m.nameClassRsTokenResolverImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
-    [m.rsTokenResolverImpl()/]
+    [m.tokenRsResolverImpl()/]
   [/file]
 [/template]
 
 [comment écriture d'un filtre pour gérer notamment les en-têtes génériques si besoin./]
-[template public fileRsHeaderFilterImpl(any : ecore::EObject)]
-  [file (any.nameClassRsHeaderFilterImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
-    [any.rsHeaderFilterImpl()/]
+[template public fileRsHeaderFilterImpl(m : soa::System)]
+  [file (m.nameClassRsHeaderFilterImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
+    [m.headerRsFilterImpl()/]
   [/file]
 [/template]

@@ -10,6 +10,7 @@
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::query::parameter/]
 [import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::aql::query::application/]
 [import fr::pacman::core::aql::query::service/]
 [import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::core::aql::query::dto/]
@@ -46,7 +47,7 @@
 [comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
 [comment pour les dtos on est pas relié directement à la base de données, doit on être plus souple sur les références ?/]
 [template public validation (m : soa::System) post(self.escapeFile())]
-  [m.writeTabHeader()/]
+  [m.writeTabHeader()/] 
   [for (d | m.eAllContents(environment::DTO))]
     [comment pas de dto vide./]
     [if (d.attributesNoPK()->isEmpty())][d.add(d.msgd1())/][/if]
@@ -82,12 +83,17 @@
       [if (o.paged and not o.size.type.name.equalsIgnoreCase('integer'))][o.add(s.msgs8(o))/][/if]
       [comment pas de service avec un '/' à la fin de l'URI (on pourrait le supprimer mais sensibilise le dévelopeur)./]
       [if (o.URI.exists() and '/'.equalsIgnoreCase(o.URI.last(1)))][o.add(s.msgs9(o))/][/if]
+      [comment pas de service avec plusieurs paramètres passés dans le corps (body), c'est la norme./]
+      [if (o.input->select(o1 | o1.restData.passingMode == soa::ParameterPassingMode::BODY)->size() > 1)][o.add(s.msgs10(o))/][/if]
       [comment pas de service avec un doute sur l'URI./]
       [/for]
     [/if]
   [/for]
   [for (s | m.requiredServices())]
   [/for]
+  [comment pas de securité avec de multiples flows./]
+  [if (m.rsIsSecured() and m.rsSecurityScheme().flows->size() > 1)][m.add(m.msga1())/][/if]
+  
   [comment écriture du rapport dans le fichier./]
   [m.writeReport()/]
 [/template]
@@ -121,6 +127,10 @@
 [comment écriture du nom de la référence pour le rapport./]
 [query private nameService(s : soa::Service) : String = s.nameComponent() + '.' + s.name/]
 
+[comment impossible pour l'instant de définir plusieurs flows pour une sécurité./]
+[query private msga1 (m : soa::System) : String = m.nameProject() + '@Sécuritée modélisée avec plusieurs flows@Cette version de pacman ' 
+  + ' n\'authorise pour l\'instant qu\'un seul flow'/]
+  
 [comment impossible de créer des entités sans attribut./]
 [query private msge1 (e : entity::Entity) : String = e.nameEntity() + '@Entité sans aucun attribut@Ajoutez au moins un attribut au niveau de l\'entité'/]
 
@@ -213,3 +223,7 @@
 [comment impossible d'avoir un service avec une URI qui se termine par '/'./]
 [query private msgs9 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
 	+ '@Opération avec une mauvaise spécification pour l\'URI@Supprimer le caractère \'/\' présent à la fin de l\'URI'/]
+	
+[comment impossible d'avoir un service avec plusieurs paramètres passés dans le corps (body)./]
+[query private msgs10 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec plusieurs paramètres passés dans le corps (body)@Seul un paramètre est authorisé à etre passé en \'body\''/]

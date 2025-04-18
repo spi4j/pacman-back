@@ -1,15 +1,10 @@
 package fr.pacman.core.ui.generator;
 
-import java.util.Map.Entry;
-
 import org.eclipse.acceleo.aql.AcceleoUtil;
 import org.eclipse.acceleo.query.ast.ASTNode;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.emf.ecore.EObject;
 
 import fr.pacman.core.generator.PacmanValidatorsReport;
-import fr.pacman.core.ui.plugin.Activator;
 
 /**
  * La classe {@code PacmanUIValidatorsReport} est responsable de l'interaction
