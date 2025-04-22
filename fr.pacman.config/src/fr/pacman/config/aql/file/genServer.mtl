@@ -48,3 +48,10 @@
     [any.externalHealthImpl()/]
   [/file]
 [/template]
+
+[comment écriture du fichier d'implémentation la configuration de la sécurité des services rest (application)./]
+[template public fileRsDefaultSecurityConfigImpl(any : ecore::EObject)]
+  [file (any.nameClassRsSecurityConfigImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.defaultSecurityRsConfigImpl()/]
+  [/file]
+[/template]

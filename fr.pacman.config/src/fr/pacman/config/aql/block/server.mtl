@@ -19,10 +19,10 @@
   
   /**
    * Exception personnalisée pour le mappage dans l'application [any.nameProject()/].
-   * <p>
+   * 
    * Cette exception est une extension de {@link RuntimeException} et est utilisée pour signaler des erreurs spécifiques
    * liées au processus de mappage des données dans l'application [any.nameProject()/].
-   * </p>
+   * 
    * Cette classe prend un message d'erreur en paramètre lors de la création de l'exception.
    * 
    * @author [any.nameAuthor()/]
@@ -99,7 +99,7 @@
    * Interface représentant les opérations liées à la santé et aux informations de l'application.
    * Cette interface définit deux méthodes pour obtenir des informations sur l'état de l'application 
    * et sa santé générale.
-   * <p>
+   *
    * Les méthodes retournent des objets {@link JSONObject} qui contiennent respectivement des informations
    * sur l'application et son état de santé.
    * 
@@ -177,7 +177,7 @@
     * Structure pour l'ensemble des informations de santé pour chaque service
     * externe dont a besoin l'application 'cali' afin de 
     * pouvoir fonctionner correctement.
-    * <p>
+    * 
     * Définir ici la structure (variables et assesseurs) pour l'ensemble des
     * informations à renvoyer sur l'api de santé pour l'application.
     *
@@ -272,3 +272,61 @@
           [any.prefixAffectation()/]['response time'.apply_attributeDefault()/] = ['response time'.apply_parameterMethodClassicIn()/];
         }
    }[/template]
+
+
+[comment écriture de l'implémentation pour la configuration par défaut de la sécurité des services rest.
+         cette configuration est écrasée dès lors qu'uné sécurité est activée./]
+[template public defaultSecurityRsConfigImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.context.annotation.Configuration;
+  import org.springframework.security.config.Customizer;
+  import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+  import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+  import org.springframework.security.config.http.SessionCreationPolicy;
+  import org.springframework.security.web.SecurityFilterChain;
+  
+  /**
+  * Configuration de la sécurité de l'application Spring Boot.
+  * 
+  * Cette classe configure la chaîne de filtres de sécurité pour l'application.
+  * Elle désactive la gestion de session (mode sans état), permet toutes les
+  * requêtes HTTP sans authentification, et désactive la protection CSRF.
+  * 
+  * Elle utilise un `SecurityFilterChain` pour spécifier les règles de sécurité
+  * et l'architecture sans état, ce qui est adapté pour des API RESTful ou des
+  * applications où l'authentification et la gestion de session sont gérées par
+  * d'autres mécanismes (par exemple, un token JWT).
+  * 
+  * @see org.springframework.security.web.SecurityFilterChain
+  * @see org.springframework.security.config.annotation.web.builders.HttpSecurity
+  */
+  @Configuration 
+  @EnableWebSecurity
+  class [any.nameClassRsSecurityConfigImpl()/] 
+  {
+    
+   /**
+    * Définit une chaîne de filtres de sécurité pour l'application.
+    * 
+    * Cette méthode configure la sécurité HTTP de l'application en : - Désactivant
+    * la protection CSRF (en raison de l'architecture sans état) - Spécifiant que
+    * l'application doit utiliser une gestion de session sans état - Permettant
+    * toutes les requêtes HTTP sans aucune authentification
+    * 
+    * @param http L'objet HttpSecurity utilisé pour configurer la sécurité HTTP.
+    * @return Un objet `SecurityFilterChain` configuré.
+    * @throws Exception Si une erreur se produit lors de la configuration de la
+    *                   sécurité HTTP.
+    */
+    @Bean
+    public SecurityFilterChain tokenFilterChain(HttpSecurity http) throws Exception {
+        return http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
+          .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+          .authorizeHttpRequests(request -> {
+              request.requestMatchers("/**").permitAll().anyRequest().permitAll();
+        }).build();
+    }
+  }
+[/template]

@@ -15,7 +15,7 @@ import fr.pacman.core.validation.ui.plugin.Activator;
 
 /**
  * UI Generateur pour la validation des models.
- * <p>
+ * 
  * Se reporter à la classe {@link PacmanUIGenerator} pour l'explication des
  * différentes méthodes.
  * 

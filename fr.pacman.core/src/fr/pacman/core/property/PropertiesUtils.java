@@ -32,7 +32,7 @@ public class PropertiesUtils {
 	 * Charge et retourne l'ensemble des propriétés lues à partir des différents
 	 * fichiers de configuration. Ces fichiers sont pour l'instant, toujours stockés
 	 * sour la forme de fichiers '.properties'.
-	 * <p>
+	 * 
 	 * On récupère le répertoire ou sont stockés les fichiers '.properties', on
 	 * récupère la liste des fichiers puis on demande le chargement de l'ensemble
 	 * des propriétés.
@@ -86,7 +86,7 @@ public class PropertiesUtils {
 	 * itère sur la liste des fichiers, chaque fichier est lu et les propriétés sont
 	 * stockées sous la forme traditionelle de pair (clé/valeur). voir
 	 * {@link Properties}).
-	 * <p>
+	 * 
 	 * On en profite pour vérifier si des doublons sont présents dans la liste des
 	 * propriétés, pour l'instant seul un avertissement est levé pour les logs.
 	 * 

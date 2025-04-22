@@ -29,10 +29,10 @@
   
   /**
    * Exception personnalisée pour indiquer qu'une fonctionnalité n'est pas encore implémentée dans l'application [any.nameProject()/].
-   * <p>
+   * 
    * Cette exception est une extension de {@link RuntimeException} et est utilisée pour signaler des tentatives d'utilisation
    * de fonctionnalités qui n'ont pas encore été développées ou qui ne sont pas supportées.
-   * </p>
+   * 
    * Cette classe prend un message d'erreur en paramètre lors de la création de l'exception.
    *
    * @author [any.nameAuthor()/]
@@ -63,10 +63,10 @@
    * Cette classe est utilisée pour stocker
    * et gérer le statut d'un enregistrement, représenté par
    * l'énumération {@link DatabaseLineStatus_Enum}.
-   * <p>
+   * 
    * Cette classe implémente {@link Serializable} pour permettre la sérialisation
    * des objets [any.nameClassXtopSupImpl()/].
-   * <p>
+   * 
    * Elle fournit des constructeurs pour initialiser un objet avec un statut de
    * ligne sous forme d'énumération ou de chaîne de caractères. Elle propose
    * également des méthodes pour obtenir et définir le statut de l'enregistrement'.
@@ -152,7 +152,7 @@
    *   <li><strong>['deleted for trash'.apply_attributeEnum()/]</strong> ("9") : Enregistrement supprimé dans la corbeille.</li>
    * </ul>
    * 
-   * <p>Cette énumération fournit des méthodes pour obtenir la valeur associée à un statut, 
+   * Cette énumération fournit des méthodes pour obtenir la valeur associée à un statut, 
    * effectuer des vérifications de statut (comme pour une sélection, suppression ou mise à jour), 
    * et convertir une valeur de chaîne en un statut d'énumération.</p>
    */
@@ -268,12 +268,12 @@
   [any.defaultImports()/]
   
   /**
-   * Exception personnalisée pour gérer les erreurs de validation dans l'application.
+   * Exception personnalisée pour gérer les erreurs de validation dans l'application [any.nameProject()/].
    * Cette exception étend {@link RuntimeException} et permet de signaler des erreurs 
    * liées à des champs invalides dans un objet spécifique.
-   * <p>
+   * 
    * La classe fournit plusieurs constructeurs permettant de spécifier des messages d'erreur
-   * personnalisés et d'indiquer les champs invalides dans un objet.
+   * personnalisés et d'indiquer les champs invalides pour un objet.
    * 
    * @author [any.nameAuthor()/]
    */
@@ -338,11 +338,11 @@
   /**
    * Annotation marquant une méthode comme nécessitant des conditions ou des
    * prérequis spécifiques.
-   * <p>
+   * 
    * Cette annotation peut être utilisée pour indiquer qu'une méthode doit
    * respecter certains critères ou conditions spéciales, mais la logique exacte
    * des prérequis doit être définie ailleurs dans le code.
-   * </p>
+   * 
    * L'annotation est héritée (via {@link Inherited}), ce qui signifie qu'elle
    * sera également présente sur les sous-classes d'une classe qui contient cette
    * annotation.

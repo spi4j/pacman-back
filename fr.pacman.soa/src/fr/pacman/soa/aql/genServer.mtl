@@ -9,7 +9,7 @@
 [comment 	écriture des classes et fichiers soa pour la partie infrastructure de l'application cible, 
 			on précharge les références qu'une seule fois afin d'optimiser les requêtes./]
 			
-[template public genServer(m : soa::System)]  
+[template public genServer(m : soa::System)]
   [for (d : environment::DTO | m.eAllContents(environment::DTO))]
     [comment récupération des références qui concernent l'entité métier (dto)./]
     [let rs = d.referencesFKSB()->union(d.referencesJT())]

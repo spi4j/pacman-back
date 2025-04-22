@@ -10,7 +10,7 @@ import org.eclipse.emf.ecore.EObject;
  * de validation pour des objets issus de la modélisation utilisateur. Elle
  * stocke les erreurs sous forme de paires clé-valeur, où la clé est un objet de
  * type {@link EObject} et la valeur est un message d'erreur associé.
- * <p>
+ * 
  * Cette classe offre des méthodes pour ajouter des erreurs, réinitialiser le
  * rapport et obtenir le rapport complet. Très simple (jsute le stockage d'une
  * map), elle sert de 'passe-plat' entre la couche AQL et la couche Java, elle

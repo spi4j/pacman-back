@@ -20,7 +20,7 @@ import fr.pacman.core.property.project.ProjectProperties;
  * Générateur pour la validation du diagramme de modélisation. Ce 'générateur'
  * scanne le fichier de modélisation et vérifie si les règles minimales sont
  * respectées.
- * <p>
+ * 
  * Se reporter à la classe {@link PacmanGenerator} pour l'explication des
  * différentes méthodes.
  * 

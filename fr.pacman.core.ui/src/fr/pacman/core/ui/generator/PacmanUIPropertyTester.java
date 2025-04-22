@@ -52,7 +52,7 @@ public class PacmanUIPropertyTester extends PropertyTester {
 	 * un autre namespace, qui est lui même...etc..). On obtient alors le
 	 * {@link Root} (cas d'un namespace pour les entités) ou un {@link System} dans
 	 * le cas d'un namespace pour la couche SOA.
-	 * <p>
+	 * 
 	 * C'est donc une manière simple de distinguer un namespace pour la couche
 	 * 'entities' d'un namespace pour la couche 'SOA';
 	 * 

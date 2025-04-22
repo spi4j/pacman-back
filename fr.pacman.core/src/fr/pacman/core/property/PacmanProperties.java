@@ -65,7 +65,7 @@ public class PacmanProperties {
 	/**
 	 * Vérifie l'ensemble des propriétés et demande la réécriture si besoin. Pour
 	 * l'instant on ne traite pas encore la modification (a voir..).
-	 * <p>
+	 * 
 	 * On vérifie en premier lieu les propriétés obligatoires qui ne sont pas
 	 * présentes dans le fichier, puis on traite les propriétés conditionnelles qui
 	 * ne sont plus utilisées.
@@ -88,12 +88,12 @@ public class PacmanProperties {
 	 * liste. Pour l'instant les propriétés additionnelles ne peuvent etre remontées
 	 * au referentiel, elles sont donc perdues si supprimées du fichier (tout au
 	 * moins au niveau des valeurs).
-	 * <p>
+	 * 
 	 * On liste l'ensemble des propriétés lues à partir des fichiers, on récupère la
 	 * propriété Pacman dans la copie du referentiel, si la propriété est trouvée
 	 * dans le référentiel, on met à jour le référentiel avec la valeur qui a été
 	 * récupérée. Sinon, on rajoute simplement la propriété dans la liste.
-	 * <p>
+	 * 
 	 * Les stratégies sont toujours appliquées en dernier.
 	 * 
 	 * @param p_props la liste des propriétés récupérées à partir des fichiers

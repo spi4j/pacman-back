@@ -10,7 +10,7 @@ import org.obeonetwork.dsl.entity.Entity;
  * éventuellement une entité. Dans une application , il est possible que le
  * modèle ait des relations avec des modèles externes issus de librairies
  * préalablement développées.
- * <p>
+ * 
  * Afin de pouvoir récupérer le bon nom pour la couche de persistance (cette
  * entité n'est pas gérée par la couche de persistance par défaut de
  * l'application mais par la couche de persistance de la librairie), il est
@@ -25,7 +25,7 @@ public class ResourceUtils {
 	 * Recuperation du nom de la librairie (en fait le nom du fichier ".entity" ou
 	 * est stockee l'entité. Comme le nom du fichier est obligatoirement celui de la
 	 * librairie...)
-	 * <p>
+	 * 
 	 * On recherche l'entité dans tous les fichiers de librairie externe. Si elle
 	 * est trouvée, on retourne le nom du fichier qui la contient. ATTENTION, pour
 	 * cette premiere version on ne détecte pas les doublons, il ne faut donc pas

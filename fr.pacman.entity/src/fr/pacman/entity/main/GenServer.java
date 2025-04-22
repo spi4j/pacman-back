@@ -21,7 +21,7 @@ import fr.pacman.core.property.project.ProjectProperties;
  * entités et des classes nécessaires pour la gestion de la couche de
  * persistance. Ce module est le point d'entrée principal pour la génération en
  * fonction de la technologie demandée (spring, spi4j, etc...).
- * <p>
+ * 
  * Se reporter à la classe {@link PacmanGenerator} pour l'explication des
  * différentes méthodes.
  * 

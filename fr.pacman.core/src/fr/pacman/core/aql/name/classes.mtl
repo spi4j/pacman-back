@@ -136,6 +136,9 @@
   
 [comment retourne le nom de la classe de démarrage pour une application Spring./]
 [query public nameClassAppBootstrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBootstrap()).apply_classDefault()/]
+
+[comment retourne le nom de la classe pour la configuratio (définition) open api (swagger)./]
+[query public nameClassOpenApiConfigImpl(any : ecore::EObject) : String = (any.nameProject() + ' open api config').apply_classDefault()/]
   
 [comment retourne le nom de la classe pour un objet métier./]
 [query public nameClassDtoImpl(d : environment::DTO) : String = (d.name() + d.suffixDto()).apply_classImplem()/]

@@ -192,7 +192,7 @@
    * {@link EnableAspectJAutoProxy} et configure un scan de composants
    * personnalisé pour inclure les services annotés avec {@link [any.nameClassAnnotationStubOut()/]} et
    * {@link [any.nameClassAnnotationIn()/]}.
-   * <p>
+   * 
    * La méthode {@link #main(String...)} est le point d'entrée principal de
    * l'application, qui démarre l'application Spring Boot.
    *
@@ -271,7 +271,7 @@
    * 
    * Cette classe fonctionne en relation avec les classes {@link [any.nameClassRsErrorBodyResponseImpl()/]} 
    * et {@link [any.nameClassRsExceptionHandlerImpl()/]}
-   * <p>
+   * 
    * Si besoin, créer des exceptions supplémentaires et les positionner au niveau
    * de ce package.
    * 
@@ -312,10 +312,10 @@
    * type fonctionnelle. Elle est automatiquement renvoyée par les générateurs si
    * dans le cadre des services rest sécurisés l'appelant n'a pas passé 
    * l'authentification.
-   * <p>
+   * 
    * Cette classe fonctionne en relation avec les classes {@link [any.nameClassRsErrorBodyResponseImpl()/]} 
    * et {@link [any.nameClassRsExceptionHandlerImpl()/]}
-   * <p>
+   * 
    * Si besoin, créer des exceptions supplémentaires et les positionner au niveau
    * de ce package.
    * 
@@ -361,7 +361,7 @@
    * Gère les exceptions dans l'application en fournissant des réponses d'erreur personnalisées.
    * Cette classe utilise l'annotation {@link ControllerAdvice} pour intercepter les exceptions globalement
    * et les convertir en réponses HTTP structurées.
-   * <p>
+   * 
    * Compléter la classe si besoin avec autant de méthodes de gestion des
    * exceptions que nécessaires;
    * 
@@ -450,12 +450,12 @@
    * Représente une réponse d'erreur avec un code de statut HTTP et un message d'erreur.
    * Cette classe est utilisée pour encapsuler les informations d'une erreur retournée par un service,
    * incluant un code de statut HTTP et un message d'erreur associé.
-   * <P>
+   * 
    * Cette classe est utilisée par le gestionnaire global des exceptions de
    * l'application [any.nameProject()/], la classe {@link [any.nameClassRsExceptionHandlerImpl()/]}. 
    * Par défaut, la structure est minimale avec un statut HTTP (bien qu'il soit aussi présent au
    * niveau de l'en-tête) et un message d'erreur. 
-   * <p>
+   * 
    * Compléter la classe selon le besoin et modifier la classe {@link [any.nameClassRsExceptionHandlerImpl()/]} 
    * afin de prendre en compte l'ensemble des modifications apportées.
    * 
@@ -543,6 +543,10 @@
    * à partir du contexte de sécurité Spring Security.
    * Fournit des méthodes pratiques pour récupérer le JWT, l'ID utilisateur, les rôles, et tous les claims.
    *
+   * Cette classe est générée dès la création du projet et ne peut présumer de la
+   * présence ou non d'une sécurité. A supprimer si le projet ne contient aucune
+   * règle de sécurité concernant l'accès pour ses apis.
+   * 
    * @author [any.nameAuthor()/]
    */
   public class [any.nameClassRsCurrentTokenHelperImpl()/] {
@@ -673,7 +677,7 @@
      * dans des classes annotées par cette même annotation. Cette méthode garantit
      * que l'exécution des méthodes annotées se déroule dans un contexte
      * transactionnel.
-     * <p>
+     * 
      * La logique de gestion de la transaction est assurée par l'exécution de la
      * méthode cible dans le contexte d'une transaction, et en cas d'exception, elle
      * est capturée et transformée en une {@link RuntimeException} pour une gestion
@@ -718,7 +722,7 @@
   
   /**
    * Configuration de la gestion transactionnelle pour l'application [any.nameProject()/].
-   * <p>
+   * 
    * Cette classe configure les beans nécessaires à la gestion des transactions dans les services [any.nameProject()/].
    * Elle définit les beans pour {@link [any.nameClassJpaTransactionServiceAspectImpl()/]} 
    * et {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
@@ -952,11 +956,13 @@
   # ----------------------------------------------------------------------------------------------
   # SWAGGER UI
   # ----------------------------------------------------------------------------------------------
-  # Documentation JSON (brute) ex: http://localhost:8080/v1/api-docs
+  # Documentation JSON ex: http://localhost:8080/v1/api-docs
   springdoc.api-docs.path=/api-docs
-  # Documentation Swagger UI (ihm) ex: http://localhost:8080/v1/swagger-ui.html
+  # Documentation Swagger (ihm) ex: http://localhost:8080/swagger-ui.html
   springdoc.swagger-ui.path=/swagger-ui
+  # Definition de l'ordre d'affichage des operations (endpoints) <alpha|method>
   springdoc.swagger-ui.operations-sorter=method
+  # Definition de l'ordre d'affichage des tags <alpha|fonction de tri JS personnalisee>
   springdoc.swagger-ui.tags-sorter=alpha
   
   # ----------------------------------------------------------------------------------------------
@@ -1120,7 +1126,7 @@
   * Classe abstraite qui sert de base pour les tests utilisant une source de
   * données SQL. Cette classe contient une méthode d'initialisation qui prépare
   * la base de données avec des scripts SQL au début de l'exécution des tests.
-  * <p>
+  * 
   * La méthode {@link #initSql(DataSource)} initialise la base de données en
   * exécutant les scripts SQL nécessaires, mais ce processus n'est effectué
   * qu'une seule fois grâce à la variable statique {@code initialized}.
@@ -1147,7 +1153,7 @@
     /**
      * Initialise la base de données en exécutant les scripts SQL spécifiés, si cela
      * n'a pas déjà été fait.
-     * <p>
+     * 
      * Cette méthode vérifie si la base de données a déjà été initialisée en
      * consultant la variable statique {@code ['initialized'.apply_attributeStatic()/]}. Si ce n'est pas le cas,
      * elle charge et exécute les scripts SQL {@code [any.nameScriptCreate(any.defaultSqlDatabaseType())/].sql} et
@@ -1239,7 +1245,7 @@
    * Implémentation de l'interface {@link HealthIndicator} pour vérifier l'état de santé d'un service.
    * Cette classe est conditionnellement activée en fonction de la présence d'un indicateur de santé nommé
    * {@code [any.nameProject()/]_health} dans le contexte de l'application.
-   * <p>
+   * 
    * La méthode {@link #health()} crée un état de santé "healthy" par défaut, mais peut être étendue pour fournir
    * une vérification de santé plus complexe si nécessaire.
    * 
@@ -1255,7 +1261,7 @@
      
      /**
        * Vérifie l'état de santé d'un service et retourne un objet {@link Health} indiquant l'état.
-       * <p>
+       * 
        * Dans cette implémentation, la méthode retourne simplement un état de santé "healthy" par défaut,
        * mais peut être enrichie pour effectuer des vérifications supplémentaires.
        * </p>
@@ -1343,6 +1349,10 @@
    * 
    * Cette classe est marquée comme un composant Spring afin qu'elle puisse être
    * injectée dans la configuration de sécurité.
+   *
+   * Cette classe est générée dès la création du projet et ne peut présumer de la
+   * présence ou non d'une sécurité. A supprimer si le projet ne contient aucune
+   * règle de sécurité concernant l'accès pour ses apis.
    * 
    * @author [any.nameAuthor()/]
    */

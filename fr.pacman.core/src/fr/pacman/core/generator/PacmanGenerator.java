@@ -45,13 +45,13 @@ import org.osgi.framework.FrameworkUtil;
  * Couche abstraite pour les générateurs internes de Pacman. C'est cette couche,
  * initialement appelée par la couche UI {@link PacmanUIGenerator}, qui effectue
  * le lien entre l'écosystème Java et le langage Acceleo (les fichiers '.mtl').
- * <p>
+ * 
  * Chaque générateur doit indiquer le nom du sous-projet à partir duquel les
  * différents chemins de génération vont être appliqués. Par définition, un
  * générateur ne peut donc générer que dans un et un seul sous projet. Pour
  * générer dans plusieurs sous-projets il faut donc enregistrer plusieurs
  * générateurs au niveau de la couche UI.
- * <p>
+ * 
  * Tous les générateurs internes pour les projets de génération doivent
  * obligatoirement étendre de cette classe abstraite;
  * 
@@ -75,7 +75,7 @@ public abstract class PacmanGenerator {
 	 * préalablement sélectionnée par l'utilisateur pour lancer le générateur UI. Ce
 	 * chemin sert de base pour le calcul de l'ensemble des chemins cibles de
 	 * génération.
-	 * <p>
+	 * 
 	 * Tout le méchanisme d'écriture des différents fichiers est donc basé sur le
 	 * chemin suivant : _rootPath (invariant pour l'ensemble des générateurs du
 	 * projet) + getSubProjectName() (en fonction du générateur) + le chemin des
@@ -201,7 +201,7 @@ public abstract class PacmanGenerator {
 	 * Ainsi on peut agir de manière plus ou moins fine au niveau de la couche
 	 * globale UI qui lance plusieurs générateurs ou au niveau indivuduel de chaque
 	 * générateur.
-	 * <p>
+	 * 
 	 * Cela est par example partique pour le générateur de validation qui peut être
 	 * embarqué au niveau des couches entité, soa, etc.. et qui lui spécifiquement,
 	 * n'a pas besoin d'opérations de post traitement.
@@ -212,11 +212,11 @@ public abstract class PacmanGenerator {
 	 * Retourne la liste des {@link EObject} qui vont être manipulés par le
 	 * générateur. Par défaut cette méthode récupère l'ensemble des objets contenus
 	 * dans le fichier de modélisation.
-	 * <p>
+	 * 
 	 * Si la ressource sélectionnée par le développeur de l'application n'est pas
 	 * une resource de type fichier mais directment un {@link EObject} alors ce
 	 * dernier est directement positionné dans la liste.
-	 * <p>
+	 *
 	 * Cette méthode est toutefois laissée au niveau des classes filles afin que le
 	 * développeur puisse modifier l'algorithme de récupération des valeurs si
 	 * besoin.
@@ -237,14 +237,14 @@ public abstract class PacmanGenerator {
 	 * Retourne la liste des différents templates à exécuter au sein du module
 	 * (fichier '.mtl'). Pour l'instant, aucune action n'est prévue si la liste est
 	 * vide (voir selon les besoins futurs).
-	 * <p>
+	 * 
 	 * Pour l'instant, au niveau obéo il ,n'a pas été prévu dans AQL8 de scanner les
 	 * templates @{link @Main} au niveau des modules parents. Pour remédier à cette
 	 * problématique et pouvoir aussi mettre des templates @{link @Main} au niveau
 	 * des modules parents, cette méthode est récursive et c'est elle qui se charge
 	 * aussi du scan pour le module parent si ce dernier existe. (On pourrait aussi
 	 * surcharger le code de la classe {@link AcceleoUtil}).
-	 * <p>
+	 * 
 	 * ATTENTION (15/01/2025) : Pour l'instant ne pas encore positionner les
 	 * annotations au niveau du module parent, cela engendre des effets de bords et
 	 * les corps des fichiers ne sont plus générés (vide) !
@@ -282,12 +282,12 @@ public abstract class PacmanGenerator {
 	 * Il s'agit ici de véritablement pouvoir distinguer (de manière plus précise)
 	 * le type de la resource (ou de l'{@link EObject}) afin de pouvoir retourner le
 	 * ou les {@link Template} correspondants.
-	 * <p>
+	 * 
 	 * La valeur par défaut (si impossible à déterminer) est {@link Root}. Cette
 	 * valeur est utilisée notamment par le plugin de création d'un nouveau projet
 	 * ou par définition, aucune ressource n'a été préalablement sélectionnée par le
 	 * développeur.
-	 * <p>
+	 * 
 	 * Compléter cette méthode ainsi que l'énumération en fonction du besoin.
 	 * 
 	 * @return le type de la sélection initiale.
@@ -311,11 +311,11 @@ public abstract class PacmanGenerator {
 
 	/**
 	 * La méthode principale de la classe.
-	 * <p>
+	 * 
 	 * Pour chaque ressource, on récupère l'ensemble des {@link Template} et à
 	 * partir de chaque {@link Template} on génère le code à l'aide des différents
 	 * fichiers aql8.
-	 * <p>
+	 * 
 	 * Chaque générateur de la couche UI lance donc un ou plusieurs générateurs
 	 * internes, chaque générateur interne récupère la liste de ses {@link Template}
 	 * à exécuter, pour chaque {@link Template}, la liste des {@link EObject} est
@@ -498,12 +498,12 @@ public abstract class PacmanGenerator {
 	/**
 	 * Enumération interne pour connaitre le type de ressource qui a été
 	 * préalabalement sélectionnée par l'utilisateur au niveau de la couche UI.
-	 * <p>
+	 * 
 	 * Ici il ne faut pas s'attacher ici à une vision stricte et puriste de la
 	 * sémantique. Par exemple, {@link Namespace} et {@link Root} sont tous les deux
 	 * des {@link EObject} mais, dans le cadre de la génération, il est toutefois
 	 * nécessaire de pouvoir les différencier.
-	 * <p>
+	 * 
 	 * Au fur et à mesure du besoin, compléter cette énumération et éventuellement
 	 * sortir les éléments de la notion plus abstraite de {@link EObject}.
 	 */

@@ -97,13 +97,13 @@
 
   /** 
    * Annotation personnalisée pour marquer les services du domaine dans
-   * l'application.
-   * <p>
+   * l'application [any.nameProject()/].
+   * 
    * Cette annotation est utilisée pour indiquer qu'une classe fait partie du
    * domaine métier de l'application, généralement utilisée pour désigner les
    * services ou les composants qui gèrent la logique métier. Elle est disponible
    * à l'exécution grâce à {@link RetentionPolicy#RUNTIME}.
-   * </p>
+   * 
    * Cette annotation ne comporte actuellement aucun élément spécifique, mais peut
    * être étendue à l'avenir pour ajouter des métadonnées supplémentaires si
    * nécessaire.
@@ -125,8 +125,8 @@
 
     /**
    * Annotation personnalisée pour marquer les adaptateurs de service dans
-   * l'application.
-   * <p>
+   * l'application [any.nameProject()/].
+   * 
    * Cette annotation est utilisée pour identifier les classes qui servent
    * d'adaptateurs pour les services. Les adaptateurs de service sont généralement
    * utilisés pour intégrer des services externes ou des composants spécifiques à
@@ -150,8 +150,8 @@
 
   /**
    * Annotation personnalisée pour marquer les adaptateurs de service dans
-   * l'application dans le cadre des tests du domaine ou de l'infrastructure'.
-   * <p>
+   * l'application dans le cadre des tests du domaine et/ou de l'infrastructure'.
+   * 
    * Cette annotation est utilisée pour identifier les classes qui servent
    * d'adaptateurs pour les services. Les adaptateurs de service sont généralement
    * utilisés pour intégrer des services externes ou des composants spécifiques à
@@ -178,7 +178,7 @@
    * être exécutées dans un contexte transactionnel. Cette annotation peut être
    * utilisée pour indiquer qu'une méthode ou une classe doit être traitée dans
    * une transaction.
-   * <p>
+   * 
    * Elle peut être utilisée en combinaison avec un gestionnaire de transactions,
    * tel qu'un aspect, pour appliquer la logique transactionnelle. 
    * 
@@ -202,8 +202,8 @@
    * Classe utilitaire contenant des méthodes de validation pour vérifier certaines contraintes
    * sur des champs de données. Ces méthodes vérifient des conditions telles que la présence 
    * d'une valeur obligatoire ou la taille d'une chaîne de caractères.
-   * <p>
-   * Cette classe n'a pas besoin d'être instanciée, car elle contient uniquement des méthodes statiques.</p>
+   * 
+   * Cette classe n'a pas besoin d'être instanciée, car elle contient uniquement des méthodes statiques.
    * 
    * @author [any.nameAuthor()/]
    */
@@ -232,7 +232,7 @@
     * Vérifie si la taille d'une chaîne de caractères est comprise dans une plage spécifiée.
     * Si la taille dépasse la taille maximale autorisée, une entrée est ajoutée à la liste des champs invalides
     * indiquant la taille actuelle de la chaîne et la taille maximale autorisée. Idem pour la taille minimale.
-    * <p>
+    * 
     * Si la chaîne est nulle, cette méthode ne fait aucune vérification.</p>
     *
     * @param ['field name'.apply_parameterMethodClassicIn()/] Le nom du champ à valider.
@@ -277,7 +277,7 @@
    * gérer les informations relatives à une exigence (requirement). Elle permet
    * de récupérer l'identifiant, le nom, et la version d'implémentation d'une
    * exigence, ainsi que d'en définir la version d'implémentation.
-   * <p>
+   * 
    * Cette interface définit également des constantes utilisées pour indiquer
    * des statuts d'implémentation.
    * 
@@ -324,8 +324,8 @@
    * Cette classe est conçue pour valider la version d'implémentation d'une exigence, et lance des exceptions
    * spécifiques si des erreurs sont détectées, telles que des versions déjà définies ou des incohérences entre
    * la version du modèle et la version implémentée.
-   * <p>
-   * Cette classe est une classe utilitaire qui ne peut pas être instanciée.</p>
+   * 
+   * Cette classe est une classe utilitaire qui ne peut pas être instanciée.
    * 
    * @author [any.nameAuthor()/]
    */
@@ -402,8 +402,8 @@
    * Cette exception est lancée lorsque des problèmes sont rencontrés liés à une exigence spécifique.
    * Elle permet de fournir un message d'erreur et un message supplémentaire concernant la possibilité de correction.
    * 
-   * <p>Cette exception hérite de {@link RuntimeException} et permet d'ajouter des détails concernant l'exigence
-   * (de type {@link [any.nameClassRequirementItf()/]}) associée à l'erreur.</p>
+   * Cette exception hérite de {@link RuntimeException} et permet d'ajouter des détails concernant l'exigence
+   * (de type {@link [any.nameClassRequirementItf()/]}) associée à l'erreur.
    * 
    * @author [any.nameAuthor()/]
    */
@@ -413,7 +413,7 @@
     private static final long serialVersionUID = 1L;
     
     /**
-     * Message par défaut suggérant une vérification du service ou du test de l'exigence.
+     * Message par défaut suggérant une vérification du service et/ou du test de l'exigence.
      */
     private static final String ['messageCorrectionPossible'.apply_attributeFinalStatic()/] = "Vérifier l'implémentation du service ou du test de l'exigence";
     

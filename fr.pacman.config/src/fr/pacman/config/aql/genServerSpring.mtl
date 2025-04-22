@@ -44,6 +44,8 @@
   [r.fileIntegrationTestUtilsImpl()/]
   [comment implémentation de l'api de santé pour l'application./]
   [r.fileRsServiceHealthImpl()/]
+  [comment implémentation de la configuration par défaut pour la sécurité rest./]
+  [r.fileRsDefaultSecurityConfigImpl()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]

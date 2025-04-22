@@ -80,7 +80,7 @@ public abstract class PacmanUIProjectAction {
 	 * l'IDE. Cela permet de bénéficier de l'ensemble des commandes existantes de
 	 * l'IDE (Eclipse) qui sont accessibles soit pas menu soit par séquence de
 	 * touche. Cette commande ne doit impacter que les sous-projets de type Java.
-	 * <p>
+	 * 
 	 * Pour l'instant on utilise déjà l'organisation des imports (CTRL + SHIFT + O)
 	 * et la demande de formattage automatique (CRL + SHIFT + F).
 	 * 

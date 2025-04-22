@@ -267,7 +267,7 @@ public class DatabaseUtils {
 	 * Retourne le type pour la colonne (colonne technique) en fonction du type de
 	 * la base de données et du type initialement demandé en fonction de la colonne.
 	 * (autre que dans le cas spécifique d'un attribut).
-	 * <p>
+	 * 
 	 * Plutôt que de tester la validité des paramètres ainsi que les potentielles
 	 * nullités, on part sur une approche optimiste (gain de performance) et une
 	 * exception est levée sur un potentiel nullPointer.
@@ -533,7 +533,7 @@ public class DatabaseUtils {
 	 * trouvées deux fois (A->B) et (B->A). Pour créer des tables de liaison, il
 	 * suffit uniquement d'une seule des deux références. On supprime donc
 	 * arbitrairement une des deux références.
-	 * <p>
+	 * 
 	 * Si l'opposite n'existe pas, il s'agit d'une récursive multiple et il ne peut
 	 * y avoir de doublon (tout au moins au niveau technique).
 	 * 
@@ -565,13 +565,13 @@ public class DatabaseUtils {
 	 * Retourne l'index pour le nommage de la référence. Si la référence ne doit pas
 	 * avoir d'index (une seule référence pour l'entité) alors l'index est
 	 * positionné à 0.
-	 * <p>
+	 * 
 	 * Cette nouvelle manière de procéder par rapport à la version AQL7 est liée au
 	 * fait que le script a été simplifié à l'extrème et qu'il n'y a plus qu'une
 	 * seule ligne au lieu de 18 avec suppression de boucles et de structures
 	 * conditionnelles. Le fonctionnement de la requête initiale de récupération des
 	 * références a été aussi profondément modifié.
-	 * <p>
+	 * 
 	 * ATTENTION, la liste des références doit toujours être triée de la même
 	 * manière sinon il y aura un décalage entre les différents appels (voir plus
 	 * tard si on effectue le tri au niveau de cette méthode afin d'être plus

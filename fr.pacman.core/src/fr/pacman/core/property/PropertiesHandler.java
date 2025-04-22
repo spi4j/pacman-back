@@ -29,7 +29,7 @@ import fr.pacman.core.service.LoggerUtils;
  * l'instant, ces fichiers de propriété sont stockés simplement sous la forme de
  * fichier '.properties', cela est amplement suffisant dans le cadre d'un outil
  * de génération, d'autant que les fichiers sont automatiquement générés.
- * <p>
+ * 
  * Afin de pouvoir utiliser facilement le gestionnaire dans l'ensemble des
  * classes Java et des fichiers acceleo, cette classe est utilisée en tant que
  * singleton avec des méthodes statiques.
@@ -87,7 +87,7 @@ public class PropertiesHandler {
 	 * Demande l'initialisation du gestionnaire de propriétés et retourne l'instance
 	 * unique du gestionnaire. Cette demande est effectuée au niveau de la couche ui
 	 * des générateurs, avant le lancement de ces derniers.
-	 * <p>
+	 * 
 	 * A ce niveau, il faut donc toujours relire les propriétés qui sont suceptibles
 	 * d'avoir été modifiées entre deux générations (on injecte donc la valeur null
 	 * au niveau du second paramètre afin de demander expressément la relecture des

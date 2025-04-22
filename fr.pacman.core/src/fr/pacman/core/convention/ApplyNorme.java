@@ -24,7 +24,7 @@ public final class ApplyNorme {
 
 	/**
 	 * Applique la norme pour le package de persistence.
-	 * <p>
+	 * 
 	 * Attention exception, ici on retourne juste le nom du package on ne peut pas
 	 * définir le chemin complet à l'avance.
 	 * 
@@ -38,7 +38,7 @@ public final class ApplyNorme {
 
 	/**
 	 * Retourne le package d'implémentation jdbc.
-	 * <p>
+	 * 
 	 * Attention exception, ici on retourne juste le nom du package.
 	 * 
 	 * @param p_value la valeur du modèle à normer.
@@ -51,7 +51,7 @@ public final class ApplyNorme {
 
 	/**
 	 * Retourne le package d'implémentation server.
-	 * <p>
+	 * 
 	 * Attention exception, ici on retourne juste le nom du package.
 	 * 
 	 * @param p_value la valeur du modèle à normer.
@@ -64,7 +64,7 @@ public final class ApplyNorme {
 
 	/**
 	 * Retourne le package de matching.
-	 * <p>
+	 * 
 	 * Attention exception, ici on retourne juste le nom du package
 	 * 
 	 * @param p_value la valeur du modèle à normer.
@@ -77,7 +77,7 @@ public final class ApplyNorme {
 
 	/**
 	 * Retourne le package d'api.
-	 * <p>
+	 * 
 	 * Attention exception, ici on retourne juste le nom du package.
 	 * 
 	 * @param p_value la valeur du modèle à normer.
@@ -90,7 +90,7 @@ public final class ApplyNorme {
 
 	/**
 	 * Retourne le package de business.
-	 * <p>
+	 * 
 	 * Attention exception, ici on retourne juste le nom du package.
 	 * 
 	 * @param p_value la valeur du modèle à normer.
@@ -103,7 +103,7 @@ public final class ApplyNorme {
 
 	/**
 	 * Retourne le package de Requirement.
-	 * <p>
+	 * 
 	 * Requirement Attention exception, ici on retourne juste le nom du package.
 	 * 
 	 * @param p_value la valeur du modèle à normer.

@@ -14,7 +14,7 @@ import fr.pacman.core.ui.generator.PacmanUIGenerator;
 
 /**
  * UI Generator for Service based on Soa model file.
- * <p>
+ * 
  * Se reporter à la classe {@link PacmanUIGenerator} pour l'explication des
  * différentes méthodes.
  * 

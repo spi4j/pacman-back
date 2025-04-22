@@ -164,6 +164,9 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		getWidget("ck_jerseyCdi").setEnabled(false);
 		getWidget("ck_fileConfig").setEnabled(false);
 		getWidget("ck_fetchStrategy").setEnabled(false);
+		getWidget("ck_security").setEnabled(false);
+		getWidget("ck_crud").setEnabled(false);
+		getWidget("ck_batch").setEnabled(false);
 	}
 
 	/**

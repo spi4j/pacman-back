@@ -79,3 +79,10 @@
     [m.headerRsFilterImpl()/]
   [/file]
 [/template]
+
+[comment écriture de la classe de configuration pour la documentation swagger./]
+[template public fileOpenApiConfigImpl(m : soa::System)]
+  [file (m.nameClassOpenApiConfigImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
+    [m.openApiConfigImpl()/]
+  [/file]
+[/template]

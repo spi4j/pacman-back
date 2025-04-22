@@ -21,13 +21,13 @@ import fr.pacman.core.property.project.ProjectProperties;
 
 /**
  * Générateur pour la couche de configuration. *
- * <p>
+ * 
  * Ce générateur est aussi susceptible d'être lancé directement par le plugin
  * fr.pacman.start, dans ce cas, il n'existe aucune ressource prééxistante pour
  * la modélisation. C'est pourquoi ce générateur hérite de la classe
  * {@link PacmanGeneratorStart} et non uniquement, comme la plupart des autres
  * générateurs, de la classe {@link PacmanGenerator}.
- * <p>
+ * 
  * Se reporter à la classe {@link PacmanGenerator} pour l'explication des
  * différentes méthodes.
  * 

@@ -100,8 +100,7 @@
   or any.oclIsTypeOf(environment::DTO)/]
 
 [comment écriture des lignes d'en-tête pour une classe (licence + ligne de package + les imports de base)./]
-[query public classHeader(any : ecore::EObject, pkg : String) : String = any.licence() + pkg.package() 
- + any.lineSeparator()/]
+[query public classHeader(any : ecore::EObject, pkg : String) : String = any.licence() + pkg.package() + any.lineSeparator()/]
 
 [comment écriture de la ligne d'import du package pour une classe Java./]
 [query private package(pkg : String, c : String) : String = (pkg.get_projectPackage() + '.' + pkg).toPackage() + '.' + c + ';'/]
