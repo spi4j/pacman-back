@@ -367,7 +367,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	private void addEMFNatureToProjectModel(final SubMonitor p_monitor, final IProject p_project, int p_cpt)
 			throws CoreException, InterruptedException, PacmanInitModelException {
 
-		if (p_cpt == 5) {
+		if (p_cpt == 4) {
 			throw new PacmanInitModelException("Impossible de finaliser la configuration du projet de modélisation."
 					+ System.getProperty("line.separator") + "Veuillez terminer manuellement la configuration ");
 		}
@@ -382,8 +382,8 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 
 		// Boucle tant que le fichier n'est pas trouvé.
 		if (!pom.isFile()) {
-			p_monitor.setTaskName("Ajout de la nature EMF au projet de modélisation  - Tentative : " + p_cpt + "/6");
-			Thread.sleep(10000);
+			p_monitor.setTaskName("Ajout de la nature EMF au projet de modélisation  - Tentative : " + p_cpt + "/5");
+			Thread.sleep(5000);
 			addEMFNatureToProjectModel(p_monitor, p_project, p_cpt + 1);
 		}
 

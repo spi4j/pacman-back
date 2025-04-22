@@ -95,12 +95,6 @@
           </dependency>
           <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>[any.versionSpringBoot()/]</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <version>[any.versionSpringBoot()/]</version>
             <scope>runtime</scope>
@@ -225,19 +219,27 @@
               <artifactId>spring-boot-maven-plugin</artifactId>
               <version>[any.versionSpringBoot()/]</version>
           </plugin>
+          <!-- Compilation de l'application -->
+          <plugin>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <version>[any.versionMavenCompilerPlugin()/]</version>
+              <configuration>
+                 <release>[any.get_javaVersion()/]</release>
+                 <compilerArgument>-Xlint</compilerArgument>
+                 <encoding>UTF-8</encoding>
+              </configuration>
+          </plugin>
+          <!-- Plugin ressources (fichiers de config, propriétés, etc.) -->
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-resources-plugin</artifactId>
+              <version>[any.versionMavenResourcesPlugin()/]</version>
+              <configuration>
+                <encoding>UTF-8</encoding>
+              </configuration>
+          </plugin>
        </plugins>
-       </pluginManagement>
-       <plugins>
-         <!-- Compilation de l'application -->
-         <plugin>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>[any.versionMavenCompilerPlugin()/]</version>
-            <configuration>
-               <release>[any.get_javaVersion()/]</release>
-               <compilerArgument>-Xlint</compilerArgument>
-            </configuration>
-         </plugin>
-       </plugins>
+    </pluginManagement>
     </build>
   </project>
 [/template]

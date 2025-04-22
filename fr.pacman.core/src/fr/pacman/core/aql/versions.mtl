@@ -1,5 +1,6 @@
 [module versions(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
+[query public versionMavenResourcesPlugin(any : ecore::EObject) : String = '3.3.1'/]
 [query public versionMavenCompilerPlugin(any : ecore::EObject) : String = '3.10.1'/]
 [query public versionMavenEnforcerPlugin(any : ecore::EObject) : String = '3.0.0-M2'/]
 [query public versionMaven(any : ecore::EObject) : String = '3.6.3'/]

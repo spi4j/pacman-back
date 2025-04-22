@@ -80,7 +80,7 @@ public class SiriusUtil {
 				new SiriusModelDescriptor(".entity",
 						Arrays.asList("Entities Namespaces Hierarchy", "EV_Entities_PhysicalNames"),
 						Arrays.asList("org.obeonetwork.dsl.entity.design/Entity Views",
-								"org.obeonetwork.is.design/Entity (Safr@n consolidated view)",
+								"org.obeonetwork.is.design/Entity (ISD consolidated view)",
 								"org.obeonetwork.dsl.environment.properties/Environment Views")));
 
 		_models.put("requirement",
@@ -92,7 +92,7 @@ public class SiriusUtil {
 		_models.put("soa",
 				new SiriusModelDescriptor(".soa",
 						Arrays.asList("SOA Diagram", "DTO Namespaces Hierarchy", "EV_DTO_PhysicalNames"),
-						Arrays.asList("org.obeonetwork.is.design/SOA (Safr@n consolidated view)",
+						Arrays.asList("org.obeonetwork.is.design/SOA (ISD consolidated view)",
 								"org.obeonetwork.dsl.soa.design/SOA Views",
 								"org.obeonetwork.dsl.environment.properties/Environment Views")));
 	}
