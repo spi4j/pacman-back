@@ -7,6 +7,7 @@
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::query::application/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]
@@ -85,9 +86,13 @@
    * 
    * Par défaut, les règles de sécurité suivantes sont appliquées :
    * 
-   * Les requêtes vers "/actuator/**" sont accessibles sans authentification. 
+   * Les requêtes vers l'api de santé et swagger sont accessibles sans authentification. 
    * Certaines autres routes non sécurisées sont définies explicitement. Toutes
    * les autres requêtes sont sécurisées et nécessitent une authentification.
+   *
+   * Attention à bien mettre des urls valides pour la déclaration de la sécurité,
+   * si le tokenUrl est invalide ou manquant, Swagger UI ne pourra pas afficher le
+   * flow d’authentification le cadenas ne sera pas affiché.
    *
    * @Author [m.nameAuthor()/]
    */
@@ -96,6 +101,13 @@
   [m.rsSecurityScheme().writeRsSwaggerAnnotations()/]
   class [m.nameClassRsSecurityConfigImpl()/] 
   {
+    
+    /**
+    * Chemins d'accès aux spécifications OpenAPI, metrics, etc...
+    * défini par la propriété {@code security.whitelist.paths}.
+    */
+    @Value("${security.whitelist.paths}")
+    private String['['/][']'/] ['white list paths'.apply_attributeDefault()/];
     
     [let ops = m.nonSecuredOperations()]
     [let opsRole = m.securedOperationsWithRole()]
@@ -155,22 +167,17 @@
               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
               .authorizeHttpRequests(['request'.apply_variableDefault()/] -> {
               
-              [protected ('actuator'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-                
-                /**
-                * Gestion de la sécurité pour les apis de santé. Ne pas oublier que toute
-                * modification au niveau du fichier application.properties doit être reportée
-                * au niveau du filtre de sécurité (et réciproquement).
-                */
-                request.requestMatchers("/actuator/**").permitAll().requestMatchers("/swagger-ui/**").permitAll()
-                
-              [/protected]
+              ['Gestion de la sécurité pour les apis de santé, spécifications OpenAPI, etc..'.commentSingleLine()/]
+              request.requestMatchers(['white list paths'.apply_attributeDefault()/]).permitAll()
               
               ['Liste des uris non sécurisées'.commentSingleLine()/]
               [ops->writeRsSecurityFilterChain(m, false)/]
               
               ['Liste des uris sécurisées avec un rôle spécifique'.commentSingleLine()/]
               [opsRole->writeRsSecurityFilterChain(m, true)/]
+              
+              [protected ('security filter chain'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              [/protected]
               
               ['Par défaut, tout le reste est sécurisé'.commentSingleLine()/]
               .anyRequest().authenticated();
@@ -619,13 +626,15 @@
        FilterChain ['filter chain'.apply_parameterMethodClassicIn()/]) throws ServletException, IOException {
        
        [for (c | m.eAllContents(soa::Component))]
-         [for (md | c.metadatas)]
-           [for (x | md.metadatas)]
-             ['response'.apply_parameterMethodClassicIn()/]
-                .addHeader("[x.oclAsType(environment::Annotation).title /]"
-               , "[x.oclAsType(environment::Annotation).body /]");
+         [if (c.metadatas.exists())]
+           [for (md | c.metadatas)]
+             [for (x | md.metadatas)]
+               ['response'.apply_parameterMethodClassicIn()/]
+                  .addHeader("[x.oclAsType(environment::Annotation).title /]"
+                 , "[x.oclAsType(environment::Annotation).body /]");
+             [/for]
            [/for]
-         [/for]
+         [/if]
        [/for]
        
        ['filter chain'.apply_parameterMethodClassicIn()/].doFilter(['request'.apply_parameterMethodClassicIn()/],
@@ -664,7 +673,7 @@
 
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
 [query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
-  ->select(o | o.securitySchemes->isEmpty()) /]
+  ->select(o | not o.rsIsSecured()) /]
   
 [comment retourne l'ensemble des opérations sécurisées (et avec rôle) dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
 [query private securedOperationsWithRole(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)

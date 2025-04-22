@@ -200,8 +200,6 @@
    */
   @SpringBootApplication
   @EnableAspectJAutoProxy
-  @OpenAPIDefinition(info = @Info(title = "API de Mon Application", version = "1.0", description = 
-     "Cette API permet de gérer les utilisateurs, produits, etc."))
   @ComponentScan(basePackages = {"[any.namePackageProject()/]"}, includeFilters = {
   @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationIn()/].class
     ,  [any.nameClassAnnotationOut()/].class})})
@@ -954,6 +952,12 @@
   springdoc.swagger-ui.path=/swagger-ui
   springdoc.swagger-ui.operations-sorter=method
   springdoc.swagger-ui.tags-sorter=alpha
+  
+  # ----------------------------------------------------------------------------------------------
+  # LISTE DES URIS NON SECURISEES
+  # ----------------------------------------------------------------------------------------------
+  # Ne pas oublier de reporter les modifications issues des rubriques precedentes 
+  security.whitelist.paths=/swagger-ui/**,/api-docs/**,/actuator/**
   
   # ----------------------------------------------------------------------------------------------
   # HTTP SERVER

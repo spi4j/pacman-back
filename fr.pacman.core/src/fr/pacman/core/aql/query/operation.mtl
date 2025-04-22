@@ -81,8 +81,8 @@
   or not o.eContainer(soa::Service).securitySchemes->isEmpty()/]
   
 [comment retourne le schema de sécurité pour l'opération (pour l'instant basique on remonte la chaine et on prend le premier)./]  
-[query public securityRsScheme(o : soa::Operation) : soa::SecurityScheme = o.securitySchemes
-  ->union(o.eContainer(soa::Service).securitySchemes)->first()/]
+[query public securityRsScheme(o : soa::Operation) : soa::SecurityScheme = if (o.rsIsSecured()) then o.securitySchemes
+  ->union(o.eContainer(soa::Service).securitySchemes)->first() else null endif/]
 
 [comment retourne le type et le nom du paramètre de sortie (si existe) (liste + optional + type + nom)./]
 [query public outputSignature(o : soa::Operation) : String = if(o.hasOutput()) then o.output->first().type(false) 
