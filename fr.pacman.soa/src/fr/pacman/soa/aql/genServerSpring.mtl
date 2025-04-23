@@ -17,7 +17,7 @@
   [m.super:genServer()/]
   [comment classe de définition pour openapi (swagger)./]
   [m.fileOpenApiConfigImpl()/]
-  [if (m.rsIsSecured())]
+  [if (m.isRsSecured())]
     [comment implémentation de la configuration pour la sécurité rest./]
     [comment écrase et remplace le fichier généré par défaut./]
     [m.fileRsSecurityConfigImpl()/]

@@ -1,9 +1,7 @@
 [module database(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
-[import fr::pacman::core::aql::query::eobject/]
 [import fr::pacman::core::service::DatabaseUtils/]
-[import fr::pacman::core::service::StringUtils/]
 [import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment demande la réinitialisation complète pour les compteurs de contrainte (nommage)./]

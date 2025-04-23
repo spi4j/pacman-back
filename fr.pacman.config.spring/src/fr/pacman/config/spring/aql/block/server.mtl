@@ -1,6 +1,7 @@
 [module server(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::string/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::databases/]
@@ -1022,14 +1023,14 @@
   logging.level.org.hibernate.orm.jdbc.bind=TRACE
   
   # H2 DB
-  spring.datasource.url=jdbc:h2:file:C:/h2/test
+  spring.datasource.url=jdbc:h2:file:C:/h2/test[any.endDatasourceUrl()/]
   spring.datasource.username=sa
   spring.datasource.password=
   spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
   
   [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
     ## PostgreSQL
-    #spring.datasource.url=jdbc:postgresql://localhost:5432/<votre base de donnees>
+    #spring.datasource.url=jdbc:postgresql://localhost:5432/<votre base de donnees>[any.endDatasourceUrl()/]
     #spring.datasource.username=<nom utilisateur>
     #spring.datasource.password=<mot de passe utilisateur>
     #spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
@@ -1037,7 +1038,7 @@
   
   [if (any.get_dataBasesNames().toLower().index('mysql') != -1)]
     ## MySql
-    #spring.datasource.url=jdbc:mysql://localhost:3306/<votre base de donnees>
+    #spring.datasource.url=jdbc:mysql://localhost:3306/<votre base de donnees>[any.endDatasourceUrl()/]
     #spring.datasource.username=<nom utilisateur>
     #spring.datasource.password=<mot de passe utilisateur>
     #spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
@@ -1045,7 +1046,7 @@
   
   [if (any.get_dataBasesNames().toLower().index('mariadb') != -1)]
     ## MariaDB
-    #spring.datasource.url=jdbc:mariadb://localhost:3306/<votre base de donnees>
+    #spring.datasource.url=jdbc:mariadb://localhost:3306/<votre base de donnees>[any.endDatasourceUrl()/]
     #spring.datasource.username=<nom utilisateur>
     #spring.datasource.password=<mot de passe utilisateur>
     #spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
@@ -1053,7 +1054,7 @@
 
   [if (any.get_dataBasesNames().toLower().index('oracle-') != -1)]
     ## Oracle
-    #spring.datasource.url=jdbc:oracle:thin:<votre base de donnees>
+    #spring.datasource.url=jdbc:oracle:thin:<votre base de donnees>[any.endDatasourceUrl()/]
     #spring.datasource.username=<nom utilisateur>
     #spring.datasource.password=<mot de passe utilisateur>
     #spring.jpa.database-platform=org.hibernate.dialect.Oracle10gDialect
@@ -1061,7 +1062,7 @@
   
   [if (any.get_dataBasesNames().toLower().index('oracle+') != -1)]
     ## Oracle
-    #spring.datasource.url=jdbc:oracle:thin:<votre base de donnees>
+    #spring.datasource.url=jdbc:oracle:thin:<votre base de donnees>[any.endDatasourceUrl()/]
     #spring.datasource.username=<nom utilisateur>
     #spring.datasource.password=<mot de passe utilisateur>
     #spring.jpa.database-platform=org.hibernate.dialect.Oracle12cDialect
@@ -1386,3 +1387,7 @@
      }
   }
 [/template]
+
+[comment retourne la ligne de création du schéma si existe pour forcer la création avec hibernate (cas <create|drop>)./]
+[query private endDatasourceUrl(any : ecore::EObject) : String = ';DB_CLOSE_DELAY=-1;' + if (any.get_SQLTableSchema().exists()) then 
+  'INIT=CREATE SCHEMA IF NOT EXISTS ' + any.get_SQLTableSchema().toUpper() + ';' else '' endif/]

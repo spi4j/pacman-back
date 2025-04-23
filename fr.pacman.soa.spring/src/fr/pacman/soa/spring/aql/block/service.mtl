@@ -333,7 +333,7 @@
     */
    @Configuration
    [if (not m.eAllContents(soa::Component)->isEmpty())]
-     [m.eAllContents(soa::Component)->first().writeRsSwaggerAnnotations(m.rsSecurityScheme())/]
+     [m.eAllContents(soa::Component)->first().writeRsSwaggerAnnotations(m.securityRsScheme())/]
    [/if]
    class [m.nameClassOpenApiConfigImpl()/]{}
 [/template]

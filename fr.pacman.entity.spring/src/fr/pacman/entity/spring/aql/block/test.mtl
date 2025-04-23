@@ -469,9 +469,8 @@
 [comment écriture pour la prise en compte des références de l'entité./]
 [template private writeReferencedFK(e : entity::Entity, rs : OrderedSet(environment::Reference))]
   [for (r | rs)]
-    [comment pour l'instant on fait au plus simple on ne s'occupe 
-    que des attributs obligatoires pour passer la création 
-    (voir si on ouvre plus tard)./]
+    [comment on ne s'occupe que des attributs obligatoires pour passer la création 
+    (les autres champs ont gérés dans les tests suivants)./]
     [if (r.isMandatory())]
       [e.writeReferencedEntity(r)/]
     [/if]

@@ -513,7 +513,7 @@
     @Override
     public String resolve(HttpServletRequest ['request'.apply_parameterMethodClassicIn()/]) {
        
-       [let ss = m.rsSecurityScheme()]
+       [let ss = m.securityRsScheme()]
          ['Recherche dans l\'en-tête, le plus courant (toujours présent)'.commentSingleLine()/]
          
          String ['auth header'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getHeader("Authorization");
