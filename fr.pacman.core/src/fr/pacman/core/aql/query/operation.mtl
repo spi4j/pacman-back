@@ -90,7 +90,7 @@
   
 [comment retourne les types et les noms des paramètres en entrée (si existent) (list + optional + type + nom)./]
 [query public inputSignature(o : soa::Operation) : String = o.input->collect(o1 | 'final ' + o1.type(false) + ' ' 
-  + o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString() + if (o.paged) then ', String ' 
+  + o1.name().apply_parameterMethodClassicIn())->sep(', ') + if (o.paged) then ', String ' 
   + 'sort by'.apply_parameterMethodClassicIn() else '' endif/]
 
 [comment retourne le dto associé pour la couche de persistance (point d'entrée). 

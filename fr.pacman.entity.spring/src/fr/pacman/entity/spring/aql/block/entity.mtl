@@ -225,9 +225,9 @@
   
 [comment retourne les types et les nom des attributs pour l'entité (optional + list + type + nom)./]
 [query public writeInputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference), props : Sequence(String)) : String =  
-  e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' + o1.name().apply_parameterMethodClassicInOut())->sep(', ')->toString() 
+  e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' + o1.name().apply_parameterMethodClassicInOut())->sep(', ')
   + if (rs->size() > 0) then ', ' + rs->collect(o2 | 'final ' + o2.referencedTypeSignature(e) + ' ' + o2.referencedEntity(e)
-  .referencedName(o2).apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif + if (not props->isEmpty()) then ', ' +
+  .referencedName(o2).apply_parameterMethodClassicIn())->sep(', ') else '' endif + if (not props->isEmpty()) then ', ' +
   props->collect(o | 'final ' + o.autoAttributeType().type() + ' ' + o.nameAutoAttribute().apply_parameterMethodClassicIn())->sep(', ') 
   else '' endif/]
 

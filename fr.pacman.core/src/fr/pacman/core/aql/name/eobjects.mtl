@@ -14,10 +14,10 @@
 		 pas assez de queries pour effectuer une séparation en plusieurs fichiers pour chaque objet./]
 
 [comment retourne le nom pour l'entité, on enlève le suffixe 'entity' si déjà présent./]
-[query public name(e : entity::Entity) : String = e.name.replaceAll('(?i)' + e.suffixEntity(),' ').sanitize()/]
+[query public name(e : entity::Entity) : String = e.name.sanitize().removeIgnoreCase(e.suffixEntity())/]
 
 [comment retourne le nom du DTO, on enlève le suffixe 'dto' si déjà présent (mais penser aussi à enlever entity !)./]  
-[query public name(d : environment::DTO) : String = d.name.replaceAll('(?i)' + d.suffixDto(), ' '.sanitize())/]
+[query public name(d : environment::DTO) : String = d.name.sanitize().removeIgnoreCase(d.suffixDto())/]
 
 [comment retourne le nom de l'attribut./]
 [query public name(a : environment::Attribute) : String = a.name.sanitize()/]
@@ -35,10 +35,11 @@
 [query public name(p : soa::Parameter) : String = p.name.sanitize()/]
   
 [comment retourne le nom pour la référence./]
-[query public name(r : environment::Reference) : String = r.containingType.oclAsType(entity::Entity).name.safeUpper() + r.name.safeUpperFirst()/]
+[query public name(r : environment::Reference) : String = r.containingType.oclAsType(entity::Entity).name.safeUpper() 
+  + r.name.safeUpperFirst()/]
   
 [comment retourne le nom pour un service de type soa./]
-[query public name(s : soa::Service) : String = s.name.replaceAll('(?i)' + s.suffixService(), ' ').sanitize()/]
+[query public name(s : soa::Service) : String = s.name.sanitize().removeIgnoreCase(s.suffixService())/]
 
 [comment retourne le nom de la clé primaire d'une entitée./]
 [query public nameSimplePropertyID(e : entity::Entity) : String = e.name().safeCamelCase() + e.suffixIdPk()/]

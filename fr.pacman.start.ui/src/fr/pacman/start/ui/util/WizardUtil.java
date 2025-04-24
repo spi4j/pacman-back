@@ -65,8 +65,12 @@ public class WizardUtil {
 	/**
 	 * Demande le rechargement d'un projet dans le workspace, demande la
 	 * réorganisation automatique des imports, le formattage automatique du code et
-	 * effectue les éventuelles sauvegardes si des éditeurs sont encore ouverts. On
-	 * se raccorde sur la classe d'action {@link GenerateStartWizardAction} afin
+	 * effectue les éventuelles sauvegardes si des éditeurs sont encore ouverts. Par
+	 * ailleurs on rend la main sur le contrôle de la vue des erreurs et on demande
+	 * le chargement de la vue concernat les problèmes et la vue de propriété. Ainsi
+	 * le développeur est prêt pour travailler.
+	 * 
+	 * On se raccorde sur la classe d'action {@link GenerateStartWizardAction} afin
 	 * d'effectuer la majorité de ces demandes.
 	 * 
 	 * @param p_projectName     le nom du projet en cours de création.

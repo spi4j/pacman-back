@@ -468,7 +468,7 @@
 [query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
   ->collect(o1 : soa::Parameter |  o1.writeRsAnnotation(o)  + ' ' + o1.inputRsType() + ' ' + o1.name().apply_parameterMethodClassicIn())
   ->sep(', ')->toString() else '' endif/]
-  
+
 [comment écriture du paramètre de sortie (si existe) pour une opération de type rest./]
 [query private writeRsOutput(o : soa::Operation) : String = if (o.hasOutput()) then 'ResponseEntity<' + (o.outputRsType()) + '>' 
   else 'ResponseBody' endif/]

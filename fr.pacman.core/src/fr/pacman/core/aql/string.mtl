@@ -29,6 +29,11 @@
 [comment retourne la ligne avec suppression des caractères spéciaux et remplacement par leurs équivalents./]
 [query public normalize(str : String) : String = str.do_normalize()/]
 
+[comment retourne la ligne expurgée de la chaine passée en paramètre (ou que soit la chaine)./]  
+[query public removeIgnoreCase(str : String, target : String) : String = if (str.toLower()
+  .index(target.toLower()) > -1) then str.substring(0, str.toLower().index(target.toLower())) 
+  + str.substring(str.toLower().index(target.toLower()) + target.size(), str.size()) else str endif/]
+
 [comment retourne la ligne avec  échappement et mise en majuscules./]
 [query public safeUpper(str : String) : String = str.sanitize().toUpper()/]
   

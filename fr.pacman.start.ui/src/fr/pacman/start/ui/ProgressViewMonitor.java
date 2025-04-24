@@ -19,15 +19,21 @@ import org.eclipse.ui.PartInitException;
  * Idéal pour les traitements automatisés ou les assistants (wizards) qui
  * souhaitent garder la vue de progression visible sans interférence avec le log
  * d'erreurs.
- * </p>
  */
 public class ProgressViewMonitor {
 
+	/**
+	 * Constructeur privé.
+	 */
+	private ProgressViewMonitor() {
+		super();
+	}
+
 	/** ID Eclipse de la vue "Progress" */
-	private static final String PROGRESS_VIEW_ID = "org.eclipse.ui.views.ProgressView";
+	private static final String c_progress_view_id = "org.eclipse.ui.views.ProgressView";
 
 	/** ID Eclipse de la vue "Error Log" */
-	private static final String ERROR_LOG_VIEW_ID = "org.eclipse.pde.runtime.LogView";
+	private static final String c_error_log_view_id = "org.eclipse.pde.runtime.LogView";
 
 	/** Listener courant installé sur la fenêtre de travail */
 	private static IPartListener2 _currentListener;
@@ -39,22 +45,22 @@ public class ProgressViewMonitor {
 	 *
 	 * @param window la fenêtre de travail Eclipse à surveiller
 	 */
-	public static void monitor(IWorkbenchWindow window) {
-		IWorkbenchPage page = window.getActivePage();
+	public static void monitor(IWorkbenchWindow p_window) {
+		IWorkbenchPage page = p_window.getActivePage();
 		if (page == null)
 			return;
 
 		IPartListener2 listener = new IPartListener2() {
 			@Override
 			public void partActivated(IWorkbenchPartReference partRef) {
-				if (ERROR_LOG_VIEW_ID.equals(partRef.getId())) {
+				if (c_error_log_view_id.equals(partRef.getId())) {
 					Display.getDefault().asyncExec(() -> {
-						IViewPart logView = page.findView(ERROR_LOG_VIEW_ID);
+						IViewPart logView = page.findView(c_error_log_view_id);
 						if (logView != null) {
 							page.hideView(logView);
 						}
 						try {
-							page.showView(PROGRESS_VIEW_ID);
+							page.showView(c_progress_view_id);
 						} catch (PartInitException e) {
 							// RAS
 						}
@@ -102,9 +108,9 @@ public class ProgressViewMonitor {
 	 *
 	 * @param window la fenêtre de travail Eclipse concernée
 	 */
-	public static void stopMonitoring(IWorkbenchWindow window) {
-		if (_currentListener != null && window.getActivePage() != null) {
-			window.getActivePage().removePartListener(_currentListener);
+	public static void stopMonitoring(IWorkbenchWindow p_window) {
+		if (_currentListener != null && p_window.getActivePage() != null) {
+			p_window.getActivePage().removePartListener(_currentListener);
 			_currentListener = null;
 		}
 	}
