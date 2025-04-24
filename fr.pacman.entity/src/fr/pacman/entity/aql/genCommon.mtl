@@ -12,6 +12,4 @@
     [comment implémentation des énumérations modélisées./]
     [e.fileEnumerationImpl()/]
   [/for]
-  [comment ./]
-  [r.fileTypeImpl('binary')/]
 [/template]

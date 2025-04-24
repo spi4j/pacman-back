@@ -448,9 +448,15 @@
             [e.nameRepository().apply_attributeFinal()/].findById([e.prefixAffectation()/]['crud id run'.apply_attributeDefault()/]);
         
         [for (a : environment::Attribute | e.attributesNoPK())]
-          assertEquals([eName/].[a.nameAttribute().apply_methodGet()/]()
-             , [eName/]2.get().[a.nameAttribute().apply_methodGet()/]()
-             , "[a.nameAttribute()/] : Les champs ne correspondent pas");
+          [if ('Binary'.equalsIgnoreCase(a.type.name))]
+            assertTrue(Arrays.equals([eName/].[a.nameAttribute().apply_methodGet()/]()
+               , [eName/]2.get().[a.nameAttribute().apply_methodGet()/]())
+               , "[a.nameAttribute()/] : Les champs ne correspondent pas");
+          [else]
+            assertEquals([eName/].[a.nameAttribute().apply_methodGet()/]()
+               , [eName/]2.get().[a.nameAttribute().apply_methodGet()/]()
+               , "[a.nameAttribute()/] : Les champs ne correspondent pas");
+          [/if]
         [/for]
         [for (prop : String | e.autoAttributes())]
           assertEquals([eName/].[prop.nameAutoAttribute().apply_methodGet()/]()
@@ -503,7 +509,8 @@
 [comment écriture de la valeur par defaut à injecter dans le setter./]
 [query private writeDefaultValue (prop : String) : String = if ('Time'.equalsIgnoreCase(prop) 
 	or 'Timestamp'.equalsIgnoreCase(prop)) then prop.get_defaulValueForType() + '.truncatedTo(ChronoUnit.MILLIS)' 
-	else prop.get_defaulValueForType() endif/]
+	else if ('Binary'.equalsIgnoreCase(prop)) then prop.nameClassIntegrationTestUtils() + '.' + 'generate random byte array'
+	.apply_methodDefault() +  '(10)' else prop.get_defaulValueForType() endif endif/]
 	
 [comment écriture de la valeur par defaut à injecter dans le setter./]
 [query private writeDefaultValue(a : environment::Attribute) : String = a.type.name.writeDefaultValue()/]

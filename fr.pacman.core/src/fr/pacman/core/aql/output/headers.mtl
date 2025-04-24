@@ -19,6 +19,7 @@
 
 [comment écriture des imports par défaut./]
 [template public defaultsImports(any : ecore::EObject)]
+  import java.util.Arrays;
   import java.util.List;
   import java.util.Set;
   import java.util.Arrays;
@@ -37,7 +38,6 @@
   import org.slf4j.LoggerFactory;
   import [any.namePackageProject()/].[any.namePackageException()/].[any.nameClassMapperExceptionImpl()/];
   import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassNotImplementedExceptionImpl()/];
-  import [any.namePackageProject()/].[any.namePackageType()/].[any.nameTypeBinary().nameClassType()/];
 [/template]
 
 [comment 	écriture des imports spécifiques pour la classe, on essaye de trouver le maximum des imports 

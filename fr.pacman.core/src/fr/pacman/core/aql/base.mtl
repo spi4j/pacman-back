@@ -254,9 +254,6 @@
 
 [comment retourne le 'nom' pour l'uri d'authentification (jeton) pour les services rest sécurisés./]
 [query public nameRsTokenUri(any : ecore::EObject) : String = '/token'/]
-
-[comment retourne le nom pour un type spécial pacman binaire./]
-[query public nameTypeBinary(any : ecore::EObject) : String = 'binary'/]
   
 [comment retourne le nom pour un type spécial pacman XtopSup./]
 [query public nameTypeXtopSup(any : ecore::EObject) : String = 'xtop sup'/]

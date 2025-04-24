@@ -41,7 +41,7 @@ public class TestUtils {
 		_defaultValues.put(c_typeColumnString, "\"S\"");
 		_defaultValues.put(c_typeColumnDate, "LocalDate.now()");
 		_defaultValues.put(c_typeColumnBoolean, "false");
-		_defaultValues.put(c_typeColumnBinary, "rawtohex('Test')");
+		_defaultValues.put(c_typeColumnBinary, "rawtohex('Test')"); // A supprimer plus géré ici.
 		_defaultValues.put(c_typeColumnDouble, "0D");
 		_defaultValues.put(c_typeColumnFloat, "0F");
 		_defaultValues.put(c_typeColumnInt, "0");

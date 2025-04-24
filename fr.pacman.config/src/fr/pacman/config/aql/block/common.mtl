@@ -10,18 +10,6 @@
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
 
-[comment écriture du type spécial Binary pour le projet./]
-[template public binaryType (any : ecore::EObject)]
-  [any.classHeader(any.namePackageType())/]
-  [any.defaultImports()/]
-  import java.io.Serializable;
-  
-  public class [any.nameTypeBinary().nameClassType()/]
-  {
-	  
-  }
-[/template]
-
 [comment écriture de l'implementation pour une exception levée au niveau de la couche de persistance./]
 [template public notImplementedExceptionImpl (any : ecore::EObject)]
   [any.classHeader(any.namePackageCommonException())/]

@@ -1097,6 +1097,7 @@
   [any.classHeader(null)/]
   
   [any.defaultImports()/]
+  import java.util.Random;
   
   public final class [any.nameClassIntegrationTestUtils()/]
   {
@@ -1106,9 +1107,18 @@
         //RAS.
      }
      
-     //public static boolean ['find in collection by id'.apply_methodDefault()/]
-     //    (['all'.apply_parameterMethodClassicIn()/], ['crud id'.apply_parameterMethodClassicIn()/]){
-     //} 
+     /**
+     * Génère un tableau de bytes aléatoires de la taille spécifiée.
+     * 
+     * @param ['length'.apply_parameterMethodClassicIn()/] La taille du tableau de bytes à générer.
+     * @return Le tableau de bytes aléatoires.
+     */
+     public static byte['['/][']'/] ['generate random byte array'.apply_methodDefault()/](int ['length'.apply_parameterMethodClassicIn()/]) {
+        byte['['/][']'/] ['random bytes'.apply_variableDefault()/] = new byte['['/]['length'.apply_parameterMethodClassicIn()/][']'/];
+        Random ['random'.apply_variableDefault()/] = new Random();
+        ['random'.apply_variableDefault()/].nextBytes(['random bytes'.apply_variableDefault()/]);
+        return ['random bytes'.apply_variableDefault()/];
+     }
   }
 [/template]
 
