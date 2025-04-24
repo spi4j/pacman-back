@@ -1,6 +1,8 @@
 [module model(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
 
 [comment écriture du fichier de configuration Maven pour le sous-projet de modélisation./]
 [template public pom (any : ecore::EObject)]
@@ -28,4 +30,99 @@
 
 [comment ./]
 [template public readMe (any : ecore::EObject)]
+  <h1>Bienvenue dans votre nouveau projet [any.nameProject()/]</h1>
+  <hr />
+  <p>Ce fichier vous permet de rapidement prendre en main le démarrage de l'application :</p>
+  <h2>📁 Projets inclus</h2>
+  <p>Quatre projets sont créés :</p>
+  <ul>
+  <li><strong>[any.nameProject()/]</strong> : le projet qui encapsule les trois autres projets, son seul rôle est de contenir le fichier pom.xml parent.</li>
+  <li><strong> [any.nameProjectCommon()/]</strong> : le projet métier (architecture hexagonale), il ne contient aucune référence technique et ne doit comporter que les services métiers.</li>
+  <li><strong>[any.nameProjectModel()/]</strong> : le projet de modélisation. Aucune classe Java ne doit être présente dans ce projet. Il n'est, par ailleurs, pas embarqué lors du déploiement de l'application.</li>
+  <li><strong>[any.nameProjectServer()/]</strong> : le projet d'infrastructure qui contient le framework Spring Boot et toutes les couches techniques pour manipuler la couche métier [any.nameProjectCommon()/].</li>
+  </ul>
+  <hr />
+  <h2>📂 Emplacement des fichiers de configuration et classe de démarrage</h2>
+  <ul>
+  <li style="margin-bottom: 10px;"><b>Configuration des options pour la génération</b> : <code>[any.nameProjectModel()/]/[any.namePropertiesDirectory()/]/project.properties</code>
+       Utiliser ce fichier de configuration pour modifier les différentes options utilisées pour la génération de code. Ce fichier a 
+       initialement été créé suite aux principaux choix dans le formulaire de création mais toute modification sera automatiquement prise 
+       en compte lors de la prochaine génération.
+       Attention : lors du développement et avec la configuration proposée par défaut, l'initialisation de la base de données est effectuée 
+       directement par SpringData et non à l'aide de scripts générés.
+  </li>
+  <li style="margin-bottom: 10px;"><b>Configuration du nommage des classes et interfaces pour la génération</b> : <code>[any.nameProjectModel()/]/[any.namePropertiesDirectory()/]/nommage.properties</code>
+       Utiliser ce fichier de configuration pour modifier les différentes options de nommage utilisées pour la génération de code. Si 
+       par exemple vous désirez que tous la paramètres des méthodes soient préfixés par <code>'p_'</code>, il suffit de modifier la propriété
+       suivante dans le fichier de configuration <code>parameterMethodClassicIn=['['/]CamelCase.LowerFirst/[']'/]</code> 
+       en <code>parameterMethodClassicIn=p_['['/]CamelCase.LowerFirst/[']'/]</code>. 
+       Toute modification sera automatiquement prise en compte lors de la prochaine génération.
+  </li>
+  <li style="margin-bottom: 10px;"><b>Configuration principale</b> : <code>[any.nameProjectServer()/]/[any.dirResources()/]application.properties</code>
+       Le fichier de configuration de SpringBoot, avec l'api de santé, les metrics, les datasources, etc...
+  </li>
+  <li style="margin-bottom: 10px;"><b>Configuration pour les tests d'intégration</b> : <code>[any.nameProjectServer()/]/[any.dirTestResources()/]test.properties</code>
+       Le fichier de configuration pour les tests de SpringBoot avec les informations pour la configuration de la datasource de test.
+       Attention : pour les tests, l'initialisation de la base de données est effectuée à l'aide des scripts SQL générés.
+  </li>
+  <li style="margin-bottom: 10px;"><b>Répertoire de stockage des scripts SQL</b> : <code>[any.nameProjectServer()/]/[any.dirResources()/]sql</code>
+       Dans ce répertoire sont stockés tous les scripts SQL de création de la base de données pour la production, il existe un script 
+       par type de base de données sélectionnée et présente dans le fichier de configuration <code>project.properties</code>.
+  </li>
+  <li style="margin-bottom: 10px;"><b>Classe principale (à exécuter en Java Application)</b> : <code>[any.nameProjectServer()/]/[any.dirSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrap()/]</code>
+       La classe de démarrage de SpringBoot.
+  </li>
+  </ul>
+  <hr />
+  <h2>📁 Principaux packages générés</h2>
+  <ul>
+    <li>[any.nameProjectServer()/]
+       <ul>
+          <li><code>[any.namePackageProject()/].[any.namePackageRsBase()/]</code> : classes de haut niveau pour les services rest.</li>
+          <li><code>[any.namePackageProject()/].[any.namePackageRsControllerBase()/]</code> : contrôleur par défaut pour la customisation de l'api de santé.</li>
+          <li><code>[any.namePackageProject()/].[any.namePackageException()/]</code> : exceptions de base pour les services rest.</li>
+          <li><code>[any.namePackageProject()/].[any.namePackageInfrastructureBase()/]</code> : classes de haut niveau pour les services de persistance.</li>
+       </ul>
+    </li>
+    <li>[any.nameProjectCommon()/]
+       <ul>
+          <li><code>[any.namePackageProject()/].[any.namePackageCommonBase()/]</code> : annotations métier.</li>
+          <li><code>[any.namePackageProject()/].[any.namePackageCommonException()/]</code> : exceptions de base pour la couche métier.</li>
+          <li><code>[any.namePackageProject()/].[any.namePackageRequirement()/]</code> : classes de haut niveau pour les règles de gestion.</li>
+       </ul>
+    </li>  
+  </ul>
+  <hr />
+  <h2>🚀 Pour tester rapidement le squelette de l'application</h2>
+  <ol>
+  <li><p>Générer la couche SOA :</p>
+  <ul>
+  <li>Clic droit sur le fichier de modélisation <code>[any.nameProjectModel()/]</code>  </li>
+  <li>Choisir : <code>/Générateurs Cali</code> → <code>Génération de la couche de service</code></li>
+  </ul></li>
+  <li><p>Lancer l'application :</p>
+  <ul>
+  <li>Clic droit sur la classe principale dans <code>[any.nameProjectServer()/]/[any.dirSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrap()/]</code></li>
+  <li>Choisir : <code>/Run As</code> → <code>Java Application</code></li>
+  </ul></li>
+  <li><p>Par défaut, les URIs suivantes doivent répondre :</p>
+  <ul>
+  <li><code>http://localhost:8080/actuator/health</code></li>
+  <li><code>http://localhost:8080/actuator/info</code></li>
+  <li><code>http://localhost/swagger-ui</code></li>
+  <li><code>http://localhost/api-docs</code></li>
+  </ul></li>
+  </ol>
+  <hr />
+  <h2>🚀 Pour commencer rapidement</h2>
+  <ol>
+  <li><p>Modéliser des entités au niveau du projet de modélisation (<code>[any.nameProject().toLower()/].entity</code>) </p>
+  <li><p>Générer les scripts SQL à l'aide du générateur SQL.</p>
+  <li><p>Générer les classes à l'aide du générateur de la couche de persistance.</p>
+  <li><p>Aller dans le projet <code>[any.nameProjectServer()/]</code> et faire tourner les tests sur la datasource.</p>
+  <li><p>Modéliser la couche SOA au niveau du projet de modélisation (<code>[any.nameProject().toLower()/].soa</code>).</p>
+  <li><p>Compléter la couche SOA en positionnant le code nécessaire au niveau des balises dédiées au code utilisateur.</p>
+  <li><p>Aller dans le projet <code>[any.nameProjectServer()/]</code>, compléter et faire tourner les tests d'intégration.</p>
+  <li><p>Lancer la classe de boostrap pour l'application et tester les réponses du serveur.</p>
+  </ol>
 [/template]

@@ -9,6 +9,8 @@ import java.util.Map;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -60,6 +62,9 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _projectCrud = "";
 	private String _databases = "";
 
+	// Pas en String car ne vas pas dans les propriétés.
+	private boolean _displayReadme;
+
 	private List<SqlAutoField> _sqlAutoFields = new ArrayList<>();
 
 	/**
@@ -105,7 +110,12 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				"Définition des champs transverses à rajouter automatiquement pour toutes les entités persistantes.",
 				new GridLayout(1, false));
 
-		Group options1 = addGroup(containers.get("options"), "Règles de gestion", "tooltip");
+		Group document1 = addGroup(containers.get("project"), "Post création",
+				"Liste des opéarations à effectuer suite à la création du projet");
+
+		Group options1 = addGroup(containers.get("options"), "Règles de gestion",
+				"Ensemble des options pour les règles de gestion.");
+
 		Group options2 = addGroup(containers.get("options"), "Autre", "tooltip");
 
 		registerWidget("cb_database", containers.get("database"));
@@ -118,6 +128,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 		addDatabases(project2);
 
+		registerWidget("ck_displayReadme", addCheckBoxReadme(document1));
 		registerWidget("txt_sqlTPrefix", addTextDbTablePrefix(database2));
 		// registerWidget("txt_sqlTSpace", addTextDbTableSpace(database2));
 		registerWidget("txt_sqlTSpace", addTextDbTableSchema(database2));
@@ -160,6 +171,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		_spi4jfetchingStrategy = "false";
 		_spi4jSecurity = "false";
 		_projectCrud = "false";
+		_displayReadme = true;
 
 		getWidget("ck_jerseyCdi").setEnabled(false);
 		getWidget("ck_fileConfig").setEnabled(false);
@@ -568,6 +580,26 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
+	private Button addCheckBoxReadme(final Composite p_parent) {
+		Button cbx = addCheckBox(p_parent, "Affichage automatique du fichier lisezmoi",
+				"Lance automatiquement le navigateur pour l'affichage du fichier "
+						+ " lisezmoi décrivant rapidement le projet généré.");
+
+		cbx.setSelection(true);
+		cbx.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				_displayReadme = cbx.getSelection();
+			}
+		});
+		return cbx;
+	}
+
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
 	private Button addCheckBoxBatch(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Implémentation des batchs", "Activation d...");
 		return cbx;
@@ -880,7 +912,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @return le préfixe pour les tables sql.
 	 */
 	public String getSqlTablePrefix() {
-		return _sqlTablePrefix.replace("_", "");
+		return _sqlTablePrefix.replace("_", "").toUpperCase();
 	}
 
 	/**
@@ -889,7 +921,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @return le schéma à utiliser pour les tables sql.
 	 */
 	public String getSqlTableSchema() {
-		return _sqlTableSchema;
+		return _sqlTableSchema.toUpperCase();
 	}
 
 	/**
@@ -898,7 +930,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @return le tablespace à utiliser.
 	 */
 	public String getSqlTableSpace() {
-		return _sqlTableSpace;
+		return _sqlTableSpace.toUpperCase();
 	}
 
 	/**
@@ -907,7 +939,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @return le préfixe à utiliser pour les règles de gestions.
 	 */
 	public String getRequirementPrefix() {
-		return _requirementPrefix;
+		return _requirementPrefix.toUpperCase();
 	}
 
 	/**
@@ -970,6 +1002,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getProjectCrud() {
 		return _projectCrud;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean getDisplayReadme() {
+		return _displayReadme;
 	}
 
 	/**

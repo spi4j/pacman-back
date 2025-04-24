@@ -3,6 +3,8 @@ package fr.pacman.start.ui;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,6 +29,9 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
 import fr.pacman.config.main.GenCommon;
 import fr.pacman.config.main.GenModel;
@@ -87,8 +92,12 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			public IStatus run(IProgressMonitor p_monitor) {
 				IProject project = null;
 				SubMonitor subMonitor = SubMonitor.convert(p_monitor, 100);
+
 				try {
-					subMonitor.setTaskName("Création du projet Cali");
+					subMonitor.setTaskName("Activation de la vue pour la progression des tâches");
+					WizardUtil.activeProgressView(subMonitor);
+
+					subMonitor.setTaskName("Création du projet de type Cali");
 					project = createProject(subMonitor, startProperties);
 
 					subMonitor.setTaskName("Mise à jour du projet vers la norme Cali");
@@ -110,7 +119,8 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 					addEMFNatureToProjectModel(subMonitor, project, 0);
 
 					subMonitor.setTaskName("Finalisation des sous projets");
-					updateIDEAfterCodeGeneration(subMonitor, project);
+					doAfterCodeGeneration(subMonitor, project);
+
 				} catch (Exception p_e) {
 					return WizardUtil.sendErrorStatus(p_e, Activator.c_pluginId);
 				} finally {
@@ -392,23 +402,31 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	}
 
 	/**
-	 * Cette methode est un "pis aller" pour récupérer la couche ui générique des
-	 * générateurs et bénéficier ainsi de l'organisation automatique des imports
-	 * ainsi que du formattage de l'IDE (factorisation du code). Pour ce faire on
-	 * utilise une classe fille {@link GenerateStartUIGenerators} dont l'unique but
-	 * est de fournir la liste des sous-projets. Ceci est a rapprocher du generateur
-	 * UI de configuration {@link ConfigurationUIGenerators}
+	 * Ouverture automatique de readme pour le projet dans un navigateur.
 	 * 
 	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
 	 *                  l'IDE.
 	 * @param p_project le nouveau projet en cours de création.
-	 * @throws CoreException une exception levée lors de l'excécution du traitement.
+	 * @throws CoreException         une exception levée lors de l'excécution du
+	 *                               traitement.
+	 * @throws MalformedURLException
 	 */
-	private void updateIDEAfterCodeGeneration(final SubMonitor p_monitor, final IProject p_project)
-			throws CoreException {
-		// new GenerateStartUIGenerators(p_project).updateIDEAfterCodeGeneration();
+	private void doAfterCodeGeneration(final SubMonitor p_monitor, final IProject p_project)
+			throws CoreException, MalformedURLException {
+		if (_pageOne.getDisplayReadme()) {
+			IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
+			IWebBrowser browser = browserSupport.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, "myBrowserId",
+					ProjectProperties.get_projectName(null).toUpperCase(), "Description pour la strcuture du projet");
+			String url = "file:///" + p_project.getLocation() + File.separator
+					+ ProjectProperties.get_projectModelName(null) + File.separator + p_project.getName().toLowerCase()
+					+ "-lisezmoi" + ".html";
+			browser.openURL(new URL(url));
+		}
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public void addPages() {
 		_pageOne = new PropertiesWizardStartPage();

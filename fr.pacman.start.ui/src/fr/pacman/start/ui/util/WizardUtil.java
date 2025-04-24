@@ -16,11 +16,15 @@ import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWizard;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.wizards.IWizardDescriptor;
 
 import fr.pacman.start.ui.GenerateStartWizardAction;
+import fr.pacman.start.ui.ProgressViewMonitor;
 import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.exception.WizardNotFoundException;
 
@@ -81,6 +85,50 @@ public class WizardUtil {
 			new GenerateStartWizardAction().postTreatment(p_project, p_subProjectNames);
 			saveAllEditors();
 		}
+		// Restaure le comportement standard pour les vues.
+		Display.getDefault().syncExec(() -> {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (window != null) {
+				ProgressViewMonitor.stopMonitoring(window);
+				IWorkbenchPage page = window.getActivePage();
+				if (page != null) {
+					try {
+						page.showView("org.eclipse.pde.runtime.LogView");
+						page.showView("org.eclipse.ui.views.ProblemView");
+						page.showView("org.eclipse.ui.views.PropertySheet");
+					} catch (PartInitException e) {
+						// RAS
+					}
+				}
+			}
+		});
+	}
+
+	/**
+	 * Abondance de contrôle ne peut nuire. On active au démarrage du processus la
+	 * vue de progression pour l'ensemble de stâches à faire effectuer pour le
+	 * générateur de création de projet.
+	 * 
+	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
+	 *                  l'IDE.
+	 */
+	public static void activeProgressView(final SubMonitor p_monitor) {
+		Display.getDefault().asyncExec(() -> {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (window != null) {
+				IWorkbenchPage page = window.getActivePage();
+				if (page != null) {
+					try {
+						// IViewPart view = page.showView("org.eclipse.ui.views.ProgressView");
+						// page.setPartState(page.getReference(view), IWorkbenchPage.STATE_MAXIMIZED);
+						page.showView("org.eclipse.ui.views.ProgressView");
+						ProgressViewMonitor.monitor(window);
+					} catch (PartInitException e) {
+						throw new RuntimeException("Impossible d'afficher la vue pour la progression des tâches", e);
+					}
+				}
+			}
+		});
 	}
 
 	/**
