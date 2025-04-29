@@ -565,11 +565,12 @@
   + '", type = SecuritySchemeType.' + s.type.toString().toUpper() + if (s.type = soa::SecuritySchemeType::API_KEY) then ', in = SecuritySchemeIn.' 
   + s.apiKeyLocation.toString().toUpper() + ', paramName = "' + s.key + '"' else if (s.type = soa::SecuritySchemeType::HTTP) then ', scheme="' 
   + s.httpScheme + '"' + if (s.httpScheme = soa::HttpScheme::BEARER) then ', bearerFormat  = "' + s.format.toUpper() + '"' else '' endif 
-  else ', flows = @OAuthFlows(' + f.transcodeRsFlow() + ' = @OAuthFlow(' + if (f.flowType = soa::FlowType::AUTHORIZATIONCODE 
-  or f.flowType = soa::FlowType::IMPLICIT) then 'authorizationUrl = "' + f.authorizationURL + '"' else '' endif + if (f.flowType <> soa::FlowType::IMPLICIT) 
+  else if (s.type = soa::SecuritySchemeType::OPEN_ID_CONNECT) then ', openIdConnectUrl = "'+ s.connectURL + '"' else ', flows = @OAuthFlows(' 
+  + f.transcodeRsFlow() + ' = @OAuthFlow(' + if (f.flowType = soa::FlowType::AUTHORIZATIONCODE or f.flowType = soa::FlowType::IMPLICIT) 
+  then 'authorizationUrl = "' + f.authorizationURL + '"' else '' endif + if (f.flowType <> soa::FlowType::IMPLICIT) 
   then if (f.flowType = soa::FlowType::AUTHORIZATIONCODE) then ', ' else '' endif + 'tokenUrl = "'+ f.tokenURL + '"' else '' endif  + ', scopes = {' 
   + f.scopes->collect(o | '@OAuthScope(name = "'+ o.name + '", description = "'+ o.writeDescription() + '")')->sep(', ' + f.lineSeparator()) + '}' 
-  + '))' endif endif + ')'/]
+  + '))' endif endif endif + ')'/]
   
 [comment simple transcodage entre la dénomination du flow modélisée et celle attendue par springdoc./]
 [query private transcodeRsFlow(f : soa::Flow) : String = 
