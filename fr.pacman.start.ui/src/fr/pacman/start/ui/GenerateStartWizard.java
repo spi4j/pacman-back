@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,9 +28,6 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.browser.IWebBrowser;
-import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 
 import fr.pacman.config.main.GenCommon;
 import fr.pacman.config.main.GenModel;
@@ -94,8 +90,8 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 				SubMonitor subMonitor = SubMonitor.convert(p_monitor, 100);
 
 				try {
-					subMonitor.setTaskName("Activation de la vue pour la progression des tâches");
-					WizardUtil.activeProgressView(subMonitor);
+					subMonitor.setTaskName("Réinitialisation des vues");
+					WizardUtil.initViews(subMonitor);
 
 					subMonitor.setTaskName("Création du projet de type Cali");
 					project = createProject(subMonitor, startProperties);
@@ -119,7 +115,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 					addEMFNatureToProjectModel(subMonitor, project, 0);
 
 					subMonitor.setTaskName("Finalisation des sous projets");
-					doAfterCodeGeneration(subMonitor, project);
+					finalizeGeneration(subMonitor, project);
 
 				} catch (Exception p_e) {
 					return WizardUtil.sendErrorStatus(p_e, Activator.c_pluginId);
@@ -386,23 +382,23 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		final IWorkspaceRoot root = workspace.getRoot();
 		String projectModelName = p_project.getName() + "-model";
 		IProject project = root.getProject(projectModelName);
-
-		// On attend que l'ecriture du projet ait été finalisée sur le disque.
 		File pom = new File(project.getLocation() + File.separator + "pom.xml");
-
-		// Boucle tant que le fichier n'est pas trouvé.
+		
 		if (!pom.isFile()) {
 			p_monitor.setTaskName("Ajout de la nature EMF au projet de modélisation  - Tentative : " + p_cpt + "/5");
 			Thread.sleep(5000);
 			addEMFNatureToProjectModel(p_monitor, p_project, p_cpt + 1);
 		}
-
-		// Ajout de toutes les donnees de modelisation.
+		
 		SiriusUtil.addModelingResources(p_monitor, project, _pageOne.getProjectName(), _pageOne.getModelCodes());
 	}
 
 	/**
-	 * Ouverture automatique de readme pour le projet dans un navigateur.
+	 * Ouverture automatique de readme pour le projet dans un navigateur. Ici on ne
+	 * renvoie pas spécialement des erreurs, s'il il y a une erreur ce n'est pas
+	 * grave, c'est juste le récapitulatif qui ne sera pas affiché, inutile de
+	 * polluer la création du projet avec un document q'un développeur sur 10 va
+	 * lire.
 	 * 
 	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
 	 *                  l'IDE.
@@ -411,16 +407,21 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 *                               traitement.
 	 * @throws MalformedURLException
 	 */
-	private void doAfterCodeGeneration(final SubMonitor p_monitor, final IProject p_project)
+	private void finalizeGeneration(final SubMonitor p_monitor, final IProject p_project)
 			throws CoreException, MalformedURLException {
 		if (_pageOne.getDisplayReadme()) {
-			IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
-			IWebBrowser browser = browserSupport.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, "myBrowserId",
-					ProjectProperties.get_projectName(null).toUpperCase(), "Description pour la strcuture du projet");
-			String url = "file:///" + p_project.getLocation() + File.separator
-					+ ProjectProperties.get_projectModelName(null) + File.separator + p_project.getName().toLowerCase()
-					+ "-lisezmoi" + ".html";
-			browser.openURL(new URL(url));
+			String url = p_project.getLocation() + File.separator + ProjectProperties.get_projectModelName(null)
+					+ File.separator + p_project.getName().toLowerCase() + "-lisezmoi.html";
+			WizardUtil.showHtmlFromMarkdown(url);
+
+//			On conserve cet ancien code pour afficher dans une page externe si on recontre des problèmes avec la nouvelle solution.
+//			IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
+//			IWebBrowser browser = browserSupport.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, "myBrowserId",
+//					ProjectProperties.get_projectName(null).toUpperCase(), "Description pour la strcuture du projet");
+//			String url = "file:///" + p_project.getLocation() + File.separator
+//					+ ProjectProperties.get_projectModelName(null) + File.separator + p_project.getName().toLowerCase()
+//					+ "-lisezmoi" + ".html";
+//			browser.openURL(new URL(url));
 		}
 	}
 

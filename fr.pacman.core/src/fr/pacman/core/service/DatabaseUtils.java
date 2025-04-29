@@ -53,7 +53,7 @@ public class DatabaseUtils {
 	private static final String c_typeColumnDate = "Date";
 	private static final String c_typeColumnTimestamp = "Timestamp";
 	private static final String c_typeColumnTime = "Time";
-	private static final String c_typeColumnBinary = "byte[]";
+	private static final String c_typeColumnBinary = "Binary";
 	private static final String c_typeColumnBoolean = "Boolean";
 	private static final String c_typeColumnChar = "Char";
 

@@ -30,6 +30,11 @@
 
 [comment ./]
 [template public readMe (any : ecore::EObject)]
+  <style>
+      body {
+          font-family: 'Segoe UI Emoji', 'Arial', sans-serif;
+      }
+  </style>
   <h1>Bienvenue dans votre nouveau projet [any.nameProject()/]</h1>
   <hr />
   <p>Ce fichier vous permet de rapidement prendre en main le démarrage de l'application :</p>

@@ -20,7 +20,6 @@
             <command
                   commandId="fr.pacman.core.validation.ui.commands.ValidationGeneratorCommand"
                   id="fr.pacman.core.validation.ui.commands.ValidationGeneratorCommand" 
-                  icon="icons/cali.png" 
                   label="Validation du diagramme de modélisation">
                <visibleWhen
                      checkEnabled="false">
@@ -45,7 +44,6 @@
             <command
                   commandId="fr.pacman.core.validation.ui.commands.ValidationGeneratorCommand"
                   id="fr.pacman.core.validation.ui.commands.ValidationGeneratorCommand" 
-                  icon="icons/cali.png" 
                   label="Validation du diagramme de modélisation">
                <visibleWhen
                      checkEnabled="false">

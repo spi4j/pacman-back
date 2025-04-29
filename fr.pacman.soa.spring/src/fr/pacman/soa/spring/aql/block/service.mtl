@@ -4,6 +4,7 @@
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
+[import fr::pacman::core::aql::versions/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
 [import fr::pacman::core::aql::name::classes/]
@@ -548,7 +549,7 @@
 
 [comment écriture des annotations explicatives pour la documentation swagger-ui./]
 [query private writeRsSwaggerAnnotations(c : soa::Component, s : soa::SecurityScheme) : String = '@OpenAPIDefinition(info = @Info(title = "' 
-  + c.name + '", version = "' + c.apiVersion + '", description = "' + c.writeDescription() + '", termsOfService = "' + c.information.termsOfService 
+  + c.name + '", version = "' + c.versionOpenApi() + '", description = "' + c.writeDescription() + '", termsOfService = "' + c.information.termsOfService 
   + '", contact = @Contact( name = "'+ c.contact.name + '", email = "' + c.contact.email + '", url = "' + c.contact.URL + '"), license = @License( ' 
   + 'name = "' + c.license.name + '", url = "' + c.license.URL + '"))' + if (not c.servers->isEmpty()) then ', servers = {' + c.servers->collect(o | '@Server(url = "' 
   + o.URL + '", description = "' + o.writeDescription() + '")')->sep(', ') + '}' else '' endif + if (s.exists()) then ', security = { ' 

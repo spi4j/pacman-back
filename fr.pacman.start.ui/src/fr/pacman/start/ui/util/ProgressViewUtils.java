@@ -1,4 +1,4 @@
-package fr.pacman.start.ui;
+package fr.pacman.start.ui.util;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IPartListener2;
@@ -20,12 +20,12 @@ import org.eclipse.ui.PartInitException;
  * souhaitent garder la vue de progression visible sans interférence avec le log
  * d'erreurs.
  */
-public class ProgressViewMonitor {
+class ProgressViewUtils {
 
 	/**
 	 * Constructeur privé.
 	 */
-	private ProgressViewMonitor() {
+	private ProgressViewUtils() {
 		super();
 	}
 

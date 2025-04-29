@@ -52,6 +52,7 @@
     import jakarta.persistence.criteria.CriteriaBuilder;
     import jakarta.persistence.criteria.CriteriaQuery;
     import jakarta.persistence.criteria.Root;
+    import [e.namePackageProject()/].[e.nameClassIntegrationTestUtils()/];
     import [e.namePackageProject()/].[e.namePackageEntityImpl()/].[e.nameClassEntityImpl()/];
     import [e.namePackageProject()/].[e.namePackageEntityPersistItf()/].[e.nameClassEntityPersistItf()/];
     import [e.namePackageProject()/].[e.nameClassIntegrationTestAbstract()/];

@@ -11,6 +11,8 @@ import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -114,8 +116,16 @@ public abstract class PacmanUIProjectAction {
 	 * @return The target site.
 	 */
 	protected IWorkbenchPartSite getTargetSite() {
-		if (null != getWorkbenchWindow())
-			return getWorkbenchWindow().getPartService().getActivePart().getSite();
-		throw new RuntimeException("xxx");
+		IWorkbenchWindow window = getWorkbenchWindow();
+		if (window != null) {
+			IWorkbenchPage page = window.getActivePage();
+			if (page != null) {
+				IWorkbenchPart activePart = page.getActivePart();
+				if (activePart != null) {
+					return activePart.getSite();
+				}
+			}
+		}
+		throw new RuntimeException("No active part available.");
 	}
 }

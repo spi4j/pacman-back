@@ -24,7 +24,7 @@ import org.eclipse.ui.PlatformUI;
  * @author MINARM
  *
  */
-public class ObeoUtil {
+class ObeoUtil {
 
 	public static void setSelectionInActivePart(Resource p_resource) {
 

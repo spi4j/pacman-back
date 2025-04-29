@@ -1,7 +1,14 @@
 package fr.pacman.start.ui.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -15,18 +22,21 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.browser.IWebBrowser;
+import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.wizards.IWizardDescriptor;
 
 import fr.pacman.start.ui.GenerateStartWizardAction;
-import fr.pacman.start.ui.ProgressViewMonitor;
 import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.exception.WizardNotFoundException;
+import fr.pacman.start.ui.views.HtmlViewerView;
 
 /**
  * Classe utilitaire pour le wizard de création d'un nouveau projet.
@@ -41,6 +51,13 @@ public class WizardUtil {
 	public static final int c_codeOk = 0;
 	public static final int c_codeKo = 1;
 	public static final int c_codeKoExists = 2;
+
+	private static final String c_view_log = "org.eclipse.pde.runtime.LogView";
+	private static final String c_view_problem = "org.eclipse.ui.views.ProblemView";
+	private static final String c_view_properties = "org.eclipse.ui.views.PropertySheet";
+	private static final String c_view_junit = "org.eclipse.jdt.junit.ResultView";
+	private static final String c_view_html = "fr.pacman.start.ui.views.HtmlViewerView";
+	private static final String c_view_progress = "org.eclipse.ui.views.ProgressView";
 
 	/**
 	 * Constructeur privé.
@@ -63,12 +80,16 @@ public class WizardUtil {
 	}
 
 	/**
-	 * Demande le rechargement d'un projet dans le workspace, demande la
-	 * réorganisation automatique des imports, le formattage automatique du code et
-	 * effectue les éventuelles sauvegardes si des éditeurs sont encore ouverts. Par
-	 * ailleurs on rend la main sur le contrôle de la vue des erreurs et on demande
-	 * le chargement de la vue concernat les problèmes et la vue de propriété. Ainsi
-	 * le développeur est prêt pour travailler.
+	 * Demande le rechargement d'un projet dans le workspace.
+	 * 
+	 * Demande la réorganisation automatique des imports, le formattage automatique
+	 * du code et effectue les éventuelles sauvegardes si des éditeurs sont encore
+	 * ouverts. Par ailleurs on rend la main sur le contrôle de la vue des erreurs
+	 * et on demande le chargement de la vue concernat les problèmes et la vue de
+	 * propriété. Ainsi le développeur est prêt pour travailler.
+	 * 
+	 * Pour finir, on force le focus sur le navigateur interne pour le récapitulatif
+	 * de la création de projet.
 	 * 
 	 * On se raccorde sur la classe d'action {@link GenerateStartWizardAction} afin
 	 * d'effectuer la majorité de ces demandes.
@@ -93,15 +114,28 @@ public class WizardUtil {
 		Display.getDefault().syncExec(() -> {
 			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (window != null) {
-				ProgressViewMonitor.stopMonitoring(window);
+				ProgressViewUtils.stopMonitoring(window);
 				IWorkbenchPage page = window.getActivePage();
 				if (page != null) {
+					IViewPart view = null;
 					try {
-						page.showView("org.eclipse.pde.runtime.LogView");
-						page.showView("org.eclipse.ui.views.ProblemView");
-						page.showView("org.eclipse.ui.views.PropertySheet");
+						// IViewPart view = page.showView("org.eclipse.ui.views.ProgressView");
+						// page.setPartState(page.getReference(view), IWorkbenchPage.STATE_RESTORED);
+						view = page.showView(c_view_log);
+						view = page.showView(c_view_problem);
+						view = page.showView(c_view_properties);
+						view = page.showView(c_view_junit);
+						view = page.showView(c_view_html);
+						
+						page.hideView(view);
+						view = page.showView(c_view_html);
+
 					} catch (PartInitException e) {
-						// RAS
+						// RAS (pas grave à ce niveau, on ne vas pas polluer la création)
+					} finally {
+						if (view != null) {
+							view.setFocus();
+						}
 					}
 				}
 			}
@@ -109,24 +143,41 @@ public class WizardUtil {
 	}
 
 	/**
-	 * Abondance de contrôle ne peut nuire. On active au démarrage du processus la
-	 * vue de progression pour l'ensemble de stâches à faire effectuer pour le
-	 * générateur de création de projet.
+	 * Initialise les vues dans la fenêtre de travail active, en masquant toutes les
+	 * vues ouvertes et en affichant la vue de progression des tâches. Cette méthode
+	 * est exécutée de manière asynchrone sur le thread de l'UI.
 	 * 
-	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
-	 *                  l'IDE.
+	 * Elle supprime toutes les vues actuellement ouvertes dans la page de travail
+	 * active, puis affiche la vue de progression des tâches et commence à
+	 * surveiller les tâches en cours avec
+	 * {@link ProgressViewUtils#monitor(IWorkbenchWindow)}.
+	 *
+	 * Cette méthode est principalement utilisée avant de lancer un job ou une série
+	 * de tâches asynchrones, afin de réinitialiser les vues et d'afficher un
+	 * indicateur de progression. En cas d'erreur lors de l'affichage de la vue, une
+	 * exception est lancée.
+	 * 
+	 * @param p_monitor Un objet {@link SubMonitor} utilisé pour suivre la
+	 *                  progression de l'opération. Il est utilisé pour la gestion
+	 *                  de la progression dans les tâches asynchrones (bien que non
+	 *                  directement utilisé dans cette méthode, il pourrait être
+	 *                  intégré pour la gestion des sous-tâches).
+	 * 
+	 * @throws RuntimeException Si une erreur se produit lors de l'affichage de la
+	 *                          vue de progression, notamment en cas
+	 *                          d'initialisation échouée de la vue ou d'une
+	 *                          exception dans la méthode
+	 *                          {@link IWorkbenchPage#showView(String)}.
 	 */
-	public static void activeProgressView(final SubMonitor p_monitor) {
-		Display.getDefault().asyncExec(() -> {
+	public static void initViews(final SubMonitor p_monitor) {
+		Display.getDefault().syncExec(() -> {
 			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 			if (window != null) {
 				IWorkbenchPage page = window.getActivePage();
 				if (page != null) {
 					try {
-						// IViewPart view = page.showView("org.eclipse.ui.views.ProgressView");
-						// page.setPartState(page.getReference(view), IWorkbenchPage.STATE_MAXIMIZED);
-						page.showView("org.eclipse.ui.views.ProgressView");
-						ProgressViewMonitor.monitor(window);
+						page.showView(c_view_progress);
+						ProgressViewUtils.monitor(window);
 					} catch (PartInitException e) {
 						throw new RuntimeException("Impossible d'afficher la vue pour la progression des tâches", e);
 					}
@@ -322,5 +373,92 @@ public class WizardUtil {
 		public abstract String getWizardId();
 
 		public abstract void initExternalWizard(IWizard p_wizard) throws Exception;
+	}
+
+	/**
+	 * Affiche une page HTML à partir d'un chemin de fichier. Si un navigateur
+	 * interne est disponible, il est utilisé, sinon un navigateur externe est
+	 * ouvert.
+	 *
+	 * @param p_path Le chemin absolu du fichier HTML à afficher.
+	 */
+	public static void showHtml(String p_path) {
+		Display.getDefault().syncExec(() -> {
+			try {
+				File file = new File(p_path);
+				if (file.exists()) {
+					URL fileUrl = file.toURI().toURL();
+					boolean browserAvailable = tryOpenInternalBrowser(fileUrl.toString());
+					if (!browserAvailable) {
+						openExternalBrowser(fileUrl);
+					}
+				} else {
+					// RAS (pas grave dans notre cas)
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	/**
+	 * Essaie d'ouvrir une page HTML dans un navigateur interne (dans une vue
+	 * Eclipse).
+	 *
+	 * @param p_url L'URL de la page HTML à afficher.
+	 * @return true si le navigateur interne a été ouvert avec succès, false sinon.
+	 */
+	private static boolean tryOpenInternalBrowser(String p_url) {
+		try {
+			HtmlViewerView.setHtmlUrlToLoad(p_url);
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			page.showView(HtmlViewerView.c_id);
+			return true;
+		} catch (Throwable e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Ouvre un fichier HTML dans un navigateur externe (par exemple, le navigateur
+	 * par défaut).
+	 *
+	 * @param p_url L'URL de la page HTML à afficher.
+	 */
+	private static void openExternalBrowser(URL p_url) {
+		try {
+			IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
+			IWebBrowser browser = browserSupport.getExternalBrowser();
+			browser.openURL(p_url);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Convertit un fichier Markdown en HTML et l'affiche dans un navigateur interne
+	 * ou externe.
+	 *
+	 * @param p_markdownPath Le chemin du fichier Markdown à convertir et afficher.
+	 */
+	public static void showHtmlFromMarkdown(String p_markdownPath) {
+		try {
+
+			String markdown = new String(Files.readAllBytes(Paths.get(p_markdownPath)), "UTF-8");
+			Parser parser = Parser.builder().build();
+			HtmlRenderer renderer = HtmlRenderer.builder().build();
+			String htmlContent = renderer.render(parser.parse(markdown));
+
+			String htmlWithCharset = "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n<meta charset=\"UTF-8\">"
+					+ "\n<title>Markdown Converti</title>\n</head>\n<body>\n" + htmlContent + "\n</body>\n</html>";
+
+			File tempHtmlFile = File.createTempFile("converted", ".html");
+			tempHtmlFile.deleteOnExit();
+			Files.write(tempHtmlFile.toPath(), htmlWithCharset.getBytes("UTF-8"));
+			showHtml(tempHtmlFile.getAbsolutePath());
+
+		} catch (IOException e) {
+			// RAS (pas grave dans notre cas)
+		}
 	}
 }

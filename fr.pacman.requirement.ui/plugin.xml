@@ -20,7 +20,6 @@
             <command
                   commandId="fr.pacman.requirement.ui.commands.RequirementGeneratorCommand"
                   id="fr.pacman.requirement.ui.commands.RequirementGeneratorCommand" 
-                  icon="icons/cali.png" 
                   label="Génération des règles de gestion">
                <visibleWhen
                      checkEnabled="false">

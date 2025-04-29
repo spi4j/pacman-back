@@ -91,8 +91,10 @@
   [/for]
   [for (s | m.requiredServices())]
   [/for]
+  [comment pas de multiples components internes pour l'instant/]
+  [if (m.eAllContents(soa::Component)->size() > 1)][m.add(m.msga1())/][/if]
   [comment pas de multiples sécurités pour l'instant./]
-  [if (m.eAllContents(soa::SecurityScheme)->size() > 1)][m.add(m.msga1())/][/if]
+  [if (m.eAllContents(soa::SecurityScheme)->size() > 1)][m.add(m.msga2())/][/if]
   [comment pas de securité avec de multiples flows./]
   [comment if (m.rsIsSecured() and m.rsSecurityScheme().flows->size() > 1)][m.add(m.msga2())/][comment /if]
   
@@ -129,12 +131,16 @@
 [comment écriture du nom de la référence pour le rapport./]
 [query private nameService(s : soa::Service) : String = s.nameComponent() + '.' + s.name/]
 
+[comment impossible pour l'instant de définir plusieurs components./]
+[query private msga1 (m : soa::System) : String = m.nameProject() + '@Application modélisée avec plusieurs composnats@Cette version de pacman ' 
+  + ' n\'authorise pour l\'instant qu\'un seul composant'/]
+  
 [comment impossible pour l'instant de définir plusieurs sécurités./]
-[query private msga1 (m : soa::System) : String = m.nameProject() + '@Application modélisée avec plusieurs sécurités@Cette version de pacman ' 
+[query private msga2 (m : soa::System) : String = m.nameProject() + '@Application modélisée avec plusieurs sécurités@Cette version de pacman ' 
   + ' n\'authorise pour l\'instant qu\'une seule sécurité'/]
   
 [comment impossible pour l'instant de définir plusieurs flows pour une sécurité./]
-[query private msga2 (m : soa::System) : String = m.nameProject() + '@Sécuritée modélisée avec plusieurs flows@Cette version de pacman ' 
+[query private msga3 (m : soa::System) : String = m.nameProject() + '@Sécuritée modélisée avec plusieurs flows@Cette version de pacman ' 
   + ' n\'authorise pour l\'instant qu\'un seul flow'/]
   
 [comment impossible de créer des entités sans attribut./]

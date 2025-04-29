@@ -9,8 +9,6 @@ import java.util.Map;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -23,7 +21,9 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import fr.pacman.core.property.project.ProjectProperties;
+import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.util.FormUtil;
 import fr.pacman.start.ui.util.ValidatorUtil;
 
@@ -74,8 +75,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	protected PropertiesWizardStartPage() {
 		super("Propriétés du projet Cali");
 		setTitle("Nouveau projet Cali (BackEnd)");
-		// setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.c_pluginId,
-		// Activator.c_pluginLogo));
+		setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.c_pluginId, Activator.c_pluginLogo));
 		setDescription("Saisir les différents paramètres pour la création du projet.");
 	}
 
