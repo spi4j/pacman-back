@@ -40,6 +40,7 @@
     import org.springframework.http.HttpHeaders;
     import org.springframework.stereotype.Controller;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.web.bind.annotation.CookieValue;
     import org.springframework.web.bind.annotation.DeleteMapping;
     import org.springframework.web.bind.annotation.GetMapping;
     import org.springframework.web.bind.annotation.PathVariable;
@@ -467,7 +468,7 @@
  else if (p.restData.passingMode = soa::ParameterPassingMode::QUERY) then '@RequestParam(name = "' + p.restData.restId + '", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::HEADER) then '@RequestHeader(name = "' + p.restData.restId + '", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::BODY) then '@RequestBody(' 
- else if (p.restData.passingMode = soa::ParameterPassingMode::COOKIE) then '' 
+ else if (p.restData.passingMode = soa::ParameterPassingMode::COOKIE) then '@CookieValue(name = "' + p.restData.restId + '", '
  else '' endif endif endif endif endif endif endif + 'required = ' + p.isMandatory() +  ')'/]
 
 [comment écriture du statut modélisé pour la réponse, si aucun statut on prend celui par défaut./]

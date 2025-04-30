@@ -158,6 +158,7 @@
     
     [s.defaultImports()/]
     import javax.sql.DataSource;
+    import jakarta.servlet.http.Cookie;
     import java.time.temporal.ChronoUnit;
     import org.junit.jupiter.api.Disabled;
     import org.junit.jupiter.api.Test;
@@ -328,7 +329,8 @@
   else '' endif endif endif endif endif endif endif endif/]
   
 [comment écriture des différents paramètres à injecter pour l'opération (uri)./]
-[query private writeRsInputParams(o : soa::Operation) : String = o.writeRsInputPathParams() + o.writeRsInputQueryParams()/]
+[query private writeRsInputParams(o : soa::Operation) : String = o.writeRsInputPathParams() + o.writeRsInputQueryParams() 
+ 	+ o.writeRsInputCookieParams()/]
 
 [comment écriture des différents paramètres à injecter pour l'opération (uri /path)./]
 [query private writeRsInputPathParams(o : soa::Operation) : String = if (not o.input
@@ -347,6 +349,16 @@
 	->collect(o2 | '.param("' + o2.restData.restId + '",' + if (o2.type.name.equalsIgnoreCase('String')) 
 	then o2.name().apply_variableDefault() else 'String.valueOf(' +  o2.name().apply_variableDefault() + ')' endif)
 	->sep(')')->toString() + ')' else '' endif/]
+	
+[comment écriture des différents paramètres à injecter pour l'opération (uri / cookie)/]
+[query private writeRsInputCookieParams(o : soa::Operation) : String = if (not o.input
+	->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::COOKIE)->isEmpty()) then 
+	o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::COOKIE)
+	->collect(o2 | '.cookie(new Cookie("' + o2.restData.restId +'", ' + o2.name().apply_variableDefault())
+	->sep('))')->toString() + '))' else '' endif /]
+
+[comment écriture des différents paramètres à injecter pour l'opération (uri / cookie)/]
+[query private writeRsInputHeaderParams(o : soa::Operation) : String = '.cookie(new Cookie("userId", input1))'/]
 	
 [comment écriture des différents paramètres à injecter pour l'opération (corps)./]
 [query private writeRsInputBodyParams(o : soa::Operation) : String = if (not o.input
