@@ -25,6 +25,7 @@
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::method/]
 
+[import fr::pacman::core::service::TestUtils/]
 [import fr::pacman::core::service::DatabaseUtils/]
 
 [comment écriture de l'implémentation du résolveur de paramètres pour les tests junit (domain + infra)./]
@@ -155,7 +156,10 @@
   [s.classHeader(s.namePackageInIntegrationTestImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
+    [s.defaultImports()/]
     import javax.sql.DataSource;
+    import java.time.temporal.ChronoUnit;
+    import org.junit.jupiter.api.Disabled;
     import org.junit.jupiter.api.Test;
     import org.junit.jupiter.api.extension.ExtendWith;
     import org.springframework.beans.factory.annotation.Autowired;
@@ -173,6 +177,7 @@
     import org.springframework.test.web.servlet.ResultActions;
     import org.springframework.http.MediaType;
     import com.fasterxml.jackson.databind.ObjectMapper;
+    import [s.namePackageProject()/].[s.nameClassIntegrationTestUtils()/];
     import [s.namePackageProject()/].[s.nameClassIntegrationTestAbstract()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];
@@ -242,6 +247,7 @@
      [for (o | s.ownedInterface.ownedOperations)]
        @Test
        [protected ((o.name() + ' annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         @Disabled("En attente de l'implémentation de la couche de persistance")
        [/protected]
        public void [o.name().apply_methodDefault()/]() throws Exception
        {
@@ -255,7 +261,7 @@
           [o.writeRsOperation(s)/]
           
           [protected ((o.name() + ' result').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-            
+          
           [/protected]
           
           .andExpect(status().is(['expected status'.apply_variableDefault()/]));
@@ -301,39 +307,58 @@
 
 [comment écriture de liste des paramètres d'entrée de l'opération pour initialisation./]
 [query private writeRsInitInputParams(o : soa::Operation) : String = o.input->asOrderedSet()->collect(o1 | o1.description.commentSingleLine() 
-	+  o1.type.type() + ' ' + o1.name().apply_attributeDefault() + ' = null;')->sep(o.lineSeparator() + o.lineSeparator())->toString() 
+	+  o1.type.type() + ' ' + o1.name().apply_attributeDefault() + ' = ' + o1.writeDefaultValue()+  ';')->sep(o.lineSeparator() + o.lineSeparator())->toString() 
 	+ o.lineSeparator() + o.lineSeparator() + 'Le statut attendu suite au test'.commentSingleLine() + 'int ' 
 	+ 'expected status'.apply_variableDefault() + ' = 200;'/]
 
 [comment écriture du corps de l'opération./]
-[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'ResultActions ' + 'result'.apply_variableDefault() 
-	+ ' = ' + 'rest helper'.apply_attributeDefault() + '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() 
+[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'rest helper'.apply_attributeDefault() + '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() 
 	+ '.contentType("' + if (o.hasMediaRsType()) then  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '")' + ')'/]
 
 [comment écriture de l'uri (avec les paramètres) pour l'opération rest./]
 [query private writeRsUri(o : soa::Operation, s : soa::Service) : String = 
   if (o.verb = soa::Verb::GET) then 'get("' + s.rsUri() + o.rsUri() + '"' + o.writeRsInputParams()
-  else if (o.verb = soa::Verb::POST) then 'post("'+ o.rsUri() + '"'
-  else if (o.verb = soa::Verb::PUT) then ''
-  else if (o.verb = soa::Verb::OPTIONS) then ''
-  else if (o.verb = soa::Verb::DELETE) then ''
-  else if (o.verb = soa::Verb::HEAD) then ''
-  else if (o.verb = soa::Verb::PATCH) then ''
-  else if (o.verb = soa::Verb::TRACE) then ''
-  else '' endif endif endif endif endif endif endif endif + ')'/]
-  
-[comment vérifie si le paramètre est passé par l'uri de l'envoi./][query private isParam(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::PATH 
-	or p.restData.passingMode = soa::ParameterPassingMode::QUERY/]
-	
-[comment vérifie si le paramètre est passé dans le corps de l'envoi./]
-[query private isBody(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::BODY/]
+  else if (o.verb = soa::Verb::POST) then 'post("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::PUT) then 'put("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::OPTIONS) then 'options("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::DELETE) then 'delete("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::HEAD) then 'head("' + s.rsUri() + o.rsUri() + '"' + o.writeRsInputParams()
+  else if (o.verb = soa::Verb::PATCH) then 'patch("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::TRACE) then o.cNoModelisation()
+  else '' endif endif endif endif endif endif endif endif/]
   
 [comment écriture des différents paramètres à injecter pour l'opération (uri)./]
-[query private writeRsInputParams(o : soa::Operation) : String = if (o.hasInputs() and not o.input->select(o1 | o1.isParam())->isEmpty()) then ', ' +
-	o.input->asOrderedSet()->select(o1 | o1.isParam())->collect(o2 | o2.name().apply_variableDefault())->sep(', ')->toString() else '' endif /]
+[query private writeRsInputParams(o : soa::Operation) : String = o.writeRsInputPathParams() + o.writeRsInputQueryParams()/]
 
+[comment écriture des différents paramètres à injecter pour l'opération (uri /path)./]
+[query private writeRsInputPathParams(o : soa::Operation) : String = if (not o.input
+	->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->isEmpty()) then ', ' +
+	o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)
+	->collect(o2 | o2.name().apply_variableDefault() + if (o2.type.name.equalsIgnoreCase('Date')) then '.format(' 
+	+ o.nameClassIntegrationTestUtils() + '.' + 'date formatter'.apply_attributeFinalStatic() + ')' 
+	else if (o2.type.name.equalsIgnoreCase('Time')) then '.format(' + o.nameClassIntegrationTestUtils() 
+	+ '.' + 'time formatter'.apply_attributeFinalStatic() + ')' else '' endif endif )->sep(', ')->toString() 
+	else '' endif + ')'/]
+	
+[comment écriture des différents paramètres à injecter pour l'opération (uri / query)./]
+[query private writeRsInputQueryParams(o : soa::Operation) : String = if (not o.input
+	->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->isEmpty()) then 
+	o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)
+	->collect(o2 | '.param("' + o2.restData.restId + '",' + if (o2.type.name.equalsIgnoreCase('String')) 
+	then o2.name().apply_variableDefault() else 'String.valueOf(' +  o2.name().apply_variableDefault() + ')' endif)
+	->sep(')')->toString() + ')' else '' endif/]
+	
 [comment écriture des différents paramètres à injecter pour l'opération (corps)./]
-[query private writeRsInputBodyParams(o : soa::Operation) : String = if (o.hasInputs() and not o.input->select(o1 | o1.isBody())->isEmpty()) 
-	then '.' +  o.input->asOrderedSet()->select(o1 | o1.isBody())->collect(o2 | 'content(' + 'object mapper'.apply_variableDefault() 
-	+ '.writeValueAsString(' + o2.name().apply_attributeDefault() + '))')->sep('.')->toString() else '' endif/]
+[query private writeRsInputBodyParams(o : soa::Operation) : String = if (not o.input
+	->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)->isEmpty()) 
+	then '.' +  o.input->asOrderedSet()->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)
+	->collect(o2 | 'content(' + 'object mapper'.apply_variableDefault() + '.writeValueAsString(' 
+	+ o2.name().apply_attributeDefault() + '))')->sep('.')->toString() else '' endif/]
+	
+[comment écriture de la valeur par defaut à injecter dans l'attribut./]
+[query private writeDefaultValue (p : soa::Parameter) : String = if ('Time'.equalsIgnoreCase(p.type.name) 	
+	or 'Timestamp'.equalsIgnoreCase(p.type.name)) then p.type.name.get_defaulValueForType() + '.truncatedTo(ChronoUnit.MILLIS)' 
+	else if ('Binary'.equalsIgnoreCase(p.type.name)) then p.type.nameClassIntegrationTestUtils() + '.' + 'generate random byte array'
+	.apply_methodDefault() + '(10)' else if (p.type.oclIsKindOf(environment::DTO)) then 'new ' + p.type.oclAsType(environment::DTO)
+	.nameClassDtoImpl() + '()' else p.type.name.get_defaulValueForType() endif endif endif/]
 	

@@ -634,7 +634,7 @@
 
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
 [query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
-  ->select(o | not o.rsIsSecured()) /]
+  ->select(o | not o.isRsSecured()) /]
   
 [comment retourne l'ensemble des opérations sécurisées (et avec rôle) dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
 [query private securedOperationsWithRole(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)

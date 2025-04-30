@@ -52,6 +52,9 @@
 [query public hasRsStatusCode(o : soa::Operation) : Boolean = o.exists() and o.hasOutput() and not (o.output->first().statusCode = null) 
   and o.output->first().statusCode.size() > 0/]
 
+[comment vérifie si le paramètre de retour est obligatoire, toutes les opérations autre que HEAD et OPTIONS doivent avoir un paramètre de retour./]
+[query public mustHaveRsOutput(o : soa::Operation) : Boolean = o.verb <> soa::Verb::HEAD and o.verb <> soa::Verb::OPTIONS/]
+
 [comment vérifie si l'opération a défini un type de média pour la sortie du service rest./]
 [query public hasMediaRsType(o : soa::Operation) : Boolean = o.exists() and o.output->first().exists() and o.output->first().hasMediaRsType()/]
   
@@ -66,7 +69,7 @@
  (o.defaultRsNotFoundStatusCode1()) or f.statusCode.equalsIgnoreCase(o.defaultRsNotFoundStatusCode2()))->isEmpty()/]
 
 [comment retourne la 'fault' de type 'Not Found' qui a été définie sur l'opération rest./]
-[query public rsNotFoundFault (o :soa::Operation) : soa::Parameter =  o.fault->select(f | f.statusCode.equalsIgnoreCase
+[query public notRsFoundFault (o :soa::Operation) : soa::Parameter =  o.fault->select(f | f.statusCode.equalsIgnoreCase
  (o.defaultRsNotFoundStatusCode1()) or f.statusCode.equalsIgnoreCase(o.defaultRsNotFoundStatusCode2()))->first()/]
   
 [comment vérifie si l'opération est une opération de type rest./]
@@ -77,11 +80,11 @@
   else null endif else o.cNoModelisation() endif/] 
 
 [comment vérifie si une opération est sécurisée au niveau service rest./]
-[query public rsIsSecured(o : soa::Operation) : Boolean = not o.securitySchemes->isEmpty() 
+[query public isRsSecured(o : soa::Operation) : Boolean = not o.securitySchemes->isEmpty() 
   or not o.eContainer(soa::Service).securitySchemes->isEmpty()/]
   
 [comment retourne le schema de sécurité pour l'opération (pour l'instant basique on remonte la chaine et on prend le premier)./]  
-[query public securityRsScheme(o : soa::Operation) : soa::SecurityScheme = if (o.rsIsSecured()) then o.securitySchemes
+[query public securityRsScheme(o : soa::Operation) : soa::SecurityScheme = if (o.isRsSecured()) then o.securitySchemes
   ->union(o.eContainer(soa::Service).securitySchemes)->first() else null endif/]
 
 [comment retourne le type et le nom du paramètre de sortie (si existe) (liste + optional + type + nom)./]

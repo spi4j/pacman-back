@@ -12,6 +12,7 @@
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::application/]
 [import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::output::headers/]
@@ -35,6 +36,7 @@
     [comment pas de multiples relations recursives avec le même nom./]
     [if (not e.referencesFKSB()->union(e.referencesJT())->hasRecursivesWithSameName())][e.add(e.msge6())/][/if]
   [/for]
+  
   [for (re | r.eAllContents(environment::Reference))]
     [comment pas de relation bidirectionnelle avec double navigabilité./]
     [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.msgr1())/][/if]
@@ -60,15 +62,16 @@
     [comment pas d'attribut sans type défini./]
     [if (not d.attributesNoPK()->select(o | not o.type.exists())->isEmpty())][d.add(d.msgd5())/][/if]
   [/for]
+  
   [for (s | m.providedServices())]
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
       [comment pas de service mappé sur une entité./]
       [if (not o.output->select(o1 | o1.type.oclIsKindOf(entity::Entity))->isEmpty())][o.add(s.msgs1(o))/][/if]
       [comment pas de service sans paramètre de retour./]
-      [if (o.output->isEmpty())][o.add(s.msgs2(o))/][/if]
+      [if (o.output->isEmpty() and (o.mustHaveRsOutput()))][o.add(s.msgs2(o))/][/if]
       [comment pas de service sans code de retour./]
-      [if (not o.output->first().statusCode.exists())][o.add(s.msgs3(o))/][/if]
+      [if (o.mustHaveRsOutput() and not o.output->first().statusCode.exists())][o.add(s.msgs3(o))/][/if]
       [comment pas de service non rest (temporaire)./]
       [if (not (o.exposition = soa::ExpositionKind::REST))][o.add(s.msgs4(o))/][/if]
       [comment pas de fault sans code de retour./]
@@ -85,6 +88,22 @@
       [if (o.URI.exists() and '/'.equalsIgnoreCase(o.URI.last(1)))][o.add(s.msgs9(o))/][/if]
       [comment pas de service avec plusieurs paramètres passés dans le corps (body), c'est la norme./]
       [if (o.input->select(o1 | o1.restData.passingMode == soa::ParameterPassingMode::BODY)->size() > 1)][o.add(s.msgs10(o))/][/if]
+      [comment pas de service avec plusieurs paramètres de sortie./]
+      [if (o.output->size() > 1)][o.add(s.msgs11(o))/][/if]
+        
+      [comment pas de service avec des dtos passés hors body (path ou query)/]
+      [if (not o.input->select(o1 | o1.type.oclIsKindOf(environment::DTO) 
+         and o1.restData.passingMode <> soa::ParameterPassingMode::BODY)->isEmpty())][o.add(s.msgs12(o))/][/if]
+      [comment pas de service avec des binaires passés dans le path./]
+      [if (not o.input->select(o1 | o1.type.name.equalsIgnoreCase('Binary') 
+         and o1.restData.passingMode <> soa::ParameterPassingMode::PATH)->isEmpty())][o.add(s.msgs13(o))/][/if]
+      [comment pas de service avec TRACE (désactivé pour raisons de sécurité)./]
+      [if (o.verb = soa::Verb::TRACE)][o.add(s.msgs14(o))/][/if]
+      [comment pas de service OPTION avec des paramètres en entrée./]
+      [if (o.verb = soa::Verb::OPTIONS and not o.input->isEmpty())][o.add(s.msgs15(o))/][/if]  
+      [comment pas de service avec un doute sur l'URI./]
+      [comment pas de service HEAD avec un paramètre en sortie./]
+      [if (o.verb = soa::Verb::HEAD and not o.output->isEmpty())][o.add(s.msgs16(o))/][/if]  
       [comment pas de service avec un doute sur l'URI./]
       [/for]
     [/if]
@@ -132,7 +151,7 @@
 [query private nameService(s : soa::Service) : String = s.nameComponent() + '.' + s.name/]
 
 [comment impossible pour l'instant de définir plusieurs components./]
-[query private msga1 (m : soa::System) : String = m.nameProject() + '@Application modélisée avec plusieurs composnats@Cette version de pacman ' 
+[query private msga1 (m : soa::System) : String = m.nameProject() + '@Application modélisée avec plusieurs composants@Cette version de pacman ' 
   + ' n\'authorise pour l\'instant qu\'un seul composant'/]
   
 [comment impossible pour l'instant de définir plusieurs sécurités./]
@@ -239,3 +258,27 @@
 [comment impossible d'avoir un service avec plusieurs paramètres passés dans le corps (body)./]
 [query private msgs10 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
 	+ '@Opération avec plusieurs paramètres passés dans le corps (body)@Seul un paramètre est authorisé à etre passé en \'body\''/]
+	
+[comment impossible d'avoir un service avec plusieurs paramètres en sortie./]
+[query private msgs11 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec plusieurs paramètres en sortie@Une opération ne peut avoir qu\'un seul paramètre en sortie'/]
+	
+[comment impossible d'avoir un service avec un ou des dtos passés ailleurs que dans le body./]
+[query private msgs12 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec un ou des dto(s) passé(s) hors body@Mofifier le type de passage pour le DTO'/]
+	
+[comment impossible d'avoir un service avec un binaire passé dans le path./]
+[query private msgs13(s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec un binaire passé dans le path@Mofifier le type de passage pour le binaire'/]
+	
+[comment impossible d'avoir un service avec le verbe trace (question de sécurité)./]
+[query private msgs14(s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec le verbe TRACE@Cette option est désactivée pour raisons de sécurité'/]
+
+[comment impossible d'avoir un service avec le verbe options et ded paramètres en entrée./]
+[query private msgs15(s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec le verbe OPTION@Supprimez les paramètres en entrée pour l\'opération'/]
+	
+[comment impossible d'avoir un service avec le verbe head et un paramètre en sortie./]
+[query private msgs16(s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec le verbe HEAD@Supprimez le(s) paramètre(s) en sortie pour l\'opération'/]

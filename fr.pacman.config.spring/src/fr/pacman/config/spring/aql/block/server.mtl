@@ -1098,9 +1098,30 @@
   
   [any.defaultImports()/]
   import java.util.Random;
+  import java.time.format.DateTimeFormatter;
   
+  /**
+   * Classe utilitaire pour les tests unitaires ou d'intégration. Fournit des
+   * constantes de format de date/heure et une méthode de génération de données
+   * binaires aléatoires.
+   *
+   * Cette classe n'est pas instanciable.
+   *
+   * @author [any.nameAuthor()/]
+   */
   public final class [any.nameClassIntegrationTestUtils()/]
   {
+     
+     /**
+      * Formateur de temps au format {@code "HH:mm:ss.SSS"}.
+      * <p>Exemple : {@code 13:45:30.123}</p>
+      */
+     public static final DateTimeFormatter ['time formatter'.apply_attributeFinalStatic()/] = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+     
+     /**
+      * Formateur de date au format ISO-8601 (exemple : {@code 2025-04-30}).
+      */
+     public static final DateTimeFormatter ['date formatter'.apply_attributeFinalStatic()/] = DateTimeFormatter.ISO_LOCAL_DATE;
      
      ['Constructeur privé'.commentMultiLines()/]
      private [any.nameClassIntegrationTestUtils()/](){
