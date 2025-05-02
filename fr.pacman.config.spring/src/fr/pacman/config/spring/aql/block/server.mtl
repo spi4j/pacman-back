@@ -613,9 +613,14 @@
    * la gestion des transactions dans des applications où plusieurs opérations doivent être
    * atomiquement validées ou annulées.
    *
+   * Par défaut, {@code@Transactional} ne fait un rollback que sur RuntimeException 
+   * et Error, si besoin modifier l'annotation {@code @Transactional} pour ajouter une liste de
+   * toutes les exceptions sécifiques à prendre en compte, par example :
+   * {@code @Transactional(rollbackFor = Exception.class)}
+   *
    * @author [any.nameAuthor()/]
    */
-  class [any.nameClassJpaTransactionExecutorImpl()/]
+  public class [any.nameClassJpaTransactionExecutorImpl()/]
   {
      /**
       * Exécute une opération dans une transaction.
@@ -703,7 +708,7 @@
           try {
              return ['proceeding join point'.apply_parameterMethodClassicIn()/].proceed();
           } catch (Throwable e) {
-             throw new RuntimeException(e);
+             throw new UndeclaredThrowableException(e);
           }
        });
     }

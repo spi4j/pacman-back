@@ -308,13 +308,15 @@
 
 [comment écriture de liste des paramètres d'entrée de l'opération pour initialisation./]
 [query private writeRsInitInputParams(o : soa::Operation) : String = o.input->asOrderedSet()->collect(o1 | o1.description.commentSingleLine() 
-	+  o1.type.type() + ' ' + o1.name().apply_attributeDefault() + ' = ' + o1.writeDefaultValue()+  ';')->sep(o.lineSeparator() + o.lineSeparator())->toString() 
+	+ if (o1.type.oclIsKindOf(environment::DTO)) then o1.type.oclAsType(environment::DTO).nameClassXtoImpl() else o1.type.type() endif 
+	+ ' ' + o1.name().apply_attributeDefault() + ' = ' + o1.writeDefaultValue() + ';')->sep(o.lineSeparator() + o.lineSeparator())->toString() 
 	+ o.lineSeparator() + o.lineSeparator() + 'Le statut attendu suite au test'.commentSingleLine() + 'int ' 
-	+ 'expected status'.apply_variableDefault() + ' = 200;'/]
+	+ 'expected status'.apply_variableDefault() + ' = ' + if(o.mustHaveRsOutput()) then o.output->first().statusCode else '200' endif +';'/]
 
 [comment écriture du corps de l'opération./]
-[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'rest helper'.apply_attributeDefault() + '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() 
-	+ '.contentType("' + if (o.hasMediaRsType()) then  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '")' + ')'/]
+[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'rest helper'.apply_attributeDefault() 
+	+ '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() + '.contentType("' + if (o.hasMediaRsType()) 
+	then  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '")' + ')'/]
 
 [comment écriture de l'uri (avec les paramètres) pour l'opération rest./]
 [query private writeRsUri(o : soa::Operation, s : soa::Service) : String = 
@@ -372,5 +374,5 @@
 	or 'Timestamp'.equalsIgnoreCase(p.type.name)) then p.type.name.get_defaulValueForType() + '.truncatedTo(ChronoUnit.MILLIS)' 
 	else if ('Binary'.equalsIgnoreCase(p.type.name)) then p.type.nameClassIntegrationTestUtils() + '.' + 'generate random byte array'
 	.apply_methodDefault() + '(10)' else if (p.type.oclIsKindOf(environment::DTO)) then 'new ' + p.type.oclAsType(environment::DTO)
-	.nameClassDtoImpl() + '()' else p.type.name.get_defaulValueForType() endif endif endif/]
+	.nameClassXtoImpl() + '()' else p.type.name.get_defaulValueForType() endif endif endif/]
 	

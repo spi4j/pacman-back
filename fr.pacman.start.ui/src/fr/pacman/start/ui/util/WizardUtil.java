@@ -126,8 +126,8 @@ public class WizardUtil {
 						view = page.showView(c_view_properties);
 						view = page.showView(c_view_junit);
 						view = page.showView(c_view_html);
-						
-						page.hideView(view);
+
+						page.hideView(view); // Sinon de rafraichit pas.
 						view = page.showView(c_view_html);
 
 					} catch (PartInitException e) {

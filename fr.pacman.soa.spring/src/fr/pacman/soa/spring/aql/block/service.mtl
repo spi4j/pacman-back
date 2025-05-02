@@ -86,11 +86,11 @@
   {
     
     ['Interface service métier'.commentMultiLines()/]
-    private final [s.nameClassServiceOutItf()/] [s.name().apply_attributeFinal()/];
+    private final [s.nameClassServiceInItf()/] [s.name().apply_attributeFinal()/];
     
     ['Constructeur'.commentMultiLines()/]
     @Autowired
-    public [s.nameClassRsServiceImpl()/](final [s.nameClassServiceOutItf()/] [s.name().apply_parameterMethodClassicInOut()/])
+    public [s.nameClassRsServiceImpl()/](final [s.nameClassServiceInItf()/] [s.name().apply_parameterMethodClassicInOut()/])
     {
       [s.prefixAffectation()/][s.name().apply_attributeFinal()/] = [s.name().apply_parameterMethodClassicInOut()/];
     }

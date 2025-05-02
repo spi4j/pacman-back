@@ -223,6 +223,7 @@
 
 [comment écriture de la signature d'une opération avec le paramètre en sortie./]
 [query private writeInputs(o : soa::Operation) : String = o.nameOperation()  
-  + '(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut())->sep(', ') + if (o.paged) then ', ' 
+  + '(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicInOut() + if (o1.type.oclIsKindOf(environment::DTO)) 
+  then '.validate'.apply_methodDefault() + '()' else '' endif)->sep(', ') + if (o.paged) then ', ' 
   + 'sort by'.apply_parameterMethodClassicIn() else '' endif + ')' /]
   

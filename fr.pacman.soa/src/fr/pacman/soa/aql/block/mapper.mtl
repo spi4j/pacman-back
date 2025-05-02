@@ -19,6 +19,8 @@
 [import fr::pacman::core::aql::rule::common/]
 [import fr::pacman::core::aql::rule::method/]
 
+[import fr::pacman::core::service::AnnotationUtils/]	
+
 [comment 	écriture de la classe utilitaire de mapping (anciennement matcher sous spi4j)
 			pour la couche d'infrastructure. Les entités (ou dto) sont traitées avec le 
 			wrapper 'Optional' si besoin, aucun contrôle n'est effectué au niveau des 
@@ -29,6 +31,7 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [d.defaultImports()/]
+    import org.hibernate.Hibernate;
     import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
     import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
     
@@ -305,10 +308,13 @@
 
 [comment écriture de mapping pour une liste dans le cadre d'une référence./]
 [query private writeListOutDtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixDto().apply_variableDefault() 
-  + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
-  + r.referencedDto(d).referencedName(r).apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
-  + ('to ' + d.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.' +  if (r.isMultipleBidirectionnal()) 
-  then 'toSet' else 'toList' endif + '()));'/]
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + if (r.is_metaFetchLazy()) then 'Hibernate.isInitialized(' 
+  + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '())?' else '' endif 
+  + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '().stream().map(o -> ' 
+  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.' 
+  + if (r.isMultipleBidirectionnal()) then 'toSet' else 'toList' endif + '())' + if (r.is_metaFetchLazy()) then ': new ' 
+  + if (r.isMultipleBidirectionnal()) then 'HashSet' else 'ArrayList' endif  + '<' + r.referencedDto(d).nameClassDtoImpl() 
+  + '>' +  '()'else '' endif + ');'/]
 
 [comment écriture de mapping pour une liste dans le cadre d'une référence./]
 [query private writeListOutEntityMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixEntity().apply_variableDefault() 

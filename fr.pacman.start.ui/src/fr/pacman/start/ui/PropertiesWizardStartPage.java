@@ -774,7 +774,10 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 
 			@Override
 			public void keyPressed(final KeyEvent p_e) {
-				if (!FormUtil.checkKeyForNumericValue(p_e.character)) {
+				if (cbx.getSelectionIndex() == 6 || cbx.getSelectionIndex() == 7 || cbx.getSelectionIndex() == 8
+						|| cbx.getSelectionIndex() == 9) {
+					p_e.doit = false;
+				} else if (!FormUtil.checkKeyForNumericValue(p_e.character)) {
 					p_e.doit = false;
 				}
 			}

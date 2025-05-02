@@ -111,11 +111,10 @@
              *                                  L'exception contient une liste des erreurs
              *                                  sous forme de tableau de chaînes.
              */
-            @SuppressWarnings("unused")
-            public void ['validate'.apply_methodDefault()/]() throws [d.nameClassValidationExceptionImpl()/]
+            public [d.nameClassDtoImpl()/] ['validate'.apply_methodDefault()/]() throws [d.nameClassValidationExceptionImpl()/]
             {
                 
-                List<String> ['errors'.apply_variableDefault()/] = null;
+                List<String> ['errors'.apply_variableDefault()/] = new ArrayList<>();
                 [for (a | d.attributesNoPK())]
                   [a.writeNotNullValidation()/]
                   [a.writePatternValidation()/]
@@ -126,10 +125,11 @@
                   [o.writeNotNullValidation()/]
                 [/for]
                 
-                if(null != ['errors'.apply_variableDefault()/] ){
+                if(!['errors'.apply_variableDefault()/].isEmpty()){
                     throw new [d.nameClassValidationExceptionImpl()/](this, ['errors'.apply_variableDefault()/]
                       .toArray(new String['['/] ['errors'.apply_variableDefault()/].size()[']'/]));
                 }
+                return this;
             }
             
             /** 
