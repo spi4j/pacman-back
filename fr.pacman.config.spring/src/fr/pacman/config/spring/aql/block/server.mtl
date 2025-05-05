@@ -1007,8 +1007,43 @@
   # Le port par defaut.
   server.port=80
   
+  # Chemin de contexte
+  server.servlet.context-path=/
+
+  # Encodage
+  server.servlet.encoding.charset=UTF-8
+  server.servlet.encoding.force=true
+  
   # Un exemple de cle symetrique (pour le developpement uniquement).
   security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+  
+  # ----------------------------------------------------------------------------------------------
+  # LOGGING
+  # ----------------------------------------------------------------------------------------------
+  
+  logging.level.root=INFO
+  logging.level.org.springframework.web=DEBUG
+  logging.level.com.example=DEBUG
+
+  # Format du log
+  logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
+
+  # Fichier de log
+  logging.file.name=logs/[any.nameProject()/].log
+  logging.file.max-size=10MB
+  logging.file.total-size-cap=100MB
+  
+  # ----------------------------------------------------------------------------------------------
+  # SPRING PROFILES
+  # ----------------------------------------------------------------------------------------------
+  
+  # spring.profiles.active=dev
+  
+  # ----------------------------------------------------------------------------------------------
+  # SPRING CACHE 
+  # ----------------------------------------------------------------------------------------------
+  
+  spring.cache.type=simple
   
   # ----------------------------------------------------------------------------------------------
   # CIRCUIT BREAKER
