@@ -82,7 +82,8 @@
                [/if]
              [/for]
              [for (prop : String | d.autoAttributes())]
-               [d.writeAutoAttributeOutEntity(prop)/]
+               [comment les champs automatiques de persistance sont créés au dernier momment./]
+               [comment d.writeAutoAttributeOutEntity(prop)/]
              [/for]
            [/if]
          

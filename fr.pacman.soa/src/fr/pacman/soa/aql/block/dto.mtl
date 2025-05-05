@@ -122,7 +122,8 @@
                 [/for]
                 
                 [for (o | oas)]
-                  [o.writeNotNullValidation()/]
+                  [comment ce n'est pas au dto de valider les champs automatiques de persistance./]
+                  [comment o.writeNotNullValidation()/]
                 [/for]
                 
                 if(!['errors'.apply_variableDefault()/].isEmpty()){
