@@ -28,12 +28,15 @@
     import java.io.Serializable;
     import com.fasterxml.jackson.annotation.JsonProperty;
     import com.fasterxml.jackson.annotation.JsonIgnore;
+    import io.swagger.v3.oas.annotations.media.Schema;
+    import io.swagger.v3.oas.annotations.media.ArraySchema;
     
   [/protected]
   
   [d.commentClass()/]
   [protected ('annotations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
   [/protected]
+  @Schema(description = "[d.writeDescription()/]")
   public class [d.nameClassXtoImpl()/] implements Serializable
   {
      
@@ -47,6 +50,7 @@
      
      ['Id'.commentSingleLine()/]
      @JsonProperty("id")
+     @Schema(description = "Identifiant unique de l'entité")
      private [d.defaultTypePk()/] [d.writePk()/];
      
      // ATTRIBUTS
@@ -57,14 +61,17 @@
          [protected (a.nameAttribute().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
            @JsonProperty("[a.nameAttribute()/]")
          [/protected]
+         @Schema(description = "[a.writeDescription()/]")
          private [a.type()/] [a.nameAttribute()/];
          
        [/for]
        [for (r : environment::Reference | rs)]
          [r.referencedDto(d).comment().commentSingleLine()/]
          [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-           @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]") 
+           @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]")
          [/protected]
+         [if (r.isMultiple())]@ArraySchema(schema = @Schema(implementation = [r.referencedDto(d).nameClassXtoImpl()/].class))
+         [else]@Schema(description = "[r.writeDescription()/]")[/if]
          [comment r.containingType <> d and r.isMultiple()/]
          private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
          

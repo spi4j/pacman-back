@@ -56,7 +56,9 @@ public enum AnnotationEnum {
 	
 	CASCADE_TYPE("CASCADE_TYPE", ModelEnum.DSL_ENTITY, true), 
 	
-	FETCH_LAZY("FETCH_LAZY", ModelEnum.DSL_ENTITY, false);
+	FETCH_LAZY("FETCH_LAZY", ModelEnum.DSL_ENTITY, false),
+	
+	ENTITY_MANAGER("ENTITY_MANAGER", ModelEnum.DSL_ENTITY,false);
 
 	/** Le nom de l'annotation */
 	private String _annotationName;

@@ -368,6 +368,10 @@ public final class AnnotationUtils {
 	public static String get_metaLiteralCascadeType(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.CASCADE_TYPE);
 	}
+	
+	public static boolean has_metaEntityManager(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.ENTITY_MANAGER);
+	}
 
 	public static boolean has_metaLiteralParamsStruct(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.LITERALS_PARAMS_STRUCT)

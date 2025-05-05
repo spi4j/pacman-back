@@ -133,4 +133,8 @@
      title="FETCH_LAZY" 
      body="JPA : Demande expresse de chargement paresseux." 
      condition="aql:Sequence{'reference'}->includes(self.eClass().name.toLower())"/>
+   <metaDataDefinitions technicalid="_tM3EgClyEfCX4d2qfjTY8Q"
+     title="ENTITY_MANAGER"
+     body="JPA : Demande d'utilisation de l'entity manager en collaboration avec le repository de l'entité." 
+     condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
 </metadatadef:MetaDataDefinitions>

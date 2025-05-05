@@ -634,7 +634,9 @@
       * 
       * @Author [any.nameAuthor()/]
       */
-     @Transactional
+     [protected ('transactionnal'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       @Transactional
+     [/protected]
      <T> T executeInTransaction(Supplier<T> execution) {
         return execution.get();
      }
@@ -646,6 +648,7 @@
 [template public jpaTransactionServiceAspectImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageInfrastructureBase())/]
   [any.defaultImports()/]
+  import java.lang.reflect.UndeclaredThrowableException;
   import org.aspectj.lang.ProceedingJoinPoint;
   import org.aspectj.lang.annotation.Around;
   import org.aspectj.lang.annotation.Aspect;

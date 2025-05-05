@@ -234,6 +234,7 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
+    import jakarta.persistence.EntityManager;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.data.domain.Page;
     import org.springframework.data.domain.PageRequest;
@@ -260,22 +261,25 @@
       [protected ('gestionnaires de persistance custom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       [/protected]
       
-      ['Gestionnaires de persistance disponibles'.commentMultiLines()/]
-      [for (d | ds->select(o | o.isPersistent()))]
-        final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeFinal()/];
-      [/for]
-    
-      ['Constructeur'.commentMultiLines()/]
-      @Autowired
-      public [s.nameClassServiceOutImpl()/] ([ds->writePersistInputs()/])
-      {
-         
-         [ds->writePersistAffectation()/]
-         
-         [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-         [/protected]
-      }
-   
+      [let em = ds->hasJpaEntityManager()]
+        [em.writeJpaEntityManager()/]
+        ['Gestionnaires de persistance disponibles'.commentSingleLine()/]
+        [for (d | ds->select(o | o.isPersistent()))]
+          final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeFinal()/];
+        [/for]
+      
+        ['Constructeur'.commentMultiLines()/]
+        @Autowired
+        public [s.nameClassServiceOutImpl()/] ([ds->writePersistInputs(em)/])
+        {
+           
+           [ds->writePersistAffectation(em)/]
+           
+           [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           [/protected]
+        }
+      [/let]
+      
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
         [if (o.fsd())]
           [o.commentOperation()/]
@@ -346,7 +350,15 @@
    class [m.nameClassOpenApiConfigImpl()/]{}
 [/template]
 
-[comment ./]
+[comment vérifie si il y a besoin d'injecter l'entity manager de jpa dans le service./]
+[query private hasJpaEntityManager(ds : OrderedSet(environment::DTO)) : Boolean = not ds->select(o | o.isPersistent() 
+  and o.associatedEntity().has_metaEntityManager())->asSet()->isEmpty()/]
+
+[comment écriture pour la mise à disposition de l'entity manager jpa pour le service (si demandé)./]
+[query private writeJpaEntityManager(em : Boolean) : String = if (em) then 'Le gestionnaire de persistance de jpa'.commentSingleLine() 
+  + 'final EntityManager ' + 'entity manager'.apply_attributeFinal() + ';' + em.lineSeparator() + ' ' else '' endif/]
+
+[comment ?????./]
 [query private fsd(o : soa::Operation) : Boolean =  if (o.hasOutput()) then 
   if(o.output->first().type.oclIsKindOf(environment::DTO)) then if (o.output->first().type.oclAsType(environment::DTO).isPersistent()) 
   then true  else  false  endif else  true endif else true endif /]
@@ -408,13 +420,15 @@
   else o.nameOperation() + '_invoke(' + o.input->collect(o1 | o1.name().apply_parameterMethodClassicIn())->sep(', ') + ');' endif /]
   
 [comment écriture de la signature pour le constructeur afin d'injecter les couches de persistance./]
-[query private writePersistInputs(ds : OrderedSet(environment::DTO)) : String = ds->select(o1 | o1.isPersistent())->collect(o2 | 'final ' 
-  + o2.associatedEntity().nameClassEntityPersistItf() + ' ' +  o2.nameRepository().apply_parameterMethodClassicIn())->sep(', ')->toString()/]
+[query private writePersistInputs(ds : OrderedSet(environment::DTO), em : Boolean) : String = ds->select(o1 | o1.isPersistent())->collect(o2 | 'final ' 
+  + o2.associatedEntity().nameClassEntityPersistItf() + ' ' +  o2.nameRepository().apply_parameterMethodClassicIn())->sep(', ')->toString() + 
+  if (em) then ', EntityManager ' + 'entity manager'.apply_parameterMethodClassicIn() else '' endif/]
 
 [comment écriture de l'affectation pour la couche de persistance dans le constructeur./]
-[query private writePersistAffectation(ds : OrderedSet(environment::DTO)) : String = ds->select(o1 | o1.isPersistent())
+[query private writePersistAffectation(ds : OrderedSet(environment::DTO), em : Boolean) : String = ds->select(o1 | o1.isPersistent())
   ->collect(o2 | o2.prefixAffectation() + o2.nameRepository().apply_attributeFinal() + ' = ' + o2.nameRepository().apply_parameterMethodClassicIn())->sep(';' 
-  + ds.lineSeparator())->toString() + if (not ds->select(o1 | o1.isPersistent())->isEmpty()) then ';' else '' endif/]
+  + ds.lineSeparator())->toString() + if (not ds->select(o1 | o1.isPersistent())->isEmpty()) then ';' + if (em) then ds.prefixAffectation() 
+  + 'entity manager'.apply_attributeFinal() + ' = ' + 'entity manager'.apply_parameterMethodClassicIn() + ';' else '' endif else '' endif/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writePersistSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]
