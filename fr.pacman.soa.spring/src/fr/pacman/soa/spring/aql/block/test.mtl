@@ -224,6 +224,7 @@
      * Instance de {@link [s.nameClassServiceOutItf()/]} qui est utilisée pour gérer 
      * les opérations de persistance au niveau des tests.
      */
+     @SuppressWarnings("unused") // Pour l'instant.
      private [s.nameClassServiceOutItf()/] ['provider'.apply_attributeDefault()/];
      
      /**

@@ -11,6 +11,7 @@
 [import fr::pacman::soa::spring::aql::file::genServer/]
 [import fr::pacman::core::aql::query::application/]
 [import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::query::dto/]
 
 [comment @main/]
 [template protected genServer(m : soa::System)]
@@ -49,6 +50,8 @@
   
   [comment implémentation du service crud infrastructure (persistance)./]
   [for (d : environment::DTO | m.eAllContents(environment::DTO))]
-    [d.fileServiceCrudOutImpl(null)/]
+    [if (d.isPersistent())]
+      [d.fileServiceCrudOutImpl(null)/]
+    [/if]
   [/for]
 [/template]
