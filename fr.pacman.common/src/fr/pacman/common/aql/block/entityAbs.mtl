@@ -18,17 +18,21 @@
 [import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture de la classe abstraite pour champs automatiques pour la base de données./]
+[comment ATTENTION ne devrait plus être dans common avec l'ajout des annotations Spring.!!/]
 [template public autoAttributesImpl (any : ecore::EObject, target : String)]
   [any.classHeader(if (any.commandEntity().equalsIgnoreCase(target)) then any.namePackageInfrastructureBase() 
-    else any.namePackageCommonEntityBase() endif)/]
+    else any.namePackageCommonDtoBase() endif)/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [any.defaultsImports()/]
     import jakarta.persistence.Column;
+    import jakarta.persistence.EntityListeners;
     import jakarta.persistence.MappedSuperclass;
+    import jakarta.persistence.PrePersist;
+    import jakarta.persistence.PreUpdate;
     import org.hibernate.annotations.SourceType;
-    import org.hibernate.annotations.CreationTimestamp;
-    import org.hibernate.annotations.UpdateTimestamp;
+    import org.springframework.data.annotation.LastModifiedDate;
+    import org.springframework.data.jpa.domain.support.AuditingEntityListener;
     
   [/protected]
   
@@ -38,7 +42,7 @@
    * pour gérer l'auto-attribution des valeurs sur les différents champs.
    */
   [target.writeAnnotationEntity()/]
-  public abstract class [any.nameClassEntityAbs()/]
+  public abstract class [any.writeClassNameAbs(target)/]
   {
     
     // CONSTANTES ET ATTRIBUTS
@@ -46,9 +50,10 @@
     [/protected]
     
     ['Constructeur'.commentMultiLines()/]
-    protected [any.nameClassEntityAbs()/]()
+    protected [any.writeClassNameAbs(target)/]()
     {
-       [if (any.hasXuuId())][any.prefixAffectation()/][any.get_XuuIdKey().nameAutoAttribute()/] 
+       [if (any.hasXuuId() and any.commandEntity().equalsIgnoreCase(target))]
+         [any.prefixAffectation()/][any.get_XuuIdKey().nameAutoAttribute()/] 
          = UUID.randomUUID();[else]//RAS.[/if]
     }
           
@@ -61,6 +66,42 @@
       
     [/for]
     
+    [if (any.commandEntity().equalsIgnoreCase(target))]
+      /**
+       * Méthode de rappel appelée automatiquement avant l'insertion en base de
+       * données (persist).
+       *
+       * Cette méthode est exécutée une seule fois lors de la création de l'entité.
+       * Elle peut être utilisée pour initialiser certains champs par défaut, comme
+       * une date de création ou un booléen, sans avoir à les définir manuellement
+       * dans le code métier.
+       *
+       * <strong>Note :</strong> Le bloc utilisateur permet d'ajouter une logique
+       * personnalisée qui ne sera pas écrasée lors des régénérations de code.
+       */
+      @PrePersist
+      public void prePersist() {
+        [protected ('prepersist'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
+      }
+      
+      /**
+       * Méthode de rappel appelée automatiquement avant la mise à jour de l'entité en
+       * base de données.
+       * 
+       * Elle est utile pour mettre à jour des métadonnées, comme une date de
+       * modification ou un champ d'audit, à chaque modification de l'entité.
+       *
+       * <strong>Note :</strong> Le bloc utilisateur permet d'ajouter une logique
+       * personnalisée qui ne sera pas écrasée lors des régénérations de code.
+       */
+      @PreUpdate
+      public void preUpdate() {
+        [protected ('preupdate'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
+      }
+    [/if]
+        
     [for (prop : String | any.autoAttributes())]
       [prop.writeAutomaticGetter()/]
       [prop.writeAutomaticSetter()/]
@@ -105,6 +146,10 @@
   
 [/template]
 
+[comment écriture du nom de la classe selon que la classe fille soit une entité ou un dto./]
+[query private writeClassNameAbs(any : ecore::EObject, target : String) : String = if (any.commandEntity()
+	.equalsIgnoreCase(target)) then any.nameClassEntityAbs() else any.nameClassDtoAbs() endif /]
+
 [comment écriture de la ligne de définition pour l'attribut./]
 [query private writeAttribute(prop : String, target : String) : String = prop.autoAttributeType().type() + ' ' 
 	+ prop.nameAutoAttribute().apply_attributeDefault() + if (prop.commandEntity().equalsIgnoreCase(target) 
@@ -113,7 +158,7 @@
 
 [comment écriture de la ligne pour l'annotation @column./]
 [query private writeAnnotationColumn(prop : String, target : String) : String =  if (target.commandEntity().equalsIgnoreCase(target)) 
-	then if (prop.isXdMaj()) then '@UpdateTimestamp (source = SourceType.DB)' + prop.lineSeparator() else '' endif 
+	then if (prop.isXdMaj()) then '@LastModifiedDate' + prop.lineSeparator() else '' endif 
 	+ '@Column(name = "' + prop.nameAutoAttribute() +'", nullable = ' + if (prop.autoAttributNull().exists()) 
 	then prop.autoAttributNull() else 'true' endif + if (prop.autoAttributSize().exists()) then ', length = ' 
 	+ prop.autoAttributSize() else '' endif + if (prop.equalsIgnoreCase(prop.get_XuuIdKey())) then 
@@ -121,4 +166,5 @@
 
 [comment écriture de la ligne d'annotation pour l'entité./]
 [query private writeAnnotationEntity(target : String) : String = if (target.commandEntity().equalsIgnoreCase(target)) 
-	then '@MappedSuperclass' else '' endif/]
+	then '@MappedSuperclass' + if (target.hasAutoAttributes()) then target.lineSeparator() + '@EntityListeners(AuditingEntityListener.class)' 
+	else '' endif else '' endif /]

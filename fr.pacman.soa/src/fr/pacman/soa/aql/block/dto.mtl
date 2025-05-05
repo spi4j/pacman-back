@@ -28,13 +28,13 @@
     
     [d.defaultImports()/]
     import java.util.Objects;
-    import [d.namePackageProject()/].[d.namePackageCommonEntityBase()/].[d.nameClassEntityAbs()/];
+    import [d.namePackageProject()/].[d.namePackageCommonDtoBase()/].[d.nameClassDtoAbs()/];
     import [d.namePackageProject()/].[d.namePackageCommonBase()/].[d.nameClassValidatorUtilsImpl()/];
     import [d.namePackageProject()/].[d.namePackageCommonException()/].[d.nameClassValidationExceptionImpl()/];
     
   [/protected]
   [d.commentClass()/]
-  public class [d.nameClassDtoImpl()/] extends [d.nameClassEntityAbs()/]
+  public class [d.nameClassDtoImpl()/] extends [d.nameClassDtoAbs()/]
    {
       
       [if (not d.immutable())]

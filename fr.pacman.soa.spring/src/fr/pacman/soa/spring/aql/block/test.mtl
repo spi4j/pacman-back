@@ -260,6 +260,7 @@
              
           [/protected]
           
+          [o.writeRsExpectedStatus()/]
           [o.writeRsOperation(s)/]
           
           [protected ((o.name() + ' result').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -307,12 +308,16 @@
   }
 [/template]
 
+[comment écriture du statut http attendu (code de réponse) pour le test./]
+[query private writeRsExpectedStatus(o : soa::Operation) : String = + 'Le statut attendu suite au test'.commentSingleLine() + 'int ' 
+	+ 'expected status'.apply_variableDefault() + ' = ' + if(o.mustHaveRsOutput()) then o.output->first().statusCode else '200' endif +';' 
+	+ o.lineSeparator() + ' '/]
+
 [comment écriture de liste des paramètres d'entrée de l'opération pour initialisation./]
 [query private writeRsInitInputParams(o : soa::Operation) : String = o.input->asOrderedSet()->collect(o1 | o1.description.commentSingleLine() 
 	+ if (o1.type.oclIsKindOf(environment::DTO)) then o1.type.oclAsType(environment::DTO).nameClassXtoImpl() else o1.type.type() endif 
 	+ ' ' + o1.name().apply_attributeDefault() + ' = ' + o1.writeDefaultValue() + ';')->sep(o.lineSeparator() + o.lineSeparator())->toString() 
-	+ o.lineSeparator() + o.lineSeparator() + 'Le statut attendu suite au test'.commentSingleLine() + 'int ' 
-	+ 'expected status'.apply_variableDefault() + ' = ' + if(o.mustHaveRsOutput()) then o.output->first().statusCode else '200' endif +';'/]
+	+ o.lineSeparator()/]
 
 [comment écriture du corps de l'opération./]
 [query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'rest helper'.apply_attributeDefault() 

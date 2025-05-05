@@ -31,18 +31,21 @@
 	
 [comment vérifie l'existance d'un champ supplémentaire de type xtopsup./]
 [query public hasXtopSup(any : ecore::EObject) : Boolean = not any.autoAttributes()
-	->collect(o | o.contains(any.keyXtopSup()))->isEmpty()/]
+	->select(o | o.contains(any.keyXtopSup()))->isEmpty()/]
 
 [comment vérifie l'existance d'un champ supplémentaire de type xdmaj./]
 [query public hasXdMaj(any : ecore::EObject) : Boolean = not any.autoAttributes()
-	->collect(o | o.contains(any.keyXdMaj()))->isEmpty()/]
+	->select(o | o.contains(any.keyXdMaj()))->isEmpty()/]
 
 [comment vérifie l'existance d'un champ supplémentaire de type xuuid (uniformiser pour x.. ?)./]
 [query public hasXuuId(any : ecore::EObject) : Boolean = not any.autoAttributes()
-	->collect(o | o.contains(any.keyXuId()))->isEmpty()/]
+	->select(o | o.contains(any.keyXuId()))->isEmpty()/]
 
 [comment vérifie l'existance de champ(s) supplémentaire(s) de type xtopsup ou xdmaj./]
 [query public hasXtoSupOrXdMaj(any : ecore::EObject) : Boolean = any.hasXtopSup() or any.hasXdMaj()/]
+  
+[comment vérifie si il existe des attributs automatiques pour la couche de persistance./]
+[query public hasAutoAttributes(any : ecore::EObject) : Boolean = any.get_SQLAutoFields().trim().size() > 0/]
   
   
   
