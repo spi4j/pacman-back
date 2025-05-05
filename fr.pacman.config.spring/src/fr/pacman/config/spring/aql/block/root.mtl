@@ -2,6 +2,7 @@
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::versions/]
+[import fr::pacman::core::aql::output::resources/]	
 [import fr::pacman::core::property::project::ProjectProperties/]
 
 [comment écriture du fichier de configuration Maven pour le projet principal (root)./]
@@ -183,6 +184,13 @@
             <scope>import</scope>
           </dependency>
           -->
+          <!--
+          [protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            -->
+          
+            <!-- 
+          [/protected]
+          -->
        </dependencies>
     </dependencyManagement>
     
@@ -238,8 +246,22 @@
                 <encoding>UTF-8</encoding>
               </configuration>
           </plugin>
+          
+          <!--
+          [protected ('plugins'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            -->
+            <!--
+          [/protected]
+          -->
        </plugins>
-    </pluginManagement>
+    </pluginManagement>          
+    
+    <!--
+    [protected ('pom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      -->
+      <!--
+    [/protected]
+    -->
     </build>
   </project>
 [/template]

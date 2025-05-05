@@ -130,6 +130,13 @@
     	   <scope>provided</scope>
     	</dependency>
     	-->
+    	
+    	<!--
+    	[protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          -->
+          <!--
+    	[/protected]
+    	-->
     </dependencies>
     
     <build>
@@ -149,8 +156,22 @@
                <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrap()/]</mainClass>
             </configuration>
          </plugin>
+         
+         <!-- 
+         [protected ('plugins'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           -->
+           <!--
+         [/protected]
+         -->
       </plugins>
     </build>
+    
+    <!--
+    [protected ('pom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      -->
+      <!--
+    [/protected]
+    -->
     
     <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->

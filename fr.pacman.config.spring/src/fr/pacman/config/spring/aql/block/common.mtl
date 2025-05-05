@@ -5,6 +5,7 @@
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::resources/]	
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]
 [import fr::pacman::core::aql::rule::method/]
@@ -39,6 +40,13 @@
           <groupId>org.assertj</groupId>
           <artifactId>assertj-core</artifactId>
        </dependency>
+       
+       <!--
+       [protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         -->
+         <!--
+       [/protected]
+       -->
     </dependencies>
     
     <build>
@@ -75,8 +83,22 @@
                </execution>
             </executions>
          </plugin>
+         
+         <!--
+         [protected ('plugins'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           -->
+           <!--
+         [/protected]
+         -->
       </plugins>
     </build>
+    
+    <!--
+    [protected ('pom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      -->
+      <!--
+    [/protected]
+    -->
     
     <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
