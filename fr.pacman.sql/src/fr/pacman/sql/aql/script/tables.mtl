@@ -175,7 +175,7 @@
 [comment écriture de la ligne pour chaque attribut automatique de l'entité./]  
 [query private writeAutoAttribute(s : String, dbType : String) : String = s.nameAutoAttribute().toUpper() + ' ' 
 	+ dbType.get_columnTypeForDatabase(s.autoAttributeType()) + if ('false'.equalsIgnoreCase(s.autoAttributNull())) then ' not null' 
-	else '' endif + if (dbType.is_mySqlType() and s.autoAttributeComment().exists()) then ' ' + s.autoAttributeComment().escapeComment() 
+	else '' endif + if (dbType.is_mySqlType() and s.autoAttributeComment().exists()) then ' ' + s.autoAttributeComment().escapeSqlComment() 
 	else '' endif + if (s.autoAttributDefault().exists()) then ' DEFAULT ' + '\'' + s.autoAttributDefault() + '\'' else '' endif + ',' /]
 
 [comment écriture de la ligne pour chaque attribut de l'entité./]  
@@ -190,7 +190,7 @@
 
 [comment écriture d'un segment commun pour certaines lignes./]
 [query private writeEndLine (any : environment::Property, dbType : String) : String = if (any.is_mandatoryEntity()) then ' not null' else '' endif + 
-	if (dbType.is_mySqlType() and any.description.exists()) then ' ' + any.description.toString().escapeComment() else '' endif/]
+	if (dbType.is_mySqlType() and any.description.exists()) then ' ' + any.description.toString().escapeSqlComment() else '' endif/]
 	
 [comment écriture de la référence ciblée pour la création de l'index (dépend si la référence est récursive ou pas)./]
 [query private writeReferenceId(r: environment::Reference, e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = 
@@ -214,7 +214,7 @@
 
 [comment écriture de la ligne de commentaire pour la table (si description sur l'entité)./]	
 [query private writeComment(e : entity::Entity) : String = 'comment on table ' + e.nameTableSchema().toUpper()
-	+ ' is \'' + e.description.escapeComment() + '\';'/]
+	+ ' is \'' + e.description.escapeSqlComment() + '\';'/]
 
 [comment écriture de la ligne de commentaire pour la clé primaire de l'entité (commentaire automatique)./]	
 [query private writeComment(e : entity::Entity, str : String) : String = 'comment on column ' + (e.nameTableSchema() + '.' 
@@ -222,8 +222,8 @@
 	
 [comment écriture de la ligne de commentaire pour la colonne (si description sur l'attribut)./]		
 [query private writeComment(a : environment::Attribute, e : entity::Entity) : String = 'comment on column ' + e.nameTableSchema().toUpper() 
-	+ '.' + a.nameColumn().toUpper() + ' is \'' + a.description.escapeComment() + '\';'/]
+	+ '.' + a.nameColumn().toUpper() + ' is \'' + a.description.escapeSqlComment() + '\';'/]
 
 [comment écriture de la ligne de commentaire pour la référence (si description sur la référence)./]		
 [query private writeComment(r : environment::Reference, e : entity::Entity, columnNameForId : String) : String = 'comment on column ' 
-	+ e.nameTableSchema().toUpper() + '.' + columnNameForId.toUpper() + ' is \'' + r.description.escapeComment() + '\';'/]
+	+ e.nameTableSchema().toUpper() + '.' + columnNameForId.toUpper() + ' is \'' + r.description.escapeSqlComment() + '\';'/]

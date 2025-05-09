@@ -17,7 +17,7 @@
 [comment retourne la ligne expurgée des caractères spéciaux interdits./]
 [query public sanitize(str : String) : String = str.trim().normalize().do_sanitize()/]
 
-[comment retourne la ligne expurgée des caractères spéciaux interdits./]
+[comment retourne la ligne expurgée des caractères spéciaux interdits (pour les tables, etc..)./]
 [query public sanitizeSql(str : String) : String = str.sanitize().replaceAll(' ','')/]
   
 [comment retourne la ligne expurgée des caractères spéciaux interdits./]
@@ -73,8 +73,11 @@
 [comment découpe (avec un retour à la ligne) une longue chaine de caractères./]
 [query public lineCut(str : String, nbCols : Integer) : String = str.lineCut(nbCols, null)/]
 
-[comment retourne la les lignes de commentaires échappées des apostrophes et des retours à la ligne./]  
+[comment retourne la les lignes de commentaires échappées des retours à la ligne./]  
 [query public escapeComment(str : String) : String = str.replaceAll('[\n|\r]','').replace('\\.$','')/]
+  
+[comment retourne la les lignes de commentaires échappées des retours à la ligne./]  
+[query public escapeSqlComment(str : String) : String = str.escapeComment().replaceAll('\'','\'\'')/]
 
 [comment retourne le script SQL débarrasé des lignes vides issues de la génération./]
 [query public escapeFile(str : String) : String = str.escapeFile(true)/]

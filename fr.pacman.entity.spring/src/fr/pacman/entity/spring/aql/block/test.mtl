@@ -181,9 +181,6 @@
       [for (a : environment::Attribute | e.attributesNoPK())]
         [eName/].[a.nameAttribute().apply_methodSet()/]([a.writeDefaultValue()/]);
       [/for]
-      [for (prop : String | e.autoAttributes())]
-        [e.writeAutoAttribute(prop, false)/]
-      [/for]
       
       [e.writeReferencedFK(rs)/]
       
@@ -259,9 +256,6 @@
         [else]
           [eName/].[a.nameAttribute().apply_methodSet()/]([a.writeDefaultValue()/]);
         [/if]
-      [/for]
-      [for (prop : String | e.autoAttributes())]
-        [e.writeAutoAttribute(prop, true)/]
       [/for]
       
       [e.writeReferencedFK(rs)/]
@@ -415,7 +409,7 @@
 [comment écriture du test pour la suppression d'une entité./]
 [template private writeTestAllFieldInserted (e : entity::Entity, rs : OrderedSet(environment::Reference))]
   /**
-  * Tests de la bone insertion de l'ensemble des champs. On ne contrôle que les
+  * Tests de la bonne insertion de l'ensemble des champs. On ne contrôle que les
   * champs de l'entité [e.name()/].
   * 
   * @throws Exception Exception Si une exception se produit pendant l'exécution
@@ -427,6 +421,7 @@
      
      [let eName = e.name().apply_variableDefault()]
         [e.nameClassEntityImpl()/] [eName/] = new [e.nameClassEntityImpl()/]();
+        [eName/].['disable auto init'.apply_methodSet()/](true);
         
         [protected ('test all fields inserted'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
         

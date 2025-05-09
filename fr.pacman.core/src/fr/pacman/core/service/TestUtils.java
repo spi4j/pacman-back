@@ -15,8 +15,9 @@ public class TestUtils {
 //	private static final String c_typeColumnId = "Id";
 //	private static final String c_typeColumnIdJoin = "IdJoin";
 //	private static final String c_typeColumnReference = "Reference";
-	private static final String c_typeColumnXtopSup = "XtopSup";
+	private static final String c_typeColumnXtopSup = "Xtopsup";
 //	private static final String c_typeColumnDefault = "Default";
+	private static final String c_typeColumnXdmaj = "Xdmaj";
 	private static final String c_typeColumnLong = "Long";
 	private static final String c_typeColumnInt = "Integer";
 	private static final String c_typeColumnFloat = "Float";
@@ -28,7 +29,8 @@ public class TestUtils {
 	private static final String c_typeColumnBinary = "Binary";
 	private static final String c_typeColumnBoolean = "Boolean";
 	private static final String c_typeColumnChar = "Char";
-	private static final String c_typeColumnXuuId = "UUID";
+	private static final String c_typeColumnXuuId = "Xuuid";
+	private static final String c_typeColumnUuid = "UUID";
 
 	/**
 	 * La liste des valeurs par défaut pour l'initialisation des entités en fonction
@@ -50,7 +52,9 @@ public class TestUtils {
 		_defaultValues.put(c_typeColumnTime, "LocalTime.now()");
 		_defaultValues.put(c_typeColumnTimestamp, "Instant.now()");
 		_defaultValues.put(c_typeColumnXuuId, "UUID.randomUUID()");
+		_defaultValues.put(c_typeColumnUuid, "UUID.randomUUID()");
 		_defaultValues.put(c_typeColumnXtopSup, "false");
+		_defaultValues.put(c_typeColumnXdmaj, "Instant.now()");
 	}
 
 	public static String get_defaulValueForType(final Attribute p_attribute) {

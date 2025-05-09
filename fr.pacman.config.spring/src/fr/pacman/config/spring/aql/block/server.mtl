@@ -1054,6 +1054,7 @@
   # SPRING CACHE 
   # ----------------------------------------------------------------------------------------------
   
+  # Valeurs possibles <none|simple|caffeine|ehcache|hazelcast|infinispan|jcache|redis>
   spring.cache.type=simple
   
   # ----------------------------------------------------------------------------------------------

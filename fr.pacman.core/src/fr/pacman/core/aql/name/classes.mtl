@@ -134,9 +134,6 @@
 [comment retourne le nom de la classe abstraite pour les champs automatiques de la base de données./]
 [query public nameClassEntityAbs(any: ecore::EObject) : String = (any.nameProject() + ' entity').apply_classAbstract()/]
   
-[comment retourne le nom de la classe abstraite pour les champs automatiques de la base de données./]
-[query public nameClassDtoAbs(any: ecore::EObject) : String = (any.nameProject() + ' dto').apply_classAbstract()/]
-  
 [comment retourne le nom de la classe de démarrage pour une application Spring./]
 [query public nameClassAppBootstrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBootstrap()).apply_classDefault()/]
 
