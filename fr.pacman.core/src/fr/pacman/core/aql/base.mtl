@@ -136,6 +136,9 @@
 [comment le suffixe pour la classe de démarrage de l'application./]
 [query public suffixApplicationBootstrap(any : ecore::EObject) : String = ' bootstrap'/]
   
+[comment le préfixe pour la gestion des roles (permissions)./]
+[query public prefixRole(any : ecore::EObject) : String = 'ROLE_'/]
+  
 [comment le préfixe pour les attributs si besoin./]
 [query public prefixAffectation(any : ecore::EObject) : String = 'this.'/]
   
@@ -254,9 +257,6 @@
 
 [comment retourne le 'nom' pour l'uri d'authentification (jeton) pour les services rest sécurisés./]
 [query public nameRsTokenUri(any : ecore::EObject) : String = '/token'/]
-  
-[comment retourne le nom pour un type spécial pacman XtopSup./]
-[query public nameTypeXtopSup(any : ecore::EObject) : String = 'xtop sup'/]
   
 [comment retourne le nom pour l'énumération du statut de la ligne en base de données./][query public nameDatabaseStatusEnum(any : ecore::EObject) : String = 'record status'/]
 

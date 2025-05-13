@@ -1,6 +1,7 @@
 [module database(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
+[import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::core::service::DatabaseUtils/]
 [import fr::pacman::core::property::project::ProjectProperties/]
 
@@ -22,5 +23,9 @@
 [comment retourne le type pour la clé de jointure en fonction du type de la base de données./]	
 [query public typeColumnIDJoin(dbType : String) : String = dbType.get_columnTypeForDatabase('IdJoin')/]
   
+[comment retourne la liste des entités qui ne sont pas héritées (aucune classe mère)./]
+[query public entities(r : entity::Root) : Sequence(entity::Entity) = r.eAllContents(entity::Entity)
+  ->select(e | r.eAllContents(entity::Entity)->forAll(other | not other.supertype->includes(e)))/]
+ 
 [comment query public typeColumn(r : environment::Reference, dbType : String) : String = r.typeDataBase(dbType, '', '')/]
   

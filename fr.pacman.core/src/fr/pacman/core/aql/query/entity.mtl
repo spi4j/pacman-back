@@ -11,6 +11,8 @@
 [import fr::pacman::core::service::AnnotationUtils/]
 [import fr::pacman::core::aql::rule::parameter/]
 
+[import fr::pacman::core::service::DtoEntityUtils/]
+
 [comment liste des requêtes possibles sur les entités./]
   
 [comment vérifie si une propriété (un attribut ou une référence) est obligatoire pour une entité./]
@@ -18,6 +20,12 @@
 
 [comment retourne true si l'entité possède un attribut avec l'annotation Version./]
 [query public hasVersion(e : entity::Entity) : Boolean = if e = null then false else e.attributes->exists(o | o.has_metaVersion()) endif/]
+  
+[comment vérifie si le parent de l'entité (classe mère) existe/]
+[query public hasParent(e : entity::Entity) : Boolean = e.supertype <> null/]
+  
+[comment retourne le parent de l'entité (classe mère), si la classe n'a pas de parent alors retourne l'entité./]
+[query public parentOrSelf(e : entity::Entity) : entity::Entity = if (e.hasParent()) then e.get_parent() else e endif/]
 
 [comment retourne true si l'entité a au moins un attribut obligatoire./]
 [query public hasMandatoryAttributes(e : entity::Entity) : Boolean = not e.attributesNoPK()->select(o | o.isMandatory())->isEmpty()/]

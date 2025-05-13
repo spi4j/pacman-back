@@ -172,6 +172,7 @@
     import org.springframework.boot.test.context.TestConfiguration;
     import org.springframework.context.annotation.ComponentScan;
     import org.springframework.context.annotation.FilterType;
+    import org.springframework.test.context.ActiveProfiles;
     import org.springframework.test.context.TestPropertySource;
     import org.springframework.test.context.junit.jupiter.SpringExtension;
     import org.springframework.test.web.servlet.MockMvc;
@@ -208,6 +209,7 @@
    */
   [protected ((s.nameClassServiceTestImpl() + 'anno').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
   [/protected]
+  @ActiveProfiles("test")
   @AutoConfigureMockMvc
   @ExtendWith(SpringExtension.class)
   @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)

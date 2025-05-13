@@ -8,6 +8,7 @@ import org.eclipse.emf.common.util.Logger;
 
 import fr.pacman.core.generator.PacmanGenerator;
 import fr.pacman.core.ui.generator.PacmanUIGenerator;
+import fr.pacman.core.validation.main.GenValidation;
 import fr.pacman.sql.main.GenServer;
 import fr.pacman.sql.ui.plugin.Activator;
 
@@ -34,6 +35,7 @@ public class SqlUIGenerators extends PacmanUIGenerator {
 	@Override
 	protected List<PacmanGenerator> getGenerators() {
 		final List<PacmanGenerator> v_generators = new ArrayList<>();
+		v_generators.add(new GenValidation());
 		v_generators.add(new GenServer());
 		return v_generators;
 	}

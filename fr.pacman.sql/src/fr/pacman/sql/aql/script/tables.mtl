@@ -12,6 +12,7 @@
 [import fr::pacman::core::aql::query::attribute/]
 [import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::query::property/]
+[import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::sql::aql::script::headers/]
 
 [import fr::pacman::core::service::DatabaseUtils/]
@@ -25,19 +26,21 @@
 
 [comment template principal du script de création des tables, indexs et contraintes pour une base 'dbType'./]				
 [template public createTables(r : entity::Root, dbType : String)]
-  [for (e : entity::Entity | r.eAllContents(entity::Entity))]
-    [let rs = e.referencesFK()]
-      [e.tableHeader()/]
-      [e.writeTable(e.commandCreate())/]
+  [for (e : entity::Entity | r.entities())]
+    [let fks = e.referencesFK()]
+    [let p = e.parentOrSelf()]
+      [p.tableHeader()/]
+      [p.writeTable(e.commandCreate())/]
       (
-        [e.primaryKey(dbType)/]
+        [p.primaryKey(dbType)/]
         [e.attributes(dbType)/]
         [e.autoAttributes(dbType)/]
-        [e.foreignKeys(rs,dbType)/]
-        [e.primaryKeyConstraint(dbType)/]
+        [e.foreignKeys(fks,dbType)/]
+        [p.primaryKeyConstraint(dbType)/]
       );
-      [e.indexs(rs,dbType, e.commandCreate())/]
-      [e.comments(rs,dbType)/]
+      [p.indexs(fks,dbType, e.commandCreate())/]
+      [e.comments(fks,dbType)/]
+    [/let]
     [/let]
   [/for]
   [r.joinTables(dbType, r.commandCreate())/]
@@ -46,10 +49,10 @@
 [comment template principal du script de suppression des tables, indexs et contraintes pour un base 'dbType'./]				
 [template public dropTables(r : entity::Root, dbType : String)]
   [r.indexsHeader()/]
-  [for (e : entity::Entity | r.eAllContents(entity::Entity))]
-      [e.indexs(e.referencesFK(),dbType, e.commandDelete())/]
+  [for (e : entity::Entity | r.entities())]
+    [e.indexs(e.referencesFK(),dbType, e.commandDelete())/]
   [/for]
-  [for (e : entity::Entity | r.eAllContents(entity::Entity))]
+  [for (e : entity::Entity | r.entities())]
     [e.tableHeader()/]
     [e.writeTable(e.commandDelete())/];
   [/for]
@@ -107,16 +110,23 @@
   [if (not dbType.is_mySqlType() and e.has_comments())]
 	[e.ensureBlankLine()/]
     [if (e.hasComment())][e.writeComment()/][/if]
-    [e.writeComment('Clé primaire pour la table')/]
+    [e.parentOrSelf().writeComment('Clé primaire pour la table')/]
     [for (a : environment::Attribute | e.attributesNoPKAndNoComputed())]
       [if (a.hasComment())][a.writeComment(e)/][/if]
     [/for]
     [for (r : environment::Reference | rs)]
       [if (r.hasComment())]
-        [r.writeComment(e, r.nameReferenceId(r.referencedEntity(e), r.get_namingIndex(rs)))/]
+        [r.writeComment(e, if (r.isZeroOneRecursive()) then r.nameSimplePropertyID() 
+          else r.nameReferenceId(r.referencedEntity(e).parentOrSelf(), r.get_namingIndex(rs)) endif)/]
       [/if]
     [/for]
   [/if]
+[/template]
+
+[comment écriture des commentaires pour les tables de liaison./]
+[template private comments(r : environment::Reference,  dbType : String)]
+  [r.ensureBlankLine()/]
+  [if (r.hasComment())][r.writeComment()/][/if]
 [/template]
 
 [comment écriture des tables de jointure (0,*)(1,*) toutes tables confondues./]
@@ -130,18 +140,17 @@
     [r.writeJoinTable(command)/][if (command.equalsIgnoreCase(r.commandDelete()))];[/if]
     [if (command.equalsIgnoreCase(r.commandCreate()))]
       (
-        [r.containingType.oclAsType(entity::Entity).writePrimaryKeyJoin(dbType)/]
+        [r.containingType.oclAsType(entity::Entity).parentOrSelf().writePrimaryKeyJoin(dbType)/]
         [if (r.isStarRecursive())]
-          [r.referencedType.oclAsType(entity::Entity).writePrimaryKeyJoin(dbType)
+          [r.referencedType.oclAsType(entity::Entity).parentOrSelf().writePrimaryKeyJoin(dbType)
         	  .insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId())/]
         [else]
-          [r.referencedType.oclAsType(entity::Entity).writePrimaryKeyJoin(dbType)/]
+          [r.referencedType.oclAsType(entity::Entity).parentOrSelf().writePrimaryKeyJoin(dbType)/]
         [/if]
-        [if (r.hasXdMaj())][/if]
-        [if (r.hasXtopSup())][/if]
         [r.writePrimaryKeyJoinConstraint(dbType, r.defaultSqlIndexIncrement())/]
       );
     [/if]
+    [r.comments(dbType)/]
   [/for]
 [/template]
 
@@ -168,9 +177,9 @@
 [comment écriture de la ligne pour la contrainte interne table de jointure sur les clés primaires./]
 [query private writePrimaryKeyJoinConstraint(r : environment::Reference, dbType : String, idx : Integer) : String = 
 	if not dbType.is_mySqlType() then 'constraint ' + r.nameConstraintPrimaryKeyJoin().toUpper() + ' ' else '' endif 
-	+ 'primary key (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ', ' + if r.isStarRecursive() then 
-	r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() 
-	else r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() endif +')'/]
+	+ 'primary key (' + r.containingType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey().toUpper() + ', ' + if r.isStarRecursive() then 
+	r.referencedType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() 
+	else r.referencedType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey().toUpper() endif +')'/]
 	
 [comment écriture de la ligne pour chaque attribut automatique de l'entité./]  
 [query private writeAutoAttribute(s : String, dbType : String) : String = s.nameAutoAttribute().toUpper() + ' ' 
@@ -185,7 +194,7 @@
 
 [comment écriture de la ligne pour chacune des tables référencées./]
 [query private writeReference(r : environment::Reference, e : entity::Entity, dbType : String, idx : Integer) : String = 
-	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e),idx).toUpper() endif 
+	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e).parentOrSelf(),idx).toUpper() endif 
 	+ ' ' + r.typeColumnRef(dbType) + r.writeEndLine(dbType) + ','/]
 
 [comment écriture d'un segment commun pour certaines lignes./]
@@ -194,7 +203,8 @@
 	
 [comment écriture de la référence ciblée pour la création de l'index (dépend si la référence est récursive ou pas)./]
 [query private writeReferenceId(r: environment::Reference, e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = 
-	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e), r.get_namingIndex(rs)) endif/]
+	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e).parentOrSelf()
+	, r.get_namingIndex(rs)) endif/]
 
 [comment écriture de la ligne pour un index unique associé à la table./]
 [query private writeUniqueIndex(e : entity::Entity, dbType : String, columns : String, idx : Integer, command : String) : String = 
@@ -213,17 +223,21 @@
 	then '(' + columnNameForId.toUpper() + ')' else '' endif + ';'/]
 
 [comment écriture de la ligne de commentaire pour la table (si description sur l'entité)./]	
-[query private writeComment(e : entity::Entity) : String = 'comment on table ' + e.nameTableSchema().toUpper()
+[query private writeComment(e : entity::Entity) : String = 'comment on table ' + e.parentOrSelf().nameTableSchema().toUpper()
 	+ ' is \'' + e.description.escapeSqlComment() + '\';'/]
+	
+[comment écriture de la ligne de commentaire pour la table de jointure (si description sur la référence)./]	
+[query private writeComment(r : environment::Reference) : String = 'comment on table ' + r.nameTableSchemaJoin().toUpper()
+	+ ' is \'' + r.description.escapeSqlComment() + '\';'/]
 
 [comment écriture de la ligne de commentaire pour la clé primaire de l'entité (commentaire automatique)./]	
 [query private writeComment(e : entity::Entity, str : String) : String = 'comment on column ' + (e.nameTableSchema() + '.' 
-	+  e.namePrimaryKey()).toUpper() + ' is \'' + str + ' ' + e.nameTableSchema().toUpper() + '\';'/]
+	+  e.parentOrSelf().namePrimaryKey()).toUpper() + ' is \'' + str + ' ' + e.parentOrSelf().nameTableSchema().toUpper() + '\';'/]
 	
 [comment écriture de la ligne de commentaire pour la colonne (si description sur l'attribut)./]		
-[query private writeComment(a : environment::Attribute, e : entity::Entity) : String = 'comment on column ' + e.nameTableSchema().toUpper() 
-	+ '.' + a.nameColumn().toUpper() + ' is \'' + a.description.escapeSqlComment() + '\';'/]
+[query private writeComment(a : environment::Attribute, e : entity::Entity) : String = 'comment on column ' + e.parentOrSelf()
+	.nameTableSchema().toUpper() + '.' + a.nameColumn().toUpper() + ' is \'' + a.description.escapeSqlComment() + '\';'/]
 
 [comment écriture de la ligne de commentaire pour la référence (si description sur la référence)./]		
 [query private writeComment(r : environment::Reference, e : entity::Entity, columnNameForId : String) : String = 'comment on column ' 
-	+ e.nameTableSchema().toUpper() + '.' + columnNameForId.toUpper() + ' is \'' + r.description.escapeSqlComment() + '\';'/]
+	+ e.parentOrSelf().nameTableSchema().toUpper() + '.' + columnNameForId.toUpper() + ' is \'' + r.description.escapeSqlComment() + '\';'/]

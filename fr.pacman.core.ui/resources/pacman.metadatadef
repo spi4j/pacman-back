@@ -62,17 +62,17 @@
   <metaDataDefinitions 
      technicalid="_lLBywL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS" 
-     body="ROLE : Opération à exécuter selon persmission(s) l'utilisateur." 
+     body="ROLE : Opération à exécuter selon permission(s) l'utilisateur." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_la-TQL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS_OR" 
-     body="ROLE : Opération à exécuter selon persmission(s) l'utilisateur." 
+     body="ROLE : Opération à exécuter selon permission(s) l'utilisateur." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_lvyssL1bEe-jcvmoMOdyBg" 
      title="PERMISSIONS_AND" 
-     body="ROLE : Opération à exécuter selon persmission(s) l'utilisateur." 
+     body="ROLE : Opération à exécuter selon permission(s) l'utilisateur." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_mAQKkL1bEe-jcvmoMOdyBg" 

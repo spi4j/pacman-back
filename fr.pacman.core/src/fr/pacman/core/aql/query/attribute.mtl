@@ -58,6 +58,9 @@
 	
 [comment vérifie si l'attribut automatique est de type xdmaj./]	
 [query public isXdMaj(prop : String) : Boolean = prop.lastIndex(prop.keyXdMaj()) > 0/]
+  
+[comment vérifie si l'attribut automatique est de type xuuid./]	
+[query public isXUuid(prop : String) : Boolean = prop.lastIndex(prop.keyXuId()) > 0/]
 
 [comment retourne le type pour l'attribut additionnel (champ auto)./]
 [query public autoAttributeType(prop : String) : String = prop.keyTypeSqlAutoAttribut().get_property()/]

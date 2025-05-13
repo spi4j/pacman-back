@@ -55,6 +55,26 @@ public final class DtoEntityUtils {
 		return allAttributes;
 	}
 
+	/**
+	 * Retourne la classe mère pour l'entité, attention il s'agit ici de la classe
+	 * mère de plus haut niveau et non celle directement héritée par l'entité. On
+	 * met une petite sécurité en renvoyant l'entité si aucune classe mère mais
+	 * normallement si cette méthode est appelée, le test a déjà été effectué et
+	 * l'entité doit avoir une classe mère.
+	 * 
+	 * @param p_entity l'entité à interroger.
+	 * @return l'entité mère de plus haut niveau.
+	 */
+	public static Entity get_parent(final Entity p_entity) {
+		Entity e = (Entity) p_entity.getSupertype();
+		if (e != null) {
+			if (e.getSupertype() != null)
+				return get_parent(e);
+			return e;
+		}
+		return p_entity;
+	}
+
 //
 //	/**
 //	 * Retourne les attributs du DTO ainsi que ceux potentiellement hérités par une

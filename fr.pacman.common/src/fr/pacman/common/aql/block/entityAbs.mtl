@@ -47,21 +47,22 @@
   [target.writeAnnotationEntity()/]
   public abstract class [any.nameClassEntityAbs()/]
   {
-    
-   /**
-    * Indicateur permettant de désactiver l'initialisation automatique
-    * lors des événements de cycle de vie {@code @PrePersist} et {@code @PreUpdate}.
-    * 
-    * Cet indicateur est plus précis que {@link @ActiveProfiles} car il est
-    * positionnable au niveau de la méthode, il peut (et doit) fonctionner en
-    * combinaison avec {@link @ActiveProfiles}.
-    *
-    * Ce champ n'est pas persistant en base de données ({@code @Transient}).
-    * Il est utilisé pour empêcher l'exécution de logique d'initialisation automatique,
-    * par exemple dans certaines situations de traitement ou de tests.
-    */
-    @Transient
-    private boolean ['disable auto init'.apply_attributeStatic()/];
+   [if (any.commandEntity().equalsIgnoreCase(target))] 
+     /**
+      * Indicateur permettant de désactiver l'initialisation automatique
+      * lors des événements de cycle de vie {@code @PrePersist} et {@code @PreUpdate}.
+      * 
+      * Cet indicateur est plus précis que {@link @ActiveProfiles} car il est
+      * positionnable au niveau de la méthode, il peut (et doit) fonctionner en
+      * combinaison avec {@link @ActiveProfiles}.
+      *
+      * Ce champ n'est pas persistant en base de données ({@code @Transient}).
+      * Il est utilisé pour empêcher l'exécution de logique d'initialisation automatique,
+      * par exemple dans certaines situations de traitement ou de tests.
+      */
+      @Transient
+      private boolean ['disable auto init'.apply_attributeStatic()/];
+    [/if]
     
     // CONSTANTES ET ATTRIBUTS
     [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -131,29 +132,29 @@
           [/protected]
         }
       }
+      
+      /**
+       * Indique si l'initialisation automatique doit être désactivée
+       * lors des événements {@code @PrePersist} et {@code @PreUpdate}.
+       *
+       * @return {@code true} si l'initialisation automatique est désactivée, {@code false} sinon
+       */
+      public boolean ['disable auto init'.apply_methodGet()/](){
+        return [any.prefixAffectation()/]['disable auto init'.apply_attributeStatic()/];
+      }
+      
+      /**
+       * Active ou désactive l'initialisation automatique
+       * lors des événements {@code @PrePersist} et {@code @PreUpdate}.
+       *
+       * @param ['disable auto init'.apply_parameterMethodClassicIn()/] {@code true} pour désactiver 
+       * l'initialisation automatique, {@code false} pour l'activer
+       */
+      public void ['disable auto init'.apply_methodSet()/](final boolean ['disable auto init'.apply_parameterMethodClassicIn()/]){
+         [any.prefixAffectation()/]['disable auto init'.apply_attributeStatic()/] = ['disable auto init'.apply_parameterMethodClassicIn()/];
+      }
     [/if]
-    
-    /**
-     * Indique si l'initialisation automatique doit être désactivée
-     * lors des événements {@code @PrePersist} et {@code @PreUpdate}.
-     *
-     * @return {@code true} si l'initialisation automatique est désactivée, {@code false} sinon
-     */
-    public boolean ['disable auto init'.apply_methodGet()/](){
-      return [any.prefixAffectation()/]['disable auto init'.apply_attributeStatic()/];
-    }
-    
-    /**
-     * Active ou désactive l'initialisation automatique
-     * lors des événements {@code @PrePersist} et {@code @PreUpdate}.
-     *
-     * @param ['disable auto init'.apply_parameterMethodClassicIn()/] {@code true} pour désactiver 
-     * l'initialisation automatique, {@code false} pour l'activer
-     */
-    public void ['disable auto init'.apply_methodSet()/](final boolean ['disable auto init'.apply_parameterMethodClassicIn()/]){
-       [any.prefixAffectation()/]['disable auto init'.apply_attributeStatic()/] = ['disable auto init'.apply_parameterMethodClassicIn()/];
-    }
-        
+       
     [for (prop : String | any.autoAttributes())]
       [prop.writeAutomaticGetter()/]
       [prop.writeAutomaticSetter()/]
@@ -220,5 +221,9 @@
 [query private writePrePersist(prop : String ) : String = prop.nameAutoAttribute().apply_methodSet() + '(' 
 	+  prop.autoAttributeName().get_defaulValueForType() + ');'/]
 
-[comment écriture de l'initialisation des champs avant mise à jour de l'entité (on utilise TestUtils ce qui n'est pas très propre!)./]
-[query private writePreUpdate(prop : String ) : String = ''/]
+[comment écriture de l'initialisation des champs avant mise à jour de l'entité./]
+[query private writePreUpdate(prop : String ) : String =  if (not (prop.isXtopSup() or prop.isXUuid())) 
+	then prop.writePrePersist() else '' endif/]
+
+
+

@@ -37,7 +37,7 @@
 [query public nameClassCategoryRequirementEnumerationImpl (c : requirement::Category) : String = ('requirements ' + c.id).apply_classEnum()/]
 
 [comment retourne le nom pour l'implémentation pour la classe de résolution du jeton jwt./]
-[query public nameClassRsTokenResolverImpl (any : ecore::EObject) : String = (any.nameProject() + ' token resolver').apply_classDefault()/]
+[query public nameClassRsTokenResolverImpl (any : ecore::EObject) : String = (any.nameProject() + ' jwt token resolver').apply_classDefault()/]
 
 [comment retourne le nom pour l'interface d'un requirement./]
 [query public nameClassRequirementItf (any : ecore::EObject) : String = 'requirement'.apply_classInterface()/]
@@ -70,7 +70,7 @@
 [query public nameClassRsServiceImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]
 
 [comment retourne le nom pour l'implémentation du contrôleur servant à l'authentification (apikey , http basic)./]
-[query public nameClassRsServiceTokenImpl(any : ecore::EObject) : String = (any.nameProject() + ' token controller').apply_classImplem()/]
+[query public nameClassRsServiceTokenImpl(any : ecore::EObject) : String = (any.nameProject() + ' jwt token controller').apply_classImplem()/]
 
 [comment retourne le nom pour l'implémentation de la classe d'erreur spécialisée pour l'authentification (http - apikey)./]
 [query public nameClassRsAuthenticationEntryPointImpl(any : ecore::EObject) : String = (any.nameProject() + ' auth entry point').apply_classDefault()/]
@@ -115,9 +115,6 @@
   
 [comment retourne le nom pour l'utilitaire de validation des champs pour les objets métier./]
 [query public nameClassValidatorUtilsImpl (any : ecore::EObject) : String = 'validator utils'.apply_classDefault()/]
-
-[comment retourne le nom de la classe pour le type spécifique pacman 'XtopSup'./]
-[query public nameClassXtopSupImpl (any : ecore::EObject) : String = any.nameTypeXtopSup().nameClassType()/]
 
 [comment retourne le nom pour la classe d'énumération du statut de la ligne en base de données./]
 [query public nameClassDatabaseStatusImpl (any : ecore::EObject) : String = any.nameDatabaseStatusEnum().apply_classEnum()/]
@@ -189,7 +186,7 @@
 [query public nameClassRsHttpStatusResolverImpl(any : ecore::EObject) : String = (any.get_projectName() + ' http status resolver').apply_classDefault()/]
   
 [comment retourne le nom de la classe helper pour obtenir des informations sur le jeton courant (rien à voir avec le décodage) (rest)./]
-[query public nameClassRsCurrentTokenHelperImpl(any : ecore::EObject) : String = (any.get_projectName() + ' current token helper').apply_classDefault()/]
+[query public nameClassRsCurrentTokenHelperImpl(any : ecore::EObject) : String = (any.get_projectName() + ' current jwt token helper').apply_classDefault()/]
 
 [comment retourne le nom de la classe pour le filtre de gestion générique des en-têtes./]
 [query public nameClassRsHeaderFilterImpl(any : ecore::EObject) : String = (any.get_projectName() + ' header filter').apply_classDefault()/]

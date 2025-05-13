@@ -53,7 +53,7 @@
   
   [e.commentClass()/]
   @Entity
-  [e.writeAnnotationTable()/]
+  [e.writeAnnotationTable(e.parentOrSelf())/]
   public class [e.nameClassEntityImpl()/] extends [e.nameClassEntityAbs()/]
   {   
       
@@ -67,7 +67,7 @@
         ['Id'.commentSingleLine()/]
         @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "[(e.name() + '_SEQUENCE').toUpper()/]")
-        @Column(name = "[e.namePrimaryKey().toUpper()/]", nullable = false)
+        @Column(name = "[e.parentOrSelf().namePrimaryKey().toUpper()/]", nullable = false)
         private [e.defaultTypePk()/] [e.writePk()/];	
         
         [for (a : environment::Attribute | e.attributesNoPK())]
@@ -219,9 +219,9 @@
 [query private isLazyReference (r : environment::Reference) : Boolean = r.is_metaFetchLazy() or r.isMultipleBidirectionnal()/]
 
 [comment écriture du type de 'cascade' pour la référence./]  
-[query private writeCascade(r : environment::Reference) : String = '@Cascade(' + if (r.get_metaLiteralCascadeType().index(',') > 0) 
-  then '{' + r.get_metaLiteralCascadeType().tokenize(',')->collect(o | 'CascadeType.' + o)->sep(', ') + '})' 
-  else 'CascadeType.' + r.get_metaLiteralCascadeType()  + ')'endif /]
+[query private writeCascade(r : environment::Reference) : String = 'cascade = ' + if (r.get_metaLiteralCascadeType().index(',') > 0) 
+  then '{' + r.get_metaLiteralCascadeType().tokenize(',')->collect(o | 'CascadeType.' + o.trim())->sep(', ') + '}' 
+  else 'CascadeType.' + r.get_metaLiteralCascadeType().trim() endif /]
   
 [comment retourne les types et les nom des attributs pour l'entité (optional + list + type + nom)./]
 [query public writeInputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference), props : Sequence(String)) : String =  
@@ -231,12 +231,12 @@
   props->collect(o | 'final ' + o.autoAttributeType().type() + ' ' + o.nameAutoAttribute().apply_parameterMethodClassicIn())->sep(', ') 
   else '' endif/]
 
-[comment écriture de l'annotation @Table pour l'entité./]
-[query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) 
-  then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif + ')' + e.lineSeparator() + '@SequenceGenerator(name = "' + (e.name() 
-  + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() + '", allocationSize = 1)' 
-  + if (e.hasXtopSup()) then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + e.nameTableSchema().toUpper() + ' SET ' + e.keyXtopSup() 
-  + ' = true WHERE ' + e.namePrimaryKey().toUpper() + ' = ?")' + e.lineSeparator() + '@SQLRestriction("' + e.keyXtopSup() 
+[comment écriture de l'annotation @Table pour l'entité (si aucun héritage p = e)./]
+[query private writeAnnotationTable(e : entity::Entity, p : entity::Entity) : String = '@Table(name = "' + p.nameTable().toUpper() + '"' 
+  + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif + ')' + e.lineSeparator() 
+  + '@SequenceGenerator(name = "' + (e.name() + '_SEQUENCE').toUpper() + '", sequenceName = "' + (p.nameTableSchema() + e.suffixSqlSequence()).toUpper() 
+  + '", allocationSize = 1)' + if (e.hasXtopSup()) then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + p.nameTableSchema().toUpper() 
+  + ' SET ' + e.keyXtopSup() + ' = true WHERE ' + p.namePrimaryKey().toUpper() + ' = ?")' + e.lineSeparator() + '@SQLRestriction("' + e.keyXtopSup() 
   + ' = false")' else '' endif/]
   
 [comment écriture de l'annotation @column pour chaque attribut de l'entité./]
@@ -248,19 +248,24 @@
   +'"' else '' endif +  ')'/]
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk)./]
-[query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() 
-  +  r.lineSeparator() else '' endif + if (r.isMultiple()) then if (r.containingType = e) then '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) 
-  then 'LAZY' else 'EAGER' endif + ', mappedBy = "' + e.name().apply_attributeDefault() + '")' else '@ManyToOne()' + r.lineSeparator() 
-  + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' 
-  + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' + if (r.isZeroOneRecursive()) 
-  then r.nameSimplePropertyID().apply_attributeDefault().toUpper() else r.referencedEntity(e).namePrimaryKey().toUpper() endif + '", referencedColumnName = "' 
-  + r.referencedEntity(e).namePrimaryKey().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
+[query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String =  if (r.isMultiple()) 
+  then if (r.containingType = e) then '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
+  + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif  + ', mappedBy = "' + e.name().apply_attributeDefault() 
+  + '")' else '@ManyToOne()' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).parentOrSelf().namePrimaryKey().toUpper() 
+  + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
+  + if (r.has_metaCascadeType()) then ', ' +  r.writeCascade() else '' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' 
+  + if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().apply_attributeDefault().toUpper() else r.referencedEntity(e)
+  .parentOrSelf().namePrimaryKey().toUpper() endif + '", referencedColumnName = "' + r.referencedEntity(e).parentOrSelf()
+  .namePrimaryKey().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' 
+  else 'true' endif +')' endif/]
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (n-n jt)./]
-[query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String = if (r.has_metaCascadeType()) then r.writeCascade() 
-  +  r.lineSeparator() else '' endif + '@ManyToMany(fetch = FetchType.'+ if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
-  + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' + r.nameTableJoin().toUpper() + '"' 
-  + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' 
-  + e.namePrimaryKey().toUpper() + '"), inverseJoinColumns = @JoinColumn(name = "' + if (r.isStarRecursive()) then r.referencedType.oclAsType(entity::Entity)
-  .namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper()  else r.referencedEntity(e).namePrimaryKey().toUpper()  endif + '"))'/]
+[query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String =  '@ManyToMany(fetch = FetchType.' 
+  + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif 
+  + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' 
+  + r.nameTableJoin().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() 
+  + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' + e.parentOrSelf().namePrimaryKey().toUpper() 
+  + '"), inverseJoinColumns = @JoinColumn(name = "' + if (r.isStarRecursive()) then r.referencedType.oclAsType(entity::Entity)
+  .parentOrSelf().namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() 
+  else r.referencedEntity(e).parentOrSelf().namePrimaryKey().toUpper()  endif + '"))'/]
  

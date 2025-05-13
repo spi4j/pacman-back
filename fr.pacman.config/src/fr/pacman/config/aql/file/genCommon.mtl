@@ -6,13 +6,6 @@
 [import fr::pacman::config::aql::block::common/]
 [import fr::pacman::core::aql::output::resources/]
 
-[comment écriture du fichier pour le type XtopSup (commun à tous les frameworks)./]
-[template public fileXtopSupType(any : ecore::EObject)]
-  [file (any.nameTypeXtopSup().nameClassType().toFileJava(any.namePackageType()), overwrite, any.defaultFileEncoding())]
-    [any.xtopSupType()/]
-  [/file]
-[/template]
-
 [comment écriture du fichier pour l'énumération d'état de la ligne (commun à tous les frameworks)./]
 [template public fileDatabaseStatusEnum(any : ecore::EObject)]
   [file (any.nameClassDatabaseStatusImpl().toFileJava(any.namePackageEnumeration()), overwrite, any.defaultFileEncoding())]

@@ -271,6 +271,32 @@
        }
        
        /**
+        * Crée un bean {@link Converter} qui convertit un {@link Jwt} en une instance d'{@link AbstractAuthenticationToken}.
+        * Ce convertisseur est utilisé par Spring Security pour extraire les rôles (authorities) présents dans le jeton JWT
+        * et les associer à l'objet d'authentification du contexte de sécurité.
+        * 
+        * La configuration suivante est appliquée :
+        * <ul>
+        *   <li>Les rôles sont extraits depuis la claim nommée <strong>"roles"</strong> dans le JWT.</li>
+        *   <li>Chaque rôle extrait est préfixé avec <strong>"ROLE_"</strong>, comme attendu par Spring Security.</li>
+        * </ul>        *
+        * Ce bean est souvent utilisé en conjonction avec {@code oauth2ResourceServer().jwt().jwtAuthenticationConverter(...)}
+        * dans la configuration de sécurité pour personnaliser la gestion des rôles via JWT.
+        *
+        * @return un convertisseur JWT vers {@link AbstractAuthenticationToken}, avec les rôles extraits depuis la claim "roles"
+        *         et formatés avec le préfixe "ROLE_"
+        */
+       @Bean
+       public Converter<Jwt, AbstractAuthenticationToken> ['jwt authentication converter'.apply_methodDefault()/]() {
+           JwtGrantedAuthoritiesConverter ['granted authorities converter'.apply_variableDefault()/] = new JwtGrantedAuthoritiesConverter();
+           ['granted authorities converter'.apply_variableDefault()/].setAuthoritiesClaimName("roles");
+           ['granted authorities converter'.apply_variableDefault()/].setAuthorityPrefix("[m.prefixRole()/]");
+           JwtAuthenticationConverter ['jwt converter'.apply_variableDefault()/] = new JwtAuthenticationConverter();
+           ['jwt converter'.apply_variableDefault()/].setJwtGrantedAuthoritiesConverter(['granted authorities converter'.apply_variableDefault()/].);
+           return ['jwt converter'.apply_variableDefault()/];
+       }
+       
+       /**
         * Crée un bean {@link UserDetailsService} en mémoire avec un utilisateur de
         * base.
         * 
@@ -325,7 +351,9 @@
           
           [protected ('role hierarchy'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
             
-            return RoleHierarchyImpl.fromHierarchy("USER > permission:read");
+            RoleHierarchyImpl ['role hierarchy'.apply_variableDefault()/] = new RoleHierarchyImpl();
+            ['role hierarchy'.apply_variableDefault()/].setHierarchy("ROLE_USER > ROLE_permission:read");
+            return ['role hierarchy'.apply_variableDefault()/] ;
             
           [/protected]
        }
@@ -643,5 +671,5 @@
 [comment écriture de la chaine de sécurité pour l'ensemble de l'application (à faire évoluer, pas finalisé, ne gère pas le permissionAnd...)./]
 [query private writeRsSecurityFilterChain(ops : Sequence(soa::Operation), m : soa::System, role : Boolean) : String = ops->collect(o | '.requestMatchers("' 
   + (o.eContainer(soa::Service).rsUri() + '/' + o.URI).toUri() + '")' + if (role) then if( not o.has_metaPermissionOr() and not o.has_metaPermissionAnd()) 
-  then   '.hasRole("' + o.get_metaPermission() + '")'  else '.hasAnyRole("' + o.get_metaPermission() + '", "' + o.get_metaPermissionOr() + '")' 
-  endif else '.permitAll()' endif)->toString()/]
+  then   '.hasRole("' + o.prefixRole() + o.get_metaPermission() + '")'  else '.hasAnyRole("' + o.prefixRole() + o.get_metaPermission() + '", "' 
+  + o.prefixRole() + o.get_metaPermissionOr() + '")' endif else '.permitAll()' endif)->toString()/]
