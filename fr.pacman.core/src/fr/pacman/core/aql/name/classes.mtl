@@ -179,6 +179,9 @@
 [comment retourne le nom de la classe contenant le corps de la reponse pour la gestion globale des erreurs rest./]
 [query public nameClassRsErrorBodyResponseImpl(any : ecore::EObject) : String = (any.get_projectName() + ' error body response').apply_classDefault()/]
 
+[comment retourne le nom de la classe la définitions des vues JSON (si besoin) pour les service rest./]
+[query public nameClassRsJsonViewsImpl(any : ecore::EObject) : String = (any.get_projectName() + ' json views').apply_classDefault()/]
+  
 [comment retourne le nom de la classe de résolution des statuts http (int <-> HTTPStatus) pour les erreurs rest./]
 [query public nameClassRsHttpStatusResolverImpl(any : ecore::EObject) : String = (any.get_projectName() + ' http status resolver').apply_classDefault()/]
   

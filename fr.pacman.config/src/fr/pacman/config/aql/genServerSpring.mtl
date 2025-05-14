@@ -26,6 +26,8 @@
   [r.fileRsErrorBodyResponseImpl()/]
   [comment écriture d'une classe utilitaire pour utiliser les infos du jeton (rest)./]
   [r.fileRsCurrentTokenHelperImpl()/]
+  [comment écriture de la classe pour la définition des vues json (rest)./]
+  [r.fileRsJsonViewsImpl()/]
   [comment écriture de la classe de résolution des status http./]
   [r.fileRsHttpStatusResolverImpl()/]
   [comment écriture du gestionnaire de transactions pour la persistance./]

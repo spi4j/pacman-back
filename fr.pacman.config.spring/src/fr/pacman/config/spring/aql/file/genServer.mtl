@@ -50,6 +50,13 @@
   [/file]
 [/template]
 
+[comment écriture de la classe de définition des vues (si besoin) pour les services REST./]
+[template public fileRsJsonViewsImpl(any : ecore::EObject)]
+  [file (any.nameClassRsJsonViewsImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsJsonViewsImpl()/]
+  [/file]
+[/template]
+
 [comment écriture de la classe pourla reponse dans le cadre d'une errueur d'authentification rest./]
 [template public fileRsAuthenticationEntryPointImpl(any : ecore::EObject)]
   [file (any.nameClassRsAuthenticationEntryPointImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]

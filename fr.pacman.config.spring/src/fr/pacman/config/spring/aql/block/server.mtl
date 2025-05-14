@@ -474,6 +474,61 @@
   }
 [/template]
 
+[comment écriture de la classe de ddéfinition des vues json (rest)./]
+[template public rsJsonViewsImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  /**
+   * Définition des vues de sérialisation JSON utilisées avec
+   * {@link com.fasterxml.jackson.annotation.JsonView}.
+   * 
+   * Ces vues permettent de contrôler dynamiquement les champs d'un objet Java qui
+   * doivent être sérialisés en fonction du contexte d'utilisation (exposition
+   * publique, détails internes, administration, etc.).
+   *
+   * Les vues peuvent être utilisées dans les XTOs et les contrôleur REST en
+   * annotant les champs avec {@code @JsonView(NomDeLaVue.class)}.
+   *
+   * Exemple :
+   * <pre>
+   * {@code
+   * public class Utilisateur {
+   *     @JsonView([any.nameClassRsJsonViewsImpl()/].Public.class)
+   *     private String nom;
+   *
+   *     @JsonView([any.nameClassRsJsonViewsImpl()/].Internal.class)
+   *     private String email;
+   * }}
+   * </pre>
+   *
+   * Dans un contrôleur, la vue peut être appliquée de cette manière :
+   *
+   * <pre>
+   * {@code
+   * @GetMapping("/utilisateur")
+   * @JsonView([any.nameClassRsJsonViewsImpl()/].Public.class)
+   * public Utilisateur getUtilisateur() {
+   *     return utilisateurService.getUtilisateur();
+   * }}
+   * </pre>
+   * 
+   * Exemple de définitions de vues : 
+   * <ul>
+   *     <li>{@code Public} : Vue minimale, exposée publiquement.</li>
+   *     <li>{@code Summary} : Vue de synthèse, inclut {@code Public}.</li>
+   *     <li>{@code Details} : Vue détaillée, inclut {@code Summary}.</li>
+   *     <li>{@code Internal} : Données internes à l’application, inclut {@code Details}.</li>
+   *     <li>{@code Admin} : Vue complète, réservée à un usage administratif.</li>
+   * </ul>
+   *
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRsJsonViewsImpl()/] {
+  
+    [protected ('views'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+  }
+[/template]
+
 [comment écriture de la classe pour le corps des erreurs sur les api rest./]
 [template public rsErrorBodyResponseImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
