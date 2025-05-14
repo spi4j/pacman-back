@@ -26,8 +26,10 @@
     
     [m.defaultImports()/]
     import javax.crypto.spec.SecretKeySpec;
+    import jakarta.servlet.http.HttpServletRequest;
     
     import org.springframework.core.annotation.Order;
+    import org.springframework.core.convert.converter.Converter;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.beans.factory.annotation.Qualifier;
     import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +39,8 @@
     import org.springframework.security.config.annotation.web.builders.HttpSecurity;
     import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
     import org.springframework.security.config.http.SessionCreationPolicy;
+    import org.springframework.security.core.GrantedAuthority;
+    import org.springframework.security.core.authority.SimpleGrantedAuthority;
     import org.springframework.security.core.userdetails.User;
     import org.springframework.security.core.userdetails.UserDetails;
     import org.springframework.security.core.userdetails.UserDetailsService;
@@ -55,8 +59,10 @@
     import org.springframework.security.web.AuthenticationEntryPoint;
     import org.springframework.security.provisioning.InMemoryUserDetailsManager;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-    import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-    import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+    import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+    import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+    import org.springframework.security.authentication.AbstractAuthenticationToken;
+    import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
     
     import com.nimbusds.jose.jwk.source.ImmutableSecret;
     import [m.namePackageProject()/].[m.namePackageRsBase()/].[m.nameClassRsAuthenticationEntryPointImpl()/];
@@ -173,7 +179,7 @@
               
            })
            .oauth2ResourceServer(oauth2 -> oauth2
-           .bearerTokenResolver(new [m.nameClassRsTokenResolverImpl()/]())
+           .bearerTokenResolver(['jwt token resolver'.apply_methodDefault()/]())
            .jwt(Customizer.withDefaults()))
            .exceptionHandling(Customizer.withDefaults())
            .build();
@@ -271,29 +277,103 @@
        }
        
        /**
-        * Crée un bean {@link Converter} qui convertit un {@link Jwt} en une instance d'{@link AbstractAuthenticationToken}.
-        * Ce convertisseur est utilisé par Spring Security pour extraire les rôles (authorities) présents dans le jeton JWT
-        * et les associer à l'objet d'authentification du contexte de sécurité.
-        * 
-        * La configuration suivante est appliquée :
-        * <ul>
-        *   <li>Les rôles sont extraits depuis la claim nommée <strong>"roles"</strong> dans le JWT.</li>
-        *   <li>Chaque rôle extrait est préfixé avec <strong>"ROLE_"</strong>, comme attendu par Spring Security.</li>
-        * </ul>        *
-        * Ce bean est souvent utilisé en conjonction avec {@code oauth2ResourceServer().jwt().jwtAuthenticationConverter(...)}
-        * dans la configuration de sécurité pour personnaliser la gestion des rôles via JWT.
+        * Bean avec implémentation personnalisée de {@link BearerTokenResolver} permettant de
+        * résoudre un token d'accès Bearer à partir de différentes sources dans une
+        * requête HTTP. Pour l'instant la recherche dans les cookies n'est pas activée.
+        * Par contre cette classe prépare déjà la possibilité d'avoir de multiples
+        * schémas de sécurité pour un service, d'ou le format de ce code.
         *
-        * @return un convertisseur JWT vers {@link AbstractAuthenticationToken}, avec les rôles extraits depuis la claim "roles"
-        *         et formatés avec le préfixe "ROLE_"
+        * On tente de récupérer le token dans l'ordre suivant 
+        * (selon la nature de la sécurité, tous les étapes ne sont pas présentes):
+        * 
+        * <ol>
+        * <li>L'en-tête HTTP {@code Authorization} avec le préfixe {@code Bearer } (le plus fréquent)</li>
+        * <li>Le paramètre de requête {@code token}</li>
+        * </ol>
+        * 
+        * Si aucun token n'est trouvé, la méthode {@code resolve} retourne
+        * {@code null}.
+        */
+         @Bean
+         public BearerTokenResolver ['jwt token resolver'.apply_methodDefault()/]() {
+            return new BearerTokenResolver() {
+            @Override
+            public String resolve(HttpServletRequest ['request'.apply_parameterMethodClassicIn()/]) {
+              [let ss = m.securityRsScheme()]
+                ['Recherche dans l\'en-tête, le plus courant (toujours présent)'.commentSingleLine()/]
+                String ['auth header'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getHeader("Authorization");
+                if (['auth header'.apply_variableDefault()/] != null && ['auth header'.apply_variableDefault()/].startsWith("Bearer ")) {
+                    return ['auth header'.apply_variableDefault()/].substring(7);
+                }
+                [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::QUERY)]
+                  ['Recherche dans la requete avec un paramètre xxx'.commentSingleLine()/]
+                  String ['token'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getParameter("[ss.key/]");
+                  if (['token'.apply_variableDefault()/] != null && !['token'.apply_variableDefault()/].isEmpty()) {
+                     return ['token'.apply_variableDefault()/];
+                  }
+                [/if]
+                [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::HEADER)]
+                  ['Recherche dans l\'en-tête avec un paramètre personnalisé'.commentSingleLine()/]
+                  String ['custom header'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getHeader("[ss.key/]");
+                  if (['custom header'.apply_variableDefault()/] != null && !['custom header'.apply_variableDefault()/].isEmpty()) {
+                    return ['custom header'.apply_variableDefault()/];
+                  }
+                [/if]
+                [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::COOKIE)]
+                [/if]
+                [if (ss.type = soa::SecuritySchemeType::HTTP and ss.httpScheme = soa::HttpScheme::BEARER)]
+                [/if]
+                [if (ss.type = soa::SecuritySchemeType::HTTP and ss.httpScheme = soa::HttpScheme::BASIC)]
+                [/if]
+              [/let]
+              return null; // Aucun jeton trouvé.
+            }
+         };
+       }
+         
+       /**
+        * Crée un bean {@link Converter} qui convertit un {@link Jwt} en une instance
+        * d'{@link AbstractAuthenticationToken}.
+        * 
+        * Ce convertisseur est utilisé par Spring Security pour extraire les autorités
+        * (rôles) contenues dans le token JWT et les transformer en objets
+        * {@link GrantedAuthority} reconnus par le système de sécurité.
+        *
+        * La configuration applique les paramètres suivants :
+        * <ul>
+        * <li>Les rôles sont extraits à partir de la claim nommée
+        * <strong>"roles"</strong>.</li>
+        * <li>Chaque rôle est automatiquement préfixé avec
+        * <strong>"ROLE_"</strong>.</li>
+        * <li>Une hiérarchie simple est simulée : si le token contient le rôle
+        * {@code ROLE_USER}, alors une autorité supplémentaire
+        * {@code ROLE_permission:read} est ajoutée.</li>
+        * </ul>
+        *
+        * Cette méthode remplace l’utilisation du bean
+        * {@link org.springframework.security.access.hierarchicalroles.RoleHierarchy},
+        * dont la classe d’implémentation {@code RoleHierarchyImpl} est obsolète à
+        * partir de Spring Security 6.
+        *
+        * @return un convertisseur JWT vers {@link AbstractAuthenticationToken},
+        *         enrichi d’une hiérarchie de rôles simulée.
         */
        @Bean
        public Converter<Jwt, AbstractAuthenticationToken> ['jwt authentication converter'.apply_methodDefault()/]() {
-           JwtGrantedAuthoritiesConverter ['granted authorities converter'.apply_variableDefault()/] = new JwtGrantedAuthoritiesConverter();
-           ['granted authorities converter'.apply_variableDefault()/].setAuthoritiesClaimName("roles");
-           ['granted authorities converter'.apply_variableDefault()/].setAuthorityPrefix("[m.prefixRole()/]");
-           JwtAuthenticationConverter ['jwt converter'.apply_variableDefault()/] = new JwtAuthenticationConverter();
-           ['jwt converter'.apply_variableDefault()/].setJwtGrantedAuthoritiesConverter(['granted authorities converter'.apply_variableDefault()/].);
-           return ['jwt converter'.apply_variableDefault()/];
+          return jwt -> {
+            JwtGrantedAuthoritiesConverter ['delegate'.apply_variableDefault()/] = new JwtGrantedAuthoritiesConverter();
+            ['delegate'.apply_variableDefault()/].setAuthoritiesClaimName("roles");
+            ['delegate'.apply_variableDefault()/].setAuthorityPrefix("ROLE_");
+            Collection<GrantedAuthority> ['authorities'.apply_variableDefault()/] = new ArrayList<>(['delegate'.apply_variableDefault()/].convert(jwt));
+            
+            [protected ('authorities'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              // --- Simule une hiérarchie simple ---
+              if (['authorities'.apply_variableDefault()/].stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {
+                 ['authorities'.apply_variableDefault()/].add(new SimpleGrantedAuthority("ROLE_permission:read"));
+              }
+            [/protected]
+            return new JwtAuthenticationToken(jwt, ['authorities'.apply_variableDefault()/]);
+          };
        }
        
        /**
@@ -332,30 +412,6 @@
        @Bean
        public BCryptPasswordEncoder passwordEncoder() {
            return new BCryptPasswordEncoder();
-       }
-       
-       /**
-        * Crée un bean {@link RoleHierarchy} pour gérer de manière plus précise la
-        * hiérarchie des rôles.
-        * 
-        * Dans cet exemple,cette hiérarchie déclare que le rôle "USER" a une autorité
-        * supérieure à "permission:read". Cela signifie que les utilisateurs ayant le
-        * rôle "USER" peuvent accéder aux permissions associées à "permission:read". 
-        * A modifier et faire évoluer selon les besoins.
-        * 
-        * @return Un {@link RoleHierarchy} qui définit les relations de hiérarchie
-        *         entre les rôles.
-        */
-       @Bean
-       static RoleHierarchy roleHierarchy() {
-          
-          [protected ('role hierarchy'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-            
-            RoleHierarchyImpl ['role hierarchy'.apply_variableDefault()/] = new RoleHierarchyImpl();
-            ['role hierarchy'.apply_variableDefault()/].setHierarchy("ROLE_USER > ROLE_permission:read");
-            return ['role hierarchy'.apply_variableDefault()/] ;
-            
-          [/protected]
        }
     [/let]
     [/let]
@@ -505,79 +561,6 @@
           .['generate token'.apply_methodDefault()/](['authentication'.apply_parameterMethodClassicIn()/]);
         return ResponseEntity.status(200).body(['token'.apply_variableDefault()/]);
       [/protected]
-    }
-  }
-[/template]
-
-[comment écriture de la classe pour la résolution (récupération) du jeton jwt./]
-[template public tokenRsResolverImpl(m : soa::System)]
-  [m.classHeader(m.namePackageRsBase())/]
-  
-  import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
-  import jakarta.servlet.http.HttpServletRequest;
-  
-  /**   * Implémentation personnalisée de {@link BearerTokenResolver} permettant de
-   * résoudre un token d'accès Bearer à partir de différentes sources dans une
-   * requête HTTP. Pour l'instant la recherche dans les cookies n'est pas activée.
-   * Par contre cette classe prépare déjà la possibilité d'avoir de multiples
-   * schémas de sécurité pour un service, d'ou le format de ce code.
-   *
-   * Cette classe tente de récupérer le token dans l'ordre suivant 
-   * (selon la nature de la sécurité, tous les étapes ne sont pas présentes):
-   * 
-   * <ol>
-   * <li>L'en-tête HTTP {@code Authorization} avec le préfixe {@code Bearer } (le plus fréquent)</li>
-   * <li>Le paramètre de requête {@code token}</li>
-   * <li>L'en-tête HTTP personnalisé de type {@code X-Auth-Token...}</li>
-   * </ol>
-   * 
-   * Si aucun token n'est trouvé, la méthode {@code resolve} retourne
-   * {@code null}.
-   * 
-   * @author [m.nameAuthor()/]
-   */
-  public class [m.nameClassRsTokenResolverImpl()/] implements BearerTokenResolver {
-     
-    @Override
-    public String resolve(HttpServletRequest ['request'.apply_parameterMethodClassicIn()/]) {
-       
-       [let ss = m.securityRsScheme()]
-         ['Recherche dans l\'en-tête, le plus courant (toujours présent)'.commentSingleLine()/]
-         
-         String ['auth header'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getHeader("Authorization");
-         if (['auth header'.apply_variableDefault()/] != null && ['auth header'.apply_variableDefault()/].startsWith("Bearer ")) {
-             return ['auth header'.apply_variableDefault()/].substring(7);
-         }
-         
-         [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::QUERY)]
-           ['Recherche dans la requete avec un paramètre xxx'.commentSingleLine()/]
-           
-           String ['token'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getParameter("[ss.key/]");
-           if (['token'.apply_variableDefault()/] != null && !['token'.apply_variableDefault()/].isEmpty()) {
-              return ['token'.apply_variableDefault()/];
-           }
-         [/if]
-         
-         [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::HEADER)]
-           ['Recherche dans l\'en-tête avec un paramètre personnalisé'.commentSingleLine()/]
-           
-           String ['custom header'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getHeader("[ss.key/]");
-           if (['custom header'.apply_variableDefault()/] != null && !['custom header'.apply_variableDefault()/].isEmpty()) {
-             return ['custom header'.apply_variableDefault()/];
-           }
-         [/if]
-         
-         [if (ss.type = soa::SecuritySchemeType::API_KEY and ss.apiKeyLocation = soa::ApiKeyLocation::COOKIE)]
-         [/if]
-         
-         [if (ss.type = soa::SecuritySchemeType::HTTP and ss.httpScheme = soa::HttpScheme::BEARER)]
-         [/if]
-         
-         [if (ss.type = soa::SecuritySchemeType::HTTP and ss.httpScheme = soa::HttpScheme::BASIC)]
-         [/if]
-       [/let]
-       
-       return null; // Aucun token trouvé.
     }
   }
 [/template]

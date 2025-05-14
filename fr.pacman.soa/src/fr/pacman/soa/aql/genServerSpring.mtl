@@ -26,8 +26,6 @@
     [m.fileRsSecurityTokenServiceImpl()/]
     [comment implémentation du service d'authentification jwt./]
     [m.fileRsServiceTokenImpl()/]
-    [comment écriture pour la classe de résolution du jeton jwt (rest)./]
-    [m.fileRsTokenResolverImpl()/]
   [/if]
   [comment écriture d'un filtre pour la gestion générique des en-têtes./]
   [m.fileRsHeaderFilterImpl()/]

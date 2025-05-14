@@ -66,13 +66,6 @@
   [/file]
 [/template]
 
-[comment écriture de la classe de résolution du jeton JWT pour les services sécurisés rest./]
-[template public fileRsTokenResolverImpl(m : soa::System)]
-  [file (m.nameClassRsTokenResolverImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
-    [m.tokenRsResolverImpl()/]
-  [/file]
-[/template]
-
 [comment écriture d'un filtre pour gérer notamment les en-têtes génériques si besoin./]
 [template public fileRsHeaderFilterImpl(m : soa::System)]
   [file (m.nameClassRsHeaderFilterImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]

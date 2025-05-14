@@ -35,10 +35,7 @@
 
 [comment retourne le nom pour l'implémentation de l'énumération des requirements (pour une catégorie)./]
 [query public nameClassCategoryRequirementEnumerationImpl (c : requirement::Category) : String = ('requirements ' + c.id).apply_classEnum()/]
-
-[comment retourne le nom pour l'implémentation pour la classe de résolution du jeton jwt./]
-[query public nameClassRsTokenResolverImpl (any : ecore::EObject) : String = (any.nameProject() + ' jwt token resolver').apply_classDefault()/]
-
+  
 [comment retourne le nom pour l'interface d'un requirement./]
 [query public nameClassRequirementItf (any : ecore::EObject) : String = 'requirement'.apply_classInterface()/]
   
