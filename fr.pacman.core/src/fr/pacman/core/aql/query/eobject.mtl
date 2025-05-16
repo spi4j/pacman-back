@@ -46,6 +46,7 @@
   
 [comment vérifie si il existe des attributs automatiques pour la couche de persistance./]
 [query public hasAutoAttributes(any : ecore::EObject) : Boolean = any.get_SQLAutoFields().trim().size() > 0/]
+
   
   
   

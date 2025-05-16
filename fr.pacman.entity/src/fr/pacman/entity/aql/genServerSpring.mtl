@@ -10,6 +10,7 @@
 
 [import fr::pacman::entity::spring::aql::file::genEntity/]
 [import fr::pacman::core::aql::query::reference/]
+[import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::core::service::DatabaseUtils/]
 
 [comment @main/]
@@ -18,7 +19,7 @@
   [r.super:genServer()/]
   [comment on a besoin des compteurs uniquement pour les relations récursives./]
   [r.do_resetCounters()/]
-  [for (e : entity::Entity | r.eAllContents(entity::Entity) )]
+  [for (e : entity::Entity | r.withoutParentEntities())]
     [comment écriture de l'implémentation pour une entité./]
     [e.fileEntityImpl()/]
     [comment écriture de l'interface pour la couche de persistance (repo)./]

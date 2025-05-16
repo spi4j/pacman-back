@@ -1,5 +1,6 @@
 [module dto(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
-				'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+				'http://www.obeonetwork.org/dsl/entity/3.0.0',
+				'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::query::eobject/]
@@ -24,4 +25,9 @@
 [comment retourne le type associé au dto (dans le cadre de pacman, toujours une entité)./]
 [query public associatedType(d : environment::DTO) : environment::Type = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
    then d.associatedTypes->first() else null endif/]
-  
+   
+[comment retourne la liste des dtos qui sont persistents et non héritées (au niveau soa on a perdu la relation d'héritage)./]
+[query public withoutParentDtos(s : soa::System) : Sequence(environment::DTO) = s.eAllContents(environment::DTO)
+  ->select(o1 | s.eAllContents(environment::DTO)->forAll(o2 | not o2.associatedEntity()
+  .supertype->includes(o1.associatedEntity())))/]
+

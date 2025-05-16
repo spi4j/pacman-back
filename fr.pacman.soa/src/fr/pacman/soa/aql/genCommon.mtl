@@ -2,6 +2,7 @@
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::soa::aql::file::genCommon/]
 [import fr::pacman::common::aql::file::genEntityAbs/]
 [import fr::pacman::core::property::project::ProjectProperties/]
@@ -22,11 +23,10 @@
   	[comment implémentation pour les règles de gestions associées au service métier./]
   	[if (s.get_useServiceRequirements())][s.fileServiceRequirementImpl()/][/if]
   [/for]
-  [for (d : environment::DTO | m.eAllContents(environment::DTO))]
+  [for (d : environment::DTO | m.withoutParentDtos())]
   	[comment implémentation des classes 'entité' pour le domaine./]
   	[d.fileDtoImpl()/]
   	[comment interface pour l'adaptateur infrastructure crud./]
   	[d.fileServiceOutCrudItf()/]
   [/for]
 [/template]
-

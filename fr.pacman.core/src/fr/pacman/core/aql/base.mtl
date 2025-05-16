@@ -12,10 +12,10 @@
 [query public defaultMaxSizeSqlHeader(any : ecore::EObject) : Integer = any.cLine().size() - 3/] 
 
 [comment la longueur maximum pour le nom des relations SQL./]
-[query public defaultMaxHalfSqlRelationNameSize(any : ecore::EObject) : Integer = 14/]
+[query public defaultMaxSqlRelationNameSize(any : ecore::EObject) : Integer = 30/]
 
 [comment la longueur maximum pour le nom des références SQL./]
-[query public defaultMaxHalfSqlColumnReferenceSize(any : ecore::EObject) : Integer = 14/]
+[query public defaultMaxSqlColumnReferenceSize(any : ecore::EObject) : Integer = 30/]
 
 [comment la longueur maximum pour le nom de la contrainte (clé primaire) SQL./]  
 [query public defaultMaxSqlConstraintPrimaryKeySize(any : ecore::EObject) : Integer = 27/]

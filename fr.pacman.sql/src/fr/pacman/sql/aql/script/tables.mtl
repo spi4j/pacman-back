@@ -25,8 +25,8 @@
 			niveau du script appelant./]
 
 [comment template principal du script de création des tables, indexs et contraintes pour une base 'dbType'./]				
-[template public createTables(r : entity::Root, dbType : String)]
-  [for (e : entity::Entity | r.entities())]
+[template public createTables(r : entity::Root, es : Sequence(entity::Entity), dbType : String)]
+  [for (e : entity::Entity | es)]
     [let fks = e.referencesFK()]
     [let p = e.parentOrSelf()]
       [p.tableHeader()/]
@@ -38,7 +38,7 @@
         [e.foreignKeys(fks,dbType)/]
         [p.primaryKeyConstraint(dbType)/]
       );
-      [p.indexs(fks,dbType, e.commandCreate())/]
+      [p.indexs(fks,dbType,e.commandCreate())/]
       [e.comments(fks,dbType)/]
     [/let]
     [/let]
@@ -47,15 +47,18 @@
 [/template]
 
 [comment template principal du script de suppression des tables, indexs et contraintes pour un base 'dbType'./]				
-[template public dropTables(r : entity::Root, dbType : String)]
+[template public dropTables(r : entity::Root, es : Sequence(entity::Entity), dbType : String)]
   [r.indexsHeader()/]
-  [for (e : entity::Entity | r.entities())]
-    [e.indexs(e.referencesFK(),dbType, e.commandDelete())/]
+  [for (e : entity::Entity | es)]
+    [e.parentOrSelf().indexs(e.referencesFK(),dbType,e.commandDelete())/]
   [/for]
-  [for (e : entity::Entity | r.entities())]
-    [e.tableHeader()/]
-    [e.writeTable(e.commandDelete())/];
+  [for (e : entity::Entity | es)]
+    [let p = e.parentOrSelf()]
+      [p.tableHeader()/]
+      [p.writeTable(e.commandDelete())/];
+    [/let]
   [/for]
+
   [r.joinTables(dbType, r.commandDelete())/]
 [/template]
 
@@ -81,9 +84,10 @@
 
 [comment écriture des clés étrangères pour la table (n'utilise pas l'index des boucles)./]
 [template private foreignKeys(e : entity::Entity, rs : OrderedSet(environment::Reference), dbType : String)]
+  [comment les références des entités héritées sont automatiquement récupérées./]
   [for (r : environment::Reference | rs)]
     [if (r.oppositeOf <> null)]/* FK vers la table [r.nameTableReferenceSchema().toUpper()/] */[/if]
-    [r.writeReference(e, dbType, r.get_namingIndex(rs))/]
+    [r.writeReferenceFK(e, dbType, r.get_namingIndex(rs))/]
   [/for]
 [/template]
 
@@ -192,8 +196,8 @@
 	+ a.get_columnTypeForDatabase(dbType) + a.writeEndLine(dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT' 
 	+ '\'' + a.get_metaPhysicalDefault() + '\'' else '' endif + ','/]
 
-[comment écriture de la ligne pour chacune des tables référencées./]
-[query private writeReference(r : environment::Reference, e : entity::Entity, dbType : String, idx : Integer) : String = 
+[comment écriture de la ligne pour chacune des tables référencées (on récupère les références des tables héritées)./]
+[query private writeReferenceFK(r : environment::Reference, e : entity::Entity, dbType : String, idx : Integer) : String = 
 	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e).parentOrSelf(),idx).toUpper() endif 
 	+ ' ' + r.typeColumnRef(dbType) + r.writeEndLine(dbType) + ','/]
 
@@ -218,7 +222,7 @@
 
 [comment écriture de la ligne pour un index portant sur un ou plusieurs attribut(s) (colonne(s))./]
 [query private writeIndex(e : entity::Entity, r : environment::Reference, dbType : String, columnNameForId : String, idx : Integer, command : String) : String = 
-	if (command.equalsIgnoreCase(e.commandCreate())) then 'create ' else 'drop ' endif + 'index ' + r.nameIndex(idx).toUpper() 
+	if (command.equalsIgnoreCase(e.commandCreate())) then 'create ' else 'drop ' endif + 'index ' + r.nameIndex(idx, e).toUpper() 
 	+ ' on ' + e.nameTableSchema().toUpper() + if (command.equalsIgnoreCase(e.commandCreate())) 
 	then '(' + columnNameForId.toUpper() + ')' else '' endif + ';'/]
 

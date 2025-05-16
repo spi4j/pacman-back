@@ -15,19 +15,19 @@
 [import fr::pacman::core::service::DatabaseUtils/]
 
 [comment création de l'ensemble des contraintes pour la base de données./]
-[template public createConstraints(r : entity::Root, dbType : String)]
-  [r.constraints(r.commandCreate(), dbType)/]
+[template public createConstraints(r : entity::Root, es : Sequence(entity::Entity), dbType : String)]
+  [r.constraints(es, r.commandCreate(), dbType)/]
 [/template]
 
 [comment suppression de l'ensemble des contraintes pour la base de données./]
-[template public dropConstraints(r : entity::Root, dbType : String)]
-  [r.constraints(r.commandDelete(), dbType)/]
+[template public dropConstraints(r : entity::Root, es : Sequence(entity::Entity), dbType : String)]
+  [r.constraints(es, r.commandDelete() , dbType)/]
 [/template]
 
 [comment écriture des lignes pour les contraintes de la base de données./]
-[template private constraints(r : entity::Root, command : String, dbType : String)]
+[template private constraints(r : entity::Root, es : Sequence(entity::Entity), command : String, dbType : String)]
   [r.constraintsHeader()/]
-  [for (e : entity::Entity | r.entities())]
+  [for (e : entity::Entity | es)]
     [for (a : environment::Attribute | e.attributes)]
       [if (a.has_metaPhysicalCheck())]
         [e.writeCheck(a, e.get_counterCK(), command)/];
@@ -51,11 +51,11 @@
 
 [comment écriture de la ligne pour une contrainte sur les clés étrangères./]
 [query private writeForeignKey(e : entity::Entity, r : environment::Reference, idx : Integer, idx2 : Integer, command : String) : String = 'alter table ' 
-	+ e.parentOrSelf().nameTableSchema().toUpper() +  if (command.equalsIgnoreCase(e.commandCreate())) then ' add' else ' drop' endif + ' constraint ' 
+	+ e.nameTableSchema().toUpper() +  if (command.equalsIgnoreCase(e.commandCreate())) then ' add' else ' drop' endif + ' constraint ' 
 	+ e.nameConstraintForeignKey(r, idx).toUpper() + if (command.equalsIgnoreCase(e.commandCreate())) then ' foreign key (' + if (r.isZeroOneRecursive()) 
-	then r.nameSimplePropertyID().toUpper() else  r.nameReferenceId(r.referencedEntity(e).parentOrSelf(), idx2).toUpper() endif + ') references ' 
-	+ r.referencedEntity(e).parentOrSelf().oclAsType(entity::Entity).nameTableSchema().toUpper() + ' (' +  r.referencedEntity(e).parentOrSelf()
-	.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ')' else '' endif/]
+	then r.nameSimplePropertyID().toUpper() else  r.nameReferenceId(r.referencedEntity(e), idx2).toUpper() endif + ') references ' 
+	+ r.referencedEntity(e).oclAsType(entity::Entity).nameTableSchema().toUpper() + ' (' +  r.referencedEntity(e).oclAsType(entity::Entity)
+	.namePrimaryKey().toUpper() + ')' else '' endif/]
 
 [comment écriture de la ligne pour une contrainte sur les clé étrangères de jointure./]
 [query private writeForeignKeyJoin1(r : environment::Reference, command : String) : String = 'alter table ' + r.nameTableSchemaJoin().toUpper() 

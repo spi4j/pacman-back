@@ -8,6 +8,8 @@
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::query::property/]
 [import fr::pacman::core::aql::query::eobject/]
+
+[import fr::pacman::core::service::DtoEntityUtils/]
 [import fr::pacman::core::service::DatabaseUtils/]
 
 [comment liste des requêtes possibles au niveau des références pour les entités./]
@@ -20,24 +22,50 @@
 [query public referencedName(d : environment::DTO, r : environment::Reference) : String = 
 	if(r.isReferenceName(d)) then r.name else d.name() endif/]
 	
-[comment raccourci pour l'obtention de l'entité dans le cadre des références (toujours une entité)./]
-[comment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]	
+[comment raccourci pour l'obtention de l'entité référencée (toujours une entité, 
+		 mais pas toujours referencedType !).
+         Fait pour éviter la verbosité des références inverses... et aussi gérer l'héritage.
+         Cette méthode est souvent appelée  alors qu'il n'y en pas forcément besoin, 
+         mais cela est fait pour uniformiser les appels./]
 [query public referencedEntity(r : environment::Reference, e : entity::Entity) : entity::Entity = 
-	r.structuredType(e).oclAsType(entity::Entity)/]
+	r.referencedType(e).oclAsType(entity::Entity)/]
 
-[comment raccourci pour l'obtention du dto dans le cadre des références (toujours un dto)./]
-[comment !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A REVOIR PAS BON./]		
+[comment raccourci pour l'obtention du dto dans le cadre des références (toujours un dto, 
+		 idem pour le reste)./]	
 [query public referencedDto(r : environment::Reference, d: environment::DTO) : environment::DTO = 
-	r.structuredType(d).oclAsType(environment::DTO)/]
+	r.referencedType(d).oclAsType(environment::DTO)/]
+
+[comment raccourci pour l'obtention du 'containedType' dans le cadre d'une entité./]
+[query public containedEntity(r : environment::Reference, e : entity::Entity) : entity::Entity = 
+	r.containedType(e).oclAsType(entity::Entity)/]
+	
+[comment raccourci pour l'obtention du 'containedType' dans le cadre d'une entité./]
+[query public containedDto(r : environment::Reference, d: environment::DTO) : environment::DTO = 
+	r.containedType(d).oclAsType(environment::DTO)/]
+	
+[comment retourne le type référencé (si fonctionne mal peut toujours comparer les identifiants techniques !) 
+		 On sépare complètement la notion d'héritage qui est moins courante et qui si plante, ne porte pas 
+		 préjudice au reste du fonctionnement. Dans le cas de l'héritage si on a une récursivité alors 
+		 ne pas oublier qu'il faut redescendre la récursivité au niveau de la structure héritée (st)./] 
+[query private referencedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+	if (st.supertype <> null) then if (r.isZeroOneRecursive()) st else r.referencedType endif 
+	else if (r.containingType = st) then r.referencedType else r.containingType endif endif/]  
+
+[comment retourne le type contenu. Toujours 'r.containingType' sauf dans le cas de l'héritage ou il faut 
+		 redescendre la relation au niveau de la structure héritée (st)./]
+[query public containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+	if (st.supertype <> null) then st else r.containingType endif/]
 
 [comment vérifie si le type référence implique que l'on doit prendre le nom de la référence et non celui de l'attribut./]
 [query private isReferenceName(r : environment::Reference, st : environment::StructuredType) : Boolean = 
   r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> st) or r.isRecursive()/]
-	
-[comment retourne le type xxxx (si fonctionne mal peut toujours comparer les identifiants techniques !)./] 
-[query private structuredType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
-	if (r.containingType = st) then r.referencedType else r.containingType endif/]  
 
+[comment vérifie si une référence appartient à l'entité ou à une entité héritée (superclass) 
+		 ne pas oublier que l'héritage est récursif, il n'y a donc pas besoin de remonter 
+		 la grappe pour les références, on prend juste l'entitée directement héritée./]
+[query public isParentReference(r : environment::Reference, st : environment::StructuredType) : Boolean = 
+	if (st.supertype <> null) then st.supertype.references->includes(r) else false endif/]
+	
 [comment retourne les références triées par nom./]	
 [query private sortedByName(c : Sequence(environment::Reference)) : OrderedSet(environment::Reference) = 
 	c->asOrderedSet()->sortedBy(o | o.name.toLower())/]
@@ -68,7 +96,7 @@
 [comment vérifie si la référence exige une entité ou un dto/xto (les listes sont considérées comme obligatoire)./]
 [query public isMandatory(r : environment::Reference) : Boolean = if (r.exists()) then not (r.multiplicity = 
 	environment::MultiplicityKind::ZERO_ONE) else false endif/]
-
+	
 [comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto, la requête est 
 		légèrement différente de 'referencesFK' et fonctionne sur les deux diagrammes (entity / soa).
 		-> pour spring boot uniquement./]	
@@ -135,7 +163,7 @@
   
 [comment écriture du type complet pour les entités ou les dtos référencés (pas d'optional sinon plante jpa)./]
 [query public referencedTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
-  if (r.isMultiple() and r.containingType = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
+  if (r.isMultiple() and r.containedType(st) = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
   + if (st.oclIsKindOf(entity::Entity)) then r.referencedEntity(st).nameClassEntityImpl() 
   else r.referencedDto(st.oclAsType(environment::DTO)).nameClassDtoImpl() endif + '>' 
   else if (st.oclIsKindOf(entity::Entity)) then  r.referencedEntity(st).nameClassEntityImpl() 

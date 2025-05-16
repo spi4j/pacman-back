@@ -16,8 +16,8 @@
 [import fr::pacman::core::service::DatabaseUtils/]
 
 
-[template public initDatabase(r : entity::Root, dbType : String) post(self.removeEmptyLines())]
-  [for (e : entity::Entity | r.entities())]
+[template public initDatabase(r : entity::Root, es : Sequence(entity::Entity) , dbType : String) post(self.removeEmptyLines())]
+  [for (e : entity::Entity | es)]
     [e.writeInsert(e.referencesFK(), e.autoAttributes(), dbType)/]
   [/for]
   [r.initJoinTables(dbType)/]

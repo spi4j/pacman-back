@@ -10,7 +10,7 @@
 			on précharge les références qu'une seule fois afin d'optimiser les requêtes./]
 			
 [template public genServer(m : soa::System)]
-  [for (d : environment::DTO | m.eAllContents(environment::DTO))]
+  [for (d : environment::DTO | m.withoutParentDtos())]
     [comment récupération des références qui concernent l'entité métier (dto)./]
     [let rs = d.referencesFKSB()->union(d.referencesJT())]
       [if (d.isPersistent())]

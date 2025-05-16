@@ -70,7 +70,7 @@
 [query public nameTableHeader(e : entity::Entity) : String = e.prefixSqlTableHeader() + e.namePrefixSchema() + e.nameTable()/]
 
 [comment retourne le nom d'en-tete complet pour une table de liaison (0-1,*) SQL à afficher (avec le schéma si existe)./]  
-[query public nameTableHeaderJoin(r : environment::Reference) : String = r.prefixSqlTableHeaderJoin() + r.namePrefixSchema() + r.nameTableJoin()/]
+[query public nameTableHeaderJoin(r : environment::Reference) : String =  r.prefixSqlTableHeaderJoin() + r.namePrefixSchema() + r.nameTableJoin()/]
 
 [comment retourne le nom physique (si existe) ou le nom direct de l'entité pour la couche de persistance (avec préfixe si existe)./]
 [query public nameTable(e : entity::Entity) : String =  e.namePrefixTable() + (if e.has_metaPhysicalName() then e.get_metaPhysicalName() else e.name endif).sanitizeSql()/]
@@ -83,7 +83,7 @@
 
 [comment retourne le nom physique (si existe) de la table de référence dans le cas de relation (*,*) (avec préfixe si existe)./]
 [query public nameTableJoin(r : environment::Reference) : String = if r.has_metaPhysicalName() then  r.namePrefixTable() + r.get_metaPhysicalName().sanitizeSql() 
-	else r.containingType.oclAsType(entity::Entity).nameTable() + r.name.sanitizeSql() endif/] 
+	else r.name.sanitizeSql() endif/] 
 
 [comment retourne le nom physique (ou direct) de la table de jointure (avec le préfixe et le schéma si existent) dans le cas de relation (n-n)./]
 [query public nameTableSchemaJoin(r : environment::Reference) : String = r.namePrefixSchema() + r.nameTableJoin()/]
@@ -102,15 +102,20 @@
 [query public nameAttribut(a: environment::Attribute) : String = (if a.has_metaPhysicalName() then a.get_metaPhysicalName() else a.name endif).sanitizeSql()/]
 
 [comment retourne le nom physique pour la référence (referencing / referenced) (avec préfixe si existe) ou xxxx./]
-[query public nameReference(r : environment::Reference, any : environment::StructuredType, idx : Integer) : String =  if r.has_metaPhysicalName() then r.namePrefixTable() + r.get_metaPhysicalName()
-	.sanitizeSql() else any.oclAsType(entity::Entity).nameTable().first(r.defaultMaxHalfSqlColumnReferenceSize()) + if (idx <> null and idx > 0) then '_' + idx else '' endif endif/]
+[query public nameReference(r : environment::Reference, any : environment::StructuredType, idx : Integer) : String =  if r.has_metaPhysicalName() then 
+ 	r.namePrefixTable() + r.get_metaPhysicalName().sanitizeSql() else any.oclAsType(entity::Entity).nameTable().first(r.defaultMaxSqlColumnReferenceSize()) 
+ 	+ if (idx <> null and idx > 0) then '_' + idx else '' endif endif/]
 	
 [comment retourne le nom complet de la séquence pour l'entité (avec préfixe et schéma si existent)./]
 [query public nameSequence(e : entity::Entity) : String = e.namePrefixSchema() + e.nameTable().first(e.maxSequenceSize()) + e.suffixSqlSequence()/]
 
-[comment retourne le nom de l'index pour la colonne dans l'entité./]
-[query public nameIndex(r : environment::Reference, idx : Integer) : String = if (r.isMultiple()) then r.nameIndex(r.referencedType, idx) else r.nameIndex(r.containingType, idx)  endif/]
+[comment retourne le nom de l'index pour la colonne dans l'entité (ancienne version)./]
+[comment query public nameIndex(r : environment::Reference, idx : Integer) : String = if (r.isMultiple()) then r.nameIndex(r.referencedType, idx) else r.nameIndex(r.containingType, idx)  endif/]
 
+[comment retourne le nom de l'index pour la colonne dans l'entité./]
+[query public nameIndex(r : environment::Reference, idx : Integer, e : entity::Entity) : String = if (r.isMultiple()) then r.nameIndex(r.referencedType, idx) 
+	else if (r.isParentReference(e)) then r.nameIndex(e, idx) else r.nameIndex(r.containingType, idx) endif  endif/]
+	
 [comment retourne le nom de l'index pour la référence (avec le préfixe de table)./]
 [query private nameIndex(r : environment::Reference, e : environment::StructuredType , idx : Integer) : String = e.oclAsType(entity::Entity).nameTableShort()
 	.first(r.maxIndexSize()) + r.suffixSqlIndexMultiple() + idx/]

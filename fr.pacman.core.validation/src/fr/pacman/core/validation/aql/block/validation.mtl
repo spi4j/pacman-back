@@ -14,6 +14,7 @@
 [import fr::pacman::core::aql::query::service/]
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::query::entity/]
+[import fr::pacman::core::aql::query::property/]
 [import fr::pacman::core::aql::query::dto/]
 [import fr::pacman::core::aql::output::headers/]
 
@@ -22,22 +23,34 @@
 [comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
 [template public validation (r : entity::Root) post(self.escapeFile())]
   [r.writeTabHeader()/]
-  [for (e | r.eAllContents(entity::Entity))]
+  [for (e | r.withoutParentEntities())]
     [comment pas d'entité vide./]
     [if (e.attributes->isEmpty())][e.add(e.msge1())/][/if]
     [comment pas d'attribut avec identifier./] 
     [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.msge2())/][/if]
+      
     [comment pas d'attribut avec (1,*) ou (0,*)./]
     [if (not e.attributes->select(o | o.isMultiple())->isEmpty())][e.add(e.msge3())/][/if]
+      
     [comment pas d'attribut sans nom défini./]
     [if (not e.attributes->select(o | not o.name.exists())->isEmpty())][e.add(e.msge4())/][/if]
+      
     [comment pas d'attribut sans type défini./]
     [if (not e.attributes->select(o | not o.type.exists())->isEmpty())][e.add(e.msge5())/][/if]
+      
     [comment pas de multiples relations recursives avec le même nom./]
     [if (not e.referencesFKSB()->union(e.referencesJT())->hasRecursivesWithSameName())][e.add(e.msge6())/][/if]
-    [comment pas de classe mère avec des relations/]
-    [if (e.hasParent() and not e.parentOrSelf().referencesFKSB()->union(e.parentOrSelf().referencesJT())->isEmpty())][e.add(e.msge7())/][/if]
+      
+    [comment pas de relation de type composite./]
+    [if (not e.referencesFKSB()->select(o | o.isComposite)->isEmpty())][e.add(e.msge7())/][/if]
+      
+    [comment pas de classe mère avec des relations (0,* - 1,*)/]
+    [if (e.supertype <> null and not e.supertype.referencesFKSB()
+    	->select(o | o.isMultiple())
+    	->isEmpty())][e.add(e.msge8())/][/if]
+    	
     [comment pas d'héritage autre que des entités/]
+    [comment pas de classe fille avec relation sur classe mère/]
   [/for]
   
   [for (re | r.eAllContents(environment::Reference))]
@@ -56,14 +69,19 @@
   [for (d | m.eAllContents(environment::DTO))]
     [comment pas de dto vide./]
     [if (d.attributesNoPK()->isEmpty())][d.add(d.msgd1())/][/if]
+      
     [comment pas d'attribut avec identifier./] 
     [if (not d.attributesNoPK()->select(o | o.isIdentifier)->isEmpty())][d.add(d.msgd2())/][/if]
+      
     [comment pas d'attribut avec (1,*) ou (0,*)./]
     [if (not d.attributesNoPK()->select(o | o.isMultiple())->isEmpty())][d.add(d.msgd3())/][/if]
+      
     [comment pas d'attribut sans nom défini./]
     [if (not d.attributesNoPK()->select(o | not o.name.exists())->isEmpty())][d.add(d.msgd4())/][/if]
+      
     [comment pas d'attribut sans type défini./]
     [if (not d.attributesNoPK()->select(o | not o.type.exists())->isEmpty())][d.add(d.msgd5())/][/if]
+      
     [comment pas d'héritage autre que des dtos/]
   [/for]
   
@@ -72,42 +90,57 @@
       [for (o | s.ownedInterface.ownedOperations)]
       [comment pas de service mappé sur une entité./]
       [if (not o.output->select(o1 | o1.type.oclIsKindOf(entity::Entity))->isEmpty())][o.add(s.msgs1(o))/][/if]
+        
       [comment pas de service sans paramètre de retour./]
       [if (o.output->isEmpty() and (o.mustHaveRsOutput()))][o.add(s.msgs2(o))/][/if]
+        
       [comment pas de service sans code de retour./]
       [if (o.mustHaveRsOutput() and not o.output->first().statusCode.exists())][o.add(s.msgs3(o))/][/if]
+        
       [comment pas de service non rest (temporaire)./]
       [if (not (o.exposition = soa::ExpositionKind::REST))][o.add(s.msgs4(o))/][/if]
+        
       [comment pas de fault sans code de retour./]
       [if (not o.fault->select(f | not (f.statusCode.exists()))->isEmpty())][o.add(s.msgs5(o))/][/if]
+        
       [comment pas de pagination sur une opération qui ne retourne pas une liste./]
       [if (o.paged and not o.output->first().isMultiple())][o.add(s.msgs6(o))/][/if]
+        
       [comment pas de service paginé sans paramètres de pagination./]
       [if (o.paged and (not o.page.name.exists() or not o.size.name.exists()))][o.add(s.msgs7(o))/][/if]
+        
       [comment pas de service paginé si les paramètres de pagination de sont pas des entiers./]
       [if (o.paged and not o.page.type.name.equalsIgnoreCase('integer'))][o.add(s.msgs8(o))/][/if]
+        
       [comment pas de service paginé si les paramètres de pagination de sont pas des entiers./]
       [if (o.paged and not o.size.type.name.equalsIgnoreCase('integer'))][o.add(s.msgs8(o))/][/if]
+        
       [comment pas de service avec un '/' à la fin de l'URI (on pourrait le supprimer mais sensibilise le dévelopeur)./]
       [if (o.URI.exists() and '/'.equalsIgnoreCase(o.URI.last(1)))][o.add(s.msgs9(o))/][/if]
+        
       [comment pas de service avec plusieurs paramètres passés dans le corps (body), c'est la norme./]
       [if (o.input->select(o1 | o1.restData.passingMode == soa::ParameterPassingMode::BODY)->size() > 1)][o.add(s.msgs10(o))/][/if]
+        
       [comment pas de service avec plusieurs paramètres de sortie./]
       [if (o.output->size() > 1)][o.add(s.msgs11(o))/][/if]
         
       [comment pas de service avec des dtos passés hors body (path ou query)/]
       [if (not o.input->select(o1 | o1.type.oclIsKindOf(environment::DTO) 
          and o1.restData.passingMode <> soa::ParameterPassingMode::BODY)->isEmpty())][o.add(s.msgs12(o))/][/if]
+         
       [comment pas de service avec des binaires passés dans le path./]
       [if (not o.input->select(o1 | o1.type.name.equalsIgnoreCase('Binary') 
          and o1.restData.passingMode <> soa::ParameterPassingMode::PATH)->isEmpty())][o.add(s.msgs13(o))/][/if]
+         
       [comment pas de service avec TRACE (désactivé pour raisons de sécurité)./]
       [if (o.verb = soa::Verb::TRACE)][o.add(s.msgs14(o))/][/if]
+        
       [comment pas de service OPTION avec des paramètres en entrée./]
       [if (o.verb = soa::Verb::OPTIONS and not o.input->isEmpty())][o.add(s.msgs15(o))/][/if]  
-      [comment pas de service avec un doute sur l'URI./]
+      
       [comment pas de service HEAD avec un paramètre en sortie./]
       [if (o.verb = soa::Verb::HEAD and not o.output->isEmpty())][o.add(s.msgs16(o))/][/if]  
+      
       [comment pas de service avec un doute sur l'URI./]
       [/for]
     [/if]
@@ -116,8 +149,10 @@
   [/for]
   [comment pas de multiples components internes pour l'instant/]
   [if (m.eAllContents(soa::Component)->size() > 1)][m.add(m.msga1())/][/if]
+    
   [comment pas de multiples sécurités pour l'instant./]
   [if (m.eAllContents(soa::SecurityScheme)->size() > 1)][m.add(m.msga2())/][/if]
+    
   [comment pas de securité avec de multiples flows./]
   [comment if (m.rsIsSecured() and m.rsSecurityScheme().flows->size() > 1)][m.add(m.msga2())/][comment /if]
   
@@ -188,10 +223,14 @@
 [comment impossible de créer des références récursives avec le même nom./]
 [query private msge6 (e : entity::Entity) : String = e.nameEntity() + '@Des références récursives ont le même nom' 
   + '@Modifier les noms des références afin que chaque nom soit unique'/]
+  
+[comment impossible de créer des références de type composite./]
+[query private msge7 (e : entity::Entity) : String = e.nameEntity() + '@Des références composites ont été trouvées' 
+  + '@Supprimez les références composites'/]
 
 [comment impossible de créer des entités mère avec des références./]
-[query private msge7 (e : entity::Entity) : String = e.nameEntity() + '@Des références sont trouvées sur des entités héritées' 
-  + '@Supprimez les références au niveau des classes héritées'/]
+[query private msge8 (e : entity::Entity) : String = e.nameEntity() + '@Références non bidirectionnelles (*) sur des entités héritées' 
+  + '@Supprimez ces références au niveau des classes héritées'/]
   
 [comment impossible de créer des dtos sans attribut./]
 [query private msgd1 (d : environment::DTO) : String = d.nameDto() + '@Dto sans aucun attribut@Ajoutez au moins un attribut au niveau du dto'/]
