@@ -171,26 +171,18 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>JDK : 17+</li>
 </ul>
 <h3 id="etapes">Etapes</h3>
-<ol>
-<li>
-<p>Téléchargement du plugin  </p>
-</li>
-<li>
-<p>Le plugin (sous forme de fichier au format .zip) est téléchargeable à partir de l'URI suivante : https://github.com/spi4j/pacman-back...</p>
-</li>
-<li>
-<p>Charger le plugin et le stocker dans un répertoire de votre choix sur le disque. </p>
-</li>
-<li>
-<p>Installation dans Eclipse  </p>
-</li>
-<li>
-<p>Ouvrir Information System Designer et aller dans le menu "<em>/Help/Install New Software...</em>".</p>
-</li>
+<p>1 - Téléchargement du plugin  </p>
+<ul>
+<li>Le plugin (sous forme de fichier au format .zip) est téléchargeable à partir de l'URI suivante : https://github.com/spi4j/pacman-back...</li>
+<li>Charger le plugin et le stocker dans un répertoire de votre choix sur le disque. </li>
+</ul>
+<p>2 - Installation dans Eclipse  </p>
+<ul>
+<li>Ouvrir Information System Designer et aller dans le menu "<em>/Help/Install New Software...</em>".</li>
 <li>Cliquer sur le bouton "<em>Add</em>".</li>
 <li>Cliquer sur le bouton "<em>Archive</em>".</li>
 <li>Rechercher et sélectionner l'archive <strong>Pacman</strong> (format .zip) préalablement chargée sur le disque.</li>
-</ol>
+</ul>
 <div align="center">
 <img alt="Installation" src="images/pcm-install-1.png" width="500"/>
 </div>
@@ -223,15 +215,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <img alt="Installation" src="images/pcm-install-5.png" width="500"/>
 </div>
 <ul>
-<li>
-<p>Valider la demande de redémarrage pour ISD en cliquant sur le bouton "<em>Restart Now</em>".</p>
-</li>
-<li>
-<p>Vérification de l'installation  </p>
-</li>
-<li>
-<p>Aller dans le menu "<em>/Help/About Obeo Designer Entreprise Edition....</em>".</p>
-</li>
+<li>Valider la demande de redémarrage pour ISD en cliquant sur le bouton "<em>Restart Now</em>".</li>
+</ul>
+<p>3 - Vérification de l'installation  </p>
+<ul>
+<li>Aller dans le menu "<em>/Help/About Obeo Designer Entreprise Edition....</em>".</li>
 <li>Vérifier la présence de l'icône <strong>Pacman</strong> au niveau de la fenêtre avec la liste des plugins installés. (icône non contractuelle)</li>
 </ul>
 <div align="center">
@@ -253,16 +241,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Naviguer dans l'arborescence jusqu'au répertoire "<em>IS Designer</em>" et sélectionner "<em>Projet Cali</em>". Une fenêtre de création d'un nouvel applicatif de type "Pacman" apparait alors afin de saisir les diverses informations structurantes pour la génération du projet. </p>
 <h3 id="wizard-de-creation">Wizard de création</h3>
 <p>Trois onglets sont disponibles : </p>
-<ul>
-<li><strong>Projet</strong> : Saisir le nom désiré pour le projet, ainsi que l'auteur ou l'organisme, par défaut le package racine est automatiquement créé en fonction du nom préalabalement saisi. Il est toutefois possible de le modifier manuellement en le saisissant directement dans le champ prévu à cet effet. Au niveau des options la version actuelle de <strong>Pacman</strong> ne permet de créer que des projets de services REST avec le framework SpringBoot. Les champs "Type" et "Framework" ne contiennent donc pour l'instant qu'une seule valeur, à l'heure de l'écriture de ce document. Enfin sélectionner la (ou les) bases de données à l'aide des deux listes déroulantes et des deux boutons pour faire passer la sélection de l'une à l'autre des listes.</li>
-</ul>
+<p>➤ <strong>Projet</strong> : Saisir le nom désiré pour le projet, ainsi que l'auteur ou l'organisme, par défaut le package racine est automatiquement créé en fonction du nom préalabalement saisi. Il est toutefois possible de le modifier manuellement en le saisissant directement dans le champ prévu à cet effet. Au niveau des options la version actuelle de <strong>Pacman</strong> ne permet de créer que des projets de services REST avec le framework SpringBoot. Les champs "Type" et "Framework" ne contiennent donc pour l'instant qu'une seule valeur, à l'heure de l'écriture de ce document. Enfin sélectionner la (ou les) bases de données à l'aide des deux listes déroulantes et des deux boutons pour faire passer la sélection de l'une à l'autre des listes.</p>
 <p>❗ La base H2 est toujours embarquée par défaut, ne serait-ce que pour les tests unitaires.</p>
 <div align="center">
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-2.png" width="500"/>
 </div>
-<ul>
-<li><strong>Base de données</strong> : Comme son nom l'indique, cet onglet permet de saisir l'ensemble des informations spécifiques aux bases de données (hormis la sélection des bases qui a été effectuée au niveau de l'onglet précédent). Si les tables on besoin d'un préfixe au niveau des scripts SQL (ex : "<em>TBL_</em>" ou "<em>MATABLE_</em>", etc...) le saisir au niveau du champ prévu à cet effet, de même pour la création d'un schéma. Il est par ailleurs possible de saisir une liste de champs supplémentaires qui seront automatiquement ajoutés à toutes les tables (donc à toutes les entités modélisées). </li>
-</ul>
+<p>➤ <strong>Base de données</strong> : Comme son nom l'indique, cet onglet permet de saisir l'ensemble des informations spécifiques aux bases de données (hormis la sélection des bases qui a été effectuée au niveau de l'onglet précédent). Si les tables on besoin d'un préfixe au niveau des scripts SQL (ex : "<em>TBL_</em>" ou "<em>MATABLE_</em>", etc...) le saisir au niveau du champ prévu à cet effet, de même pour la création d'un schéma. Il est par ailleurs possible de saisir une liste de champs supplémentaires qui seront automatiquement ajoutés à toutes les tables (donc à toutes les entités modélisées). </p>
 <p>Trois types de champ sont prédéfinis (il suffit juste de les sélectionner, la ligne n'est pas saisissable par la suite) : </p>
 <ul>
 <li><em>Xtopsup</em> : ajoute un indicateur de suppression logique (automatiquement géré par Spring Data).</li>
@@ -278,9 +262,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-3-b.png" width="500"/>
 </div>
 <p>❗ Ces champs sont uniquement destinés à la couche de persistance, ils sont donc remontés uniquement au niveau des objets métier pour des éventuels traitements associés à la valeur des ces attributs, mais ne passent jamais la couche métier et ne sont donc jamais transmis au niveau des services REST. Un seul champ fait exception à cette règle, le champ <em>Xuuid</em>.</p>
-<ul>
-<li><strong>Autre</strong> : </li>
-</ul>
+<p>➤ <strong>Autre</strong> : </p>
 <p>Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Au niveau de la version actuelle de <strong>Pacman</strong> et comme vu précédemment, toute la sous-rubrique "<em>Autre</em>" est désactivée car ces options ne concernent pas le framework SpringBoot. La rubrique "<em>Règles de gestion</em>" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "<em>REQ_XXXXXXX</em>" ou "<em>REGLE_GES_XXXXX</em>")</p>
 <div align="center">
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-4.png" width="500"/>
@@ -318,8 +300,8 @@ Il s'agit des vues suivantes : </p>
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-2.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 200px;"/>
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-3.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 205px;"/>
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-4.png" style="display: inline-block; vertical-align: top; width: 215px;"/></p>
-<p>▶️ Le projet "<strong><em>demo</em></strong>" comme précité n'a que pour seul et unique but de servir de projet parent pour l'ensemble des autres projets Maven. Il a donc uniquement un fichier <em>pom.xml</em> auquel se réfèrent tous les autres <em>pom.xml</em> des projets fils. Il s'agit ici d'une structure tout à fait classique pour un projet multi-modules Maven. Le fichier "pom.xml" ne demande pas d'explications particulières, il se contente juste de gérer les versions des différentes dépendances qui sont utilisées dans les autres modules. Il servira par ailleurs pour le packaging et le déploiement de l'application.</p>
-<p>▶️ Le projet "<strong><em>demo-domain</em></strong>" qui porte l'ensemble de la couche métier contient par défaut toutes les classes de haut niveau pour son bon fonctionnement. </p>
+<p>➤ Le projet "<strong><em>demo</em></strong>" comme précité n'a que pour seul et unique but de servir de projet parent pour l'ensemble des autres projets Maven. Il a donc uniquement un fichier <em>pom.xml</em> auquel se réfèrent tous les autres <em>pom.xml</em> des projets fils. Il s'agit ici d'une structure tout à fait classique pour un projet multi-modules Maven. Le fichier "pom.xml" ne demande pas d'explications particulières, il se contente juste de gérer les versions des différentes dépendances qui sont utilisées dans les autres modules. Il servira par ailleurs pour le packaging et le déploiement de l'application.</p>
+<p>➤ Le projet "<strong><em>demo-domain</em></strong>" qui porte l'ensemble de la couche métier contient par défaut toutes les classes de haut niveau pour son bon fonctionnement. </p>
 <p>Il s'agit : </p>
 <ul>
 <li>Des classes d'exception métier au niveau du package "<em>[package racine].domain.exceptions</em>" Si besoin, placer ici toutes les nouvelles exceptions fonctionnelles dont la couche métier a besoin dans le cadre de l'application.</li>
@@ -370,7 +352,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">   </span><span class="nt">&lt;artifactId&gt;</span>assertj-core<span class="nt">&lt;/artifactId&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </code></pre></div>
-<p>▶️ Le projet "<strong><em>demo-model</em></strong>" qui contient la couche de modélisation avec principalement trois fichiers : 
+<p>➤ Le projet "<strong><em>demo-model</em></strong>" qui contient la couche de modélisation avec principalement trois fichiers : 
   - <strong><em>[nom du projet].entity</em></strong> : le fichier de modélisation pour la couche de persitance.
   - <strong><em>[nom du projet].soa</em></strong> : le fichier de modélisation pour l'ensemble des services.
   - <strong><em>[nom du projet].requirement</em></strong> : le fichier de modélisation pour les règles de gestion.</p>
@@ -388,7 +370,7 @@ Il s'agit des vues suivantes : </p>
 <p>Le fait de passer la propriété à la valeur "<em>true</em>" permet de ne pas lancer les opérations de post traitement que sont (entre autres) l'organisation automatique des imports et le formattage du code généré.</p>
 <p>❗ Tout changement au niveau de ces fichiers est immédiatement pris en compte lors de la prochaine demande de génération.</p>
 <p>Un fichier "<em>[nom de l'application]-validation.log</em>" vide est créé par défaut. Chaque demande de génération passe automatiquement par une pré-validation de la modélisation. Toutes les erreurs de modélisation rencontrées sont écrites dans ce fichier consultable à tout moment (si une erreur de modélisation est rencontrée, la génération est stoppée avec un message d'avertissement). </p>
-<p>▶️ Le projet "<strong><em>demo-server</em></strong>" qui contient l'ensemble de l'infrastructure (dans le cas de <strong>Pacman</strong>, couche infrastructure divisée en "infrastructure" et "application"). Comme pour le domaine, un certain nombre de classes de haut niveau sont générées dès la création du projet. On peut d'entrée voir le distinguo entre la couche "infrastructure" et la couche "application" avec les deux packages "<em>[package racine].infra</em>" et "<em>[package racine].app</em>" Pour rappel, la couche d'infrastructure contiendra l'ensemble des classes liées à la couche de persistance alors que la couche applicative contiendra l'ensemble des classes pour les services REST.</p>
+<p>➤ Le projet "<strong><em>demo-server</em></strong>" qui contient l'ensemble de l'infrastructure (dans le cas de <strong>Pacman</strong>, couche infrastructure divisée en "infrastructure" et "application"). Comme pour le domaine, un certain nombre de classes de haut niveau sont générées dès la création du projet. On peut d'entrée voir le distinguo entre la couche "infrastructure" et la couche "application" avec les deux packages "<em>[package racine].infra</em>" et "<em>[package racine].app</em>" Pour rappel, la couche d'infrastructure contiendra l'ensemble des classes liées à la couche de persistance alors que la couche applicative contiendra l'ensemble des classes pour les services REST.</p>
 <p>• <strong><em>[package racine]</em></strong> : contient la classe principale de démarrage pour l'application <em>[nom de l'application]Bootsrap.java</em> </p>
 <p>•️ <strong><em>[package racine].app</em></strong> : package racine pour la couche applicative, contient (principalement) par défaut les classes de haut niveau pour le bon fonctionnement des services REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité.</p>
 <p>• <strong><em>[package racine].app.exceptions</em></strong> : contient les exceptions de la couche applicative. Si besoin d'exceptions supplémentaires, les positionner à ce niveau.</p>
@@ -638,7 +620,7 @@ Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de
 <span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="s1">'S'</span><span class="p">,</span><span class="s1">'S'</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="k">false</span><span class="p">,</span><span class="k">current_timestamp</span><span class="p">,</span><span class="s1">'a81bc81b-dead-4e5d-abff-90865d1e13b1'</span><span class="p">);</span>
 </code></pre></div>
 <p>Au niveau des classes générées : </p>
-<p>▶️ <strong><em>[package racine].infra</em></strong> : présence d'une nouvelle classe <em>[Nom de l'application]EntityAbs</em>, cette classe est regénérée à chaque fois (possibilité de changement des données au niveau du fichier de configuration de <strong>Pacman</strong>). Elle contient et gère le cycle de vie des différents champs supplémentaires qui sont communs à l'ensemble des tables. Dans le cadre du projet "demo" comme il a été demandé de rajouter les champs "Xtopsup, Xdmaj et Xuuid" on les retrouve à ce niveau : </p>
+<p>➤ <strong><em>[package racine].infra</em></strong> : présence d'une nouvelle classe <em>[Nom de l'application]EntityAbs</em>, cette classe est regénérée à chaque fois (possibilité de changement des données au niveau du fichier de configuration de <strong>Pacman</strong>). Elle contient et gère le cycle de vie des différents champs supplémentaires qui sont communs à l'ensemble des tables. Dans le cadre du projet "demo" comme il a été demandé de rajouter les champs "Xtopsup, Xdmaj et Xuuid" on les retrouve à ce niveau : </p>
 <div class="codehilite"><pre><span></span><code><span class="cm">/** Indicateur de suppression logique. */</span>
 <span class="nd">@Column</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"xtopsup"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 <span class="kd">protected</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">xtopsup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">;</span>
@@ -652,7 +634,7 @@ Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de
 <span class="kd">protected</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="n">xuuid</span><span class="p">;</span>
 </code></pre></div>
 <p>❗ Cette classe est toujours générée, même en l'absence de champs supplémentaires.</p>
-<p>▶️ <strong><em>[package racine].infra.entities.[nom du namespace]</em></strong> : implémentation de la ou des entités, dans le cas du projet "demo", l'entité "<em>PersonneEntityImpl</em>". Ici le générateur se contente de rajouter l'ensemble des annotations de persistance, encore une fois comme un indicateur de suppression logique a été demandé (<em>Xtopsup</em>) il est géré automatiquement par Spring Data. </p>
+<p>➤ <strong><em>[package racine].infra.entities.[nom du namespace]</em></strong> : implémentation de la ou des entités, dans le cas du projet "demo", l'entité "<em>PersonneEntityImpl</em>". Ici le générateur se contente de rajouter l'ensemble des annotations de persistance, encore une fois comme un indicateur de suppression logique a été demandé (<em>Xtopsup</em>) il est géré automatiquement par Spring Data. </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Entity</span>
 <span class="nd">@Table</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"TBL_PERSONNE"</span><span class="p">,</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"SCH"</span><span class="p">)</span>
 <span class="nd">@SequenceGenerator</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"PERSONNE_SEQUENCE"</span><span class="p">,</span><span class="w"> </span><span class="n">sequenceName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"SCH.TBL_PERSONNE_SEQ"</span><span class="p">,</span><span class="w"> </span><span class="n">allocationSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
@@ -687,7 +669,7 @@ Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de
 <span class="kd">private</span><span class="w"> </span><span class="n">Integer</span><span class="w"> </span><span class="n">age</span><span class="p">;</span>
 </code></pre></div>
 <p>Chaque entité possède toujours deux constructeurs, un sans paramètre et un second avec l'ensemble des paramètres ce qui peut être utile avec certains lambdas d'initialisation si on désire peupler la base de données non pas par script mais programmatiquement.</p>
-<p>▶️ <strong><em>[package racine].infra.entities.repositories.[nom du namespace]</em></strong> : création du repository dédié à l'entité, sous la forme <em>[nom de l'entité]Repository</em>. Il s'agit d'une interface vide (CRUD par défaut) pour les opérations basiques de récupération, sauvegarde, etc.... Lors de la génération, <strong>Pacman</strong> privilégie  l'utilisation d'un repository par rapport à celle de l'entity manager, car plus simple et plus lisible. Il reste juste au développeur de positionner ses requêtes JPQL au niveau de cette interface. Il est toutefois toujours possible pour le développeur de demander expressément l'utilisation de l'entity manager si besoin (voir plus loin).</p>
+<p>➤ <strong><em>[package racine].infra.entities.repositories.[nom du namespace]</em></strong> : création du repository dédié à l'entité, sous la forme <em>[nom de l'entité]Repository</em>. Il s'agit d'une interface vide (CRUD par défaut) pour les opérations basiques de récupération, sauvegarde, etc.... Lors de la génération, <strong>Pacman</strong> privilégie  l'utilisation d'un repository par rapport à celle de l'entity manager, car plus simple et plus lisible. Il reste juste au développeur de positionner ses requêtes JPQL au niveau de cette interface. Il est toutefois toujours possible pour le développeur de demander expressément l'utilisation de l'entity manager si besoin (voir plus loin).</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">interface</span> <span class="nc">PersonneRepository</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">JpaRepository</span><span class="o">&lt;</span><span class="n">PersonneEntityImpl</span><span class="p">,</span><span class="w"> </span><span class="n">Long</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">   </span><span class="c1">// Start of user code f0e770b82a09fdf18b21d0a4b108eef5</span>
 <span class="w">   </span><span class="c1">// End of user code</span>
@@ -701,7 +683,7 @@ Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de
 <span class="p">}</span>
 </code></pre></div>
 <h3 id="tests">Tests</h3>
-<p>▶️ <strong><em>[package racine].infra.adapters.[nom du namespace]</em></strong> : Des tests unitaires JUnit sont générés par défaut au niveau du package de test, avec pour chaque entité, une classe <em>[nom de l'entité]RepositoryTestImpl</em>, dans le cadre de l'application "demo", il s"agit de la classe <em>PersonneRepositoryTestImpl</em>. Ces tests de base auto générés permette de vérifier le bon fonctionnement des opérations CRUD pour la base de  données. </p>
+<p>➤ <strong><em>[package racine].infra.adapters.[nom du namespace]</em></strong> : Des tests unitaires JUnit sont générés par défaut au niveau du package de test, avec pour chaque entité, une classe <em>[nom de l'entité]RepositoryTestImpl</em>, dans le cadre de l'application "demo", il s"agit de la classe <em>PersonneRepositoryTestImpl</em>. Ces tests de base auto générés permette de vérifier le bon fonctionnement des opérations CRUD pour la base de  données. </p>
 <p>Chaque classe de test récupère le "Repository" par le biais d'une injection par constucteur, on active le profile Spring pour les tests et on demande expressement la configuration issue de "<em>test.properties</em>" au lieu de celle de production "<em>application.properties</em>". Enfin on demande l'initialisation de la base de donnée avec la ligne "<em>initSql(dataSource);</em>" :</p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@SpringBootTest</span>
 <span class="nd">@ActiveProfiles</span><span class="p">(</span><span class="s">"test"</span><span class="p">)</span>
@@ -1803,16 +1785,18 @@ Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de
 </div>
 <p>Une fois la demande de génération de la couche de persistance effectuée, le code des relations devient alors : </p>
 <ul>
-<li>Pour <strong><em>PersonneEntityImpl</em></strong> : 
-  <code>java
-  @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, mappedBy = "personne")
-  private List&lt;AdresseEntityImpl&gt; habite;</code></li>
-<li>Pour <strong><em>AdresseEntityImpl</em></strong> : 
-  <code>java
-  @ManyToOne()
-  @JoinColumn(name = "PERSONNE_ID", nullable = false)
-  private PersonneEntityImpl personne;</code></li>
+<li>Pour <strong><em>PersonneEntityImpl</em></strong> : </li>
 </ul>
+<div class="codehilite"><pre><span></span><code><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">EAGER</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CascadeType</span><span class="p">.</span><span class="na">PERSIST</span><span class="p">,</span><span class="w"> </span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"personne"</span><span class="p">)</span>
+<span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">AdresseEntityImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">habite</span><span class="p">;</span>
+</code></pre></div>
+<ul>
+<li>Pour <strong><em>AdresseEntityImpl</em></strong> : </li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="nd">@ManyToOne</span><span class="p">()</span>
+<span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"PERSONNE_ID"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
+<span class="kd">private</span><span class="w"> </span><span class="n">PersonneEntityImpl</span><span class="w"> </span><span class="n">personne</span><span class="p">;</span>
+</code></pre></div>
 <p>Il est bien entendu possible au niveau de la métadonnée, de rentrer plusieurs valeurs séparées par une virgule, par exemple "<em>PERSIST, MERGE, DETACH</em>" donnera à la génération : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">EAGER</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">CascadeType</span><span class="p">.</span><span class="na">PERSIST</span><span class="p">,</span><span class="w"> </span><span class="n">CascadeType</span><span class="p">.</span><span class="na">MERGE</span><span class="p">,</span><span class="w"> </span><span class="n">CascadeType</span><span class="p">.</span><span class="na">DETACH</span><span class="p">},</span><span class="w"> </span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"personne"</span><span class="p">)</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">AdresseEntityImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">habite</span><span class="p">;</span>
