@@ -4,7 +4,7 @@
    - pip install markdown
    - pip install beautifulsoup4
    - pip install pygments
-   - lancer le script : pyhton script-html-wiki.py
+- lancer le script : pyhton script-html-wiki.py
  
 Détail des modules :
 
