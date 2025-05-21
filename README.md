@@ -4,9 +4,16 @@
    - pip install markdown
    - pip install beautifulsoup4
    - pip install pygments
+   - lancer le script : pyhton script-html-wiki.py
  
 Détail des modules :
 
 - markdown : pour convertir du texte Markdown en HTML.
 - beautifulsoup4 : fournit BeautifulSoup pour parser et manipuler du HTML.
 - pygments : pour la coloration syntaxique de code source (highlight, get_lexer_by_name, guess_lexer, etc.).
+
+Si besoin, modifier les paramètres en début de script : 
+- INPUT_MD = 'pacman-backend.md'
+- OUTPUT_DIR = 'output-pacman-backend'
+
+
