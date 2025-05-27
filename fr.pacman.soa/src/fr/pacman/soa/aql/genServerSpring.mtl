@@ -16,7 +16,7 @@
 [comment @main/]
 [template protected genServer(m : soa::System)]
   [m.super:genServer()/]
-  [let ds = m.withoutParentDtos()]
+  [let ds = m.subTypesDtos()]
     [comment classe de définition pour openapi (swagger)./]
     [m.fileOpenApiConfigImpl()/]
     [if (m.isRsSecured())]

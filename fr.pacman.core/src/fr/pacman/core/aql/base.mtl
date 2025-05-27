@@ -7,7 +7,10 @@
 		 les valeurs par défaut ainsi que les propriétés de génération principales.
 		 Les autres propriétés de génération sont quant à elles, définies au niveau 
 		 des fichiers spécifiques en fonction de l'objet ou du domaine./]
-		 
+
+[comment commutateur pour indiquer si on gère l'uimmutabilité des dtos./]
+[query public immutable(any : ecore::EObject) : Boolean = false/]
+
 [comment la longueur pour un en-tête dans les scripts SQL./]  
 [query public defaultMaxSizeSqlHeader(any : ecore::EObject) : Integer = any.cLine().size() - 3/] 
 
@@ -50,7 +53,7 @@
 [comment la valeur par défaut pour l'initialisation d'une séquence SQL./]  [query public defaultSqlStartSequence(any : ecore::EObject) : String = '1'/]
 
 [comment la base de données par défaut pour les tests de non-régression./]
-[query public defaultSqlDatabaseType(any : ecore::EObject) : String = 'h2'/]
+[query public defaultSqlDbType(any : ecore::EObject) : String = 'h2'/]
 
 [comment le type par défaut pour les clés primaires (PK)./]
 [query public defaultTypePk(any : ecore::EObject) : String = 'Long'/]
@@ -110,7 +113,7 @@
 [query public suffixSqlConstraintCheck (any : ecore::EObject) : String = '_CK1_'/]  
 
 [comment suffixe par défaut pour la clé primaire d'une récursivité dans les tables de jointure./]
-[query public suffixSqlPrimaryKeyJoinRecursive (any : ecore::EObject) : String = '_1'/]  
+[query public suffixSqlPrimaryKeyJoinRecursive (any : ecore::EObject) : String = '_RECURSIVE'/]  
   
 [comment le suffixe par défaut pour le nom de classes de DAO dans le cadre des test./]  
 [query public suffixDaoTest(any : ecore::EObject) : String = '  dao jdbc'/] 
@@ -212,21 +215,21 @@
 [query public extensionSql(any : ecore::EObject) : String = '.sql'/]  
 
 [comment opérateur de commande pour des créations (dans les structures conditionnelles)./]
-[query public commandCreate(any : ecore::EObject) : String = 'C'/]
+[query public cmdCreate(any : ecore::EObject) : String = 'C'/]
 
 [comment opérateur de commande pour des suppressions (dans les structures conditionnelles)./]
-[query public commandDelete(any : ecore::EObject) : String = 'D'/]
+[query public cmdDelete(any : ecore::EObject) : String = 'D'/]
 
-[comment opérateur de commande pour des modifications (dans les structures conditionnelles)./][query public commandUpdate(any : ecore::EObject) : String = 'U'/]
+[comment opérateur de commande pour des modifications (dans les structures conditionnelles)./][query public cmdUpdate(any : ecore::EObject) : String = 'U'/]
 
 [comment opérateur de commande pour des opérations sur les entités./]
-[query public commandEntity(any : ecore::EObject) : String = 'E'/]
+[query public cmdEntity(any : ecore::EObject) : String = 'E'/]
 
 [comment opérateur de commande pour des opérations sur des dtos/xtos./]
-[query public commandDto(any : ecore::EObject) : String = 'D'/]
+[query public cmdDto(any : ecore::EObject) : String = 'D'/]
   
 [comment opérateur de commande pour des opérations sur des xtos./]
-[query public commandXto(any : ecore::EObject) : String = 'X'/]
+[query public cmdXto(any : ecore::EObject) : String = 'X'/]
   
 [comment le nom pour le fichier de configuration maven./] 
 [query public namePom(any : ecore::EObject) : String = 'pom'/]  

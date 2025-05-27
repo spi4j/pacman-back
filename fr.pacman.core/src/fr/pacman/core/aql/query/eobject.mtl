@@ -47,21 +47,7 @@
 [comment vérifie si il existe des attributs automatiques pour la couche de persistance./]
 [query public hasAutoAttributes(any : ecore::EObject) : Boolean = any.get_SQLAutoFields().trim().size() > 0/]
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-[comment ./]
-[query public immutable(any : ecore::EObject) : Boolean = false/]
-  
-[comment : vérifie si l'objet existe et est valide. /]
-[comment query public exists(e : environment::ObeoDSMObject) : Boolean = not (e = null)/]
+[comment vérifie si un type hérite bien du type passé en paramètre super./]
+[query public isSubType(st : environment::StructuredType, super : environment::StructuredType) : Boolean = if (st.supertype = null)
+	then false else if (st.supertype = super) then true else st.supertype.isSubType(super) endif endif/]
 

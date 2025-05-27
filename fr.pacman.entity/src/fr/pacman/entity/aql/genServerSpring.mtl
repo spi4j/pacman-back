@@ -19,7 +19,7 @@
   [r.super:genServer()/]
   [comment on a besoin des compteurs uniquement pour les relations récursives./]
   [r.do_resetCounters()/]
-  [for (e : entity::Entity | r.withoutParentEntities())]
+  [for (e : entity::Entity | r.subTypesEntities())]
     [comment écriture de l'implémentation pour une entité./]
     [e.fileEntityImpl()/]
     [comment écriture de l'interface pour la couche de persistance (repo)./]

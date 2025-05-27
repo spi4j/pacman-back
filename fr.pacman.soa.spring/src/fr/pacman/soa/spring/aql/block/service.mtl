@@ -296,6 +296,8 @@
           }
           
           [o.commentOperation()/]
+          [protected ((o.name + 'annotation_invoke').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
           [o.writePersistSignatureInvoke()/]
           {
               

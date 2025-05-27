@@ -19,6 +19,7 @@
 [query public versionHibernateValidator(any : ecore::EObject) : String = '9.0.0.CR1'/]
 [query public versionJakartaEl(any : ecore::EObject) : String = '6.0.0'/]
 [query public versionOpenApi(any : ecore::EObject) : String = '3.0.3'/]  
+[query public versionVault(any : ecore::EObject) : String = '4.2.1'/]  
     
 [comment query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
 [comment query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]

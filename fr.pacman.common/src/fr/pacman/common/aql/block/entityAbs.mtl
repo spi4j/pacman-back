@@ -23,7 +23,7 @@
  		 que la classe soit pour une entité ou un dto, il s'agit de champs spécifiques 
  		 couche de persistance, le nom est toujours basé sur nameClassEntityAbs(). /]
 [template public autoAttributesImpl (any : ecore::EObject, target : String)]
-  [any.classHeader(if (any.commandEntity().equalsIgnoreCase(target)) then any.namePackageInfrastructureBase() 
+  [any.classHeader(if (any.cmdEntity().equalsIgnoreCase(target)) then any.namePackageInfrastructureBase() 
     else any.namePackageCommonDtoBase() endif)/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -47,7 +47,7 @@
   [target.writeAnnotationEntity()/]
   public abstract class [any.nameClassEntityAbs()/]
   {
-   [if (any.commandEntity().equalsIgnoreCase(target))] 
+   [if (any.cmdEntity().equalsIgnoreCase(target))] 
      /**
       * Indicateur permettant de désactiver l'initialisation automatique
       * lors des événements de cycle de vie {@code @PrePersist} et {@code @PreUpdate}.
@@ -84,7 +84,7 @@
       
     [/for]
     
-    [if (any.commandEntity().equalsIgnoreCase(target))]
+    [if (any.cmdEntity().equalsIgnoreCase(target))]
       /**
        * Méthode de rappel appelée automatiquement avant l'insertion en base de
        * données (persist).
@@ -201,19 +201,19 @@
 
 [comment écriture de la ligne de définition pour l'attribut./]
 [query private writeAttribute(prop : String, target : String) : String = prop.autoAttributeType().type() + ' ' 
-	+ prop.nameAutoAttribute().apply_attributeDefault() + if (prop.commandEntity().equalsIgnoreCase(target) 
+	+ prop.nameAutoAttribute().apply_attributeDefault() + if (prop.cmdEntity().equalsIgnoreCase(target) 
 	and prop.autoAttributDefault().exists()) then ' = ' + if (prop.autoAttributeType().type().needsToBeQuoted()) 
 	then '"' + prop.autoAttributDefault() + '"' else prop.autoAttributDefault() endif else '' endif + ';'/]
 
 [comment écriture de la ligne pour l'annotation @column./]
-[query private writeAnnotationColumn(prop : String, target : String) : String =  if (target.commandEntity().equalsIgnoreCase(target)) 
+[query private writeAnnotationColumn(prop : String, target : String) : String =  if (target.cmdEntity().equalsIgnoreCase(target)) 
 	then '@Column(name = "' + prop.nameAutoAttribute() +'", nullable = ' + if (prop.autoAttributNull().exists()) 
 	then prop.autoAttributNull() else 'true' endif + if (prop.autoAttributSize().exists()) then ', length = ' 
 	+ prop.autoAttributSize() else '' endif + if (prop.equalsIgnoreCase(prop.get_XuuIdKey())) then 
 	', unique = true, updatable = false' else '' endif + ')' else '' endif/]
 
 [comment écriture de la ligne d'annotation pour l'entité./]
-[query private writeAnnotationEntity(target : String) : String = if (target.commandEntity().equalsIgnoreCase(target)) 
+[query private writeAnnotationEntity(target : String) : String = if (target.cmdEntity().equalsIgnoreCase(target)) 
 	then '@MappedSuperclass' + if (target.hasAutoAttributes()) then target.lineSeparator() + '@EntityListeners(AuditingEntityListener.class)' 
 	else '' endif else '' endif /]
 	

@@ -21,7 +21,11 @@
 [comment retourne le nom pour l'attribut en provenance de la référence./]
 [query public referencedName(d : environment::DTO, r : environment::Reference) : String = 
 	if(r.isReferenceName(d)) then r.name else d.name() endif/]
-	
+
+[comment vérifie si le type référence implique que l'on doit prendre le nom de la référence et non celui de l'attribut./]
+[query private isReferenceName(r : environment::Reference, st : environment::StructuredType) : Boolean = 
+  r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> st) or r.isRecursive()/]
+  
 [comment raccourci pour l'obtention de l'entité référencée (toujours une entité, 
 		 mais pas toujours referencedType !).
          Fait pour éviter la verbosité des références inverses... et aussi gérer l'héritage.
@@ -53,18 +57,26 @@
 
 [comment retourne le type contenu. Toujours 'r.containingType' sauf dans le cas de l'héritage ou il faut 
 		 redescendre la relation au niveau de la structure héritée (st)./]
-[query public containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+[query private containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
 	if (st.supertype <> null) then st else r.containingType endif/]
 
-[comment vérifie si le type référence implique que l'on doit prendre le nom de la référence et non celui de l'attribut./]
-[query private isReferenceName(r : environment::Reference, st : environment::StructuredType) : Boolean = 
-  r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> st) or r.isRecursive()/]
-
-[comment vérifie si une référence appartient à l'entité ou à une entité héritée (superclass) 
+[comment vérifie si une référence appartient à un super-type (superclass) 
 		 ne pas oublier que l'héritage est récursif, il n'y a donc pas besoin de remonter 
-		 la grappe pour les références, on prend juste l'entitée directement héritée./]
-[query public isParentReference(r : environment::Reference, st : environment::StructuredType) : Boolean = 
-	if (st.supertype <> null) then st.supertype.references->includes(r) else false endif/]
+		 la grappe pour les références. !!! ATTENTION : cette méthode ne peut peut être appelée 
+		 que pour les types directement issus d'un héritage -> .subTypesEntities() 
+		 ou .subTypesDtos(), sinon ne fonctionnera pas correctement !!!/]
+[query public isSuperTypeReference(r : environment::Reference, st : environment::StructuredType) : Boolean = 
+	st.supertype <> null and st.supertype.references->includes(r) /]
+	
+[comment vérifie si une référence appartient un type hérité (superclass). 
+		 On récupère en second paramètre la liste (éventuelle) des super-types. /]
+[query public isSuperTypeReference(r : environment::Reference, sts : Sequence( environment::StructuredType)) : Boolean = 
+	not sts->isEmpty() and (sts->includes(r.containingType) or sts->includes(r.referencedType))/]
+
+[comment vérifie si la référence est une référence inverse et à l'initiative d'une structure héritée.
+		 On récupère en second paramètre la liste (éventuelle) des super-types/]
+[query public isSuperTypeReference(r : environment::Reference, st : environment::StructuredType
+	, ess : Sequence(environment::StructuredType)) : Boolean = (st = r.referencedType) and ess->includes(r.containingType)/]
 	
 [comment retourne les références triées par nom./]	
 [query private sortedByName(c : Sequence(environment::Reference)) : OrderedSet(environment::Reference) = 

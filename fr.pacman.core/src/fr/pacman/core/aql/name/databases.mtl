@@ -114,7 +114,7 @@
 
 [comment retourne le nom de l'index pour la colonne dans l'entité./]
 [query public nameIndex(r : environment::Reference, idx : Integer, e : entity::Entity) : String = if (r.isMultiple()) then r.nameIndex(r.referencedType, idx) 
-	else if (r.isParentReference(e)) then r.nameIndex(e, idx) else r.nameIndex(r.containingType, idx) endif  endif/]
+	else if (r.isSuperTypeReference(e)) then r.nameIndex(e, idx) else r.nameIndex(r.containingType, idx) endif  endif/]
 	
 [comment retourne le nom de l'index pour la référence (avec le préfixe de table)./]
 [query private nameIndex(r : environment::Reference, e : environment::StructuredType , idx : Integer) : String = e.oclAsType(entity::Entity).nameTableShort()
@@ -124,14 +124,16 @@
 [query public nameIndexUnique(e : entity::Entity, idx1 : Integer, idx2 : Integer) : String = e.nameTable() + if e.is_mandatoryAnnotationProperties(e.get_metaPhysicalUnique()) 
 	then e.suffixSqlUnique() else e.suffixSqlIndex() endif  +  idx1 + '_' + idx2/]	
 
-[comment retourne le nom physique pour la référence (si existe) et vérifie le nommage de type identifiant./]
+[comment retourne le nom physique pour la référence (si existe) et vérifie le nommage de type identifiant. 
+         Pour l'instant on transfert toujours idx mais priori il n'y en a plus besoin, il est forcé à 0 pour 
+         ne pas etre pris en considération. Si non utilité vraiment confirmée, on supprimera ce paramètre./]
 [query public nameReferenceId(r : environment::Reference, any : environment::StructuredType, idx : Integer) : String = r.nameReference(any, idx).buildSimpleReferenceName()/]
 
 [comment retourne le nom physique pour la référence (si existe) et vérifie le nommage de type identifiant./]
 [query public nameReferenceId(r : environment::Reference, any : environment::StructuredType) : String = r.nameReference(any, null).buildSimpleReferenceName()/]
 
 [comment retourne le nom physique pour la référence (avec schéma et préfixe table) (si existe) ou xxxx. ./]	
-[query public nameTableReferenceSchema(r : environment::Reference) : String = r.namePrefixSchema() + r.namePrefixTable() + r.referencedType.name/]
+[query public nameTableReferenceSchema(r : environment::Reference, e : entity::Entity) : String = r.namePrefixSchema() + r.namePrefixTable() + r.referencedEntity(e).name/]
 
 [comment retourne le nom pour la contrainte de la clé primaire pour l'entité./]
 [query public nameConstraintPrimaryKey(e : entity::Entity) : String = e.nameTable().first(e.defaultMaxSqlConstraintPrimaryKeySize()) +  e.suffixSqlPrimaryKey()/]

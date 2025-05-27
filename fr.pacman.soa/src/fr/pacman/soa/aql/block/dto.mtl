@@ -86,7 +86,7 @@
           [/let]
           
           [d.writeGetterAndSetterForAttributes(d.attributesNoPK())/]
-          [d.writeGetterAndSetterForReferences(rs, d.commandDto())/]
+          [d.writeGetterAndSetterForReferences(rs, d.cmdDto())/]
             
           // METHODES
           [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]

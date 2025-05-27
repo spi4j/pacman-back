@@ -34,10 +34,6 @@
 [comment retourne le nom pour un paramètre./]
 [query public name(p : soa::Parameter) : String = p.name.sanitize()/]
   
-[comment retourne le nom pour la référence./]
-[query public name(r : environment::Reference) : String = r.containingType.oclAsType(entity::Entity).name.safeUpper() 
-  + r.name.safeUpperFirst()/]
-  
 [comment retourne le nom pour un service de type soa./]
 [query public name(s : soa::Service) : String = s.name.sanitize().removeIgnoreCase(s.suffixService())/]
 
@@ -85,29 +81,6 @@
 
 [comment retourne le nom physique de la référence (si existe) ou le nom direct de la référence pour la couche de persistance./]
 [comment query public namePhysical(r : environment::Reference) : String = if r.hasNamePhysical() then r.get_annotationBody(r.get_metakeyPhysicalName()) else r.containingType.oclAsType(entity::Entity).name.safeUpper() + r.referencedType.oclAsType(entity::Entity).name.safeUpper()endif/]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 [comment retourne /]
 [query public nameBaseAttribute(a : environment::Attribute) : String = a.name.safeLowerFirst()/]

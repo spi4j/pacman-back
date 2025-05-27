@@ -114,7 +114,6 @@
 [comment la packahe des requirements, spécifiques pour une catégorie./]  
 [query public namePackageRequirementCategory(c : requirement::Category) : String = if (c.parentCategory = null) 
   then c.repository.namePackageRequirement() else c.get_packageRequirement() + c.blockHierarchy() endif/]
-
   
 [comment ESSAYER DE MUTUALISER ?????./]
   

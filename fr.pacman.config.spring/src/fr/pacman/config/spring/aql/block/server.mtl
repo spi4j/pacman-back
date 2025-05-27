@@ -74,12 +74,17 @@
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
         </dependency>
-        <!-- Circuit breaker -->
+        <!-- circuit breaker -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring-boot2</artifactId>
         </dependency>
-        <!-- Projet métier (domaine). -->
+        <!-- coffre fort -->
+        <dependency>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-starter-vault-config</artifactId>
+        </dependency>
+        <!-- projet métier (domaine). -->
         <dependency>
            <groupId>[any.namePackageProject()/]</groupId>
            <artifactId>[any.nameProjectCommon()/]</artifactId>
@@ -1000,7 +1005,6 @@
   # ----------------------------------------------------------------------------------------------
   # API DE SANTE
   # ----------------------------------------------------------------------------------------------
-  
   # /auditevents Liste les evenements lies aux audits de securite (connexion/deconnexion, etc..).
   # /beans Liste les beans disponibles.
   # /conditions Rapport des conditions pour l'autoconfiguration.
@@ -1072,28 +1076,22 @@
   # ----------------------------------------------------------------------------------------------
   # Le port par defaut.
   server.port=80
-  
   # Chemin de contexte
   server.servlet.context-path=/
-
   # Encodage
   server.servlet.encoding.charset=UTF-8
   server.servlet.encoding.force=true
-  
   # Un exemple de cle symetrique (pour le developpement uniquement).
   security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
   
   # ----------------------------------------------------------------------------------------------
   # LOGGING
   # ----------------------------------------------------------------------------------------------
-  
   logging.level.root=INFO
   logging.level.org.springframework.web=DEBUG
   logging.level.com.example=DEBUG
-
   # Format du log
   logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
-
   # Fichier de log
   logging.file.name=logs/[any.nameProject()/].log
   logging.file.max-size=10MB
@@ -1102,25 +1100,47 @@
   # ----------------------------------------------------------------------------------------------
   # SPRING PROFILES
   # ----------------------------------------------------------------------------------------------
-  
-  # spring.profiles.active=dev
+  spring.profiles.active=dev
   
   # ----------------------------------------------------------------------------------------------
   # SPRING CACHE 
   # ----------------------------------------------------------------------------------------------
-  
   # Valeurs possibles <none|simple|caffeine|ehcache|hazelcast|infinispan|jcache|redis>
   spring.cache.type=simple
   
   # ----------------------------------------------------------------------------------------------
   # CIRCUIT BREAKER
   # ----------------------------------------------------------------------------------------------
-  
+  # Enregistre un Health Indicator Spring Boot Actuator pour ce circuit breaker.
   resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.registerHealthIndicator=true
+  # Seuil de déclenchement du circuit breaker : si 50% des appels échouent, le circuit bloque les appels.
   resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.failureRateThreshold=50
+  # Une fois ouvert (OPEN), le circuit reste bloqué pendant 10 secondes.
   resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.waitDurationInOpenState=10000ms
+  # En mode HALF_OPEN, seul un petit nombre d'appels test sont autorisés (ici 3).
   resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.permittedNumberOfCallsInHalfOpenState=3
+  # Les 10 derniers appels sont analysés pour calculer le taux d'échec
   resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.slidingWindowSize=10
+  
+  # ----------------------------------------------------------------------------------------------
+  # COFFRE FORT (VAULT)
+  # ----------------------------------------------------------------------------------------------
+  # Activation ou désactivation du coffre fort.
+  spring.cloud.vault.enabled=false
+  # L'application échoue au démarrage si Vault est inaccessible.
+  spring.cloud.vault.fail-fast=false	
+  # URL de Vault (par défaut : http://localhost:8200).
+  spring.cloud.vault.uri=http://localhost:8200
+  # Méthode d'authentification <token|approle|userpass|etc...>
+  spring.cloud.vault.authentication=token
+  # Le token d'accès Vault (à ne pas utiliser en dur en production !)
+  spring.cloud.vault.token=s.yourVaultToken
+  # Backend utilisé (kv v2 par défaut)
+  spring.cloud.vault.kv.enabled=true
+  Nom du backend utilisé dans Vault (par défaut souvent secret).
+  spring.cloud.vault.kv.backend=secret
+  # Nom utilisé pour accéder au chemin dans Vault (ex. secret/data/myapp).
+  spring.cloud.vault.kv.application-name=[any.nameProject().toLower()/]
   
   # ----------------------------------------------------------------------------------------------
   # DATASOURCES
@@ -1128,6 +1148,7 @@
   
   # Note : il n'est pas utile de specifier le nom de classe du pilote, puisque Spring Boot 
   # peut le deduire pour la plupart des bases de donnees a partir de l'URL de connexion.
+  # Si présence de schéma, il est aussi écrit au niveau de la chaine de connexion (mode create).
   
   ## pool de connexion par defaut
   spring.datasource.hikari.connectionTimeout=20000
@@ -1319,8 +1340,8 @@
      * 
      * Cette méthode vérifie si la base de données a déjà été initialisée en
      * consultant la variable statique {@code ['initialized'.apply_attributeStatic()/]}. Si ce n'est pas le cas,
-     * elle charge et exécute les scripts SQL {@code [any.nameScriptCreate(any.defaultSqlDatabaseType())/].sql} et
-     * {@code [any.nameScriptIntegrationInit(any.defaultSqlDatabaseType())/].sql} via un {@link ResourceDatabasePopulator},
+     * elle charge et exécute les scripts SQL {@code [any.nameScriptCreate(any.defaultSqlDbType())/].sql} et
+     * {@code [any.nameScriptIntegrationInit(any.defaultSqlDbType())/].sql} via un {@link ResourceDatabasePopulator},
      * puis marque l'initialisation comme effectuée en définissant
      * {@code ['initialized'.apply_attributeStatic()/]} sur {@code true}.
      * 
@@ -1332,10 +1353,10 @@
         
         if(!initialized) {
            
-           ClassPathResource ['script create'.apply_variableDefault()/] = new ClassPathResource("/[any.nameScriptCreate(any.defaultSqlDatabaseType())/].sql");
+           ClassPathResource ['script create'.apply_variableDefault()/] = new ClassPathResource("/[any.nameScriptCreate(any.defaultSqlDbType())/].sql");
            assertTrue(['script create'.apply_variableDefault()/].exists(), "Le fichier de création des tables n'a pas été trouvé.");
            
-           ClassPathResource ['script init'.apply_variableDefault()/] = new ClassPathResource("/[any.nameScriptIntegrationInit(any.defaultSqlDatabaseType())/].sql");
+           ClassPathResource ['script init'.apply_variableDefault()/] = new ClassPathResource("/[any.nameScriptIntegrationInit(any.defaultSqlDbType())/].sql");
            assertTrue(['script init'.apply_variableDefault()/].exists(), "Le fichier d'initialisation des tables n'a pas été trouvé.");
             
            ResourceDatabasePopulator ['populator'.apply_variableDefault()/] = new ResourceDatabasePopulator();

@@ -53,7 +53,7 @@
   
   [e.commentClass()/]
   @Entity
-  [e.writeAnnotationTable(e.parentOrSelf())/]
+  [e.writeAnnotationTable(e.superTypeOrSelf())/]
   public class [e.nameClassEntityImpl()/] extends [e.nameClassEntityAbs()/]
   {   
       
@@ -67,7 +67,7 @@
         ['Id'.commentSingleLine()/]
         @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "[(e.name() + '_SEQUENCE').toUpper()/]")
-        @Column(name = "[e.parentOrSelf().namePrimaryKey().toUpper()/]", nullable = false)
+        @Column(name = "[e.superTypeOrSelf().namePrimaryKey().toUpper()/]", nullable = false)
         private [e.defaultTypePk()/] [e.writePk()/];	
         
         [for (a : environment::Attribute | e.attributesNoPK())]
@@ -80,7 +80,7 @@
         [/for]
         [for (r : environment::Reference | fk)]
           [r.referencedEntity(e).comment().commentSingleLine()/]
-          [protected (r.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           [r.writeAnnotationsFK(e)/]
           private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
@@ -88,7 +88,7 @@
         [/for]  
         [for (r : environment::Reference | jt)]
           [r.referencedEntity(e).comment().commentSingleLine()/]
-          [protected (r.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           [r.writeAnnotationsJT(e)/]
           private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
@@ -202,7 +202,17 @@
   [e.importImpl()/]
   
   /**
-   * 
+   * Interface de dépôt pour accéder aux entités {@link [e.nameClassEntityImpl()/]}.
+   * Cette interface hérite de {@link JpaRepository}, fournissant ainsi
+   * un ensemble complet de méthodes CRUD, de pagination et de tri 
+   * pour l'entité {@code [e.nameClassEntityImpl()/]}.
+   *
+   * Elle permet de manipuler des objets {@code [e.nameClassEntityImpl()/]} en interaction
+   * avec la base de données, via Spring Data JPA.
+   *
+   * @author [e.nameAuthor()/]
+   * @see [e.nameClassEntityImpl()/]
+   * @see org.springframework.data.jpa.repository.JpaRepository
    */
   public interface [e.nameClassEntityPersistItf()/] extends JpaRepository<[e.nameClassEntityImpl()/], Long> {
     
@@ -251,11 +261,11 @@
 [query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.isMultiple()) 
   then if (r.containedEntity(e) = e) then '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
   + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif  + ', mappedBy = "' + e.name().apply_attributeDefault() 
-  + '")' else '@ManyToOne()' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).parentOrSelf().namePrimaryKey().toUpper() 
+  + '")' else '@ManyToOne()' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).superTypeOrSelf().namePrimaryKey().toUpper() 
   + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
   + if (r.has_metaCascadeType()) then ', ' +  r.writeCascade() else '' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' 
   + if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().apply_attributeDefault().toUpper() else r.referencedEntity(e)
-  .parentOrSelf().namePrimaryKey().toUpper() endif + '", referencedColumnName = "' + r.referencedEntity(e).parentOrSelf()
+  .superTypeOrSelf().namePrimaryKey().toUpper() endif + '", referencedColumnName = "' + r.referencedEntity(e).superTypeOrSelf()
   .namePrimaryKey().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' 
   else 'true' endif +')' endif/]
   
@@ -264,8 +274,8 @@
   + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif 
   + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' 
   + r.nameTableJoin().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() 
-  + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' + e.parentOrSelf().namePrimaryKey().toUpper() 
+  + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' + e.superTypeOrSelf().namePrimaryKey().toUpper() 
   + '"), inverseJoinColumns = @JoinColumn(name = "' + if (r.isStarRecursive()) then r.referencedType.oclAsType(entity::Entity)
-  .parentOrSelf().namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() 
-  else r.referencedEntity(e).parentOrSelf().namePrimaryKey().toUpper()  endif + '"))'/]
+  .superTypeOrSelf().namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() 
+  else r.referencedEntity(e).superTypeOrSelf().namePrimaryKey().toUpper()  endif + '"))'/]
  

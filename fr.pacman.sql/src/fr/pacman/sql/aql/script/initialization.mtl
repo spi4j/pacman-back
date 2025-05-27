@@ -14,41 +14,72 @@
 [import fr::pacman::core::aql::name::databases/]
 
 [import fr::pacman::core::service::DatabaseUtils/]
+[import fr::pacman::core::service::InheritanceUtils/]
 
-
-[template public initDatabase(r : entity::Root, es : Sequence(entity::Entity) , dbType : String) post(self.removeEmptyLines())]
+[comment initialisation de la base de données avec des données minimales pour les tests unitaires./]
+[template public initDatabase(root : entity::Root, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity), dbType : String) post(self.removeEmptyLines())]
   [for (e : entity::Entity | es)]
-    [e.writeInsert(e.referencesFK(), e.autoAttributes(), dbType)/]
+    [comment on récupère la liste des fks pour l'entité./]
+    [let fks= e.referencesFK()]
+      [comment on récupère la liste des fk inverses héritées./]
+      [let fkis = e.referencesFK()->reject(o | not o.isSuperTypeReference(e, ess))]
+        [comment si aucune référence inverse héritée on écrit la ligne d'insertion./]
+        [if (fkis->isEmpty())]
+          [comment insertion pour chaque table (nominal)./]
+          [e.writeInsert(fks,e.autoAttributes(),dbType)/]
+        [else]
+          [comment on récupère toutes les inverses héritées et on crée une référence par entité héritée, 
+                   on concatène le tout avec les autres références fk non inverses./]
+          [let collectedRefs : Sequence(Reference) = fks->select(o | not fkis->includes(o)) 
+            ->union( fkis->collect(r | es->select(e1 | e1.isSubType(r.containingType) or e1.isSubType(r.referencedType))
+            ->collect(e1 | r.get_workingCopyReference(e1))))]
+            [e.writeInsert(collectedRefs,e.autoAttributes(),dbType)/]
+          [/let]
+        [/if]
+      [/let]
+    [/let]
   [/for]
-  [r.initJoinTables(dbType)/]
+  [comment insertion pour les tables de jointure./]
+  [root.initJoinTables(es,ess,dbType)/]
 [/template]
 
 [comment initialisation spécifique pour les tables de jointure./]
-[template private initJoinTables(root : entity::Root, dbType : String)]
+[template private initJoinTables(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
   [for (r : environment::Reference | root.referencesJT())]
-    [r.writeInsert(dbType)/]
+    [comment on vérifie si la référence est une référence héritée./]
+    [if (r.isSuperTypeReference(ess))]
+      [comment si héritée on crée les insertions par entité héritée./]
+      [for (e1 | es->select(o | (o.isSubType(r.containingType) or o.isSubType(r.referencedType))))]
+        [r.get_workingCopyReference(e1).writeInsert(dbType)/]
+      [/for]
+    [else]
+      [comment sinon fonctionnement nominal./]
+      [r.writeInsert(dbType)/]
+    [/if]
   [/for]
 [/template]
 
+[comment écriture de la ligne d'insertion pour une table./]
+[query private writeInsert(e : entity::Entity, rs : OrderedSet(environment::Reference), oas : Sequence(String) , dbType : String) : String =
+	('insert into ' + e.superTypeOrSelf().nameTableSchema().toUpper() + ' ('+ e.writeColumns(rs).toUpper() + ',' 
+	+ oas->collect(o | o.nameAutoAttribute().toUpper())->sep(',') +')' + ' values (' + (e.defaultSqlIntegrationTestSequenceStart() 
+	+ ',' + e.attributesNoPKAndNoComputed()->asSequence()->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') 
+	+ ',' + rs->asSequence()->collect(o | o.defaultSqlForeignkey())->sep(',')) + ',' + oas->collect(o | o.autoAttributeType().get_defaulValueForColumn())
+	->sep(',') + ');').sanitize()/]
+
 [comment écriture de la ligne d'insertion pour une table de jointure./]
 [query private writeInsert(r : environment::Reference, dbType : String) : String = 'insert into ' + r.nameTableSchemaJoin().toUpper() 
-	+ ' (' + r.containingType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey().toUpper() + ',' + if (r.isStarRecursive()) then 
-	r.referencedType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(), r.suffixSqlId()).toUpper() 
-	else r.referencedType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey().toUpper() endif + ')' + ' values (' 
+	+ ' (' + r.containingType.oclAsType(entity::Entity).superTypeOrSelf().namePrimaryKey().toUpper() + ',' + if (r.isStarRecursive()) then 
+	r.referencedType.oclAsType(entity::Entity).superTypeOrSelf().namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(), r.suffixSqlId()).toUpper() 
+	else r.referencedType.oclAsType(entity::Entity).superTypeOrSelf().namePrimaryKey().toUpper() endif + ')' + ' values (' 
 	+ r.defaultSqlIntegrationTestSequenceStart() + ',' + r.defaultSqlIntegrationTestSequenceStart() + ');'/]
 
-[comment écriture de la ligne d'insertion pour une table./]
-[query private writeInsert(e : entity::Entity, rs : OrderedSet(environment::Reference), oas : Sequence(String) , dbType : String) : String = 
-	('insert into ' + e.parentOrSelf().nameTableSchema().toUpper() + ' ('+ e.writeColumns(rs).toUpper() + ',' + oas->collect(o | o.nameAutoAttribute().toUpper())
-	->sep(',') +')' + ' values (' + (e.defaultSqlIntegrationTestSequenceStart() + ',' + e.attributesNoPKAndNoComputed()->asSequence()
-	->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') + ',' + rs->asSequence()->collect(o | o.defaultSqlForeignkey())
-	->sep(',')) + ',' + oas->collect(o | o.autoAttributeType().get_defaulValueForColumn())->sep(',') + ');').sanitize()/]
-
 [comment écriture de la ligne pour la liste des colonnes de la table./]
-[query private writeColumns (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String =  e.parentOrSelf().namePrimaryKey() 
+[query private writeColumns (e : entity::Entity, rs : OrderedSet(environment::Reference)) : String =  e.superTypeOrSelf().namePrimaryKey() 
 	+ ',' + e.attributesNoPKAndNoComputed()->collect(o : environment::Attribute | o.nameColumn())->sep(',') + ',' 
 	+ rs->collect(o | if (o.isZeroOneRecursive()) then o.nameSimplePropertyID().toUpper() 
-	else o.nameReferenceId(o.referencedEntity(e).parentOrSelf(), o.get_namingIndex(rs)) endif)->sep(',')/]
+	else o.nameReferenceId(o.referencedEntity(e).superTypeOrSelf(), 0) endif)->sep(',')/]
 	
 [comment supprime les virgules non nécessaires dans la liste des colonnes et des valeurs (on y va pas à pas...)./]
 [query private sanitize(s : String) : String = s.replaceAll(',+',',').replaceAll(',\\)', '\\)')/]

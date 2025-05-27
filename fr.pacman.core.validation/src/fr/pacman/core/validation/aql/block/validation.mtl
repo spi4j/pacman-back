@@ -23,42 +23,56 @@
 [comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
 [template public validation (r : entity::Root) post(self.escapeFile())]
   [r.writeTabHeader()/]
-  [for (e | r.withoutParentEntities())]
-    [comment pas d'entité vide./]
-    [if (e.attributes->isEmpty())][e.add(e.msge1())/][/if]
-    [comment pas d'attribut avec identifier./] 
-    [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.msge2())/][/if]
+  [let es = r.subTypesEntities()]
+    [for (e | es)]
+      [comment pas d'entité vide./]
+      [if (e.attributes->isEmpty())][e.add(e.msge1())/][/if]
+      [comment pas d'attribut avec identifier./] 
+      [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.msge2())/][/if]
       
-    [comment pas d'attribut avec (1,*) ou (0,*)./]
-    [if (not e.attributes->select(o | o.isMultiple())->isEmpty())][e.add(e.msge3())/][/if]
+      [comment pas d'attribut avec (1,*) ou (0,*)./]
+      [if (not e.attributes->select(o | o.isMultiple())->isEmpty())][e.add(e.msge3())/][/if]
       
-    [comment pas d'attribut sans nom défini./]
-    [if (not e.attributes->select(o | not o.name.exists())->isEmpty())][e.add(e.msge4())/][/if]
+      [comment pas d'attribut sans nom défini./]
+      [if (not e.attributes->select(o | not o.name.exists())->isEmpty())][e.add(e.msge4())/][/if]
       
-    [comment pas d'attribut sans type défini./]
-    [if (not e.attributes->select(o | not o.type.exists())->isEmpty())][e.add(e.msge5())/][/if]
+      [comment pas d'attribut sans type défini./]
+      [if (not e.attributes->select(o | not o.type.exists())->isEmpty())][e.add(e.msge5())/][/if]
       
-    [comment pas de multiples relations recursives avec le même nom./]
-    [if (not e.referencesFKSB()->union(e.referencesJT())->hasRecursivesWithSameName())][e.add(e.msge6())/][/if]
+      [comment pas de multiples relations recursives avec le même nom./]
+      [if (not e.referencesFKSB()->union(e.referencesJT())->hasRecursivesWithSameName())][e.add(e.msge7())/][/if]
       
-    [comment pas de relation de type composite./]
-    [if (not e.referencesFKSB()->select(o | o.isComposite)->isEmpty())][e.add(e.msge7())/][/if]
+      [comment pas de relation de type composite./]
+      [if (not e.referencesFKSB()->select(o | o.isComposite)->isEmpty())][e.add(e.msge8())/][/if]
+        
+      [comment pas d'héritage autre que des entités/]
       
-    [comment pas de classe mère avec des relations (0,* - 1,*)/]
-    [if (e.supertype <> null and not e.supertype.referencesFKSB()
-    	->select(o | o.isMultiple())
-    	->isEmpty())][e.add(e.msge8())/][/if]
-    	
-    [comment pas d'héritage autre que des entités/]
-    [comment pas de classe fille avec relation sur classe mère/]
-  [/for]
-  
-  [for (re | r.eAllContents(environment::Reference))]
-    [comment pas de relation bidirectionnelle avec double navigabilité./]
-    [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.msgr1())/][/if]
-    [comment pas de relation bidirectionnelle avec (1 ou 0,1)./]
-    [if (re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.msgr2())/][/if]
-  [/for]
+      [comment pas de classe fille avec relation sur classe mère/]
+    [/for]
+    
+    [let pes = r.eAllContents(entity::Entity)->select(e | not es->includes(e))]
+      [for (e | pes)]      
+        [comment pas de classe mère avec des relations  non bidir (0,* - 1,*)/]
+        [comment if (not e.referencesFKSB()->select(o | o.isMultiple())->isEmpty())][e.add(e.msge6())/]
+         
+        [comment pas de relation fk entre les classes parents (hors récursive)./]
+        [if (not e.referencesFK()->select(o | pes->includes(o.referencedType))
+             ->select(o2 | not o2.isZeroOneRecursive())->isEmpty())][e.add(e.msge9())/][/if]
+      [/for]
+      
+      [for (re | r.eAllContents(environment::Reference))]
+        [comment pas de relation bidirectionnelle avec double navigabilité./]
+        [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.msgr1())/][/if]
+        
+        [comment pas de relation bidirectionnelle avec (1 ou 0,1)./]
+        [if (re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.msgr2())/][/if]
+        
+        [comment pas de relation jt entre les classes parents./]
+        [if (not pes->isEmpty() and (re.isMultipleBidirectionnal() and not re.isRecursive() 
+        	and (pes->includes(re.containingType) and pes->includes(re.referencedType))))][re.add(re.msgr4())/][/if]
+      [/for]
+    [/let]
+  [/let]
   [r.writeReport()/]
 [/template]
 
@@ -220,17 +234,21 @@
 [query private msge5 (e : entity::Entity) : String = e.nameEntity() + '@Entité avec un attribut sans type' 
   +  '@Définissez un type pour l\'attribut' /]
   
+[comment impossible de créer des entités mère avec des références sur d'autres classes parents./]
+[query private msge6 (e : entity::Entity) : String = e.nameEntity() + '@Références non bidirectionnelles (*) sur des entités héritées' 
+  + '@Supprimez ces références au niveau des entités héritées'/]
+  
 [comment impossible de créer des références récursives avec le même nom./]
-[query private msge6 (e : entity::Entity) : String = e.nameEntity() + '@Des références récursives ont le même nom' 
+[query private msge7 (e : entity::Entity) : String = e.nameEntity() + '@Des références récursives ont le même nom' 
   + '@Modifier les noms des références afin que chaque nom soit unique'/]
   
 [comment impossible de créer des références de type composite./]
-[query private msge7 (e : entity::Entity) : String = e.nameEntity() + '@Des références composites ont été trouvées' 
+[query private msge8 (e : entity::Entity) : String = e.nameEntity() + '@Des références composites ont été trouvées' 
   + '@Supprimez les références composites'/]
-
-[comment impossible de créer des entités mère avec des références./]
-[query private msge8 (e : entity::Entity) : String = e.nameEntity() + '@Références non bidirectionnelles (*) sur des entités héritées' 
-  + '@Supprimez ces références au niveau des classes héritées'/]
+  
+[comment impossible de créer des entités parent avec des références FK (autre que récursive) sur d'autres classes parents./]
+[query private msge9 (e : entity::Entity) : String = e.nameEntity() + '@Références de type \'fKey\' entre entités héritées' 
+  + '@Supprimez les références de type \'fKey\' pour les entités héritées'/]
   
 [comment impossible de créer des dtos sans attribut./]
 [query private msgd1 (d : environment::DTO) : String = d.nameDto() + '@Dto sans aucun attribut@Ajoutez au moins un attribut au niveau du dto'/]
@@ -265,6 +283,10 @@
 [comment impossible de créer des relations de type composition (non géré)./]
 [query private msgr3 (r : environment::Reference) : String = r.nameReference() + '@Référence de type \'composition\' détectée' 
 	+ '@Ne pas utiliser ce type de référence (non géré)'/]
+  
+[comment impossible de créer des entités parent avec des références JT (autre que récursive) sur d'autres classes parents./]
+[query private msgr4 (r : environment::Reference) : String = r.nameReference() + '@Références de type \'Join\' entre entités héritées' 
+  + '@Supprimez les références de type \'Join\' pour les entités héritées'/]
 
 [comment impossible d'avoir un service directement mappé sur des entités./]	
 [query private msgs1 (s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 

@@ -26,8 +26,8 @@
 [query public associatedType(d : environment::DTO) : environment::Type = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
    then d.associatedTypes->first() else null endif/]
    
-[comment retourne la liste des dtos qui sont persistents et non héritées (au niveau soa on a perdu la relation d'héritage)./]
-[query public withoutParentDtos(s : soa::System) : Sequence(environment::DTO) = s.eAllContents(environment::DTO)
+[comment retourne la liste des dtos non hérités (noter qu'au niveau soa on a perdu la relation d'héritage mais ...)./]
+[query public subTypesDtos(s : soa::System) : Sequence(environment::DTO) = s.eAllContents(environment::DTO)
   ->select(o1 | s.eAllContents(environment::DTO)->forAll(o2 | not o2.associatedEntity()
   .supertype->includes(o1.associatedEntity())))/]
 

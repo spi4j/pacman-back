@@ -24,9 +24,14 @@
 [comment retourne true si l'entité a au moins un attribut obligatoire./]
 [query public hasMandatoryAttributes(e : entity::Entity) : Boolean = not e.attributesNoPK()->select(o | o.isMandatory())->isEmpty()/]
 
-[comment retourne uniquement la liste de toutes les entités qui ne sont pas héritées (aucune classe mère)./]
-[query public withoutParentEntities(r : entity::Root) : Sequence(entity::Entity) = r.eAllContents(entity::Entity)
+[comment retourne uniquement la liste de toutes les entités qui ne sont pas héritées (aucune entité super)./]
+[query public subTypesEntities(r : entity::Root) : Sequence(entity::Entity) = r.eAllContents(entity::Entity)
   ->select(o1 | r.eAllContents(entity::Entity)->forAll(o2 | not o2.supertype->includes(o1)))/]
-  
-[comment retourne le parent de l'entité (classe mère), si la classe n'a pas de parent alors retourne l'entité (pour l'instant bloqué)./]
-[query public parentOrSelf(e : entity::Entity) : entity::Entity = if let b = false in (e.supertype <> null and b) then e.get_parent() else e endif/]
+
+[comment retourne uniquement la liste des entités héritées (que les entités super)./]
+[query public superTypesEntities(r : entity::Root) : Sequence(entity::Entity) = let es = r.subTypesEntities() 
+  in r.eAllContents(entity::Entity)->select(e | not es->includes(e))/]
+
+[comment retourne le top-super de l'entité, si existe, sinon retourne l'entité (pour l'instant bloqué)./]
+[query public superTypeOrSelf(e : entity::Entity) : entity::Entity = let b = false in if (e.supertype = null or not b) then e else 
+   e.supertype.oclAsType(entity::Entity).superTypeOrSelf() endif/]

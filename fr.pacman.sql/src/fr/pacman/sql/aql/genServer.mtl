@@ -1,4 +1,5 @@
 [module genServer(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0',
 					'http://www.obeonetwork.org/dsl/entity/2.0.0/utilities')/]
 
 [import fr::pacman::core::aql::base/]
@@ -8,21 +9,25 @@
 [import fr::pacman::core::service::DatabaseUtils/]
 	
 [comment @main/]
-[comment écriture des scripts SQL pour chaque type de base de données séléctionné./]
-[template public genSqlScripts(r : entity::Root)]
-  [comment optimisation, on ne récupère qu'une seule fois les entités./]
-  [let es = r.withoutParentEntities()]
-    [let dbTypes : Sequence(String) = r.typeDatabases().trim().tokenize(',')]
-      [for (dbType : String | dbTypes)]
-         [comment écriture des scripts de production./]
-         [r.genSqlCreateScript(es, dbType)/]
-         [r.genSqlDropScript(es, dbType)/]
+[comment écriture des scripts SQL pour chaque type de base de données séléctionné. Ici on essaye 
+         de faire un maximum d'optimisation en ne faisant les requêtes q'une seule fois dans la mesure 
+         du possible, mais dans les faits (après avoir demandé avis auprès des développeurs Obeo) il ne
+         sert à rien d'effectuer de telles optimisations. N'ayant qu'un accès en lecture, l'impact est 
+         tout à fait négligeable et il est possible de demander n fois les listes. Cela évite de passer
+         de nombreux paramètres et d'avoir des lets./]
+[template public genSqlScripts(root : entity::Root)]
+  [comment on ne récupère qu'une seule fois les entités à traiter./]
+  [let es = root.subTypesEntities()]
+    [let ess = root.superTypesEntities()]
+      [for (dbType : String | root.typeDatabases().trim().tokenize(','))]
+        [comment écriture des scripts de production./]
+        [root.genSqlCreateScript(es,ess,dbType)/]
+        [root.genSqlDropScript(es,ess,dbType)/]
       [/for]
+      [comment écriture des scripts pour les tests d'intégration./]
+      [root.genSqlIntegrationInitScript(es,ess,root.defaultSqlDbType())/]
+      [root.genSqlIntegrationCreateScript(es,ess,root.defaultSqlDbType())/]
     [/let]
-  
-    [comment écriture des scripts pour les tests d'intégration./]
-    [r.genSqlIntegrationInitScript(es, r.defaultSqlDatabaseType())/]
-    [r.genSqlIntegrationCreateScript(es, r.defaultSqlDatabaseType())/]
   [/let]
 [/template]
 

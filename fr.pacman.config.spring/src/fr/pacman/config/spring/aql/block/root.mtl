@@ -134,6 +134,12 @@
             <artifactId>resilience4j-spring-boot2</artifactId>
             <version>[any.versionResilience4j()/]</version>
           </dependency>
+          <!-- coffre fort -->
+          <dependency>
+              <groupId>org.springframework.cloud</groupId>
+              <artifactId>spring-cloud-starter-vault-config</artifactId>
+              <version>[any.versionVault()/]</version>
+          </dependency>
           <!-- bases de données -->
           [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
             <dependency>

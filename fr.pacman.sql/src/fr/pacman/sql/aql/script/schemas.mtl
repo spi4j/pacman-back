@@ -11,9 +11,9 @@
 [/template]
 
 [comment suppression du schéma pour la base de données en cours de traitement./]
-[template public dropSchema(r : entity::Root)]
-  [r.schemaHeader()/]
-  drop schema [r.prefixTableSchema().toUpper().replaceAll('\\.', '')/];
+[template public dropSchema(root : entity::Root)]
+  [root.schemaHeader()/]
+  drop schema [root.prefixTableSchema().toUpper().replaceAll('\\.', '')/];
 [/template]
 
 [comment vérifie si la base de données a un schéma qui a été préalablement défini./]

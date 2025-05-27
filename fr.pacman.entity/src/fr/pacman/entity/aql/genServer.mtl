@@ -7,6 +7,6 @@
 [comment écriture des classes et fichiers persistence pour la partie serveur de l'application cible./]
 [template public genServer(r : entity::Root)]
   [comment implémentation des champs automatiques pour la base de données./]
-  [r.fileEntityAbs(r.commandEntity())/]
+  [r.fileEntityAbs(r.cmdEntity())/]
 [/template]
 

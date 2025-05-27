@@ -9,7 +9,7 @@
 
 [comment écriture du fichier d'implémentation pour les champs automatiques de la base de données./]
 [template public fileEntityAbs(any : ecore::EObject, target : String)]
-  [if (any.commandEntity().equalsIgnoreCase(target)) ]
+  [if (any.cmdEntity().equalsIgnoreCase(target)) ]
     [file (any.nameClassEntityAbs().toFileJava(  any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
       [any.autoAttributesImpl(target)/]
     [/file]

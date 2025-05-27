@@ -31,17 +31,17 @@
 [/template]
 
 [comment écriture des assesseurs pour les références (liaisons avec les autres dtos | xtos)./]
-[template public writeGetterAndSetterForReferences(d : environment::DTO, rs : OrderedSet(environment::Reference), command : String)]
+[template public writeGetterAndSetterForReferences(d : environment::DTO, rs : OrderedSet(environment::Reference), cmd : String)]
   [for (r : environment::Reference | rs)]
     [r.referencedDto(d).commentGet()/]
-    public [d.writeTypeSignature(r, command)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
+    public [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
     {
        return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
     }
     
     [r.referencedDto(d).commentSet()/]
     public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
-    (final [d.writeTypeSignature(r, command)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
+    (final [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
     {
        [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
           = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
@@ -50,7 +50,7 @@
 [/template]
 
 [comment écriture du type pour la référence (dépend si on écrit un dto ou un xto)./]
-[query private writeTypeSignature(d : environment::DTO, r : environment::Reference, command : String) : String = if (d.commandDto().equalsIgnoreCase(command)) 
+[query private writeTypeSignature(d : environment::DTO, r : environment::Reference, cmd : String) : String = if (d.cmdDto().equalsIgnoreCase(cmd)) 
   then r.referencedTypeSignature(d) else r.referencedOutTypeSignature(d) endif/]
 
 [comment raccourci pour l'écriture de la clé primaire./]

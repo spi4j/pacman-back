@@ -13,74 +13,98 @@
 
 [import fr::pacman::core::service::AnnotationUtils/]
 [import fr::pacman::core::service::DatabaseUtils/]
+[import fr::pacman::core::service::InheritanceUtils/]
 
 [comment création de l'ensemble des contraintes pour la base de données./]
-[template public createConstraints(r : entity::Root, es : Sequence(entity::Entity), dbType : String)]
-  [r.constraints(es, r.commandCreate(), dbType)/]
+[template public createConstraints(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
+  [root.constraints(es,ess,root.cmdCreate(),dbType)/]
 [/template]
 
 [comment suppression de l'ensemble des contraintes pour la base de données./]
-[template public dropConstraints(r : entity::Root, es : Sequence(entity::Entity), dbType : String)]
-  [r.constraints(es, r.commandDelete() , dbType)/]
+[template public dropConstraints(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
+  [root.constraints(es,ess,root.cmdDelete(),dbType)/]
 [/template]
 
 [comment écriture des lignes pour les contraintes de la base de données./]
-[template private constraints(r : entity::Root, es : Sequence(entity::Entity), command : String, dbType : String)]
-  [r.constraintsHeader()/]
+[template private constraints(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), cmd : String, dbType : String)]
+  [root.constraintsHeader()/]
   [for (e : entity::Entity | es)]
     [for (a : environment::Attribute | e.attributes)]
       [if (a.has_metaPhysicalCheck())]
-        [e.writeCheck(a, e.get_counterCK(), command)/];
+        [e.writeCheck(a, e.get_counterCK(), cmd)/];
       [/if]
       [if (a.type.oclIsKindOf(environment::Enumeration) 
         and not OrderedSet{a.type.oclAsType(environment::Enumeration)}->isEmpty())]
-        [e.writeCheckEnum(a, e.get_counterCK(), command)/];
+        [e.writeCheckEnum(a, e.get_counterCK(), cmd)/];
       [/if]
     [/for]
+    
     [let rs = e.referencesFK()]
-      [for (r2 : environment::Reference | rs)]
-        [e.parentOrSelf().writeForeignKey(r2, e.get_counterFK(1), r2.get_namingIndex(rs), command )/];
+      [for (r : environment::Reference | rs)]
+        [comment héritage sur référence./]
+        [if (r.isSuperTypeReference(e))]
+          [e.superTypeOrSelf().writeForeignKey(r, e.get_counterFK(1), cmd)/];
+        [comment héritage sur référence inverse./]
+        [elseif (r.isSuperTypeReference(e, ess))]
+          [for (e1 | es->select(o | (o.isSubType(r.containingType) or o.isSubType(r.referencedType))))]
+            [e.superTypeOrSelf().writeForeignKey(r.get_workingCopyReference(e1), e.get_counterFK(1), cmd)/];
+          [/for]
+        [comment pas d'héritage./]
+        [else]
+          [e.superTypeOrSelf().writeForeignKey(r, e.get_counterFK(1), cmd)/];
+        [/if]
       [/for]
     [/let]
   [/for]
-  [for (r2 : environment::Reference | r.referencesJT())]
-    [r2.writeForeignKeyJoin1(command)/];
-    [r2.writeForeignKeyJoin2(command)/];
+  [for (r : environment::Reference | root.referencesJT())]
+    [comment ici on a plus l'entité, il faut procéder autrement pour savoir si la référence est héritée ou non./]
+    [if (r.isSuperTypeReference(ess))]
+      [comment si héritée on crée les contraintes par entité héritée./]
+      [for (e | es->select(o | (o.isSubType(r.containingType) or o.isSubType(r.referencedType))))]
+        [r.get_workingCopyReference(e).writeForeignKeyJoin1(cmd)/];
+        [r.get_workingCopyReference(e).writeForeignKeyJoin2(cmd)/];
+      [/for]
+    [else]
+      [comment sinon fonctionnement nominal./]
+      [r.writeForeignKeyJoin1(cmd)/];
+      [r.writeForeignKeyJoin2(cmd)/];
+    [/if]
   [/for]
 [/template]
 
 [comment écriture de la ligne pour une contrainte sur les clés étrangères./]
-[query private writeForeignKey(e : entity::Entity, r : environment::Reference, idx : Integer, idx2 : Integer, command : String) : String = 'alter table ' 
-	+ e.nameTableSchema().toUpper() +  if (command.equalsIgnoreCase(e.commandCreate())) then ' add' else ' drop' endif + ' constraint ' 
-	+ e.nameConstraintForeignKey(r, idx).toUpper() + if (command.equalsIgnoreCase(e.commandCreate())) then ' foreign key (' + if (r.isZeroOneRecursive()) 
-	then r.nameSimplePropertyID().toUpper() else  r.nameReferenceId(r.referencedEntity(e), idx2).toUpper() endif + ') references ' 
+[query private writeForeignKey(e : entity::Entity, r : environment::Reference, idx : Integer, cmd : String) : String = 'alter table ' 
+	+ e.nameTableSchema().toUpper() +  if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' 
+	+ e.nameConstraintForeignKey(r, idx).toUpper() + if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' foreign key (' + if (r.isZeroOneRecursive()) 
+	then r.nameSimplePropertyID().toUpper() else  r.nameReferenceId(r.referencedEntity(e), 0).toUpper() endif + ') references ' 
 	+ r.referencedEntity(e).oclAsType(entity::Entity).nameTableSchema().toUpper() + ' (' +  r.referencedEntity(e).oclAsType(entity::Entity)
 	.namePrimaryKey().toUpper() + ')' else '' endif/]
 
 [comment écriture de la ligne pour une contrainte sur les clé étrangères de jointure./]
-[query private writeForeignKeyJoin1(r : environment::Reference, command : String) : String = 'alter table ' + r.nameTableSchemaJoin().toUpper() 
-	+  if (command.equalsIgnoreCase(r.commandCreate())) then ' add' else ' drop' endif + ' constraint ' + r.nameConstraintJointure1().toUpper() 
-	+ if (command.equalsIgnoreCase(r.commandCreate())) then ' foreign key (' + r.containingType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey()
-	.toUpper() + ') references ' + r.containingType.oclAsType(entity::Entity).parentOrSelf().nameTableSchema().toUpper() + ' (' 
-	+ r.containingType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey().toUpper() + ')' else '' endif/]
+[query private writeForeignKeyJoin1(r : environment::Reference, cmd : String) : String = 'alter table ' + r.nameTableSchemaJoin().toUpper() 
+	+  if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' + r.nameConstraintJointure1().toUpper() 
+	+ if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' foreign key (' + r.containingType.oclAsType(entity::Entity).superTypeOrSelf().namePrimaryKey()
+	.toUpper() + ') references ' + r.containingType.oclAsType(entity::Entity).superTypeOrSelf().nameTableSchema().toUpper() + ' (' 
+	+ r.containingType.oclAsType(entity::Entity).superTypeOrSelf().namePrimaryKey().toUpper() + ')' else '' endif/]
 	
 [comment écriture de la ligne pour une contrainte sur les clé étrangères de jointure./]
-[query private writeForeignKeyJoin2(r : environment::Reference, command : String) : String = 'alter table ' + r.nameTableSchemaJoin().toUpper() 
-	+  if (command.equalsIgnoreCase(r.commandCreate())) then ' add' else ' drop' endif + ' constraint ' + r.nameConstraintJointure2().toUpper() 
-	+ if (command.equalsIgnoreCase(r.commandCreate())) then ' foreign key (' + r.referencedType.oclAsType(entity::Entity).parentOrSelf().namePrimaryKey().toUpper() 
-	+ ') references ' + r.referencedType.oclAsType(entity::Entity).parentOrSelf().nameTableSchema().toUpper() + ' (' + r.referencedType.oclAsType(entity::Entity)
-	.parentOrSelf().namePrimaryKey().toUpper() + ')' else '' endif/]
+[query private writeForeignKeyJoin2(r : environment::Reference, cmd : String) : String = 'alter table ' + r.nameTableSchemaJoin().toUpper() 
+	+  if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' + r.nameConstraintJointure2().toUpper() 
+	+ if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' foreign key (' + if (r.isRecursive()) then r.referencedType.oclAsType(entity::Entity)
+	.superTypeOrSelf().namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() else r.referencedType.oclAsType(entity::Entity)
+	.superTypeOrSelf().namePrimaryKey().toUpper() endif + ') references ' + r.referencedType.oclAsType(entity::Entity).superTypeOrSelf().nameTableSchema().toUpper() 
+	+ ' (' + r.referencedType.oclAsType(entity::Entity).superTypeOrSelf().namePrimaryKey().toUpper() + ')' endif else '' endif/]
 
 [comment écriture de la ligne pour la contrainte de vérification (check) sur un attribut./]
-[query private writeCheck(e : entity::Entity, a : environment::Attribute, idx : Integer, command : String) : String = 'alter table ' 
-	+  e.nameTableSchema().toUpper() +  if (command.equalsIgnoreCase(e.commandCreate())) then ' add' else ' drop' endif + ' constraint ' 
-	+  e.nameConstraintCheck(idx).toUpper() + if (command.equalsIgnoreCase(e.commandCreate())) then ' CHECK (' + a.nameColumn().toUpper() 
+[query private writeCheck(e : entity::Entity, a : environment::Attribute, idx : Integer, cmd : String) : String = 'alter table ' 
+	+  e.nameTableSchema().toUpper() +  if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' 
+	+  e.nameConstraintCheck(idx).toUpper() + if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' CHECK (' + a.nameColumn().toUpper() 
 	+ ' ' + a.get_metaPhysicalCheck() + ')' else '' endif/]
 
 [comment écriture de la ligne pour la contrainte de vérification (check) sur un attribut de type énumération./]
-[query private writeCheckEnum(e : entity::Entity, a : environment::Attribute, idx : Integer, command : String) : String = 'alter table ' 
-	+ e.nameTableSchema().toUpper() +  if (command.equalsIgnoreCase(e.commandCreate())) then ' add' else ' drop' endif + ' constraint ' 
-	+  e.nameConstraintCheck(idx).toUpper() + if (command.equalsIgnoreCase(e.commandCreate())) then ' CHECK (' + a.nameColumn().toUpper() + ' IN ('
+[query private writeCheckEnum(e : entity::Entity, a : environment::Attribute, idx : Integer, cmd : String) : String = 'alter table ' 
+	+ e.nameTableSchema().toUpper() +  if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' 
+	+  e.nameConstraintCheck(idx).toUpper() + if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' CHECK (' + a.nameColumn().toUpper() + ' IN ('
 	+ a.type.oclAsType(environment::Enumeration).literals->asSequence()->collect(temp1 | temp1.enumStruct(a.type.oclAsType(environment::Enumeration)))
 	->sep(',') + '))' else '' endif/]
 	
