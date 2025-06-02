@@ -38,37 +38,13 @@
         [e.writeCheckEnum(a, e.get_counterCK(), cmd)/];
       [/if]
     [/for]
-    
-    [let rs = e.referencesFK()]
-      [for (r : environment::Reference | rs)]
-        [comment héritage sur référence./]
-        [if (r.isSuperTypeReference(e))]
-          [e.superTypeOrSelf().writeForeignKey(r, e.get_counterFK(1), cmd)/];
-        [comment héritage sur référence inverse./]
-        [elseif (r.isSuperTypeReference(e, ess))]
-          [for (e1 | es->select(o | (o.isSubType(r.containingType) or o.isSubType(r.referencedType))))]
-            [e.superTypeOrSelf().writeForeignKey(r.get_workingCopyReference(e1), e.get_counterFK(1), cmd)/];
-          [/for]
-        [comment pas d'héritage./]
-        [else]
-          [e.superTypeOrSelf().writeForeignKey(r, e.get_counterFK(1), cmd)/];
-        [/if]
-      [/for]
-    [/let]
+    [for (r : environment::Reference | e.referencesFKResolved(es,ess))]
+      [e.superTypeOrSelf().writeForeignKey(r, e.get_counterFK(1), cmd)/];
+    [/for]
   [/for]
-  [for (r : environment::Reference | root.referencesJT())]
-    [comment ici on a plus l'entité, il faut procéder autrement pour savoir si la référence est héritée ou non./]
-    [if (r.isSuperTypeReference(ess))]
-      [comment si héritée on crée les contraintes par entité héritée./]
-      [for (e | es->select(o | (o.isSubType(r.containingType) or o.isSubType(r.referencedType))))]
-        [r.get_workingCopyReference(e).writeForeignKeyJoin1(cmd)/];
-        [r.get_workingCopyReference(e).writeForeignKeyJoin2(cmd)/];
-      [/for]
-    [else]
-      [comment sinon fonctionnement nominal./]
-      [r.writeForeignKeyJoin1(cmd)/];
-      [r.writeForeignKeyJoin2(cmd)/];
-    [/if]
+  [for (r : environment::Reference | root.referencesJTResolved(es,ess))]
+    [r.writeForeignKeyJoin1(cmd)/];
+    [r.writeForeignKeyJoin2(cmd)/];
   [/for]
 [/template]
 

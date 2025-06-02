@@ -1,4 +1,6 @@
-[module eobject(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+[module eobject(	'http://www.obeonetwork.org/dsl/environment/3.0.0',
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::string/]
@@ -11,8 +13,8 @@
 [comment liste des requêtes possibles et qui sont communes aux différents objets de modélisation./]
 
 [comment retourne le système racine d'un eobjet./]  
-[query public root(any : ecore::EObject) : environment::ObeoDSMObject = 
-	any.get_root().oclAsType(environment::ObeoDSMObject)/]
+[query public root(any : ecore::EObject) : environment::NamespacesContainer = 
+	any.get_root().oclAsType(environment::NamespacesContainer)/]
 
 [comment vérifie si une description a été saisie pour l'objet./]
 [query public hasComment(o : environment::ObeoDSMObject) : Boolean = o.description <> null 
@@ -47,7 +49,7 @@
 [comment vérifie si il existe des attributs automatiques pour la couche de persistance./]
 [query public hasAutoAttributes(any : ecore::EObject) : Boolean = any.get_SQLAutoFields().trim().size() > 0/]
 
-[comment vérifie si un type hérite bien du type passé en paramètre super./]
+[comment vérifie si un type hérite bien du super type passé en paramètre./]
 [query public isSubType(st : environment::StructuredType, super : environment::StructuredType) : Boolean = if (st.supertype = null)
 	then false else if (st.supertype = super) then true else st.supertype.isSubType(super) endif endif/]
 

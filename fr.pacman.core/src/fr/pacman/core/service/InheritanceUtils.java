@@ -2,9 +2,9 @@ package fr.pacman.core.service;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.MultiplicityKind;
 import org.obeonetwork.dsl.environment.Reference;
+import org.obeonetwork.dsl.environment.StructuredType;
 
 /**
  * Utilitaire lié à la gestion de l'héritage pour les entités du métamodèle.
@@ -28,28 +28,36 @@ public class InheritanceUtils {
 	 * à jour {@code referencedType}.</li>
 	 * </ul>
 	 *
-	 * @param p_reference    La référence d'origine à copier.
-	 * @param p_targetEntity L'entité dans laquelle sera assignée la nouvelle
-	 *                       référence.
+	 * @param p_reference La référence d'origine à copier.
+	 * @param p_target    La structure dans laquelle sera assignée la nouvelle
+	 *                    référence.
 	 * @return Une nouvelle instance de {@link Reference}, copiée et réassignée à
-	 *         {@code p_targetEntity}.
+	 *         {@code p_target}.
 	 */
-	public static Reference get_workingCopyReference(final Reference p_reference, Entity p_targetEntity) {
-
-		Reference p_newReference = EcoreUtil.copy(p_reference);
-		p_newReference.setName(p_newReference.getName() + "_" + p_targetEntity.getName());
-		Entity p_newTargetEntity = EcoreUtil.copy(p_targetEntity);
-		// On remplace le container par l'entité héritée.
-		p_newReference.setContainingType(p_newTargetEntity);
+	private static Reference getWorkingCopyReference(final Reference p_reference, StructuredType p_target) {
+		StructuredType p_newTarget = EcoreUtil.copy(p_target);
+		// On remplace le container par type hérité.
+		p_reference.setContainingType(p_newTarget);
 		// Si récursif on copie la target dans les deux cas.
 		if (p_reference.getContainingType() == p_reference.getReferencedType())
-			p_newReference.setReferencedType(p_newTargetEntity);
-		return p_newReference;
+			p_reference.setReferencedType(p_newTarget);
+		return p_reference;
+	}
+
+	public static Reference downgradeReference(final Reference p_reference, StructuredType p_target) {
+		return getWorkingCopyReference(EcoreUtil.copy(p_reference), p_target);
 	}
 
 	/**
 	 * Définit la multiplicité de la référence spécifiée à {@code 0..*} (optionnelle
 	 * et multi-valuée).
+	 * 
+	 * Cette méthode est appelée dans le cas des références FK inverses, comme avec
+	 * l'héritage on redescent la relation au niveau de chaque table qui hérite, il
+	 * n'y a plus une seule clé mais n clés en fonction du nombre d'entités. Une
+	 * seule clé ne peut être renseignée, il est donc nécessaire de forcer toutes
+	 * les clés à null même si au niveau de la modélisation la cardinalité initiale
+	 * est à (1,*).
 	 * 
 	 * Cela signifie que la référence peut contenir zéro ou plusieurs éléments.
 	 * Aucun élément n'est requis, et il n'y a pas de limite supérieure.

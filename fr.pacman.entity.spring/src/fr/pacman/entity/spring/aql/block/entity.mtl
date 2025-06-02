@@ -24,7 +24,8 @@
 [import fr::pacman::core::property::project::ProjectProperties/]	
 
 [comment écriture du corps pour la classe d'implémentation d'une entité./]
-[template public entityImpl (e : entity::Entity)]
+[template public entityImpl (e : entity::Entity, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity))]
   [e.classHeader(e.namePackageEntityImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -49,8 +50,7 @@
     import org.hibernate.annotations.SQLRestriction;
     import [e.namePackageProject()/].[e.namePackageInfrastructureBase()/].[e.nameClassEntityAbs()/];
     
-    [/protected]
-  
+  [/protected]
   [e.commentClass()/]
   @Entity
   [e.writeAnnotationTable(e.superTypeOrSelf())/]
@@ -61,8 +61,14 @@
       [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
 
       [/protected]
-      [let fk = e.referencesFKSB()]
-      [let jt = e.referencesJT()]
+      [comment liste des champs automatiques pour l'entité./]
+      [let oas = e.autoAttributes()]
+      [comment liste des tables de liaison pour l'entité (directes + héritées)./]
+      [let jts = e.referencesJTSBResolved()] 
+      [comment liste des clé étrangères (directes + héritées)./] 
+      [let fks = e.referencesFKSBResolved(es, ess)]
+      [comment liste de toutes les références (clé étrangères + tables de jointure)./]
+      [let rs = fks->union(jts)]
         
         ['Id'.commentSingleLine()/]
         @Id
@@ -70,6 +76,7 @@
         @Column(name = "[e.superTypeOrSelf().namePrimaryKey().toUpper()/]", nullable = false)
         private [e.defaultTypePk()/] [e.writePk()/];	
         
+        [comment gestion des attributs./]
         [for (a : environment::Attribute | e.attributesNoPK())]
           [a.comment().commentSingleLine()/]
           [protected (a.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -78,15 +85,17 @@
           private [a.type()/] [a.nameAttribute()/];
           
         [/for]
-        [for (r : environment::Reference | fk)]
+        [comment gestion des clés étrangères./]
+        [for (r : environment::Reference | fks)]
           [r.referencedEntity(e).comment().commentSingleLine()/]
-          [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [protected ((r.referencedType.name + r.containingType.name).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           [r.writeAnnotationsFK(e)/]
           private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
-          
+            
         [/for]  
-        [for (r : environment::Reference | jt)]
+        [comment gestion des tables de liaison (jointures)/]
+        [for (r : environment::Reference | jts)]
           [r.referencedEntity(e).comment().commentSingleLine()/]
           [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
@@ -94,7 +103,7 @@
           private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
           
         [/for]
-         
+        [comment constructeur pour l'entité./]
         [('Constructeur sans paramètre pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
         public [e.nameClassEntityImpl()/] ()
         {
@@ -104,30 +113,29 @@
            [/protected]
         }
         
-        [let oas = e.autoAttributes()]
-          [('Constructeur avec paramètres pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
-          public [e.nameClassEntityImpl()/] ([e.writeInputSignature(fk, oas)/])
-          {
-             
-             super();
-             [for (a : environment::Attribute | e.attributesNoPK())]
-               [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
-             [/for]
-             [for (r : environment::Reference | fk)]
-               [e.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
-                    = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
-             [/for]
-             
-             [for (prop : String | oas)]
-               [e.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/] 
-                   = [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/]; 
-             [/for]
-             
-             
-             [protected ('constructeur avec parametres'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-             [/protected]
-          }
-        [/let]
+        [comment constructeur pour l'entité (avec tous les paramètres)./]
+        [('Constructeur avec paramètres pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
+        public [e.nameClassEntityImpl()/] ([e.writeInputSignature(rs, oas)/])
+        {
+           super();
+           [for (a : environment::Attribute | e.attributesNoPK())]
+             [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
+           [/for]
+           [for (r : environment::Reference | rs)]
+             [e.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+                  = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
+           [/for]
+           
+           [for (prop : String | oas)]
+             [e.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/] 
+                 = [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/]; 
+           [/for]
+           
+           [protected ('constructeur avec parametres'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           [/protected]
+        }
+        
+        [comment écriture des assesseurs spécifiques identifiant./]
         /**
          * Retourne l'identifiant pour l'entité'. 
          *
@@ -150,6 +158,7 @@
                = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
         }
         
+        [comment écriture des assesseurs pour les attributs./]
         [for (a : environment::Attribute | e.attributesNoPK())]
           [a.commentGet()/]
           public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
@@ -167,30 +176,29 @@
           
         [/for]
         
-        [for (r : environment::Reference | fk->union(jt))]
-          [let l = r.isLazyReference()]
-            [r.referencedEntity(e).referencedName(r).commentGet()/]
-            public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
-            {
-               return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
-            }
-            
-            [r.referencedEntity(e).referencedName(r).commentSet()/]
-            public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
-              (final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
-            {
-               [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
-                  = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
-            }
-          [/let]
+        [comment écriture des assesseurs pour les références (clée étrangères + tables de jointure)./]
+        [for (r : environment::Reference | rs)]
+          [r.referencedEntity(e).referencedName(r).commentGet()/]
+          public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
+          {
+             return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
+          }
+          
+          [r.referencedEntity(e).referencedName(r).commentSet()/]
+          public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
+             (final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
+          {
+            [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+              = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
+          }
         [/for]
         
         // METHODES
         [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-
         [/protected]
-     [/let]
-     [/let]
+        
+     [/let][/let]
+     [/let][/let]
   }
 [/template]
 
@@ -261,7 +269,7 @@
 [query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.isMultiple()) 
   then if (r.containedEntity(e) = e) then '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
   + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif  + ', mappedBy = "' + e.name().apply_attributeDefault() 
-  + '")' else '@ManyToOne()' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).superTypeOrSelf().namePrimaryKey().toUpper() 
+  + '")' else '@ManyToOne' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).superTypeOrSelf().namePrimaryKey().toUpper() 
   + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
   + if (r.has_metaCascadeType()) then ', ' +  r.writeCascade() else '' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' 
   + if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().apply_attributeDefault().toUpper() else r.referencedEntity(e)

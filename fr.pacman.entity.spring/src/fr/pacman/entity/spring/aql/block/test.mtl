@@ -26,7 +26,8 @@
 [import fr::pacman::core::service::DatabaseUtils/]
 
 [comment écriture de l'implémentation des tests de persistance sur une entité./]
-[template public outIntegrationTestImpl(e : entity::Entity, rs : OrderedSet(environment::Reference))]
+[template public outIntegrationTestImpl(e : entity::Entity, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity))]
   [e.classHeader(e.namePackageOutIntegrationTestImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -56,7 +57,7 @@
     import [e.namePackageProject()/].[e.namePackageEntityImpl()/].[e.nameClassEntityImpl()/];
     import [e.namePackageProject()/].[e.namePackageEntityPersistItf()/].[e.nameClassEntityPersistItf()/];
     import [e.namePackageProject()/].[e.nameClassIntegrationTestAbstract()/];
-    [for (r | rs)]
+    [for (r | e.referencesFKSB())]
       [let e1 = r.referencedEntity(e)]
         import [e.namePackageProject()/].[e1.namePackageEntityImpl()/].[e1.nameClassEntityImpl()/];
       [/let]
@@ -114,25 +115,27 @@
     */
     @Autowired
     [e.nameClassOutIntegrationTestImpl()/](final [e.nameClassEntityPersistItf()/] [e.nameRepository().apply_parameterMethodClassicIn()/], 
-    	final DataSource ['data source'.apply_parameterMethodClassicIn()/], 
-    	final EntityManager ['entity manager'.apply_parameterMethodClassicIn()/]) {
+       final DataSource ['data source'.apply_parameterMethodClassicIn()/], 
+       final EntityManager ['entity manager'.apply_parameterMethodClassicIn()/]) {
        [e.prefixAffectation()/][e.nameRepository().apply_attributeFinal()/] = [e.nameRepository().apply_parameterMethodClassicIn()/];
        [e.prefixAffectation()/]['entity manager'.apply_attributeDefault()/] = ['entity manager'.apply_parameterMethodClassicIn()/];
        ['init sql'.apply_methodDefault()/](['data source'.apply_parameterMethodClassicIn()/]);
    }
-  
-    [e.writeTestFindAll()/]
-    [e.writeTestFindById()/]
-    [e.writetestFindByColumn()/]
-    [e.writeTestValidate()/]
-    [e.writeTestCreate(rs)/]
-    [e.writeTestCreateWithNull(rs)/]
-    [if (e.hasMandatoryAttributes())]
-    	[e.writeTestCreateWithNullOnMandatory(rs)/]
-   	[/if]
-    [e.writeTestUpdate(rs)/]
-    [e.writeTestDelete()/]
-    [e.writeTestAllFieldInserted(rs)/]
+    [comment on récupère la liste des clés étrangères (directes et héritées)./]
+    [let fks = e.referencesFKSBResolved(es, ess)]
+      [e.writeTestFindAll()/]
+      [e.writeTestFindById()/]
+      [e.writetestFindByColumn()/]
+      [e.writeTestValidate()/]
+      [e.writeTestCreate(fks)/]
+      [e.writeTestCreateWithNull(fks)/]
+      [if (e.hasMandatoryAttributes())]
+        [e.writeTestCreateWithNullOnMandatory(fks)/]
+   	  [/if]
+      [e.writeTestUpdate(fks)/]
+      [e.writeTestDelete()/]
+      [e.writeTestAllFieldInserted(fks)/]
+    [/let]
   }
 [/template]
 
@@ -165,7 +168,7 @@
 [/template]
 
 [comment écriture du test pour la création d'une nouvelle entité./]
-[template private writeTestCreate(e : entity::Entity, rs : OrderedSet(environment::Reference))]
+[template private writeTestCreate(e : entity::Entity, fks : OrderedSet(environment::Reference))]
   /**
   * Test de la création d'une entité [e.name()/] dans la base de données.
   * Vérifie que l'entité créée possède bien une clé primaire.
@@ -182,7 +185,7 @@
         [eName/].[a.nameAttribute().apply_methodSet()/]([a.writeDefaultValue()/]);
       [/for]
       
-      [e.writeReferencedFK(rs)/]
+      [e.writeReferencedFK(fks)/]
       
       [e.nameRepository().apply_attributeFinal()/].save([eName/]);
       [e.prefixAffectation()/]['crud id run'.apply_attributeDefault()/] 
@@ -199,7 +202,7 @@
 [/template]
 
 [comment écriture du test pour la création d'une nouvelle entité avec des champs obligatoires non renseignés./]
-[template private writeTestCreateWithNullOnMandatory(e : entity::Entity, rs : OrderedSet(environment::Reference))]
+[template private writeTestCreateWithNullOnMandatory(e : entity::Entity, fks : OrderedSet(environment::Reference))]
   /**
   * Test de la création d'une entité [e.name()/] avec un champ obligatoire manquant.
   * Vérifie qu'une exception est levée en cas de violation d'intégrité des données.
@@ -221,7 +224,7 @@
            [/if]
          [/for]
          
-         [e.writeReferencedFK(rs)/]
+         [e.writeReferencedFK(fks)/]
          
          [e.nameRepository().apply_attributeFinal()/].save([eName/]);
       } catch (DataIntegrityViolationException e) {
@@ -238,7 +241,7 @@
 [/template]
 
 [comment écriture du test pour la création d'un eentité avec des champs non obligatoires et non renseignés./]
-[template private writeTestCreateWithNull(e : entity::Entity, rs : OrderedSet(environment::Reference))]
+[template private writeTestCreateWithNull(e : entity::Entity, fks : OrderedSet(environment::Reference))]
   /**
   * Test de la création d'une entité [e.name()/] avec des valeurs nulles.
   * 
@@ -258,7 +261,7 @@
         [/if]
       [/for]
       
-      [e.writeReferencedFK(rs)/]
+      [e.writeReferencedFK(fks)/]
       
       [e.nameRepository().apply_attributeFinal()/].save([eName/]);
       
@@ -348,7 +351,7 @@
 [/template]
 
 [comment écriture du test pour la mis à jour d'une entité./]
-[template private writeTestUpdate(e : entity::Entity, rs : OrderedSet(environment::Reference))]
+[template private writeTestUpdate(e : entity::Entity, fks : OrderedSet(environment::Reference))]
   /**
   * Test de la mise à jour d'une entité [e.name()/].
   * 
@@ -407,7 +410,7 @@
 [/template]
 
 [comment écriture du test pour la suppression d'une entité./]
-[template private writeTestAllFieldInserted (e : entity::Entity, rs : OrderedSet(environment::Reference))]
+[template private writeTestAllFieldInserted (e : entity::Entity, fks : OrderedSet(environment::Reference))]
   /**
   * Tests de la bonne insertion de l'ensemble des champs. On ne contrôle que les
   * champs de l'entité [e.name()/].
@@ -432,7 +435,7 @@
           [e.writeAutoAttribute(prop, false)/]
         [/for]
         
-        [e.writeReferencedFK(rs)/]
+        [e.writeReferencedFK(fks)/]
         
         [/protected]
         

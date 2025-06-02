@@ -191,7 +191,7 @@
          {
            
            throw new [r.nameClassNotImplementedExceptionImpl()/]
-           	    ("la règle de gestion [r.name/] n'a pas été implémentée.");
+           	    ("La règle de gestion : [r.name/] n'a pas été implémentée.");
          }
          
        [/protected]

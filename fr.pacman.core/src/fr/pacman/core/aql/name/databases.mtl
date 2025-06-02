@@ -83,7 +83,7 @@
 
 [comment retourne le nom physique (si existe) de la table de référence dans le cas de relation (*,*) (avec préfixe si existe)./]
 [query public nameTableJoin(r : environment::Reference) : String = if r.has_metaPhysicalName() then  r.namePrefixTable() + r.get_metaPhysicalName().sanitizeSql() 
-	else r.name.sanitizeSql() endif/] 
+	else r.containingType.name.sanitizeSql() + '_' + r.referencedType.name.sanitizeSql() endif/] 
 
 [comment retourne le nom physique (ou direct) de la table de jointure (avec le préfixe et le schéma si existent) dans le cas de relation (n-n)./]
 [query public nameTableSchemaJoin(r : environment::Reference) : String = r.namePrefixSchema() + r.nameTableJoin()/]

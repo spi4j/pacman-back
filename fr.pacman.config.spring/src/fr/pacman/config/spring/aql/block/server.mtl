@@ -1137,7 +1137,7 @@
   spring.cloud.vault.token=s.yourVaultToken
   # Backend utilisé (kv v2 par défaut)
   spring.cloud.vault.kv.enabled=true
-  Nom du backend utilisé dans Vault (par défaut souvent secret).
+  # Nom du backend utilisé dans Vault (par défaut souvent secret).
   spring.cloud.vault.kv.backend=secret
   # Nom utilisé pour accéder au chemin dans Vault (ex. secret/data/myapp).
   spring.cloud.vault.kv.application-name=[any.nameProject().toLower()/]

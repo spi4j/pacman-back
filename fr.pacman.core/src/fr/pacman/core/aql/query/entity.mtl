@@ -25,11 +25,11 @@
 [query public hasMandatoryAttributes(e : entity::Entity) : Boolean = not e.attributesNoPK()->select(o | o.isMandatory())->isEmpty()/]
 
 [comment retourne uniquement la liste de toutes les entités qui ne sont pas héritées (aucune entité super)./]
-[query public subTypesEntities(r : entity::Root) : Sequence(entity::Entity) = r.eAllContents(entity::Entity)
+[query public subTypesEntities(r : environment::NamespacesContainer) : Sequence(entity::Entity) = r.eAllContents(entity::Entity)
   ->select(o1 | r.eAllContents(entity::Entity)->forAll(o2 | not o2.supertype->includes(o1)))/]
 
 [comment retourne uniquement la liste des entités héritées (que les entités super)./]
-[query public superTypesEntities(r : entity::Root) : Sequence(entity::Entity) = let es = r.subTypesEntities() 
+[query public superTypesEntities(r : environment::NamespacesContainer) : Sequence(entity::Entity) = let es = r.subTypesEntities() 
   in r.eAllContents(entity::Entity)->select(e | not es->includes(e))/]
 
 [comment retourne le top-super de l'entité, si existe, sinon retourne l'entité (pour l'instant bloqué)./]

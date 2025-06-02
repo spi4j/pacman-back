@@ -10,9 +10,17 @@
 [import fr::pacman::entity::spring::aql::block::test/]
 
 [comment écriture du fichier d'implémentation pour l'entité (infra)./]
-[template public fileEntityImpl(e: entity::Entity)]
+[template public fileEntityImpl(e: entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity))]
   [file (e.nameClassEntityImpl().toFileJava(e.namePackageEntityImpl()), overwrite, e.defaultFileEncoding())]
-    [e.entityImpl()/]
+    [e.entityImpl(es,ess)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation des tests d'intégration pour la persistance (infra)./]
+[template public fileOutIntegrationTestImpl(e : entity::Entity, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity))]
+  [file (e.nameClassOutIntegrationTestImpl().toFileJavaT(e.namePackageOutIntegrationTestImpl()), overwrite, e.defaultFileEncoding())]
+    [e.outIntegrationTestImpl(es,ess)/]
   [/file]
 [/template]
 
@@ -20,12 +28,5 @@
 [template public fileEntityPersistItf(e : entity::Entity)]
   [file (e.nameClassEntityPersistItf().toFileJava(e.namePackageEntityPersistItf()), overwrite, e.defaultFileEncoding())]
     [e.persistItf()/]
-  [/file]
-[/template]
-
-[comment écriture du fichier d'implémentation des tests d'intégration pour la persistance (infra)./]
-[template public fileOutIntegrationTestImpl(e : entity::Entity, rs : OrderedSet(environment::Reference))]
-  [file (e.nameClassOutIntegrationTestImpl().toFileJavaT(e.namePackageOutIntegrationTestImpl()), overwrite, e.defaultFileEncoding())]
-    [e.outIntegrationTestImpl(rs)/]
   [/file]
 [/template]

@@ -41,23 +41,25 @@
 [template public createTables(root : entity::Root, es : Sequence(entity::Entity)
   , ess : Sequence(entity::Entity), dbType : String)]
   [for (e : entity::Entity | es)]
-    [let fks = e.referencesFK()]
+    [comment va etre supprimé à terme./]
     [let p = e.superTypeOrSelf()]
+    [comment retournes toutes les clés étrangères pour l'entité./]
+    [let fks = e.referencesFKResolved(es,ess)]
       [p.tableHeader()/]
       [p.writeTable(e.cmdCreate())/]
       (
         [p.primaryKey(dbType)/]
         [e.attributes(dbType)/]
         [e.autoAttributes(dbType)/]
-        [e.foreignKeys(fks,es,ess,dbType)/]
+        [e.foreignKeys(fks,dbType)/]
         [p.primaryKeyConstraint(dbType)/]
       );
-      [p.indexs(fks,es,ess,dbType,e.cmdCreate())/]
+      [p.indexs(e.referencesFK(),es,ess,dbType,e.cmdCreate())/]
       [e.comments(fks,dbType)/]
     [/let]
     [/let]
   [/for]
-  [root.joinTables(es,ess,dbType,root.cmdCreate())/]
+  [root.referencesJTResolved(es,ess)->joinTables(dbType,root.cmdCreate())/]
 [/template]
 
 [comment template principal du script de suppression des tables, indexs et contraintes pour un base 'dbType'./]
@@ -73,8 +75,8 @@
       [p.writeTable(e.cmdDelete())/];
     [/let]
   [/for]
-
-  [root.joinTables(es, ess, dbType, root.cmdDelete())/]
+  
+  [root.referencesJTResolved(es,ess)->joinTables(dbType, root.cmdDelete())/]
 [/template]
 
 [comment écriture de la clé primaire pour la table./]
@@ -97,28 +99,18 @@
   [/for]
 [/template]
 
-[comment écriture des clés étrangères pour la table (n'utilise pas l'index des boucles)./]
-[template private foreignKeys(e : entity::Entity, rs : OrderedSet(environment::Reference)
-  , es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
-  [comment les références des entités héritées sont automatiquement récupérées./]
-  [for (r : environment::Reference | rs)]
-    [if (r.isSuperTypeReference(e, ess))]
-      [comment on crée une fk pour chaque entité héritée./]
-      [for (e1 | es->select(o | (o.isSubType(r.containingType) or o.isSubType(r.referencedType))))]
-        [let r1 = r.get_workingCopyReference(e1)]
-          /* FK vers la table [r1.nameTableReferenceSchema(r.referencedEntity(e1)).toUpper()/] */
-          [comment par ailleurs on force la multiplicité car la référence doit pouvoir être nulle dans ce cas./]
-          [r1.set_multiplicityZeroStar().writeReferenceFK(r.referencedEntity(e1), dbType)/]
-        [/let]
-      [/for]
-    [else]
-      /* FK vers la table [r.nameTableReferenceSchema(e).toUpper()/] */
-      [r.writeReferenceFK(e, dbType)/]
-    [/if] 
+[comment écriture des clés étrangères pour la table (n'utilise pas l'index des boucles)/]
+[template private foreignKeys(e : entity::Entity, fks : OrderedSet(environment::Reference), dbType : String)]
+  [for (r : environment::Reference | fks)]
+    /* FK vers la table [r.nameTableReferenceSchema(e).toUpper()/] */
+    [r.writeReferenceFK(e, dbType)/]
   [/for]
 [/template]
 
-[comment écriture des indexs pour la table (n'utilise pas l'index des boucles)./]
+[comment écriture des indexs pour la table (n'utilise pas l'index des boucles). Traitement particulier pour les indexs, 
+		 pour l'instant on ne passe pas par les méthodes "resolved" car il y a un traitement particulier à effectuer 
+		 dans le cas des références inverses avec l'héritage. Continuer à approfondir pour pour l'instant et on verra
+		 plus tard si possibilité de mettre dans le giron commun./]
 [template private indexs(e : entity::Entity, rs : OrderedSet(environment::Reference)
   , es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String, cmd : String)]
   [if (e.has_metaPhysicalUnique())]
@@ -136,7 +128,7 @@
     [if (r.isSuperTypeReference(e, ess))]
       [comment on crée une fk inverse pour chaque entité concernée./]
       [for (e1 | es->select(o | (o.isSubType(r.containingType) or o.isSubType(r.referencedType))))]
-        [e.writeIndex(r, dbType, r.get_workingCopyReference(e1).writeReferenceId(e, rs), 
+        [e.writeIndex(r, dbType, r.downgradeReference(e1).writeReferenceId(e, rs), 
          e.get_counterIDX(e.defaultSqlIndexIncrement()), cmd)/]
       [/for]
     [else]
@@ -175,43 +167,28 @@
 [/template]
 
 [comment écriture des tables de jointure (0,*)(1,*) toutes tables confondues./]
-[template private joinTables(root : entity::Root, es : Sequence(entity::Entity)
-  , ess : Sequence(entity::Entity), dbType : String, cmd : String)]
-  [for (r : environment::Reference | root.referencesJT())]
-    [comment ici on a plus l'entité, il faut procéder autrement pour savoir si la référence est héritée ou non./]
-    [if (r.isSuperTypeReference(ess))]
-      [comment si héritée on crée une table par entité héritée./]
-      [for (e | es->select(o | (o.isSubType(r.containingType) or o.isSubType(r.referencedType))))]
-        [r.get_workingCopyReference(e).joinTable(dbType, cmd)/]
-      [/for]
-    [else]
-      [comment sinon fonctionnement nominal./]
-      [r.joinTable(dbType, cmd)/]
+[template private joinTables(jts : OrderedSet(environment::Reference), dbType : String, cmd : String)]
+  [for (r | jts)]
+    [r.ensureBlankLine()/]
+    [r.cLine()/]
+    [r.nameTableHeaderJoin().toUpper().ensureSlashLine(r.defaultMaxSizeSqlHeader())/]
+    [r.cLine()/]
+    [comment laisser exactement comme écrit sinon effets de bords./]
+    [r.writeJoinTable(cmd)/][if (cmd.equalsIgnoreCase(r.cmdDelete()))];[/if]
+    [if (cmd.equalsIgnoreCase(r.cmdCreate()))]
+      (
+        [r.containingType.oclAsType(entity::Entity).superTypeOrSelf().writePrimaryKeyJoin(dbType)/]
+        [if (r.isStarRecursive())]
+          [r.referencedType.oclAsType(entity::Entity).superTypeOrSelf().writePrimaryKeyJoin(dbType)
+              .insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId())/]
+        [else]
+          [r.referencedType.oclAsType(entity::Entity).superTypeOrSelf().writePrimaryKeyJoin(dbType)/]
+        [/if]
+        [r.writePrimaryKeyJoinConstraint(dbType, r.defaultSqlIndexIncrement())/]
+      );
     [/if]
+    [r.comments(dbType)/]
   [/for]
-[/template]
-
-[comment écriture d'une table de jointure (0,*)(1,*)./]
-[template private joinTable(r : environment::Reference, dbType : String, cmd : String)]
-  [r.ensureBlankLine()/]
-  [r.cLine()/]
-  [r.nameTableHeaderJoin().toUpper().ensureSlashLine(r.defaultMaxSizeSqlHeader())/]
-  [r.cLine()/]
-  [comment laisser exactement comme écrit sinon effets de bords./]
-  [r.writeJoinTable(cmd)/][if (cmd.equalsIgnoreCase(r.cmdDelete()))];[/if]
-  [if (cmd.equalsIgnoreCase(r.cmdCreate()))]
-    (
-      [r.containingType.oclAsType(entity::Entity).superTypeOrSelf().writePrimaryKeyJoin(dbType)/]
-      [if (r.isStarRecursive())]
-        [r.referencedType.oclAsType(entity::Entity).superTypeOrSelf().writePrimaryKeyJoin(dbType)
-            .insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId())/]
-      [else]
-        [r.referencedType.oclAsType(entity::Entity).superTypeOrSelf().writePrimaryKeyJoin(dbType)/]
-      [/if]
-      [r.writePrimaryKeyJoinConstraint(dbType, r.defaultSqlIndexIncrement())/]
-    );
-  [/if]
-  [r.comments(dbType)/]
 [/template]
 
 [comment écriture de la ligne pour une table./]
