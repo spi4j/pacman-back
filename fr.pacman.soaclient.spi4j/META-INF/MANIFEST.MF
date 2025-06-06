@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.soaclient.spi4j
+Bundle-ManifestVersion: 2
+Bundle-Name: PacMan - Soa - Client
+Bundle-SymbolicName: fr.pacman.soaclient.spi4j
+Bundle-Version: 5.0.0.qualifier
+Bundle-Activator: fr.pacman.soaclient.spi4j.plugin.Activator
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.core.runtime,
+ fr.pacman.core,
+ fr.pacman.common,
+ org.eclipse.acceleo.aql,
+ org.eclipse.acceleo.query
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: fr.pacman.soaclient.spi4j.main

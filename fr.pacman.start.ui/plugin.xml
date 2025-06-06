@@ -15,7 +15,7 @@
             category="org.obeonetwork.dsl.is.ui.categoryID"
             class="fr.pacman.start.ui.GenerateStartWizard"
             helpHref="https://github.com/spi4j/spi4j"
-            icon="icons/cali.png"
+            icon="icons/pacmug.png"
             id="fr.pacman.start.ui.wizard"
             name="Projet Cali"
             preferredPerspectives="fr.obeo.dsl.viewpoint.ui.tools.perspective.modeling"

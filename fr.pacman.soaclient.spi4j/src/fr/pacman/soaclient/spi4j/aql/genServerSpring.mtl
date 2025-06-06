@@ -1,0 +1,12 @@
+[module genServerSpring(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+                            'http://www.obeonetwork.org/dsl/environment/3.0.0') 
+							extends fr::pacman::soaclient::spi4j::aql::genServer/]
+
+[comment toujours placer les 'main' au niveau des modules fils, sinon génération incomplète./]
+[comment enlever ces imports suite a correction bug./]
+[comment enlever ces imports suite a correction bug./]
+
+[comment @main/]
+[template protected genServer(m : soa::System)]
+  [m.super:genServer()/]
+[/template]

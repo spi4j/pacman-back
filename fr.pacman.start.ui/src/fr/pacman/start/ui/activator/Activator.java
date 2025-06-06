@@ -27,7 +27,7 @@ public class Activator extends AbstractUIPlugin
    /**
     * The plug-in LOGO.
     */
-   public static final String c_pluginLogo = "icons/cali-wizard.png";
+   public static final String c_pluginLogo = "icons/pacmug-wizard.png";
 
    /**
     * The shared instance.

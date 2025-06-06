@@ -10,11 +10,11 @@
             name="Cali">
 	         <property
 	               name="windowImages"
-	               value="cali.png">
+	               value="pacmug.png">
          	</property>
 	         <property
 	               name="aboutImage"
-	               value="cali.png">
+	               value="pacmug.png">
 	         </property>
 	         <property
 	               name="appName"
