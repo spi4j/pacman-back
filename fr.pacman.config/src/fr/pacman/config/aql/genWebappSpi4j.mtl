@@ -1,8 +1,0 @@
-[module genWebappSpi4j(		'http://www.obeonetwork.org/dsl/overview/2.0.0') 
-							extends fr::pacman::config::aql::genWebapp/]
-
-[comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
-							
-[comment @main/]
-[comment écriture de l'ensemble de la configuration de base pour le projet d'exposition (Spi4j)./]
-[template public genWebappConfig(r : overview::Root)][r.super:genWebappConfig()/][/template]

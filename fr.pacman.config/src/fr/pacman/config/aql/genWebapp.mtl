@@ -1,7 +1,0 @@
-[module genWebapp(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
-
-[comment écriture de l'ensemble de la configuration de base pour le projet d'exposition./]
-[template public genWebappConfig(r : overview::Root)]
-  [comment ras pour l'instant./]
-[/template]
-
