@@ -17,7 +17,7 @@
 
 [comment vérifie si le dto est considéré comme persistant./]  
 [query public isPersistent(d : environment::DTO) : Boolean = d.isUseSqlPersistence() and d.associatedEntity().exists()/]
-  
+ 
 [comment retourne l'entité associée au dto (dans le cadre de pacman, toujours une entité)./]
 [query public associatedEntity(d : environment::DTO) : entity::Entity = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
    then d.associatedTypes->first().oclAsType(entity::Entity) else null endif/]
@@ -25,9 +25,13 @@
 [comment retourne le type associé au dto (dans le cadre de pacman, toujours une entité)./]
 [query public associatedType(d : environment::DTO) : environment::Type = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
    then d.associatedTypes->first() else null endif/]
-   
+
 [comment retourne la liste des dtos non hérités (noter qu'au niveau soa on a perdu la relation d'héritage mais ...)./]
-[query public subTypesDtos(s : soa::System) : Sequence(environment::DTO) = s.eAllContents(environment::DTO)
-  ->select(o1 | s.eAllContents(environment::DTO)->forAll(o2 | not o2.associatedEntity()
+[query public subTypesDtos(r : environment::NamespacesContainer) : Sequence(environment::DTO) = r.eAllContents(environment::DTO)
+  ->select(o1 | r.eAllContents(environment::DTO)->forAll(o2 | not o2.associatedEntity()
   .supertype->includes(o1.associatedEntity())))/]
+
+[comment retourne uniquement la liste des dtos hérités (que les dtos super)./]
+[query public superTypesDtos(r : environment::NamespacesContainer) : Sequence(environment::DTO) = let ds = r.subTypesDtos() 
+  in r.eAllContents(environment::DTO)->select(d | not ds->includes(d))/]
 

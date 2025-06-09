@@ -35,7 +35,7 @@ public class RequirementUtils {
 				.filter(ECrossReferenceAdapter.class::isInstance).map(ECrossReferenceAdapter.class::cast).findFirst()
 				.orElse(null);
 
-		if (null != requirements) {
+		if (null != crossReferencer) {
 			requirements = crossReferencer
 					.getInverseReferences(p_object, RequirementPackage.Literals.REQUIREMENT__REFERENCED_OBJECT, true)
 					.stream().map(s -> s.getEObject()).filter(Requirement.class::isInstance)
