@@ -895,7 +895,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * 
 	 * @return le type du projet.
 	 */
-	public String getTypeProject() {
+	public String getProjectType() {
 		return _typeProject;
 	}
 
