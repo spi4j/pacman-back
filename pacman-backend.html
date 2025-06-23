@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>🛠️ Documentation Technique<br>Pacman Générateur de Code Java Backend</title>
 <style>
  body { margin:0; font-family: Arial,sans-serif; display: block; overflow-x: hidden;}
@@ -133,7 +136,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <h3 id="architecture-hexagonale">Architecture hexagonale</h3>
 <p>Si le framework SpringBoot ne nécessite pas d'explication particulière dans le cadre de ce document (les développeurs qui vont utiliser les générateurs Pacman sont censés être familier avec cette technologie) , un rappel plus approfondi est toutefois primordial concernant l'architecture hexagonale et ses diverses implications dans l'utilisation des générateurs.</p>
 <p>Comme précité, l'objectif principal de l'architecture hexagonale est de séparer complètement la couche métier et les différentes couches techniques qui permettent d'utiliser ce métier. </p>
-<p>Pour simplifier à ce niveau du document, la couche métier est généralement appelée "domaine" et les autres couches sont intégrées dans ce que l'on appelle "l'infrastructure".  Il est surtout utile de retenir (comme vu plus haut) qu'il s'agit d'une architecture de type "<em>port - adapters</em>", au niveau Java, les "<em>ports</em>" seront donc des interfaces (au sens premier du terme) qui vont permettre aux différents couches de communiquer entre elles. Les implémentations quant à elles, seront des "<em>adapters</em>" qui implémententeront ces interfaces.</p>
+<p>Pour simplifier à ce niveau du document, la couche métier est généralement appelée "domaine" et les autres couches sont intégrées dans ce que l'on appelle "l'infrastructure".  Il est surtout utile de retenir (comme vu plus haut) qu'il s'agit d'une architecture de type "<em>port - adapters</em>", au niveau Java, les "<em>ports</em>" seront donc des interfaces (au sens premier du terme) qui vont permettre aux différents couches de communiquer entre elles. Les implémentations quant à elles, seront des "<em>adapters</em>" qui implémenteront ces interfaces.</p>
 <p>Dans le cadre de <strong>Pacman</strong> cette architecture a été choisie car elle apporte (entre autres), deux avantages particulièrement intéressants : </p>
 <ul>
 <li>
@@ -164,7 +167,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p><strong><em>[Nom du projet]-domain</em></strong> : comme précité, contient l'ensemble des services métier. Ce projet ne contient aucune référence à un quelconque framework ou code technique. Il embarque toutes les ressources nécessaires pour pouvoir fonctionner (au niveau métier) en totale autonomie, ce qui englobe  les classes métier, les éventuelles exceptions métier, les classes de test, les classes pour les règles d'exigences, etc... En termes de vocabulaire, il est à juste noter que si, au niveau métier, on manipule des objets de transfert (DTO), au niveau des packages, on parlera toujours plutôt d'entités afin d'être raccord avec l'infrastructure.</p>
 </li>
 <li>
-<p><strong><em>[Nom du projet]-server</em></strong> : le projet dit "d'infrastructure" qui contient l'ensemble du code d'exécution pour que l'utilisateur externe puisse intéragir avec le code métier. Vu la verbosité inhérente à ce type d'architecture et au nombre élévé de classes et/ou d'interfaces qu'elle entraine, il a été décidé de "couper" la notion générale d'infrastructure en deux afin de mieux structurer la répartition du code (packages). On parlera donc "d'application" pour toute la partie "<em>inbounds</em>" et "d'infrastructure" uniquement pour la partie "<em>outbounds</em>". Par ailleurs, on délaisse la notion de "<em>use case</em>", trop proche d'XML, et on parlera donc de "<em>features</em>" pour les services métier ainsi que de "<em>providers</em>" pour les services techniques (accès à la couche de persistance).</p>
+<p><strong><em>[Nom du projet]-server</em></strong> : le projet dit "d'infrastructure" qui contient l'ensemble du code d'exécution pour que l'utilisateur externe puisse intéragir avec le code métier. Vu la verbosité inhérente à ce type d'architecture et au nombre élevé de classes et/ou d'interfaces qu'elle entraine, il a été décidé de "couper" la notion générale d'infrastructure en deux afin de mieux structurer la répartition du code (packages). On parlera donc "d'application" pour toute la partie "<em>inbounds</em>" et "d'infrastructure" uniquement pour la partie "<em>outbounds</em>". Par ailleurs, on délaisse la notion de "<em>use case</em>", trop proche d'UML, et on parlera donc de "<em>features</em>" pour les services métier ainsi que de "<em>providers</em>" pour les services techniques (accès à la couche de persistance).</p>
 </li>
 </ul>
 <h2 id="installation">🛠️ Installation</h2>
@@ -342,7 +345,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">  </span><span class="nt">&lt;/rules&gt;</span>
 <span class="nt">&lt;/configuration&gt;</span>
 </code></pre></div>
-<p>On va donc inclure toutes les librairies de test et de log pour l 'instant (attention sl4j est une surcouche donc elle ne présuppose pas de l'implémentation technique qui est derrière), tous le reste est exclu. Pour les librairies de test, pareillement, le fait d'utiliser JUnit ne permet pas de connaitre quel est le framework utilisé par la suite pour le développement de l'application.  On retouve donc uniquement les dépendances suivantes : </p>
+<p>On va donc inclure toutes les librairies de test et de log pour l 'instant (attention sl4j est une surcouche donc elle ne présuppose pas de l'implémentation technique qui est derrière), tous le reste est exclu. Pour les librairies de test, pareillement, le fait d'utiliser JUnit ne permet pas de connaitre quel est le framework utilisé par la suite pour le développement de l'application.  On retrouve donc uniquement les dépendances suivantes : </p>
 <div class="codehilite"><pre><span></span><code><span class="nt">&lt;dependency&gt;</span>
 <span class="w">   </span><span class="nt">&lt;groupId&gt;</span>org.slf4j<span class="nt">&lt;/groupId&gt;</span>
 <span class="w">   </span><span class="nt">&lt;artifactId&gt;</span>slf4j-api<span class="nt">&lt;/artifactId&gt;</span>
@@ -415,18 +418,18 @@ Il s'agit des vues suivantes : </p>
 <li>Le paramétrage des profils Spring.</li>
 <li>Le paramétrage du cache pour Spring.</li>
 <li>Le paramétrage du framework pour le circuit-breaker.</li>
-<li>Le paramétrage de la (ou les) datasource(s).</li>
+<li>Le paramétrage de la (ou des) datasource(s).</li>
 </ul>
 <p>Il n'est pas pour objectif dans le cadre de ce document, de développer chaque paramètre dont certains sont par ailleurs suffisamment explicites mais plutôt de préciser certaines options qui ont été prises pour le paramétrage par défaut qui a été généré.</p>
 <h4 id="api-de-sante">Api de santé</h4>
-<p>❗ Bien noter que par défaut, l'api de santé ne permet d'exposer que le "<strong><em>/health</em></strong>" et le "<strong><em>/info</em></strong>", par ailleurs on décide d'exclure explicitement mappings et headdump à l'aide des paramètres suivants (bien faire attention à l'exposition de ses points de terminaison): </p>
+<p>❗ Bien noter que par défaut, l'api de santé ne permet d'exposer que le "<strong><em>/health</em></strong>" et le "<strong><em>/info</em></strong>", par ailleurs on décide d'exclure explicitement mappings et headdump à l'aide des paramètres suivants (bien faire attention à l'exposition de ces points de terminaison): </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Activation des points de terminaison pour l'api de sante, par defaut, seuls '/health' et '/info' sont actifs.</span>
 <span class="na">management.endpoints.web.exposure.include</span><span class="o">=</span><span class="s">health,info</span>
 <span class="c1"># Securite si demande d'activation de l'ensemble des points de terminaison.</span>
 <span class="na">management.endpoints.web.exposure.exclude</span><span class="o">=</span><span class="s">mappings,heapdump</span>
 </code></pre></div>
-<p>Par défaut, l'api de santé a été paramétrée pour être consultable sur l'URL suivante : <strong><em>http://localhost:8080/actuator/health/</em></strong> 
-Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de l'actuator de SpringBoot : </p>
+<p>Par défaut, l'api de santé a été paramétrée pour être consultable sur l'URL suivante : <strong><em>http://localhost:8080/actuator/health/</em></strong></p>
+<p>Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de l'actuator de SpringBoot : </p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"UP"</span><span class="p">}</span>
 </code></pre></div>
 <p>Pour une application générée par <strong>Pacman</strong>, il a été rajouté un point de terminaison personnalisé pour l 'application (si désiré par les développeurs), il permet de surcharger le "<strong><em>/health</em></strong>" existant et d'ajouter toutes les informations supplémentaires. Ce point de terminaison est activable en jouant sur les valeurs des propriétés suivantes : </p>
@@ -437,7 +440,7 @@ Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de
 <div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"UNKNOWN"</span><span class="p">,</span><span class="nt">"components"</span><span class="p">:{</span><span class="nt">"demoHealthImpl"</span><span class="p">:{</span><span class="nt">"status"</span><span class="p">:</span><span class="s2">"UNKNOWN"</span><span class="p">,</span><span class="nt">"details"</span><span class="p">:{</span><span class="nt">"version"</span><span class="p">:</span><span class="s2">"0.0.0"</span><span class="p">,</span><span class="nt">"latency"</span><span class="p">:</span><span class="s2">"0ms"</span><span class="p">}}}}</span>
 </code></pre></div>
 <p>Cette affichage est rendu par la classe spécifique de l'application <strong><em>[nom de l'application]HealthImpl</em></strong> située au niveau du package <strong><em>[package racine].app.adapters.controllers</em></strong>. Modifier cette classe pour ajouter les données nécessaires.</p>
-<p>Pareillement, pour ajouter des informations au niveau de l'URL "<strong><em>/info</em></strong>" compléter cette fois le fichier de configuration au niveau de la rubrique ((rubrique Configuration du point de terminaison /info et si besoin, se reporter à la documentation générale de l'actuator pour plus de précisions) : </p>
+<p>Pareillement, pour ajouter des informations au niveau de l'URL "<strong><em>/info</em></strong>" compléter cette fois le fichier de configuration au niveau de la rubrique (rubrique Configuration du point de terminaison /info et si besoin, se reporter à la documentation générale de l'actuator pour plus de précisions) : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Configuration du point  de terminaison /info, definir ici les informations necessaires.</span>
 <span class="na">management.info.env.enabled</span><span class="o">=</span><span class="s">true</span>
 <span class="na">app.cusomInfo</span><span class="o">=</span><span class="s">Une information de type custom...</span>
@@ -446,7 +449,7 @@ Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de
 <span class="na">info.app.java-vendor</span><span class="o">=</span><span class="s">${java.vendor}</span>
 <span class="na">info.app.excluded-actuator-enpoints</span><span class="o">=</span><span class="s">${management.endpoints.web.exposure.exclude}</span>
 </code></pre></div>
-<p>❗ Il est à noter que tous les caractères accentués ont été supprimés des lignes de commentaires, ceci est volontaire car malgré tous les demande de forçage en UTF-8, il est toujours possible selon le paramétrage des plateformes que le fichier reste codé en ISO-8859-1. Comme il n'a pas été (pour l'instant) jugé utile de passer le fichier en <em>yaml</em> (car moins lisible), cette solution est celle qui a semblé être la moins coûteuse. Libre au développeurs de l'application cible de convertir le fichier <strong><em>.properties</em></strong> en fichier <strong><em>.yaml</em></strong> si désiré.</p>
+<p>❗ Il est à noter que tous les caractères accentués ont été supprimés des lignes de commentaires, ceci est volontaire car malgré toutes les demandes de forçage en UTF-8, il est toujours possible selon le paramétrage des plateformes que le fichier reste codé en ISO-8859-1. Comme il n'a pas été (pour l'instant) jugé utile de passer le fichier en <em>yaml</em> (car moins lisible), cette solution est celle qui a semblé être la moins coûteuse. Libre au développeurs de l'application cible de convertir le fichier <strong><em>.properties</em></strong> en fichier <strong><em>.yaml</em></strong> si désiré.</p>
 <h4 id="open-api">Open Api</h4>
 <p>OpenAPI est une spécification standardisée pour décrire, documenter et consommer des API RESTful. Elle permet de définir de manière structurée les endpoints, les méthodes HTTP, les paramètres d'entrée, les réponses, et les modèles de données associés. OpenAPI facilite l'interopérabilité entre services, la génération automatique de documentation interactive, ainsi que le développement et les tests d'API en offrant un format lisible par machine (généralement en JSON ou YAML).</p>
 <p>Il est ici possible (entre autres), de définir l'URI pour l'interface de visualisation et d'interrogation de l'API développée. Le fichier JSON généré sera par défaut sous "<strong><em>/api-docs</em></strong>".</p>
@@ -1736,6 +1739,8 @@ Cette URL donne uniquement le résultat suivant qui est le mode "par défaut" de
 <span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"A_ID"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">AEntityImpl</span><span class="w"> </span><span class="n">a</span><span class="p">;</span>
 </code></pre></div>
+<p>❗ Il est particulièrement important de ne pas utiliser ce type de relation pour modéliser une véritable relation bidirectionnelle (0,*) ou (1,*). En effet, deux relations (0,*) ou (1,*) ne sont pas générées par <strong>Pacman</strong> de la même manière qu'une relation bidirectionnelle, et cela entrainera des effets de bords non désirés. Un des effets principaux étant simplement que l'on va perdre une relation (*) au niveau d'une des deux entités. </p>
+<p><img alt="Relations" src="images/pcm-model-relation-6.png"/></p>
 <h3 id="relation-recursive-101">Relation récursive (1)/(0,1)</h3>
 <p><img alt="Relations" src="images/pcm-model-relation-3.png"/></p>
 <p>Ici la relation récursive est annotée <strong><em>@ManyToOne</em></strong>, de même que pour une relation (1)(0,1) entre deux entités. La seule différence est que la clé étrangère prend le nom de la relation (avec toujours "<em>_ID</em>" comme suffixe).</p>
