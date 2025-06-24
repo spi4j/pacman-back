@@ -145,7 +145,11 @@ public final class StringUtils {
 	 * @param p_size la taille de la ligne à générer
 	 * @return la ligne générée
 	 */
-	public static String do_tabCell(final String p_str, final Integer p_size, final String p_separator) {
+	public static String do_tabCell(String p_str, final Integer p_size, final String p_separator) {
+
+		if (p_str.length() > p_size - 1)
+			p_str = p_str.substring(0, p_size - 4) + "...";
+
 		final StringBuilder sb = new StringBuilder(" ");
 		if (p_str != null) {
 			sb.append(p_str);
@@ -156,7 +160,7 @@ public final class StringUtils {
 		sb.append(p_separator);
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Echappement des caractères spéciaux d'une chaine, tels que les guillemets,
 	 * les retours chariots et les tabulations.

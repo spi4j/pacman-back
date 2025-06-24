@@ -13,4 +13,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.acceleo.query
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
-Export-Package: fr.pacman.soaclient.spring.main
+Export-Package: fr.pacman.soaclient.spring.aql.file,
+ fr.pacman.soaclient.spring.aql.block

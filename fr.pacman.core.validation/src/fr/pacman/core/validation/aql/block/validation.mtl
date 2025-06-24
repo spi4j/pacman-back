@@ -45,6 +45,8 @@
       [comment pas de relation de type composite./]
       [if (not e.referencesFKSB()->select(o | o.isComposite)->isEmpty())][e.add(e.msge8())/][/if]
         
+      [comment pas de double relation (0,*) -> remplacer par une bidirectionnelle./]
+        
       [comment pas d'héritage autre que des entités/]
       
       [comment pas de classe fille avec relation sur classe mère/]

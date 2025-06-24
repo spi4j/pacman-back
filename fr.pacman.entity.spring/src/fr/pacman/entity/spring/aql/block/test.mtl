@@ -21,6 +21,7 @@
 [import fr::pacman::core::aql::rule::attribute/]	
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::variable/]	
+[import fr::pacman::core::aql::rule::class/]	
 
 [import fr::pacman::core::service::TestUtils/]
 [import fr::pacman::core::service::DatabaseUtils/]
@@ -511,8 +512,10 @@
 	else if ('Binary'.equalsIgnoreCase(prop)) then prop.nameClassIntegrationTestUtils() + '.' + 'generate random byte array'
 	.apply_methodDefault() +  '(10)' else prop.get_defaulValueForType() endif endif/]
 	
-[comment écriture de la valeur par defaut à injecter dans le setter./]
-[query private writeDefaultValue(a : environment::Attribute) : String = a.type.name.writeDefaultValue()/]
+[comment écriture de la valeur par defaut à injecter dans le setter (si enum on cherche l'enum par son nom)./]
+[query private writeDefaultValue(a : environment::Attribute) : String = if (a.type.oclIsKindOf( environment::Enumeration )) then 
+	a.type.name.apply_classEnum() + '.' + a.root().eAllContents(environment::Enumeration)->select(o | o = a.type)
+	->first().literals->first().nameLiteral() else a.type.name.writeDefaultValue() endif/]
 	
 [comment écriture de la valeur par défaut à injecter dans le setter (non à priori impossible d'avoir des listes sur attribut !!!!)./]  
 [comment query private defaultValue(a : environment::Attribute, timeType :  Boolean ) : String = if (a.isMultiple()) then 

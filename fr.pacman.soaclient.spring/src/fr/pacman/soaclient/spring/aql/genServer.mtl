@@ -1,8 +1,0 @@
-[module genServer(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
-					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
-
-[comment 	écriture des classes et fichiers soa pour la partie infrastructure de l'application cible, 
-			on précharge les références qu'une seule fois afin d'optimiser les requêtes./]
-			
-[template public genServer(m : soa::System)]
-[/template]

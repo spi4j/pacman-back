@@ -3,7 +3,11 @@
 
 [comment 	écriture des classes et fichiers soa client pour la partie infrastructure de l'application cible, 
 			on précharge les références qu'une seule fois afin d'optimiser les requêtes./]
+[import fr::pacman::soaclient::aql::file::genServer/]
 			
 [template public genServer(m : soa::System)]
-  
+  [comment implémentation des classes xtos 'entité' pour le domaine./]
+  [for (d | m.eAllContents(environment::DTO))]
+    [d.fileXtoImpl()/]
+  [/for]
 [/template]
