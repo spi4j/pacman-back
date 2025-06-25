@@ -12,6 +12,7 @@
 [import fr::pacman::core::aql::query::database/]
 [import fr::pacman::core::aql::query::entity/]
 [import fr::pacman::core::aql::name::databases/]
+[import fr::pacman::core::aql::rule::attribute/]
 
 [import fr::pacman::core::service::DatabaseUtils/]
 
@@ -37,7 +38,7 @@
 [query private writeInsert(e : entity::Entity, rs : OrderedSet(environment::Reference), oas : Sequence(String) , dbType : String) : String =
 	('insert into ' + e.nameTableSchema().toUpper() + ' ('+ e.writeColumns(rs).toUpper() + ',' 
 	+ oas->collect(o | o.nameAutoAttribute().toUpper())->sep(',') +')' + ' values (' + (e.defaultSqlIntegrationTestSequenceStart() 
-	+ ',' + e.attributesNoPKAndNoComputed()->asSequence()->collect(o : environment::Attribute | o.get_defaulValueForColumn())->sep(',') 
+	+ ',' + e.attributesNoPKAndNoComputed()->asSequence()->collect(o | o.get_defaulValueForColumn().format(o))->sep(',') 
 	+ ',' + rs->asSequence()->collect(o | o.defaultSqlForeignkey())->sep(',')) + ',' + oas->collect(o | o.autoAttributeType()
 	.get_defaulValueForColumn())->sep(',') + ');').sanitize()/]
 
@@ -53,6 +54,10 @@
 	+ ',' + e.attributesNoPKAndNoComputed()->collect(o : environment::Attribute | o.nameColumn())->sep(',') + ',' 
 	+ rs->collect(o | if (o.isZeroOneRecursive()) then o.nameSimplePropertyID().toUpper() 
 	else o.nameReferenceId(o.referencedEntity(e), 0) endif)->sep(',')/]
+
+[comment dans le cas ou l'attribut est une énumération, il faut effectuer le formattage de la string./]
+[query private format(str : String, a : environment::Attribute) : String = if (a.isTypeOfEnumeration()) 
+ 	then str.apply_attributeFinalStatic() else str endif/]
 	
 [comment supprime les virgules non nécessaires dans la liste des colonnes et des valeurs (on y va pas à pas...)./]
 [query private sanitize(s : String) : String = s.replaceAll(',+',',').replaceAll(',\\)', '\\)')/]

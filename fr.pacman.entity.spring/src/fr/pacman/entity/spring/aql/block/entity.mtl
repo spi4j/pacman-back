@@ -35,6 +35,8 @@
     import jakarta.persistence.FetchType;
     import jakarta.persistence.ManyToMany;
     import jakarta.persistence.JoinTable;
+    import jakarta.persistence.EnumType;
+    import jakarta.persistence.Enumerated;
     import jakarta.persistence.Id;
     import jakarta.persistence.Table;
     import jakarta.persistence.Transient;
@@ -258,12 +260,12 @@
   + ' = false")' else '' endif/]
   
 [comment écriture de l'annotation @column pour chaque attribut de l'entité./]
-[query private writeAnnotationColumn(a : environment::Attribute) : String = '@Column(name = "' + a.nameAttribut().toUpper() +'", nullable = ' 
-  + not a.isMandatory()  + if (a.has_metaPhysicalSize() and a.type.isAlpha()) then ', length = ' + a.get_metaPhysicalSize() 
-  else if (a.has_metaPhysicalSize() and a.type.isNumeric()) then ', precision = ' + a.get_metaPhysicalSize() else if (a.has_metaPhysicalSize() 
-  and a.type.isDecimal()) then ', scale = ' +  a.get_metaPhysicalSize()  else '' endif  endif endif + if ('Date'.equalsIgnoreCase(a.type.name) 
-  or 'Time'.equalsIgnoreCase(a.type.name) or 'Timestamp'.equalsIgnoreCase(a.type.name)) then ', columnDefinition = "' + a.type.name.toUpper() 
-  +'"' else '' endif +  ')'/]
+[query private writeAnnotationColumn(a : environment::Attribute) : String = if (a.isTypeOfEnumeration()) then '@Enumerated(EnumType.STRING)' 
+  else '' endif + '@Column(name = "' + a.nameAttribut().toUpper() +'", nullable = ' + not a.isMandatory()  + if (a.has_metaPhysicalSize() 
+  and a.type.isAlpha()) then ', length = ' + a.get_metaPhysicalSize() else if (a.has_metaPhysicalSize() and a.type.isNumeric()) then ', precision = ' 
+  + a.get_metaPhysicalSize() else if (a.has_metaPhysicalSize() and a.type.isDecimal()) then ', scale = ' +  a.get_metaPhysicalSize()  else '' 
+  endif  endif endif + if ('Date'.equalsIgnoreCase(a.type.name) or 'Time'.equalsIgnoreCase(a.type.name) or 'Timestamp'.equalsIgnoreCase(a.type.name)) 
+  then ', columnDefinition = "' + a.type.name.toUpper() +'"' else '' endif +  ')'/]
   
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk)./]
 [query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.isMultiple()) 
