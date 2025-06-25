@@ -1,4 +1,4 @@
-![Capture06](Capture06.PNG)
+![Capture06](Capture06.png)
 
 - Installer ISD 
 -- Télécharger la dernière version depuis https://github.com/ObeoNetwork/InformationSystem/releases
