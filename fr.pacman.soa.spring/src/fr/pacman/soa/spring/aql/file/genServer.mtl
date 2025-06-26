@@ -66,6 +66,13 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation pour la configuration des tests d'intégration (application)./]
+[template public fileInIntegrationTestsConfigImpl(m : soa::System)]
+  [file (m.nameClassIntegrationTestsConfig().toFileJavaT(null), overwrite, m.defaultFileEncoding())]
+    [m.integrationTestsConfigImpl()/]
+  [/file]
+[/template]
+
 [comment écriture d'un filtre pour gérer notamment les en-têtes génériques si besoin./]
 [template public fileRsHeaderFilterImpl(m : soa::System)]
   [file (m.nameClassRsHeaderFilterImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]

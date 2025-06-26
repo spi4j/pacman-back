@@ -54,7 +54,7 @@
     [if (any.oclIsKindOf(environment::DTO))]
       [for (o | any.oclAsType(environment::DTO).attributesNoPK())]
         [if (o.type.oclIsTypeOf(environment::Enumeration))]
-          //import [o.type.oclAsType(environment::Enumeration).namePackageEnumeration()
+          import [o.type.oclAsType(environment::Enumeration).namePackageEnumeration()
             .package(o.type.oclAsType(environment::Enumeration).nameClassEnumeration())/]
         [/if]
      [/for]

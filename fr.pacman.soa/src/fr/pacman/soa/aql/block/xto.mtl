@@ -50,7 +50,7 @@
      
      ['Id'.commentSingleLine()/]
      @JsonProperty("id")
-     @Schema(description = "Identifiant unique de l'entité")
+     @Schema(description = "Identifiant unique de l'entité", accessMode = Schema.AccessMode.READ_ONLY)
      private [d.defaultTypePk()/] [d.writePk()/];
      
      // ATTRIBUTS

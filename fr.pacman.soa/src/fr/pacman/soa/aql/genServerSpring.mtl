@@ -19,6 +19,8 @@
   [let ds = m.subTypesDtos()]
     [comment classe de définition pour openapi (swagger)./]
     [m.fileOpenApiConfigImpl()/]
+    [comment classe de configuration pour les tests d'intégration/]
+    [m.fileInIntegrationTestsConfigImpl()/]
     [if (m.isRsSecured())]
       [comment implémentation de la configuration pour la sécurité rest./]
       [comment écrase et remplace le fichier généré par défaut./]
@@ -38,7 +40,7 @@
         [comment implémentation du service infrastructure (persistance)./]
         [s.fileServiceOutImpl(ads)/]
         [comment implémentation des tests pour le contrôleur (application)./]
-       [s.fileInIntegrationTestImpl()/]
+        [s.fileInIntegrationTestImpl()/]
       [/let]
     [/for]
   

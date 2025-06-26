@@ -22,7 +22,8 @@
 [import fr::pacman::soa::aql::block::common/]
 
 [comment écriture de l'implémentation pour l'objet métier (dto)./]
-[template public dtoImpl(d : environment::DTO)]
+[template public dtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
+  , dss : Sequence(environment::DTO))]
   [d.classHeader(d.namePackageDtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -36,7 +37,6 @@
   [d.commentClass()/]
   public class [d.nameClassDtoImpl()/] extends [d.nameClassEntityAbs()/]
    {
-      
       [if (not d.immutable())]
         // CONSTANTES
         
@@ -45,7 +45,7 @@
         [/protected]
         
         // ATTRIBUTS
-        [let rs = d.referencesFKSB()->union(d.referencesJT())]
+        [let rs = d.referencesFKSBResolved(ds,dss)->union(d.referencesJTSBResolved())]
           
           ['Id'.commentSingleLine()/]
           private [d.defaultTypePk()/] [d.writePk()/];

@@ -48,6 +48,9 @@
 [comment retourne le nom pour l'implémentation de la classe de test pour le service soa (domain)./]
 [query public nameClassServiceTestImpl(s : soa::Service) : String = (s.name() + s.suffixService() + ' test').apply_classImplem()/]
 
+[comment retourne le nom pour l'implémentation de la classe de configuration pour les tests./]
+[query public nameClassIntegrationTestsConfig(any : ecore::EObject) : String = (any.nameProject() + ' test config').apply_classDefault()/]
+
 [comment retourne le nom pour l'implémentation de la classe de test pour l'entité (infra persistance)./]
 [query public nameClassOutIntegrationTestImpl(e : entity::Entity) : String = (e.nameClassEntityPersistItf() + ' test').apply_classImplem()/]
 

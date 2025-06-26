@@ -151,6 +151,54 @@
   }
 [/template]
 
+[comment écriture de la classe de configuration commune pour le'ensemble des tests./]
+[template public integrationTestsConfigImpl (m : soa::System)]
+   [m.classHeader(null)/]
+
+   [m.defaultImports()/]
+   import org.springframework.test.context.ContextConfiguration;
+   import org.springframework.boot.test.context.TestConfiguration;
+   import org.springframework.context.annotation.ComponentScan;
+   import org.springframework.context.annotation.FilterType;
+   import [m.namePackageProject()/].[m.namePackageCommonBase()/].[m.nameClassAnnotationIn()/];
+   import [m.namePackageProject()/].[m.namePackageCommonBase()/].[m.nameClassAnnotationStubOut()/];
+   import [m.namePackageProject()/].[m.namePackageCommonBase()/].[m.nameClassAnnotationOut()/];
+   [for (o | m.eAllContents(soa::Service))]
+      import [o.namePackageProject()/].[o.namePackageOutStubImpl()/].[o.nameClassServiceOutStubImpl()/];
+   [/for]
+
+   
+   /**
+   * Configuration des composants spécifiques pour les tests d'intégration.
+   * 
+   * Cette configuration permet de scanner des classes spécifiques et d'inclure ou exclure
+   * certains beans dans le contexte Spring utilisé pour les tests.
+   * 
+   * Les classes annotées avec {@link TestConfiguration} sont exclues par défaut de l'analyse
+   * des composants. Les services annotés avec {@link [m.nameClassAnnotationIn()/]} 
+   * et {@link [m.nameClassAnnotationStubOut()/]} sont inclus.
+   * 
+   * Pour couper l'acces à la couche de persistance sur un service en particulier
+   * et passer sur le bouchon, modifier le nom de la (ou des) classe(s) de service
+   * au niveau de l'exclusion 'excludeFilters. Par défaut tous les bouchons (Stub)
+   * sont exclus. 
+   * 
+   * Remplacer le nom du bouchon par le nom de la classe JPA.
+   *
+   * @author [m.nameAuthor()/]
+   */
+   @TestConfiguration
+   @ComponentScan(
+         basePackages = { "[m.namePackageProject()/]" },
+         includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION
+          , classes = {[m.nameClassAnnotationIn()/].class, [m.nameClassAnnotationStubOut()/].class
+          , [m.nameClassAnnotationOut()/].class})},
+         excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE
+          , classes = {[m.writeStubServices()/]})})
+   public class [m.nameClassIntegrationTestsConfig()/] {
+   }
+[/template]
+
 [comment écriture de l'implémentation pour les tests de l'infrastructure./]
 [template public serviceIntegrationTestImpl (s : soa::Service)]
   [s.classHeader(s.namePackageInIntegrationTestImpl())/]
@@ -168,10 +216,7 @@
     import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
     import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
     import org.springframework.boot.test.context.SpringBootTest; 
-    import org.springframework.test.context.ContextConfiguration;
-    import org.springframework.boot.test.context.TestConfiguration;
-    import org.springframework.context.annotation.ComponentScan;
-    import org.springframework.context.annotation.FilterType;
+    import org.springframework.context.annotation.Import;
     import org.springframework.test.context.ActiveProfiles;
     import org.springframework.test.context.TestPropertySource;
     import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -179,12 +224,10 @@
     import org.springframework.test.web.servlet.ResultActions;
     import org.springframework.http.MediaType;
     import com.fasterxml.jackson.databind.ObjectMapper;
+    import [s.namePackageProject()/].[s.nameClassIntegrationTestsConfig()/];
     import [s.namePackageProject()/].[s.nameClassIntegrationTestUtils()/];
     import [s.namePackageProject()/].[s.nameClassIntegrationTestAbstract()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
-    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationIn()/];
-    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationStubOut()/];
-    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
     import [s.namePackageProject()/].[s.namePackageOutStubImpl()/].[s.nameClassServiceOutStubImpl()/];
     import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
     [for (d | s.associatedDtos())]
@@ -211,6 +254,7 @@
   [/protected]
   @ActiveProfiles("test")
   @AutoConfigureMockMvc
+  @Import([s.nameClassIntegrationTestsConfig()/].class)
   @ExtendWith(SpringExtension.class)
   @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
   @TestPropertySource(locations = "classpath:[s.nameIntegrationResources()/].properties")
@@ -275,36 +319,6 @@
      [/for]
      
      [protected (s.nameClassServiceTestImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-       
-     [/protected]
-     
-    /**
-     * Configuration des composants spécifiques pour les tests d'intégration.
-     * 
-     * Cette configuration permet de scanner des classes spécifiques et d'inclure ou exclure
-     * certains beans dans le contexte Spring utilisé pour les tests.
-     * 
-     * Les classes annotées avec {@link TestConfiguration} sont exclues de l'analyse
-     * des composants. Les services annotés avec {@link [s.nameClassAnnotationIn()/]} 
-     * et {@link [s.nameClassAnnotationStubOut()/]} sont inclus.
-     * <p>
-     * Pour couper l'acces à la couche de persistance et passer sur le bouchon ,
-     * modifier le nom de la classe '[s.nameClassServiceOutStubImpl()/]' en
-     * '[s.nameClassServiceOutImpl()/]'.
-     *
-     */
-     [protected ((s.nameClassServiceTestImpl() + 'config').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-       
-       @TestConfiguration
-       @ComponentScan(
-             basePackages = { "[s.namePackageProject()/]" },
-             includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION
-              , classes = {[s.nameClassAnnotationIn()/].class, [s.nameClassAnnotationStubOut()/].class
-              , [s.nameClassAnnotationOut()/].class})},
-             excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE
-              , classes = {[s.nameClassServiceOutStubImpl()/].class})})
-       static class [s.nameClassServiceTestImpl()/]Configuration {
-       }
        
      [/protected]
   }
@@ -382,5 +396,9 @@
 	or 'Timestamp'.equalsIgnoreCase(p.type.name)) then p.type.name.get_defaulValueForType() + '.truncatedTo(ChronoUnit.MILLIS)' 
 	else if ('Binary'.equalsIgnoreCase(p.type.name)) then p.type.nameClassIntegrationTestUtils() + '.' + 'generate random byte array'
 	.apply_methodDefault() + '(10)' else if (p.type.oclIsKindOf(environment::DTO)) then 'new ' + p.type.oclAsType(environment::DTO)
-	.nameClassXtoImpl() + '()' else p.type.name.get_defaulValueForType() endif endif endif/]
+	.nameClassXtoImpl() + '()' else p.type.name.get_defaulValueForType() endif endif endif/]
+
+[comment écriture de la liste des services de type stub (bouchons) pour l'exclusion par défaut./]
+[query private writeStubServices(m : soa::System) : String = m.eAllContents(soa::Service)->collect(o | o.nameClassServiceOutStubImpl() 
+	+ '.class')->sep(',')->toString()/]
 	

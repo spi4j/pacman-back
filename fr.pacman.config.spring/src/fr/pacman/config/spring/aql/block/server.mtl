@@ -218,9 +218,14 @@
    * Classe de démarrage de l'application Spring Boot. Cette classe est annotée
    * avec {@link SpringBootApplication}, ce qui permet de configurer
    * automatiquement les composants nécessaires à l'exécution de l'application.
-   * Elle active également la gestion des aspects avec
+   * 
+   * Toutes les classes annotées {@link [any.nameClassAnnotationStubOut()/]} ne sont pas prises en compte
+   * par Spring ce qui désactive par défaut l'injection des différentes bouchons
+   * pour les tests d'intégration.
+   * 
+   * Elle active  par ailleurs la gestion des aspects avec
    * {@link EnableAspectJAutoProxy} et configure un scan de composants
-   * personnalisé pour inclure les services annotés avec {@link [any.nameClassAnnotationStubOut()/]} et
+   * personnalisé pour inclure les services annotés avec {@link [any.nameClassAnnotationOut()/]} et
    * {@link [any.nameClassAnnotationIn()/]}.
    * 
    * La méthode {@link #main(String...)} est le point d'entrée principal de

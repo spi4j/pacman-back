@@ -38,9 +38,10 @@
 [/template]
 
 [comment écriture du fichier d'implémentation pour objet métier./]
-[template public fileDtoImpl(d : environment::DTO)]
+[template public fileDtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
+  , dss : Sequence(environment::DTO))]
   [file (d.nameClassDtoImpl().toFileJava(d.namePackageDtoImpl()), overwrite, d.defaultFileEncoding())]
-    [d.dtoImpl()/]
+    [d.dtoImpl(ds,dss)/]
   [/file]
 [/template]
 
