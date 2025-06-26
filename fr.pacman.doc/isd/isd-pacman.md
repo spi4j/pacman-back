@@ -34,6 +34,7 @@
 
 - Cliquer sur `Add`, sélectionner `Archive` puis selectionner le zip téléchargé ci-dessus et cliquer sur `Add`
 
+
 - Cocher `PacMan - Développement (Cali)` et décocher `Contact all update sites during install to find required software`
 
 ![Capture01](Capture01.png)
@@ -42,9 +43,9 @@
 
 - Cliquer sur `Finish`
 
-![Capture03](Capture03.PNG)
-
 - Sur le "dialogue de validation de licences" cliquer sur `Select All` puis sur `Trust Selected`
+
+![Capture04](Capture4.PNG)
 
 - Attendre la fin de l'installation (voir la barre de status) puis accepter le redémarrage
 
@@ -56,9 +57,9 @@
 
 - Cliquer sur `Next` 
 
-![Capture05](Capture05.PNG)
-
 - Compléter la partie `Identification` (nom : `ebookstore`, Package : `fr.ebookstore` et auteur: `Obeo`)
+
+![Capture05](Capture05.png)
 
 - Cliquer sur `Finish`
 
@@ -68,21 +69,24 @@
 
 - Ouvrir le menu `File` > `New` > `Example...`
 
-![Capture06](Capture06.PNG)
 
 - Filtrer le contenu pour sélectionner `E-BookStore` (sous la catégorie `IS Designer`)
 
+![Capture06](Capture06.PNG)
+
 - Cliquer sur `Finish`
 
-![Capture08](Capture08.PNG)
+
 
 - Copier les ressources soa, requirement et entity depuis le projet E-BookStore vers le projet ebookstore-model
 
+![Capture08](Capture08.PNG)
+
 ## Générer le code de la couche de persistance
 
-![Capture09](Capture09.png)
-
 - Faire un clic droit sur la ressource `Entity` puis sélectionner `Générateur Cali` > `Génération de la couche de persistance`
+
+![Capture09](Capture09.png)
 
 ## Tester le serveur de l'application E-BookStore
 
@@ -90,24 +94,23 @@
 
 ![Capture11](Capture11.png)
 
-
 - Clic droit sur `src/test/java` dans le projet ebookstore-server
 
 - Puis `Run As` > `JUnit Test`
 
 ## Générer le code de la couche de service
 
-![Capture10](Capture10.png)
-
 - Faire un clic droit sur la ressource `Soa` puis sélectionner `Générateur Cali` > `Génération de la couche de service`
 
-## Exécuter le serveur de l'application E-BookStore
+![Capture10](Capture10.png)
 
-![Capture12](Capture12.png)
+## Exécuter le serveur de l'application E-BookStore
 
 - Clic droit sur le fichier EbookstoreBootstrap.java dans le projet e-bookstore-server, src/main/java, fr.ebookstore 
 
 - `Run As` > `Java Application`
+
+![Capture12](Capture12.png)
 
 - Attendre qu'une ligne similaire à celle ci dessous apparaisse dans la console :
 
@@ -137,6 +140,7 @@
 
 - Retournez dans la perspective modeling
 
+![Capture22](Capture22.png)
 
 Félicitaions, vous avez réussi à installer pacman sur IS Designer, et génére du code ainsi qu'un servicce qui fonctionne à partir du model d'ebookstore.
 
