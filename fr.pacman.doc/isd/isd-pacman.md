@@ -128,6 +128,10 @@
 	
 	http://localhost/api-docs
 
+- La page affichée à l'adresse `http://localhost/swagger-ui` présente la liste des services disponibles :
+
+  ![Capture16](Capture16.png)
+
 ## Arrêter le serveur de l'application E-BookStore
 
 - Dans la perspective debug, faire un clic droit sur le serveur dans l'onglet debug
@@ -142,7 +146,7 @@
 
   ![Capture22](Capture22.PNG)
 
-Félicitaions, vous avez réussi à installer pacman sur IS Designer, et génére du code ainsi qu'un servicce qui fonctionne à partir du model d'ebookstore.
+Félicitaions, vous avez réussi à installer Pacman sur IS Designer, à générer le code d'un serveur applicatif à partir du model d'exemple E-BookStore, et à tester ce serveur !
 
 > [!TIP]
 > ## Pour aller plus loin
