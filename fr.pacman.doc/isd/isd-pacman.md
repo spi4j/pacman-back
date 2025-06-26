@@ -37,7 +37,7 @@
 
 - Cocher `PacMan - Développement (Cali)` et décocher `Contact all update sites during install to find required software`
 
-![Capture01](Capture01.png)
+  ![Capture01](Capture01.png)
 
 - Cliquer sur `Next`
 
@@ -45,7 +45,7 @@
 
 - Sur le "dialogue de validation de licences" cliquer sur `Select All` puis sur `Trust Selected`
 
-![Capture04](Capture4.PNG)
+  ![Capture4](Capture4.PNG)
 
 - Attendre la fin de l'installation (voir la barre de status) puis accepter le redémarrage
 
@@ -59,7 +59,7 @@
 
 - Compléter la partie `Identification` (nom : `ebookstore`, Package : `fr.ebookstore` et auteur: `Obeo`)
 
-![Capture05](Capture05.png)
+  ![Capture05](Capture05.png)
 
 - Cliquer sur `Finish`
 
@@ -72,7 +72,7 @@
 
 - Filtrer le contenu pour sélectionner `E-BookStore` (sous la catégorie `IS Designer`)
 
-![Capture06](Capture06.PNG)
+  ![Capture06](Capture06.PNG)
 
 - Cliquer sur `Finish`
 
@@ -80,19 +80,19 @@
 
 - Copier les ressources soa, requirement et entity depuis le projet E-BookStore vers le projet ebookstore-model
 
-![Capture08](Capture08.PNG)
+  ![Capture08](Capture08.PNG)
 
 ## Générer le code de la couche de persistance
 
 - Faire un clic droit sur la ressource `Entity` puis sélectionner `Générateur Cali` > `Génération de la couche de persistance`
 
-![Capture09](Capture09.png)
+  ![Capture09](Capture09.png)
 
 ## Tester le serveur de l'application E-BookStore
 
 - Clic droit sur la ressource `Entity` puis sélectioner `Générateur Cali` > `Génération des scripts SQL`
 
-![Capture11](Capture11.png)
+  ![Capture11](Capture11.png)
 
 - Clic droit sur `src/test/java` dans le projet ebookstore-server
 
@@ -102,7 +102,7 @@
 
 - Faire un clic droit sur la ressource `Soa` puis sélectionner `Générateur Cali` > `Génération de la couche de service`
 
-![Capture10](Capture10.png)
+  ![Capture10](Capture10.png)
 
 ## Exécuter le serveur de l'application E-BookStore
 
@@ -110,13 +110,13 @@
 
 - `Run As` > `Java Application`
 
-![Capture12](Capture12.png)
+  ![Capture12](Capture12.png)
 
 - Attendre qu'une ligne similaire à celle ci dessous apparaisse dans la console :
 
 `2025-06-25 17:18:52 - fr.ebookstore.EbookstoreBootstrap - Started EbookstoreBootstrap in 12.924 seconds (process running for 13.853)`
 
-![Capture14](Capture14.png)
+  ![Capture14](Capture14.png)
 
 - Avec un navigateur web, appeler les services suivants : 
 
@@ -140,8 +140,12 @@
 
 - Retournez dans la perspective modeling
 
-![Capture22](Capture22.png)
+  ![Capture22](Capture22.PNG)
 
 Félicitaions, vous avez réussi à installer pacman sur IS Designer, et génére du code ainsi qu'un servicce qui fonctionne à partir du model d'ebookstore.
+
+> [!TIP]
+> ## Pour aller plus loin
+> - https://spi4j.github.io/pacman-back/
 
 
