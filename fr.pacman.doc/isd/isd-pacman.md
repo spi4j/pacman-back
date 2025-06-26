@@ -130,7 +130,7 @@
 
 - La page affichée à l'adresse `http://localhost/swagger-ui` présente la liste des services disponibles :
 
-  ![Capture16](Capture16.png)
+  ![Capture16](Capture16.PNG)
 
 ## Arrêter le serveur de l'application E-BookStore
 
