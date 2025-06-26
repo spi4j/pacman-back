@@ -46,7 +46,7 @@
 
 - Sur le "dialogue de validation de licences" cliquer sur `Select All` puis sur `Trust Selected`
 
-- Attendre la fin de l'installation (voir la barre de status) accepter le redémarrage
+- Attendre la fin de l'installation (voir la barre de status) puis accepter le redémarrage
 
 ## Créer un projet Cali
 
