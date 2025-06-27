@@ -22,7 +22,7 @@
 
 - Accepter `The terms of the license agreements`, et cliquer sur `Finish`
 
-- Sur le "dialogue de valisation de licences" cliquer sur `Select All` puis sur `Trust Selected`
+- Sur le "dialogue de validation de licences" cliquer sur `Select All` puis sur `Trust Selected`
 
 - Attendre la fin de l'installation (voir la barre de status) accepter le redémarrage
 
@@ -32,7 +32,7 @@
 
 - Ouvrir le menu `Help` et cliquer sur `Install new software`
 
-- Cliquer sur `Add`, sélectionner `Archive` puis selectionner le zip téléchargé ci-dessus et cliquer sur `Add`
+- Cliquer sur `Add`, sélectionner `Archive` puis sélectionner le zip téléchargé ci-dessus et cliquer sur `Add`
 
 
 - Cocher `PacMan - Développement (Cali)` et décocher `Contact all update sites during install to find required software`
@@ -63,7 +63,7 @@
 
 - Cliquer sur `Finish`
 
-## Rappatrier le modèle d'exemple E-BookSore dans le workspace 
+## Rapatrier le modèle d'exemple E-BookSore dans le workspace 
 
 - Dans le projet ebookstore-model, supprimer les ressources soa, requirement et entity
 
@@ -90,7 +90,7 @@
 
 ## Tester le serveur de l'application E-BookStore
 
-- Clic droit sur la ressource `Entity` puis sélectioner `Générateur Cali` > `Génération des scripts SQL`
+- Clic droit sur la ressource `Entity` puis sélectionner `Générateur Cali` > `Génération des scripts SQL`
 
   ![Capture11](Capture11.png)
 
@@ -106,7 +106,7 @@
 
 ## Exécuter le serveur de l'application E-BookStore
 
-- Clic droit sur le fichier EbookstoreBootstrap.java dans le projet e-bookstore-server, src/main/java, fr.ebookstore 
+- Clic droit sur le fichier EbookstoreBootstrap.java dans le projet `e-bookstore-server`, `src/main/java`, `fr.ebookstore` 
 
 - `Run As` > `Java Application`
 
@@ -146,10 +146,80 @@
 
   ![Capture22](Capture22.PNG)
 
-Félicitaions, vous avez réussi à installer Pacman sur IS Designer, à générer le code d'un serveur applicatif à partir du model d'exemple E-BookStore, et à tester ce serveur !
+Félicitations, vous avez réussi à installer Pacman sur IS Designer, à générer le code d'un serveur applicatif à partir du model d'exemple E-BookStore, et à tester ce serveur !
+
+> [!NOTE]
+> # Pour aller plus loin, écrire et lire un livre sur le serveur
+>
+> ## Implémenter la méthode getBook 
+>
+>
+> - Dans le fichier `BookServiceJpaProviderImpl.java`
+> 
+> - Dans le projet `e-bookstore-server`,`src/main/java`,`fr.ebookstore.infra.adaptateurs.bookstore`
+>
+> - Dans la méthode `getBook_invoke(Long)`
+>
+> - Entre `// Start of user code e8eb49981e778ca44d1a019d366f69a0` et `// End of user code`
+>
+> - Remplacer la ligne de code : `throw new EbookstoreNotImplementedException("La méthode 'getBook' n'a pas été implémentée");`
+>
+> - Par : `return bookRepository.findById(bookId);`
+>
+> 
+>
+> ## Implémenter la méthode getBook 
+>
+>
+> - Dans le fichier `BookServiceJpaProviderImpl.java`
+> 
+> - Dans le projet `e-bookstore-server`,`src/main/java`,`fr.ebookstore.infra.adaptateurs.bookstore`
+>
+> - Dans la méthode `createBook_invoke(BookDtoImpl)`
+>
+> - Entre `// Start of user code e8eb49981e778ca44d1a019d366f69a0` et `// End of user code`
+>
+> - Remplacer la ligne de code : `throw new EbookstoreNotImplementedException("La méthode 'createBook' n'a pas été implémentée");`
+>
+> - Par :       
+>   
+>   		BookEntityImpl entity = BookMapper.toEntity(book);
+>
+>    		return bookRepository.save(entity);
+>                                       
+> ## Tester les Implémentations
+>
+> - Redémarrer le serveur ( voir la méthode si dessus dans la catégorie "Exécuter le serveur de l'application E-BookStore" )
+>
+> - Avec un navigateur web, appeler le service suivant : http://localhost/swagger-ui
+>
+> - Dans la catégorie `POST`, cliquer sur `Try it out`
+>
+> - Dans la structure Data, donner un titre, un prix, un nom d'image et un type, a votre image
+> - Ex :
+>
+> ```
+>{
+>   "title": "One-Book",
+>   "price": 10,
+>   "image": "Blue",
+>   "type": "Science-Fiction"
+> }
+>```
+> - Cliquer sur `Execute`
+>
+> - Vous devriez avoir une réponse semblable à celle ci
+>
+> - Dans la catégorie `Get/v1/ebookstore/book/{id}`, Cliquer sur `Try it out`
+>
+> - Dans l'identifiant du livre, écrire le numéro qui à été attribuer a votre livre dans les reponses de la catégorie `POST`
+>
+> - Si dans les réponses de la catégorie `GET` vous obtenez les informations correspondant au livre que vous venez de crée alors vous avez réussi !
+>
+> - Vous pouvez éteindre le serveur ( voir la méthode si dessus, dans la catégorie `Arrêter le serveur de l'application E-BookStore` )
+
 
 > [!TIP]
-> ## Pour aller plus loin
+> # Pour aller encore plus loin !
 > - https://spi4j.github.io/pacman-back/
-
 
