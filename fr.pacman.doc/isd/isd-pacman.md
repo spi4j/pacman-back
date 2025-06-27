@@ -59,7 +59,7 @@
 
 - Compléter la partie `Identification` (nom : `ebookstore`, Package : `fr.ebookstore` et auteur: `Obeo`)
 
-  ![Capture05](Capture05.png)
+  ![Capture05](Capture05.PNG)
 
 - Cliquer sur `Finish`
 
@@ -166,9 +166,9 @@ Félicitations, vous avez réussi à installer Pacman sur IS Designer, à géné
 >
 > - Par : `return bookRepository.findById(bookId);`
 >
-> 
+>   ![Capture23](Capture23.PNG)
 >
-> ## Implémenter la méthode getBook 
+> ## Implémenter la méthode createBook 
 >
 >
 > - Dans le fichier `BookServiceJpaProviderImpl.java`
@@ -186,7 +186,9 @@ Félicitations, vous avez réussi à installer Pacman sur IS Designer, à géné
 >   		BookEntityImpl entity = BookMapper.toEntity(book);
 >
 >    		return bookRepository.save(entity);
->                                       
+>
+>   ![Capture24](Capture24.PNG)
+>
 > ## Tester les Implémentations
 >
 > - Redémarrer le serveur ( voir la méthode si dessus dans la catégorie "Exécuter le serveur de l'application E-BookStore" )
@@ -210,13 +212,17 @@ Félicitations, vous avez réussi à installer Pacman sur IS Designer, à géné
 >
 > - Vous devriez avoir une réponse semblable à celle ci
 >
+>   ![Capture25](Capture25.PNG)
+>
 > - Dans la catégorie `Get/v1/ebookstore/book/{id}`, Cliquer sur `Try it out`
 >
 > - Dans l'identifiant du livre, écrire le numéro qui à été attribuer a votre livre dans les reponses de la catégorie `POST`
->
+>  
 > - Si dans les réponses de la catégorie `GET` vous obtenez les informations correspondant au livre que vous venez de crée alors vous avez réussi !
 >
-> - Vous pouvez éteindre le serveur ( voir la méthode si dessus, dans la catégorie `Arrêter le serveur de l'application E-BookStore` )
+>    ![Capture26](Capture26.PNG)
+>
+>  - Vous pouvez éteindre le serveur ( voir la méthode si dessus, dans la catégorie `Arrêter le serveur de l'application E-BookStore` )
 
 
 > [!TIP]
