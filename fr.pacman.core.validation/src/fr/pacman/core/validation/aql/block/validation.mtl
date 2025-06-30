@@ -101,6 +101,7 @@
     [comment pas d'héritage autre que des dtos/]
   [/for]
   
+  [let dtss = m.superTypesDtos()]
   [for (s | m.providedServices())]
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
@@ -158,9 +159,13 @@
       [if (o.verb = soa::Verb::HEAD and not o.output->isEmpty())][o.add(s.msgs16(o))/][/if]  
       
       [comment pas de service avec un doute sur l'URI./]
+      
+      [comment pas de service avec des dtos hérités./]
+      [if (o.input->exists(p | dtss->includes(p.type)) or dtss->includes(o.output) )][o.add(s.msgs17(o))/][/if]
       [/for]
     [/if]
   [/for]
+  [/let]
   [for (s | m.requiredServices())]
   [/for]
   [comment pas de multiples components internes pour l'instant/]
@@ -353,3 +358,7 @@
 [comment impossible d'avoir un service avec le verbe head et un paramètre en sortie./]
 [query private msgs16(s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
 	+ '@Opération avec le verbe HEAD@Supprimez le(s) paramètre(s) en sortie pour l\'opération'/]
+	
+[comment impossible d'avoir un service avec des paramètres (dto) hérités./]
+[query private msgs17(s : soa::Service, o : soa::Operation)  : String = s.nameService() + '.' + o.name() + '()' 
+	+ '@Opération avec un (des) dto(s) hérité(s)@Supprimez le(s) paramètre(s) hérité(s) pour l\'opération'/]
