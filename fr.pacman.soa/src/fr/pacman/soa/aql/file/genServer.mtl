@@ -9,23 +9,24 @@
 [import fr::pacman::soa::aql::block::xto/]
 
 [comment écriture du fichier d'implémentation pour un mapper (objet métier -> objet infrastructure)./]
-[template public fileMapperOutImpl(d: environment::DTO, rs : OrderedSet(environment::Reference))]
+[template public fileMapperOutImpl(d: environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO))]
   [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperOutImpl()), overwrite, d.defaultFileEncoding())]
-    [d.mapperOutImpl(rs)/]
+    [d.mapperOutImpl(ds,dss)/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'implémentation pour un mapper (objet métier -> application)./]
-[template public fileMapperInImpl(d: environment::DTO, rs : OrderedSet(environment::Reference))]
+[template public fileMapperInImpl(d: environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO))]
   [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperInImpl()), overwrite, d.defaultFileEncoding())]
-    [d.mapperInImpl(rs)/]
+    [d.mapperInImpl(ds,dss)/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'implémentation pour objet sérialisé./]
-[template public fileXtoImpl(d : environment::DTO)]
+[template public fileXtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
+  , dss : Sequence(environment::DTO))]
   [file (d.nameClassXtoImpl().toFileJava(d.namePackageXtoImpl()), overwrite, d.defaultFileEncoding())]
-    [d.xtoImpl()/]
+    [d.xtoImpl(ds, dss)/]
   [/file]
 [/template]
 

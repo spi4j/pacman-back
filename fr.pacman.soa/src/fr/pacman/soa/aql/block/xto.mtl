@@ -20,7 +20,8 @@
 [import fr::pacman::soa::aql::block::common/]	
 
 [comment écriture de l'implémentation pour un objet métier sérialisé (xto)./]
-[template public xtoImpl(d : environment::DTO)]
+[template public xtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
+  , dss : Sequence(environment::DTO))]
   [d.classHeader(d.namePackageXtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -54,7 +55,12 @@
      private [d.defaultTypePk()/] [d.writePk()/];
      
      // ATTRIBUTS
-     [let rs = d.referencesFKSB()->union(d.referencesJT())]
+     
+     [comment liste des tables de liaison pour l'entité (directes + héritées)./]
+     [let jts = d.referencesJTSBResolved()]      [comment liste des clé étrangères (directes + héritées)./] 
+     [let fks = d.referencesFKSBResolved(ds, dss)]
+     [comment liste de toutes les références (clé étrangères + tables de jointure)./]
+     [let rs = jts->union(fks)]
        
        [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
          [a.comment().commentSingleLine()/]
@@ -70,8 +76,7 @@
          [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
            @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]")
          [/protected]
-         [if (r.isMultiple())]@ArraySchema(schema = @Schema(implementation = [r.referencedDto(d).nameClassXtoImpl()/].class))
-         [else]@Schema(description = "[r.writeDescription()/]")[/if]
+         [r.writeShemaAnnotation(d)/]
          [comment r.containingType <> d and r.isMultiple()/]
          private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
          
@@ -111,6 +116,14 @@
        // METHODES
        [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
        [/protected]
+       
+     [/let][/let]
      [/let]
   }
 [/template]
+
+[comment écriture de l'annotation @Schema pour open api./]
+[query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String = if (r.isMultiple()) 
+	then '@ArraySchema(schema = @Schema(implementation =' + r.referencedDto(d).nameClassXtoImpl() + '.class))' 
+	else '@Schema(description = "' + r.writeDescription() + '")' endif/]
+

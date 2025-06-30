@@ -34,7 +34,7 @@
                            </instanceof>
                            <test
                                  property="org.eclipse.core.resources.extension"
-                                 value="soa">
+                                 value="soa2">
                            </test>
                         </and>
                      </iterate>

@@ -58,7 +58,7 @@
 
 [comment retourne le type contenu. Toujours 'r.containingType' sauf dans le cas de l'héritage ou il faut 
 		 redescendre la relation au niveau de la structure héritée (st)./]
-[query private containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+[query public containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
 	if (st.supertype <> null) then st else r.containingType endif/]
 
 [comment vérifie si une référence appartient à un super-type (superclass). Concerne les FKs !
@@ -148,12 +148,17 @@
 	->sortedByName()/]
 
 [comment on prend la liste complète des fks, on distingue une liste des fk inverses héritées, que l'on supprime 
-         de la liste des fks initiales, pour chaque fk héritée on crée une référence par entité héritée, on 
-         re-concatène le tout avec les autres références fks. Ne pas oublier que l'on interdit les relations 
-         entre tables héritées, il est donc impossible d'avoir une table héritée en référence -> il n'y a donc 
-         jamais besoin de faire un downgrade sur une fk non inverse (ifks -> initial-fks, fkis -> fks-inherited). 
+         de la liste des fks initiales, pour chaque fk héritée on crée une nouvelle référence par entité héritée, on 
+         re-concatène le tout avec les autres références fks. 
+         Ne pas oublier que l'on interdit les relations entre tables héritées, il est donc impossible d'avoir une 
+         table héritée en référence -> il n'y a donc jamais besoin de faire un downgrade sur une fk non inverse. 
+         Note : ifks = 'initial-fks', fkis = 'fks-inherited'. 
+         ATTENTION : cela signifie donc que le downgrade n'est pas effectué pour l'ensemble des fks, il n'y a pas 
+         d'impact au niveau de la couche 'entity/dto/xto' et tout le système est fait pour fonctionner de cette 
+         manière, par contre il y a un impact au niveau des mappers. Il y a donc un traitement particulier à 
+         effectuer à ce niveau. 
          C'est cette méthode qui est appelée pour la récupération des clés étrangères pour les entités, etc.. et la 
-         création des scripts SQL, elle seule a une surcouche qui pemet de gérer correctement la notion d'héritage.
+         création des scripts SQL. Elle seule a une surcouche qui pemet de gérer correctement la notion d'héritage.
          Si tout n'est pas intégré dès le départ c'est uniquement pour pouvoir séparer les différentes notions et 
          éventuellement deconnecter le plus simplement possible la notion d'héritage./] 
 [query private referencesFKResolved(st : environment::StructuredType, es : Sequence(environment::StructuredType)
@@ -240,10 +245,18 @@
   
 [comment écriture du type complet pour les types référencés en sortie vers la couche application./]
 [query public referencedOutTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
-  if (r.isMultiple() and r.containingType = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
+  if (r.isMultiple() and r.containedType(st) = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
   +  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() + '>' 
   else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]
 
+[comment en Acceleo, deux objets peuvent être considérés comme différents même s’ils ont le même identifiant technique 
+         car l'identité des objets est aussi basée sur leur référence mémoire ou leur instance EMF, pas uniquement sur 
+         leurs attributs. Comme avec l'héritage on effectue un 'downgrade' par copie, on récupère une nouvelle référence 
+         mémoire et l'égalité n'est plus aquise alors qu'il s'agit bien du même objet. On se contente alors juste d'une 
+         égalité sur l'identifiant technique, ce qui est suffisant pour notre utilisation./]
+[comment query public isTypeContained(r : environment::Reference, st : environment::StructuredType) : Boolean =  
+  r.containingType = st or r.containingType.technicalid.equalsIgnoreCase(st.technicalid)/]
+  
 [template public blockHierarchy(r : environment::Reference) post(self.trim())]
   [if (r.ancestors(environment::Namespace)->size() < 1)]
   [else]
