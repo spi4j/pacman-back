@@ -45,7 +45,7 @@
 
 - Sur le "dialogue de validation de licences" cliquer sur `Select All` puis sur `Trust Selected`
 
-  ![Capture4](Capture4.PNG)
+  ![Capture4](Capture4.png)
 
 - Attendre la fin de l'installation (voir la barre de status) puis accepter le redémarrage
 
@@ -59,7 +59,7 @@
 
 - Compléter la partie `Identification` (nom : `ebookstore`, Package : `fr.ebookstore` et auteur: `Obeo`)
 
-  ![Capture05](Capture05.PNG)
+  ![Capture05](Capture05.png)
 
 - Cliquer sur `Finish`
 
@@ -72,7 +72,7 @@
 
 - Filtrer le contenu pour sélectionner `E-BookStore` (sous la catégorie `IS Designer`)
 
-  ![Capture06](Capture06.PNG)
+  ![Capture06](Capture06.png)
 
 - Cliquer sur `Finish`
 
@@ -80,7 +80,7 @@
 
 - Copier les ressources **soa**, **requirement** et **entity** depuis le projet **E-BookStore** vers le projet **ebookstore-model**
 
-  ![Capture08](Capture08.PNG)
+  ![Capture08](Capture08.png)
 
 ## Générer le code de la couche de persistance
 
@@ -134,7 +134,7 @@
 
 - La page affichée à l'adresse `http://localhost/swagger-ui` présente la liste des services disponibles :
 
-  ![Capture16](Capture16.PNG)
+  ![Capture16](Capture16.png)
 
 ## Arrêter le serveur de l'application E-BookStore
 
@@ -148,7 +148,7 @@
 
 - Retournez dans la perspective modeling
 
-  ![Capture22](Capture22.PNG)
+  ![Capture22](Capture22.png)
 
 Félicitations, vous avez réussi à installer Pacman sur IS Designer, à générer le code d'un serveur applicatif à partir du model d'exemple E-BookStore, et à tester ce serveur !
 
@@ -170,7 +170,7 @@ Félicitations, vous avez réussi à installer Pacman sur IS Designer, à géné
 >
 > - Par : `return bookRepository.findById(bookId);`
 >
->   ![Capture23](Capture23.PNG)
+>   ![Capture23](Capture23.png)
 >
 > ## Implémenter la méthode createBook 
 >
@@ -191,7 +191,7 @@ Félicitations, vous avez réussi à installer Pacman sur IS Designer, à géné
 >
 >    		return bookRepository.save(entity);
 >
->   ![Capture24](Capture24.PNG)
+>   ![Capture24](Capture24.png)
 >
 > ## Tester les Implémentations
 >
@@ -216,7 +216,7 @@ Félicitations, vous avez réussi à installer Pacman sur IS Designer, à géné
 >
 > - Vous devriez avoir une réponse semblable à celle ci
 >
->   ![Capture25](Capture25.PNG)
+>   ![Capture25](Capture25.png)
 >
 > - Dans la catégorie `Get/v1/ebookstore/book/{id}`, Cliquer sur `Try it out`
 >
@@ -224,7 +224,7 @@ Félicitations, vous avez réussi à installer Pacman sur IS Designer, à géné
 >  
 > - Si dans les réponses de la catégorie `GET` vous obtenez les informations correspondant au livre que vous venez de crée alors vous avez réussi !
 >
->    ![Capture26](Capture26.PNG)
+>    ![Capture26](Capture26.png)
 >
 >  - Vous pouvez éteindre le serveur ( voir la méthode si dessus, dans la catégorie `Arrêter le serveur de l'application E-BookStore` )
 

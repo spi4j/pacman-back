@@ -27,7 +27,7 @@
   margin: 1em 0; display: block; padding: 5px; background-color: white;}
   .admonition { border-left: 4px solid #007acc; background: #f0f8ff; padding: 10px; margin: 1em 0; border-radius: 5px;}
   .admonition.note { border-color: #2b8cc4;}
-  .admonition.tip { border-color: #4caf50; background: #e8f5e9;}
+  .admonition.tip { border-color: #4caf50; background: #dafdde;}
   .admonition-title {font-weight: bold; margin-bottom: 0.5em;}
   /* Styles Pygments pour le code colorisé */
   pre { line-height: 125%; }
@@ -174,7 +174,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Sur le "dialogue de validation de licences" cliquer sur <code>Select All</code> puis sur <code>Trust Selected</code></p>
 </li>
 </ul>
-<p><img alt="Capture4" src="Capture4.PNG"/></p>
+<p><img alt="Capture4" src="Capture4.png"/></p>
 <ul>
 <li>Attendre la fin de l'installation (voir la barre de status) puis accepter le redémarrage</li>
 </ul>
@@ -193,7 +193,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Compléter la partie <code>Identification</code> (nom : <code>ebookstore</code>, Package : <code>fr.ebookstore</code> et auteur: <code>Obeo</code>)</p>
 </li>
 </ul>
-<p><img alt="Capture05" src="Capture05.PNG"/></p>
+<p><img alt="Capture05" src="Capture05.png"/></p>
 <ul>
 <li>Cliquer sur <code>Finish</code></li>
 </ul>
@@ -209,7 +209,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Filtrer le contenu pour sélectionner <code>E-BookStore</code> (sous la catégorie <code>IS Designer</code>)</p>
 </li>
 </ul>
-<p><img alt="Capture06" src="Capture06.PNG"/></p>
+<p><img alt="Capture06" src="Capture06.png"/></p>
 <ul>
 <li>
 <p>Cliquer sur <code>Finish</code></p>
@@ -218,7 +218,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Copier les ressources <strong>soa</strong>, <strong>requirement</strong> et <strong>entity</strong> depuis le projet <strong>E-BookStore</strong> vers le projet <strong>ebookstore-model</strong></p>
 </li>
 </ul>
-<p><img alt="Capture08" src="Capture08.PNG"/></p>
+<p><img alt="Capture08" src="Capture08.png"/></p>
 <h2 id="generer-le-code-de-la-couche-de-persistance">Générer le code de la couche de persistance</h2>
 <ul>
 <li>Faire un clic droit sur la ressource <code>Entity</code> puis sélectionner <code>Générateur Cali</code> &gt; <code>Génération de la couche de persistance</code></li>
@@ -273,7 +273,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>La page affichée à l'adresse <code>[http://localhost/swagger-ui</code>](http://localhost/swagger-ui`) présente la liste des services disponibles :</p>
 </li>
 </ul>
-<p><img alt="Capture16" src="Capture16.PNG"/></p>
+<p><img alt="Capture16" src="Capture16.png"/></p>
 <h2 id="arreter-le-serveur-de-lapplication-e-bookstore">Arrêter le serveur de l'application E-BookStore</h2>
 <ul>
 <li>Dans la perspective debug, faire un clic droit sur le serveur dans l'onglet debug</li>
@@ -286,7 +286,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <ul>
 <li>Retournez dans la perspective modeling</li>
 </ul>
-<p><img alt="Capture22" src="Capture22.PNG"/></p>
+<p><img alt="Capture22" src="Capture22.png"/></p>
 <p>Félicitations, vous avez réussi à installer Pacman sur IS Designer, à générer le code d'un serveur applicatif à partir du model d'exemple E-BookStore, et à tester ce serveur !</p>
 <div class="admonition note"><p class="admonition-title">📝 Note</p><h1>Pour aller plus loin, écrire et lire un livre sur le serveur</h1>
 <h2 id="implémenter-la-méthode-getbook">Implémenter la méthode getBook</h2>
@@ -310,7 +310,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Par : <code>return bookRepository.findById(bookId);</code></p>
 </li>
 </ul>
-<p><img alt="Capture23" src="Capture23.PNG"/></p>
+<p><img alt="Capture23" src="Capture23.png"/></p>
 <h2 id="implémenter-la-méthode-createbook">Implémenter la méthode createBook</h2>
 <ul>
 <li>
@@ -334,7 +334,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </ul>
 <p>BookEntityImpl entity = BookMapper.toEntity(book);</p>
 <p>return bookRepository.save(entity);</p>
-<p><img alt="Capture24" src="Capture24.PNG"/></p>
+<p><img alt="Capture24" src="Capture24.png"/></p>
 <h2 id="tester-les-implémentations">Tester les Implémentations</h2>
 <ul>
 <li>
@@ -366,7 +366,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Vous devriez avoir une réponse semblable à celle ci</p>
 </li>
 </ul>
-<p><img alt="Capture25" src="Capture25.PNG"/></p>
+<p><img alt="Capture25" src="Capture25.png"/></p>
 <ul>
 <li>
 <p>Dans la catégorie <code>Get/v1/ebookstore/book/{id}</code>, Cliquer sur <code>Try it out</code></p>
@@ -378,7 +378,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Si dans les réponses de la catégorie <code>GET</code> vous obtenez les informations correspondant au livre que vous venez de crée alors vous avez réussi !</p>
 </li>
 </ul>
-<p><img alt="Capture26" src="Capture26.PNG"/></p>
+<p><img alt="Capture26" src="Capture26.png"/></p>
 <ul>
 <li>Vous pouvez éteindre le serveur ( voir la méthode si dessus, dans la catégorie <code>Arrêter le serveur de l'application E-BookStore</code> )</li>
 </ul></div>
