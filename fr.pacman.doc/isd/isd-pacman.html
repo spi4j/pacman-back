@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>Tutoriel sur l'installation et l'utilisation de Pacman dans IS Designer</title>
+<style>
+ body { margin:0; font-family: Arial,sans-serif; display: block; overflow-x: hidden;}
+  .sidebar { display:none; }
+  main { margin-left: 350px; padding: 2em; }
+  .local-toc { position: fixed; left: 10px; top: 1em; width: 300px; background: #fafafa; 
+   border: 1px solid #ddd; padding: 1em; max-height: 90vh; overflow-y: auto; font-size: 0.9em; }
+  .local-toc ul { list-style: none; padding-left: 1em; }
+  .local-toc li { margin: 0.3em 0; }
+  .local-toc a { text-decoration: none ; color: #1A5276}
+  .local-toc a:visited { color: #1A5276;}
+  .local-toc a:hover { color: #5499c7; text-decoration: none;}
+  table { border-collapse: collapse; width: 100%; margin: 1.5em 0; font-size: 0.95em; background-color: #fff; border: 1px solid #ccc;}
+  thead { background-color: #f2f2f2;}
+  th, td { border: 1px solid #ccc; padding: 0.6em 0.8em; text-align: left; vertical-align: top;}
+  tr:nth-child(even) { background-color: #f9f9f9;}
+  pre {background: #f5f5f5; border: 1px solid #ccc; padding: 0.3em; border-radius: 4px;}
+  img { max-width: 100%; height: auto; border: 1px solid #000000; border-radius: 4px; box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+  margin: 1em 0; display: block; padding: 5px; background-color: white;}
+  .admonition { border-left: 4px solid #007acc; background: #f0f8ff; padding: 10px; margin: 1em 0; border-radius: 5px;}
+  .admonition.note { border-color: #2b8cc4;}
+  .admonition.tip { border-color: #4caf50; background: #e8f5e9;}
+  .admonition-title {font-weight: bold; margin-bottom: 0.5em;}
+  /* Styles Pygments pour le code colorisé */
+  pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body>
+<nav class="sidebar"><ul><li><a href="chapter_1.html">Tutoriel sur l'installation et l'utilisation de Pacman dans IS Designer</a></li></ul></nav>
+<main>
+<h1>Tutoriel sur l'installation et l'utilisation de Pacman dans IS Designer</h1>
+<h2 id="installer-isd">Installer ISD</h2>
+<ul>
+<li>
+<p>Télécharger la dernière version depuis <a href="https://github.com/ObeoNetwork/InformationSystem/releases">https://github.com/ObeoNetwork/InformationSystem/releases</a></p>
+</li>
+<li>
+<p>Dézipper</p>
+</li>
+<li>
+<p>Lancer le produit is-designer.exe</p>
+</li>
+</ul>
+<h2 id="installer-lintegration-de-maven-pour-eclipse">Installer l'intégration de Maven pour Eclipse</h2>
+<ul>
+<li>
+<p>Ouvrir le menu <code>Help</code> et cliquer sur <code>Install new software</code></p>
+</li>
+<li>
+<p>Dans <code>Work with</code> selectioner l'update site <code>Eclipse-...</code></p>
+</li>
+<li>
+<p>Filtrer le contenu pour sélectionner <code>m2e-wtp - Maven Integration for WTP</code></p>
+</li>
+<li>
+<p>Cliquer sur <code>Next</code> puis cliquer sur <code>Next</code> à nouveau</p>
+</li>
+<li>
+<p>Accepter <code>The terms of the license agreements</code>, et cliquer sur <code>Finish</code></p>
+</li>
+<li>
+<p>Sur le "dialogue de validation de licences" cliquer sur <code>Select All</code> puis sur <code>Trust Selected</code></p>
+</li>
+<li>
+<p>Attendre la fin de l'installation (voir la barre de status) accepter le redémarrage</p>
+</li>
+</ul>
+<h2 id="installer-pacman-back-dans-isd">Installer Pacman back dans ISD</h2>
+<ul>
+<li>
+<p>Télécharger la dernière version (archive zip) depuis <a href="https://github.com/spi4j/pacman-back/releases">https://github.com/spi4j/pacman-back/releases</a></p>
+</li>
+<li>
+<p>Ouvrir le menu <code>Help</code> et cliquer sur <code>Install new software</code></p>
+</li>
+<li>
+<p>Cliquer sur <code>Add</code>, sélectionner <code>Archive</code> puis sélectionner le zip téléchargé ci-dessus et cliquer sur <code>Add</code></p>
+</li>
+<li>
+<p>Cocher <code>PacMan - Développement (Cali)</code> et décocher <code>Contact all update sites during install to find required software</code></p>
+</li>
+</ul>
+<p><img alt="Capture01" src="Capture01.png"/></p>
+<ul>
+<li>
+<p>Cliquer sur <code>Next</code></p>
+</li>
+<li>
+<p>Cliquer sur <code>Finish</code></p>
+</li>
+<li>
+<p>Sur le "dialogue de validation de licences" cliquer sur <code>Select All</code> puis sur <code>Trust Selected</code></p>
+</li>
+</ul>
+<p><img alt="Capture4" src="Capture4.PNG"/></p>
+<ul>
+<li>Attendre la fin de l'installation (voir la barre de status) puis accepter le redémarrage</li>
+</ul>
+<h2 id="creer-un-projet-cali">Créer un projet Cali</h2>
+<ul>
+<li>
+<p>Ouvrir le menu <code>File</code> &gt; <code>New</code> &gt; <code>Project...</code></p>
+</li>
+<li>
+<p>Chercher et sélectionner <code>Project Cali</code> sous la catégorie <code>IS Designer</code></p>
+</li>
+<li>
+<p>Cliquer sur <code>Next</code> </p>
+</li>
+<li>
+<p>Compléter la partie <code>Identification</code> (nom : <code>ebookstore</code>, Package : <code>fr.ebookstore</code> et auteur: <code>Obeo</code>)</p>
+</li>
+</ul>
+<p><img alt="Capture05" src="Capture05.PNG"/></p>
+<ul>
+<li>Cliquer sur <code>Finish</code></li>
+</ul>
+<h2 id="rapatrier-le-modele-dexemple-e-booksore-dans-le-workspace">Rapatrier le modèle d'exemple E-BookSore dans le workspace</h2>
+<ul>
+<li>
+<p>Dans le projet <strong>ebookstore-model</strong>, supprimer les ressources <strong>soa</strong>, <strong>requirement</strong> et <strong>entity</strong></p>
+</li>
+<li>
+<p>Ouvrir le menu <code>File</code> &gt; <code>New</code> &gt; <code>Example...</code></p>
+</li>
+<li>
+<p>Filtrer le contenu pour sélectionner <code>E-BookStore</code> (sous la catégorie <code>IS Designer</code>)</p>
+</li>
+</ul>
+<p><img alt="Capture06" src="Capture06.PNG"/></p>
+<ul>
+<li>
+<p>Cliquer sur <code>Finish</code></p>
+</li>
+<li>
+<p>Copier les ressources <strong>soa</strong>, <strong>requirement</strong> et <strong>entity</strong> depuis le projet <strong>E-BookStore</strong> vers le projet <strong>ebookstore-model</strong></p>
+</li>
+</ul>
+<p><img alt="Capture08" src="Capture08.PNG"/></p>
+<h2 id="generer-le-code-de-la-couche-de-persistance">Générer le code de la couche de persistance</h2>
+<ul>
+<li>Faire un clic droit sur la ressource <code>Entity</code> puis sélectionner <code>Générateur Cali</code> &gt; <code>Génération de la couche de persistance</code></li>
+</ul>
+<p><img alt="Capture09" src="Capture09.png"/></p>
+<ul>
+<li>Le code est généré dans <strong>ebookstore-server</strong></li>
+</ul>
+<h2 id="tester-le-serveur-de-lapplication-e-bookstore">Tester le serveur de l'application E-BookStore</h2>
+<ul>
+<li>Clic droit sur la ressource <code>Entity</code> puis sélectionner <code>Générateur Cali</code> &gt; <code>Génération des scripts SQL</code></li>
+</ul>
+<p><img alt="Capture10" src="Capture10.png"/></p>
+<ul>
+<li>
+<p>Clic droit sur <code>src/test/java</code> dans le projet ebookstore-server</p>
+</li>
+<li>
+<p>Puis <code>Run As</code> &gt; <code>JUnit Test</code></p>
+</li>
+</ul>
+<p><img alt="Capture11" src="Capture11.png"/></p>
+<h2 id="generer-le-code-de-la-couche-de-service">Générer le code de la couche de service</h2>
+<ul>
+<li>Faire un clic droit sur la ressource <code>Soa</code> puis sélectionner <code>Générateur Cali</code> &gt; <code>Génération de la couche de service</code></li>
+</ul>
+<p><img alt="Capture10" src="Capture10.png"/></p>
+<h2 id="executer-le-serveur-de-lapplication-e-bookstore">Exécuter le serveur de l'application E-BookStore</h2>
+<ul>
+<li>
+<p>Clic droit sur le fichier EbookstoreBootstrap.java dans le projet <code>e-bookstore-server</code>, <code>src/main/java</code>, <code>fr.ebookstore</code> </p>
+</li>
+<li>
+<p><code>Run As</code> &gt; <code>Java Application</code></p>
+</li>
+</ul>
+<p><img alt="Capture12" src="Capture12.png"/></p>
+<ul>
+<li>Attendre qu'une ligne similaire à celle ci dessous apparaisse dans la console :</li>
+</ul>
+<p><code>2025-06-25 17:18:52 - fr.ebookstore.EbookstoreBootstrap - Started EbookstoreBootstrap in 12.924 seconds (process running for 13.853)</code></p>
+<p><img alt="Capture14" src="Capture14.png"/></p>
+<ul>
+<li>
+<p>Avec un navigateur web, appeler les services suivants : </p>
+<p><a href="http://localhost:8080/actuator/health">http://localhost:8080/actuator/health</a></p>
+<p><a href="http://localhost:8080/actuator/info">http://localhost:8080/actuator/info</a></p>
+<p><a href="http://localhost/swagger-ui">http://localhost/swagger-ui</a></p>
+<p><a href="http://localhost/api-docs">http://localhost/api-docs</a></p>
+</li>
+<li>
+<p>La page affichée à l'adresse <code>[http://localhost/swagger-ui</code>](http://localhost/swagger-ui`) présente la liste des services disponibles :</p>
+</li>
+</ul>
+<p><img alt="Capture16" src="Capture16.PNG"/></p>
+<h2 id="arreter-le-serveur-de-lapplication-e-bookstore">Arrêter le serveur de l'application E-BookStore</h2>
+<ul>
+<li>Dans la perspective debug, faire un clic droit sur le serveur dans l'onglet debug</li>
+</ul>
+<p><img alt="Capture15" src="Capture15.png"/></p>
+<ul>
+<li>Cliquer sur <code>Terminate and Remove</code></li>
+</ul>
+<p><img alt="Capture21" src="Capture21.png"/></p>
+<ul>
+<li>Retournez dans la perspective modeling</li>
+</ul>
+<p><img alt="Capture22" src="Capture22.PNG"/></p>
+<p>Félicitations, vous avez réussi à installer Pacman sur IS Designer, à générer le code d'un serveur applicatif à partir du model d'exemple E-BookStore, et à tester ce serveur !</p>
+<div class="admonition note"><p class="admonition-title">📝 Note</p><h1>Pour aller plus loin, écrire et lire un livre sur le serveur</h1>
+<h2 id="implémenter-la-méthode-getbook">Implémenter la méthode getBook</h2>
+<ul>
+<li>
+<p>Dans le fichier <code>BookServiceJpaProviderImpl.java</code></p>
+</li>
+<li>
+<p>Dans le projet <code>e-bookstore-server</code>,<code>src/main/java</code>,<code>fr.ebookstore.infra.adaptateurs.bookstore</code></p>
+</li>
+<li>
+<p>Dans la méthode <code>getBook_invoke(Long)</code></p>
+</li>
+<li>
+<p>Entre <code>// Start of user code e8eb49981e778ca44d1a019d366f69a0</code> et <code>// End of user code</code></p>
+</li>
+<li>
+<p>Remplacer la ligne de code : <code>throw new EbookstoreNotImplementedException("La méthode 'getBook' n'a pas été implémentée");</code></p>
+</li>
+<li>
+<p>Par : <code>return bookRepository.findById(bookId);</code></p>
+</li>
+</ul>
+<p><img alt="Capture23" src="Capture23.PNG"/></p>
+<h2 id="implémenter-la-méthode-createbook">Implémenter la méthode createBook</h2>
+<ul>
+<li>
+<p>Dans le fichier <code>BookServiceJpaProviderImpl.java</code></p>
+</li>
+<li>
+<p>Dans le projet <code>e-bookstore-server</code>,<code>src/main/java</code>,<code>fr.ebookstore.infra.adaptateurs.bookstore</code></p>
+</li>
+<li>
+<p>Dans la méthode <code>createBook_invoke(BookDtoImpl)</code></p>
+</li>
+<li>
+<p>Entre <code>// Start of user code e8eb49981e778ca44d1a019d366f69a0</code> et <code>// End of user code</code></p>
+</li>
+<li>
+<p>Remplacer la ligne de code : <code>throw new EbookstoreNotImplementedException("La méthode 'createBook' n'a pas été implémentée");</code></p>
+</li>
+<li>
+<p>Par :</p>
+</li>
+</ul>
+<p>BookEntityImpl entity = BookMapper.toEntity(book);</p>
+<p>return bookRepository.save(entity);</p>
+<p><img alt="Capture24" src="Capture24.PNG"/></p>
+<h2 id="tester-les-implémentations">Tester les Implémentations</h2>
+<ul>
+<li>
+<p>Redémarrer le serveur ( voir la méthode si dessus dans la catégorie "Exécuter le serveur de l'application E-BookStore" )</p>
+</li>
+<li>
+<p>Avec un navigateur web, appeler le service suivant : <a href="http://localhost/swagger-ui">http://localhost/swagger-ui</a></p>
+</li>
+<li>
+<p>Dans la catégorie <code>POST</code>, cliquer sur <code>Try it out</code></p>
+</li>
+<li>
+<p>Dans la structure Data, donner un titre, un prix, un nom d'image et un type, a votre image</p>
+</li>
+<li>Ex :</li>
+</ul>
+<pre><code>{
+"title": "One-Book",
+"price": 10,
+"image": "Blue",
+"type": "Science-Fiction"
+}
+</code></pre>
+<ul>
+<li>
+<p>Cliquer sur <code>Execute</code></p>
+</li>
+<li>
+<p>Vous devriez avoir une réponse semblable à celle ci</p>
+</li>
+</ul>
+<p><img alt="Capture25" src="Capture25.PNG"/></p>
+<ul>
+<li>
+<p>Dans la catégorie <code>Get/v1/ebookstore/book/{id}</code>, Cliquer sur <code>Try it out</code></p>
+</li>
+<li>
+<p>Dans l'identifiant du livre, écrire le numéro qui à été attribuer a votre livre dans les reponses de la catégorie <code>POST</code></p>
+</li>
+<li>
+<p>Si dans les réponses de la catégorie <code>GET</code> vous obtenez les informations correspondant au livre que vous venez de crée alors vous avez réussi !</p>
+</li>
+</ul>
+<p><img alt="Capture26" src="Capture26.PNG"/></p>
+<ul>
+<li>Vous pouvez éteindre le serveur ( voir la méthode si dessus, dans la catégorie <code>Arrêter le serveur de l'application E-BookStore</code> )</li>
+</ul></div>
+<div class="admonition tip"><p class="admonition-title">💡 Tip</p><h1>Pour aller encore plus loin !</h1>
+<ul>
+<li><a href="https://spi4j.github.io/pacman-back/">https://spi4j.github.io/pacman-back/</a></li>
+</ul></div>
+</main>
+<nav class="local-toc"><ul><li><a href="#installer-isd">Installer ISD</a></li><li><a href="#installer-lintegration-de-maven-pour-eclipse">Installer l'intégration de Maven pour Eclipse</a></li><li><a href="#installer-pacman-back-dans-isd">Installer Pacman back dans ISD</a></li><li><a href="#creer-un-projet-cali">Créer un projet Cali</a></li><li><a href="#rapatrier-le-modele-dexemple-e-booksore-dans-le-workspace">Rapatrier le modèle d'exemple E-BookSore dans le workspace</a></li><li><a href="#generer-le-code-de-la-couche-de-persistance">Générer le code de la couche de persistance</a></li><li><a href="#tester-le-serveur-de-lapplication-e-bookstore">Tester le serveur de l'application E-BookStore</a></li><li><a href="#generer-le-code-de-la-couche-de-service">Générer le code de la couche de service</a></li><li><a href="#executer-le-serveur-de-lapplication-e-bookstore">Exécuter le serveur de l'application E-BookStore</a></li><li><a href="#arreter-le-serveur-de-lapplication-e-bookstore">Arrêter le serveur de l'application E-BookStore</a></li><li><a href="#implémenter-la-méthode-getbook">Implémenter la méthode getBook</a></li><li><a href="#implémenter-la-méthode-createbook">Implémenter la méthode createBook</a></li><li><a href="#tester-les-implémentations">Tester les Implémentations</a></li></ul></nav>
+</body>
+</html>
