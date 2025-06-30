@@ -5,6 +5,6 @@ La documentation complète pour l'installation et l'utilisation de **Pacman** es
 
 👉 [https://spi4j.github.io/pacman-back](https://spi4j.github.io/pacman-back/)
 
-Une documentation pour un démarrage rapide base sur l'exemple E-BookStore est disponible à l'adresse suivante :
+Une documentation pour un démarrage rapide basé sur l'exemple E-BookStore est disponible à l'adresse suivante :
 
 👉 [https://spi4j.github.io/pacman-back/isd](https://spi4j.github.io/pacman-back/fr.pacman.doc/isd/)
