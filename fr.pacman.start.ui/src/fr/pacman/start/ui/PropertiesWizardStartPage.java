@@ -125,9 +125,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		registerWidget("cb_projectType", addComboProjectType(project2));
 		registerWidget("cb_framework", addComboFramework(project2));
 		registerWidget("cb_javaVersion", addComboJavaVersion(project2));
-
-		addDatabases(project2);
-
+		registerWidget("cb_databases", addDatabases(project2));
 		registerWidget("ck_displayReadme", addCheckBoxReadme(document1));
 		registerWidget("txt_sqlTPrefix", addTextDbTablePrefix(database2));
 		// registerWidget("txt_sqlTSpace", addTextDbTableSpace(database2));
@@ -165,7 +163,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	private void initWithDefault() {
 		_javaVersion = "17";
-		_typeProject = "xx";
+		_typeProject = "server";
 		_typeFramework = "springboot";
 		_spi4jRsCdi = "false";
 		_spi4jfetchingStrategy = "false";
@@ -285,7 +283,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * 
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 */
-	private void addDatabases(final Composite p_parent) {
+	private Composite addDatabases(final Composite p_parent) {
 		MultiSelectionContainer container = addMultiSelection(p_parent, "Base(s) de données",
 				"La (ou les) base(s) de données à utiliser pour la persistence des données de l'application"
 						+ "\nLa base de données H2 est toujours automatiquement embarquée dans le projet.");
@@ -303,6 +301,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				computeValidity();
 			}
 		});
+
+		return container.get_selected().getParent();
 	}
 
 	/**
@@ -338,13 +338,18 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	private Combo addComboProjectType(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Type ",
-				"Le type du (ou des) service(s) à exposer pour le projet de type FrontEnd.",
-				new String[] { "Exposition de services externes de type rest" }, 0);
+				"Le type du (ou des) service(s) à exposer pour le projet de type FrontEnd.", new String[] {
+						"Exposition de services externes de type Rest", "Appel de services externes de type Rest" },
+				0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(final SelectionEvent p_e) {
-				_typeProject = String.valueOf(cbx.getSelectionIndex());
+				if (cbx.getSelectionIndex() == 0)
+					_typeProject = "server";
+				if (cbx.getSelectionIndex() == 1)
+					_typeProject = "client";
+				manageCompositesActivation();
 			}
 
 			@Override
@@ -710,7 +715,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtDefault.setText("false");
 					txtDefault.setEnabled(false);
 					cbxNull.setEnabled(false);
-					txtDescription.setText("Date de mise à jour de la ligne");
+					txtDescription.setText("ndicateur de suppression logique");
 					txtDescription.setEnabled(false);
 					txtName.getParent();
 				} else if (cbx.getSelectionIndex() == 2) {
@@ -721,12 +726,12 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 					txtDefault.setText("");
 					txtDefault.setEnabled(false);
 					cbxNull.setEnabled(false);
-					txtDescription.setText("Indicateur de suppression logique");
+					txtDescription.setText("Date de mise à jour de la ligne");
 					txtDescription.setEnabled(false);
 				} else if (cbx.getSelectionIndex() == 3) {
 					txtName.setText("Xuuid");
 					txtName.setEnabled(false);
-					txtLength.setText("");
+					txtLength.setText("36");
 					txtLength.setEnabled(false);
 					txtDefault.setText("");
 					txtDefault.setEnabled(false);
@@ -809,6 +814,24 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private void completePackageName(final Text p_packageName, final Text p_projectName) {
 		p_packageName.setText(p_packageName.getText().substring(0, p_packageName.getText().indexOf(".") + 1)
 				.concat(p_projectName.getText().toLowerCase().replace("-", "_")));
+	}
+
+	/**
+	 * Activation ou désactivation des différents composites (éléments) en fonction
+	 * du type de projet sélectionné.
+	 */
+	private void manageCompositesActivation() {
+		enable(getWidget("grp_database2"));
+		enable(getWidget("grp_database3"));
+		enable(getWidget("grp_options1"));
+		enable(getWidget("cb_databases"));
+
+		if ("client".equals(_typeProject)) {
+			disable(getWidget("grp_database2"));
+			disable(getWidget("grp_database3"));
+			disable(getWidget("grp_options1"));
+			disable(getWidget("cb_databases"));
+		}
 	}
 
 	/**
@@ -895,7 +918,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * 
 	 * @return le type du projet.
 	 */
-	public String getProjectType() {
+	public String getTypeProject() {
 		return _typeProject;
 	}
 
@@ -1050,7 +1073,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdComment, "Identifiant unique universel");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdDefault, "");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdNull, "false");
-				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdSize, "");
+				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdSize, "36");
 				sqlAutoFields.put(ProjectProperties.c_sql_tableXuuIdType, "UUID");
 				sqlFields += ("," + ProjectProperties.c_sql_tableXuuId);
 			} else if (!sqlAutoField._name.getText().isEmpty() && !sqlAutoField._name.getText().isBlank()) {
@@ -1101,9 +1124,16 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public List<String> getModelCodes() {
 		List<String> models = new ArrayList<>();
-		models.add("entity");
-		models.add("requirement");
-		models.add("soa");
+
+		if ("server".equals(_typeProject)) {
+			models.add("entity");
+			models.add("requirement");
+			models.add("soa");
+		}
+
+		if ("client".equals(_typeProject)) {
+			models.add("soa");
+		}
 		return models;
 	}
 }

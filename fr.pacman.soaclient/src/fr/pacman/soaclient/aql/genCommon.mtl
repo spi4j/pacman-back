@@ -1,15 +1,16 @@
 [module genCommon(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
-[import fr::pacman::core::aql::base/]
 [import fr::pacman::soaclient::aql::file::genCommon/]
 
 [comment écriture des classes et fichiers soa client pour la partie métier de l'application cible./]
 [template public genCommon(m : soa::System)]
-  [comment implémentation des classes xtos 'entité' pour le domaine./]
+  [comment implémentation des classes xtos 'entité'./]
   [for (d | m.eAllContents(environment::DTO))]
+    [d.fileXtoImpl()/]
   [/for]
-  [comment implémentation des énumérations pour le domaine./]
-  [for (e | m.eAllContents( environment::Enumeration))]
+  [comment implémentation des énumérations./]
+  [for (e | m.eAllContents(environment::Enumeration))]
+    [e.fileEnumImpl()/]
   [/for]
 [/template]

@@ -90,7 +90,7 @@
         [comment gestion des clés étrangères./]
         [for (r : environment::Reference | fks)]
           [r.referencedEntity(e).comment().commentSingleLine()/]
-          [protected ((r.referencedType.name + r.containingType.name).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [protected (e.referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
           [r.writeAnnotationsFK(e)/]
           private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
@@ -270,7 +270,7 @@
 [comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk)./]
 [query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.isMultiple()) 
   then if (r.containedEntity(e) = e) then '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
-  + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif  + ', mappedBy = "' + e.name().apply_attributeDefault() 
+  + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif  + ', mappedBy = "' + e.referencedName(r).apply_attributeDefault() 
   + '")' else '@ManyToOne' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
   + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
   + if (r.has_metaCascadeType()) then ', ' +  r.writeCascade() else '' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' 

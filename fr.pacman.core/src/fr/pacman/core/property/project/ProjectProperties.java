@@ -40,11 +40,11 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_project_fetchingStrategy = "project.fetchingstrategy.enabled";
 	public static final String c_project_servicerequirements = "project.servicerequirements.enabled";
 	public static final String c_project_validation_config_file = "project.validation.configfile";
-	public static final String c_project_validation_init_on_error = "project.validation.init.onerror";
 	public static final String c_project_library = "project.library.enabled";
 	public static final String c_project_library_rs = "project.library.rs.enabled";
 	public static final String c_project_profiler = "project.profiler.enabled";
 	public static final String c_project_framework = "project.framework.type";
+	public static final String c_project_type = "project.type";
 
 	// public static final String c_sql_idsuffix = "sql.id.suffix.enabled";
 	public static final String c_sql_fields = "sql.table.fields";
@@ -110,7 +110,6 @@ public final class ProjectProperties extends PropertiesCategory {
 	// modifier
 	// persistance
 
-	public static final String c_deprecated_soa_usercode_params = "deprecated.soa.usercode.params";
 	public static final String c_tests_bdd_enabled = "tests.bdd.enabled";
 	public static final String c_rootfiles_generate_enabled = "application.rootfiles.generate";
 	public static final String c_ws_security_scheme_id = "ws.security.scheme.spi4id";
@@ -145,6 +144,8 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_project_framework, "spring",
 						"Type de framework pour le projet (Spring par defaut)"),
+
+				PacmanProperty.newRequired(c_project_type, "server", "Type de projet (server par defaut)"),
 
 				PacmanProperty.newRequired(c_project_version, c_noDefaultValue, "La version de l'application"),
 
@@ -223,21 +224,15 @@ public final class ProjectProperties extends PropertiesCategory {
 						"Niveau de base pour le decoupage des exigences dans le code genere (0 : aucun decoupage)"),
 
 				PacmanProperty.newRequired(c_requirement_versionningInitial, c_requirement_versionningInitialNone,
-						"Version initiale mise lors de la premiere genetration pour les tests de versionning d'exigence (\""
+						"Version initiale mise lors de la premiere generation pour les tests de versionning d'exigence (\""
 								+ "\n#" + c_requirement_versionningInitialNone + "\" : exigence non implementee ou \""
 								+ c_requirement_versionningInitialCurrent + "\" pour la version du modele)"),
 
 				PacmanProperty.newRequired(c_project_validation_config_file, "validation.xml",
 						"Fichier de configuration des regles de validation"),
 
-				PacmanProperty.newRequired(c_project_validation_init_on_error, "true",
-						"Initialisation du fichier de configuration en cas d'erreur de celui-ci"),
-
 				PacmanProperty.newRequired(c_is_spi4jConfig, "false",
 						"Utilisation du framework spi4j pour la gestion de fichiers de configuration"),
-
-				PacmanProperty.newRequired(c_deprecated_soa_usercode_params, "true",
-						"Utilisation des parametres pour le user code des methodes soa"),
 
 				PacmanProperty.newConditional(c_ws_security_scheme_id, "",
 						"Schema de securite a generer si librairie REST et plusieurs schemas (vide par defaut)"),
@@ -429,7 +424,7 @@ public final class ProjectProperties extends PropertiesCategory {
 						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupType));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXtopsupDefault));
 					}
-					
+
 					if (c_sql_tableXuuId.equals(key)) {
 						updateProperty(p_pacmanProperties.get(c_sql_tableXuuIdName));
 						updateProperty(p_pacmanProperties.get(c_sql_tableXuuIdComment));
@@ -515,11 +510,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static String get_validationConfigFile() {
 		return PropertiesHandler.getProperty(c_project_validation_config_file);
 	}
-
-	public static String is_validationInitOnError() {
-		return PropertiesHandler.getProperty(c_project_validation_init_on_error);
-	}
-
+	
 	public static String get_requirementCategoryBaseLevel(final Object p_object) {
 		return PropertiesHandler.getProperty(c_requirement_categoryBaseLevel);
 	}
@@ -570,10 +561,6 @@ public final class ProjectProperties extends PropertiesCategory {
 
 	public static String get_SQLTableSchema(final Object p_object) {
 		return PropertiesHandler.getProperty(c_sql_tableSchema);
-	}
-
-	public static String get_useDeprecatedSOAUserCodeParams() {
-		return PropertiesHandler.getProperty(c_deprecated_soa_usercode_params);
 	}
 
 	public static String use_fetchingStrategy() {
@@ -627,7 +614,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static String get_XdMajName(final Object p_object) {
 		return PropertiesHandler.getProperty(c_sql_tableXdmajName);
 	}
-	
+
 	public static String get_XuuIdName(final Object p_object) {
 		return PropertiesHandler.getProperty(c_sql_tableXuuIdName);
 	}
@@ -636,12 +623,24 @@ public final class ProjectProperties extends PropertiesCategory {
 //		return PropertiesHandler.getProperty(c_is_displayReport);
 //	}
 
+	public static String get_type(final Object p_object) {
+		return PropertiesHandler.getProperty(c_project_type);
+	}
+
 	public static String get_framework(final Object p_object) {
 		return PropertiesHandler.getProperty(c_project_framework);
 	}
 
-	public static boolean is_spring(final Object p_object) {
-		return get_framework(p_object).indexOf("spring") != -1;
+	public static boolean isSpring() {
+		return get_framework(null).indexOf("spring") != -1;
+	}
+
+	public static boolean isServerType() {
+		return "server".equals(get_type(null));
+	}
+
+	public static boolean isClientType() {
+		return "client".equals(get_type(null));
 	}
 
 	public static boolean isProfilerEnabled() {

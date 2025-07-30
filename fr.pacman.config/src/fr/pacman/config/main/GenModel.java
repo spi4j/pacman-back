@@ -42,7 +42,14 @@ public class GenModel extends PacmanGeneratorStart {
 
 	@Override
 	public String getModuleQualifiedName() {
-		return "fr::pacman::config::aql::genModel";
+
+		if (ProjectProperties.isServerType())
+			return "fr::pacman::config::aql::genModel";
+
+		if (ProjectProperties.isClientType())
+			return "fr::pacman::config::aql::client::genModel";
+
+		throw new RuntimeException("Impossible de récupérer le type de projet pour la génération.");
 	}
 
 	@Override

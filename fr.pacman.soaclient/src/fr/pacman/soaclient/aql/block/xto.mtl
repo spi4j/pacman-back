@@ -5,16 +5,54 @@
 [import fr::pacman::core::aql::base/]
 [import fr::pacman::core::aql::name::classes/]
 [import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::query::attribute/]
+[import fr::pacman::core::aql::query::eobject/]
+[import fr::pacman::core::aql::query::reference/]
 [import fr::pacman::core::aql::output::headers/]
 [import fr::pacman::core::aql::output::resources/]	
 [import fr::pacman::core::aql::output::comments/]
+[import  fr::pacman::soa::aql::block::common/]
+[import fr::pacman::core::aql::rule::attribute/]
 
 [comment écriture de l'implémentation pour l'objet métier (dto)./]
+[comment ici il n'y a pas de notion d'héritage on part uniquement du fichier swagger./]
 [template public xtoImpl(d : environment::DTO)]
   [d.classHeader(d.namePackageXtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [d.defaultImports()/]
+    import java.io.Serializable;
   [/protected]
   [d.commentClass()/]
-  public class [d.nameClassXtoImpl()/]
+  public class [d.nameClassXtoImpl()/] implements Serializable {
+    
+    private static final long serialVersionUID = 1L; // CONSTANTES
+    
+    // CONSTANTES
+    [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+    
+    [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+      [a.comment().commentSingleLine()/]
+      private [a.type()/] [a.nameAttribute()/];
+      
+    [/for]
+    
+    [comment ici pas de notion d'héritage on utilise donc pas les ...Resolved./]
+    [let rs = d.referencesFKSB()->union(d.referencesJT())]
+      [for (r : environment::Reference | rs)]
+        [r.referencedDto(d).comment().commentSingleLine()/]
+        private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+        
+      [/for]
+    
+      [d.writeGetterAndSetterForAttributes(d.attributesNoPKAndNoComputed())/]
+      [d.writeGetterAndSetterForReferences(rs, d.cmdXto())/]
+    [/let]
+    
+    // METHODES
+    [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
   }
 [/template]

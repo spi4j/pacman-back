@@ -820,7 +820,7 @@
   + any.namePackageCommonBase() + '.' + any.nameClassAnnotationTrans()/]
 
 [comment écriture de l'implémentation pour la classe de configuration des transactions jpa./]
-[template public jpaTransactionConfigurationImpl(any : ecore::EObject)]
+[template public jpaTransactionConfigImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageInfrastructureBase())/]
   [any.defaultImports()/]
   import org.springframework.context.annotation.Bean;
@@ -836,7 +836,7 @@
    * @author [any.nameAuthor()/]
    */
   @Configuration
-  class [any.nameClassJpaTransactionConfigurationImpl()/]
+  class [any.nameClassJpaTransactionConfigImpl()/]
   {
     
    /**

@@ -42,9 +42,20 @@ public class GenRoot extends PacmanGeneratorStart {
 
 	@Override
 	public String getModuleQualifiedName() {
-		if (ProjectProperties.is_spring(null))
-			return "fr::pacman::config::aql::genRootSpring";
-		return "fr::pacman::config::aql::genRootSpi4j";
+		
+		if (ProjectProperties.isServerType()) {
+			if (ProjectProperties.isSpring())
+				return "fr::pacman::config::aql::genRootSpring";
+			return "fr::pacman::config::aql::genRootSpi4j";
+		}
+		
+		if (ProjectProperties.isClientType()) {
+			if (ProjectProperties.isSpring())
+				return "fr::pacman::config::aql::client::genRootSpring";
+			return "fr::pacman::config::aql::client::genRootSpi4j";
+		}
+		
+		throw new RuntimeException("Impossible de récupérer le type de projet pour la génération.");
 	}
 
 	@Override

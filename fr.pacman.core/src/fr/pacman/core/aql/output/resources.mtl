@@ -16,7 +16,7 @@
 [query public toUri(uri : String) : String = if(uri.exists()) then uri.trim().toPath().replaceAll('\\/$', '') else '/' endif/]
 
 [comment normalisation d'un package à partir d'une chaine de caractères./]
-[query public toPackage(pkg : String) : String = pkg.replaceAll('\\.+','\\.')/]
+[query public toPackage(pkg : String) : String = pkg.replaceAll('[\\.\\s\\t]+','\\.').toLower()/]
 
 [comment normalisation d'un chemin de ressource à partir d'une chaine de caractères./]  
 [query private normalizePath(path : String) : String = path.replaceAll('/+', '/').trim()/]

@@ -42,9 +42,20 @@ public class GenCommon extends PacmanGeneratorStart {
 
 	@Override
 	public String getModuleQualifiedName() {
-		if (ProjectProperties.is_spring(null))
-			return "fr::pacman::config::aql::genCommonSpring";
-		return "fr::pacman::config::aql::genCommonSpi4j";
+		
+		if (ProjectProperties.isServerType()) {
+			if (ProjectProperties.isSpring())
+				return "fr::pacman::config::aql::genCommonSpring";
+			return "fr::pacman::config::aql::genCommonSpi4j";
+		}
+		
+		if (ProjectProperties.isClientType()) {
+			if (ProjectProperties.isSpring())
+				return "fr::pacman::config::aql::client::genCommonSpring";
+			return "fr::pacman::config::aql::client::genCommonSpi4j";
+		}
+		
+		throw new RuntimeException("Impossible de récupérer le type de projet pour la génération.");
 	}
 
 	@Override

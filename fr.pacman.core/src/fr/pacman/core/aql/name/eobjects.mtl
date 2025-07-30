@@ -37,6 +37,9 @@
 [comment retourne le nom pour un service de type soa./]
 [query public name(s : soa::Service) : String = s.name.sanitize().removeIgnoreCase(s.suffixService())/]
 
+[comment retourne le nom pour une référence./]
+[query public name(r: environment::Reference) : String = r.name.sanitize()/]
+
 [comment retourne le nom de la clé primaire d'une entitée./]
 [query public nameSimplePropertyID(e : entity::Entity) : String = e.name().safeCamelCase() + e.suffixIdPk()/]
   

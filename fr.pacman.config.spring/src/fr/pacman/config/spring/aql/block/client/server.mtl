@@ -1,0 +1,564 @@
+[module server(    'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::method/]
+[import fr::pacman::core::aql::rule::class/]
+
+[comment écriture du fichier de configuration Maven pour le sous-projet serveur (infrastructure)./]
+[template public pom (any : ecore::EObject)]
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>[any.namePackageProject()/]</groupId>
+        <artifactId>[any.nameProject()/]</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>[any.nameProjectServer()/]</artifactId>
+    <packaging>jar</packaging>
+    
+    <dependencies>
+       <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-webflux</artifactId>
+       </dependency>
+       <dependency>
+           <groupId>io.github.resilience4j</groupId>
+           <artifactId>resilience4j-spring-boot2</artifactId>
+       </dependency>
+       <!-- projet métier (domaine). -->
+       <dependency>
+         <groupId>[any.namePackageProject()/]</groupId>
+         <artifactId>[any.nameProjectCommon()/]</artifactId>
+         <version>0.0.1-SNAPSHOT</version>
+       </dependency>
+    	<!--
+    	[protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          -->
+          <!--
+    	[/protected]
+    	-->
+    </dependencies>
+    
+    <build>
+      <plugins>
+         <!-- Génération du jar executable. -->
+         <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrap()/]</mainClass>
+            </configuration>
+         </plugin>
+         
+         <!-- 
+         [protected ('plugins'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           -->
+           <!--
+         [/protected]
+         -->
+      </plugins>
+    </build>
+    
+    <!--
+    [protected ('pom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      -->
+      <!--
+    [/protected]
+    -->
+    
+    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
+    <properties>
+       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+  </project>
+[/template]
+
+[comment écriture de l'implémentation de la classe de configuration du client rest (webClient)./]
+[template public rsClientConfigImpl (any : ecore::EObject)]
+    [any.classHeader(any.namePackageRsBase())/]
+    [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      
+      import java.time.Duration;
+      import java.util.function.Function;
+      import org.springframework.beans.factory.annotation.Value;
+      import org.springframework.context.annotation.Bean;
+      import org.springframework.context.annotation.Configuration;
+      import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+      import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+      import org.springframework.web.reactive.function.client.WebClient;
+      import io.netty.channel.ChannelOption;
+      import reactor.netty.http.client.HttpClient;
+      import reactor.netty.resources.ConnectionProvider;
+    [/protected]
+    
+   /**
+    * Configuration Spring du {@link WebClient} utilisé pour interagir avec l'API.
+    *
+    * Cette classe configure un client HTTP réactif avec :
+    * <ul>
+    *   <li>Un timeout de connexion configurable</li>
+    *   <li>Un timeout de réponse configurable</li>
+    *   <li>Un pool de connexions (via {@link ConnectionProvider})</li>
+    *   <li>Des filtres de logging des requêtes et réponses HTTP</li>
+    * </ul>
+    *
+    * Les valeurs de configuration sont injectées via les propriétés :
+    * <ul>
+    *   <li><code>[any.nameProject().toLower()/].api.base-url</code></li>
+    *   <li><code>[any.nameProject().toLower()/].api.connection-timeout-ms</code> (par défaut : 5000ms)</li>
+    *   <li><code>[any.nameProject().toLower()/].api.response-timeout-ms</code> (par défaut : 10000ms)</li>
+    * </ul>
+    *
+    * @author [any.nameAuthor()/]
+    */
+    @Configuration
+    public class [any.nameClassRsClientConfigImpl()/] {
+      
+     /**
+      * URL de base de l’API (ex. {@code https://api.thetvdb.com}).
+      */
+      @Value("${[any.nameProject().toLower()/].api.base-url}")
+      private String ['base url'.apply_attributeDefault()/];
+      
+     /**
+      * Timeout de connexion TCP (en millisecondes). Par défaut : 5000ms.
+      */
+      @Value("${[any.nameProject().toLower()/].api.connection-timeout-ms:5000}")
+      private int ['connection timeout'.apply_attributeDefault()/];
+      
+     /**
+      * Timeout de lecture (en millisecondes). Par défaut : 10000ms.
+      */
+      @Value("${[any.nameProject().toLower()/].api.response-timeout-ms:10000}")
+      private int ['response timeout'.apply_attributeDefault()/]; 
+      
+     /**
+      * Fournit un {@link WebClient} configuré avec les timeouts, un pool de connexions
+      * et des filtres de log simples.
+      *
+      * @param ['builder'.apply_parameterMethodClassicIn()/] le builder Spring injecté
+      * @return une instance de {@link WebClient}
+      */
+      @Bean
+      public WebClient [(any.nameProject() + ' web client').apply_methodDefault()/](WebClient.Builder ['builder'.apply_parameterMethodClassicIn()/]) {
+         
+         ConnectionProvider ['provider'.apply_variableDefault()/] = ConnectionProvider.builder("[any.namePackageProject().toLower()/]")
+           .maxConnections(100)
+           .pendingAcquireTimeout(Duration.ofSeconds(5))
+           .build();
+          
+          HttpClient ['http client'.apply_variableDefault()/] = HttpClient.create(['provider'.apply_variableDefault()/])
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, ['connection timeout'.apply_attributeDefault()/])
+            .responseTimeout(Duration.ofMillis(['response timeout'.apply_attributeDefault()/]));
+            
+          return ['builder'.apply_parameterMethodClassicIn()/]
+            .baseUrl(['base url'.apply_attributeDefault()/])
+            .clientConnector(new ReactorClientHttpConnector(['http client'.apply_variableDefault()/]))
+            .filter(['log request'.apply_methodDefault()/]()) 
+            .filter(['log response'.apply_methodDefault()/]())
+            .build(); 
+      }
+      
+      /**
+       * Filtre de log des requêtes HTTP (méthode, URL).
+       *
+       * @return un {@link ExchangeFilterFunction}
+       */
+       private ExchangeFilterFunction ['log request'.apply_methodDefault()/]() {
+          return ExchangeFilterFunction.ofRequestProcessor(['client request'.apply_variableDefault()/] -> {
+              // Log des requêtes HTTP (en debug)
+              System.out.println("WebClient >> " + ['client request'.apply_variableDefault()/].method() 
+              + " " + ['client request'.apply_variableDefault()/].url());
+              return reactor.core.publisher.Mono.just(['client request'.apply_variableDefault()/]);
+          });
+       }
+       
+      /**
+       * Filtre de log des réponses HTTP (statut HTTP).
+       *
+       * @return un {@link ExchangeFilterFunction}
+       */
+       private ExchangeFilterFunction ['log response'.apply_methodDefault()/]() {
+          return ExchangeFilterFunction.ofResponseProcessor(['client response'.apply_variableDefault()/] -> {
+              // Log des réponses HTTP (en debug)
+              System.out.println("WebClient << " + ['client response'.apply_variableDefault()/].statusCode());
+              return reactor.core.publisher.Mono.just(['client response'.apply_variableDefault()/]);
+          });
+       }
+    }
+[/template]
+
+[comment écriture du fichier de configuration pour le client rest (webClient)./]
+[template public applicationProperties (any : ecore::EObject)]
+  [any.nameProject().toLower()/].api.base-url=https://api.thetvdb.com
+  [any.nameProject().toLower()/].api.connection-timeout-ms=5000
+  [any.nameProject().toLower()/].api.response-timeout-ms=10000
+[/template]
+
+[comment écriture de l'implémentation de la classe utilitaire du client rest (webClient)./]
+[template public rsClientHelper (any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    import java.net.URI;
+    import java.time.Duration;
+    import java.util.Map;
+    import java.util.function.Function;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.http.HttpMethod;
+    import org.springframework.http.HttpStatusCode;
+    import org.springframework.stereotype.Component;
+    import org.springframework.web.util.UriComponentsBuilder;
+    import org.springframework.web.reactive.function.client.ClientResponse;
+    import org.springframework.web.reactive.function.client.WebClient;
+    import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec;
+    import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
+    import org.springframework.web.util.UriBuilder;
+    import reactor.core.publisher.Mono;
+    
+  [/protected]
+  
+  /**
+   * Helper générique pour faciliter l'exécution de requêtes HTTP via {@link WebClient}.
+   * 
+   * Ce composant fournit une API fluide de type builder permettant de construire des appels
+   * REST flexibles avec support des headers, query parameters, corps de requête, et de 
+   * choisir entre une exécution synchrone ou réactive.
+   *
+   * <p>Exemple d'utilisation :</p>
+   * <pre>{@code
+   * String response = [any.nameClassRsClientHelper()/].builder()
+   *     .get()
+   *     .uri("/shows/123")
+   *     .queryParams(Map.of("lang", "fr"))
+   *     .headers(Map.of("Authorization", "Bearer xyz"))
+   *     .responseType(String.class)
+   *     .execute();
+   * }</pre>
+   *
+   * @Author [any.nameAuthor()/]
+   */
+  @Component
+  public class [any.nameClassRsClientHelper()/] {
+    
+    /**
+     * Client WebClient injecté par Spring, configuré pour les appels REST.
+     */
+    protected final WebClient ['web client'.apply_attributeFinal()/];
+    
+    /**
+     * Constructeur avec injection du WebClient.
+     * 
+     * @param ['web client'.apply_parameterMethodClassicIn()/] instance de WebClient fournie par Spring
+     */
+     @Autowired
+     public [any.nameClassRsClientHelper()/](final WebClient ['web client'.apply_parameterMethodClassicIn()/]) {
+       [any.prefixAffectation()/]['web client'.apply_attributeFinal()/] = ['web client'.apply_parameterMethodClassicIn()/];
+     }
+     
+     /**
+      * Crée une nouvelle instance de {@link RequestBuilder} pour construire et exécuter
+      * une requête HTTP.
+      *
+      * @return un builder prêt à configurer et exécuter une requête HTTP
+      */
+     public RequestBuilder ['builder'.apply_methodGet()/]() {
+       return new ['request builder'.apply_classDefault()/]();
+     }
+     
+     /**
+      * Classe interne de type builder fluide pour configurer des requêtes WebClient
+      * avec tous les paramètres disponibles (méthode, URI, headers, query, body...).
+      */
+     public class ['request builder'.apply_classDefault()/] {
+        
+        /**
+         * Méthode HTTP à utiliser pour la requête (GET, POST, PUT, DELETE, etc.).
+         */
+        private HttpMethod ['method'.apply_attributeDefault()/];
+        
+        /**
+         * Paramètres de chemin à insérer dans l’URI (ex : {id} -> 42).
+         * Exemple : "/users/{id}" avec "id" -> "42"
+         */
+        private Map<String, ?> ['path params'.apply_attributeDefault()/] = Map.of();
+        
+        /**
+         * URI ou chemin relatif de la ressource à appeler.
+         * Peut inclure des segments dynamiques (e.g. "/api/items/{id}").
+         */
+        private String ['uri'.apply_attributeDefault()/];
+        
+        /**
+         * En-têtes HTTP à inclure dans la requête, sous forme de paires clé/valeur.
+         * Exemple : "Authorization" -> "Bearer <token>"
+         */
+        private Map<String, String> ['headers'.apply_attributeDefault()/] = Map.of();
+        
+        /**
+         * Paramètres de requête (query parameters) à inclure dans l'URL.
+         * Exemple : "page" -> "1", "size" -> "20"
+         */
+        private Map<String, ?> ['query params'.apply_attributeDefault()/] = Map.of();
+        
+        /**
+         * Corps de la requête HTTP, applicable aux méthodes comme POST, PUT ou PATCH.
+         * Peut être null pour les méthodes ne nécessitant pas de payload.
+         */
+        private Object ['body'.apply_attributeDefault()/] = null;
+        
+        /**
+         * Type de la réponse attendue, utilisé pour la désérialisation automatique via WebClient.
+         * Exemple : MyDto.class
+         */
+        private Class<?> ['response type'.apply_attributeDefault()/];
+        
+        /** 
+         * Définit le verbe HTTP GET. 
+         */
+        public RequestBuilder get() {
+            [any.prefixAffectation()/]['method'.apply_attributeDefault()/] = HttpMethod.GET;
+            return this;
+        }
+        
+        /** 
+         * Définit le verbe HTTP POST. 
+         */
+        public RequestBuilder post() {
+            [any.prefixAffectation()/]['method'.apply_attributeDefault()/] = HttpMethod.POST;
+            return this;
+        }
+        
+        /** 
+         * Définit le verbe HTTP PUT. 
+         */
+        public RequestBuilder put() {
+            [any.prefixAffectation()/]['method'.apply_attributeDefault()/] = HttpMethod.PUT;
+            return this;
+        }
+        
+         /** 
+          * Définit le verbe HTTP DELETE. 
+          */
+        public RequestBuilder delete() {
+            [any.prefixAffectation()/]['method'.apply_attributeDefault()/] = HttpMethod.DELETE;
+            return this;
+        }
+        
+        /** 
+         * Définit le verbe HTTP PATCH. 
+         */
+        public RequestBuilder patch() {
+            [any.prefixAffectation()/]['method'.apply_attributeDefault()/] = HttpMethod.PATCH;
+            return this;
+        }
+        
+        /** 
+         * Définit le verbe HTTP OPTIONS. 
+         */
+        public RequestBuilder options() {
+            [any.prefixAffectation()/]['method'.apply_attributeDefault()/] = HttpMethod.OPTIONS;
+            return this;
+        }
+        
+        /** 
+         * Définit le verbe HTTP HEAD. 
+         */
+        public RequestBuilder head() {
+            [any.prefixAffectation()/]['method'.apply_attributeDefault()/] = HttpMethod.HEAD;
+            return this;
+        }
+        
+        /**
+         * Définit les paramètres de chemin (path variables) à insérer dans l’URI.
+         * 
+         * Les paramètres permettent de remplacer dynamiquement les portions de l’URI
+         * définies entre accolades. Exemple : pour une URI "/users/{id}", le paramètre
+         * "id" sera remplacé par la valeur fournie dans ce map.
+         *
+         * @param pathParams une map contenant les noms des paramètres de chemin et leurs valeurs
+         * @return le builder courant pour chaînage fluide
+         */
+        public RequestBuilder ['with path params'.apply_methodDefault()/](Map<String, ?> ['path params'.apply_parameterMethodClassicIn()/]) {
+        	[any.prefixAffectation()/]['path params'.apply_attributeDefault()/] = ['path params'.apply_parameterMethodClassicIn()/] != null ? 
+        	['path params'.apply_parameterMethodClassicIn()/] : Map.of();
+        	return this;
+        }
+        
+        /**
+         * Définit l'URI cible de la requête.
+         *
+         * @param uri URI ou chemin relatif à la base configurée dans WebClient
+         * @return builder modifié
+         */ 
+        public RequestBuilder ['with uri'.apply_methodDefault()/](String ['uri'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['uri'.apply_attributeDefault()/] = ['uri'.apply_parameterMethodClassicIn()/];
+            return this;
+        }
+        
+        /**
+         * Définit les en-têtes HTTP à inclure dans la requête.
+         *
+         * @param headers map des en-têtes (clé/valeur)
+         * @return builder modifié
+         */
+        public RequestBuilder ['with headers'.apply_methodDefault()/](Map<String, String> ['headers'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['headers'.apply_attributeDefault()/] = ['headers'.apply_parameterMethodClassicIn()/] != null 
+            ? ['headers'.apply_parameterMethodClassicIn()/] : Map.of();
+            return this;
+        }
+        
+        /**
+         * Définit les paramètres de requête (query string).
+         *
+         * @param queryParams map des paramètres query
+         * @return builder modifié
+         */
+        public RequestBuilder ['with query params'.apply_methodDefault()/](Map<String, ?> ['query params'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['query params'.apply_attributeDefault()/] = ['query params'.apply_parameterMethodClassicIn()/] != null 
+            ? ['query params'.apply_parameterMethodClassicIn()/] : Map.of();
+            return this;
+        }
+        
+        /**
+         * Définit le corps de la requête (pour POST, PUT, etc.).
+         *
+         * @param body objet à sérialiser en JSON ou autre
+         * @return builder modifié
+         */
+        public RequestBuilder ['with body'.apply_methodDefault()/](Object ['body'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['body'.apply_attributeDefault()/] = ['body'.apply_parameterMethodClassicIn()/];
+            return this;
+        }
+        
+        /**
+         * Définit le type attendu pour la réponse.
+         *
+         * @param <T> type de retour
+         * @param type classe du type attendu
+         * @return builder modifié
+         */
+        public <T> RequestBuilder ['with response type'.apply_methodDefault()/](Class<T> ['type'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['response type'.apply_attributeDefault()/] = ['type'.apply_parameterMethodClassicIn()/];
+            return this;
+        }
+        
+       /**
+        * Exécute la requête HTTP de manière synchrone et retourne la réponse typée.
+        *
+        * @param <T> le type de l'objet attendu en réponse
+        * @return l'objet de type {@code T} désérialisé à partir de la réponse HTTP
+        * @throws RuntimeException en cas de statut HTTP d'erreur
+        */
+        @SuppressWarnings("unchecked")
+        public <T> T ['execute'.apply_methodDefault()/]() {
+        	return (T) ['do execute'.apply_methodDefault()/](false);
+        }
+        
+       /**
+        * Exécute la requête HTTP de manière asynchrone et retourne un {@code Mono<T>} réactif.
+        *
+        * @param <T> le type de l'objet attendu en réponse
+        * @return un {@code Mono<T>} encapsulant la réponse typée
+        * @throws RuntimeException en cas de statut HTTP d'erreur (émis dans le flux)
+        */
+        @SuppressWarnings("unchecked")
+        public <T> Mono<T> ['execute async'.apply_methodDefault()/]() {
+        	return (Mono<T>) ['do execute'.apply_methodDefault()/](true);
+        }
+        
+       /**
+        * Méthode interne commune pour exécuter la requête HTTP en mode synchrone ou asynchrone.
+        *
+        * @param ['async'.apply_parameterMethodClassicIn()/] {@code true} pour un appel réactif (asynchrone), {@code false} pour bloquant (synchrone)
+        * @return la réponse HTTP soit comme {@code Mono<T>} (asynchrone), soit comme instance directe de {@code T} (synchrone)
+        * @throws RuntimeException si la réponse HTTP indique une erreur
+        */
+        public Object ['do execute'.apply_methodDefault()/](final boolean ['async'.apply_parameterMethodClassicIn()/]) {
+            WebClient.RequestBodySpec bodySpec = webClient.method(method).uri(buildUri(['uri'.apply_attributeDefault()/]
+            , ['path params'.apply_attributeDefault()/]
+            , ['query params'.apply_attributeDefault()/]));
+            
+            WebClient.RequestHeadersSpec<?> requestSpec = (['body'.apply_attributeDefault()/] != null)
+                    ? bodySpec.headers(http -> ['headers'.apply_attributeDefault()/].forEach(http::set))
+                    .bodyValue(['body'.apply_attributeDefault()/])
+                    : bodySpec.headers(http -> ['headers'.apply_attributeDefault()/].forEach(http::set));
+                
+             Mono<?> responseMono = requestSpec
+                .retrieve()
+                .onStatus(HttpStatusCode::isError, [any.nameClassRsClientHelper()/].this::handleError)
+                .bodyToMono(['response type'.apply_attributeDefault()/]);
+               
+            return ['async'.apply_parameterMethodClassicIn()/] ? responseMono : responseMono.block();
+        }
+    }
+   
+    /**
+     * Construit une fonction {@link Function} permettant de générer une URI complète,
+     * en remplaçant les variables de chemin ({...}) par leurs valeurs, et en ajoutant
+     * les paramètres de requête (query string).
+     *
+     * @param ['uri template'.apply_parameterMethodClassicIn()/] URI contenant éventuellement des variables de chemin (ex : "/api/items/{itemId}")
+     * @param ['path params'.apply_parameterMethodClassicIn()/]  map des variables de chemin à injecter dans l’URI (clé → valeur)
+     * @param ['query params'.apply_parameterMethodClassicIn()/] map des paramètres de requête à ajouter dans la query string (clé → valeur)
+     * @return une fonction {@code UriBuilder -> URI} à utiliser dans les appels WebClient
+     */
+     private URI ['build uri'.apply_methodDefault()/](String ['uri template'.apply_parameterMethodClassicIn()/], 
+         Map<String, ?> ['path params'.apply_parameterMethodClassicIn()/], Map<String, ?> ['query params'.apply_parameterMethodClassicIn()/]) {
+         UriComponentsBuilder ['builder'.apply_variableDefault()/] = UriComponentsBuilder.fromUriString(['uri template'.apply_parameterMethodClassicIn()/]);
+         
+        if (['query params'.apply_parameterMethodClassicIn()/] != null) {
+           ['query params'.apply_parameterMethodClassicIn()/].forEach(['builder'.apply_variableDefault()/]::queryParam);
+         }
+         
+        // On remplace les path variables ici (par exemple : /items/{id})
+        URI ['uri'.apply_variableDefault()/] = ['builder'.apply_variableDefault()/]
+          .buildAndExpand(['path params'.apply_parameterMethodClassicIn()/] != null 
+          ? convertToStringMap(['path params'.apply_parameterMethodClassicIn()/]) : Map.of()).toUri();
+        return ['uri'.apply_variableDefault()/];
+    }
+    
+    private Map<String, String> convertToStringMap(Map<String, ?> source) {
+        if (source == null) return Map.of();
+        return source.entrySet().stream()
+            .filter(e -> e.getKey() != null && e.getValue() != null)
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> e.getValue().toString()
+        ));
+    }
+     
+    /**
+     * Gestionnaire d’erreur HTTP : convertit une réponse d’erreur en exception
+     * RuntimeException.
+     * 
+     * @param response réponse client HTTP contenant le statut d’erreur
+     * @return Mono d’exception avec message d’erreur
+     */
+     private Mono<? extends Throwable> ['handle error'.apply_methodDefault()/](ClientResponse ['response'.apply_parameterMethodClassicIn()/]) {
+       return response.bodyToMono(String.class)
+         .map(['body'.apply_parameterMethodClassicIn()/] -> new RuntimeException("Erreur HTTP " 
+          + ['response'.apply_parameterMethodClassicIn()/].statusCode() + ": " + ['body'.apply_parameterMethodClassicIn()/]));
+     }
+  }
+[/template]

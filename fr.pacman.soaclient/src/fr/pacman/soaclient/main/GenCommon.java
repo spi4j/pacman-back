@@ -36,7 +36,7 @@ public class GenCommon extends PacmanGenerator {
 
 	@Override
 	public String getModuleQualifiedName() {
-		if (ProjectProperties.is_spring(null))
+		if (ProjectProperties.isSpring())
 			return "fr::pacman::soaclient::aql::genCommonSpring";
 		return "fr::pacman::soaclient::aql::genCommonSpi4j";
 	}

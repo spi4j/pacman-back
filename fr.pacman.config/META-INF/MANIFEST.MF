@@ -16,5 +16,6 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Export-Package: fr.pacman.config.aql, 
+ fr.pacman.config.aql.client,
  fr.pacman.config.main
 

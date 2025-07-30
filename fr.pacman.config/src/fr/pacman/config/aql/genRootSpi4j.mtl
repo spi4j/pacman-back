@@ -2,6 +2,8 @@
 						extends fr::pacman::config::aql::genRoot/]
 
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
+[comment enlever ces imports suite a correction bug./]
+[comment enlever ces imports suite a correction bug./]
 
 [comment @main/]
 [comment écriture de l'ensemble de la configuration de base pour le projet principal (conteneur)./]

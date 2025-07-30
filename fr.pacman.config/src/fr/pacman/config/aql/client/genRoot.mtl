@@ -1,0 +1,6 @@
+[module genRoot(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[comment ras pour l'instant./]
+[template public genRootConfig(r : overview::Root)]
+  [comment ras pour l'instant./]
+[/template]

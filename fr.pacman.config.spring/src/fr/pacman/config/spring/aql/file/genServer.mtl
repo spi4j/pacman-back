@@ -100,9 +100,9 @@
 [/template]
 
 [comment écriture de la classe de configuration pour les transactions jpa./]
-[template public fileJpaTransactionConfigurationImpl(any : ecore::EObject)]
-  [file (any.nameClassJpaTransactionConfigurationImpl().toFileJava(any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
-    [any.jpaTransactionConfigurationImpl()/]
+[template public fileJpaTransactionConfigImpl(any : ecore::EObject)]
+  [file (any.nameClassJpaTransactionConfigImpl().toFileJava(any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
+    [any.jpaTransactionConfigImpl()/]
   [/file]
 [/template]
 

@@ -13,17 +13,25 @@
 [import fr::pacman::core::service::DatabaseUtils/]
 [import fr::pacman::core::service::InheritanceUtils/]
 
-[comment liste des requêtes possibles au niveau des références pour les entités./]
+[comment liste des requêtes possibles au niveau des références pour les entités. 
 
-[comment retourne le nom pour l'attribut en provenance de la référence./]
+         Pour l'obtention du nom de l'objet référencé, dans le deuxième cas on ne peut 
+         se contenter du nom de l'objet il faut aussi le concaténer avec celui de la relation.
+         Ceci pour un cas particulier ou, entre deux entités (ou dtos) on a plusieurs relations 
+         (0,*) ou (1,*), pour la fk inverse il y aurait alors des duplicates. L'objet qui a 
+         la navigabilté récupère donc le nom de la relation et l'objet d'ou part la navigabilité 
+         à le nom de l'objet + celui de la relation. Dans tous les cas cela permet une meilleure 
+         lisibilité./]
+
+[comment retourne le nom pour l'attribut en provenance de la référence (pas de name pour StructuredType)./]
 [query public referencedName(e : entity::Entity, r : environment::Reference) : String = 
-	if(r.isReferenceName(e)) then r.name else e.name() endif/]
+	if(r.isReferenceName(e)) then r.name() else e.name() + '_' + r.name() endif/]
 
-[comment retourne le nom pour l'attribut en provenance de la référence./]
+[comment retourne le nom pour l'attribut en provenance de la référence (pas de name pour StructuredType)./]
 [query public referencedName(d : environment::DTO, r : environment::Reference) : String = 
-	if(r.isReferenceName(d)) then r.name else d.name() endif/]
+	if(r.isReferenceName(d)) then r.name() else d.name() + '_' + r.name() endif/]
 
-[comment vérifie si le type référence implique que l'on doit prendre le nom de la référence et non celui de l'attribut./]
+[comment vérifie si le type référencé implique que l'on doit prendre le nom de la référence et non celui de l'attribut./]
 [query private isReferenceName(r : environment::Reference, st : environment::StructuredType) : Boolean = 
   r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> st) or r.isRecursive()/]
   
@@ -131,14 +139,11 @@
 
 [comment retourne les références simples niveau entité (FK) : 
 		- relations unidirectionnelles et récursives (0,1)(1)
-		- relations bidirectionnelles (0,*)(1,*) 
 		- relations unidirectionnelles (0,*)(1,*) inversées (A->B devient B->A)
 		-> pour scripts sql et spi4j uniquement./]
 [query public referencesFK(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
 	st.references
 	->select(o | (o.oppositeOf = null 
-		and not o.isMultiple()) 
-		or (not (o.oppositeOf = null) 
 		and not o.isMultiple()))					
 	->union(st.eContainer(entity::Root).eAllContents(environment::Reference)
 	->select(o | o.oppositeOf = null 

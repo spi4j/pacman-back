@@ -36,7 +36,7 @@ public class GenServer extends PacmanGenerator {
 
 	@Override
 	public String getModuleQualifiedName() {
-		if (ProjectProperties.is_spring(null))
+		if (ProjectProperties.isSpring())
 			return "fr::pacman::entity::aql::genServerSpring";
 		return "fr::pacman::entity::aql::genServerSpi4j";
 	}

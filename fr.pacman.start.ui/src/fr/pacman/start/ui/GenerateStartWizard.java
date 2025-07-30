@@ -163,17 +163,23 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		properties.put(ProjectProperties.c_project_package, _pageOne.getPackageName());
 		properties.put(ProjectProperties.c_project_author, _pageOne.getAuthorName());
 		properties.put(ProjectProperties.c_project_java_version, _pageOne.getJavaVersion());
-		properties.put(ProjectProperties.c_requirement_categoryBaseLevel, _pageOne.getRequirementLevel());
-		properties.put(ProjectProperties.c_requirement_prefix, _pageOne.getRequirementPrefix());
-		properties.put(ProjectProperties.c_requirement_versionningInitial, _pageOne.getRequirementInitVersion());
-		properties.put(ProjectProperties.c_sql_tablePrefix, _pageOne.getSqlTablePrefix());
-		properties.put(ProjectProperties.c_sql_tableSchema, _pageOne.getSqlTableSchema());
 		properties.put(ProjectProperties.c_project_framework, _pageOne.getTypeFramework());
-		properties.put(ProjectProperties.c_project_crud, _pageOne.getProjectCrud());
-		properties.put(ProjectProperties.c_project_fetchingStrategy, _pageOne.getSpi4jfetchingStrategy());
-		properties.put(ProjectProperties.c_project_security, _pageOne.getSpi4jSecurity());
-		properties.put(ProjectProperties.c_project_databases, _pageOne.getDatabases());
-		properties.putAll(_pageOne.getsqlAutoFields());
+		properties.put(ProjectProperties.c_project_type, _pageOne.getTypeProject());
+
+		if ("server".equals(_pageOne.getTypeProject())) {
+			properties.put(ProjectProperties.c_requirement_categoryBaseLevel, _pageOne.getRequirementLevel());
+			properties.put(ProjectProperties.c_requirement_prefix, _pageOne.getRequirementPrefix());
+			properties.put(ProjectProperties.c_requirement_versionningInitial, _pageOne.getRequirementInitVersion());
+			properties.put(ProjectProperties.c_sql_tablePrefix, _pageOne.getSqlTablePrefix());
+			properties.put(ProjectProperties.c_sql_tableSchema, _pageOne.getSqlTableSchema());
+			properties.put(ProjectProperties.c_project_crud, _pageOne.getProjectCrud());
+			properties.put(ProjectProperties.c_project_fetchingStrategy, _pageOne.getSpi4jfetchingStrategy());
+			properties.put(ProjectProperties.c_project_security, _pageOne.getSpi4jSecurity());
+			properties.put(ProjectProperties.c_project_databases, _pageOne.getDatabases());
+			properties.put(ProjectProperties.c_project_type, _pageOne.getTypeProject());
+			properties.putAll(_pageOne.getsqlAutoFields());
+		}
+		
 		return properties;
 	}
 
@@ -276,7 +282,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	private void addSwaggerUiToProject(final SubMonitor p_monitor, final IProject p_project)
 			throws CoreException, IOException {
 
-		if (!ProjectProperties.is_spring(p_project)) {
+		if (!ProjectProperties.isSpring()) {
 			File target = new File((p_project).getLocation().toString() + File.separator
 					+ ProjectProperties.get_projectServerName(null) + c_swaggerUiFolder);
 			SwaggerUtils swaggerUtils = new SwaggerUtils(Activator.getDefault().getLog());
@@ -379,13 +385,13 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 		String projectModelName = p_project.getName() + "-model";
 		IProject project = root.getProject(projectModelName);
 		File pom = new File(project.getLocation() + File.separator + "pom.xml");
-		
+
 		if (!pom.isFile()) {
 			p_monitor.setTaskName("Ajout de la nature EMF au projet de modélisation  - Tentative : " + p_cpt + "/5");
 			Thread.sleep(5000);
 			addEMFNatureToProjectModel(p_monitor, p_project, p_cpt + 1);
 		}
-		
+
 		SiriusUtil.addModelingResources(p_monitor, project, _pageOne.getProjectName(), _pageOne.getModelCodes());
 	}
 

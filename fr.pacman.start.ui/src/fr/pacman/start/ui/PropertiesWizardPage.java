@@ -103,21 +103,40 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 	 * @param p_enable 'true' pour une demande d'activation, sinon 'false'.
 	 */
 	@SuppressWarnings("unchecked")
-	void setEnabled(final T p_widget, final boolean p_enable) {
+	private void enable(final T p_widget, final boolean p_enable) {
 		if (p_widget instanceof Composite) {
 			for (Control control : ((Composite) p_widget).getChildren()) {
 				if (control instanceof Composite)
-					setEnabled((T) control, p_enable);
-				control.setEnabled(p_enable);
+					enable((T) control, p_enable);
+				if (!(control instanceof Label))
+					control.setEnabled(p_enable);
 				if (control instanceof Button)
 					((Button) control).setSelection(false);
 			}
 			return;
 		}
 		p_widget.setEnabled(p_enable);
-		((Label) p_widget.getData()).setEnabled(p_enable);
+		// ((Label) p_widget.getData()).setEnabled(p_enable);
 		if (p_widget instanceof Button)
 			((Button) p_widget).setSelection(false);
+	}
+
+	/**
+	 * Demande l'activation pour un élément.
+	 * 
+	 * @param p_widget l'élément ou le groupe d'éléments à activer.
+	 */
+	void enable(final T p_widget) {
+		enable(p_widget, true);
+	}
+
+	/**
+	 * Demande la désactivation pour un élément.
+	 * 
+	 * @param p_widget l'élément ou le groupe d'éléments à désactiver.
+	 */
+	void disable(final T p_widget) {
+		enable(p_widget, false);
 	}
 
 	void setVisible(final T p_widget, final boolean p_enable) {

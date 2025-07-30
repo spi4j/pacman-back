@@ -15,6 +15,9 @@
 [comment retourne le nom pour les interfaces des classes de mapping./]
 [comment query public nameClassEntityMapperItf(e : entity::Entity) : String = (e.name() + e.suffixMapper()).apply_classInterface()/]
 
+[comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
+[query public nameClassRsClientConfigImpl(any : ecore::EObject) : String = (any.nameProject() + ' web client config').apply_classImplem()/]
+
 [comment retourne le nom pour l'implémentation du service de santé de l'application./]
 [query public nameClassRsServiceHealthImpl  (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classImplem()/]
   
@@ -68,6 +71,12 @@
   
 [comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
 [query public nameClassRsServiceImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation d'une classe de service client soa (webClient)./]  
+[query public nameClassRsClientImpl(s : soa::Service) : String = (s.name() + ' web client').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation de la classe abstraite de service client soa (webClient)./]  
+[query public nameClassRsClientHelper(any : ecore::EObject) : String = (any.nameProject() + ' web client helper').apply_classDefault()/]
 
 [comment retourne le nom pour l'implémentation du contrôleur servant à l'authentification (apikey , http basic)./]
 [query public nameClassRsServiceTokenImpl(any : ecore::EObject) : String = (any.nameProject() + ' jwt token controller').apply_classImplem()/]
@@ -200,7 +209,7 @@
 [comment retourne le nom de la classe gestion aspect des transactions jpa./][query public nameClassJpaTransactionServiceAspectImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transactional service aspect').apply_classDefault()/]
   
 [comment retourne le nom de la classe de configuration des transactions jpa./]
-[query public nameClassJpaTransactionConfigurationImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transactional configuration').apply_classDefault()/]
+[query public nameClassJpaTransactionConfigImpl(any : ecore::EObject) : String = (any.get_projectName() + ' transactional configuration').apply_classDefault()/]
 
 [comment retourne le nom de la classe pour la configuration de la sécurité dans le cadre des services rest./]
 [query public nameClassRsSecurityConfigImpl(any : ecore::EObject) : String = (any.get_projectName() + ' security config').apply_classDefault()/]

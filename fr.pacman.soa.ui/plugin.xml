@@ -20,7 +20,7 @@
             <command
                   commandId="fr.pacman.soa.ui.commands.SoaGeneratorCommand"
                   id="fr.pacman.soa.ui.commands.SoaGeneratorCommand" 
-                  label="Génération de la couche de service">
+                  label="Génération du fournisseur pour les services">
                <visibleWhen
                      checkEnabled="false">
                   <with

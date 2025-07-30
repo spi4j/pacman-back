@@ -1,0 +1,630 @@
+[module server(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::variable/]
+[import fr::pacman::core::aql::rule::method/]
+
+[comment écriture du fichier de configuration Maven pour le sous-projet serveur (infrastructure)./]
+[template public pom (any : ecore::EObject)]
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>[any.namePackageProject()/]</groupId>
+        <artifactId>[any.nameProject()/]</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>[any.nameProjectServer()/]</artifactId>
+    <packaging>jar</packaging>
+    
+    <dependencies>
+       <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-webflux</artifactId>
+       </dependency>
+       <dependency>
+           <groupId>io.github.resilience4j</groupId>
+           <artifactId>resilience4j-spring-boot2</artifactId>
+       </dependency>
+       <!-- projet métier (domaine). -->
+       <dependency>
+         <groupId>[any.namePackageProject()/]</groupId>
+         <artifactId>[any.nameProjectCommon()/]</artifactId>
+         <version>0.0.1-SNAPSHOT</version>
+       </dependency>
+    	<!--
+    	[protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          -->
+          <!--
+    	[/protected]
+    	-->
+    </dependencies>
+    
+    <build>
+      <plugins>
+         <!-- Génération du jar executable. -->
+         <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrap()/]</mainClass>
+            </configuration>
+         </plugin>
+         
+         <!-- 
+         [protected ('plugins'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           -->
+           <!--
+         [/protected]
+         -->
+      </plugins>
+    </build>
+    
+    <!--
+    [protected ('pom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      -->
+      <!--
+    [/protected]
+    -->
+    
+    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
+    <properties>
+       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+  </project>
+[/template]
+
+[comment écriture de l'implémentation de la classe de configuration du client rest (webClient)./]
+[template public rsClientConfigImpl (any : ecore::EObject)]
+    [any.classHeader(any.namePackageRsBase())/]
+    [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      
+      import java.time.Duration;
+      import java.util.function.Function;
+      import org.springframework.beans.factory.annotation.Value;
+      import org.springframework.context.annotation.Bean;
+      import org.springframework.context.annotation.Configuration;
+      import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+      import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+      import org.springframework.web.reactive.function.client.WebClient;
+      import io.netty.channel.ChannelOption;
+      import reactor.netty.http.client.HttpClient;
+      import reactor.netty.resources.ConnectionProvider;
+    [/protected]
+    
+   /**
+    * Configuration Spring du {@link WebClient} utilisé pour interagir avec l'API.
+    *
+    * Cette classe configure un client HTTP réactif avec :
+    * <ul>
+    *   <li>Un timeout de connexion configurable</li>
+    *   <li>Un timeout de réponse configurable</li>
+    *   <li>Un pool de connexions (via {@link ConnectionProvider})</li>
+    *   <li>Des filtres de logging des requêtes et réponses HTTP</li>
+    * </ul>
+    *
+    * Les valeurs de configuration sont injectées via les propriétés :
+    * <ul>
+    *   <li><code>[any.nameProject().toLower()/].api.base-url</code></li>
+    *   <li><code>[any.nameProject().toLower()/].api.connection-timeout-ms</code> (par défaut : 5000ms)</li>
+    *   <li><code>[any.nameProject().toLower()/].api.response-timeout-ms</code> (par défaut : 10000ms)</li>
+    * </ul>
+    *
+    * @author [any.nameAuthor()/]
+    */
+    @Configuration
+    public class [any.nameClassRsClientConfigImpl()/] {
+      
+     /**
+      * URL de base de l’API (ex. {@code https://api.thetvdb.com}).
+      */
+      @Value("${[any.nameProject().toLower()/].api.base-url}")
+      private String ['base url'.apply_attributeDefault()/];
+      
+     /**
+      * Timeout de connexion TCP (en millisecondes). Par défaut : 5000ms.
+      */
+      @Value("${[any.nameProject().toLower()/].api.connection-timeout-ms:5000}")
+      private int ['connection timeout'.apply_attributeDefault()/];
+      
+     /**
+      * Timeout de lecture (en millisecondes). Par défaut : 10000ms.
+      */
+      @Value("${[any.nameProject().toLower()/].api.response-timeout-ms:10000}")
+      private int ['response timeout'.apply_attributeDefault()/]; 
+      
+     /**
+      * Fournit un {@link WebClient} configuré avec les timeouts, un pool de connexions
+      * et des filtres de log simples.
+      *
+      * @param ['builder'.apply_parameterMethodClassicIn()/] le builder Spring injecté
+      * @return une instance de {@link WebClient}
+      */
+      @Bean
+      public WebClient [(any.nameProject() + ' web client').apply_methodDefault()/](WebClient.Builder ['builder'.apply_parameterMethodClassicIn()/]) {
+         
+         ConnectionProvider ['provider'.apply_variableDefault()/] = ConnectionProvider.builder("[any.namePackageProject().toLower()/]")
+           .maxConnections(100)
+           .pendingAcquireTimeout(Duration.ofSeconds(5))
+           .build();
+          
+          HttpClient ['http client'.apply_variableDefault()/] = HttpClient.create(['provider'.apply_variableDefault()/])
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, ['connection timeout'.apply_attributeDefault()/])
+            .responseTimeout(Duration.ofMillis(['response timeout'.apply_attributeDefault()/]));
+            
+          return ['builder'.apply_parameterMethodClassicIn()/]
+            .baseUrl(['base url'.apply_attributeDefault()/])
+            .clientConnector(new ReactorClientHttpConnector(['http client'.apply_variableDefault()/]))
+            .filter(['log request'.apply_methodDefault()/]()) 
+            .filter(['log response'.apply_methodDefault()/]())
+            .build(); 
+      }
+      
+      /**
+       * Filtre de log des requêtes HTTP (méthode, URL).
+       *
+       * @return un {@link ExchangeFilterFunction}
+       */
+       private ExchangeFilterFunction ['log request'.apply_methodDefault()/]() {
+          return ExchangeFilterFunction.ofRequestProcessor(['client request'.apply_variableDefault()/] -> {
+              // Log des requêtes HTTP (en debug)
+              System.out.println("WebClient >> " + ['client request'.apply_variableDefault()/].method() 
+              + " " + ['client request'.apply_variableDefault()/].url());
+              return reactor.core.publisher.Mono.just(['client request'.apply_variableDefault()/]);
+          });
+       }
+       
+      /**
+       * Filtre de log des réponses HTTP (statut HTTP).
+       *
+       * @return un {@link ExchangeFilterFunction}
+       */
+       private ExchangeFilterFunction ['log response'.apply_methodDefault()/]() {
+          return ExchangeFilterFunction.ofResponseProcessor(['client response'.apply_variableDefault()/] -> {
+              // Log des réponses HTTP (en debug)
+              System.out.println("WebClient << " + ['client response'.apply_variableDefault()/].statusCode());
+              return reactor.core.publisher.Mono.just(['client response'.apply_variableDefault()/]);
+          });
+       }
+    }
+[/template]
+
+[comment écriture du fichier de configuration pour le client rest (webClient)./]
+[template public applicationProperties (any : ecore::EObject)]
+  [any.nameProject().toLower()/].api.base-url=https://api.thetvdb.com
+  [any.nameProject().toLower()/].api.connection-timeout-ms=5000
+  [any.nameProject().toLower()/].api.response-timeout-ms=10000
+[/template]
+
+[comment écriture de l'implémentation de la classe utilitaire du client rest (webClient)./]
+[template public rsClientHelper (any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [any.defaultImports()/]
+    import java.net.URI;
+    import java.util.Map;
+    import java.util.function.Function;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.stereotype.Component;
+    import org.springframework.web.reactive.function.client.ClientResponse;
+    import org.springframework.web.reactive.function.client.WebClient;
+    import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec;
+    import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
+    import org.springframework.web.util.UriBuilder;
+    import reactor.core.publisher.Mono;
+  [/protected]
+  
+  /**
+   * Helper pour effectuer des requêtes HTTP REST avec Spring WebClient.
+   * 
+   * Cette classe fournit deux types d’API pour effectuer les requêtes :
+   * <ul>
+   * <li>des méthodes synchrones bloquantes qui retournent directement l'objet de
+   * réponse</li>
+   * <li>des méthodes réactives non bloquantes qui retournent un {@link Mono} de
+   * l'objet de réponse</li>
+   * </ul>
+   * 
+   * Le helper gère aussi la construction des URI avec paramètres et la gestion
+   * d’erreur HTTP.
+   */
+  @Component
+  public class [any.nameClassRsClientHelper()/] {
+    
+    /**
+     * Client WebClient injecté par Spring, configuré pour les appels REST.
+     */
+    protected final WebClient ['web client'.apply_attributeFinal()/];
+    
+    /**
+     * Constructeur avec injection du WebClient.
+     * 
+     * @param ['web client'.apply_parameterMethodClassicIn()/] instance de WebClient fournie par Spring
+     */
+     @Autowired
+     public [any.nameClassRsClientHelper()/](final WebClient ['web client'.apply_parameterMethodClassicIn()/]) {
+       [any.prefixAffectation()/]['web client'.apply_attributeFinal()/] = ['web client'.apply_parameterMethodClassicIn()/];
+     }
+   
+    /**
+     * Retourne le client WebClient utilisé par ce helper.
+     * 
+     * @return WebClient configuré
+     */
+    public WebClient ['client'.apply_methodGet()/]() {
+      return ['web client'.apply_attributeFinal()/];
+    }
+    
+    /**
+     * Effectue une requête HTTP GET bloquante.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI relative ou absolue de la ressource
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP à ajouter à la requête
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Classe de la réponse pour désérialisation
+     * @return l’objet désérialisé de type T
+     */
+     public <T> T get(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequest(wc -> wc.get().uri(['uri'.apply_parameterMethodClassicIn()/]), 
+         ['headers'.apply_parameterMethodClassicIn()/], null, ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+     /**
+       * Effectue une requête HTTP GET bloquante.
+       * 
+       * @param <T>          Type de la réponse attendue
+       * @param ['uri'.apply_parameterMethodClassicIn()/]          URI relative ou absolue de la ressource
+       * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP à ajouter à la requête
+       * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres à ajouter dans la requête
+       * @param ['response type'.apply_parameterMethodClassicIn()/] Classe de la réponse pour désérialisation
+       * @return l’objet désérialisé de type T
+       */
+     public <T> T get(String ['uri'.apply_parameterMethodClassicIn()/], 
+        Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+        Map<String, String> ['query params'.apply_parameterMethodClassicIn()/], 
+        Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+         return executeRequest(wc -> wc.get().uri(buildUri(['uri'.apply_parameterMethodClassicIn()/], 
+           ['query params'.apply_parameterMethodClassicIn()/])), 
+           ['headers'.apply_parameterMethodClassicIn()/], null, ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+    
+    /**
+     * Effectue une requête HTTP DELETE bloquante.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP à ajouter
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return la réponse désérialisée
+     */
+     public <T> T delete(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequest(wc -> wc.delete().uri(['uri'.apply_parameterMethodClassicIn()/]), 
+         ['headers'.apply_parameterMethodClassicIn()/], null, ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+    
+    /**
+     * Effectue une requête HTTP POST bloquante avec un corps.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['body'.apply_parameterMethodClassicIn()/]         Objet à envoyer dans le corps de la requête
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP à ajouter
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return la réponse désérialisée
+     */
+     public <T> T post(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Object ['body'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequest(wc -> wc.post().uri(['uri'.apply_parameterMethodClassicIn()/]), 
+         ['headers'.apply_parameterMethodClassicIn()/], ['body'.apply_parameterMethodClassicIn()/], 
+         ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+    
+    /**
+     * Effectue une requête HTTP PUT bloquante avec un corps.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['body'.apply_parameterMethodClassicIn()/]         Objet à envoyer dans le corps de la requête
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP à ajouter
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return la réponse désérialisée
+     */
+     public <T> T put(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Object ['body'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequest(wc -> wc.put().uri(['uri'.apply_parameterMethodClassicIn()/]), 
+         ['headers'.apply_parameterMethodClassicIn()/], ['body'.apply_parameterMethodClassicIn()/], 
+         ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+    
+    /**
+     * Effectue une requête HTTP HEAD bloquante avec paramètres de requête.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres query à ajouter à l’URI
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return la réponse désérialisée
+     */
+     public <T> T head(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['query params'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequest(wc -> wc.head().uri(['build uri'.apply_methodDefault()/](['uri'.apply_parameterMethodClassicIn()/], 
+         ['query params'.apply_parameterMethodClassicIn()/])), ['headers'.apply_parameterMethodClassicIn()/], null, 
+         ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+  	/**
+     * Effectue une requête HTTP OPTIONS bloquante avec paramètres de requête.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres query
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return la réponse désérialisée
+     */
+     public <T> T options(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['query params'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequest(wc -> wc.method(org.springframework.http.HttpMethod.OPTIONS)
+         .uri(['build uri'.apply_methodDefault()/](['uri'.apply_parameterMethodClassicIn()/], 
+         ['query params'.apply_parameterMethodClassicIn()/])), ['headers'.apply_parameterMethodClassicIn()/], null, 
+         ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+    /**
+     * Méthode interne pour exécuter la requête bloquante avec gestion des headers
+     * et corps.
+     * 
+     * @param <T>            Type de la réponse
+     * @param ['request builder'.apply_parameterMethodClassicIn()/] Fonction pour construire la requête à partir du
+     *                       WebClient
+     * @param ['headers'.apply_parameterMethodClassicIn()/]        En-têtes HTTP
+     * @param ['body'.apply_parameterMethodClassicIn()/]           Corps de la requête (peut être null)
+     * @param ['response type'.apply_parameterMethodClassicIn()/]   Classe de la réponse
+     * @return réponse désérialisée de type T
+     */
+     private <T> T executeRequest(Function<WebClient, RequestHeadersSpec<?>> ['request builder'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/],
+        Object ['body'.apply_parameterMethodClassicIn()/], Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+         
+        WebClient.RequestHeadersSpec<?> ['request spec'.apply_variableDefault()/];
+        
+        if (['body'.apply_parameterMethodClassicIn()/] != null) {
+          RequestBodySpec ['body spec'.apply_variableDefault()/] = (RequestBodySpec) ['request builder'.apply_parameterMethodClassicIn()/]
+            .apply(['web client'.apply_attributeFinal()/]);
+          ['request spec'.apply_variableDefault()/] = ['body spec'.apply_variableDefault()/].headers(http -> ['headers'.apply_parameterMethodClassicIn()/].forEach(http::set))
+            .bodyValue(['body'.apply_parameterMethodClassicIn()/]);
+        } else {
+          ['request spec'.apply_variableDefault()/] = ['request builder'.apply_parameterMethodClassicIn()/].apply(['web client'.apply_attributeFinal()/])
+            .headers(http -> ['headers'.apply_parameterMethodClassicIn()/].forEach(http::set));
+        }
+        
+        return ['request spec'.apply_variableDefault()/].retrieve()
+          .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), this::['handle error'.apply_methodDefault()/])
+          .bodyToMono(['response type'.apply_parameterMethodClassicIn()/]).block(); // Bloque pour une version synchrone
+     }
+     
+    /**
+     * Effectue une requête HTTP GET non bloquante (réactive).
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres à ajouter dans la requête
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Classe de la réponse
+     * @return Mono émettant la réponse désérialisée
+     */
+     public <T> Mono<T> getReactive(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['query params'.apply_parameterMethodClassicIn()/],
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequestReactive(wc -> wc.get().uri(['uri'.apply_parameterMethodClassicIn()/]), 
+         ['headers'.apply_parameterMethodClassicIn()/], null, ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+    /**
+     * Effectue une requête HTTP GET non bloquante (réactive).
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Classe de la réponse
+     * @return Mono émettant la réponse désérialisée
+     */
+     public <T> Mono<T> getReactive(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequestReactive(wc > wc.get().uri(buildUri(['uri'.apply_parameterMethodClassicIn()/], 
+         ['query params'.apply_parameterMethodClassicIn()/])), ['headers'.apply_parameterMethodClassicIn()/], null, 
+         ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+    /**
+     * Effectue une requête HTTP DELETE non bloquante.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return Mono émettant la réponse
+     */
+     public <T> Mono<T> deleteReactive(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequestReactive(wc -> wc.delete().uri(['uri'.apply_parameterMethodClassicIn()/]), 
+         ['headers'.apply_parameterMethodClassicIn()/], null, ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+    /**
+     * Effectue une requête HTTP POST non bloquante avec un corps.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['body'.apply_parameterMethodClassicIn()/]         Corps de la requête
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return Mono émettant la réponse
+     */
+     public <T> Mono<T> postReactive(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Object ['body'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequestReactive(wc -> wc.post().uri(['uri'.apply_parameterMethodClassicIn()/]), 
+         ['headers'.apply_parameterMethodClassicIn()/], ['body'.apply_parameterMethodClassicIn()/], 
+         ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+    
+    /**
+     * Effectue une requête HTTP PUT non bloquante avec un corps.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['body'.apply_parameterMethodClassicIn()/]         Corps de la requête
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return Mono émettant la réponse
+     */
+     public <T> Mono<T> putReactive(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Object ['body'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequestReactive(wc -> wc.put().uri(['uri'.apply_parameterMethodClassicIn()/]), 
+         ['headers'.apply_parameterMethodClassicIn()/], ['body'.apply_parameterMethodClassicIn()/], 
+         ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+    
+    /**
+     * Effectue une requête HTTP HEAD non bloquante avec paramètres query.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres query
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return Mono émettant la réponse
+     */
+     public <T> Mono<T> headReactive(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['query params'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequestReactive(wc -> wc.head().uri(['build uri'.apply_methodDefault()/](['uri'.apply_parameterMethodClassicIn()/], 
+         ['query params'.apply_parameterMethodClassicIn()/])), ['headers'.apply_parameterMethodClassicIn()/], null, 
+         ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+    /**
+     * Effectue une requête HTTP OPTIONS non bloquante avec paramètres query.
+     * 
+     * @param <T>          Type de la réponse attendue
+     * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
+     * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
+     * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres query
+     * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
+     * @return Mono émettant la réponse
+     */
+     public <T> Mono<T> optionsReactive(String ['uri'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['query params'.apply_parameterMethodClassicIn()/],
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       return executeRequestReactive(wc -> wc.method(org.springframework.http.HttpMethod.OPTIONS)
+         .uri(['build uri'.apply_methodDefault()/](['uri'.apply_parameterMethodClassicIn()/], ['query params'.apply_parameterMethodClassicIn()/])), 
+         ['headers'.apply_parameterMethodClassicIn()/], null, ['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+    /**
+     * Méthode interne pour exécuter la requête réactive sans blocage.
+     * 
+     * @param <T>            Type de la réponse
+     * @param ['request builder'.apply_parameterMethodClassicIn()/] Fonction pour construire la requête
+     * @param ['headers'.apply_parameterMethodClassicIn()/]        En-têtes HTTP
+     * @param ['body'.apply_parameterMethodClassicIn()/]           Corps de la requête (peut être null)
+     * @param ['response type'.apply_parameterMethodClassicIn()/]   Classe de la réponse
+     * @return Mono émettant la réponse désérialisée
+     */
+     private <T> Mono<T> executeRequestReactive(Function<WebClient, RequestHeadersSpec<?>> ['request builder'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
+       Object ['body'.apply_parameterMethodClassicIn()/], 
+       Class<T> ['response type'.apply_parameterMethodClassicIn()/]) {
+       
+       WebClient.RequestHeadersSpec<?> ['request spec'.apply_variableDefault()/];
+       
+       if (['body'.apply_parameterMethodClassicIn()/] != null) {
+         RequestBodySpec ['body spec'.apply_variableDefault()/] = (RequestBodySpec) ['request builder'.apply_parameterMethodClassicIn()/]
+           .apply(['web client'.apply_attributeFinal()/]);
+         ['request spec'.apply_variableDefault()/] = ['body spec'.apply_variableDefault()/]
+           .headers(http -> ['headers'.apply_parameterMethodClassicIn()/].forEach(http::set))
+           .bodyValue(['body'.apply_parameterMethodClassicIn()/]);
+       } else {
+          ['request spec'.apply_variableDefault()/] = ['request builder'.apply_parameterMethodClassicIn()/]
+            .apply(['web client'.apply_attributeFinal()/])
+            .headers(http -> ['headers'.apply_parameterMethodClassicIn()/].forEach(http::set));
+       }
+       
+       return ['request spec'.apply_variableDefault()/].retrieve()
+         .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), this::['handle error'.apply_methodDefault()/])
+         .bodyToMono(['response type'.apply_parameterMethodClassicIn()/]);
+     }
+     
+    /**
+     * Construit une fonction pour créer une URI avec paramètres query.
+     * 
+     * @param ['path'.apply_parameterMethodClassicIn()/]        Chemin de l’URI
+     * @param ['query params'.apply_parameterMethodClassicIn()/] Paramètres query à ajouter (clé/valeur)
+     * @return fonction UriBuilder -> URI
+     */
+     private Function<UriBuilder, URI> ['build uri'.apply_methodDefault()/](String  ['path'.apply_parameterMethodClassicIn()/], 
+       Map<String, String> ['query params'.apply_parameterMethodClassicIn()/]) {
+       return uriBuilder -> { 
+         UriBuilder ['builder'.apply_variableDefault()/] = uriBuilder.path(['path'.apply_parameterMethodClassicIn()/]);
+         if (['query params'.apply_parameterMethodClassicIn()/] != null) {
+            ['query params'.apply_parameterMethodClassicIn()/].forEach(['builder'.apply_variableDefault()/]::queryParam);
+         }
+         return ['builder'.apply_variableDefault()/].build();
+       };
+     }
+     
+    /**
+     * Gestionnaire d’erreur HTTP : convertit une réponse d’erreur en exception
+     * RuntimeException.
+     * 
+     * @param response réponse client HTTP contenant le statut d’erreur
+     * @return Mono d’exception avec message d’erreur
+     */
+     private Mono<? extends Throwable> ['handle error'.apply_methodDefault()/](ClientResponse ['response'.apply_parameterMethodClassicIn()/]) {
+       return response.bodyToMono(String.class)
+         .map(['body'.apply_parameterMethodClassicIn()/] -> new RuntimeException("Erreur HTTP " 
+          + ['response'.apply_parameterMethodClassicIn()/].statusCode() + ": " + ['body'.apply_parameterMethodClassicIn()/]));
+     }
+  }
+[/template]

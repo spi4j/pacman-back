@@ -6,7 +6,13 @@
 [comment enlever ces imports suite a correction bug./]
 [comment enlever ces imports suite a correction bug./]
 
+[import fr::pacman::soaclient::spring::aql::file::genServer/]
+
 [comment @main/]
 [template protected genServer(m : soa::System)]
   [m.super:genServer()/]
+  [comment écriture des services de type client pour appel de services de type fournisseurs./]
+  [for (s : soa::Service | m.eAllContents(soa::Service))]
+    [s.fileRsClientImpl()/]
+  [/for]
 [/template]

@@ -504,7 +504,7 @@
 
 [comment retoune l'entité référencée, si relation récursive, on ajoute un index afin de ne pas avoir de doublon dans le nom de l'entité./]
 [query private referencedEntityName(e : entity::Entity, r : environment::Reference) : String = if (r.isRecursive()) then e.name() 
-  + '_' + e.get_counterFK(1) else e.name().apply_variableDefault() endif/]
+  + '_' + e.get_counterFK(1) else e.referencedName(r).apply_variableDefault() endif/]
 
 [comment écriture de la valeur par defaut à injecter dans le setter./]
 [query private writeDefaultValue (prop : String) : String = if ('Time'.equalsIgnoreCase(prop) 

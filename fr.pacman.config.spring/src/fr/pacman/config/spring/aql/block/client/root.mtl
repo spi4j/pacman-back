@@ -1,0 +1,149 @@
+[module root(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::versions/]
+[import fr::pacman::core::aql::output::resources/]	
+[import fr::pacman::core::property::project::ProjectProperties/]
+
+[comment écriture du fichier de configuration Maven pour le projet principal (root)./]
+[template public pom (any : ecore::EObject)]
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>[any.namePackageProject()/]</groupId>
+    <artifactId>[any.nameProject()/]</artifactId>
+    <packaging>pom</packaging>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>cali</name>
+    <description></description>
+    <issueManagement>
+    </issueManagement>
+    <ciManagement>
+    </ciManagement>
+    <organization>
+    </organization>
+    <scm>
+    </scm>
+    
+    <modules>
+      <module>[any.nameProjectCommon()/]</module>
+      <module>[any.nameProjectServer()/]</module>
+      <module>[any.nameProjectModel()/]</module>
+    </modules>
+    
+    <dependencyManagement>
+       <dependencies>
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>[any.versionSl4j()/]</version>
+          </dependency>
+          <dependency>
+             <groupId>org.junit.jupiter</groupId>
+             <artifactId>junit-jupiter</artifactId>
+             <version>[any.versionJupiter()/]</version>
+             <scope>test</scope>
+          </dependency>
+          <dependency>
+             <groupId>org.assertj</groupId>
+             <artifactId>assertj-core</artifactId>
+             <version>[any.versionAssertJ()/]</version>
+             <scope>test</scope>
+          </dependency>
+          <!-- Utilisation de WebClient -->
+          <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-webflux</artifactId>
+             <version>[any.versionSpringBoot()/]</version>
+          </dependency>
+          <!-- circuit-breaker -->
+          <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot2</artifactId>
+            <version>[any.versionResilience4j()/]</version>
+          </dependency>
+          <!--
+          [protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            -->
+          
+            <!-- 
+          [/protected]
+          -->
+       </dependencies>
+    </dependencyManagement>
+    
+    <build>
+    <pluginManagement>
+       <plugins>
+          <!-- Vérification des prérequis -->
+          <plugin>
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-enforcer-plugin</artifactId>
+             <version>[any.versionMavenEnforcerPlugin()/]</version>
+             <executions>
+                <execution>
+                   <id>enforce</id>
+                   <goals>
+                      <goal>enforce</goal>
+                   </goals>
+                   <configuration>
+                      <rules>
+                         <banDuplicatePomDependencyVersions/>
+                         <requireMavenVersion>
+                            <version>[any.versionMaven()/]</version>
+                         </requireMavenVersion>
+                         <requireJavaVersion>
+                            <version>[any.get_javaVersion()/]</version>
+                         </requireJavaVersion>
+                      </rules>
+                   </configuration>
+                </execution>
+             </executions>
+          </plugin>
+          <plugin>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-maven-plugin</artifactId>
+              <version>[any.versionSpringBoot()/]</version>
+          </plugin>
+          <!-- Compilation de l'application -->
+          <plugin>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <version>[any.versionMavenCompilerPlugin()/]</version>
+              <configuration>
+                 <release>[any.get_javaVersion()/]</release>
+                 <compilerArgument>-Xlint</compilerArgument>
+                 <encoding>UTF-8</encoding>
+              </configuration>
+          </plugin>
+          <!-- Plugin ressources (fichiers de config, propriétés, etc.) -->
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-resources-plugin</artifactId>
+              <version>[any.versionMavenResourcesPlugin()/]</version>
+              <configuration>
+                <encoding>UTF-8</encoding>
+              </configuration>
+          </plugin>
+          
+          <!--
+          [protected ('plugins'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            -->
+            <!--
+          [/protected]
+          -->
+       </plugins>
+    </pluginManagement>          
+    
+    <!--
+    [protected ('pom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      -->
+      <!--
+    [/protected]
+    -->
+    </build>
+  </project>
+[/template]
+

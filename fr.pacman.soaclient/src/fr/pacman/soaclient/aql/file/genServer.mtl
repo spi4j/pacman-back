@@ -5,9 +5,3 @@
 [import fr::pacman::core::aql::name::classes/]	
 [import fr::pacman::core::aql::name::packages/]	
 [import fr::pacman::core::aql::output::resources/]
-
-[comment écriture du fichier d'implémentation pour objet métier./]
-[template public fileXtoImpl(d : environment::DTO)]
-  [file (d.nameClassXtoImpl().toFileJava(d.namePackageXtoImpl()), overwrite, d.defaultFileEncoding())]
-  [/file]
-[/template]

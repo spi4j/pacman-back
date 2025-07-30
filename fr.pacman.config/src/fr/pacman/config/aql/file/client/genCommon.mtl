@@ -1,0 +1,9 @@
+[module genCommon(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::config::aql::block::common/]
+[import fr::pacman::core::aql::output::resources/]
+
+[comment ras pour l'instant./]

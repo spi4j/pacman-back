@@ -5,3 +5,12 @@
 [import fr::pacman::core::aql::name::classes/]	
 [import fr::pacman::core::aql::name::packages/]	
 [import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::soaclient::spring::aql::block::service/]
+
+[comment écriture du fichier d'implémentation pour le service client d'appel service fournisseur./]
+[template public fileRsClientImpl(s : soa::Service)]
+  [file (s.nameClassRsClientImpl().toFileJava(s.namePackageRsClientImpl()), overwrite, s.defaultFileEncoding())]
+    [s.serviceRsClientImpl()/]
+  [/file]
+[/template]
+

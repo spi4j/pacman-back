@@ -1,0 +1,16 @@
+[module genRootSpring(	'http://www.obeonetwork.org/dsl/overview/2.0.0') 
+						extends fr::pacman::config::aql::client::genRoot/]
+						
+[comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
+[comment enlever ces imports suite a correction bug./]
+[comment enlever ces imports suite a correction bug./]
+
+[import fr::pacman::config::spring::aql::file::client::genRoot/]
+
+[comment @main/]
+[comment écriture de l'ensemble de la configuration de base pour le projet principal (conteneur)./]
+[template public genRootConfig(r : overview::Root)]
+  [r.super:genRootConfig()/]
+  [comment écriture du fichier de configuration maven./]
+  [r.filePom()/]
+[/template]

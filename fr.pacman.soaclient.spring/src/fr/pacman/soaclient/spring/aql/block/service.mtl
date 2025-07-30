@@ -1,0 +1,94 @@
+[module service(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::base/]
+[import fr::pacman::core::aql::name::classes/]
+[import fr::pacman::core::aql::name::packages/]
+[import fr::pacman::core::aql::output::comments/]
+[import fr::pacman::core::aql::output::headers/]
+[import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::core::aql::query::operation/]
+[import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::rule::method/]
+[import fr::pacman::core::aql::rule::parameter/]
+[import fr::pacman::core::aql::rule::attribute/]
+
+[comment écriture pou rl'implémentation du service de type client pour appel service fournisseur./]
+[template public serviceRsClientImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageRsClientImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import org.springframework.stereotype.Service;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import reactor.core.publisher.Mono;
+    import [s.namePackageRsBase()/].[s.nameClassRsClientHelper()/];
+    
+  [/protected]
+  
+  [s.commentClass()/]
+  [protected (s.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
+  @Service
+  public class [s.nameClassRsClientImpl()/]
+  {
+    
+    ['Helper centralisé utilisé pour exécuter les appels WebClient vers l\'API '.commentSingleLine()/]
+    private final [s.nameClassRsClientHelper()/] ['client helper'.apply_attributeFinal()/];
+    
+    ['Constructeur (@Autowired pour meilleure lisibilité)'.commentMultiLines()/]
+    @Autowired
+    [s.nameClassRsClientImpl()/](final [s.nameClassRsClientHelper()/] ['client helper'.apply_parameterMethodClassicIn()/])
+    {
+       [s.prefixAffectation()/]['client helper'.apply_attributeFinal()/] = ['client helper'.apply_parameterMethodClassicIn()/];
+    }
+    
+    [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+      
+      [if (o.isRsOperation())]
+        [o.commentOperation()/]
+        [protected ((o.name + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
+        [o.writeRsSignature()/]
+        {
+        
+          [o.writeRsOperation(s)/]
+        }
+      [/if]
+      
+    [/for]
+  }
+[/template]
+
+[comment écriture du corps de l'opération./]
+[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = if (o.hasOutput()) then 'return ' else '' endif 
+  + 'client helper'.apply_attributeFinal() + '.' + 'builder'.apply_methodGet() + '().' + o.verb.toString().toLower() + '()' 
+  + if(o.hasOutput()) then  '.' + 'with response type'.apply_methodDefault() + '(' + o.outputRsType() + '.class)' else '' endif 
+  + if (o.hasInputs() and not o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->isEmpty()) then '.' 
+  + 'with query params'.apply_methodDefault() + '(Map.of(' +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->collect(o2 | '"' 
+  + o2.restData.restId + '",' + o2.name().apply_parameterMethodClassicIn() )->sep(', ') + '))' else '' endif + '.' + 'with uri'.apply_methodDefault() 
+  + '("' + s.rsUri() + o.rsUri() + '")' 
+  
+  
+  + if (o.hasInputs() and not o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->isEmpty()) 
+  
+  then '.' 
+  + 'with path params'.apply_methodDefault() + '(Map.of(' +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->collect(o2 | '"' 
+  + o2.restData.restId + '",' + o2.name().apply_parameterMethodClassicIn() )->sep(', ') + '))' 
+  
+  
+  else '' endif
+  + '.' + 'execute'.apply_methodDefault() + '();'/]
+
+[comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
+[query private writeRsSignature(o : soa::Operation) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 
+  + ' (' + o.writeRsInputs() + ')'/]
+  
+[comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
+[query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
+  ->collect(o1 : soa::Parameter | 'final ' + o1.inputRsType() + ' ' + o1.name().apply_parameterMethodClassicIn())
+  ->sep(', ')->toString() else '' endif/]
+  
+[comment écriture du paramètre de sortie pour une opération de type rest./]
+[query private writeRsOutput(o : soa::Operation) : String =  if (not o.mustHaveRsOutput()) then 'Void' else o.outputRsType() endif/]

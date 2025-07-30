@@ -4,7 +4,7 @@
 [import fr::pacman::core::aql::name::classes/]	
 [import fr::pacman::core::aql::name::packages/]	
 [import fr::pacman::core::aql::output::resources/]
-[import fr::pacman::entity::aql::block::enumeration/]
+[import fr::pacman::common::aql::block::enumeration/]
 
 [comment écriture du fichier d'implémentation pour une énumération./]
 [template public fileEnumerationImpl(e: environment::Enumeration)]

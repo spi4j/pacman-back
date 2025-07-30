@@ -35,7 +35,7 @@
   [comment écriture de l'accrochage du gestionnaire de transactions pour la persistance./]
   [r.fileJpaTransactionServiceAspectImpl()/]
   [comment écriture de la configuration pour le gestionnaire de transactions./]
-  [r.fileJpaTransactionConfigurationImpl()/]
+  [r.fileJpaTransactionConfigImpl()/]
   [comment écriture de la configuration pour l'application (prod)./]
   [r.fileApplicationProperties()/]
   [comment écriture de la configuration pour l'intégration (test)./]

@@ -72,6 +72,9 @@
 [comment retourne le package de base pour l'implémentation d'un contrôleur soa./]
 [query public namePackageRsControllerBase(any : ecore::EObject) : String = 'app.adapters.controllers'/]
   
+[comment retourne le package pour l'implémentation d'un client soa./]
+[query public namePackageRsClientImpl(s : soa::Service) : String = 'app.client.' + s.nameComponent()/]
+  
 [comment retourne le package racine pour la persistance./]
 [query public namePackageInfrastructureBase(any : ecore::EObject) : String = 'infra'/]
   
