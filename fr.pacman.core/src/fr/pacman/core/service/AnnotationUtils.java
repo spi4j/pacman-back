@@ -261,6 +261,10 @@ public final class AnnotationUtils {
 		return is_annotationExists(p_object, AnnotationEnum.FETCH_LAZY);
 	}
 
+	public static boolean has_metaAuthToken(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.AUTH_TOKEN);
+	}
+	
 	public static String get_metaUser(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.USER);
 	}

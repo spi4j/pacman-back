@@ -34,8 +34,8 @@ public class SoaUIGenerators extends PacmanUIGenerator {
 	@Override
 	protected List<PacmanGenerator> getGenerators() {
 		final List<PacmanGenerator> v_generators = new ArrayList<>();
-		v_generators.add(new GenServer());
 		v_generators.add(new GenCommon());
+		v_generators.add(new GenServer());
 		return v_generators;
 	}
 

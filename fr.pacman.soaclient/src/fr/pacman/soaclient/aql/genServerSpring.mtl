@@ -7,12 +7,20 @@
 [comment enlever ces imports suite a correction bug./]
 
 [import fr::pacman::soaclient::spring::aql::file::genServer/]
+[import fr::pacman::core::aql::query::operation/]
 
 [comment @main/]
 [template protected genServer(m : soa::System)]
   [m.super:genServer()/]
-  [comment écriture des services de type client pour appel de services de type fournisseurs./]
+  [comment écriture de la classe helper de gestion du jeton (token)./]
+  [if (m.operationRsToken() <> null)]
+    [m.operationRsToken().fileRsClientTokenTestsHelper()/]
+  [/if]
   [for (s : soa::Service | m.eAllContents(soa::Service))]
+    [comment écriture des services de type client pour appel de services de type fournisseurs./]
     [s.fileRsClientImpl()/]
+    [comment écriture de la classe helper de test pour les différents tests avant packaging./]
+    [s.fileRsClientTestsImpl()/]
   [/for]
+
 [/template]

@@ -37,6 +37,14 @@
            <groupId>io.github.resilience4j</groupId>
            <artifactId>resilience4j-spring-boot2</artifactId>
        </dependency>
+       <dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter</artifactId>
+       </dependency>
+       <dependency>
+          <groupId>org.assertj</groupId>
+          <artifactId>assertj-core</artifactId>
+       </dependency>
        <!-- projet métier (domaine). -->
        <dependency>
          <groupId>[any.namePackageProject()/]</groupId>
@@ -98,17 +106,26 @@
     [any.classHeader(any.namePackageRsBase())/]
     [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       
+      import java.io.IOException;
       import java.time.Duration;
-      import java.util.function.Function;
+      import java.util.Arrays;
+      import org.slf4j.Logger;
+      import org.slf4j.LoggerFactory;
       import org.springframework.beans.factory.annotation.Value;
       import org.springframework.context.annotation.Bean;
       import org.springframework.context.annotation.Configuration;
+      import org.springframework.core.env.Environment;
+      import org.springframework.http.HttpStatusCode;
       import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+      import org.springframework.web.reactive.function.client.ClientResponse;
       import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
       import org.springframework.web.reactive.function.client.WebClient;
+      import com.fasterxml.jackson.databind.ObjectMapper;
       import io.netty.channel.ChannelOption;
+      import reactor.core.publisher.Mono;
       import reactor.netty.http.client.HttpClient;
       import reactor.netty.resources.ConnectionProvider;
+      
     [/protected]
     
    /**
@@ -133,7 +150,22 @@
     */
     @Configuration
     public class [any.nameClassRsClientConfigImpl()/] {
-      
+    
+    /**
+     * Logger SLF4J pour la classe {@link TataWebClientConfigImpl}.
+     * 
+     * @see org.slf4j.Logger
+     * @see org.slf4j.LoggerFactory
+     */
+     private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([any.nameClassRsClientConfigImpl()/].class);
+     
+     /**
+      * L'environnement Spring dans lequel l'application s'exécute.
+      *
+      * @see org.springframework.core.env.Environment
+      */
+     private final Environment ['environment'.apply_attributeFinal()/];
+     
      /**
       * URL de base de l’API (ex. {@code https://api.thetvdb.com}).
       */
@@ -152,6 +184,22 @@
       @Value("${[any.nameProject().toLower()/].api.response-timeout-ms:10000}")
       private int ['response timeout'.apply_attributeDefault()/]; 
       
+      /**
+       * Constructeur pour {@link [any.nameClassRsClientConfigImpl()/] }.
+       * 
+       * Initialise la configuration avec l'instance {@link Environment} fournie par le conteneur Spring.
+       * Cela permet d'accéder aux profils actifs et aux propriétés de configuration externes.
+       * Cet environnement est ensuite utilisé pour activer ou désactiver certains filtres ou comportements
+       * conditionnels (comme les logs WebClient en profil <code>dev</code>).
+       *
+       * @param ['environment'.apply_parameterMethodClassicIn()/] l'environnement Spring actif injecté automatiquement par le conteneur
+       *
+       * @see org.springframework.core.env.Environment
+       */
+      public [any.nameClassRsClientConfigImpl()/](Environment ['environment'.apply_parameterMethodClassicIn()/]) {
+          [any.prefixAffectation()/]['environment'.apply_attributeFinal()/] = ['environment'.apply_parameterMethodClassicIn()/];
+      }
+      
      /**
       * Fournit un {@link WebClient} configuré avec les timeouts, un pool de connexions
       * et des filtres de log simples.
@@ -160,7 +208,8 @@
       * @return une instance de {@link WebClient}
       */
       @Bean
-      public WebClient [(any.nameProject() + ' web client').apply_methodDefault()/](WebClient.Builder ['builder'.apply_parameterMethodClassicIn()/]) {
+      public WebClient [(any.nameProject() + ' web client').apply_methodDefault()/]
+         (final WebClient.Builder ['builder'.apply_parameterMethodClassicIn()/]) {
          
          ConnectionProvider ['provider'.apply_variableDefault()/] = ConnectionProvider.builder("[any.namePackageProject().toLower()/]")
            .maxConnections(100)
@@ -171,12 +220,16 @@
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, ['connection timeout'.apply_attributeDefault()/])
             .responseTimeout(Duration.ofMillis(['response timeout'.apply_attributeDefault()/]));
             
-          return ['builder'.apply_parameterMethodClassicIn()/]
+          WebClient.Builder ['internal builder'.apply_variableDefault()/] = ['builder'.apply_parameterMethodClassicIn()/]
             .baseUrl(['base url'.apply_attributeDefault()/])
-            .clientConnector(new ReactorClientHttpConnector(['http client'.apply_variableDefault()/]))
-            .filter(['log request'.apply_methodDefault()/]()) 
-            .filter(['log response'.apply_methodDefault()/]())
-            .build(); 
+            .clientConnector(new ReactorClientHttpConnector(['http client'.apply_variableDefault()/]));
+            
+            if (Arrays.asList(['environment'.apply_attributeFinal()/].getActiveProfiles()).contains("dev")) {
+              ['internal builder'.apply_variableDefault()/]
+              .filter(['log request'.apply_methodDefault()/]()) 
+              .filter(['log response'.apply_methodDefault()/]());
+            }
+            return  ['internal builder'.apply_variableDefault()/].build(); 
       }
       
       /**
@@ -194,16 +247,67 @@
        }
        
       /**
-       * Filtre de log des réponses HTTP (statut HTTP).
+       * Crée un filtre WebClient qui intercepte les réponses HTTP et les logge
+       * au format JSON "pretty printed" (indenté), uniquement si le corps n'est pas vide.
+       * 
+       * Le filtre :
+       * <ul>
+       *   <li>récupère le corps de la réponse sous forme de chaîne JSON,</li>
+       *   <li>l'affiche dans les logs (niveau DEBUG) avec indentation si possible,</li>
+       *   <li>reconstruit une nouvelle {@link ClientResponse} avec le corps d'origine
+       *       pour que le client final puisse toujours le consommer.</li>
+       * </ul>
+       * Ce filtre est destiné à être utilisé en environnement de développement
+       * afin d'améliorer la lisibilité des échanges HTTP JSON entre un client WebClient
+       * et un serveur distant.
        *
-       * @return un {@link ExchangeFilterFunction}
+       * @return une {@link ExchangeFilterFunction} loggant les réponses HTTP avec le corps JSON formaté.
        */
        private ExchangeFilterFunction ['log response'.apply_methodDefault()/]() {
-          return ExchangeFilterFunction.ofResponseProcessor(['client response'.apply_variableDefault()/] -> {
-              // Log des réponses HTTP (en debug)
-              System.out.println("WebClient << " + ['client response'.apply_variableDefault()/].statusCode());
-              return reactor.core.publisher.Mono.just(['client response'.apply_variableDefault()/]);
-          });
+           return ExchangeFilterFunction.ofResponseProcessor(['response'.apply_variableDefault()/] -> {
+             HttpStatusCode ['status'.apply_variableDefault()/] = ['response'.apply_variableDefault()/].statusCode();
+             return ['response'.apply_variableDefault()/].bodyToMono(String.class)
+               .defaultIfEmpty("")
+               .doOnNext(['body'.apply_variableDefault()/] -> {
+               if (!['body'.apply_variableDefault()/].isBlank()) {
+                  String ['pretty'.apply_variableDefault()/] = prettyPrintJson(['body'.apply_variableDefault()/]);
+                  ['log'.apply_attributeFinalStatic()/].debug("WebClient << {}:\n{}", ['status'.apply_variableDefault()/].value()
+                    , ['pretty'.apply_variableDefault()/]);
+               } else {
+                   ['log'.apply_attributeFinalStatic()/].debug("WebClient << {} (empty body)", 
+                     ['status'.apply_variableDefault()/].value());
+               }
+           })
+           .map(body -> {
+                ClientResponse.Builder ['builder'.apply_variableDefault()/] = ClientResponse.create(['status'.apply_variableDefault()/])
+                    .headers(headers -> headers.addAll(['response'.apply_variableDefault()/].headers().asHttpHeaders()))
+                    .cookies(cookies -> cookies.addAll(['response'.apply_variableDefault()/].cookies()))
+                    .body(['body'.apply_variableDefault()/]); 
+                 return ['builder'.apply_variableDefault()/].build();
+               });
+           });
+       }
+       
+      /**
+       * Formatte une chaîne JSON brute de manière lisible ("pretty printed")
+       * avec indentation et sauts de ligne.
+       * 
+       * Si la chaîne fournie n'est pas un JSON valide, la méthode retourne le texte tel quel,
+       * sans lever d'exception.
+       *
+       * @param ['json'.apply_parameterMethodClassicIn()/] la chaîne JSON à formatter (par exemple, une réponse d'API)
+       * @return une version indentée et lisible du JSON, ou la chaîne originale en cas d'erreur de parsing
+       */
+       public String prettyPrintJson(String ['json'.apply_parameterMethodClassicIn()/]) {
+           try {
+               ObjectMapper ['mapper'.apply_variableDefault()/] = new ObjectMapper();
+               Object ['obj'.apply_variableDefault()/] = ['mapper'.apply_variableDefault()/]
+                 .readValue(['json'.apply_parameterMethodClassicIn()/], Object.class);
+               return ['mapper'.apply_variableDefault()/].writerWithDefaultPrettyPrinter()
+                 .writeValueAsString(['obj'.apply_variableDefault()/]);
+           } catch (IOException e) {
+               return ['json'.apply_parameterMethodClassicIn()/];
+           }
        }
     }
 [/template]
@@ -220,9 +324,8 @@
   [any.classHeader(any.namePackageRsBase())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
+    [any.defaultImports()/]
     import java.net.URI;
-    import java.time.Duration;
-    import java.util.Map;
     import java.util.function.Function;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.HttpMethod;
@@ -301,7 +404,7 @@
          * Paramètres de chemin à insérer dans l’URI (ex : {id} -> 42).
          * Exemple : "/users/{id}" avec "id" -> "42"
          */
-        private Map<String, ?> ['path params'.apply_attributeDefault()/] = Map.of();
+        private Map<String, ?> ['path params'.apply_attributeDefault()/];
         
         /**
          * URI ou chemin relatif de la ressource à appeler.
@@ -313,13 +416,13 @@
          * En-têtes HTTP à inclure dans la requête, sous forme de paires clé/valeur.
          * Exemple : "Authorization" -> "Bearer <token>"
          */
-        private Map<String, String> ['headers'.apply_attributeDefault()/] = Map.of();
+        private Map<String, Object> ['headers'.apply_attributeDefault()/] = new HashMap<>();
         
         /**
          * Paramètres de requête (query parameters) à inclure dans l'URL.
          * Exemple : "page" -> "1", "size" -> "20"
          */
-        private Map<String, ?> ['query params'.apply_attributeDefault()/] = Map.of();
+        private Map<String, Object> ['query params'.apply_attributeDefault()/] = new HashMap<>();
         
         /**
          * Corps de la requête HTTP, applicable aux méthodes comme POST, PUT ou PATCH.
@@ -399,7 +502,7 @@
          * @param pathParams une map contenant les noms des paramètres de chemin et leurs valeurs
          * @return le builder courant pour chaînage fluide
          */
-        public RequestBuilder ['with path params'.apply_methodDefault()/](Map<String, ?> ['path params'.apply_parameterMethodClassicIn()/]) {
+        public RequestBuilder ['with path params'.apply_methodDefault()/](final Map<String, ?> ['path params'.apply_parameterMethodClassicIn()/]) {
         	[any.prefixAffectation()/]['path params'.apply_attributeDefault()/] = ['path params'.apply_parameterMethodClassicIn()/] != null ? 
         	['path params'.apply_parameterMethodClassicIn()/] : Map.of();
         	return this;
@@ -411,7 +514,7 @@
          * @param uri URI ou chemin relatif à la base configurée dans WebClient
          * @return builder modifié
          */ 
-        public RequestBuilder ['with uri'.apply_methodDefault()/](String ['uri'.apply_parameterMethodClassicIn()/]) {
+        public RequestBuilder ['with uri'.apply_methodDefault()/](final String ['uri'.apply_parameterMethodClassicIn()/]) {
             [any.prefixAffectation()/]['uri'.apply_attributeDefault()/] = ['uri'.apply_parameterMethodClassicIn()/];
             return this;
         }
@@ -422,7 +525,7 @@
          * @param headers map des en-têtes (clé/valeur)
          * @return builder modifié
          */
-        public RequestBuilder ['with headers'.apply_methodDefault()/](Map<String, String> ['headers'.apply_parameterMethodClassicIn()/]) {
+        public RequestBuilder ['with headers'.apply_methodDefault()/](final Map<String, Object> ['headers'.apply_parameterMethodClassicIn()/]) {
             [any.prefixAffectation()/]['headers'.apply_attributeDefault()/] = ['headers'.apply_parameterMethodClassicIn()/] != null 
             ? ['headers'.apply_parameterMethodClassicIn()/] : Map.of();
             return this;
@@ -434,7 +537,7 @@
          * @param queryParams map des paramètres query
          * @return builder modifié
          */
-        public RequestBuilder ['with query params'.apply_methodDefault()/](Map<String, ?> ['query params'.apply_parameterMethodClassicIn()/]) {
+        public RequestBuilder ['with query params'.apply_methodDefault()/](final Map<String, Object> ['query params'.apply_parameterMethodClassicIn()/]) {
             [any.prefixAffectation()/]['query params'.apply_attributeDefault()/] = ['query params'.apply_parameterMethodClassicIn()/] != null 
             ? ['query params'.apply_parameterMethodClassicIn()/] : Map.of();
             return this;
@@ -446,8 +549,48 @@
          * @param body objet à sérialiser en JSON ou autre
          * @return builder modifié
          */
-        public RequestBuilder ['with body'.apply_methodDefault()/](Object ['body'.apply_parameterMethodClassicIn()/]) {
+        public RequestBuilder ['with body'.apply_methodDefault()/](final Object ['body'.apply_parameterMethodClassicIn()/]) {
             [any.prefixAffectation()/]['body'.apply_attributeDefault()/] = ['body'.apply_parameterMethodClassicIn()/];
+            return this;
+        }
+        
+        /**
+         * Définit le jeton d'authentification (par exemple un token JWT ou OAuth)
+         * à inclure dans la requête en tant qu'en-tête HTTP.
+         *
+         * @param ['token'.apply_parameterMethodClassicIn()/] le jeton d'authentification à utiliser pour la requête
+         * @return builder modifié
+         */
+        public RequestBuilder ['with header token'.apply_methodDefault()/](final String ['key'.apply_parameterMethodClassicIn()/]
+            , final String ['token'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['headers'.apply_attributeDefault()/].put(['key'.apply_parameterMethodClassicIn()/],
+              ['token'.apply_parameterMethodClassicIn()/]);
+            return this;
+        }
+        
+        /**
+         * Définit le jeton d'authentification (par exemple un token JWT ou OAuth)
+         * à inclure dans la requête en tant que paramètre.
+         *
+         * @param ['token'.apply_parameterMethodClassicIn()/] le jeton d'authentification à utiliser pour la requête
+         * @return builder modifié
+         */
+        public RequestBuilder ['with query token'.apply_methodDefault()/](final String ['key'.apply_parameterMethodClassicIn()/]
+            , final String ['token'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['query params'.apply_attributeDefault()/].put(['key'.apply_parameterMethodClassicIn()/],
+              ['token'.apply_parameterMethodClassicIn()/]);
+            return this;
+        }
+        
+        /**
+         * Définit le jeton d'authentification (par exemple un token JWT ou OAuth)
+         * à inclure dans la requête en tant que.
+         *
+         * @param ['token'.apply_parameterMethodClassicIn()/] le jeton d'authentification à utiliser pour la requête
+         * @return builder modifié
+         */
+        public RequestBuilder ['with cookie token'.apply_methodDefault()/](final String ['key'.apply_parameterMethodClassicIn()/]
+            , final String ['token'.apply_parameterMethodClassicIn()/]) {
             return this;
         }
         
@@ -499,10 +642,11 @@
             , ['path params'.apply_attributeDefault()/]
             , ['query params'.apply_attributeDefault()/]));
             
+            Map<String, String> ['string headers'.apply_attributeDefault()/] = convertToStringMap(['headers'.apply_attributeDefault()/]);
             WebClient.RequestHeadersSpec<?> requestSpec = (['body'.apply_attributeDefault()/] != null)
-                    ? bodySpec.headers(http -> ['headers'.apply_attributeDefault()/].forEach(http::set))
+                    ? bodySpec.headers(http -> ['string headers'.apply_attributeDefault()/].forEach(http::set))
                     .bodyValue(['body'.apply_attributeDefault()/])
-                    : bodySpec.headers(http -> ['headers'.apply_attributeDefault()/].forEach(http::set));
+                    : bodySpec.headers(http -> ['string headers'.apply_attributeDefault()/].forEach(http::set));
                 
              Mono<?> responseMono = requestSpec
                 .retrieve()
@@ -534,13 +678,23 @@
         // On remplace les path variables ici (par exemple : /items/{id})
         URI ['uri'.apply_variableDefault()/] = ['builder'.apply_variableDefault()/]
           .buildAndExpand(['path params'.apply_parameterMethodClassicIn()/] != null 
-          ? convertToStringMap(['path params'.apply_parameterMethodClassicIn()/]) : Map.of()).toUri();
+          ? ['convert to string map'.apply_methodDefault()/](['path params'.apply_parameterMethodClassicIn()/]) : Map.of()).toUri();
         return ['uri'.apply_variableDefault()/];
     }
     
-    private Map<String, String> convertToStringMap(Map<String, ?> source) {
-        if (source == null) return Map.of();
-        return source.entrySet().stream()
+    /**
+     * Convertit une map générique {@code Map<String, ?>} en une map de chaînes {@code Map<String, String>}.
+     * 
+     * Les clés et les valeurs nulles sont ignorées. Toutes les valeurs sont converties
+     * en chaînes via {@code toString()}.
+     *
+     * @param ['source'.apply_parameterMethodClassicIn()/] la map d'origine avec des valeurs de n'importe quel type (peut être {@code null})
+     * @return une map de chaînes avec les mêmes clés, et des valeurs converties en {@code String},
+     *         ou une map vide si {@code source} est {@code null}
+     */
+    private Map<String, String> ['convert to string map'.apply_methodDefault()/](Map<String, ?> ['source'.apply_parameterMethodClassicIn()/]) {
+        if (['source'.apply_parameterMethodClassicIn()/] == null) return Map.of();
+        return ['source'.apply_parameterMethodClassicIn()/].entrySet().stream()
             .filter(e -> e.getKey() != null && e.getValue() != null)
             .collect(Collectors.toMap(
                 Map.Entry::getKey,

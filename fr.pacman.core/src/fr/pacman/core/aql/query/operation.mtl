@@ -13,6 +13,7 @@
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::common/]
 [import fr::pacman::core::aql::rule::class/]
+[import fr::pacman::core::service::AnnotationUtils/]
 
 [comment vérifie si l'opération a un paramètre en sortie (entité, dto, type primitif) (transverse)./]
 [query public hasOutput(o : soa::Operation) : Boolean = o.output <> null and o.output->size() > 0 /]
@@ -47,7 +48,10 @@
 [query private outputRsType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
   + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif 
   else p.outputType(true, false) endif/]
-  
+
+[comment retourne l'opération chargée de la récupération du jeton jwt (token) dans le cadre de la générartion d'un web client./]
+[query public operationRsToken (m : soa::System) : soa::Operation = m.eAllContents(soa::Operation)->select(o | o.has_metaAuthToken())->first()/]
+
 [comment vérifie si l'opération a un code de retour pour les services rest. /]
 [query public hasRsStatusCode(o : soa::Operation) : Boolean = o.exists() and o.hasOutput() and not (o.output->first().statusCode = null) 
   and o.output->first().statusCode.size() > 0/]

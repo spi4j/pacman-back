@@ -14,7 +14,7 @@
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::attribute/]
 
-[comment écriture pou rl'implémentation du service de type client pour appel service fournisseur./]
+[comment écriture pour l'implémentation du service de type client pour appel service fournisseur./]
 [template public serviceRsClientImpl (s : soa::Service)]
   [s.classHeader(s.namePackageRsClientImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -61,25 +61,26 @@
   }
 [/template]
 
-[comment écriture du corps de l'opération./]
+[comment écriture du corps de l'opération (pour l'instant ne traite pas encore les cookies)./]
 [query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = if (o.hasOutput()) then 'return ' else '' endif 
   + 'client helper'.apply_attributeFinal() + '.' + 'builder'.apply_methodGet() + '().' + o.verb.toString().toLower() + '()' 
   + if(o.hasOutput()) then  '.' + 'with response type'.apply_methodDefault() + '(' + o.outputRsType() + '.class)' else '' endif 
-  + if (o.hasInputs() and not o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->isEmpty()) then '.' 
-  + 'with query params'.apply_methodDefault() + '(Map.of(' +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->collect(o2 | '"' 
-  + o2.restData.restId + '",' + o2.name().apply_parameterMethodClassicIn() )->sep(', ') + '))' else '' endif + '.' + 'with uri'.apply_methodDefault() 
-  + '("' + s.rsUri() + o.rsUri() + '")' 
-  
-  
-  + if (o.hasInputs() and not o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->isEmpty()) 
-  
-  then '.' 
-  + 'with path params'.apply_methodDefault() + '(Map.of(' +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->collect(o2 | '"' 
-  + o2.restData.restId + '",' + o2.name().apply_parameterMethodClassicIn() )->sep(', ') + '))' 
-  
-  
-  else '' endif
-  + '.' + 'execute'.apply_methodDefault() + '();'/]
+  + '.' + 'with uri'.apply_methodDefault() + '("' + s.rsUri() + o.rsUri() + '")' + if (o.hasInputs()) then if (not o.input
+  ->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->isEmpty()) then '.' + 'with query params'.apply_methodDefault() 
+  + '(Map.of(' +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->collect(o2 | '"' + o2.restData.restId + '",' 
+  + o2.name().apply_parameterMethodClassicIn() )->sep(', ') + '))' else '' endif + if (not o.input->select(o1 | o1.restData.passingMode 
+  = soa::ParameterPassingMode::PATH)->isEmpty()) then '.' + 'with path params'.apply_methodDefault() + '(Map.of(' +  o.input
+  ->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->collect(o2 | '"' + o2.restData.restId + '",' 
+  + o2.name().apply_parameterMethodClassicIn())->sep(', ') + '))' else '' endif + if (not o.input->select (o3 | o3.restData.passingMode 
+  = soa::ParameterPassingMode::HEADER)->isEmpty()) then '.' + 'with headers'.apply_methodDefault()  + '(Map.of(' +  o.input
+  ->select(o3| o3.restData.passingMode = soa::ParameterPassingMode::HEADER)->collect(o4 | '"' + o4.restData.restId + '",' 
+  + o4.name().apply_parameterMethodClassicIn())->sep(', ') + '))'  else '' endif + if (not o.input->select (o3 | o3.restData.passingMode = 
+  soa::ParameterPassingMode::BODY)->isEmpty()) then '.' + 'with body'.apply_methodDefault() + '(' + let b = o.input
+  ->select (o3 | o3.restData.passingMode = soa::ParameterPassingMode::BODY)->first() in b.name().apply_parameterMethodClassicIn() 
+  + ')'  else '' endif  else '' endif + if(o.isRsSecured()) then '.' +  if (o.securitySchemes->first().type = soa::SecuritySchemeType::API_KEY 
+  and  o.securitySchemes->first().apiKeyLocation = soa::ApiKeyLocation::QUERY) then 'with query token'.apply_methodDefault() 
+  else 'with header token'.apply_methodDefault()  endif + '("' + o.securitySchemes->first().key + '", ' + 'token'.apply_parameterMethodClassicIn() 
+  +')' else '' endif + '.' + 'execute'.apply_methodDefault() + '();'/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeRsSignature(o : soa::Operation) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 
@@ -88,7 +89,8 @@
 [comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
 [query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
   ->collect(o1 : soa::Parameter | 'final ' + o1.inputRsType() + ' ' + o1.name().apply_parameterMethodClassicIn())
-  ->sep(', ')->toString() else '' endif/]
+  ->sep(', ')->toString() else '' endif + if (o.isRsSecured()) then if(o.hasInputs()) then ', ' else '' endif 
+  + 'final String ' + 'token'.apply_parameterMethodClassicIn() else '' endif /]
   
 [comment écriture du paramètre de sortie pour une opération de type rest./]
 [query private writeRsOutput(o : soa::Operation) : String =  if (not o.mustHaveRsOutput()) then 'Void' else o.outputRsType() endif/]

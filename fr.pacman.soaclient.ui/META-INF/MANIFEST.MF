@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.ui,
  fr.pacman.core,
  fr.pacman.core.ui,
- fr.pacman.soaclient, 
+ fr.pacman.soaclient,
  org.eclipse.acceleo.aql,
  org.eclipse.acceleo.query
 Bundle-RequiredExecutionEnvironment: JavaSE-17

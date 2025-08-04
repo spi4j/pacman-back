@@ -6,6 +6,7 @@
 [import fr::pacman::core::aql::name::packages/]	
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::soaclient::spring::aql::block::service/]
+[import fr::pacman::soaclient::spring::aql::block::test/]
 
 [comment écriture du fichier d'implémentation pour le service client d'appel service fournisseur./]
 [template public fileRsClientImpl(s : soa::Service)]
@@ -13,4 +14,21 @@
     [s.serviceRsClientImpl()/]
   [/file]
 [/template]
+
+[comment écriture du fichier d'implémentation pour les tests avant packaging./]
+[template public fileRsClientTestsImpl(s : soa::Service)]
+  [file (s.nameClassRsClientTestsImpl().toFileJavaT(s.namePackageRsClientImpl()), overwrite, s.defaultFileEncoding())]
+    [s.serviceRsClientTestsImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation d'une classe de gestion du token pour les tests avant packaging./]
+[template public fileRsClientTokenTestsHelper(o : soa::Operation)]
+  [file (o.nameClassRsClienTokenTestsHelper().toFileJavaT(o.namePackageRsBase()), overwrite, o.defaultFileEncoding())]
+    [o.serviceRsClientTokenTestsHelper()/]
+  [/file]
+[/template]
+
+
+
 

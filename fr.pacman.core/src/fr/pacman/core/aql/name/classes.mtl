@@ -78,6 +78,12 @@
 [comment retourne le nom pour l'implémentation de la classe abstraite de service client soa (webClient)./]  
 [query public nameClassRsClientHelper(any : ecore::EObject) : String = (any.nameProject() + ' web client helper').apply_classDefault()/]
 
+[comment retourne le nom pour l'implémentation d'une classe de tests client soa (webClient)./]  
+[query public nameClassRsClientTestsImpl(s : soa::Service) : String = (s.name() + ' web client tests').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation d'une classe de tests helper de gestion du token client soa (webClient)./]  
+[query public nameClassRsClienTokenTestsHelper(any : ecore::EObject) : String = (any.nameProject()+ ' token tests helper').apply_classDefault()/]
+  
 [comment retourne le nom pour l'implémentation du contrôleur servant à l'authentification (apikey , http basic)./]
 [query public nameClassRsServiceTokenImpl(any : ecore::EObject) : String = (any.nameProject() + ' jwt token controller').apply_classImplem()/]
 

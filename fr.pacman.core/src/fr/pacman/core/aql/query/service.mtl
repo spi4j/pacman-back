@@ -31,6 +31,10 @@
 [query public isRsService(s : soa::Service) : Boolean = s.exists() and not s.ownedInterface.ownedOperations
   ->select(o | o.exposition = soa::ExpositionKind::REST)->isEmpty() /]
 
+[comment vérifie si le service utilise au moins une opération sécurisée./]
+[query public isRsSecured(s : soa::Service) : Boolean = not s.ownedInterface.ownedOperations
+  ->select(o | o.isRsSecured())->isEmpty()/]
+
 [comment retourne l'uri (partielle) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
 [query public rsUri(s : soa::Service) : String = if (s.isRsService()) then ('/' 
   + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 'v' 

@@ -175,7 +175,7 @@
         [r.containingType.oclAsType(entity::Entity).writePrimaryKeyJoin(dbType)/]
         [if (r.isStarRecursive())]
           [r.referencedType.oclAsType(entity::Entity).writePrimaryKeyJoin(dbType)
-              .insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId())/]
+              .insert(r.suffixSqlPrimaryKeyJoinRecursive(), r.suffixSqlId())/]
         [else]
           [r.referencedType.oclAsType(entity::Entity).writePrimaryKeyJoin(dbType)/]
         [/if]

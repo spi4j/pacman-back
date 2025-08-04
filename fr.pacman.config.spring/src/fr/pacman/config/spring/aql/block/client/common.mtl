@@ -32,15 +32,6 @@
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
        </dependency>
-       <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
-       </dependency>
-       <dependency>
-          <groupId>org.assertj</groupId>
-          <artifactId>assertj-core</artifactId>
-       </dependency>
-       
        <!--
        [protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
          -->
