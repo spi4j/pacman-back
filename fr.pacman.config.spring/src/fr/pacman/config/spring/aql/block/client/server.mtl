@@ -30,20 +30,42 @@
     
     <dependencies>
        <dependency>
-           <groupId>org.springframework.boot</groupId>
-           <artifactId>spring-boot-starter-webflux</artifactId>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-core</artifactId>
        </dependency>
        <dependency>
-           <groupId>io.github.resilience4j</groupId>
-           <artifactId>resilience4j-spring-boot2</artifactId>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-api</artifactId>
        </dependency>
        <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j2-impl</artifactId>
        </dependency>
        <dependency>
-          <groupId>org.assertj</groupId>
-          <artifactId>assertj-core</artifactId>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-webflux</artifactId>
+         <exclusions>
+           <exclusion>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-logging</artifactId>
+           </exclusion>
+         </exclusions>
+       </dependency>
+       <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-test</artifactId>
+       </dependency>
+       <dependency>
+         <groupId>io.github.resilience4j</groupId>
+         <artifactId>resilience4j-spring-boot2</artifactId>
+       </dependency>
+       <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter</artifactId>
+       </dependency>
+       <dependency>
+         <groupId>org.assertj</groupId>
+         <artifactId>assertj-core</artifactId>
        </dependency>
        <!-- projet métier (domaine). -->
        <dependency>
@@ -111,6 +133,7 @@
       import java.util.Arrays;
       import org.slf4j.Logger;
       import org.slf4j.LoggerFactory;
+      import org.springframework.beans.factory.annotation.Autowired;
       import org.springframework.beans.factory.annotation.Value;
       import org.springframework.context.annotation.Bean;
       import org.springframework.context.annotation.Configuration;
@@ -196,6 +219,7 @@
        *
        * @see org.springframework.core.env.Environment
        */
+      @Autowired
       public [any.nameClassRsClientConfigImpl()/](Environment ['environment'.apply_parameterMethodClassicIn()/]) {
           [any.prefixAffectation()/]['environment'.apply_attributeFinal()/] = ['environment'.apply_parameterMethodClassicIn()/];
       }
@@ -233,14 +257,28 @@
       }
       
       /**
+       * Déclare un bean Spring de type {@link WebClient.Builder}.
+       * 
+       * Ce builder est nécessaire pour créer des instances de {@link WebClient},
+       * soit dans des classes de configuration, soit directement injecté dans des services
+       * ou des tests. Il permet de configurer globalement les clients HTTP réactifs (timeouts,
+       * interceptors, base URL, etc.).
+       *
+       * @return une nouvelle instance de {@link WebClient.Builder}
+       */
+      @Bean
+      public WebClient.Builder ['web client builder'.apply_methodDefault()/]() {
+          return WebClient.builder();
+      }
+      
+      /**
        * Filtre de log des requêtes HTTP (méthode, URL).
        *
        * @return un {@link ExchangeFilterFunction}
        */
        private ExchangeFilterFunction ['log request'.apply_methodDefault()/]() {
           return ExchangeFilterFunction.ofRequestProcessor(['client request'.apply_variableDefault()/] -> {
-              // Log des requêtes HTTP (en debug)
-              System.out.println("WebClient >> " + ['client request'.apply_variableDefault()/].method() 
+              ['log'.apply_attributeFinalStatic()/].info("WebClient >> " + ['client request'.apply_variableDefault()/].method() 
               + " " + ['client request'.apply_variableDefault()/].url());
               return reactor.core.publisher.Mono.just(['client request'.apply_variableDefault()/]);
           });
@@ -253,7 +291,7 @@
        * Le filtre :
        * <ul>
        *   <li>récupère le corps de la réponse sous forme de chaîne JSON,</li>
-       *   <li>l'affiche dans les logs (niveau DEBUG) avec indentation si possible,</li>
+       *   <li>l'affiche dans les logs (niveau INFO) avec indentation si possible,</li>
        *   <li>reconstruit une nouvelle {@link ClientResponse} avec le corps d'origine
        *       pour que le client final puisse toujours le consommer.</li>
        * </ul>
@@ -271,10 +309,10 @@
                .doOnNext(['body'.apply_variableDefault()/] -> {
                if (!['body'.apply_variableDefault()/].isBlank()) {
                   String ['pretty'.apply_variableDefault()/] = prettyPrintJson(['body'.apply_variableDefault()/]);
-                  ['log'.apply_attributeFinalStatic()/].debug("WebClient << {}:\n{}", ['status'.apply_variableDefault()/].value()
+                  ['log'.apply_attributeFinalStatic()/].info("WebClient << {}:\n{}", ['status'.apply_variableDefault()/].value()
                     , ['pretty'.apply_variableDefault()/]);
                } else {
-                   ['log'.apply_attributeFinalStatic()/].debug("WebClient << {} (empty body)", 
+                   ['log'.apply_attributeFinalStatic()/].info("WebClient << {} (empty body)", 
                      ['status'.apply_variableDefault()/].value());
                }
            })
@@ -314,9 +352,14 @@
 
 [comment écriture du fichier de configuration pour le client rest (webClient)./]
 [template public applicationProperties (any : ecore::EObject)]
+  # Adresse racine utilisée pour toutes les requêtes HTTP du client REST.
   [any.nameProject().toLower()/].api.base-url=https://api.thetvdb.com
+  # Timeout de connexion TCP (en millisecondes).
   [any.nameProject().toLower()/].api.connection-timeout-ms=5000
+  # Timeout de réponse HTTP (en millisecondes).
   [any.nameProject().toLower()/].api.response-timeout-ms=10000
+  # Profil Spring actif. Ici, on active le profil 'dev'.
+  spring.profiles.active=dev
 [/template]
 
 [comment écriture de l'implémentation de la classe utilitaire du client rest (webClient)./]
@@ -638,9 +681,13 @@
         * @throws RuntimeException si la réponse HTTP indique une erreur
         */
         public Object ['do execute'.apply_methodDefault()/](final boolean ['async'.apply_parameterMethodClassicIn()/]) {
-            WebClient.RequestBodySpec bodySpec = webClient.method(method).uri(buildUri(['uri'.apply_attributeDefault()/]
-            , ['path params'.apply_attributeDefault()/]
-            , ['query params'.apply_attributeDefault()/]));
+            WebClient.RequestBodySpec bodySpec = webClient.method(method).uri(uriBuilder -> {
+                uriBuilder = uriBuilder.path(['uri'.apply_attributeDefault()/]);
+                if (['query params'.apply_attributeDefault()/] != null) {
+                    ['query params'.apply_attributeDefault()/].forEach(uriBuilder::queryParam);
+                 }
+                return uriBuilder.build(['path params'.apply_attributeDefault()/] != null ? ['path params'.apply_attributeDefault()/] : Map.of());
+            });
             
             Map<String, String> ['string headers'.apply_attributeDefault()/] = convertToStringMap(['headers'.apply_attributeDefault()/]);
             WebClient.RequestHeadersSpec<?> requestSpec = (['body'.apply_attributeDefault()/] != null)
@@ -655,31 +702,6 @@
                
             return ['async'.apply_parameterMethodClassicIn()/] ? responseMono : responseMono.block();
         }
-    }
-   
-    /**
-     * Construit une fonction {@link Function} permettant de générer une URI complète,
-     * en remplaçant les variables de chemin ({...}) par leurs valeurs, et en ajoutant
-     * les paramètres de requête (query string).
-     *
-     * @param ['uri template'.apply_parameterMethodClassicIn()/] URI contenant éventuellement des variables de chemin (ex : "/api/items/{itemId}")
-     * @param ['path params'.apply_parameterMethodClassicIn()/]  map des variables de chemin à injecter dans l’URI (clé → valeur)
-     * @param ['query params'.apply_parameterMethodClassicIn()/] map des paramètres de requête à ajouter dans la query string (clé → valeur)
-     * @return une fonction {@code UriBuilder -> URI} à utiliser dans les appels WebClient
-     */
-     private URI ['build uri'.apply_methodDefault()/](String ['uri template'.apply_parameterMethodClassicIn()/], 
-         Map<String, ?> ['path params'.apply_parameterMethodClassicIn()/], Map<String, ?> ['query params'.apply_parameterMethodClassicIn()/]) {
-         UriComponentsBuilder ['builder'.apply_variableDefault()/] = UriComponentsBuilder.fromUriString(['uri template'.apply_parameterMethodClassicIn()/]);
-         
-        if (['query params'.apply_parameterMethodClassicIn()/] != null) {
-           ['query params'.apply_parameterMethodClassicIn()/].forEach(['builder'.apply_variableDefault()/]::queryParam);
-         }
-         
-        // On remplace les path variables ici (par exemple : /items/{id})
-        URI ['uri'.apply_variableDefault()/] = ['builder'.apply_variableDefault()/]
-          .buildAndExpand(['path params'.apply_parameterMethodClassicIn()/] != null 
-          ? ['convert to string map'.apply_methodDefault()/](['path params'.apply_parameterMethodClassicIn()/]) : Map.of()).toUri();
-        return ['uri'.apply_variableDefault()/];
     }
     
     /**

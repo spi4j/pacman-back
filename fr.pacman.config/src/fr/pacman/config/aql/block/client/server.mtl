@@ -1,2 +1,19 @@
 [module server(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
+[comment écriture du fichier minimaliste de configuration pour log4j2./]
+[template public log4j2 (any : ecore::EObject)]
+  <?xml version="1.0" encoding="UTF-8"?>
+  <Configuration status="WARN">
+      <Appenders>
+          <Console name="Console" target="SYSTEM_OUT">
+              <PatternLayout pattern="['['/] %d{HH:mm:ss}[']'/] ['['/]%t[']'/] %-5level %logger{36} - %msg%n" />
+          </Console>
+      </Appenders>
+      <Loggers>
+          <Root level="info">
+              <AppenderRef ref="Console" />
+          </Root>
+      </Loggers>
+  </Configuration>
+[/template]
+

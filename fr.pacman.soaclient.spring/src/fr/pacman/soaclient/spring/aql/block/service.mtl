@@ -34,7 +34,7 @@
   public class [s.nameClassRsClientImpl()/]
   {
     
-    ['Helper centralisé utilisé pour exécuter les appels WebClient vers l\'API '.commentSingleLine()/]
+    ['Helper centralisé utilisé pour exécuter les appels WebClient vers l\'API '.commentMultiLines()/]
     private final [s.nameClassRsClientHelper()/] ['client helper'.apply_attributeFinal()/];
     
     ['Constructeur (@Autowired pour meilleure lisibilité)'.commentMultiLines()/]

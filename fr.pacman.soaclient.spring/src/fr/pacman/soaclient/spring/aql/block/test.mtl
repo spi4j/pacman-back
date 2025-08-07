@@ -13,59 +13,7 @@
 [import fr::pacman::core::aql::rule::method/]
 [import fr::pacman::core::aql::rule::attribute/]
 [import fr::pacman::core::aql::rule::parameter/]
-
-[comment écriture d'une classe pour la réalisation des tests avant packaging./]
-[template public serviceRsClientTestsImpl (s : soa::Service)]
-  [s.classHeader(s.namePackageRsClientImpl())/]
-  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-    
-    [s.defaultImports()/]
-    import org.springframework.beans.factory.annotation.Autowired;
-    import org.junit.jupiter.api.BeforeEach;
-    import org.junit.jupiter.api.Test;
-    import [s.namePackageProject()/].[s.namePackageRsClientImpl().toPackage()/].[s.nameClassRsClientImpl()/];
-    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClienTokenTestsHelper()/];
-    
-  [/protected]    
-  public class [s.nameClassRsClientTestsImpl()/]
-  {
-    
-    ['Le client à tester'.commentMultiLines()/]
-    private final [s.nameClassRsClientImpl()/] ['client'.apply_attributeFinal()/];
-    
-    [if (s.isRsSecured())]
-      ['Helper de tests permettant de récupérer et de réutiliser un jeton d\'authentification (JWT)'.commentMultiLines()/]
-      private final [s.nameClassRsClienTokenTestsHelper()/] ['token helper'.apply_attributeFinal()/];
-    [/if]
-    
-    ['Constructeur de la classe de tests'.commentMultiLines()/]
-    @Autowired
-    [s.nameClassRsClientTestsImpl()/](final [s.nameClassRsClientImpl()/] ['client'.apply_parameterMethodClassicIn()/]
-       [if (s.isRsSecured())], final [s.nameClassRsClienTokenTestsHelper()/] ['token helper'.apply_parameterMethodClassicIn()/][/if])
-    {
-      [s.prefixAffectation()/]['client'.apply_attributeFinal()/] = ['client'.apply_parameterMethodClassicIn()/];
-      [if (s.isRsSecured())]
-        [s.prefixAffectation()/]['token helper'.apply_attributeFinal()/] = ['token helper'.apply_parameterMethodClassicIn()/];
-      [/if]
-    }
-  
-    @BeforeEach
-    void setup() {
-      // RAS.
-    }
-    
-    [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
-      
-      [if (o.isRsOperation())]
-        [o.commentOperation()/]
-        @Test
-        void [(o.name() + ' test').apply_methodGet()/]() {
-
-        }
-      [/if]
-    [/for]
-  }
-[/template]
+[import fr::pacman::core::aql::rule::variable/]
 
 [comment écriture de la classe helper pour la gestion du jeton (token)./]
 [template public serviceRsClientTokenTestsHelper (o : soa::Operation)]
@@ -74,6 +22,8 @@
     [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       
       [o.defaultImports()/]
+      import org.springframework.stereotype.Component;
+      import org.springframework.context.annotation.Import;
       import org.springframework.beans.factory.annotation.Autowired;
       import [s.namePackageProject()/].[s.namePackageRsClientImpl().toPackage()/].[s.nameClassRsClientImpl()/];      [for (o1 | o.input)]
         [if (o1.type.oclIsKindOf(environment::DTO))]
@@ -97,6 +47,8 @@
      * 
      * @author [o.nameAuthor()/]
      */
+    @Component
+    @Import([s.nameClassRsClientImpl()/].class)
     public class [o.nameClassRsClienTokenTestsHelper()/]
     {
         ['Jeton JWT récupéré lors du premier appel'.commentMultiLines()/]
@@ -151,7 +103,83 @@
   }
 [/template]
 
+[comment écriture d'une classe pour la réalisation des tests avant packaging./]
+[template public serviceRsClientTestsImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageRsClientImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import org.springframework.context.annotation.Import;
+    import org.springframework.boot.test.context.SpringBootTest;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.junit.jupiter.api.BeforeEach;
+    import org.junit.jupiter.api.Test;
+    import [s.namePackageProject()/].[s.namePackageRsClientImpl().toPackage()/].[s.nameClassRsClientImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClienTokenTestsHelper()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientConfigImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientHelper()/];
+    
+  [/protected]
+  
+  [s.commentClass()/]
+  @SpringBootTest(classes = [s.nameClassRsClientConfigImpl()/].class)
+  @Import({[s.nameClassRsClientImpl()/].class, [if (s.isRsSecured())][s.nameClassRsClienTokenTestsHelper()/].class[/if]
+    , [s.nameClassRsClientHelper()/].class})
+  public class [s.nameClassRsClientTestsImpl()/]
+  {
+    
+    ['Le client à tester'.commentMultiLines()/]
+    private final [s.nameClassRsClientImpl()/] ['client'.apply_attributeFinal()/];
+    
+    [if (s.isRsSecured())]
+      ['Helper de tests permettant de récupérer et de réutiliser un jeton d\'authentification (JWT)'.commentMultiLines()/]
+      private final [s.nameClassRsClienTokenTestsHelper()/] ['token helper'.apply_attributeFinal()/];
+    [/if]
+
+    ['Constructeur de la classe de tests'.commentMultiLines()/]
+    @Autowired
+    [s.nameClassRsClientTestsImpl()/](final [s.nameClassRsClientImpl()/] ['client'.apply_parameterMethodClassicIn()/]
+       [if (s.isRsSecured())], final [s.nameClassRsClienTokenTestsHelper()/] ['token helper'.apply_parameterMethodClassicIn()/][/if])
+    {
+      [s.prefixAffectation()/]['client'.apply_attributeFinal()/] = ['client'.apply_parameterMethodClassicIn()/];
+      [if (s.isRsSecured())]
+        [s.prefixAffectation()/]['token helper'.apply_attributeFinal()/] = ['token helper'.apply_parameterMethodClassicIn()/];
+      [/if]
+    }
+  
+    @BeforeEach
+    void setup() {
+      // RAS.
+    }
+    
+    [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+      
+      [if (o.isRsOperation())]
+        [o.commentOperation()/]
+        @Test
+        void [(o.name() + ' test').apply_methodGet()/]() {
+            
+            [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              
+            [for (p | o.input)]
+              [p.writeDescription().commentMultiLines()/]
+              [p.inputRsType()/] [p.name().apply_variableDefault()/] = null;
+              
+            [/for]
+            [/protected]
+            
+            [o.writeRsTestOperation()/]
+        }
+      [/if]
+    [/for]
+  }
+[/template]
+
 [comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
 [query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
   ->collect(o1 : soa::Parameter | o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif /]
 
+[comment écriture de l'appel du client pour le tests ./]
+[query private writeRsTestOperation(o : soa::Operation) : String = 'client'.apply_attributeFinal() + '.' + o.name() 
+  + '(' + o.writeRsInputs() + if (o.isRsSecured()) then if(o.hasInputs()) then ', ' else '' endif 
+  + 'token helper'.apply_attributeFinal() + '.' + 'token'.apply_methodGet() + '()' else '' endif + ');'/]

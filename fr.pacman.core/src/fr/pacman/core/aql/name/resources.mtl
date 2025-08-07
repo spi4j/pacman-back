@@ -15,6 +15,9 @@
 [comment retourne le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
 [query public nameApplicationResources(any : ecore::EObject) : String = 'application'/]
   
+[comment retourne le nom du fichier de configuration pour log4j2./]
+[query public nameLog4j2Resources(any : ecore::EObject) : String = 'log4j2'/]
+  
 [comment retourne le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
 [query public nameIntegrationResources(any : ecore::EObject) : String = 'tests'/]
   

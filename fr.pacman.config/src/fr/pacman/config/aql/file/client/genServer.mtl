@@ -5,5 +5,11 @@
 [import fr::pacman::core::aql::name::packages/]
 [import fr::pacman::core::aql::name::resources/]
 [import fr::pacman::core::aql::output::resources/]
+[import fr::pacman::config::aql::block::client::server/]
 
-[comment ras pour l'instant./]
+[comment écriture du fichier de propriété pour log4j2./]
+[template public fileLog4j2(any : ecore::EObject)]
+  [file (any.nameLog4j2Resources().toFile(any.namePackageResources(), '.xml'), overwrite, 'ISO-8859-1')]
+    [any.log4j2()/]
+  [/file]
+[/template]

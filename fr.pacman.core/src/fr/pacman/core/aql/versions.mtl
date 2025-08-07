@@ -14,6 +14,7 @@
 [query public versionOracle(any : ecore::EObject) : String = '12.1.0.2'/]
 [query public versionOracle32(any : ecore::EObject) : String = '12.2.0.1'/]
 [query public versionSl4j(any : ecore::EObject) : String = '2.0.2'/]
+[query public versionLog4j(any : ecore::EObject) : String = '2.25.1'/]
 [query public versionResilience4j(any : ecore::EObject) : String = '2.3.0'/]
 [query public versionOpenApiSwagger(any : ecore::EObject) : String = '2.8.6'/]
 [query public versionHibernateValidator(any : ecore::EObject) : String = '9.0.0.CR1'/]
