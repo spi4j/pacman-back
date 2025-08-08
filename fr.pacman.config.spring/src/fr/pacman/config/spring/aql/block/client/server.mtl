@@ -215,6 +215,8 @@
        * Cet environnement est ensuite utilisé pour activer ou désactiver certains filtres ou comportements
        * conditionnels (comme les logs WebClient en profil <code>dev</code>).
        *
+       * (@Autowired pour meilleure lisibilité)
+       *
        * @param ['environment'.apply_parameterMethodClassicIn()/] l'environnement Spring actif injecté automatiquement par le conteneur
        *
        * @see org.springframework.core.env.Environment
@@ -353,7 +355,7 @@
 [comment écriture du fichier de configuration pour le client rest (webClient)./]
 [template public applicationProperties (any : ecore::EObject)]
   # Adresse racine utilisée pour toutes les requêtes HTTP du client REST.
-  [any.nameProject().toLower()/].api.base-url=https://api.thetvdb.com
+  [any.nameProject().toLower()/].api.base-url= ['['/]Placer ici l'url de base pour le client[']'/]
   # Timeout de connexion TCP (en millisecondes).
   [any.nameProject().toLower()/].api.connection-timeout-ms=5000
   # Timeout de réponse HTTP (en millisecondes).
@@ -413,7 +415,7 @@
     protected final WebClient ['web client'.apply_attributeFinal()/];
     
     /**
-     * Constructeur avec injection du WebClient.
+     * Constructeur avec injection du WebClient (@Autowired pour meilleure lisibilité).
      * 
      * @param ['web client'.apply_parameterMethodClassicIn()/] instance de WebClient fournie par Spring
      */
@@ -681,26 +683,26 @@
         * @throws RuntimeException si la réponse HTTP indique une erreur
         */
         public Object ['do execute'.apply_methodDefault()/](final boolean ['async'.apply_parameterMethodClassicIn()/]) {
-            WebClient.RequestBodySpec bodySpec = webClient.method(method).uri(uriBuilder -> {
-                uriBuilder = uriBuilder.path(['uri'.apply_attributeDefault()/]);
+            WebClient.RequestBodySpec ['body spec'.apply_variableDefault()/] = webClient.method(method).uri(['uri builder'.apply_variableDefault()/] -> {
+                ['uri builder'.apply_variableDefault()/] = ['uri builder'.apply_variableDefault()/].path(['uri'.apply_attributeDefault()/]);
                 if (['query params'.apply_attributeDefault()/] != null) {
-                    ['query params'.apply_attributeDefault()/].forEach(uriBuilder::queryParam);
+                    ['query params'.apply_attributeDefault()/].forEach(['uri builder'.apply_variableDefault()/]::queryParam);
                  }
-                return uriBuilder.build(['path params'.apply_attributeDefault()/] != null ? ['path params'.apply_attributeDefault()/] : Map.of());
+                return ['uri builder'.apply_variableDefault()/].build(['path params'.apply_attributeDefault()/] != null ? ['path params'.apply_attributeDefault()/] : Map.of());
             });
             
             Map<String, String> ['string headers'.apply_attributeDefault()/] = convertToStringMap(['headers'.apply_attributeDefault()/]);
-            WebClient.RequestHeadersSpec<?> requestSpec = (['body'.apply_attributeDefault()/] != null)
-                    ? bodySpec.headers(http -> ['string headers'.apply_attributeDefault()/].forEach(http::set))
+            WebClient.RequestHeadersSpec<?> ['request spec'.apply_variableDefault()/] = (['body'.apply_attributeDefault()/] != null)
+                    ? ['body spec'.apply_variableDefault()/].headers(http -> ['string headers'.apply_attributeDefault()/].forEach(http::set))
                     .bodyValue(['body'.apply_attributeDefault()/])
-                    : bodySpec.headers(http -> ['string headers'.apply_attributeDefault()/].forEach(http::set));
+                    : ['body spec'.apply_variableDefault()/].headers(http -> ['string headers'.apply_attributeDefault()/].forEach(http::set));
                 
-             Mono<?> responseMono = requestSpec
+             Mono<?> ['response mono'.apply_variableDefault()/] = ['request spec'.apply_variableDefault()/]
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, [any.nameClassRsClientHelper()/].this::handleError)
                 .bodyToMono(['response type'.apply_attributeDefault()/]);
                
-            return ['async'.apply_parameterMethodClassicIn()/] ? responseMono : responseMono.block();
+            return ['async'.apply_parameterMethodClassicIn()/] ? ['response mono'.apply_variableDefault()/] : ['response mono'.apply_variableDefault()/].block();
         }
     }
     
@@ -736,5 +738,39 @@
          .map(['body'.apply_parameterMethodClassicIn()/] -> new RuntimeException("Erreur HTTP " 
           + ['response'.apply_parameterMethodClassicIn()/].statusCode() + ": " + ['body'.apply_parameterMethodClassicIn()/]));
      }
+  }
+[/template]
+
+[comment écriture d'une classe utilitaire pour l'initialisation des maps dans le cas ou plus de 10 entrées./]
+[template public mapUtils (any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  import java.util.HashMap;
+  import java.util.Map;
+  
+  /**
+   * Utilitaire pour créer facilement des {@link Map} modifiables à partir d'une
+   * liste variable d'arguments représentant des paires clé-valeur.
+   * 
+   * Cette classe fournit une méthode statique générique permettant de construire
+   * une {@link HashMap} sans limite sur le nombre d'entrées, contrairement à
+   * {@link Map#of(Object, Object, .... Object)} qui est limitée à 10 paires.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  @SuppressWarnings("unchecked")
+  public class [any.nameClassMapUtils()/] {
+    @SafeVarargs
+    public static <K, V> Map<K, V> ['map of'.apply_methodDefault()/](Object... ['entries'.apply_parameterMethodClassicIn()/]) {
+        if (['entries'.apply_parameterMethodClassicIn()/].length % 2 != 0) {
+            throw new IllegalArgumentException("Nombre d'arguments impair, il faut fournir des paires clé-valeur.");
+        }
+        Map<K, V> ['map'.apply_variableDefault()/] = new HashMap<>();
+        for (int i = 0; i < ['entries'.apply_parameterMethodClassicIn()/].length; i += 2) {
+            K ['key'.apply_variableDefault()/] = (K) ['entries'.apply_parameterMethodClassicIn()/]['['/]i[']'/];
+            V ['value'.apply_variableDefault()/] = (V) ['entries'.apply_parameterMethodClassicIn()/]['['/]i + 1[']'/];
+            ['map'.apply_variableDefault()/].put(['key'.apply_variableDefault()/], ['value'.apply_variableDefault()/]);
+        }
+        return ['map'.apply_variableDefault()/];
+    }
   }
 [/template]

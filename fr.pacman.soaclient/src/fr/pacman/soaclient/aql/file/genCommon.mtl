@@ -16,8 +16,8 @@
 [/template]
 
 [comment écriture du fichier d'implémentation pour les énumérations./]
-[template public fileEnumImpl(e : environment::Enumeration)]
+[template public fileEnumeratioImpl(e : environment::Enumeration)]
   [file (e.nameClassEnumeration().toFileJava(e.namePackageEnumeration()), overwrite, e.defaultFileEncoding())]
-    [e.enumImpl()/]
+    [e.enumerationImpl()/]
   [/file]
 [/template]

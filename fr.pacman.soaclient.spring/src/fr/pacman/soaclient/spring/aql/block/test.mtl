@@ -123,7 +123,7 @@
   
   [s.commentClass()/]
   @SpringBootTest(classes = [s.nameClassRsClientConfigImpl()/].class)
-  @Import({[s.nameClassRsClientImpl()/].class, [if (s.isRsSecured())][s.nameClassRsClienTokenTestsHelper()/].class[/if]
+  @Import({[s.nameClassRsClientImpl()/].class [if (s.isRsSecured())], [s.nameClassRsClienTokenTestsHelper()/].class[/if]
     , [s.nameClassRsClientHelper()/].class})
   public class [s.nameClassRsClientTestsImpl()/]
   {

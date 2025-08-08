@@ -11,6 +11,6 @@
   [/for]
   [comment implémentation des énumérations./]
   [for (e | m.eAllContents(environment::Enumeration))]
-    [e.fileEnumImpl()/]
+    [e.fileEnumeratioImpl()/]
   [/for]
 [/template]

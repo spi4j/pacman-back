@@ -18,7 +18,7 @@
 [import fr::pacman::core::service::StringUtils/]
 
 [comment écriture du corps de la classe pour une énumération./]
-[template public enumImpl(e : environment::Enumeration)]
+[template public enumerationImpl(e : environment::Enumeration)]
   [e.classHeader(e.namePackageEnumeration())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     

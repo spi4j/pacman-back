@@ -74,7 +74,7 @@
 [query public lineCut(str : String, nbCols : Integer) : String = str.lineCut(nbCols, null)/]
 
 [comment retourne la les lignes de commentaires échappées des retours à la ligne./]  
-[query public escapeComment(str : String) : String = str.replaceAll('[\n|\r]','').replace('\\.$','')/]
+[query public escapeComment(str : String) : String = str.replaceAll('[\n|\r|\\*]','').replace('\\.$','')/]
   
 [comment retourne la les lignes de commentaires échappées des retours à la ligne./]  
 [query public escapeSqlComment(str : String) : String = str.escapeComment().replaceAll('\'','\'\'')/]

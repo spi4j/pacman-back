@@ -35,3 +35,10 @@
     [any.applicationProperties()/]
   [/file]
 [/template]
+
+[comment écriture d'une classe utilitaire pour l'initialisation des maps (+10 entrées)./]
+[template public fileMapUtils(any : ecore::EObject)]
+  [file (any.nameClassMapUtils().toFileJava(any.namePackageRsBase()), overwrite, 'ISO-8859-1')]
+    [any.mapUtils()/]
+  [/file]
+[/template]

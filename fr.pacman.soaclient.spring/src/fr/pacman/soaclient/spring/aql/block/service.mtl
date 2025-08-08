@@ -23,7 +23,8 @@
     import org.springframework.stereotype.Service;
     import org.springframework.beans.factory.annotation.Autowired;
     import reactor.core.publisher.Mono;
-    import [s.namePackageRsBase()/].[s.nameClassRsClientHelper()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientHelper()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassMapUtils()/];
     
   [/protected]
   
@@ -67,8 +68,9 @@
   + if(o.hasOutput()) then  '.' + 'with response type'.apply_methodDefault() + '(' + o.outputRsType() + '.class)' else '' endif 
   + '.' + 'with uri'.apply_methodDefault() + '("' + s.rsUri() + o.rsUri() + '")' + if (o.hasInputs()) then if (not o.input
   ->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->isEmpty()) then '.' + 'with query params'.apply_methodDefault() 
-  + '(Map.of(' +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->collect(o2 | '"' + o2.restData.restId + '",' 
-  + o2.name().apply_parameterMethodClassicIn() )->sep(', ') + '))' else '' endif + if (not o.input->select(o1 | o1.restData.passingMode 
+  + '(' + if(o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->size() > 10) then o.nameClassMapUtils() + '.mapOf(' 
+  else 'Map.of(' endif +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->collect(o2 | '"' + o2.restData.restId 
+  + '",' + o2.name().apply_parameterMethodClassicIn() )->sep(', ') + '))' else '' endif + if (not o.input->select(o1 | o1.restData.passingMode 
   = soa::ParameterPassingMode::PATH)->isEmpty()) then '.' + 'with path params'.apply_methodDefault() + '(Map.of(' +  o.input
   ->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->collect(o2 | '"' + o2.restData.restId + '",' 
   + o2.name().apply_parameterMethodClassicIn())->sep(', ') + '))' else '' endif + if (not o.input->select (o3 | o3.restData.passingMode 

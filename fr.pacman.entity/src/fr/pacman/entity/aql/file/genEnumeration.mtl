@@ -9,7 +9,7 @@
 [comment écriture du fichier d'implémentation pour une énumération./]
 [template public fileEnumerationImpl(e: environment::Enumeration)]
   [file (e.nameClassEnumeration().toFileJava(e.namePackageEnumeration()), overwrite, e.defaultFileEncoding())]
-    [e.enumImpl()/]
+    [e.enumerationImpl()/]
   [/file]
 [/template]
 

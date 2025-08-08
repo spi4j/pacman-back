@@ -9,6 +9,7 @@ Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,
  fr.pacman.core,
  fr.pacman.soa,
+ fr.pacman.common,
  fr.pacman.soaclient.spring,
  fr.pacman.soaclient.spi4j,
  org.eclipse.acceleo.aql,
