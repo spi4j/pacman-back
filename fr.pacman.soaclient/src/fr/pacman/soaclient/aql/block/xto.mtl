@@ -23,6 +23,8 @@
     
     [d.defaultImports()/]
     import java.io.Serializable;
+    import com.fasterxml.jackson.annotation.JsonProperty;
+    
   [/protected]
   [d.commentClass()/]
   public class [d.nameClassXtoImpl()/] implements Serializable {
@@ -43,6 +45,9 @@
     [let rs = d.referencesFKSB()->union(d.referencesJT())]
       [for (r : environment::Reference | rs)]
         [r.referencedDto(d).comment().commentSingleLine()/]
+        [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          @JsonProperty(value = "[r.name/]")
+        [/protected]
         private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
         
       [/for]

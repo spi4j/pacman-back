@@ -86,6 +86,11 @@
             <artifactId>resilience4j-spring-boot2</artifactId>
             <version>[any.versionResilience4j()/]</version>
           </dependency>
+          <dependency>
+             <groupId>com.fasterxml.jackson.core</groupId>
+             <artifactId>jackson-annotations</artifactId>
+             <version>[any.versionJsonCore()/]</version>
+          </dependency>
           <!--
           [protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
             -->

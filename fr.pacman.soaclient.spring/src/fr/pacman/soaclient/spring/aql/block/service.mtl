@@ -81,7 +81,9 @@
   ->select (o3 | o3.restData.passingMode = soa::ParameterPassingMode::BODY)->first() in b.name().apply_parameterMethodClassicIn() 
   + ')'  else '' endif  else '' endif + if(o.isRsSecured()) then '.' +  if (o.securitySchemes->first().type = soa::SecuritySchemeType::API_KEY 
   and  o.securitySchemes->first().apiKeyLocation = soa::ApiKeyLocation::QUERY) then 'with query token'.apply_methodDefault() 
-  else 'with header token'.apply_methodDefault()  endif + '("' + o.securitySchemes->first().key + '", ' + 'token'.apply_parameterMethodClassicIn() 
+  else 'with header token'.apply_methodDefault()  endif + '("' + if (o.securitySchemes->first().type = soa::SecuritySchemeType::API_KEY) 
+  then o.securitySchemes->first().key else 'Authorization' endif + '", ' + if (o.securitySchemes->first().type = soa::SecuritySchemeType::HTTP 
+  and o.securitySchemes->first().httpScheme = soa::HttpScheme::BASIC) then '' else '"Bearer " + ' endif + 'token'.apply_parameterMethodClassicIn() 
   +')' else '' endif + '.' + 'execute'.apply_methodDefault() + '();'/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]

@@ -476,6 +476,12 @@
         private Object ['body'.apply_attributeDefault()/] = null;
         
         /**
+         * Indique si les entrées dont la valeur est vide ou nulle doivent être ignorées
+         * lors de la conversion d'une map en {@code Map<String, String>}.
+         */
+        private boolean ['skip empty values'.apply_attributeDefault()/];
+        
+        /**
          * Type de la réponse attendue, utilisé pour la désérialisation automatique via WebClient.
          * Exemple : MyDto.class
          */
@@ -684,11 +690,14 @@
         */
         public Object ['do execute'.apply_methodDefault()/](final boolean ['async'.apply_parameterMethodClassicIn()/]) {
             WebClient.RequestBodySpec ['body spec'.apply_variableDefault()/] = webClient.method(method).uri(['uri builder'.apply_variableDefault()/] -> {
-                ['uri builder'.apply_variableDefault()/] = ['uri builder'.apply_variableDefault()/].path(['uri'.apply_attributeDefault()/]);
+                UriBuilder ['builder'.apply_variableDefault()/] = ['uri builder'.apply_variableDefault()/].path(['uri'.apply_attributeDefault()/]);
                 if (['query params'.apply_attributeDefault()/] != null) {
-                    ['query params'.apply_attributeDefault()/].forEach(['uri builder'.apply_variableDefault()/]::queryParam);
+                    ['query params'.apply_attributeDefault()/].entrySet().stream()
+			           .filter(e -> ['shouldIncludeEntry'.apply_methodDefault()/](e.getKey(), e.getValue()))
+			           .forEach(e -> ['builder'.apply_variableDefault()/].queryParam(e.getKey(), e.getValue()));
                  }
-                return ['uri builder'.apply_variableDefault()/].build(['path params'.apply_attributeDefault()/] != null ? ['path params'.apply_attributeDefault()/] : Map.of());
+                return ['uri builder'.apply_variableDefault()/].build(['path params'.apply_attributeDefault()/] != null 
+                  ? ['path params'.apply_attributeDefault()/] : Map.of());
             });
             
             Map<String, String> ['string headers'.apply_attributeDefault()/] = convertToStringMap(['headers'.apply_attributeDefault()/]);
@@ -704,6 +713,29 @@
                
             return ['async'.apply_parameterMethodClassicIn()/] ? ['response mono'.apply_variableDefault()/] : ['response mono'.apply_variableDefault()/].block();
         }
+    }
+    
+    /**
+     * Détermine si une entrée clé/valeur doit être incluse dans la map résultante.
+     * 
+     * Cette méthode exclut les entrées dont la clé ou la valeur est {@code null}.
+     * Si l'attribut {@code skipEmptyValues} est vrai, elle exclut également
+     * les entrées dont la valeur convertie en chaîne est vide.
+     *
+     * @param ['key'.apply_parameterMethodClassicIn()/]   la clé de l'entrée à tester, peut être {@code null}
+     * @param ['value'.apply_parameterMethodClassicIn()/] la valeur associée à la clé, peut être {@code null}
+     * @return {@code true} si l'entrée doit être incluse, {@code false} sinon
+     */
+    private boolean ['shouldIncludeEntry'.apply_methodDefault()/](final String ['key'.apply_parameterMethodClassicIn()/]
+        , final Object ['value'.apply_parameterMethodClassicIn()/]) {
+        if (['key'.apply_parameterMethodClassicIn()/] == null || ['value'.apply_parameterMethodClassicIn()/] == null) {
+            return false;
+        }
+        if ([any.prefixAffectation()/]['builder'.apply_methodGet()/]().['skip empty values'.apply_attributeDefault()/]) {
+            String ['str value'.apply_variableDefault()/] = ['value'.apply_parameterMethodClassicIn()/].toString();
+            return !['str value'.apply_variableDefault()/].isEmpty();
+        }
+        return true;
     }
     
     /**
