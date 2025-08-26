@@ -46,7 +46,7 @@
   <li><strong>[any.nameProjectModel()/]</strong> : le projet de modélisation. Aucune classe Java ne doit être présente dans ce projet. Il n'est, par ailleurs, pas embarqué lors du déploiement de l'application.</li>
   <li><strong>[any.nameProjectServer()/]</strong> : le projet d'infrastructure qui contient le framework Spring Boot et toutes les couches techniques pour manipuler la couche métier [any.nameProjectCommon()/].</li>
   </ul>
-  <hr />
+  <hr/>
   <h2>📂 Emplacement des fichiers de configuration et classe de démarrage</h2>
   <ul>
   <li style="margin-bottom: 10px;"><b>Configuration des options pour la génération</b> : <code>[any.nameProjectModel()/]/[any.namePropertiesDirectory()/]/project.properties</code>
@@ -78,7 +78,7 @@
        La classe de démarrage de SpringBoot.
   </li>
   </ul>
-  <hr />
+  <hr/>
   <h2>📁 Principaux packages générés</h2>
   <ul>
     <li>[any.nameProjectServer()/]
@@ -118,7 +118,7 @@
   <li><code>http://localhost/api-docs</code></li>
   </ul></li>
   </ol>
-  <hr />
+  <hr/>
   <h2>🚀 Pour commencer rapidement</h2>
   <ol>
   <li><p>Modéliser des entités au niveau du projet de modélisation (<code>[any.nameProject().toLower()/].entity</code>) </p>

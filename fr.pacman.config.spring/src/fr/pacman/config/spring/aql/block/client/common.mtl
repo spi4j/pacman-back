@@ -102,3 +102,8 @@
     </properties>
   </project>
 [/template]
+
+[comment écriture du package-inf (uniquement pour empêcher message no compilation unit)./]
+[template public basePackageInfo (any : ecore::EObject)]
+  package [any.namePackageProject()/];
+[/template]

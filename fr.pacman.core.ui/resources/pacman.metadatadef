@@ -137,4 +137,9 @@
      title="ENTITY_MANAGER"
      body="JPA : Demande d'utilisation de l'entity manager en collaboration avec le repository de l'entité." 
      condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
+   <metaDataDefinitions technicalid="_pxIeQII3EfCqUrNPjfLJSA"
+     title="SKIP_EMPTY_VALUES"
+     body="REST : Ne prend pas en compte les paramètres nuls ou vides dans les requêtes." 
+     condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
+   />
 </metadatadef:MetaDataDefinitions>

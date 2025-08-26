@@ -376,6 +376,11 @@ public final class AnnotationUtils {
 	public static boolean has_metaEntityManager(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.ENTITY_MANAGER);
 	}
+	
+	public static boolean has_metaSkipEmptyValues(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.SKIP_EMPTY_VALUES);
+	}
+	
 
 	public static boolean has_metaLiteralParamsStruct(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.LITERALS_PARAMS_STRUCT)

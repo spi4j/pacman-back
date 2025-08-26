@@ -91,6 +91,22 @@
 [query public securityRsScheme(o : soa::Operation) : soa::SecurityScheme = if (o.isRsSecured()) then o.securitySchemes
   ->union(o.eContainer(soa::Service).securitySchemes)->first() else null endif/]
 
+[comment vérifie si l'opération a une sécurité de type api key./]
+[query public hasRsApiKeySecurity(o : soa::Operation) : Boolean = not o.securitySchemes->isEmpty() and o.securitySchemes->first().type 
+  = soa::SecuritySchemeType::API_KEY/]
+  
+[comment vérifie si l'opération a une sécurité de type http./]
+[query public hasRsHttpSecurity(o : soa::Operation) : Boolean = not o.securitySchemes->isEmpty() and o.securitySchemes->first().type 
+  = soa::SecuritySchemeType::HTTP/]
+
+[comment vérifie si l'oération a une sécurité de type api key passé par la requête./]
+[query public isRsApiKeyByQuerySecurity(o : soa::Operation) : Boolean =  o.hasRsApiKeySecurity() and o.securitySchemes->first()
+  .apiKeyLocation = soa::ApiKeyLocation::QUERY/]
+  
+[comment vérifie si l'oération a une sécurité de type api key passé par la requête./]
+[query public isRsHttpBasicSecurity(o : soa::Operation) : Boolean =  o.hasRsHttpSecurity() and o.securitySchemes->first()
+  .httpScheme = soa::HttpScheme::BASIC/]
+
 [comment retourne le type et le nom du paramètre de sortie (si existe) (liste + optional + type + nom)./]
 [query public outputSignature(o : soa::Operation) : String = if(o.hasOutput()) then o.output->first().type(false) 
   + ' ' + o.output->first().name() else 'void' endif/]

@@ -45,7 +45,7 @@
     [let rs = d.referencesFKSB()->union(d.referencesJT())]
       [for (r : environment::Reference | rs)]
         [r.referencedDto(d).comment().commentSingleLine()/]
-        [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           @JsonProperty(value = "[r.name/]")
         [/protected]
         private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];

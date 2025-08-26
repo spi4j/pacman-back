@@ -11,5 +11,8 @@
 [comment écriture de l'ensemble de la configuration de base pour le projet métier (Spring)./]
 [template public genCommonConfig(r : overview::Root)]
   [r.super:genCommonConfig()/]
+  [comment écriture du package-info (uniquement pour éviter message no compilation unit)./]
+  [r.filePackageInfo()/]
+  [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]

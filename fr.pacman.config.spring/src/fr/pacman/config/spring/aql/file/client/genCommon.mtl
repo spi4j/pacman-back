@@ -11,6 +11,13 @@
   [/file]
 [/template]
 
+[comment écriture du package info (uniquement pour empêcher le message no compilation unit)./]
+[template public filePackageInfo(any : ecore::EObject)]
+  [file (any.namePackageInfo().toFileJava(null), overwrite, any.defaultFileEncoding())]
+    [any.basePackageInfo()/]
+  [/file]
+[/template]
+
 
 
 

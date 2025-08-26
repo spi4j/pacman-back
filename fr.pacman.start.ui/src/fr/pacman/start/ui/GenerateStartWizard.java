@@ -415,15 +415,6 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			String url = p_project.getLocation() + File.separator + ProjectProperties.get_projectModelName(null)
 					+ File.separator + p_project.getName().toLowerCase() + "-lisezmoi.html";
 			WizardUtil.showHtmlFromMarkdown(url);
-
-//			On conserve cet ancien code pour afficher dans une page externe si on recontre des problèmes avec la nouvelle solution.
-//			IWorkbenchBrowserSupport browserSupport = PlatformUI.getWorkbench().getBrowserSupport();
-//			IWebBrowser browser = browserSupport.createBrowser(IWorkbenchBrowserSupport.AS_EDITOR, "myBrowserId",
-//					ProjectProperties.get_projectName(null).toUpperCase(), "Description pour la strcuture du projet");
-//			String url = "file:///" + p_project.getLocation() + File.separator
-//					+ ProjectProperties.get_projectModelName(null) + File.separator + p_project.getName().toLowerCase()
-//					+ "-lisezmoi" + ".html";
-//			browser.openURL(new URL(url));
 		}
 	}
 

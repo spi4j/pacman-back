@@ -138,11 +138,14 @@
       import org.springframework.context.annotation.Bean;
       import org.springframework.context.annotation.Configuration;
       import org.springframework.core.env.Environment;
+      import org.springframework.http.MediaType;
       import org.springframework.http.HttpStatusCode;
       import org.springframework.http.client.reactive.ReactorClientHttpConnector;
       import org.springframework.web.reactive.function.client.ClientResponse;
       import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
       import org.springframework.web.reactive.function.client.WebClient;
+      import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+      import com.fasterxml.jackson.databind.ObjectMapper;
       import com.fasterxml.jackson.databind.ObjectMapper;
       import io.netty.channel.ChannelOption;
       import reactor.core.publisher.Mono;
@@ -226,16 +229,34 @@
           [any.prefixAffectation()/]['environment'.apply_attributeFinal()/] = ['environment'.apply_parameterMethodClassicIn()/];
       }
       
-     /**
-      * Fournit un {@link WebClient} configuré avec les timeouts, un pool de connexions
-      * et des filtres de log simples.
-      *
-      * @param ['builder'.apply_parameterMethodClassicIn()/] le builder Spring injecté
-      * @return une instance de {@link WebClient}
-      */
+    /**
+     * Configure et expose un {@link WebClient} spécifique à l'API [any.nameProject().toUpper()/].
+     * <p>
+     * Cette méthode définit un {@link WebClient} Spring optimisé pour consommer l'API distante,
+     * avec les caractéristiques suivantes :
+     * 
+     * <ul>
+     *   <li><b>Base URL :</b> défini par la propriété {@code baseUrl}.</li>
+     *   <li><b>Gestion des connexions :</b> utilisation d’un {@link ConnectionProvider} nommé {@code [any.namePackageProject().toLower()/]},
+     *       avec un maximum de 100 connexions simultanées et un délai d’acquisition limité à 5 secondes.</li>
+     *   <li><b>Timeouts :</b> configuration d’un timeout de connexion ({@code connectionTimeout}) et d’un
+     *       timeout de réponse ({@code responseTimeout}).</li>
+     *   <li><b>Sérialisation JSON :</b> configuration d’un {@link ObjectMapper} Jackson avec une stratégie de
+     *       nommage {@link PropertyNamingStrategies#SNAKE_CASE}, utilisé via un {@link Jackson2JsonDecoder}
+     *       pour décoder les réponses JSON.</li>
+     *   <li><b>Logs conditionnels :</b> si le profil Spring actif contient {@code dev}, des filtres
+     *       supplémentaires sont ajoutés pour logguer les requêtes et réponses HTTP.</li>
+     * </ul>
+     *
+     * @param builder le builder Spring {@link WebClient.Builder}, injecté automatiquement par le conteneur Spring.
+     * @return un {@link WebClient} configuré pour l’API [any.nameProject().toUpper()/].
+     */
       @Bean
       public WebClient [(any.nameProject() + ' web client').apply_methodDefault()/]
          (final WebClient.Builder ['builder'.apply_parameterMethodClassicIn()/]) {
+         
+         ObjectMapper ['mapper'.apply_variableDefault()/] = new ObjectMapper();
+          ['mapper'.apply_variableDefault()/].setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
          
          ConnectionProvider ['provider'.apply_variableDefault()/] = ConnectionProvider.builder("[any.namePackageProject().toLower()/]")
            .maxConnections(100)
@@ -249,6 +270,10 @@
           WebClient.Builder ['internal builder'.apply_variableDefault()/] = ['builder'.apply_parameterMethodClassicIn()/]
             .baseUrl(['base url'.apply_attributeDefault()/])
             .clientConnector(new ReactorClientHttpConnector(['http client'.apply_variableDefault()/]));
+            
+          ['internal builder'.apply_variableDefault()/].codecs(['configure'.apply_variableDefault()/] 
+             -> ['configure'.apply_variableDefault()/].defaultCodecs().jackson2JsonDecoder(
+             new Jackson2JsonDecoder(['mapper'.apply_variableDefault()/], MediaType.APPLICATION_JSON)));
             
             if (Arrays.asList(['environment'.apply_attributeFinal()/].getActiveProfiles()).contains("dev")) {
               ['internal builder'.apply_variableDefault()/]
@@ -557,6 +582,16 @@
         	[any.prefixAffectation()/]['path params'.apply_attributeDefault()/] = ['path params'.apply_parameterMethodClassicIn()/] != null ? 
         	['path params'.apply_parameterMethodClassicIn()/] : Map.of();
         	return this;
+        }
+        
+        /**
+         * Indique si le moteur doit ou non prendre en compte les valeurs vides.
+         *
+         * @return builder modifié
+         */ 
+        public RequestBuilder ['with skip empty values'.apply_methodDefault()/]() {
+            [any.prefixAffectation()/]['skip empty values'.apply_attributeDefault()/] = true;
+            return this;
         }
         
         /**

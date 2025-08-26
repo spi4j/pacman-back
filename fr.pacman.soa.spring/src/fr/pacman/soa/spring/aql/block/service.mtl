@@ -519,7 +519,7 @@
 
 [comment écriture de la requête pour le service rest, sert d'aiguillage pour les autres queries en fonction du type de sortie./]
 [query private writeRsOperation(o : soa::Operation, s : soa::Service) : String =  if (o.mustHaveRsOutput()) then 
- if (o.output->first().rsIsOptional()) then if(o.output->first().isMultiple()) then o.writeRsOptionalOutputStar(s) else o.writeRsOptionalOutputOne(s) endif 
+ if (o.output->first().isRsOptional()) then if(o.output->first().isMultiple()) then o.writeRsOptionalOutputStar(s) else o.writeRsOptionalOutputOne(s) endif 
  else if(o.output->first().isMultiple()) then o.writeRsNonOptionalOutputStar(s) else o.writeRsNonOptionalOutputOne(s) endif endif + ';' else '' endif/]
  
 [comment écriture pour un résultat optionnel sur un enregistrement (plus compliqué car deux réponses complétement différentes si dto ou primitif)./]

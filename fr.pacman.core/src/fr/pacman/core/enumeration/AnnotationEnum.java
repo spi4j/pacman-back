@@ -58,6 +58,8 @@ public enum AnnotationEnum {
 	
 	FETCH_LAZY("FETCH_LAZY", ModelEnum.DSL_ENTITY, false),
 	
+	SKIP_EMPTY_VALUES("SKIP_EMPTY_VALUES", ModelEnum.DSL_SOA_DTO, false),
+	
 	ENTITY_MANAGER("ENTITY_MANAGER", ModelEnum.DSL_ENTITY,false);
 
 	/** Le nom de l'annotation */

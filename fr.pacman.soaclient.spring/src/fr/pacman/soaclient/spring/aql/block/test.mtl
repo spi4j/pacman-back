@@ -109,6 +109,7 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
+    import static org.junit.jupiter.api.Assertions.assertNotNull;
     import org.springframework.context.annotation.Import;
     import org.springframework.boot.test.context.SpringBootTest;
     import org.springframework.beans.factory.annotation.Autowired;
@@ -169,6 +170,10 @@
             [/protected]
             
             [o.writeRsTestOperation()/]
+            
+            // Placer ici les tests supplémentaires (si besoin).
+            [protected (o.name.protectedId() + 'custom tests') startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]            
         }
       [/if]
     [/for]
@@ -180,6 +185,7 @@
   ->collect(o1 : soa::Parameter | o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif /]
 
 [comment écriture de l'appel du client pour le tests ./]
-[query private writeRsTestOperation(o : soa::Operation) : String = 'client'.apply_attributeFinal() + '.' + o.name() 
-  + '(' + o.writeRsInputs() + if (o.isRsSecured()) then if(o.hasInputs()) then ', ' else '' endif 
-  + 'token helper'.apply_attributeFinal() + '.' + 'token'.apply_methodGet() + '()' else '' endif + ');'/]
+[query private writeRsTestOperation(o : soa::Operation) : String = if (o.hasOutput()) then 'assertNotNull(' 
+  else '' endif +  'client'.apply_attributeFinal() + '.' + o.name() + '(' + o.writeRsInputs() + if (o.isRsSecured()) 
+  then if(o.hasInputs()) then ', ' else '' endif + 'token helper'.apply_attributeFinal() + '.' + 'token'.apply_methodGet() 
+  + '()' else '' endif + if (o.hasOutput()) then '), "Réponse non valide !"' else '' endif + ');'/]

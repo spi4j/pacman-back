@@ -9,10 +9,12 @@
 [import fr::pacman::core::aql::output::resources/]
 [import fr::pacman::core::aql::query::operation/]
 [import fr::pacman::core::aql::query::service/]
+[import fr::pacman::core::aql::query::parameter/]
 [import fr::pacman::core::aql::name::eobjects/]
 [import fr::pacman::core::aql::rule::method/]
 [import fr::pacman::core::aql::rule::parameter/]
 [import fr::pacman::core::aql::rule::attribute/]
+[import fr::pacman::core::service::AnnotationUtils/]
 
 [comment écriture pour l'implémentation du service de type client pour appel service fournisseur./]
 [template public serviceRsClientImpl (s : soa::Service)]
@@ -67,24 +69,19 @@
   + 'client helper'.apply_attributeFinal() + '.' + 'builder'.apply_methodGet() + '().' + o.verb.toString().toLower() + '()' 
   + if(o.hasOutput()) then  '.' + 'with response type'.apply_methodDefault() + '(' + o.outputRsType() + '.class)' else '' endif 
   + '.' + 'with uri'.apply_methodDefault() + '("' + s.rsUri() + o.rsUri() + '")' + if (o.hasInputs()) then if (not o.input
-  ->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->isEmpty()) then '.' + 'with query params'.apply_methodDefault() 
-  + '(' + if(o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->size() > 10) then o.nameClassMapUtils() + '.mapOf(' 
-  else 'Map.of(' endif +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->collect(o2 | '"' + o2.restData.restId 
-  + '",' + o2.name().apply_parameterMethodClassicIn() )->sep(', ') + '))' else '' endif + if (not o.input->select(o1 | o1.restData.passingMode 
-  = soa::ParameterPassingMode::PATH)->isEmpty()) then '.' + 'with path params'.apply_methodDefault() + '(Map.of(' +  o.input
-  ->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->collect(o2 | '"' + o2.restData.restId + '",' 
-  + o2.name().apply_parameterMethodClassicIn())->sep(', ') + '))' else '' endif + if (not o.input->select (o3 | o3.restData.passingMode 
-  = soa::ParameterPassingMode::HEADER)->isEmpty()) then '.' + 'with headers'.apply_methodDefault()  + '(Map.of(' +  o.input
-  ->select(o3| o3.restData.passingMode = soa::ParameterPassingMode::HEADER)->collect(o4 | '"' + o4.restData.restId + '",' 
-  + o4.name().apply_parameterMethodClassicIn())->sep(', ') + '))'  else '' endif + if (not o.input->select (o3 | o3.restData.passingMode = 
-  soa::ParameterPassingMode::BODY)->isEmpty()) then '.' + 'with body'.apply_methodDefault() + '(' + let b = o.input
-  ->select (o3 | o3.restData.passingMode = soa::ParameterPassingMode::BODY)->first() in b.name().apply_parameterMethodClassicIn() 
-  + ')'  else '' endif  else '' endif + if(o.isRsSecured()) then '.' +  if (o.securitySchemes->first().type = soa::SecuritySchemeType::API_KEY 
-  and  o.securitySchemes->first().apiKeyLocation = soa::ApiKeyLocation::QUERY) then 'with query token'.apply_methodDefault() 
-  else 'with header token'.apply_methodDefault()  endif + '("' + if (o.securitySchemes->first().type = soa::SecuritySchemeType::API_KEY) 
-  then o.securitySchemes->first().key else 'Authorization' endif + '", ' + if (o.securitySchemes->first().type = soa::SecuritySchemeType::HTTP 
-  and o.securitySchemes->first().httpScheme = soa::HttpScheme::BASIC) then '' else '"Bearer " + ' endif + 'token'.apply_parameterMethodClassicIn() 
-  +')' else '' endif + '.' + 'execute'.apply_methodDefault() + '();'/]
+  ->select(o1 | o1.isRsQueryParam())->isEmpty()) then '.' + 'with query params'.apply_methodDefault() + '(' 
+  + if(o.input->select(o1 | o1.isRsQueryParam())->size() > 10) then o.nameClassMapUtils() + '.mapOf(' else 'Map.of(' endif 
+  +  o.input->select(o1 | o1.isRsQueryParam())->collect(o2 | '"' + o2.restData.restId + '",' + o2.name().apply_parameterMethodClassicIn())
+  ->sep(', ') + '))' else '' endif + if (not o.input->select(o1 | o1.isRsPathParam())->isEmpty()) then '.' + 'with path params'.apply_methodDefault() 
+  + '(Map.of(' +  o.input->select(o1 | o1.isRsPathParam())->collect(o2 | '"' + o2.restData.restId + '",' + o2.name().apply_parameterMethodClassicIn())
+  ->sep(', ') + '))' else '' endif + if (not o.input->select (o3 | o3.isRsHeaderParam())->isEmpty()) then '.' + 'with headers'.apply_methodDefault() 
+  + '(Map.of(' +  o.input->select(o3| o3.isRsHeaderParam())->collect(o4 | '"' + o4.restData.restId + '",' + o4.name().apply_parameterMethodClassicIn())
+  ->sep(', ') + '))'  else '' endif + if (not o.input->select (o3 | o3.isRsBodyParam())->isEmpty()) then '.' + 'with body'.apply_methodDefault() 
+  + '(' + let b = o.input->select (o3 | o3.isRsBodyParam())->first() in b.name().apply_parameterMethodClassicIn() + ')'  else '' endif  else '' endif 
+  + if(o.isRsSecured()) then '.' +  if (o.isRsApiKeyByQuerySecurity()) then 'with query token'.apply_methodDefault() else 'with header token'.apply_methodDefault() 
+  endif + '("' + if (o.hasRsApiKeySecurity()) then o.securitySchemes->first().key else 'Authorization' endif + '", ' + if (o.isRsHttpBasicSecurity()) then '' 
+  else '"Bearer " + ' endif + 'token'.apply_parameterMethodClassicIn() +')' else '' endif + if (o.has_metaSkipEmptyValues()) then '.' + 
+  'with skip empty values'.apply_methodDefault() + '()' else '' endif + '.' + 'execute'.apply_methodDefault() + '();'/]
 
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeRsSignature(o : soa::Operation) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 

@@ -234,6 +234,9 @@
 [comment le nom pour le fichier de configuration maven./] 
 [query public namePom(any : ecore::EObject) : String = 'pom'/]  
 
+[comment le nom pour un fichier package-info./] 
+[query public namePackageInfo(any : ecore::EObject) : String = 'package-info'/]  
+
 [comment nom complet du fichier de description maven./]  
 [query public nameConfigPom(any : ecore::EObject) : String = any.namePom() + any.extensionXml()/]
   
