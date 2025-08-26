@@ -80,12 +80,6 @@
              <artifactId>spring-boot-starter-webflux</artifactId>
              <version>[any.versionSpringBoot()/]</version>
           </dependency>
-          <!-- circuit-breaker -->
-          <dependency>
-            <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-spring-boot2</artifactId>
-            <version>[any.versionResilience4j()/]</version>
-          </dependency>
           <dependency>
              <groupId>com.fasterxml.jackson.core</groupId>
              <artifactId>jackson-annotations</artifactId>

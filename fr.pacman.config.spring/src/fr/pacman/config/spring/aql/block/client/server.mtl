@@ -56,10 +56,6 @@
          <artifactId>spring-boot-starter-test</artifactId>
        </dependency>
        <dependency>
-         <groupId>io.github.resilience4j</groupId>
-         <artifactId>resilience4j-spring-boot2</artifactId>
-       </dependency>
-       <dependency>
          <groupId>org.junit.jupiter</groupId>
          <artifactId>junit-jupiter</artifactId>
        </dependency>
