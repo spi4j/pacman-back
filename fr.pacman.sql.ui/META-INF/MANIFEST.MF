@@ -12,7 +12,6 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.ui,
  fr.pacman.core,
  fr.pacman.core.ui,
- fr.pacman.core.validation,
  fr.pacman.sql,
  org.eclipse.acceleo.aql,
  org.eclipse.acceleo.query

@@ -24,9 +24,3 @@
   [file ('project'.toFile(any.namePropertiesDirectory(), '.properties'), overwrite, any.defaultFileEncoding())]
   [/file]
 [/template]
-
-[comment écriture du rapport (vide) de validation des modèles./]
-[template public fileValidation(any : ecore::EObject)]
-  [file (any.nameModelValidationFile().toFile(null, '.log'), overwrite, any.defaultFileEncoding())]
-  [/file]
-[/template]

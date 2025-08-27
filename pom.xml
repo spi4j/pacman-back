@@ -221,7 +221,6 @@
 				<module>fr.pacman.config.spi4j</module>
 				<module>fr.pacman.config.spring</module>
 				<module>fr.pacman.core</module>
-				<module>fr.pacman.core.validation</module>
 				<module>fr.pacman.entity</module>
 				<module>fr.pacman.entity.spi4j</module>
 				<module>fr.pacman.entity.spring</module>
@@ -236,7 +235,6 @@
 				
 				<!-- modules couche UI. -->
 				<module>fr.pacman.core.ui</module>
-				<module>fr.pacman.core.validation.ui</module>
 				<module>fr.pacman.config.ui</module>
 				<module>fr.pacman.start.ui</module>
 				<module>fr.pacman.sql.ui</module>
@@ -246,7 +244,6 @@
 				
 				<!-- modules produits. -->
 				<module>fr.pacman.core.ui.feature</module>
-				<module>fr.pacman.core.validation.ui.feature</module>
 				<module>fr.pacman.config.ui.feature</module>
 				<module>fr.pacman.soa.ui.feature</module>
 				<module>fr.pacman.entity.ui.feature</module>

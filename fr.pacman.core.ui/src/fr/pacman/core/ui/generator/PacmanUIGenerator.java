@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -19,18 +20,26 @@ import org.eclipse.emf.common.util.Logger;
 import org.eclipse.emf.common.util.Monitor;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.obeonetwork.dsl.entity.Entity;
 import org.obeonetwork.dsl.environment.Namespace;
 import org.obeonetwork.dsl.soa.Component;
 
 import fr.pacman.core.generator.PacmanGenerator;
-import fr.pacman.core.generator.PacmanValidatorsReport;
 import fr.pacman.core.property.PropertiesHandler;
 import fr.pacman.core.property.project.ProjectProperties;
 import fr.pacman.core.ui.plugin.Activator;
 import fr.pacman.core.ui.service.PlugInUtils;
+import fr.pacman.core.ui.validation.PacmanUIValidationView;
+import fr.pacman.core.validation.PacmanValidationException;
+import fr.pacman.core.validation.PacmanValidationRow;
+import fr.pacman.core.validation.PacmanValidatorsReport;
 
 /**
  * Classe abstraite pour l'ensemble de générateurs Pacman (au niveau de la
@@ -51,14 +60,6 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 */
 	private static final String c_errOptions = "Les options prises lors de la création "
 			+ "de ce projet ne permettent pas l'utilisation de ce générateur. \n\r La génération va être stoppée.";
-
-	/**
-	 * Message d'avertissement en cas d'erreurs de validation sur un fichier de
-	 * modélisation.
-	 */
-	private static final String c_errValidation = "Des erreurs de modélisation on été detéctées, se reporter au "
-			+ "fichier de validation qui a été généré au niveau du projet de modélisation afin "
-			+ "de corriger ces erreurs et de pouvoir relancer une génération";
 
 	/**
 	 * Le profiler pour le réglage des performances lors des générations.
@@ -89,6 +90,12 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	private List<String> _resources = new ArrayList<>();
 
 	/**
+	 * Lec chemin relatif utilisé pour créer le chemin de chargement du fichier
+	 * contenenant l'ensemble des représentations (représentations.aird).
+	 */
+	private String _representations;
+
+	/**
 	 * Constructeur pour une sélection par ressource de type 'fichier'. Ce fichier
 	 * peut être un fichier de type '.entities', '.soa', '.requirements',
 	 * .environment'.
@@ -105,6 +112,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 		_resources.add(p_selectedResource.getLocation().toString());
 		_resources.addAll(loadAdditionnalResources(p_selectedResource));
 		_rootPath = new File(p_selectedResource.getLocation().toString()).getParentFile();
+		_representations = File.separator + _rootPath.getName() + File.separator + "representations.aird";
 		_values = Collections.emptyList();
 	}
 
@@ -164,7 +172,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * @return positionner à la valeur 'true' pour demander l'organisation
 	 *         automatique des imports, sinon mettre à 'false'.
 	 */
-	protected abstract boolean hasPostTreatments();
+	protected abstract boolean doPostTreatments();
 
 	/**
 	 * Retourne la liste des générateurs à executer pour la demande de génération de
@@ -206,12 +214,6 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 						&& (allResources[i].getName().contains(".requirement"))) {
 					resources.add(allResources[i].getLocation().toString());
 				}
-//				if (!p_selectedResource.getName().equalsIgnoreCase(allResources[i].getName())
-//						&& (allResources[i].getName().contains(".requirement")
-//								|| allResources[i].getName().contains(".soa")
-//								|| allResources[i].getName().contains(".entity"))) {
-//					resources.add(allResources[i].getLocation().toString());
-//				}
 			}
 		} catch (CoreException e) {
 			throw new RuntimeException("Erreur de récupération des ressources additionnelles.", e);
@@ -243,6 +245,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 				PacmanUIAcceleoProfiler.set_project(null);
 				PropertiesHandler.init(_rootPath.getPath());
 				PacmanValidatorsReport.reset();
+				eraseReportView();
 
 				if (hasSelectionIncompatibilities())
 					return;
@@ -251,13 +254,13 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 					_profiler = new PacmanUIAcceleoProfiler();
 
 				for (PacmanGenerator generator : getGenerators()) {
-					if (PacmanValidatorsReport.hasReport())
-						throw new RuntimeException(c_errValidation);
-
 					generator.setRootPath(_rootPath.getParent());
 					generator.setResources(_resources);
 					generator.setValues(_values);
 					generator.generate(monitor);
+					
+					if (PacmanValidatorsReport.hasReport())
+						displayAndfillReportView();
 				}
 				postTreatment();
 			}
@@ -267,7 +270,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 			PlatformUI.getWorkbench().getProgressService().run(true, true, operation);
 
 		} catch (final Exception p_e) {
-			PacmanUIGeneratorHelper.showErrors(p_e);
+			PacmanUIGeneratorHelper.displayPopUpAlert(p_e);
 
 		} finally {
 			try {
@@ -327,8 +330,8 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 			if (targetWorkspaceContainer != null && targetWorkspaceContainer.getProject().exists()) {
 				try {
 					targetWorkspaceContainer.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-					final IWorkbenchPartSite targetSite = getTargetSite();
-					if (hasPostTreatments() && generator.hasPostTreatments()) {
+					if (doPostTreatments() && generator.doPostTreatments()) {
+						final IWorkbenchPartSite targetSite = getTargetSite();
 						doImportsAction(targetWorkspaceContainer, targetSite);
 						doFormatAction(targetWorkspaceContainer, targetSite);
 					}
@@ -362,5 +365,89 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Affiche la vue de rapport de validation et la remplit avec les résultats des
+	 * règles de validation exécutées.
+	 * 
+	 * Cette méthode :
+	 * 
+	 * <ul>
+	 * <li>Récupère la {@link IWorkbenchPage} active de l’environnement
+	 * Eclipse.</li>
+	 * <li>Ouvre (ou affiche si déjà ouverte) la vue identifiée par
+	 * {@code VIEW_ID}.</li>
+	 * <li>Construit une liste de {@link PacmanValidationRow} à partir du rapport
+	 * fourni par {@link PacmanValidatorsReport#reportForView()}.</li>
+	 * <li>Injecte ces données dans la vue {@link PacmanUIValidationView}, si elle
+	 * est trouvée.</li>
+	 * <li>Active également le lien entre les lignes du rapport et les
+	 * représentations Sirius correspondantes.</li>
+	 * <li>Affiche une alerte pop-up pour notifier l’utilisateur de la présence
+	 * d’erreurs de validation.</li>
+	 * </ul>
+	 *
+	 * Si la vue n’est pas trouvée, un message d’alerte alternatif est affiché.
+	 */
+	private void displayAndfillReportView() {
+		CompletableFuture<Void> future = new CompletableFuture<>();
+		Display.getDefault().asyncExec(() -> {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (window != null) {
+				IWorkbenchPage page = window.getActivePage();
+				try {
+					page.showView(PacmanUIValidationView.VALIDATION_VIEW_ID);
+					IViewPart viewPart = page.findView(PacmanUIValidationView.VALIDATION_VIEW_ID);
+					if (viewPart instanceof PacmanUIValidationView validationView) {
+						validationView.setRepresentations(_representations);
+						validationView.setLinkingEnabled(page);
+						validationView.setRows(PacmanValidatorsReport.get());
+						throw new PacmanValidationException(
+								"Le rapport a remonté des erreurs de validation.\nConsultez la vue contenant le rapport.");
+					}
+				} catch (PartInitException e) {
+					future.completeExceptionally(e);
+
+				} catch (PacmanValidationException e) {
+					future.completeExceptionally(e);
+				}
+			}
+		});
+		future.join();
+	}
+
+	/**
+	 * Efface le contenu de la vue de rapport de validation.
+	 * 
+	 * Cette méthode :
+	 * <ul>
+	 * <li>Récupère la {@link IWorkbenchPage} active de l’environnement
+	 * Eclipse.</li>
+	 * <li>Recherche la vue identifiée par {@code VIEW_ID}.</li>
+	 * <li>Si la vue est une instance de {@link PacmanUIValidationView}, son contenu
+	 * est vidé (liste des lignes de validation remplacée par une liste vide).</li>
+	 * <li>Affiche ensuite une notification à l’utilisateur indiquant que le fichier
+	 * de modélisation est valide.</li>
+	 * </ul>
+	 *
+	 * Si la vue n’est pas trouvée, seule la notification d’information est
+	 * affichée.
+	 *
+	 * @throws PartInitException si la vue ne peut pas être initialisée par le
+	 *                           workbench Eclipse.
+	 */
+	private void eraseReportView() {
+		Display.getDefault().asyncExec(() -> {
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			if (window != null) {
+				IWorkbenchPage page = window.getActivePage();
+				IViewPart viewPart = page.findView(PacmanUIValidationView.VALIDATION_VIEW_ID);
+				if (null != viewPart && viewPart instanceof PacmanUIValidationView validationView)
+					validationView.setRows(Collections.emptyList());
+				// PacmanUIGeneratorHelper.displayPopUpInfo("Le fichier de modélisation est
+				// valide.");
+			}
+		});
 	}
 }

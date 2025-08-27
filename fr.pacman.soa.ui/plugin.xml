@@ -7,6 +7,10 @@
             class="fr.pacman.soa.ui.handlers.SoaGeneratorsHandler"
             commandId="fr.pacman.soa.ui.commands.SoaGeneratorCommand">
       </handler>
+      <handler
+            class="fr.pacman.soa.ui.handlers.SoaValidationGeneratorsHandler"
+            commandId="fr.pacman.soa.validation.ui.commands.ValidationGeneratorCommand">
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -41,6 +45,30 @@
                   </with>
                </visibleWhen>
             </command>
+            <command
+                  commandId="fr.pacman.soa.validation.ui.commands.ValidationGeneratorCommand"
+                  id="fr.pacman.soa.validation.ui.commands.ValidationGeneratorCommand" 
+                  label="Validation du fournisseur pour les services">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.core.resources.IFile">
+                           </instanceof>
+                           <test
+                                 property="org.eclipse.core.resources.extension"
+                                 value="soa">
+                           </test>
+                        </and>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
          </menu>
       </menuContribution>
    </extension>
@@ -54,6 +82,11 @@
             categoryId="fr.pacman.soa.ui.commands.generatorsCategory"
             id="fr.pacman.soa.ui.commands.SoaGeneratorCommand"
             name="fr::pacman::soa::service::generateServerSoa">
+      </command>
+      <command
+            categoryId="fr.pacman.soa.ui.commands.generatorsCategory"
+            id="fr.pacman.soa.validation.ui.commands.ValidationGeneratorCommand"
+            name="Générer la validation du fichier de service">
       </command>
    </extension>
 </plugin>

@@ -8,9 +8,9 @@ import org.eclipse.emf.common.util.Logger;
 
 import fr.pacman.core.generator.PacmanGenerator;
 import fr.pacman.core.ui.generator.PacmanUIGenerator;
-import fr.pacman.core.validation.main.GenValidation;
 import fr.pacman.soa.main.GenCommon;
 import fr.pacman.soa.main.GenServer;
+import fr.pacman.soa.main.GenValidation;
 import fr.pacman.soa.ui.plugin.Activator;
 
 /**
@@ -58,7 +58,7 @@ public class SoaUIGenerators extends PacmanUIGenerator {
 	}
 
 	@Override
-	protected boolean hasPostTreatments() {
+	protected boolean doPostTreatments() {
 		return true;
 	}
 

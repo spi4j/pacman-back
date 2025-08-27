@@ -206,7 +206,7 @@ public abstract class PacmanGenerator {
 	 * embarqué au niveau des couches entité, soa, etc.. et qui lui spécifiquement,
 	 * n'a pas besoin d'opérations de post traitement.
 	 */
-	public abstract boolean hasPostTreatments();
+	public abstract boolean doPostTreatments();
 
 	/**
 	 * Retourne la liste des {@link EObject} qui vont être manipulés par le

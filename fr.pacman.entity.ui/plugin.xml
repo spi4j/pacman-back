@@ -7,6 +7,10 @@
             class="fr.pacman.entity.ui.handlers.EntityGeneratorsHandler"
             commandId="fr.pacman.entity.ui.commands.EntityGeneratorCommand">
       </handler>
+      <handler
+            class="fr.pacman.entity.ui.handlers.EntityValidationGeneratorsHandler"
+            commandId="fr.pacman.entity.validation.ui.commands.ValidationGeneratorCommand">
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -41,6 +45,30 @@
                   </with>
                </visibleWhen>
             </command>
+            <command
+                  commandId="fr.pacman.entity.validation.ui.commands.ValidationGeneratorCommand"
+                  id="fr.pacman.entity.validation.ui.commands.ValidationGeneratorCommand" 
+                  label="Validation de la couche de persistance">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.core.resources.IFile">
+                           </instanceof>
+                           <test
+                                 property="org.eclipse.core.resources.extension"
+                                 value="entity">
+                           </test>
+                        </and>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
          </menu>
       </menuContribution>
    </extension>
@@ -54,6 +82,11 @@
             categoryId="fr.pacman.entity.ui.commands.generatorsCategory"
             id="fr.pacman.entity.ui.commands.EntityGeneratorCommand"
             name="fr::pacman::entity::entity::generateServerEntity">
+      </command>
+      <command
+            categoryId="fr.pacman.entity.ui.commands.generatorsCategory"
+            id="fr.pacman.entity.validation.ui.commands.ValidationGeneratorCommand"
+            name="Générer la validation du fichier entité">
       </command>
    </extension>
 </plugin>

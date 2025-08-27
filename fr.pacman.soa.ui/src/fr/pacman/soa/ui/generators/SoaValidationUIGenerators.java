@@ -1,4 +1,4 @@
-package fr.pacman.sql.ui.generators;
+package fr.pacman.soa.ui.generators;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,36 +8,27 @@ import org.eclipse.emf.common.util.Logger;
 
 import fr.pacman.core.generator.PacmanGenerator;
 import fr.pacman.core.ui.generator.PacmanUIGenerator;
-import fr.pacman.sql.main.GenServer;
-import fr.pacman.sql.main.GenValidation;
-import fr.pacman.sql.ui.plugin.Activator;
+import fr.pacman.core.ui.generator.PacmanUIGeneratorHelper;
+import fr.pacman.soa.main.GenValidation;
+import fr.pacman.soa.ui.plugin.Activator;
 
 /**
- * UI Generator for JDBC based on Entity model file. Il est à noter qu'il
- * n'existe pas de génération partielle au niveau de la couche SQL.
- * <p>
+ * UI Generateur pour la validation des modèles.
+ * 
  * Se reporter à la classe {@link PacmanUIGenerator} pour l'explication des
  * différentes méthodes.
  * 
  * @author MINARM
  */
-public class SqlUIGenerators extends PacmanUIGenerator {
+public class SoaValidationUIGenerators extends PacmanUIGenerator {
 
 	/**
 	 * Constructeur.
 	 * 
 	 * @param p_selected la ressource sélectionnée (ici obligatoirement un fichier).
 	 */
-	public SqlUIGenerators(final IFile p_selected) {
+	public SoaValidationUIGenerators(final IFile p_selected) {
 		super(p_selected);
-	}
-
-	@Override
-	protected List<PacmanGenerator> getGenerators() {
-		final List<PacmanGenerator> v_generators = new ArrayList<>();
-		v_generators.add(new GenValidation());
-		v_generators.add(new GenServer());
-		return v_generators;
 	}
 
 	@Override
@@ -52,13 +43,21 @@ public class SqlUIGenerators extends PacmanUIGenerator {
 
 	@Override
 	protected List<String> getIncompatibleOptions() {
-		// return Arrays.asList(ProjectProperties.getIsLibraryRs());
 		return null;
 	}
 
 	@Override
 	protected boolean doPostTreatments() {
+		PacmanUIGeneratorHelper
+				.displayPopUpInfo("Le fichier de modélisation pour la couche de service est valide.");
 		return false;
+	}
+
+	@Override
+	protected List<PacmanGenerator> getGenerators() {
+		final List<PacmanGenerator> v_generators = new ArrayList<>();
+		v_generators.add(new GenValidation());
+		return v_generators;
 	}
 
 	@Override

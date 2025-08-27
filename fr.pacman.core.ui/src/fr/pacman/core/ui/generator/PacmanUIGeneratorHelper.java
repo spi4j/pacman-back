@@ -40,6 +40,19 @@ public class PacmanUIGeneratorHelper {
 	}
 
 	/**
+	 * Affiche une popup d'alerte contenant le message spécifié.
+	 * 
+	 * @param p_e L'exception initiale.
+	 */
+	public static void displayPopUpAlert(final Exception p_e) {
+		String msg = p_e.getLocalizedMessage();
+		if ((msg == null || msg.isBlank()) && p_e.getCause() != null) {
+			msg = p_e.getCause().getLocalizedMessage();
+		}
+		displayPopUpAlert(msg);
+	}
+
+	/**
 	 * Affiche une popup d'information contenant le message spécifié.
 	 * 
 	 * @param p_msg Le message à afficher dans la popup d'information.

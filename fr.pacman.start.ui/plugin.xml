@@ -5,6 +5,7 @@
       <view
          id="fr.pacman.start.ui.views.HtmlViewerView"
          name="Récapitulatif pour le projet"
+         icon="icons/pacmug.png" 
          class="fr.pacman.start.ui.views.HtmlViewerView"
          restorable="true">
       </view>

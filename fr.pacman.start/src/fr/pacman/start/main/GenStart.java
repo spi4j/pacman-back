@@ -60,7 +60,7 @@ public class GenStart extends PacmanGeneratorStart {
 	}
 
 	@Override
-	public boolean hasPostTreatments() {
+	public boolean doPostTreatments() {
 		return true;
 	}
 }

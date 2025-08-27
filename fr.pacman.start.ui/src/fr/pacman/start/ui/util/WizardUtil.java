@@ -33,6 +33,7 @@ import org.eclipse.ui.browser.IWebBrowser;
 import org.eclipse.ui.browser.IWorkbenchBrowserSupport;
 import org.eclipse.ui.wizards.IWizardDescriptor;
 
+import fr.pacman.core.ui.validation.PacmanUIValidationView;
 import fr.pacman.start.ui.GenerateStartWizardAction;
 import fr.pacman.start.ui.activator.Activator;
 import fr.pacman.start.ui.exception.WizardNotFoundException;
@@ -58,6 +59,7 @@ public class WizardUtil {
 	private static final String c_view_junit = "org.eclipse.jdt.junit.ResultView";
 	private static final String c_view_html = "fr.pacman.start.ui.views.HtmlViewerView";
 	private static final String c_view_progress = "org.eclipse.ui.views.ProgressView";
+	private static final String c_view_validation = PacmanUIValidationView.VALIDATION_VIEW_ID;
 
 	/**
 	 * Constructeur privé.
@@ -121,6 +123,7 @@ public class WizardUtil {
 					try {
 						// IViewPart view = page.showView("org.eclipse.ui.views.ProgressView");
 						// page.setPartState(page.getReference(view), IWorkbenchPage.STATE_RESTORED);
+						view = page.showView(c_view_validation);
 						view = page.showView(c_view_log);
 						view = page.showView(c_view_problem);
 						view = page.showView(c_view_properties);

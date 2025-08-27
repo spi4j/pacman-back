@@ -66,7 +66,7 @@ public class GenServer extends PacmanGenerator {
 	}
 	
 	@Override
-	public boolean hasPostTreatments() {
+	public boolean doPostTreatments() {
 		return true;
 	}
 }

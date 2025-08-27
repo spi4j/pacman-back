@@ -1,4 +1,4 @@
-package fr.pacman.soa.main;
+package fr.pacman.entity.main;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.acceleo.aql.AcceleoUtil;
-import org.eclipse.acceleo.query.AQLUtils;
 import org.eclipse.acceleo.query.ast.TypeLiteral;
 import org.eclipse.acceleo.query.runtime.namespace.IQualifiedNameQueryEnvironment;
 import org.eclipse.emf.common.util.Monitor;
@@ -18,25 +17,32 @@ import fr.pacman.core.generator.PacmanGenerator;
 import fr.pacman.core.property.project.ProjectProperties;
 
 /**
- * Générateur pour la couche de service. Génération de l'ensemble des services.
- * <p>
+ * Générateur pour la validation du diagramme de modélisation. Ce 'générateur'
+ * scanne le fichier de modélisation et vérifie si les règles minimales sont
+ * respectées.
+ * 
  * Se reporter à la classe {@link PacmanGenerator} pour l'explication des
  * différentes méthodes.
  * 
  * @author MINARM
  */
-public class GenServer extends PacmanGenerator {
+public class GenValidation extends PacmanGenerator {
+
+	@Override
+	protected Map<String, SelectionType_Enum> getMainTemplates() {
+		Map<String, SelectionType_Enum> templates = new HashMap<>();
+		templates.put("genValidation", SelectionType_Enum.FILE);
+		return templates;
+	}
 
 	@Override
 	public String getSubProjectName() {
-		return ProjectProperties.get_projectServerName(null);
+		return ProjectProperties.get_projectModelName(null);
 	}
 
 	@Override
 	public String getModuleQualifiedName() {
-		if (ProjectProperties.isSpring())
-			return "fr::pacman::soa::aql::genServerSpring";
-		return "fr::pacman::sao::aql::genServerSpi4j";
+		return "fr::pacman::entity::aql::genValidation";
 	}
 
 	@Override
@@ -44,7 +50,6 @@ public class GenServer extends PacmanGenerator {
 		Map<String, String> options = new LinkedHashMap<>();
 		options.put(AcceleoUtil.LOG_URI_OPTION, c_defaultLogFileName);
 		options.put(AcceleoUtil.NEW_LINE_OPTION, c_defaultNewLine);
-		options.put(AQLUtils.INSTALL_CROSS_REFERENCE_ADAPTER_OPTION, Boolean.TRUE.toString());
 		return options;
 	}
 
@@ -58,14 +63,7 @@ public class GenServer extends PacmanGenerator {
 	}
 
 	@Override
-	protected Map<String, SelectionType_Enum> getMainTemplates() {
-		Map<String, SelectionType_Enum> templates = new HashMap<>();
-		templates.put("genServer", SelectionType_Enum.FILE);
-		return templates;
-	}
-	
-	@Override
 	public boolean doPostTreatments() {
-		return true;
+		return false;
 	}
 }

@@ -68,7 +68,7 @@ public class GenCommon extends PacmanGenerator {
 	}
 	
 	@Override
-	public boolean hasPostTreatments() {
+	public boolean doPostTreatments() {
 		return true;
 	}
 }

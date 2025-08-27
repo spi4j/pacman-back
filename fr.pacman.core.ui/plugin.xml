@@ -8,4 +8,14 @@
   			uri="platform:/plugin/fr.pacman.core.ui/resources/pacman.metadatadef">
  		</model>
 	</extension>
+	<extension
+     point="org.eclipse.ui.views">
+      <view
+         name="Rapport de validation"
+         icon="icons/pacmug.png"          
+         class="fr.pacman.core.ui.validation.PacmanUIValidationView"
+         id="fr.pacman.validation.ui.core.ValidationView"
+         category="org.obeonetwork.od4is">
+      </view>
+   </extension>
 </plugin>

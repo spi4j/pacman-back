@@ -1,0 +1,18 @@
+[module common(		'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::core::aql::name::eobjects/]
+[import fr::pacman::core::aql::name::packages/]
+
+[comment écriture du nom de l'entité pour le rapport./]
+[query public nameEntity(e : entity::Entity) : String =  e.blockHierarchy().replaceFirst('.','') + '.' + e.name/]
+  
+[comment écriture du nom du dto pour le rapport./]
+[query public nameDto(d : environment::DTO) : String = d.blockHierarchy().replaceFirst('.','') + '.' + d.name/]
+
+[comment écriture du nom de la référence pour le rapport./]
+[query public nameReference(r : environment::Reference) : String = r.blockHierarchy().replaceFirst('.','')  + '.' + r.name/]
+  
+[comment écriture du nom de la référence pour le rapport./]
+[query public nameService(s : soa::Service) : String = s.nameComponent() + '.' + s.name/]

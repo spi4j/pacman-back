@@ -56,7 +56,7 @@ public class SoaUIGenerators extends PacmanUIGenerator {
 	}
 
 	@Override
-	protected boolean hasPostTreatments() {
+	protected boolean doPostTreatments() {
 		return true;
 	}
 

@@ -26,9 +26,11 @@ Export-Package: fr.pacman.core.aql,
  fr.pacman.core.aql.path,
  fr.pacman.core.aql.query,
  fr.pacman.core.aql.rule,
+ fr.pacman.core.aql.validation,
  fr.pacman.core.generator,
  fr.pacman.core.property,
  fr.pacman.core.property.project,
- fr.pacman.core.service
+ fr.pacman.core.service, 
+ fr.pacman.core.validation
 Import-Package: org.obeonetwork.dsl.requirement
 
