@@ -16,7 +16,7 @@
 				
 [comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
 [comment pour les dtos on est pas relié directement à la base de données, doit on être plus souple sur les références ?/]
-[template public validation (m : soa::System) post(self.escapeFile())]
+[template public validation (m : soa::System)]
   [for (d | m.eAllContents(environment::DTO))]
     [comment pas de dto vide./]
     [if (d.attributesNoPK()->isEmpty())][d.add(d.err1())/][/if]

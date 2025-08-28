@@ -31,4 +31,3 @@ Export-Package: fr.pacman.core.ui.generator,
  fr.pacman.core.ui.plugin.activator,
  fr.pacman.core.ui.service, 
  fr.pacman.core.ui.validation
-

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
@@ -80,7 +81,7 @@ public class PacmanUIValidationView extends ViewPart {
 	 * Le TableViewer principal affichant le tableau des résultats de validation.
 	 */
 	private TableViewer _viewer;
-	
+
 	/**
 	 * L'identifiant de la vue pour afficher la liste des erreurs rencontrées au
 	 * niveau du diagramme de modélisation.
@@ -186,8 +187,9 @@ public class PacmanUIValidationView extends ViewPart {
 	}
 
 	/**
-	 * Met en surbrillance la ligne correspondant à l'objet {@link PacmanValidationRow}
-	 * spécifié dans le tableau affiché par le {@link TableViewer}.
+	 * Met en surbrillance la ligne correspondant à l'objet
+	 * {@link PacmanValidationRow} spécifié dans le tableau affiché par le
+	 * {@link TableViewer}.
 	 * 
 	 * Cette méthode parcourt tous les éléments du tableau et applique une couleur
 	 * de fond bleue à la ligne correspondant à l'objet donné. Elle force ensuite un
@@ -276,7 +278,8 @@ public class PacmanUIValidationView extends ViewPart {
 				_viewer.setComparator(new ViewerComparator() {
 					@Override
 					public int compare(Viewer viewer, Object e1, Object e2) {
-						int result = comparators[columnIndex].compare((PacmanValidationRow) e1, (PacmanValidationRow) e2);
+						int result = comparators[columnIndex].compare((PacmanValidationRow) e1,
+								(PacmanValidationRow) e2);
 						return dir[0] == SWT.UP ? result : -result;
 					}
 				});
@@ -391,7 +394,9 @@ public class PacmanUIValidationView extends ViewPart {
 			return;
 		}
 
-		Collection<DRepresentation> allRepresentations = DialectManager.INSTANCE.getAllRepresentations(session);
+		// Collection<DRepresentation> allRepresentations =
+		// DialectManager.INSTANCE.getAllRepresentations(session);
+		Collection<DRepresentation> allRepresentations = getAllRepresentations(session);
 		DRepresentation containingRepresentation = null;
 
 		for (DRepresentation rep : allRepresentations) {
@@ -413,8 +418,58 @@ public class PacmanUIValidationView extends ViewPart {
 		} else {
 			PacmanUIGeneratorHelper
 					.displayPopUpAlert("Impossible de retrouver automatiquement la représentation pour : "
-							+ (String) target.eGet(target.eClass().getEStructuralFeature("name")));
+							+ (String) target.eGet(target.eClass().getEStructuralFeature("name"))
+							+ "\n\n1) Vérifiez que la représentation a bien été créée."
+							+ "\n2) Essayez d'ouvrir manuellement la représentation associée.");
 		}
+	}
+
+	/**
+	 * Récupère toutes les représentations ({@link DRepresentation}) disponibles
+	 * dans une session Sirius donnée, en parcourant récursivement tous les objets
+	 * du modèle sémantique (y compris les namespaces imbriqués).
+	 * <p>
+	 * Cette méthode parcourt :
+	 * <ul>
+	 * <li>Toutes les ressources sémantiques de la session,</li>
+	 * <li>Tous les objets racines et leurs contenus,</li>
+	 * <li>Et agrège toutes les représentations associées via
+	 * {@link DialectManager#getRepresentations(EObject, Session)}.</li>
+	 * </ul>
+	 *
+	 * @param p_session la session Sirius active
+	 * @return la collection de toutes les représentations trouvées
+	 */
+	public static Collection<DRepresentation> getAllRepresentations(Session p_session) {
+		List<DRepresentation> reps = new ArrayList<>();
+		for (Resource res : p_session.getSemanticResources()) {
+			for (EObject root : res.getContents()) {
+				reps.addAll(getRepresentationsFromEObject(root, p_session));
+			}
+		}
+		return reps;
+	}
+
+	/**
+	 * Récupère récursivement toutes les représentations ({@link DRepresentation})
+	 * associées à un objet sémantique et à ses enfants.
+	 * <p>
+	 * Cette méthode appelle le {@link DialectManager} pour collecter les
+	 * représentations attachées directement à l'objet courant, puis descend dans
+	 * son contenu pour récupérer celles des sous-objets.
+	 *
+	 * @param p_eObj    l'objet sémantique à analyser
+	 * @param p_session la session Sirius active
+	 * @return la collection de représentations trouvées pour l'objet et ses
+	 *         descendants
+	 */
+	private static Collection<DRepresentation> getRepresentationsFromEObject(EObject p_eObj, Session p_session) {
+		List<DRepresentation> reps = new ArrayList<>();
+		reps.addAll(DialectManager.INSTANCE.getRepresentations(p_eObj, p_session));
+		for (EObject child : p_eObj.eContents()) {
+			reps.addAll(getRepresentationsFromEObject(child, p_session));
+		}
+		return reps;
 	}
 
 	/**

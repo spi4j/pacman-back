@@ -18,6 +18,7 @@
                tooltip="Liste des générateurs Cali"
                label="Générateurs Cali">
             <command
+                  icon="icons/generate.png"
                   commandId="fr.pacman.requirement.ui.commands.RequirementGeneratorCommand"
                   id="fr.pacman.requirement.ui.commands.RequirementGeneratorCommand" 
                   label="Génération des règles de gestion">

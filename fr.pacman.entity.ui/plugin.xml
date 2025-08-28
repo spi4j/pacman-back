@@ -22,6 +22,7 @@
                tooltip="Liste des générateurs Cali"
                label="Générateurs Cali">
             <command
+                  icon="icons/generate.png"
                   commandId="fr.pacman.entity.ui.commands.EntityGeneratorCommand"
                   id="fr.pacman.entity.ui.commands.EntityGeneratorCommand" 
                   label="Génération de la couche de persistance">
@@ -46,6 +47,7 @@
                </visibleWhen>
             </command>
             <command
+                  icon="icons/validate.png"
                   commandId="fr.pacman.entity.validation.ui.commands.ValidationGeneratorCommand"
                   id="fr.pacman.entity.validation.ui.commands.ValidationGeneratorCommand" 
                   label="Validation de la couche de persistance">
@@ -81,12 +83,12 @@
       <command
             categoryId="fr.pacman.entity.ui.commands.generatorsCategory"
             id="fr.pacman.entity.ui.commands.EntityGeneratorCommand"
-            name="fr::pacman::entity::entity::generateServerEntity">
+            name="Génération du fichier entité ">
       </command>
       <command
             categoryId="fr.pacman.entity.ui.commands.generatorsCategory"
             id="fr.pacman.entity.validation.ui.commands.ValidationGeneratorCommand"
-            name="Générer la validation du fichier entité">
+            name="Validation du fichier entité">
       </command>
    </extension>
 </plugin>

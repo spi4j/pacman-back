@@ -14,5 +14,9 @@
 [comment écriture du nom de la référence pour le rapport./]
 [query public nameReference(r : environment::Reference) : String = r.blockHierarchy().replaceFirst('.','')  + '.' + r.name/]
   
-[comment écriture du nom de la référence pour le rapport./]
+[comment écriture du nom du service pour le rapport./]
 [query public nameService(s : soa::Service) : String = s.nameComponent() + '.' + s.name/]
+  
+[comment écriture du nom du paramètre pour le rapport./]
+[query public nameParameter(p : soa::Parameter) : String =  p.eContainer().eContainer().oclAsType(soa::Interface).name 
+  + '.' +  p.eContainer().oclAsType(soa::Operation).name + '.' + p.name /]

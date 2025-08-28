@@ -125,7 +125,7 @@
   + e.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()->collect(o2 | o2.oclAsType(environment::Namespace))
   ->collect(o3 | o3.name)->collect(o4 | o4.sanitize())->collect(o5 | o5.toLower())->sep('.') endif/]
 
-[comment :  /]
+[comment . /]
 [query public blockHierarchy(d : environment::DTO) : String = if d.ancestors(environment::Namespace)->size() < 1 then '' else '.' 
  + d.ancestors(environment::Namespace)->select(o1 | o1.oclIsTypeOf(environment::Namespace) and not (o1.name = null))
  ->reverse()->collect(o2 | o2.oclAsType(environment::Namespace))->collect(o3 | o3.name)->collect(o4 | o4.sanitize())
@@ -135,34 +135,8 @@
 [query public blockHierarchy(r : environment::Reference) : String = if (r.ancestors(environment::Namespace)->size() < 1) then '' else '.' 
   + r.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()->collect(o2 | o2.oclAsType(environment::Namespace))
   ->collect(o3 | o3.name)->collect(o4 | o4.sanitize())->collect(o5 | o5.toLower())->sep('.') endif/]
+  
 [comment ./]
 [query private blockHierarchy(c : requirement::Category) : String = if (c = null) then '' else '.' 
   + c.ancestors(requirement::Category)->reverse()->collect(o1 | o1.id)->collect(o2 | o2.sanitize())
   ->collect(o3 | o3.toLower())->sep('.') endif/]
-
-[comment ESSAYER DE MUTUALISER ?????./]
-
-
-[comment retourne le package principal pour /]
-[comment query public packageApi(any : ecore::EObject) : String = any.getPackageApi_invoke().trim()/]
-
-[comment retourne le package principal pour la gestion du métier./]
-[comment query public packageBusiness(any : ecore::EObject) : String = any.getPackageBusiness_invoke().trim()/]
-
-[comment retourne le package principal pour la gestion de la persistance ()./]
-[comment query public packagePersistence(any : ecore::EObject) : String = any.getPackagePersistence_invoke().trim()/]
-
-[comment retourne le package principal /]
-[comment query public packageReferentiel(any : ecore::EObject) : String = any.getPackageReferentiel_invoke().trim()/]
-
-[comment retourne le package principal pour /]
-[comment query public packageRequirement(any : ecore::EObject) : String = any.getPackageRequirement_invoke().trim()/]
-
-[comment retourne le package principal pour /]
-[comment query public packageMatching(any : ecore::EObject) : String = any.getPackageMatching_invoke().trim()/]
-
-[comment retourne le package principal pour/]
-[comment query public packageJdbcImpl(any : ecore::EObject) : String = any.getPackageImplJdbc_invoke().trim()/]
-
-[comment retourne le package principal pour ./]
-[comment query public packageServerImpl(any : ecore::EObject) : String = any.get_packageImplemServer().trim()/]

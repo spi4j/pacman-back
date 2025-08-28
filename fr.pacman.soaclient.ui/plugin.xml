@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+    <extension 
+          point="org.eclipse.core.expressions.propertyTesters">
+        <propertyTester
+            id = "fr.pacman.tester.client"
+            namespace="fr.pacman.soaclient"
+            properties="canShowMenu"
+            type="org.eclipse.core.resources.IResource"
+            class="fr.pacman.soaclient.ui.testers.PacmanUIClientPropertyTester"/>
+   </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
             class="fr.pacman.soaclient.ui.handlers.SoaGeneratorsHandler"
             commandId="fr.pacman.soaclient.ui.commands.SoaGeneratorCommand">
+      </handler>
+      <handler
+            class="fr.pacman.soaclient.ui.handlers.SoaValidationGeneratorsHandler"
+            commandId="fr.pacman.soaclient.validation.ui.commands.ValidationGeneratorCommand">
       </handler>
    </extension>
    <extension
@@ -18,6 +31,7 @@
                tooltip="Liste des générateurs Cali"
                label="Générateurs Cali">
             <command
+                  icon="icons/generate.png"
                   commandId="fr.pacman.soaclient.ui.commands.SoaGeneratorCommand"
                   id="fr.pacman.soaclient.ui.commands.SoaGeneratorCommand" 
                   label="Génération du client pour les services">
@@ -36,6 +50,37 @@
                                  property="org.eclipse.core.resources.extension"
                                  value="soa">
                            </test>
+                           <test 
+                                 forcePluginActivation="true"
+                                 property="fr.pacman.soaclient.canShowMenu"/>
+                        </and>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
+            <command
+                  icon="icons/validate.png"
+                  commandId="fr.pacman.soaclient.validation.ui.commands.ValidationGeneratorCommand"
+                  id="fr.pacman.soaclient.validation.ui.commands.ValidationGeneratorCommand" 
+                  label="Validation du client pour les services">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.core.resources.IFile">
+                           </instanceof>
+                           <test
+                                 property="org.eclipse.core.resources.extension"
+                                 value="soa">
+                           </test>
+                           <test 
+                                 forcePluginActivation="true"
+                                 property="fr.pacman.soaclient.canShowMenu"/>
                         </and>
                      </iterate>
                   </with>
@@ -53,7 +98,12 @@
       <command
             categoryId="fr.pacman.soaclient.ui.commands.generatorsCategory"
             id="fr.pacman.soaclient.ui.commands.SoaGeneratorCommand"
-            name="fr::pacman::soaclient::service::generateServerSoa">
+            name="Génération du client de service">
+      </command>
+      <command
+            categoryId="fr.pacman.soaclient.ui.commands.generatorsCategory"
+            id="fr.pacman.soaclient.validation.ui.commands.ValidationGeneratorCommand"
+            name="Validation du client de service">
       </command>
    </extension>
 </plugin>

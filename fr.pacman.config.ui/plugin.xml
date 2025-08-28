@@ -18,6 +18,7 @@
                tooltip="Liste des générateurs Cali"
                label="Générateurs Cali">
             <command
+                  icon="icons/generate.png"
                   commandId="fr.pacman.config.ui.commands.ConfigGeneratorCommand"
                   id="fr.pacman.config.ui.commands.ConfigGeneratorCommand" 
                   label="Génération de la configuration du projet">

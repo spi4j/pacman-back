@@ -18,6 +18,7 @@
                tooltip="Liste des générateurs Cali"
                label="Générateurs Cali">
             <command
+                  icon="icons/generate.png"
                   commandId="fr.pacman.sql.ui.commands.SqlGeneratorCommand"
                   id="fr.pacman.sql.ui.commands.SqlGeneratorCommand" 
                   label="Génération des scripts SQL">
