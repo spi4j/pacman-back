@@ -72,19 +72,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-[comment retourne le nom physique de la référence (si existe) ou le nom direct de la référence pour la couche de persistance./]
-[comment query public namePhysical(r : environment::Reference) : String = if r.hasNamePhysical() then r.get_annotationBody(r.get_metakeyPhysicalName()) else r.containingType.oclAsType(entity::Entity).name.safeUpper() + r.referencedType.oclAsType(entity::Entity).name.safeUpper()endif/]
-
 [comment retourne /]
 [query public nameBaseAttribute(a : environment::Attribute) : String = a.name.safeLowerFirst()/]
 
@@ -93,18 +80,3 @@
 
 [comment retourne le nom de la référence, on enlève le 'DTOS' en fin de nom./]
 [query public nameSimpleXX(r : environment::Reference) : String = if r.name.size() > 4 and r.name.substring(r.name.size() - 3).equalsIgnoreCase('dtos') then r.name.substring(1, r.referencedType.oclAsType(environment::DTO).name.size() - 4).safeCamelCase() else r.name.safeCamelCase() endif/]
-
-[comment retourne/]
-[comment query public getNameGetterListEntity(r : environment::Reference) : String = 'get ' + r.name.normalize().apply_attributeMultiple()).apply_methodDefault()/]
-
-[comment retourne/]
-[comment query public getNameSetterListEntity(r : environment::Reference) : String = 'set ' + r.name.normalize().apply_attributeMultiple()).apply_methodDefault()/]
-
-[comment on enlève le 'Entity' en fin de nom./]
-[comment query public buildSimpleEntityName(e : entity::Entity) : String = if e.name.size() > 6 and e.name.substring(e.name.size() - 5).equalsIgnoreCase('entity') then e.name.substring(1, e.name.size() - 6).sanitize() else e.name.sanitize() endif/]
-
-[comment on enlève le 'Service' en fin de nom./]
-[comment query public buildSimpleServiceName(s : soa::Service) : String = if s.name.size() > 7 and s.name.substring(s.name.size() - 6).equalsIgnoreCase('service') then s.name.substring(1, s.name.size() - 7).sanitize() else s.name.sanitize() endif/]
-
-[comment securite, si pas de presence _id on ajoute a la fin de la reference /]
-[comment query public buildSimpleReferenceName(s : String) : String = if s.useIdSqlSuffixForReferences() then if s.size() > s.nameSQL_REF_ID().size() + 1 and s.substring(s.size() - s.nameSQL_REF_ID().size() + 1).equalsIgnoreCase(s.nameSQL_REF_ID()) then s else s + s.nameSQL_REF_ID() endif else s endif/]

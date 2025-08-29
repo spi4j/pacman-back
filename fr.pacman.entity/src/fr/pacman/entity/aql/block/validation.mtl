@@ -66,53 +66,53 @@
 [/template]
 
 [comment impossible de créer des entités sans attribut./]
-[query private err1 (e : entity::Entity) : String = 'RG_01@' + e.nameEntity() 
+[query private err1 (e : entity::Entity) : String = 'RG_01@' + e.nameObject() 
   + '@Entité sans aucun attribut@Ajoutez au moins un attribut au niveau de l\'entité'/]
 
 [comment impossible de créer des entités avec un attribut de type 'Identifier'./]
-[query private err2 (e : entity::Entity) : String = 'RG_02@' + e.nameEntity() + '@Entité avec un attribut marqué comme \'Identifier\'' +  
+[query private err2 (e : entity::Entity) : String = 'RG_02@' + e.nameObject() + '@Entité avec un attribut marqué comme \'Identifier\'' +  
   '@Ne pas marquer l\'attribut(s) et laisser le générateur gérer l\'identifiant de l\'entité'/]
   
 [comment impossible de créer des entités avec une multiplicité de type (0,*) ou (1,*)./]
-[query private err3 (e : entity::Entity) : String = 'RG_03@' + e.nameEntity() + '@Entité avec un attribut de multiplicité (0,*) ou (1,*)' +  
+[query private err3 (e : entity::Entity) : String = 'RG_03@' + e.nameObject() + '@Entité avec un attribut de multiplicité (0,*) ou (1,*)' +  
   '@Supprimez la multiplicité (0,*) ou (1,*) sur l\'attribut'/]
   
 [comment impossible de créer des entités avec un attribut sans nom./]
-[query private err4 (e : entity::Entity) : String = 'RG_04@' + e.nameEntity() + '@Entité avec un attribut sans nom' 
+[query private err4 (e : entity::Entity) : String = 'RG_04@' + e.nameObject() + '@Entité avec un attribut sans nom' 
   + '@Définissez un nom pour l\'attribut'/]
   
 [comment impossible de créer des entités avec un attribut sans type./]
-[query private err5 (e : entity::Entity) : String = 'RG_05@' + e.nameEntity() + '@Entité avec un attribut sans type' 
+[query private err5 (e : entity::Entity) : String = 'RG_05@' + e.nameObject() + '@Entité avec un attribut sans type' 
   +  '@Définissez un type pour l\'attribut' /]
   
 [comment impossible de créer des entités mère avec des références sur d'autres classes parents./]
-[query private err6 (e : entity::Entity) : String = 'RG_06@' + e.nameEntity() + '@Références non bidirectionnelles (*) sur des entités héritées' 
+[query private err6 (e : entity::Entity) : String = 'RG_06@' + e.nameObject() + '@Références non bidirectionnelles (*) sur des entités héritées' 
   + '@Supprimez ces références au niveau des entités héritées'/]
   
 [comment impossible de créer des références récursives avec le même nom./]
-[query private err7 (e : entity::Entity) : String = 'RG_07@' + e.nameEntity() + '@Des références récursives ont le même nom' 
+[query private err7 (e : entity::Entity) : String = 'RG_07@' + e.nameObject() + '@Des références récursives ont le même nom' 
   + '@Modifier les noms des références afin que chaque nom soit unique'/]
   
 [comment impossible de créer des références de type composite./]
-[query private err8 (e : entity::Entity) : String = 'RG_08@' + e.nameEntity() + '@Des références composites ont été trouvées' 
+[query private err8 (e : entity::Entity) : String = 'RG_08@' + e.nameObject() + '@Des références composites ont été trouvées' 
   + '@Supprimez les références composites'/]
   
 [comment impossible de créer des entités parent avec des références FK (autre que récursive) sur d'autres classes parents./]
-[query private err9 (e : entity::Entity) : String = 'RG_09@' + e.nameEntity() + '@Références de type \'fKey\' entre entités héritées' 
+[query private err9 (e : entity::Entity) : String = 'RG_09@' + e.nameObject() + '@Références de type \'fKey\' entre entités héritées' 
   + '@Supprimez les références de type \'fKey\' pour les entités héritées'/]
   
 [comment impossible de créer des relations bidirectionnelles navigables dans les deux sens./]
-[query private err10 (r : environment::Reference) : String = 'RG_10@' + r.nameReference() + '@Référence bidirectionnel navigable dans les deux sens ' 
+[query private err10 (r : environment::Reference) : String = 'RG_10@' + r.nameObject() + '@Référence bidirectionnel navigable dans les deux sens ' 
 + '@Décochez la navigabilité sur un des deux liens'/]
 
 [comment impossible de créer des relations bidirectionnelles avec des cardinalités (1 - 0,1)./]
-[query private err11 (r : environment::Reference) : String = 'RG_11@' + r.nameReference() + '@Référence bidirectionnel avec une cardinalité (1 - 0,1)' 
+[query private err11 (r : environment::Reference) : String = 'RG_11@' + r.nameObject() + '@Référence bidirectionnel avec une cardinalité (1 - 0,1)' 
 	+ '@Utilisez des relations non bidirectionnelles'/]
 	
 [comment impossible de créer des relations de type composition (non géré)./]
-[query private err12 (r : environment::Reference) : String = 'RG_12@' + r.nameReference() + '@Référence de type \'composition\' détectée' 
+[query private err12 (r : environment::Reference) : String = 'RG_12@' + r.nameObject() + '@Référence de type \'composition\' détectée' 
 	+ '@Ne pas utiliser ce type de référence (non géré)'/]
 	
 [comment impossible de créer des entités parent avec des références JT (autre que récursive) sur d'autres classes parents./]
-[query private err13 (r : environment::Reference) : String = 'RG_13@' +r.nameReference() + '@Références de type \'Join\' entre entités héritées' 
+[query private err13 (r : environment::Reference) : String = 'RG_13@' + r.nameObject() + '@Références de type \'Join\' entre entités héritées' 
   + '@Supprimez les références de type \'Join\' pour les entités héritées'/]

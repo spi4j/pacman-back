@@ -18,7 +18,7 @@
   [comment écriture du fichier de configuration pour le client rest (webClient)./]
   [r.fileApplicationProperties()/]
   [comment écriture de la classe utilitaire pour l'inialisation des maps (10+)./]
-  [r.fileMapUtils()/]
+  [r.fileRsMapUtils()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]

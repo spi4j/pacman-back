@@ -221,7 +221,10 @@
 [query public nameClassRsSecurityConfigImpl(any : ecore::EObject) : String = (any.get_projectName() + ' security config').apply_classDefault()/]
 
 [comment retourne le nom pour la classe utilitaire d'initialisation des maps (dans le cas 10+ entrées)./]
-[query public nameClassMapUtils(any : ecore::EObject) : String = (any.get_projectName() + ' web client map utils').apply_classDefault()/]
+[query public nameClassRsMapUtils(any : ecore::EObject) : String = (any.get_projectName() + ' web client map utils').apply_classDefault()/]
+  
+[comment retourne le nom pour la classe utilitaire d'écriture des logs dans le cas des tests pour le client./]
+[query public nameClassRsClientLogTestHelper(any : ecore::EObject) : String = (any.get_projectName() + 'web client log helper').apply_classDefault()/]
   
 [comment retourne le nom pour la classe d'implémentation du DAO dans le cadre des test./]
 [comment query public nameClassDaoJdbcTest(e : entity::Entity) : String = (e.name() + e.suffixDaoTest()).apply_classTest()/]

@@ -37,8 +37,15 @@
 [/template]
 
 [comment écriture d'une classe utilitaire pour l'initialisation des maps (+10 entrées)./]
-[template public fileMapUtils(any : ecore::EObject)]
-  [file (any.nameClassMapUtils().toFileJava(any.namePackageRsBase()), overwrite, 'UTF-8')]
-    [any.mapUtils()/]
+[template public fileRsMapUtils(any : ecore::EObject)]
+  [file (any.nameClassRsMapUtils().toFileJava(any.namePackageRsBase()), overwrite, 'UTF-8')]
+    [any.rsMapUtils()/]
+  [/file]
+[/template]
+
+[comment écriture d'une classe utilitaire pour l'écriture des logs dans le cas des tests./]
+[template public fileRsClientLogTestHelper(any : ecore::EObject)]
+  [file (any.nameClassRsClientLogTestHelper().toFileJava(any.namePackageRsBase()), overwrite, 'UTF-8')]
+    [any.rsClientTestLogHelper()/]
   [/file]
 [/template]

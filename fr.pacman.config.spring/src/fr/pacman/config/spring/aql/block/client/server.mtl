@@ -124,7 +124,7 @@
     [any.classHeader(any.namePackageRsBase())/]
     [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       
-      import java.io.IOException;
+      import java.io.IOException; 
       import java.time.Duration;
       import java.util.Arrays;
       import org.slf4j.Logger;
@@ -134,17 +134,18 @@
       import org.springframework.context.annotation.Bean;
       import org.springframework.context.annotation.Configuration;
       import org.springframework.core.env.Environment;
-      import org.springframework.http.MediaType;
+      import org.springframework.http.HttpHeaders;
       import org.springframework.http.HttpStatusCode;
+      import org.springframework.http.MediaType;
       import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+      import org.springframework.http.codec.json.Jackson2JsonDecoder;
       import org.springframework.web.reactive.function.client.ClientResponse;
       import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
       import org.springframework.web.reactive.function.client.WebClient;
+      import com.fasterxml.jackson.databind.JsonNode;
+      import com.fasterxml.jackson.databind.ObjectMapper;
       import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-      import com.fasterxml.jackson.databind.ObjectMapper;
-      import com.fasterxml.jackson.databind.ObjectMapper;
       import io.netty.channel.ChannelOption;
-      import reactor.core.publisher.Mono;
       import reactor.netty.http.client.HttpClient;
       import reactor.netty.resources.ConnectionProvider;
       
@@ -174,12 +175,19 @@
     public class [any.nameClassRsClientConfigImpl()/] {
     
     /**
-     * Logger SLF4J pour la classe {@link TataWebClientConfigImpl}.
+     * Logger SLF4J pour la classe {@link [any.nameClassRsClientConfigImpl()/]}.
      * 
      * @see org.slf4j.Logger
      * @see org.slf4j.LoggerFactory
      */
      private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([any.nameClassRsClientConfigImpl()/].class);
+     
+    /**
+     * Instance unique et réutilisable de {@link ObjectMapper} utilisée
+     * pour le parsing et la sérialisation JSON dans les méthodes utilitaires
+     * de logging (par exemple {@code formatJsonAsTable}).
+     */
+     private static final ObjectMapper ['mapper'.apply_attributeFinalStatic()/] = new ObjectMapper();
      
      /**
       * L'environnement Spring dans lequel l'application s'exécute.
@@ -251,8 +259,7 @@
       public WebClient [(any.nameProject() + ' web client').apply_methodDefault()/]
          (final WebClient.Builder ['builder'.apply_parameterMethodClassicIn()/]) {
          
-         ObjectMapper ['mapper'.apply_variableDefault()/] = new ObjectMapper();
-          ['mapper'.apply_variableDefault()/].setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+         ['mapper'.apply_attributeFinalStatic()/].setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
          
          ConnectionProvider ['provider'.apply_variableDefault()/] = ConnectionProvider.builder("[any.namePackageProject().toLower()/]")
            .maxConnections(100)
@@ -269,7 +276,7 @@
             
           ['internal builder'.apply_variableDefault()/].codecs(['configure'.apply_variableDefault()/] 
              -> ['configure'.apply_variableDefault()/].defaultCodecs().jackson2JsonDecoder(
-             new Jackson2JsonDecoder(['mapper'.apply_variableDefault()/], MediaType.APPLICATION_JSON)));
+             new Jackson2JsonDecoder(['mapper'.apply_attributeFinalStatic()/], MediaType.APPLICATION_JSON)));
             
             if (Arrays.asList(['environment'.apply_attributeFinal()/].getActiveProfiles()).contains("dev")) {
               ['internal builder'.apply_variableDefault()/]
@@ -325,50 +332,172 @@
        * @return une {@link ExchangeFilterFunction} loggant les réponses HTTP avec le corps JSON formaté.
        */
        private ExchangeFilterFunction ['log response'.apply_methodDefault()/]() {
-           return ExchangeFilterFunction.ofResponseProcessor(['response'.apply_variableDefault()/] -> {
-             HttpStatusCode ['status'.apply_variableDefault()/] = ['response'.apply_variableDefault()/].statusCode();
-             return ['response'.apply_variableDefault()/].bodyToMono(String.class)
-               .defaultIfEmpty("")
-               .doOnNext(['body'.apply_variableDefault()/] -> {
-               if (!['body'.apply_variableDefault()/].isBlank()) {
-                  String ['pretty'.apply_variableDefault()/] = prettyPrintJson(['body'.apply_variableDefault()/]);
-                  ['log'.apply_attributeFinalStatic()/].info("WebClient << {}:\n{}", ['status'.apply_variableDefault()/].value()
-                    , ['pretty'.apply_variableDefault()/]);
-               } else {
-                   ['log'.apply_attributeFinalStatic()/].info("WebClient << {} (empty body)", 
-                     ['status'.apply_variableDefault()/].value());
-               }
-           })
-           .map(body -> {
+            return ExchangeFilterFunction.ofResponseProcessor(['response'.apply_variableDefault()/] -> {
+            HttpStatusCode ['status'.apply_variableDefault()/] = ['response'.apply_variableDefault()/].statusCode();
+            HttpHeaders ['headers'.apply_variableDefault()/] = ['response'.apply_variableDefault()/].headers().asHttpHeaders();
+            
+            return ['response'.apply_variableDefault()/].bodyToMono(String.class).defaultIfEmpty("")
+                .doOnNext(['body'.apply_variableDefault()/] -> {
+                StringBuilder ['sb'.apply_variableDefault()/] = new StringBuilder();
+                ['sb'.apply_variableDefault()/].append("\n================= WebClient Reponse =================\n");	
+                ['sb'.apply_variableDefault()/].append("Statut : ").append(['status'.apply_variableDefault()/].value())
+                   .append(" ").append(['status'.apply_variableDefault()/]).append("\n");
+                ['sb'.apply_variableDefault()/].append("======================================================\n\n");
+                
+                if (!['headers'.apply_variableDefault()/].isEmpty()) {
+                   ['sb'.apply_variableDefault()/].append("En-tête(s) :\n");
+                   ['headers'.apply_variableDefault()/].forEach((name, values) 
+                      -> ['sb'.apply_variableDefault()/].append("  ").append(name).append(": ")
+                         .append(String.join(", ", values)).append("\n"));
+                } else {
+                   ['sb'.apply_variableDefault()/].append("(Aucun en-tête)\n");
+                }
+                ['sb'.apply_variableDefault()/].append("======================================================\n\n");
+                
+                if (!['body'.apply_variableDefault()/].isBlank()) {
+                   if (['is json'.apply_methodDefault()/](['headers'.apply_variableDefault()/])) {
+                       ['sb'.apply_variableDefault()/].append("Body (JSON sous forme de table):\n")
+                          .append(['format json as table'.apply_methodDefault()/](['body'.apply_variableDefault()/], "  "));
+                   } else {
+                       ['sb'.apply_variableDefault()/].append("Corps :\n")
+                          .append(['truncate'.apply_methodDefault()/](['body'.apply_variableDefault()/], 2000))
+                          .append("\n");
+                   }
+                } else {
+                   ['sb'.apply_variableDefault()/].append("Corps : (vide)\n");
+                }
+                
+                ['sb'.apply_variableDefault()/].append("======================================================\n");
+                ['log'.apply_attributeFinalStatic()/].info(['sb'.apply_variableDefault()/].toString());
+           }).map(['body'.apply_variableDefault()/] -> {
                 ClientResponse.Builder ['builder'.apply_variableDefault()/] = ClientResponse.create(['status'.apply_variableDefault()/])
-                    .headers(headers -> headers.addAll(['response'.apply_variableDefault()/].headers().asHttpHeaders()))
-                    .cookies(cookies -> cookies.addAll(['response'.apply_variableDefault()/].cookies()))
-                    .body(['body'.apply_variableDefault()/]); 
-                 return ['builder'.apply_variableDefault()/].build();
-               });
+                     .headers(h -> h.addAll(['headers'.apply_variableDefault()/]))
+                     .cookies(c -> c.addAll(['response'.apply_variableDefault()/].cookies())).body(['body'.apply_variableDefault()/]);
+                return ['builder'.apply_variableDefault()/].build();
            });
+         });
        }
        
-      /**
-       * Formatte une chaîne JSON brute de manière lisible ("pretty printed")
-       * avec indentation et sauts de ligne.
-       * 
-       * Si la chaîne fournie n'est pas un JSON valide, la méthode retourne le texte tel quel,
-       * sans lever d'exception.
-       *
-       * @param ['json'.apply_parameterMethodClassicIn()/] la chaîne JSON à formatter (par exemple, une réponse d'API)
-       * @return une version indentée et lisible du JSON, ou la chaîne originale en cas d'erreur de parsing
-       */
-       public String prettyPrintJson(String ['json'.apply_parameterMethodClassicIn()/]) {
-           try {
-               ObjectMapper ['mapper'.apply_variableDefault()/] = new ObjectMapper();
-               Object ['obj'.apply_variableDefault()/] = ['mapper'.apply_variableDefault()/]
-                 .readValue(['json'.apply_parameterMethodClassicIn()/], Object.class);
-               return ['mapper'.apply_variableDefault()/].writerWithDefaultPrettyPrinter()
-                 .writeValueAsString(['obj'.apply_variableDefault()/]);
-           } catch (IOException e) {
-               return ['json'.apply_parameterMethodClassicIn()/];
-           }
+       /**
+        * Formatte une chaîne JSON sous forme de tableau lisible clé -> valeur, avec
+        * gestion hiérarchique de l'indentation et mise en évidence des occurrences
+        * lorsqu'il s'agit de tableaux JSON.
+        *
+        * @param ['json'.apply_parameterMethodClassicIn()/]   la chaîne JSON brute à parser et formater
+        * @param ['indent'.apply_parameterMethodClassicIn()/] la chaîne utilisée pour l'indentation (ex. deux espaces)
+        * @return une représentation textuelle structurée du JSON, ou un message
+        *         d'erreur si le JSON est invalide
+        */
+       private String ['format json as table'.apply_methodDefault()/](String ['json'.apply_parameterMethodClassicIn()/]
+          , String ['indent'.apply_parameterMethodClassicIn()/]) {
+       	 try {
+            JsonNode ['node'.apply_variableDefault()/] = ['mapper'.apply_attributeFinalStatic()/].readTree(['json'.apply_parameterMethodClassicIn()/]);
+            StringBuilder ['sb'.apply_variableDefault()/] = new StringBuilder();
+            ['format node'.apply_methodDefault()/](['node'.apply_variableDefault()/], ['sb'.apply_variableDefault()/]
+              , ['indent'.apply_parameterMethodClassicIn()/], 0, null);
+            return ['sb'.apply_variableDefault()/].toString();
+         } catch (Exception ['e'.apply_parameterMethodClassicIn()/]) {
+            return "(Fichier JSON non valide) " + ['json'.apply_parameterMethodClassicIn()/];
+         }
+       }
+       
+       /**
+        * Formatte récursivement un nœud JSON ({@link JsonNode}) et l'ajoute à un
+        * {@link StringBuilder} sous forme textuelle structurée.
+        * <p>
+        * Si le nœud est un objet JSON ({@code { ... }}), chaque paire clé/valeur est
+        * traitée récursivement avec une indentation accrue.
+        * <br>
+        * Si le nœud est un tableau JSON ({@code ['['/] ... [']'/]}), chaque élément est affiché
+        * sous une section distincte avec une séparation visuelle.
+        * <br>
+        * Si le nœud est une valeur primitive (chaîne, nombre, booléen, null), elle est
+        * affichée directement sous la forme : {@code NOM_DE_CHAMP -> valeur} si un nom
+        * de champ est présent, sinon juste la valeur indentée.
+        * 
+        * @param ['node'.apply_parameterMethodClassicIn()/]      le nœud JSON à formater
+        * @param ['sb'.apply_parameterMethodClassicIn()/]        le buffer dans lequel écrire le rendu
+        * @param ['indent'.apply_parameterMethodClassicIn()/]    chaîne utilisée pour l'indentation (par ex. deux espaces)
+        * @param ['level'.apply_parameterMethodClassicIn()/]     profondeur actuelle de l'arborescence JSON (sert à calculer
+        *                  le préfixe d'indentation)
+        * @param ['fieldName'.apply_parameterMethodClassicIn()/] nom du champ JSON courant (ou {@code null} si la valeur est
+        *                  dans un tableau)
+        */
+       private void ['format node'.apply_methodDefault()/](JsonNode ['node'.apply_parameterMethodClassicIn()/], StringBuilder ['sb'.apply_parameterMethodClassicIn()/]
+         , String ['indent'.apply_parameterMethodClassicIn()/], int ['level'.apply_parameterMethodClassicIn()/], String ['fieldName'.apply_parameterMethodClassicIn()/]) {
+          String ['prefix'.apply_variableDefault()/] = ['indent'.apply_parameterMethodClassicIn()/].repeat(['level'.apply_parameterMethodClassicIn()/]);
+          if (['node'.apply_parameterMethodClassicIn()/].isObject()) {
+            if (['fieldName'.apply_parameterMethodClassicIn()/] != null) {
+               ['sb'.apply_parameterMethodClassicIn()/].append(['prefix'.apply_variableDefault()/]).append(['fieldName'.apply_parameterMethodClassicIn()/]).append(":\n");
+            }
+            ['node'.apply_parameterMethodClassicIn()/].fieldNames().forEachRemaining(['key'.apply_variableDefault()/] -> {
+              ['format node'.apply_methodDefault()/](['node'.apply_parameterMethodClassicIn()/].get(['key'.apply_variableDefault()/] ), ['sb'.apply_parameterMethodClassicIn()/]
+              , ['indent'.apply_parameterMethodClassicIn()/], ['level'.apply_parameterMethodClassicIn()/] + 1, ['key'.apply_variableDefault()/] );
+       	    });
+          } else if (['node'.apply_parameterMethodClassicIn()/].isArray()) {
+            if (['fieldName'.apply_parameterMethodClassicIn()/] != null) {
+              ['sb'.apply_parameterMethodClassicIn()/].append(['prefix'.apply_variableDefault()/]).append(['fieldName'.apply_parameterMethodClassicIn()/]).append(":\n");
+            }
+            int ['index'.apply_variableDefault()/] = 1;
+            for (JsonNode ['element'.apply_variableDefault()/] : ['node'.apply_parameterMethodClassicIn()/]) {
+              ['sb'.apply_parameterMethodClassicIn()/].append("\n")
+                .append(['prefix'.apply_variableDefault()/]).append(['indent'.apply_parameterMethodClassicIn()/]).append("===============\n")
+                .append(['prefix'.apply_variableDefault()/]).append(['indent'.apply_parameterMethodClassicIn()/])
+                .append("Occurrence #").append(['index'.apply_variableDefault()/]++).append("\n").append(['prefix'.apply_variableDefault()/])
+                .append(['indent'.apply_parameterMethodClassicIn()/])
+                .append("===============\n\n");
+              formatNode(['element'.apply_variableDefault()/], ['sb'.apply_parameterMethodClassicIn()/], ['indent'.apply_parameterMethodClassicIn()/]
+                , ['level'.apply_parameterMethodClassicIn()/] + 2, null);
+            }
+          } else {
+             String ['value'.apply_variableDefault()/] = ['node'.apply_parameterMethodClassicIn()/].isTextual() ? "\"" + ['node'.apply_parameterMethodClassicIn()/].asText() 
+             + "\"" : ['node'.apply_parameterMethodClassicIn()/].toString();
+             if (['fieldName'.apply_parameterMethodClassicIn()/] != null) {
+                ['sb'.apply_parameterMethodClassicIn()/].append(['prefix'.apply_variableDefault()/])
+                   .append(['fieldName'.apply_parameterMethodClassicIn()/]
+                  .toUpperCase()).append(" -> ").append(['value'.apply_variableDefault()/]).append("\n");
+             } else {
+                ['sb'.apply_parameterMethodClassicIn()/].append(['prefix'.apply_variableDefault()/])
+                  .append(['value'.apply_variableDefault()/]).append("\n");
+             }
+          }
+       }
+       
+       /**
+        * Vérifie si le contenu indiqué dans les en-têtes HTTP correspond à du JSON.
+        * <p>
+        * La méthode regarde le {@code Content-Type} des en-têtes et considère que la
+        * réponse est du JSON si ce type contient :
+        * <ul>
+        * <li>{@code application/json}</li>
+        * <li>ou un type personnalisé avec suffixe {@code +json} (par ex.
+        * {@code application/vnd.api+json})</li>
+        * </ul>
+        *
+        * @param ['headers'.apply_parameterMethodClassicIn()/] en-têtes HTTP de la réponse
+        * @return {@code true} si le contenu est du JSON, sinon {@code false}
+        */
+       private boolean ['is json'.apply_methodDefault()/](HttpHeaders ['headers'.apply_parameterMethodClassicIn()/]) {
+           String ['contentType'.apply_variableDefault()/] = ['headers'.apply_parameterMethodClassicIn()/].getContentType() != null 
+             ? ['headers'.apply_parameterMethodClassicIn()/].getContentType().toString() : "";
+           return ['contentType'.apply_variableDefault()/].contains("application/json") || ['contentType'.apply_variableDefault()/].contains("+json");
+       }
+       
+       /**
+        * Tronque une chaîne de caractères si elle dépasse une longueur maximale.
+        * <p>
+        * Si la chaîne est plus longue que {@code ['maxLength'.apply_parameterMethodClassicIn()/]}, elle est coupée et
+        * suffixée par {@code "...(truncated)"}. Sinon, elle est renvoyée telle quelle.
+        *
+        * @param ['text'.apply_parameterMethodClassicIn()/]      la chaîne initiale
+        * @param ['maxLength'.apply_parameterMethodClassicIn()/] longueur maximale autorisée
+        * @return la chaîne d'origine si elle est plus courte que {@code ['maxLength'.apply_parameterMethodClassicIn()/]}, ou
+        *         une version tronquée avec un indicateur
+        */
+       private String ['truncate'.apply_methodDefault()/](String ['text'.apply_parameterMethodClassicIn()/]
+          , int ['maxLength'.apply_parameterMethodClassicIn()/]) {
+           return ['text'.apply_parameterMethodClassicIn()/].length() > ['maxLength'.apply_parameterMethodClassicIn()/] ? ['text'.apply_parameterMethodClassicIn()/]
+             .substring(0, ['maxLength'.apply_parameterMethodClassicIn()/]) + "...(truncated)" : ['text'.apply_parameterMethodClassicIn()/];
        }
     }
 [/template]
@@ -805,7 +934,7 @@
 [/template]
 
 [comment écriture d'une classe utilitaire pour l'initialisation des maps dans le cas ou plus de 10 entrées./]
-[template public mapUtils (any : ecore::EObject)]
+[template public rsMapUtils (any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
   import java.util.HashMap;
   import java.util.Map;
@@ -821,7 +950,7 @@
    * @author [any.nameAuthor()/]
    */
   @SuppressWarnings("unchecked")
-  public class [any.nameClassMapUtils()/] {
+  public class [any.nameClassRsMapUtils()/] {
     @SafeVarargs
     public static <K, V> Map<K, V> ['map of'.apply_methodDefault()/](Object... ['entries'.apply_parameterMethodClassicIn()/]) {
         if (['entries'.apply_parameterMethodClassicIn()/].length % 2 != 0) {
@@ -835,5 +964,135 @@
         }
         return ['map'.apply_variableDefault()/];
     }
+  }
+[/template]
+
+[comment écriture de la classe utilitaire de gestion et d'écriture des logs pour les tests du client./]
+[template public rsClientTestLogHelper (any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+
+  public abstract class [any.nameClassRsClientLogTestHelper()/] {
+    
+    private [any.nameClassRsClientLogTestHelper()/](){
+       //RAS.
+    }
+    
+    protected static void ['display error'.apply_methodDefault()/](final Exception ['exception'.apply_parameterMethodClassicIn()/])  {
+        final StringBuilder ['str builder'.apply_variableFinal()/] = new StringBuilder();
+        ['str builder'.apply_variableFinal()/].append(['pretty operation printing'.apply_methodGet()/](['current test method name'.apply_attributeStatic()/]));
+        ['str builder'.apply_variableFinal()/].append(['pretty headers printing'.apply_methodGet()/]('xx'.['headers'.apply_methodGet()/]()));
+        ['str builder'.apply_variableFinal()/].append(['pretty error printing'.apply_methodGet()/](['exception'.apply_parameterMethodClassicIn()/]));
+        
+        ['test log'.apply_attributeFinalStatic()/].error(['str builder'.apply_variableFinal()/].toString());
+        fail("Message : " + ['exception'.apply_parameterMethodClassicIn()/].getMessage());
+    }
+    
+    private static String ['pretty error printing'.apply_methodGet()/](final Exception ['exception'.apply_parameterMethodClassicIn()/])  {
+           final StringBuilder ['str builder'.apply_variableFinal()/] = new StringBuilder();
+           ['str builder'.apply_variableFinal()/].append("\n\nCode retour  : ").append(['exception'.apply_parameterMethodClassicIn()/].['status code'.apply_methodGet()/]());
+           ['str builder'.apply_variableFinal()/].append(" - ").append(['exception'.apply_parameterMethodClassicIn()/].getMessage()).append("\nURI          : ");*
+           ['str builder'.apply_variableFinal()/].append(['exception'.apply_parameterMethodClassicIn()/].['called uri'.apply_methodGet()/]()).append("\nInformations : ");
+           ['str builder'.apply_variableFinal()/].append(['exception'.apply_parameterMethodClassicIn()/].['additional info'.apply_methodGet()/]()).append("\n\n");
+           return ['str builder'.apply_variableFinal()/].toString();
+    }
+    
+    protected static void ['display response'.apply_methodDefault()/](final Object ['entity'.apply_parameterMethodClassicIn()/]) {
+
+          final Gson ['gson parser'.apply_variableFinal()/] = new GsonBuilder()
+                .generateNonExecutableJson()
+                .serializeSpecialFloatingPointValues()
+                .enableComplexMapKeySerialization()
+                .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE_WITH_SPACES)
+                .setLongSerializationPolicy(LongSerializationPolicy.STRING)
+                .setDateFormat("dd-MM-yyyy'T'HH:mm:ssXXX")
+                .setPrettyPrinting()
+                .serializeNulls()
+                .create(); 
+                
+                final StringBuilder ['str builder'.apply_variableFinal()/] = new StringBuilder();
+                ['str builder'.apply_variableFinal()/].append(['pretty operation printing'.apply_methodGet()/](['current test method name'.apply_attributeStatic()/]));
+                ['str builder'.apply_variableFinal()/].append(['pretty headers printing'.apply_methodGet()/]('xx'.['headers'.apply_methodGet()/]()));
+                ['str builder'.apply_variableFinal()/].append(['pretty entity printing'.apply_methodGet()/](['gson parser'.apply_variableFinal()/].toJson(['entity'.apply_parameterMethodClassicIn()/])));
+                ['test log'.apply_attributeFinalStatic()/].info(['str builder'.apply_variableFinal()/].toString());
+    }
+    
+    private static String ['pretty headers printing'.apply_methodGet()/](final Headers ['headers'.apply_parameterMethodClassicIn()/]) {
+       final StringBuilder ['str builder'.apply_variableFinal()/] = new StringBuilder();	
+       ['str builder'.apply_variableFinal()/].append("\nEn-têtes : REQUEST   *************************************************");
+       for (Entry<String, List<Object>> ['entry'.apply_variableDefault()/] : ['headers'.apply_parameterMethodClassicIn()/]
+           .['request headers'.apply_methodGet()/]().entrySet() ){
+           ['pretty headers printing'.apply_methodDefault()/](['str builder'.apply_variableDefault()/], ['entry'.apply_variableDefault()/]);
+       }
+       if(null == ['headers'.apply_parameterMethodClassicIn()/].['response headers'.apply_methodGet()/]()) {
+           ['str builder'.apply_variableFinal()/].append("\n**********************************************************************");
+           return ['str builder'.apply_variableFinal()/].toString();
+       }
+       ['str builder'.apply_variableFinal()/].append("\nEn-têtes : RESPONSE   *************************************************");
+       for (Entry<String, List<String>> ['entry'.apply_variableDefault()/] : ['headers'.apply_parameterMethodClassicIn()/]
+           .['response headers'.apply_methodGet()/]().entrySet() ){
+           ['pretty headers printing'.apply_methodDefault()/](['str builder'.apply_variableDefault()/], ['entry'.apply_variableDefault()/]);
+       }
+       ['str builder'.apply_variableFinal()/].append("\n**********************************************************************");
+       return ['str builder'.apply_variableFinal()/].toString();*
+    }
+    
+    private static StringBuilder ['pretty headers printing'.apply_methodDefault()/](final StringBuilder ['str builder'.apply_parameterMethodClassicIn()/], 
+        final Entry<String, ?> ['entry'.apply_parameterMethodClassicIn()/]) {
+        ['str builder'.apply_parameterMethodClassicIn()/].append("\n           ");
+        ['str builder'.apply_parameterMethodClassicIn()/].append(['entry'.apply_parameterMethodClassicIn()/].getKey());
+        ['str builder'.apply_parameterMethodClassicIn()/].append(" : ");
+        ['str builder'.apply_parameterMethodClassicIn()/].append(['entry'.apply_parameterMethodClassicIn()/].getValue());
+        return ['str builder'.apply_parameterMethodClassicIn()/];
+    }
+    
+    private static String ['pretty operation printing'.apply_methodGet()/](final String ['operation'.apply_parameterMethodClassicIn()/]) {
+        final StringBuilder ['str builder'.apply_variableFinal()/] = new StringBuilder();
+        ['str builder'.apply_variableFinal()/].append("\n\n");
+        ['str builder'.apply_variableFinal()/].append("**********************************************************************\n");
+        ['str builder'.apply_variableFinal()/].append("Classe   : ").append(['current test class name'.apply_attributeStatic()/]).append(".\n");
+        ['str builder'.apply_variableFinal()/].append("Méthode  : ").append(['operation'.apply_parameterMethodClassicIn()/]).append(".");
+        ['str builder'.apply_variableFinal()/].append("\n**********************************************************************");
+        return ['str builder'.apply_variableFinal()/].toString();
+    }
+    
+    private static String ['pretty entity printing'.apply_methodGet()/](String ['json serialization'.apply_parameterMethodClassicIn()/]) {
+        Matcher ['matcher'.apply_variableDefault()/] = Pattern.compile("\"(.*)\":").matcher(['json serialization'.apply_parameterMethodClassicIn()/]);
+        StringBuffer ['str buffer'.apply_variableDefault()/] = new StringBuffer();
+        while (['matcher'.apply_variableDefault()/].find()) {
+            ['matcher'.apply_variableDefault()/].appendReplacement(['str buffer'.apply_variableDefault()/], 
+            ['matcher'.apply_variableDefault()/].group().toUpperCase());
+        }
+        ['matcher'.apply_variableDefault()/].appendTail(['str buffer'.apply_variableDefault()/]);
+        ['json serialization'.apply_parameterMethodClassicIn()/] = ['str buffer'.apply_variableDefault()/].toString();
+        return ['json serialization'.apply_parameterMethodClassicIn()/]
+             .trim()
+             .replace(")]}'\n{", "\n\r")
+             .replaceAll("\"(.*)\":", "$1 :")
+             .replaceAll("\n( *)\\},\n *\\{", ['new record'.apply_methodDefault()/]())
+             .replaceAll("(\\['['/] *\\n)( *)\\{", ['first record'.apply_methodDefault()/]())
+             .replaceAll("['['/]\\{\\}]", "")
+             .replaceAll(",(\n)", "$1")
+             .replaceAll("(null),", "$1")
+             .replaceAll("\n *\n", "\n")
+             .replaceAll("(\n *)_", "$1")
+             .replaceAll("<!NLE>|</!NLE>","\n")
+             .replaceAll("\\}$", "");
+    }
+    
+    private static String ['new record'.apply_methodDefault()/]() {
+        StringBuilder ['str builder'.apply_variableDefault()/] = new StringBuilder();
+        ['str builder'.apply_variableDefault()/].append("<!NLE>\n$1  -----------------------------------------------\n");
+        ['str builder'.apply_variableDefault()/].append("$1  ---------- NOUVEL ELEMENT DE LISTE ------------\n");
+        ['str builder'.apply_variableDefault()/].append("$1  -----------------------------------------------</!NLE>");
+        return ['str builder'.apply_variableDefault()/].toString();
+     }
+     
+     private static String firstRecord() {
+        StringBuilder ['str builder'.apply_variableDefault()/] = new StringBuilder();
+        ['str builder'.apply_variableDefault()/].append("$1").append("<!NLE>$2  -----------------------------------------------\n");
+        ['str builder'.apply_variableDefault()/].append("$2  ---------- PREMIER ELEMENT DE LISTE -----------\n");
+        ['str builder'.apply_variableDefault()/].append("$2  -----------------------------------------------</!NLE>");
+        return ['str builder'.apply_variableDefault()/].toString();
+     }
   }
 [/template]

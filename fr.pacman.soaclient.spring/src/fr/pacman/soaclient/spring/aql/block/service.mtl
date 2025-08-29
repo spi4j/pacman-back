@@ -26,7 +26,7 @@
     import org.springframework.beans.factory.annotation.Autowired;
     import reactor.core.publisher.Mono;
     import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientHelper()/];
-    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassMapUtils()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsMapUtils()/];
     
   [/protected]
   
@@ -70,7 +70,7 @@
   + if(o.hasOutput()) then  '.' + 'with response type'.apply_methodDefault() + '(' + o.outputRsType() + '.class)' else '' endif 
   + '.' + 'with uri'.apply_methodDefault() + '("' + s.rsUri() + o.rsUri() + '")' + if (o.hasInputs()) then if (not o.input
   ->select(o1 | o1.isRsQueryParam())->isEmpty()) then '.' + 'with query params'.apply_methodDefault() + '(' 
-  + if(o.input->select(o1 | o1.isRsQueryParam())->size() > 10) then o.nameClassMapUtils() + '.mapOf(' else 'Map.of(' endif 
+  + if(o.input->select(o1 | o1.isRsQueryParam())->size() > 10) then o.nameClassRsMapUtils() + '.mapOf(' else 'Map.of(' endif 
   +  o.input->select(o1 | o1.isRsQueryParam())->collect(o2 | '"' + o2.restData.restId + '",' + o2.name().apply_parameterMethodClassicIn())
   ->sep(', ') + '))' else '' endif + if (not o.input->select(o1 | o1.isRsPathParam())->isEmpty()) then '.' + 'with path params'.apply_methodDefault() 
   + '(Map.of(' +  o.input->select(o1 | o1.isRsPathParam())->collect(o2 | '"' + o2.restData.restId + '",' + o2.name().apply_parameterMethodClassicIn())
