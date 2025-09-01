@@ -49,7 +49,7 @@
   + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif 
   else p.outputType(true, false) endif/]
 
-[comment retourne l'opération chargée de la récupération du jeton jwt (token) dans le cadre de la générartion d'un web client./]
+[comment retourne l'opération chargée de la récupération du jeton jwt (token) dans le cadre de la génération d'un web client./]
 [query public operationRsToken (m : soa::System) : soa::Operation = m.eAllContents(soa::Operation)->select(o | o.has_metaAuthToken())->first()/]
 
 [comment vérifie si l'opération a un code de retour pour les services rest. /]

@@ -146,6 +146,7 @@
       import com.fasterxml.jackson.databind.ObjectMapper;
       import com.fasterxml.jackson.databind.PropertyNamingStrategies;
       import io.netty.channel.ChannelOption;
+      import reactor.core.publisher.Mono;
       import reactor.netty.http.client.HttpClient;
       import reactor.netty.resources.ConnectionProvider;
       
@@ -281,7 +282,8 @@
             if (Arrays.asList(['environment'.apply_attributeFinal()/].getActiveProfiles()).contains("dev")) {
               ['internal builder'.apply_variableDefault()/]
               .filter(['log request'.apply_methodDefault()/]()) 
-              .filter(['log response'.apply_methodDefault()/]());
+              .filter(['log response'.apply_methodDefault()/]())
+              .filter(['log error'.apply_methodDefault()/]());
             }
             return  ['internal builder'.apply_variableDefault()/].build(); 
       }
@@ -499,6 +501,38 @@
            return ['text'.apply_parameterMethodClassicIn()/].length() > ['maxLength'.apply_parameterMethodClassicIn()/] ? ['text'.apply_parameterMethodClassicIn()/]
              .substring(0, ['maxLength'.apply_parameterMethodClassicIn()/]) + "...(truncated)" : ['text'.apply_parameterMethodClassicIn()/];
        }
+       
+       /**
+        * Crée un filtre pour {@link WebClient} permettant de logger les erreurs
+        * rencontrées lors des appels HTTP.
+        * <p>
+        * Le filtre intercepte à la fois les réponses HTTP en erreur (codes 4xx / 5xx),
+        * dont le corps est lu et logué au niveau <b>error</b> et les erreurs
+        * techniques côté client (réseau, DNS, timeout, SSL, etc.) qui se produisent
+        * lors de la préparation ou de l'envoi de la requête.</li>
+        * <p>
+        *
+        * @return un {@link ExchangeFilterFunction} à enregistrer dans le
+        *         {@link WebClient.Builder} pour logger les erreurs.
+        */
+       private ExchangeFilterFunction ['log error'.apply_methodDefault()/]() {
+           return (['request'.apply_variableDefault()/], ['next'.apply_variableDefault()/]) 
+              -> ['next'.apply_variableDefault()/].exchange(['request'.apply_variableDefault()/]).flatMap(['response'.apply_variableDefault()/] -> {
+              if (['response'.apply_variableDefault()/].statusCode().isError()) {
+                  return ['response'.apply_variableDefault()/].bodyToMono(String.class).defaultIfEmpty("")
+                        .doOnNext(['body'.apply_variableDefault()/] -> ['log'.apply_attributeFinalStatic()/]
+                        .error("['['/][any.nameProject().toUpper()/][']'/] HTTP {} - Body: {}"
+                        , ['response'.apply_variableDefault()/].statusCode(), ['body'.apply_variableDefault()/]))
+                        .then(Mono.just(ClientResponse.create(['response'.apply_variableDefault()/].statusCode())
+                                .headers(h -> h.addAll(response.headers().asHttpHeaders()))
+                                .cookies(c -> c.addAll(response.cookies())).body("")
+                                .build()));
+             }
+             return Mono.just(['response'.apply_variableDefault()/]);
+          }).doOnError(['ex'.apply_variableDefault()/] -> ['log'.apply_attributeFinalStatic()/]
+            .error("['['/][any.nameProject().toUpper()/][']'/] Erreur réseau : {}"
+            , ['ex'.apply_variableDefault()/].getMessage(), null));
+       }
     }
 [/template]
 
@@ -531,6 +565,8 @@
     import org.springframework.web.reactive.function.client.WebClient;
     import org.springframework.web.reactive.function.client.WebClient.RequestBodySpec;
     import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
+    import org.springframework.web.reactive.function.client.WebClientRequestException;
+    import org.springframework.web.reactive.function.client.WebClientResponseException;
     import org.springframework.web.util.UriBuilder;
     import reactor.core.publisher.Mono;
     
@@ -868,8 +904,9 @@
                 
              Mono<?> ['response mono'.apply_variableDefault()/] = ['request spec'.apply_variableDefault()/]
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, [any.nameClassRsClientHelper()/].this::handleError)
-                .bodyToMono(['response type'.apply_attributeDefault()/]);
+                .onStatus(HttpStatusCode::isError, [any.nameClassRsClientHelper()/].this::['handle error'.apply_methodDefault()/])
+                .bodyToMono(['response type'.apply_attributeDefault()/])
+                .onErrorResume([any.nameClassRsClientHelper()/].this::['handle client error'.apply_methodDefault()/]);
                
             return ['async'.apply_parameterMethodClassicIn()/] ? ['response mono'.apply_variableDefault()/] : ['response mono'.apply_variableDefault()/].block();
         }
@@ -929,6 +966,34 @@
        return response.bodyToMono(String.class)
          .map(['body'.apply_parameterMethodClassicIn()/] -> new RuntimeException("Erreur HTTP " 
           + ['response'.apply_parameterMethodClassicIn()/].statusCode() + ": " + ['body'.apply_parameterMethodClassicIn()/]));
+     }
+     
+     /**
+      * Gère les erreurs survenues lors de l'exécution d'un appel HTTP avec
+      * {@link WebClient}.
+      * <p>
+      * Cette méthode est appelée lorsqu'une exception est levée côté client (hors
+      * codes HTTP gérés par {@code onStatus}). Elle permet de transformer les
+      * exceptions techniques en {@link RuntimeException} avec un message explicite
+      * et uniforme.
+      * </p>
+      * 
+      * @param <T> le type attendu dans le flux réactif
+      * @param ['ex'.apply_parameterMethodClassicIn()/]  l'exception initiale interceptée
+      * @return un {@link Mono} émettant systématiquement une
+      *         {@link RuntimeException} descriptive
+      */
+     private <T> Mono<T> ['handle client error'.apply_methodDefault()/](Throwable ['ex'.apply_parameterMethodClassicIn()/]) {
+     	if (['ex'.apply_parameterMethodClassicIn()/] instanceof WebClientRequestException) {
+     		return Mono.error(new RuntimeException("Erreur réseau : " 
+     		  + ['ex'.apply_parameterMethodClassicIn()/].getMessage(), ['ex'.apply_parameterMethodClassicIn()/]));
+     	} else if (['ex'.apply_parameterMethodClassicIn()/] instanceof WebClientResponseException) {
+     		return Mono.error(new RuntimeException("Réponse invalide du serveur : " 
+     		  + ['ex'.apply_parameterMethodClassicIn()/].getMessage(), ['ex'.apply_parameterMethodClassicIn()/]));
+     	} else {
+     		return Mono.error(new RuntimeException("Erreur inconnue lors de l'appel HTTP : " 
+     		  + ['ex'.apply_parameterMethodClassicIn()/].getMessage(), ['ex'.apply_parameterMethodClassicIn()/]));
+     	}
      }
   }
 [/template]

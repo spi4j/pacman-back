@@ -445,8 +445,6 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 				IViewPart viewPart = page.findView(PacmanUIValidationView.VALIDATION_VIEW_ID);
 				if (null != viewPart && viewPart instanceof PacmanUIValidationView validationView)
 					validationView.setRows(Collections.emptyList());
-				// PacmanUIGeneratorHelper.displayPopUpInfo("Le fichier de modélisation est
-				// valide.");
 			}
 		});
 	}
