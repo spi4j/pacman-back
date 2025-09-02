@@ -6,9 +6,6 @@
    <feature url="features/fr.pacman.core.ui.feature_0.0.0.jar" id="fr.pacman.core.ui.feature" version="0.0.0">
       <category name="fr.pacman.dev"/>
    </feature>
-   <feature url="features/fr.pacman.core.validation.ui.feature_0.0.0.jar" id="fr.pacman.core.validation.ui.feature" version="0.0.0">
-      <category name="fr.pacman.dev"/>
-   </feature>
    <feature url="features/fr.pacman.entity.ui.feature_0.0.0.jar" id="fr.pacman.entity.ui.feature" version="0.0.0">
       <category name="fr.pacman.dev"/>
    </feature>
