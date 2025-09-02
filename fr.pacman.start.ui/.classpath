@@ -7,6 +7,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="C:/Travail/wks-pacman-5.0.0-travail/fr.pacman.start.ui/resources/lib/commonmark-0.24.0.jar"/>
+	<classpathentry kind="lib" path="resources/lib/commonmark-0.24.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
