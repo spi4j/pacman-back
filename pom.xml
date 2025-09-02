@@ -230,6 +230,9 @@
 				<module>fr.pacman.soa</module>
 				<module>fr.pacman.soa.spi4j</module>
 				<module>fr.pacman.soa.spring</module>
+				<module>fr.pacman.soaclient</module>
+				<module>fr.pacman.soaclient.spi4j</module>
+				<module>fr.pacman.soaclient.spring</module>
 				<module>fr.pacman.sql</module>
 				<module>fr.pacman.start</module>
 				
@@ -241,11 +244,13 @@
 				<module>fr.pacman.entity.ui</module>
 				<module>fr.pacman.requirement.ui</module>
 				<module>fr.pacman.soa.ui</module>
+				<module>fr.pacman.soaclient.ui</module>
 				
 				<!-- modules produits. -->
 				<module>fr.pacman.core.ui.feature</module>
 				<module>fr.pacman.config.ui.feature</module>
 				<module>fr.pacman.soa.ui.feature</module>
+				<module>fr.pacman.soaclient.ui.feature</module>
 				<module>fr.pacman.entity.ui.feature</module>
 				<module>fr.pacman.requirement.ui.feature</module>
 				<module>fr.pacman.sql.ui.feature</module>

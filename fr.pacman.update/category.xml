@@ -15,6 +15,9 @@
    <feature url="features/fr.pacman.soa.ui.feature_0.0.0.jar" id="fr.pacman.soa.ui.feature" version="0.0.0">
       <category name="fr.pacman.dev"/>
    </feature>
+   <feature url="features/fr.pacman.soaclient.ui.feature_0.0.0.jar" id="fr.pacman.soaclient.ui.feature" version="0.0.0">
+      <category name="fr.pacman.dev"/>
+   </feature>
    <feature url="features/fr.pacman.sql.ui.feature_0.0.0.jar" id="fr.pacman.sql.ui.feature" version="0.0.0">
       <category name="fr.pacman.dev"/>
    </feature>
