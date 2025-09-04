@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="fr.pacman.back.core.ui.feature"
+      label="PacMan Backend - Core"
+      version="5.0.0.qualifier"
+      provider-name="Cali"
+      plugin="fr.pacman.back.branding">
+     
+   <requires>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="org.eclipse.emf.ecore"/>
+      <import plugin="org.eclipse.emf.ecore.xmi"/>
+      <import plugin="org.eclipse.ocl.ecore"/>
+      <import plugin="org.eclipse.acceleo.model"/>
+      <import plugin="org.eclipse.acceleo.engine"/>
+      <import plugin="org.obeonetwork.dsl.overview"/>
+      <import plugin="org.obeonetwork.dsl.entity"/>
+      <import plugin="org.obeonetwork.dsl.soa"/>
+      
+      <import plugin="org.eclipse.acceleo.query.ide"/>
+      
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.ocl"/>
+   </requires>
+      
+   <plugin
+         id="fr.pacman.back.core"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="fr.pacman.back.core.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+   <plugin
+         id="fr.pacman.back.branding"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+         
+</feature>

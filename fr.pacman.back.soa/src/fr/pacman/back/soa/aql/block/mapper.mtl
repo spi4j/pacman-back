@@ -1,0 +1,398 @@
+[module mapper(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0',
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::query::dto/]	
+[import fr::pacman::back::core::aql::query::attribute/]				
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::attributes/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::property/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::variable/]
+[import fr::pacman::back::core::aql::rule::common/]
+[import fr::pacman::back::core::aql::rule::method/]
+
+[import fr::pacman::back::core::service::AnnotationUtils/]	
+
+[comment 	écriture de la classe utilitaire de mapping (anciennement matcher sous spi4j)
+			pour la couche d'infrastructure. Les entités (ou dto) sont traitées avec le 
+			wrapper 'Optional' si besoin, aucun contrôle n'est effectué au niveau des 
+			types dits 'primitifs'. 
+			Au niveau de l'héritage, il n'y a un downgrade qu'au  niveau des fs inverses 
+			(et des tables de jointure). Il est donc nécessaire d'effectuer un traitement 
+			supplémentaire.../]
+			
+[template public mapperOutImpl(d : environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO))]
+  [d.classHeader(d.namePackageMapperOutImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [d.defaultImports()/]
+    import org.hibernate.Hibernate;
+    import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
+    import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
+    
+  [/protected]
+  
+  /**
+   * Classe utilitaire pour la conversion entre les objets {@link [d.nameClassDtoImpl()/]} et {@link [d.associatedEntity().nameClassEntityImpl()/]}.  
+   * Cette classe fournit deux méthodes statiques pour convertir un objet DTO en une entité et inversement.
+   * Elle permet de mapper un objet {@link [d.nameClassDtoImpl()/]} vers un {@link [d.associatedEntity().nameClassEntityImpl()/]} et vice-versa.  
+   */
+  public class [d.nameClassMapperImpl()/]
+  {
+   /**
+    * Cette méthode permet de convertir un objet {@link [d.nameClassDtoImpl()/]} en une entité {@link [d.associatedEntity().nameClassEntityImpl()/]}.
+    * 
+    * @param [d.suffixDto().apply_parameterMethodClassicIn()/] L'objet de type {@link [d.nameClassDtoImpl()/]} à convertir. Il ne doit pas être nul.
+    * @return Un objet de type {@link [d.associatedEntity().nameClassEntityImpl()/]} représentant l'entité correspondante.
+    * 
+    * @throws [d.nameClassMapperExceptionImpl()/] Si le paramètre dto est nul, une exception est lancée pour signaler l'impossibilité de réaliser la conversion.
+    */
+    public static [d.associatedEntity().nameClassEntityImpl()/] [('to ' + d.suffixEntity()).apply_methodDefault()/] (final [d.nameClassDtoImpl()/] [d.suffixDto().apply_parameterMethodClassicIn()/])
+    { 
+       if(null == [d.suffixDto().apply_parameterMethodClassicIn()/])
+       {
+          return null;
+       }
+       
+       [let rs = d.referencesFKSBResolved(ds,dss)->union(d.referencesJTSBResolved())]
+         [let e  = d.associatedEntity()]
+           [if (d.immutable())]
+           [else]
+             [e.nameClassEntityImpl()/] [d.suffixEntity().apply_variableDefault()/] = new [e.nameClassEntityImpl()/]();
+             
+             try {
+               [e.suffixEntity()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixDto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
+               [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+                 [d.writeStandardOutEntityMapper(a)/]
+               [/for]
+               [for (r | rs)]
+                 [if (not r.isMultiple())]
+                   [r.writeReferenceOutEntityMapper(d)/]
+                 [/if]
+                 [if (r.isMultiple() and r.containedType(d) = d)]
+                   [r.writeListOutEntityMapper(d)/]
+                 [/if]
+                 [comment gestion des références inverses./]
+                 [if (r.isMultiple() and r.containedType(d) <> d
+                   and not d.isSubType(r.containingType) )]
+                   [r.writeReferenceOutEntityMapper(d)/]
+                 [/if]
+                 [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
+                 [if (r.isMultiple() and r.containedType(d) <> d
+                   and d.isSubType(r.containingType))]
+                   [r.writeListOutEntityMapper(d)/]
+                 [/if]
+               [/for]
+               [for (prop : String | d.autoAttributes())]
+                 [comment les champs automatiques de persistance sont créés au dernier momment./]
+                 [comment d.writeAutoAttributeOutEntity(prop)/]
+               [/for]
+             [/if]
+           
+             [protected ((e.nameClassEntityImpl() ' in').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             [/protected]
+             
+           } catch (Exception e) {
+             throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.associatedEntity().nameClassEntityImpl()/]");
+           }
+         [/let]
+         
+         return [d.suffixEntity().apply_variableDefault()/];
+         }
+         
+         /**
+          * Cette méthode permet de convertir un objet {@link [d.associatedEntity().nameClassEntityImpl()/]} en un {@link [d.nameClassDtoImpl()/]}.
+          * 
+          * @param entity L'objet de type {@link [d.associatedEntity().nameClassEntityImpl()/]} à convertir. Il ne doit pas être nul.
+          * @return Un objet de type {@link [d.nameClassDtoImpl()/]} représentant le DTO correspondant.
+          * 
+          * @throws [d.nameClassMapperExceptionImpl()/] Si le paramètre entity est nul, une exception est lancée pour signaler l'impossibilité de réaliser la conversion.
+          */
+          public static [d.nameClassDtoImpl()/] [('to ' + d.suffixDto()).apply_methodDefault()/] 
+             (final [d.associatedEntity().nameClassEntityImpl()/] [d.suffixEntity().apply_parameterMethodClassicIn()/])
+         {
+           if(null ==[d.suffixEntity().apply_parameterMethodClassicIn()/])
+           {
+             return null;
+           }
+           [if (d.immutable())]
+             return new [d.nameClassDtoImpl()/]([d.dsq1()/]);
+           [else]
+             [let e  = d.associatedEntity()]
+               [d.nameClassDtoImpl()/] [d.suffixDto()/] = new [d.nameClassDtoImpl()/]();
+               
+               try {
+                
+                [d.suffixDto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixEntity()/].[e.nameSimplePropertyID().apply_methodGet()/]());
+                [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+                  [d.writeStandardOutDtoMapper(a)/]
+                [/for]
+                [for (r | rs)]
+                  [if (not r.isMultiple())]
+                    [r.writeReferenceOutDtoMapper(d)/]
+                  [/if]
+                  [if (r.isMultiple() and r.containedType(d) = d)]
+                    [r.writeListOutDtoMapper(d)/]
+                  [/if]
+                  [comment gestion des références inverses./]
+                  [if (r.isMultiple() and r.containedType(d) <> d
+                    and not d.isSubType(r.containingType) )]
+                    [r.writeReferenceOutDtoMapper(d)/]
+                  [/if]
+                  [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
+                  [if (r.isMultiple() and r.containedType(d) <> d 
+                    and d.isSubType(r.containingType))]
+                    [r.writeListOutDtoMapper(d)/]
+                  [/if]
+                [/for]
+                [for (prop : String | d.autoAttributes())]
+                  [d.writeAutoAttributeOutDto(prop)/]
+                [/for]
+                
+                [protected ((d.nameClassDtoImpl() + ' in').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+                [/protected]
+                
+               } catch (Exception e) {
+                  throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassDtoImpl()/]");
+               }
+             [/let]
+             return [d.suffixDto()/];
+           [/if]  
+         }
+     [/let]
+  }
+[/template]
+
+[comment écriture de la classe utilitaire de mapping pour la couche application./]
+[template public mapperInImpl(d : environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO))]
+  [d.classHeader(d.namePackageMapperInImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [d.defaultImports()/]
+    import [d.namePackageProject()/].[d.namePackageXtoImpl()/].[d.nameClassXtoImpl()/];
+    import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
+    
+    [/protected]
+  /**
+   * La classe {@code [d.nameClassMapperImpl()/]} est responsable de la conversion entre deux types d'objets : 
+   * {@link [d.nameClassXtoImpl()/]} et {@link [d.nameClassDtoImpl()/]}. Elle fournit des méthodes statiques pour effectuer 
+   * ces transformations. Si une conversion échoue (en raison d'un paramètre {@code null}), une exception
+   * {@link [d.nameClassMapperExceptionImpl()/]} est lancée.
+   */
+  public class [d.nameClassMapperImpl()/]
+  {
+  
+    /**
+     * Convertit un objet {@link [d.nameClassXtoImpl()/]} en un objet {@link [d.nameClassDtoImpl()/]}.
+     * Si l'objet {@code [d.nameClassXtoImpl()/]} est {@code null}, une {@link [d.nameClassMapperExceptionImpl()/]} est lancée.
+     *
+     * @param [d.suffixXto().apply_parameterMethodClassicIn()/] L'objet {@code [d.nameClassXtoImpl()/]} à convertir.
+     * @return Un objet {@code [d.nameClassDtoImpl()/]} représentant les mêmes informations que {@code [d.nameClassXtoImpl()/]}.
+     * @throws [d.nameClassMapperExceptionImpl()/] Si l'objet {@code [d.nameClassXtoImpl()/]} est {@code null}.
+     */
+    public static [d.nameClassDtoImpl()/] [('to ' + d.suffixDto()).apply_methodDefault()/] (final [d.nameClassXtoImpl()/] [d.suffixXto().apply_parameterMethodClassicIn()/])
+    { 
+    
+       if(null == [d.suffixXto().apply_parameterMethodClassicIn()/])
+       {
+          return null;
+       }
+       
+       [let rs = d.referencesFKSBResolved(ds,dss)->union(d.referencesJTSBResolved())]
+         [if (d.immutable())]
+           return new [d.nameClassDtoImpl()/]([d.dsq2()/]);
+         [else]
+         
+           [let e = d.associatedEntity()]
+             [d.nameClassDtoImpl()/] [d.suffixDto().apply_variableDefault()/] = new [d.nameClassDtoImpl()/]();
+             
+             try {
+             
+               [d.suffixDto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixXto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
+               [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+                 [d.writeStandardInDtoMapper(a)/]
+               [/for]
+               [for (r | rs)]
+                 [if (not r.isMultiple())]
+                   [r.writeReferenceInDtoMapper(d)/]
+                 [/if]
+                 [if (r.isMultiple() and r.containedType(d) = d)]
+                   [r.writeListInDtoMapper(d)/]
+                 [/if]
+                 [comment gestion des références inverses./]
+                 [if (r.isMultiple() and r.containedType(d) <> d and not d.isSubType(r.containingType) )]
+                   [r.writeReferenceInDtoMapper(d)/]
+                 [/if]
+                 [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
+                 [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
+                   [r.writeListInDtoMapper(d)/]
+                 [/if]
+               [/for]
+               [for (prop : String | d.autoAttributes())]
+                 [d.writeAutoAttributeInDto(prop)/]
+               [/for]
+               
+               [protected ((d.nameClassDtoImpl() + ' out').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+               [/protected]
+               
+             } catch (Exception e) {
+               throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassDtoImpl()/]");
+             }
+           [/let]
+           return [d.suffixDto().apply_variableDefault()/];
+         [/if]  
+         }
+         
+         /**
+         * Convertit un objet {@link [d.nameClassDtoImpl()/]} en un objet {@link [d.nameClassXtoImpl()/]}.
+         * Si l'objet {@code [d.nameClassDtoImpl()/]} est {@code null}, une {@link [d.nameClassMapperExceptionImpl()/]} est lancée.
+         *
+         * @param [d.suffixDto().apply_parameterMethodClassicIn()/] L'objet {@code [d.nameClassDtoImpl()/]} à convertir.
+         * @return Un objet {@code [d.nameClassXtoImpl()/]} représentant les mêmes informations que {@code [d.nameClassDtoImpl()/]}.
+         * @throws [d.nameClassMapperExceptionImpl()/] Si l'objet {@code [d.nameClassDtoImpl()/]} est {@code null}.
+         */
+         public static [d.nameClassXtoImpl()/] [('to ' + d.suffixXto()).apply_methodDefault()/] (final [d.nameClassDtoImpl()/] [d.suffixDto().apply_parameterMethodClassicIn()/])
+         { 
+          
+           if(null == [d.suffixDto().apply_parameterMethodClassicIn().apply_parameterMethodClassicIn()/])
+           {
+             return null;
+           }
+           
+          [let e = d.associatedEntity()]
+            [d.nameClassXtoImpl()/] [d.suffixXto().apply_variableDefault()/] = new [d.nameClassXtoImpl()/]();
+             
+            try {
+                 
+              [d.suffixXto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixDto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
+              [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+                [d.writeStandardInXtoMapper(a)/]
+              [/for]
+              [for (r | rs)]
+                [if (not r.isMultiple())]
+                  [r.writeReferenceInXtoMapper(d)/]
+                [/if]
+                [if (r.isMultiple() and r.containedType(d) = d)]
+                  [r.writeListInXtoMapper(d)/]
+                [/if]
+                [comment gestion des références inverses./]
+                [if (r.isMultiple() and r.containedType(d) <> d and not d.isSubType(r.containingType) )]
+                  [r.writeReferenceInXtoMapper(d)/]
+                [/if]
+                [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
+                [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
+                  [r.writeListInXtoMapper(d)/]
+                [/if]
+              [/for]
+              [for (prop : String | d.autoAttributes())]
+                [d.writeAutoAttributeInXto(prop)/]
+              [/for]
+              
+              [protected ((d.nameClassXtoImpl() + ' out').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              [/protected]
+              
+              } catch (Exception e) {
+                throw new [d.nameClassMapperExceptionImpl()/]("Impossible de mapper la classe : [d.nameClassXtoImpl()/]");
+              }
+          [/let]
+          return [d.suffixXto().apply_variableDefault()/];
+          }	 
+    [/let] 
+  }
+[/template]
+
+[comment écriture d'une ligne de mapping pour un attribut automatique./]
+[query private writeAutoAttributeOutEntity(d : environment::DTO, prop : String) : String = d.suffixEntity().apply_variableDefault() 
+  + '.' + prop.nameAutoAttribute().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
+  + prop.nameAutoAttribute().apply_methodGet() + '());'/]
+  
+[comment écriture d'une ligne de mapping pour un attribut automatique./]
+[query private writeAutoAttributeOutDto(d : environment::DTO, prop : String) : String =  d.suffixDto().apply_variableDefault() 
+  + '.' + prop.nameAutoAttribute().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
+  + prop.nameAutoAttribute().apply_methodGet() + '());'/]  
+[comment écriture d'une ligne de mapping pour un attribut automatique./]
+[query private writeAutoAttributeInDto(d : environment::DTO, prop : String) : String = ''/]  
+[comment écriture d'une ligne de mapping pour un attribut automatique./]
+[query private writeAutoAttributeInXto(d : environment::DTO, prop : String) : String =  ''/]  
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardInXtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixXto().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '());'/]
+  
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardInDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '());'/]
+
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardOutDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '());'/]
+  
+[comment écriture d'une ligne de mapping pour un attribut standard./]
+[query private writeStandardOutEntityMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixEntity().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '());'/]
+
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListOutDtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + if (r.is_metaFetchLazy()) then 'Hibernate.isInitialized(' 
+  + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '())?' else '' endif 
+  + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '().stream().map(o -> ' 
+  + r.referencedDto(d).nameClassMapperImpl() + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.' 
+  + if (r.isMultipleBidirectionnal()) then 'toSet' else 'toList' endif + '())' + if (r.is_metaFetchLazy()) then ': new ' 
+  + if (r.isMultipleBidirectionnal()) then 'HashSet' else 'ArrayList' endif  + '<' + r.referencedDto(d).nameClassDtoImpl() 
+  + '>' +  '()'else '' endif + ');'/]
+
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListOutEntityMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixEntity().apply_variableDefault() 
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).referencedName(r).apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixEntity()).apply_methodDefault() + '(o)).collect(Collectors.' +  if (r.isMultipleBidirectionnal()) 
+  then 'toSet' else 'toList' endif + '()));'/]
+
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListInDtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixDto().apply_variableDefault() 
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).referencedName(r).apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.' +  if (r.isMultipleBidirectionnal()) 
+  then 'toSet' else 'toList' endif + '()));'/]
+
+[comment écriture de mapping pour une liste dans le cadre d'une référence./]
+[query private writeListInXtoMapper(r : environment::Reference, d : environment::DTO) : String = d.suffixXto().apply_variableDefault() 
+  + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).referencedName(r).apply_methodGet() + '().stream().map(o -> ' + r.referencedDto(d).nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.' +  if (r.isMultipleBidirectionnal()) 
+  then 'toSet' else 'toList' endif + '()));'/]
+
+[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[query private writeReferenceInXtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
+  d.suffixXto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
+  + '.' + ('to ' + d.suffixXto()).apply_methodDefault() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));'/]
+  
+[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[query private writeReferenceInDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
+  + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));' /]
+  
+[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[query private writeReferenceOutDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
+  + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));'/]
+  
+[comment écriture de la ligne de mapping pour une référence optionnelle ou non (hors liste)./]
+[query private writeReferenceOutEntityMapper(r : environment::Reference, d : environment::DTO) : String  =
+  d.suffixEntity().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
+  + '.' + ('to ' + d.suffixEntity()).apply_methodDefault() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));' /]
+  
+
+[query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')->toString()/]
+[query private dsq2(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'xto'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')->toString()/]

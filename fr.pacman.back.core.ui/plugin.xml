@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension 
+ 			point="org.obeonetwork.dsl.environment.providedMetaDataDefinitionsModels">
+ 		<model
+  			name="Metadata definitions for Pacman generators"
+  			uri="platform:/plugin/fr.pacman.back.core.ui/resources/pacman.metadatadef">
+ 		</model>
+	</extension>
+	<extension
+     point="org.eclipse.ui.views">
+      <view
+         name="Rapport de validation"
+         icon="icons/pacmug.png"          
+         class="fr.pacman.back.core.ui.validation.PacmanUIValidationView"
+         id="fr.pacman.validation.ui.core.ValidationView"
+         category="org.obeonetwork.od4is">
+      </view>
+   </extension>
+</plugin>

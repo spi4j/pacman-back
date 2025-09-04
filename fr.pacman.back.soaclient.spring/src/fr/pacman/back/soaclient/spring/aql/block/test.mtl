@@ -1,0 +1,191 @@
+[module test(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::query::operation/]
+[import fr::pacman::back::core::aql::query::service/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::rule::method/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::variable/]
+
+[comment écriture de la classe helper pour la gestion du jeton (token)./]
+[template public serviceRsClientTokenTestsHelper (o : soa::Operation)]
+  [let s = o.eContainer().eContainer().oclAsType(soa::Service)]
+    [o.classHeader(o.namePackageRsBase())/]
+    [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      
+      [o.defaultImports()/]
+      import org.springframework.stereotype.Component;
+      import org.springframework.context.annotation.Import;
+      import org.springframework.beans.factory.annotation.Autowired;
+      import [s.namePackageProject()/].[s.namePackageRsClientImpl().toPackage()/].[s.nameClassRsClientImpl()/];      [for (o1 | o.input)]
+        [if (o1.type.oclIsKindOf(environment::DTO))]
+          import [o1.namePackageProject()/].[o1.type.oclAsType(environment::DTO).namePackageXtoImpl().toPackage()/].[o1.inputRsType()/];
+        [/if]
+      [/for]
+      [let o2 = o.output->first()]
+        [if (o2.type.oclIsKindOf(environment::DTO))]
+          import [o.namePackageProject()/].[o2.type.oclAsType(environment::DTO).namePackageXtoImpl().toPackage()/].[o2.inputRsType()/];
+        [/if]
+      [/let]
+      
+    [/protected]
+    
+    /**
+     * Helper de tests permettant de récupérer et de réutiliser un jeton
+     * d'authentification (JWT).
+     * 
+     * Ce helper mémorise le jeton obtenu lors du premier appel, évitant de
+     * réémettre une requête à chaque utilisation.
+     * 
+     * @author [o.nameAuthor()/]
+     */
+    @Component
+    @Import([s.nameClassRsClientImpl()/].class)
+    public class [o.nameClassRsClienTokenTestsHelper()/]
+    {
+        ['Jeton JWT récupéré lors du premier appel'.commentMultiLines()/]
+        private String ['token'.apply_attributeDefault()/];
+        
+        ['Client Web d\'authentification'.commentMultiLines()/]
+        private [s.nameClassRsClientImpl()/] [s.name().apply_attributeFinal()/];
+      
+        /**
+         * Constructeur avec injection du client Web d'authentification.
+         *
+         * @param authentication le client Web d'authentification à utiliser pour récupérer le jeton.
+         */
+        @Autowired
+        [o.nameClassRsClienTokenTestsHelper()/](final [s.nameClassRsClientImpl()/] [s.name().apply_parameterMethodClassicIn()/])
+        {
+          [s.prefixAffectation()/][s.name().apply_attributeFinal()/] = [s.name().apply_parameterMethodClassicIn()/];
+        }
+        
+       /**
+        * Retourne le jeton JWT à utiliser pour les appels protégés.
+        * 
+        * Si le jeton n’a pas encore été récupéré, une requête d’authentification est
+        * envoyée. Compléter le code avec l'initialisation des données nécessaires pour
+        * obtenir le jeton. En retour, saisir la méthode utilisée pour la récupération
+        * du jeton en fonction du type pour la paramètre de sortie.
+        *
+        * @return le jeton JWT sous forme de chaîne.
+        */
+        public String ['token'.apply_methodGet()/]() {
+          if (['token'.apply_attributeDefault()/] == null || ['token'.apply_attributeDefault()/].isEmpty()) {
+            [for (o1 | o.input)]
+              [o1.inputRsType()/] [o1.name()/] = null;
+            [/for]
+            
+            // Initialisation des données en entrée.
+            [protected ('init'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]  
+            [o.outputRsType()/] [o.outputName()/] = [s.prefixAffectation()/][s.name().apply_attributeFinal()/]
+              .[o.name().apply_methodDefault()/]([o.writeRsInputs()/]);
+              
+            // Affectation du jeton avec les données en sortie.
+            [protected ('token'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              
+              [o.prefixAffectation()/]['token'.apply_attributeDefault()/] = null;
+              
+            [/protected]  
+          }
+          return ['token'.apply_attributeDefault()/];
+        }
+  [/let]
+  }
+[/template]
+
+[comment écriture d'une classe pour la réalisation des tests avant packaging./]
+[template public serviceRsClientTestsImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageRsClientImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import static org.junit.jupiter.api.Assertions.assertNotNull;
+    import org.springframework.context.annotation.Import;
+    import org.springframework.boot.test.context.SpringBootTest;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.junit.jupiter.api.BeforeEach;
+    import org.junit.jupiter.api.Test;
+    import [s.namePackageProject()/].[s.namePackageRsClientImpl().toPackage()/].[s.nameClassRsClientImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClienTokenTestsHelper()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientConfigImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientHelper()/];
+    
+  [/protected]
+  
+  [s.commentClass()/]
+  @SpringBootTest(classes = [s.nameClassRsClientConfigImpl()/].class)
+  @Import({[s.nameClassRsClientImpl()/].class [if (s.isRsSecured())], [s.nameClassRsClienTokenTestsHelper()/].class[/if]
+    , [s.nameClassRsClientHelper()/].class})
+  public class [s.nameClassRsClientTestsImpl()/]
+  {
+    
+    ['Le client à tester'.commentMultiLines()/]
+    private final [s.nameClassRsClientImpl()/] ['client'.apply_attributeFinal()/];
+    
+    [if (s.isRsSecured())]
+      ['Helper de tests permettant de récupérer et de réutiliser un jeton d\'authentification (JWT)'.commentMultiLines()/]
+      private final [s.nameClassRsClienTokenTestsHelper()/] ['token helper'.apply_attributeFinal()/];
+    [/if]
+
+    ['Constructeur de la classe de tests'.commentMultiLines()/]
+    @Autowired
+    [s.nameClassRsClientTestsImpl()/](final [s.nameClassRsClientImpl()/] ['client'.apply_parameterMethodClassicIn()/]
+       [if (s.isRsSecured())], final [s.nameClassRsClienTokenTestsHelper()/] ['token helper'.apply_parameterMethodClassicIn()/][/if])
+    {
+      [s.prefixAffectation()/]['client'.apply_attributeFinal()/] = ['client'.apply_parameterMethodClassicIn()/];
+      [if (s.isRsSecured())]
+        [s.prefixAffectation()/]['token helper'.apply_attributeFinal()/] = ['token helper'.apply_parameterMethodClassicIn()/];
+      [/if]
+    }
+  
+    @BeforeEach
+    void setup() {
+      // RAS.
+    }
+    
+    [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+      
+      [if (o.isRsOperation())]
+        [o.commentOperation()/]
+        @Test
+        void [(o.name() + ' test').apply_methodGet()/]() {
+            
+            [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              
+            [for (p | o.input)]
+              [p.writeDescription().commentMultiLines()/]
+              [p.inputRsType()/] [p.name().apply_variableDefault()/] = null;
+              
+            [/for]
+            [/protected]
+            
+            [o.writeRsTestOperation()/]
+            
+            // Placer ici les tests supplémentaires (si besoin).
+            [protected (o.name.protectedId() + 'custom tests') startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]            
+        }
+      [/if]
+    [/for]
+  }
+[/template]
+
+[comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
+[query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
+  ->collect(o1 : soa::Parameter | o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif /]
+
+[comment écriture de l'appel du client pour le tests ./]
+[query private writeRsTestOperation(o : soa::Operation) : String = if (o.hasOutput()) then 'assertNotNull(' 
+  else '' endif +  'client'.apply_attributeFinal() + '.' + o.name() + '(' + o.writeRsInputs() + if (o.isRsSecured()) 
+  then if(o.hasInputs()) then ', ' else '' endif + 'token helper'.apply_attributeFinal() + '.' + 'token'.apply_methodGet() 
+  + '()' else '' endif + if (o.hasOutput()) then '), "Réponse non valide !"' else '' endif + ');'/]

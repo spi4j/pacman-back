@@ -1,0 +1,7 @@
+[module attributes(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::query::attribute/]
+
+[comment retourne le nom pour l'attribut automatique dans le cadre des bases de données (champ auto)./]
+[query public nameAutoAttribute(str : String) : String = str.autoAttributeName().toLower()/]
+

@@ -1,0 +1,14 @@
+[module genCommonSpi4j(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
+						'http://www.obeonetwork.org/dsl/environment/3.0.0') 
+						extends fr::pacman::back::soa::aql::genCommon/]
+						
+[comment toujours placer les 'main' au niveau des modules fils, sinon génération incomplète./]
+[comment enlever ces imports suite a correction bug./]
+[import fr::pacman::back::soa::aql::file::genCommon/]
+[comment enlever ces imports suite a correction bug./]
+
+[comment @main/]
+[comment écriture des classes et fichiers soa pour la partie métier de l'application cible./]
+[template public genCommon(m : soa::System)]
+    [m.super:genCommon()/]
+[/template]

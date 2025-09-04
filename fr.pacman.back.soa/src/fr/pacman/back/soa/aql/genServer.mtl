@@ -1,0 +1,28 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::soa::aql::file::genServer/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::dto/]
+[import fr::pacman::back::core::aql::query::reference/]
+
+[comment 	écriture des classes et fichiers soa pour la partie infrastructure de l'application cible, 
+			on précharge les références qu'une seule fois afin d'optimiser les requêtes./]
+			
+[template public genServer(m : soa::System)]
+  [let ds = m.subTypesDtos()]
+    [let dss = m.superTypesDtos()]
+      [for (d : environment::DTO | ds)]
+        [comment récupération des références qui concernent l'entité métier (dto)./]
+        [if (d.isPersistent())]
+          [comment implémentation du mappeur (entity <-> dto)./]
+          [d.fileMapperOutImpl(ds,dss)/]
+        [/if]
+        [comment implémentation du mappeur (dto <-> xto)./]
+        [d.fileMapperInImpl(ds,dss)/]
+        [comment implémentation de l'entité sérialisée (xto)./]
+        [d.fileXtoImpl(ds, dss)/]
+      [/for]
+    [/let]
+  [/let]
+[/template]

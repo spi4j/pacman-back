@@ -1,0 +1,307 @@
+[module base(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0') /]
+
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+
+[comment définit et retourne la liste des suffixes, préfixes, types, 
+		 les valeurs par défaut ainsi que les propriétés de génération principales.
+		 Les autres propriétés de génération sont quant à elles, définies au niveau 
+		 des fichiers spécifiques en fonction de l'objet ou du domaine./]
+
+[comment commutateur pour indiquer si on gère l'uimmutabilité des dtos./]
+[query public immutable(any : ecore::EObject) : Boolean = false/]
+
+[comment la longueur pour un en-tête dans les scripts SQL./]  
+[query public defaultMaxSizeSqlHeader(any : ecore::EObject) : Integer = any.cLine().size() - 3/] 
+
+[comment la longueur maximum pour le nom des relations SQL./]
+[query public defaultMaxSqlRelationNameSize(any : ecore::EObject) : Integer = 30/]
+
+[comment la longueur maximum pour le nom des références SQL./]
+[query public defaultMaxSqlColumnReferenceSize(any : ecore::EObject) : Integer = 30/]
+
+[comment la longueur maximum pour le nom de la contrainte (clé primaire) SQL./]  
+[query public defaultMaxSqlConstraintPrimaryKeySize(any : ecore::EObject) : Integer = 27/]
+
+[comment l'incrément par défaut dans les compteurs pour le nommage des contraintes SQL./]
+[query public defaultSqlIndexIncrement(any : ecore::EObject) : Integer = 1/]
+
+[comment l pour les séquences dans les test (démarre à 1000 pour ne pas percuter les séquence de prod)./]
+[query public defaultSqlIntegrationTestSequenceStart(any : ecore::EObject) : Integer = 1000/]
+
+[comment l'identifiant par défaut pour les clés étrangères./]
+[query public defaultSqlForeignkey(any : ecore::EObject) : Integer = 1000/]
+
+[comment le type d'encodage par défaut pour les fichiers./]
+[query public defaultFileEncoding(any : ecore::EObject) : String = 'UTF-8'/]
+
+[comment le type d'encodage par défaut pour les réponses des services rest./]
+[query public defaultRsEncoding(any : ecore::EObject) : String = ';charset=utf8'/]
+
+[comment le code de retour par défaut pour les services rest./]
+[query public defaultRsStatusCode(any : ecore::EObject) : String = '200'/]
+
+[comment le code 'not found' par défaut pour les services rest./]
+[query public defaultRsNotFoundStatusCode1(any : ecore::EObject) : String = '404'/]
+
+[comment le code 'not found' par défaut pour les services rest./]
+[query public defaultRsNotFoundStatusCode2(any : ecore::EObject) : String = '204'/]
+
+[comment le type de média par défaut pour le retour de l'ensemble des services rest./]
+[query public defaultRsMediaType (any : ecore::EObject) : String = 'application/json'/]
+
+[comment la valeur par défaut pour l'initialisation d'une séquence SQL./]  [query public defaultSqlStartSequence(any : ecore::EObject) : String = '1'/]
+
+[comment la base de données par défaut pour les tests de non-régression./]
+[query public defaultSqlDbType(any : ecore::EObject) : String = 'h2'/]
+
+[comment le type par défaut pour les clés primaires (PK)./]
+[query public defaultTypePk(any : ecore::EObject) : String = 'Long'/]
+
+[comment le type par défaut pour les clés étrangères (FK)./]
+[query public defaultTypeFk(any : ecore::EObject) : String = 'Long'/]
+
+[comment le nom par défaut de la clé pour xtopsup./]
+[query public keyXtopSup(any : ecore::EObject) : String = 'xtopsup'/]
+
+[comment le nom par défaut de la clé pour xdmaj./]  
+[query public keyXdMaj(any : ecore::EObject) : String = 'xdmaj'/]
+  
+[comment le nom par défaut de la clé pour xuuid./]  
+[query public keyXuId(any : ecore::EObject) : String = 'uuid'/]
+
+[comment suffixe par défaut pour les clés primaires (PK)./]
+[query public suffixIdPk (any : ecore::EObject) : String  = '_id'/]
+
+[comment suffixe par défaut pour les clés étrangères (FK)./]
+[query public suffixIdFk (any : ecore::EObject) : String  = '_id'/]
+
+[comment suffixe par défaut pour l'ensemble des identifiants dans les énumérations./]
+[query public suffixIdEm (any : ecore::EObject) : String  = 'id' /]
+  
+[comment suffixe par défaut pour l'ensemble des références SQL./]
+[query public suffixSqlId(any : ecore::EObject) : String = '_ID'/]
+
+[comment suffixe par défaut pour le nommage des séquences SQL./]  
+[query public suffixSqlSequence(any : ecore::EObject) : String = '_SEQ'/] 
+
+[comment suffixe par défaut pour les clés étrangères SQL./]
+[query public suffixSqlConstraintForeignKey(any : ecore::EObject) : String = '_FK1'/]
+ 
+[comment suffixe par défaut pour les jointures simples SQL./] 
+[query public suffixSqlJoin1 (any : ecore::EObject) : String = '_FK1_1'/]
+    
+[comment suffixe par défaut pour les jointures doubles SQL./]
+[query public suffixSqlJoin2 (any : ecore::EObject) : String = '_FK1_2'/]
+        
+[comment suffixe par défaut pour les indexs uniques SQL./]
+[query public suffixSqlUnique (any : ecore::EObject) : String = '_UN'/]
+
+[comment suffixe par défaut pour les indexs SQL./]
+[query public suffixSqlIndex (any : ecore::EObject) : String = '_IDX'/]
+  
+[comment suffixe par défaut pour xxxxxx SQL./]  
+[query public suffixSqlIndexMultiple (any : ecore::EObject) : String = '_IDX1_'/]
+ 
+[comment suffixe par défaut pour xxxx SQL./]    
+[query public suffixSqlPrimaryKey (any : ecore::EObject) : String = '_PK1_1'/]
+
+[comment suffixe par défaut pour xxxx SQL./] 
+[query public suffixSqlPrimaryKeyJoin (any : ecore::EObject) : String = '_PK2_1'/]
+
+[comment suffixe par défaut pour une contrainte de vérification (check) SQL./] 
+[query public suffixSqlConstraintCheck (any : ecore::EObject) : String = '_CK1_'/]  
+
+[comment suffixe par défaut pour la clé primaire d'une récursivité dans les tables de jointure./]
+[query public suffixSqlPrimaryKeyJoinRecursive (any : ecore::EObject) : String = '_RECURSIVE'/]  
+  
+[comment le suffixe par défaut pour le nom de classes de DAO dans le cadre des test./]  
+[query public suffixDaoTest(any : ecore::EObject) : String = '  dao jdbc'/] 
+
+[comment le suffixe par défaut pour le nom des classes de mapping./]  
+[query public suffixMapper(any : ecore::EObject) : String = ' mapper'/] 
+
+[comment le suffixe par défaut pour les interfaces domain -> persistance./]
+[query public suffixInterfaceOut(any : ecore::EObject) : String = ' provider'/]
+  
+[comment le suffixe par défaut pour les interfaces domain -> controller./]
+[query public suffixInterfaceIn(any : ecore::EObject) : String = ' adapter'/]
+
+[comment le suffixe pour le dao d'une entité./]
+[query public suffixEntityDao(any : ecore::EObject) : String = ' repository'/]
+
+[comment le suffixe par défaut pour les objets sérialisés./]
+[query public suffixXto(any : ecore::EObject) : String = ' xto'/]
+
+[comment le suffixe par défaut pour la gestion gloable des exceptions rest./]  
+[query public suffixRsExceptionHandler(any : ecore::EObject) : String = ' exception handler'/]
+
+[comment le suffixe pour la classe de démarrage de l'application./]
+[query public suffixApplicationBootstrap(any : ecore::EObject) : String = ' bootstrap'/]
+  
+[comment le préfixe pour la gestion des roles (permissions)./]
+[query public prefixRole(any : ecore::EObject) : String = 'ROLE_'/]
+  
+[comment le préfixe pour les attributs si besoin./]
+[query public prefixAffectation(any : ecore::EObject) : String = 'this.'/]
+  
+[comment le préfixe pour le script de création des tables sql./]
+[query public prefixSqlScriptCreate(any : ecore::EObject) : String = 'create_tables_'/]  
+
+[comment le préfixe pour le script de suppression des tables sql./]
+[query public prefixSqlScriptDrop(any : ecore::EObject) : String = 'drop_tables_'/]  
+
+[comment le préfixe pour le script d'initialisation des tables sql./]
+[query public prefixSqlScriptInit(any : ecore::EObject) : String = 'init_tables_'/] 
+
+[comment le 'préfixe' dans le cadre des commentaires pour les tables SQL./]  
+[query public prefixSqlTableHeader(any : ecore::EObject) : String = 'Table : '/]  
+
+[comment le 'préfixe' dans le cadre des commentaires pour les tables SQL./]  
+[query public prefixSqlTableHeaderJoin(any : ecore::EObject) : String = 'Table de liaison : '/] 
+
+[comment retourne le préfixe pour l'ensemble des tables SQL. /]
+[query public prefixTable(any : ecore::EObject) : String = any.get_SQLTablePrefix()/]  
+
+[comment retourne le second (ou premier si pas de préfixe table) préfixe (schéma) pour l'ensemble des tables SQL./]
+[query public prefixTableSchema(any : ecore::EObject) : String = any.get_SQLTableSchema()/] 
+
+[comment retourne le 'préfixe' (abus de langage) pour le tablespace Oracle SQL. /]
+[query public prefixTableSpace(any : ecore::EObject) : String = any.get_SQLTablePrefix()/] 
+
+[comment retourne la clé pour le nom de l'attribut additionnel (champ auto)./]
+[query public keyNameSqlAutoAttribut(prop : String) : String = prop + '.name'/]
+
+[comment : Recuperation de la clé pour le type de la propriete additionnelle (champ auto)./]
+[query public keyTypeSqlAutoAttribut(prop : String) : String = prop + '.type'/]
+
+[comment retourne la clé pour la taille de l'attribut additionnel (champ auto)./]
+[query public keySizeSqlAutoAttribut(prop : String) : String = prop + '.size'/]
+
+[comment retourne la clé pour la valeur par défaut de l'attribut additionnel (champ auto)./]
+[query public keyDefaultSqlAutoAttribut(prop : String) : String = prop + '.default'/]
+
+[comment retourne la clé pour la nullité de l'attribut additionnel (champ auto)./]
+[query public keyNullSqlAutoAttribut(prop : String) : String = prop + '.null'/]
+
+[comment retourne la clé pour le commentaire de l'attribut additionnel (champ auto)./]
+[query public keyCommentSqlAutoAttribut(prop : String) : String = prop + '.comment'/]
+
+[comment le répertoire pour l'ensemble des sources./]
+[query public dirSources(any : ecore::EObject) : String = 'src/main/java/'/]
+  
+[comment le répertoire pour l'ensemble des ressources./] 
+[query public dirResources(any : ecore::EObject) : String = 'src/main/resources/'/]
+  
+[comment le répertoire pour l'ensemble des ressources de test./] 
+[query public dirTestResources(any : ecore::EObject) : String = 'src/test/resources/'/]
+  
+[comment le répertoire pour l'ensemble des tests unitaires./]
+[query public dirTests(any : ecore::EObject) : String = 'src/test/java/'/]
+  
+[comment le répertoire pour la génération des scripts sql./]
+[query public dirSqlScripts(any : ecore::EObject) : String = 'sql/'/]
+  
+[comment le répertoire pour le stockage de la configuration./]
+[query public dirConfiguration(any : ecore::EObject) : String = 'conf/'/]
+
+[comment l'extension pour toutes les classes java./]
+[query public extensionJava(any : ecore::EObject) : String = '.java'/]
+  
+[comment l'extension pour tous les fichiers de type '.xml'./]
+[query public extensionXml(any : ecore::EObject) : String = '.xml'/]  
+
+[comment l'extension pour tous les fichiers de type '.sql'./]
+[query public extensionSql(any : ecore::EObject) : String = '.sql'/]  
+
+[comment opérateur de commande pour des créations (dans les structures conditionnelles)./]
+[query public cmdCreate(any : ecore::EObject) : String = 'C'/]
+
+[comment opérateur de commande pour des suppressions (dans les structures conditionnelles)./]
+[query public cmdDelete(any : ecore::EObject) : String = 'D'/]
+
+[comment opérateur de commande pour des modifications (dans les structures conditionnelles)./][query public cmdUpdate(any : ecore::EObject) : String = 'U'/]
+
+[comment opérateur de commande pour des opérations sur les entités./]
+[query public cmdEntity(any : ecore::EObject) : String = 'E'/]
+
+[comment opérateur de commande pour des opérations sur des dtos/xtos./]
+[query public cmdDto(any : ecore::EObject) : String = 'D'/]
+  
+[comment opérateur de commande pour des opérations sur des xtos./]
+[query public cmdXto(any : ecore::EObject) : String = 'X'/]
+  
+[comment le nom pour le fichier de configuration maven./] 
+[query public namePom(any : ecore::EObject) : String = 'pom'/]  
+
+[comment le nom pour un fichier package-info./] 
+[query public namePackageInfo(any : ecore::EObject) : String = 'package-info'/]  
+
+[comment nom complet du fichier de description maven./]  
+[query public nameConfigPom(any : ecore::EObject) : String = any.namePom() + any.extensionXml()/]
+  
+[comment retourne le nom de l'application cible (ici passe-plat mais base de tout le système)./]
+[query public nameProject(any : ecore::EObject) : String = any.get_projectName()/]
+
+[comment retourne le nom du sous-projet de type 'modélisation' pour l'application cible./] 
+[query public nameProjectModel(any : ecore::EObject) : String = any.get_projectName() + '-' + any.get_suffixModel()/]
+
+[comment retourne le nom du sous-projet de type 'métier' pour l'application cible./] 
+[query public nameProjectCommon(any : ecore::EObject) : String = any.get_projectName() + '-' + any.get_suffixCommon()/]
+  
+[comment retourne le nom du sous-projet de type 'server' pour l'application cible./] 
+[query public nameProjectServer(any : ecore::EObject) : String = any.get_projectName() + '-' + any.get_suffixServer()/]
+  
+[comment retourne le nom du sous-projet de type 'webapp' pour l'application cible./] 
+[query public nameProjectWebapp(any : ecore::EObject) : String = any.get_projectName() + '-' + any.get_suffixWebapp()/]  
+ 
+[comment retourne le package principal pour la gestion de l'application./]
+[query public namePackageProject(any : ecore::EObject) : String = any.get_projectPackage().trim()/]
+ 
+[comment retourne le nom pour le répoertoire de stockage des fichiers de propriétés pacman./]
+[query public namePropertiesDirectory(any : ecore::EObject) : String = 'pacman-properties'/]
+
+[comment retourne le 'nom' pour l'uri d'authentification (jeton) pour les services rest sécurisés./]
+[query public nameRsTokenUri(any : ecore::EObject) : String = '/token'/]
+  
+[comment retourne le nom pour l'énumération du statut de la ligne en base de données./][query public nameDatabaseStatusEnum(any : ecore::EObject) : String = 'record status'/]
+
+[comment retourne le nom pour l'annotation d'injection du service dans la couche métier./]
+[query public nameAnnotationIn(any : ecore::EObject) : String = 'domain service'/]
+  
+[comment retourne le nom pour l'annotation d'injection du service stub dans la couche persistance./]
+[query public nameAnnotationOut(any : ecore::EObject) : String = 'adapter service'/]
+
+[comment retourne le nom pour l'annotation d'injection du service stub dans la couche persistance./]
+[query public nameAnnotationOutStub(any : ecore::EObject) : String = 'stub service'/]
+
+[comment retourne le nom pour l'annotation de gestion des transactions dans la couche de persistance./]
+[query public nameAnnotationTransactionnal(any : ecore::EObject) : String = 'transactionnal'/]
+  
+[comment retourne le nom pour l'annotation de gestion de règles de gestion./]
+[query public nameAnnotationRequirement(any : ecore::EObject) : String = 'requirement'/]
+  
+[comment retourne le nom pour la classe de configuration de la couche métier./]
+[query public nameDomainConfiguration(any : ecore::EObject) : String = 'domain configuration'/]
+
+[comment retourne le nom de  l'auteur (évite de charger le gestionnaire de propriétés si possible)./]
+[query public nameAuthor(any : ecore::EObject) : String = any.get_authorName()/]
+  
+[comment vérifie si l'objet utilise la couche de matching./]  
+[comment query public isUseMatching(any : ecore::EObject) : Boolean = any.getUseMatchingJavaService().toBoolean()/]
+
+[comment retourne la liste des bases de données sous forme de 'String'./]
+[query public typeDatabases(any : ecore::EObject) : String = any.get_dataBasesNames().trim()/]
+  
+[comment vérifie si le projet utilise ou non des bases de données./]
+[query public isUseSqlPersistence(any : ecore::EObject) : Boolean = any.typeDatabases().size() > 0/]  
+
+[comment retourne une ligne de séparation pour un commentaire./]
+[query public cLine(e : ecore::EObject) : String = '/******************************************************************/'/]
+
+[comment retourne le message à afficher si une description est manquante./]
+[query public cNoDescription(e : ecore::EObject) : String = 'DESCRIPTION A IMPLEMENTER'/]
+  
+[comment retourne le message à afficher si la modélisation est manquante par rapport à ce qui est demandé./]
+[query public cNoModelisation(e : ecore::EObject) : String = 'ERREUR DE MODELISATION'/]
+

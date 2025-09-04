@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="caliProduct"
+         point="org.eclipse.core.runtime.products">
+         <product
+            application="org.eclipse.ui.ide.workbench"
+            description="Plugins du programme Cali pour le backend"
+            name="Cali">
+	         <property
+	               name="windowImages"
+	               value="pacmug.png">
+         	</property>
+	         <property
+	               name="aboutImage"
+	               value="pacmug.png">
+	         </property>
+	         <property
+	               name="appName"
+	               value="Cali">
+	         </property>
+	         <property
+	               name="aboutText"
+	               value="Plugins du programme Cali pour le backend">
+	         </property>
+      </product>
+   </extension>
+</plugin>

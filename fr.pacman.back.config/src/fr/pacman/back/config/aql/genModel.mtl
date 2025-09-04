@@ -1,0 +1,13 @@
+[module genModel(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::back::config::aql::file::genModel/]
+
+[comment @main/]
+[comment écriture de l'ensemble de la configuration de base pour le projet de modélisation./]
+[template public genModelConfig(r : overview::Root)]
+  [r.filePom()/]
+  [r.fileReadMe()/]
+  [r.fileProject()/]
+[/template]
+
+

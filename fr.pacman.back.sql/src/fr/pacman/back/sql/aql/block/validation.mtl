@@ -1,0 +1,118 @@
+[module validation(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+					
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::entity/]
+[import fr::pacman::back::core::aql::validation::common/]
+[import fr::pacman::back::core::validation::PacmanValidatorsReport/]
+				
+[comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
+[template public validation (r : entity::Root)]
+  [let es = r.subTypesEntities()]
+    [for (e | es)]
+      [comment pas d'entité vide./]
+      [if (e.attributes->isEmpty())][e.add(e.err1())/][/if]
+      [comment pas d'attribut avec identifier./] 
+      [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.err2())/][/if]
+      
+      [comment pas d'attribut avec (1,*) ou (0,*)./]
+      [if (not e.attributes->select(o | o.isMultiple())->isEmpty())][e.add(e.err3())/][/if]
+      
+      [comment pas d'attribut sans nom défini./]
+      [if (not e.attributes->select(o | not o.name.exists())->isEmpty())][e.add(e.err4())/][/if]
+      
+      [comment pas d'attribut sans type défini./]
+      [if (not e.attributes->select(o | not o.type.exists())->isEmpty())][e.add(e.err5())/][/if]
+      
+      [comment pas de multiples relations recursives avec le même nom./]
+      [if (not e.referencesFKSB()->union(e.referencesJT())->hasRecursivesWithSameName())][e.add(e.err7())/][/if]
+      
+      [comment pas de relation de type composite./]
+      [if (not e.referencesFKSB()->select(o | o.isComposite)->isEmpty())][e.add(e.err8())/][/if]
+        
+      [comment pas de double relation (0,*) -> remplacer par une bidirectionnelle./]
+        
+      [comment pas d'héritage autre que des entités/]
+      
+      [comment pas de classe fille avec relation sur classe mère/]
+    [/for]
+    
+    [let pes = r.eAllContents(entity::Entity)->select(e | not es->includes(e))]
+      [for (e | pes)]      
+        [comment pas de classe mère avec des relations  non bidir (0,* - 1,*)/]
+        [comment if (not e.referencesFKSB()->select(o | o.isMultiple())->isEmpty())][e.add(e.erre6())/]
+         
+        [comment pas de relation fk entre les classes parents (hors récursive)./]
+        [if (not e.referencesFK()->select(o | pes->includes(o.referencedType))
+             ->select(o2 | not o2.isZeroOneRecursive())->isEmpty())][e.add(e.err9())/][/if]
+      [/for]
+      
+      [for (re | r.eAllContents(environment::Reference))]
+        [comment pas de relation bidirectionnelle avec double navigabilité./]
+        [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.err10())/][/if]
+        
+        [comment pas de relation bidirectionnelle avec (1 ou 0,1)./]
+        [if (re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.err11())/][/if]
+        
+        [comment pas de relation jt entre les classes parents./]
+        [if (not pes->isEmpty() and (re.isMultipleBidirectionnal() and not re.isRecursive() 
+        	and (pes->includes(re.containingType) and pes->includes(re.referencedType))))][re.add(re.err13())/][/if]
+      [/for]
+    [/let]
+  [/let]
+[/template]
+
+[comment impossible de créer des entités sans attribut./]
+[query private err1 (e : entity::Entity) : String = 'RG_01@' + e.nameEntity() 
+  + '@Entité sans aucun attribut@Ajoutez au moins un attribut au niveau de l\'entité'/]
+
+[comment impossible de créer des entités avec un attribut de type 'Identifier'./]
+[query private err2 (e : entity::Entity) : String = 'RG_02@' + e.nameEntity() + '@Entité avec un attribut marqué comme \'Identifier\'' +  
+  '@Ne pas marquer l\'attribut(s) et laisser le générateur gérer l\'identifiant de l\'entité'/]
+  
+[comment impossible de créer des entités avec une multiplicité de type (0,*) ou (1,*)./]
+[query private err3 (e : entity::Entity) : String = 'RG_03@' + e.nameEntity() + '@Entité avec un attribut de multiplicité (0,*) ou (1,*)' +  
+  '@Supprimez la multiplicité (0,*) ou (1,*) sur l\'attribut'/]
+  
+[comment impossible de créer des entités avec un attribut sans nom./]
+[query private err4 (e : entity::Entity) : String = 'RG_04@' + e.nameEntity() + '@Entité avec un attribut sans nom' 
+  + '@Définissez un nom pour l\'attribut'/]
+  
+[comment impossible de créer des entités avec un attribut sans type./]
+[query private err5 (e : entity::Entity) : String = 'RG_05@' + e.nameEntity() + '@Entité avec un attribut sans type' 
+  +  '@Définissez un type pour l\'attribut' /]
+  
+[comment impossible de créer des entités mère avec des références sur d'autres classes parents./]
+[query private err6 (e : entity::Entity) : String = 'RG_06@' + e.nameEntity() + '@Références non bidirectionnelles (*) sur des entités héritées' 
+  + '@Supprimez ces références au niveau des entités héritées'/]
+  
+[comment impossible de créer des références récursives avec le même nom./]
+[query private err7 (e : entity::Entity) : String = 'RG_07@' + e.nameEntity() + '@Des références récursives ont le même nom' 
+  + '@Modifier les noms des références afin que chaque nom soit unique'/]
+  
+[comment impossible de créer des références de type composite./]
+[query private err8 (e : entity::Entity) : String = 'RG_08@' + e.nameEntity() + '@Des références composites ont été trouvées' 
+  + '@Supprimez les références composites'/]
+  
+[comment impossible de créer des entités parent avec des références FK (autre que récursive) sur d'autres classes parents./]
+[query private err9 (e : entity::Entity) : String = 'RG_09@' + e.nameEntity() + '@Références de type \'fKey\' entre entités héritées' 
+  + '@Supprimez les références de type \'fKey\' pour les entités héritées'/]
+  
+[comment impossible de créer des relations bidirectionnelles navigables dans les deux sens./]
+[query private err10 (r : environment::Reference) : String = 'RG_10@' + r.nameReference() + '@Référence bidirectionnel navigable dans les deux sens ' 
++ '@Décochez la navigabilité sur un des deux liens'/]
+
+[comment impossible de créer des relations bidirectionnelles avec des cardinalités (1 - 0,1)./]
+[query private err11 (r : environment::Reference) : String = 'RG_11@' + r.nameReference() + '@Référence bidirectionnel avec une cardinalité (1 - 0,1)' 
+	+ '@Utilisez des relations non bidirectionnelles'/]
+	
+[comment impossible de créer des relations de type composition (non géré)./]
+[query private err12 (r : environment::Reference) : String = 'RG_12@' + r.nameReference() + '@Référence de type \'composition\' détectée' 
+	+ '@Ne pas utiliser ce type de référence (non géré)'/]
+	
+[comment impossible de créer des entités parent avec des références JT (autre que récursive) sur d'autres classes parents./]
+[query private err13 (r : environment::Reference) : String = 'RG_13@' +r.nameReference() + '@Références de type \'Join\' entre entités héritées' 
+  + '@Supprimez les références de type \'Join\' pour les entités héritées'/]

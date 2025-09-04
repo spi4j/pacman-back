@@ -1,0 +1,289 @@
+[module entity(		'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]	
+[import fr::pacman::back::core::aql::string/]		
+[import fr::pacman::back::core::aql::name::classes/]	
+[import fr::pacman::back::core::aql::name::databases/]	
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::name::attributes/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::property/]
+[import fr::pacman::back::core::aql::query::entity/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::output::resources/]	
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::method/]
+
+[import fr::pacman::back::core::service::AnnotationUtils/]	
+[import fr::pacman::back::core::property::project::ProjectProperties/]	
+
+[comment écriture du corps pour la classe d'implémentation d'une entité./]
+[template public entityImpl (e : entity::Entity, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity))]
+  [e.classHeader(e.namePackageEntityImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [e.defaultImports()/]
+    import jakarta.persistence.Column;
+    import jakarta.persistence.Entity;
+    import jakarta.persistence.FetchType;
+    import jakarta.persistence.ManyToMany;
+    import jakarta.persistence.JoinTable;
+    import jakarta.persistence.EnumType;
+    import jakarta.persistence.Enumerated;
+    import jakarta.persistence.Id;
+    import jakarta.persistence.Table;
+    import jakarta.persistence.Transient;
+    import jakarta.persistence.GeneratedValue;
+    import jakarta.persistence.GenerationType;
+    import jakarta.persistence.JoinColumn;
+    import jakarta.persistence.OneToOne;
+    import jakarta.persistence.ManyToOne;
+    import jakarta.persistence.OneToMany;
+    import jakarta.persistence.CascadeType;
+    import jakarta.persistence.SequenceGenerator;
+    import org.hibernate.annotations.SQLDelete;
+    import org.hibernate.annotations.SQLRestriction;
+    import [e.namePackageProject()/].[e.namePackageInfrastructureBase()/].[e.nameClassEntityAbs()/];
+    
+  [/protected]
+  [e.commentClass()/]
+  @Entity
+  [e.writeAnnotationTable()/]
+  public class [e.nameClassEntityImpl()/] extends [e.nameClassEntityAbs()/]
+  {   
+      
+      // CONSTANTES ET ATTRIBUTS
+      [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+
+      [/protected]
+      [comment liste des champs automatiques pour l'entité./]
+      [let oas = e.autoAttributes()]
+      [comment liste des tables de liaison pour l'entité (directes + héritées)./]
+      [let jts = e.referencesJTSBResolved()] 
+      [comment liste des clé étrangères (directes + héritées)./] 
+      [let fks = e.referencesFKSBResolved(es, ess)]
+      [comment liste de toutes les références (clé étrangères + tables de jointure)./]
+      [let rs = fks->union(jts)]
+        
+        ['Id'.commentSingleLine()/]
+        @Id
+        @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "[(e.name() + '_SEQUENCE').toUpper()/]")
+        @Column(name = "[e.namePrimaryKey().toUpper()/]", nullable = false)
+        private [e.defaultTypePk()/] [e.writePk()/];	
+        
+        [comment gestion des attributs./]
+        [for (a : environment::Attribute | e.attributesNoPK())]
+          [a.comment().commentSingleLine()/]
+          [protected (a.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+          [a.writeAnnotationColumn()/]
+          private [a.type()/] [a.nameAttribute()/];
+          
+        [/for]
+        [comment gestion des clés étrangères./]
+        [for (r : environment::Reference | fks)]
+          [r.referencedEntity(e).comment().commentSingleLine()/]
+          [protected (e.referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+          [r.writeAnnotationsFK(e)/]
+          private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
+            
+        [/for]  
+        [comment gestion des tables de liaison (jointures)/]
+        [for (r : environment::Reference | jts)]
+          [r.referencedEntity(e).comment().commentSingleLine()/]
+          [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+          [r.writeAnnotationsJT(e)/]
+          private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
+          
+        [/for]
+        [comment constructeur pour l'entité./]
+        [('Constructeur sans paramètre pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
+        public [e.nameClassEntityImpl()/] ()
+        {
+           super();
+           
+           [protected ('constructeur sans parametre'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           [/protected]
+        }
+        
+        [comment constructeur pour l'entité (avec tous les paramètres)./]
+        [('Constructeur avec paramètres pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
+        public [e.nameClassEntityImpl()/] ([e.writeInputSignature(rs, oas)/])
+        {
+           super();
+           [for (a : environment::Attribute | e.attributesNoPK())]
+             [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
+           [/for]
+           [for (r : environment::Reference | rs)]
+             [e.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+                  = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
+           [/for]
+           
+           [for (prop : String | oas)]
+             [e.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/] 
+                 = [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/]; 
+           [/for]
+           
+           [protected ('constructeur avec parametres'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           [/protected]
+        }
+        
+        [comment écriture des assesseurs spécifiques identifiant./]
+        /**
+         * Retourne l'identifiant pour l'entité'. 
+         *
+         * @return la valeur de l'identifiant'.
+         */
+        public [e.defaultTypePk()/] [e.nameSimplePropertyID().apply_methodGet()/]()
+        {
+           return [e.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/];
+        }
+        
+        /**
+         * Affecte l'identifiant pour l'entité'. 
+         *
+         * @param la valeur de l'identifiant'.
+         */
+        public void [e.nameSimplePropertyID().apply_methodSet()/]
+        (final [e.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
+        {
+            [e.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] 
+               = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+        }
+        
+        [comment écriture des assesseurs pour les attributs./]
+        [for (a : environment::Attribute | e.attributesNoPK())]
+          [a.commentGet()/]
+          public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
+          {
+             return [a.prefixAffectation()/][a.nameAttribute()/];
+          }
+          
+          [a.commentSet()/]
+          public void [a.nameAttribute().apply_methodSet()/]
+          (final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
+          {
+             [a.prefixAffectation()/][a.nameAttribute()/] 
+                = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+          }
+          
+        [/for]
+        
+        [comment écriture des assesseurs pour les références (clée étrangères + tables de jointure)./]
+        [for (r : environment::Reference | rs)]
+          [r.referencedEntity(e).referencedName(r).commentGet()/]
+          public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
+          {
+             return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
+          }
+          
+          [r.referencedEntity(e).referencedName(r).commentSet()/]
+          public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
+             (final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
+          {
+            [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
+              = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
+          }
+        [/for]
+        
+        // METHODES
+        [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
+        
+     [/let][/let]
+     [/let][/let]
+  }
+[/template]
+
+[comment écriture de l'interface pour une entité (au sens Spring)./]
+[template public persistItf (e : entity::Entity)]
+  [e.classHeader(e.namePackageEntityPersistItf())/]
+  [e.defaultImports()/]
+  import org.springframework.data.jpa.repository.JpaRepository;
+  [e.importImpl()/]
+  
+  /**
+   * Interface de dépôt pour accéder aux entités {@link [e.nameClassEntityImpl()/]}.
+   * Cette interface hérite de {@link JpaRepository}, fournissant ainsi
+   * un ensemble complet de méthodes CRUD, de pagination et de tri 
+   * pour l'entité {@code [e.nameClassEntityImpl()/]}.
+   *
+   * Elle permet de manipuler des objets {@code [e.nameClassEntityImpl()/]} en interaction
+   * avec la base de données, via Spring Data JPA.
+   *
+   * @author [e.nameAuthor()/]
+   * @see [e.nameClassEntityImpl()/]
+   * @see org.springframework.data.jpa.repository.JpaRepository
+   */
+  public interface [e.nameClassEntityPersistItf()/] extends JpaRepository<[e.nameClassEntityImpl()/], Long> {
+    
+    [protected (e.nameClassEntityPersistItf().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+    
+  }
+[/template]
+
+[comment simmple raccourci pour l'écriture de la clé primaire./]
+[query private writePk(e : entity::Entity) : String = e.nameSimplePropertyID().apply_attributeDefault()/]
+
+[comment vérifie si la référence a une stratégie de récupération paresseuse (LAZY)./]
+[query private isLazyReference (r : environment::Reference) : Boolean = r.is_metaFetchLazy() or r.isMultipleBidirectionnal()/]
+
+[comment écriture du type de 'cascade' pour la référence./]  
+[query private writeCascade(r : environment::Reference) : String = 'cascade = ' + if (r.get_metaLiteralCascadeType().index(',') > 0) 
+  then '{' + r.get_metaLiteralCascadeType().tokenize(',')->collect(o | 'CascadeType.' + o.trim())->sep(', ') + '}' 
+  else 'CascadeType.' + r.get_metaLiteralCascadeType().trim() endif /]
+  
+[comment retourne les types et les nom des attributs pour l'entité (optional + list + type + nom)./]
+[query public writeInputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference), props : Sequence(String)) : String =  
+  e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' + o1.name().apply_parameterMethodClassicInOut())->sep(', ')
+  + if (rs->size() > 0) then ', ' + rs->collect(o2 | 'final ' + o2.referencedTypeSignature(e) + ' ' + o2.referencedEntity(e)
+  .referencedName(o2).apply_parameterMethodClassicIn())->sep(', ') else '' endif + if (not props->isEmpty()) then ', ' +
+  props->collect(o | 'final ' + o.autoAttributeType().type() + ' ' + o.nameAutoAttribute().apply_parameterMethodClassicIn())->sep(', ') 
+  else '' endif/]
+
+[comment écriture de l'annotation @Table pour l'entité (si aucun héritage p = e)./]
+[query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' 
+  + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() + '"' else '' endif + ')' + e.lineSeparator() 
+  + '@SequenceGenerator(name = "' + (e.name() + '_SEQUENCE').toUpper() + '", sequenceName = "' + (e.nameTableSchema() + e.suffixSqlSequence()).toUpper() 
+  + '", allocationSize = 1)' + if (e.hasXtopSup()) then e.lineSeparator() + '@SQLDelete(sql = "UPDATE ' + e.nameTableSchema().toUpper() 
+  + ' SET ' + e.keyXtopSup() + ' = true WHERE ' + e.namePrimaryKey().toUpper() + ' = ?")' + e.lineSeparator() + '@SQLRestriction("' + e.keyXtopSup() 
+  + ' = false")' else '' endif/]
+  
+[comment écriture de l'annotation @column pour chaque attribut de l'entité./]
+[query private writeAnnotationColumn(a : environment::Attribute) : String = if (a.isTypeOfEnumeration()) then '@Enumerated(EnumType.STRING)' 
+  else '' endif + '@Column(name = "' + a.nameAttribut().toUpper() +'", nullable = ' + not a.isMandatory()  + if (a.has_metaPhysicalSize() 
+  and a.type.isAlpha()) then ', length = ' + a.get_metaPhysicalSize() else if (a.has_metaPhysicalSize() and a.type.isNumeric()) then ', precision = ' 
+  + a.get_metaPhysicalSize() else if (a.has_metaPhysicalSize() and a.type.isDecimal()) then ', scale = ' +  a.get_metaPhysicalSize()  else '' 
+  endif  endif endif + if ('Date'.equalsIgnoreCase(a.type.name) or 'Time'.equalsIgnoreCase(a.type.name) or 'Timestamp'.equalsIgnoreCase(a.type.name)) 
+  then ', columnDefinition = "' + a.type.name.toUpper() +'"' else '' endif +  ')'/]
+  
+[comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk)./]
+[query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.isMultiple()) 
+  then if (r.containedEntity(e) = e) then '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
+  + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif  + ', mappedBy = "' + e.referencedName(r).apply_attributeDefault() 
+  + '")' else '@ManyToOne' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
+  + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
+  + if (r.has_metaCascadeType()) then ', ' +  r.writeCascade() else '' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' 
+  + if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().apply_attributeDefault().toUpper() else r.referencedEntity(e)
+  .namePrimaryKey().toUpper() endif + '", referencedColumnName = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
+  + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
+  
+[comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (n-n jt)./]
+[query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String =  '@ManyToMany(fetch = FetchType.' 
+  + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif 
+  + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' 
+  + r.nameTableJoin().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() 
+  + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' + e.namePrimaryKey().toUpper() + '"), inverseJoinColumns = @JoinColumn(name = "' 
+  + if (r.isStarRecursive()) then r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive()
+  ,r.suffixSqlId()).toUpper() else r.referencedEntity(e).namePrimaryKey().toUpper()  endif + '"))'/]
+ 

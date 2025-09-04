@@ -1,0 +1,66 @@
+[module property(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::rule::class/]
+[import fr::pacman::back::core::service::AnnotationUtils/]
+
+[comment liste des requêtes possibles sur les propriétés./]
+
+[comment vérifie si la propriété est une liste (1,*)(0,*). /]  
+[query public isMultiple(p : environment::Property) : Boolean = 
+  p.multiplicity = environment::MultiplicityKind::ONE_STAR 
+  or p.multiplicity = environment::MultiplicityKind::ZERO_STAR/]
+  
+[comment retourne le type formaté pour une propriété (attribut, paramètre, etc...)./]
+[query public type(t : environment::Type) : String = 
+  if (t.oclIsKindOf(environment::Enumeration)) then t.name.apply_classEnum()   
+  else if (t.oclIsKindOf(entity::Entity)) then t.oclAsType(entity::Entity).nameClassEntityImpl()
+  else if (t.oclIsKindOf(environment::DTO)) then t.oclAsType(environment::DTO).nameClassDtoImpl()
+  else if (t.name.equalsIgnoreCase('Date')) then 'LocalDate' 
+  else if (t.name.equalsIgnoreCase('TimeStamp')) then 'Instant' 	
+  else if (t.name.equalsIgnoreCase('Time')) then 'LocalTime' 
+  else if (t.name.equalsIgnoreCase('Binary')) then 'byte[]' 
+  else t.name.sanitize() endif endif endif endif endif endif endif/] 
+  
+ [comment retourne le type formaté pour une propriété (attribut, paramètre, etc...)./]
+ [query public type(str : String) : String = 
+   if (str.equalsIgnoreCase('Date')) then 'LocalDate' 
+   else if (str.equalsIgnoreCase('TimeStamp')) then 'Instant' 
+   else if (str.equalsIgnoreCase('Time')) then 'LocalTime' 
+   else if (str.equalsIgnoreCase('UUID')) then 'UUID'
+   else str.sanitize() endif endif endif endif/] 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[comment a voir si vraiment utile./]
+[query public isAlpha(t : environment::Type) : Boolean = t.name.equalsIgnoreCase('String')/]
+  
+[comment a voir si vraiment utile../]
+[query public isNumeric(t : environment::Type) : Boolean = t.isDecimal() or t.isInt()/]
+  
+[comment a voir si vraiment utile../]
+[query public isDecimal(t : environment::Type) : Boolean = t.name.equalsIgnoreCase('Float') or t.name.equalsIgnoreCase('Double')/]
+  
+[comment a voir si vraiment utile../]
+[query public isInt(t : environment::Type) : Boolean = t.name.equalsIgnoreCase('Integer') or t.name.equalsIgnoreCase('Long')/]
+

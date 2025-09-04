@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.back.config.ui
+Bundle-ManifestVersion: 2
+Bundle-Name: PacMan back - Config - UI
+Bundle-SymbolicName: fr.pacman.back.config.ui;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-Activator: fr.pacman.back.config.ui.plugin.Activator$Implementation
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.emf.ecore,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui,
+ fr.pacman.back.core,
+ fr.pacman.back.core.ui,
+ fr.pacman.back.config,
+ org.eclipse.acceleo.aql,
+ org.eclipse.acceleo.query
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy

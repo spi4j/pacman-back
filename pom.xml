@@ -4,12 +4,12 @@
 	
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>fr.pacman</groupId>
-	<artifactId>pacman-parent</artifactId>
+	<groupId>fr.pacman.back</groupId>
+	<artifactId>fr.pacman.back.parent</artifactId>
 	<version>5.0.0</version>
 	<packaging>pom</packaging>
-	<name>pacman-parent</name>
-	<description>Projet parent à l'ensemble des générateurs Pacman.</description>
+	<name>fr.pacman.back.parent</name>
+	<description>Projet parent à l'ensemble des générateurs Pacman back.</description>
 
 	<properties>
 		<java.version>17</java.version>
@@ -215,50 +215,50 @@
 			
 			<modules>
 				<!-- modules métier. -->
-				<module>fr.pacman.branding</module>
-				<module>fr.pacman.common</module>
-				<module>fr.pacman.config</module>
-				<module>fr.pacman.config.spi4j</module>
-				<module>fr.pacman.config.spring</module>
-				<module>fr.pacman.core</module>
-				<module>fr.pacman.entity</module>
-				<module>fr.pacman.entity.spi4j</module>
-				<module>fr.pacman.entity.spring</module>
-				<module>fr.pacman.requirement</module>
-				<module>fr.pacman.requirement.spi4j</module>
-				<module>fr.pacman.requirement.spring</module>
-				<module>fr.pacman.soa</module>
-				<module>fr.pacman.soa.spi4j</module>
-				<module>fr.pacman.soa.spring</module>
-				<module>fr.pacman.soaclient</module>
-				<module>fr.pacman.soaclient.spi4j</module>
-				<module>fr.pacman.soaclient.spring</module>
-				<module>fr.pacman.sql</module>
-				<module>fr.pacman.start</module>
+				<module>fr.pacman.back.branding</module>
+				<module>fr.pacman.back.common</module>
+				<module>fr.pacman.back.config</module>
+				<module>fr.pacman.back.config.spi4j</module>
+				<module>fr.pacman.back.config.spring</module>
+				<module>fr.pacman.back.core</module>
+				<module>fr.pacman.back.entity</module>
+				<module>fr.pacman.back.entity.spi4j</module>
+				<module>fr.pacman.back.entity.spring</module>
+				<module>fr.pacman.back.requirement</module>
+				<module>fr.pacman.back.requirement.spi4j</module>
+				<module>fr.pacman.back.requirement.spring</module>
+				<module>fr.pacman.back.soa</module>
+				<module>fr.pacman.back.soa.spi4j</module>
+				<module>fr.pacman.back.soa.spring</module>
+				<module>fr.pacman.back.soaclient</module>
+				<module>fr.pacman.back.soaclient.spi4j</module>
+				<module>fr.pacman.back.soaclient.spring</module>
+				<module>fr.pacman.back.sql</module>
+				<module>fr.pacman.back.start</module>
 				
 				<!-- modules couche UI. -->
-				<module>fr.pacman.core.ui</module>
-				<module>fr.pacman.config.ui</module>
-				<module>fr.pacman.start.ui</module>
-				<module>fr.pacman.sql.ui</module>
-				<module>fr.pacman.entity.ui</module>
-				<module>fr.pacman.requirement.ui</module>
-				<module>fr.pacman.soa.ui</module>
-				<module>fr.pacman.soaclient.ui</module>
+				<module>fr.pacman.back.core.ui</module>
+				<module>fr.pacman.back.config.ui</module>
+				<module>fr.pacman.back.start.ui</module>
+				<module>fr.pacman.back.sql.ui</module>
+				<module>fr.pacman.back.entity.ui</module>
+				<module>fr.pacman.back.requirement.ui</module>
+				<module>fr.pacman.back.soa.ui</module>
+				<module>fr.pacman.back.soaclient.ui</module>
 				
 				<!-- modules produits. -->
-				<module>fr.pacman.core.ui.feature</module>
-				<module>fr.pacman.config.ui.feature</module>
-				<module>fr.pacman.soa.ui.feature</module>
-				<module>fr.pacman.soaclient.ui.feature</module>
-				<module>fr.pacman.entity.ui.feature</module>
-				<module>fr.pacman.requirement.ui.feature</module>
-				<module>fr.pacman.sql.ui.feature</module>
-				<module>fr.pacman.start.ui.feature</module>
+				<module>fr.pacman.back.core.ui.feature</module>
+				<module>fr.pacman.back.config.ui.feature</module>
+				<module>fr.pacman.back.soa.ui.feature</module>
+				<module>fr.pacman.back.soaclient.ui.feature</module>
+				<module>fr.pacman.back.entity.ui.feature</module>
+				<module>fr.pacman.back.requirement.ui.feature</module>
+				<module>fr.pacman.back.sql.ui.feature</module>
+				<module>fr.pacman.back.start.ui.feature</module>
 
 				<!-- Autres modules. -->
-				<module>fr.pacman.test</module>
-				<module>fr.pacman.update</module>
+				<module>fr.pacman.back.test</module>
+				<module>fr.pacman.back.update</module>
 			</modules>
 		</profile>
 		
@@ -266,8 +266,8 @@
 		<profile>
 			<id>updatesite</id>
 			<modules>
-				<module>fr.pacman.branding</module>
-				<module>fr.pacman.update</module>				
+				<module>fr.pacman.back.branding</module>
+				<module>fr.pacman.back.update</module>				
 			</modules>
 		</profile>
 	</profiles>

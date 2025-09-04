@@ -1,0 +1,22 @@
+[module genRequirement(	'http://www.obeonetwork.org/dsl/requirement/1.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::requirement::aql::block::requirement/]
+
+[comment écriture du fichier d'implémentation (enum) pour l'ensemble des requirements de l'application./]
+[template public fileRequirementsEnumImpl(r : requirement::Repository, c : Sequence(requirement::Category), p : Integer, nameT : String)]
+  [file (r.nameClassRequirementEnumerationImpl().toFileJava(r.namePackageRequirement()), overwrite, r.defaultFileEncoding())]
+    [ r.enumImpl(r.namePackageRequirement(), r.nameClassRequirementEnumerationImpl(), c, p, nameT)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour les exigences spécifiques d'une catégorie./]
+[template public fileRequirementsEnumImpl(c : requirement::Category, nameT : String)]
+  [file (c.nameClassCategoryRequirementEnumerationImpl().toFileJava(c.namePackageRequirementCategory()), overwrite, c.defaultFileEncoding())]
+    [c.enumImpl(c.namePackageRequirementCategory(), c.nameClassCategoryRequirementEnumerationImpl(), Sequence{c}, -1, nameT)/]
+  [/file]c.na/
+[/template]
+

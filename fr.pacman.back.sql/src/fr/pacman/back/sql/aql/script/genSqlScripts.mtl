@@ -1,0 +1,84 @@
+[module genSqlScripts(	'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+					
+[import fr::pacman::back::core::aql::base/]	
+[import fr::pacman::back::core::aql::string/]	
+[import fr::pacman::back::core::aql::query::database/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::sql::aql::script::schemas/]
+[import fr::pacman::back::sql::aql::script::sequences/]	
+[import fr::pacman::back::sql::aql::script::tables/]
+[import fr::pacman::back::sql::aql::script::constraints/]
+[import fr::pacman::back::sql::aql::script::headers/]
+[import fr::pacman::back::sql::aql::script::initialization/]
+[import fr::pacman::back::core::service::DateUtils/]
+
+[comment script de création des tables pour la base de données de type 'dbType'/]
+[template public createSqlTables(root : entity::Root, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity), dbType : String) post(self.escapeFile())]
+  [root.resetCounters()/]
+  [root.scriptsHeader(dbType)/]
+  [if (root.hasSchema())]
+    [root.createSchema()/]
+  [/if]
+  [if (dbType.hasSequence())]
+    [root.createSequences(es)/]
+  [/if]
+  [root.createTables(es,ess,dbType)/]
+  [root.createConstraints(es,ess,dbType)/]
+[/template]
+
+[comment script de suppression des tables pour la base de données de type 'dbType'/]
+[template public dropSqlTables(root : entity::Root, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity), dbType : String) post(self.escapeFile())]
+  [root.resetCounters()/]
+  [root.scriptsHeader(dbType)/]
+  [if (dbType.hasSequence())]
+    [root.dropSequences(es,dbType)/]
+  [/if]
+  [root.dropConstraints(es,ess,dbType)/]
+  [root.dropTables(es,ess,dbType)/]
+  [if (root.hasSchema())]
+    [root.dropSchema()/]
+  [/if]
+[/template]
+
+[comment script de création des tables pour les tests d'intégration avec la base de données de type 'h2'/]
+[template public createSqlIntegrationTables(root : entity::Root, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity), dbType : String) post(self.escapeFile())]
+  [root.resetCounters()/]
+  [root.scriptsHeader(dbType)/]
+  [if (root.hasSchema())]
+    [root.createSchema()/]
+  [/if]
+  [if (dbType.hasSequence())]
+    [root.createSequences(es)/]
+  [/if]
+  [root.createTables(es,ess,dbType)/]
+[/template]
+
+[comment script d'initialisation pour la base de données de test (de type H2)./]
+[template public initSqlIntegrationData(root : entity::Root, es : Sequence(entity::Entity)
+  , ess : Sequence(entity::Entity), dbType : String) post(self.escapeFile())]
+  [comment r.resetCounters()/]
+  [root.scriptsHeader(dbType)/]
+  [root.initCommentHeader()/]
+  [root.insertsHeader()/]
+  /**
+  [root.initDatabase(es,ess,dbType)/]
+  */
+  [root.ensureBlankLine()/]
+  /** 
+  [protected ('init data'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    */
+    [root.ensureBlankLine()/]
+    /** Code insertions à recopier. */
+    [root.ensureBlankLine()/]
+    [root.initDatabase(es,ess,dbType)/]
+    [root.ensureBlankLine()/]
+    /** Vos données de test. */
+    [root.ensureBlankLine()/]
+    /**
+  [/protected]
+  */
+  [root.createConstraints(es,ess,dbType)/]
+[/template]

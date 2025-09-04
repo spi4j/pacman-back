@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.back.config.spi4j
+Bundle-ManifestVersion: 2
+Bundle-Name: PacMan back - Configuration - Spi4j
+Bundle-SymbolicName: fr.pacman.back.config.spi4j
+Bundle-Version: 5.0.0.qualifier
+Bundle-Activator: fr.pacman.back.config.spi4j.plugin.Activator
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.core.runtime,
+ org.obeonetwork.dsl.overview,
+ fr.pacman.back.core,
+ org.eclipse.acceleo.aql,
+ org.eclipse.acceleo.query
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: fr.pacman.back.config.spi4j.aql.block
+

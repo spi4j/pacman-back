@@ -1,0 +1,7 @@
+[module namespace(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+
+[import fr::pacman::back::core::aql::query::eobject/]
+
+[comment liste des requêtes possibles sur un namespace./]
+

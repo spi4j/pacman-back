@@ -1,0 +1,18 @@
+[module genServerSpi4j(	'http://www.obeonetwork.org/dsl/entity/3.0.0') 								
+						extends fr::pacman::back::entity::aql::genServer/]
+
+[comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
+[comment enlever ces imports suite a correction bug./]
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::common::aql::file::genEntityAbs/]
+[comment enlever ces imports suite a correction bug./]
+
+[comment @main/]
+[template public genServer(r : entity::Root)]
+  [r.super:genServer()/]
+[/template]
+
+	
+
+
+

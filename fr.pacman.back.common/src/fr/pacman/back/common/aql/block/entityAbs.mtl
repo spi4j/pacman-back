@@ -1,0 +1,229 @@
+[module entityAbs(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]				
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::attributes/]
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::property/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::rule::method/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+
+[import fr::pacman::back::core::service::TestUtils/]
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+
+[comment écriture de la classe abstraite pour champs automatiques pour la base de données. 
+ 		 que la classe soit pour une entité ou un dto, il s'agit de champs spécifiques 
+ 		 couche de persistance, le nom est toujours basé sur nameClassEntityAbs(). /]
+[template public autoAttributesImpl (any : ecore::EObject, target : String)]
+  [any.classHeader(if (any.cmdEntity().equalsIgnoreCase(target)) then any.namePackageInfrastructureBase() 
+    else any.namePackageCommonDtoBase() endif)/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [any.defaultsImports()/]
+    import jakarta.persistence.Transient;
+    import jakarta.persistence.Column;
+    import jakarta.persistence.EntityListeners;
+    import jakarta.persistence.MappedSuperclass;
+    import jakarta.persistence.PrePersist;
+    import jakarta.persistence.PreUpdate;
+    import org.hibernate.annotations.SourceType;
+    import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+    
+  [/protected]
+  
+  /**
+   * Classe abstraite représentant un modèle avec des champs additionnels dans le
+   * cadre de la gestion de la couche de persistance. Cette classe est utilisée
+   * pour gérer l'auto-attribution des valeurs sur les différents champs.
+   */
+  [target.writeAnnotationEntity()/]
+  public abstract class [any.nameClassEntityAbs()/]
+  {
+   [if (any.cmdEntity().equalsIgnoreCase(target))] 
+     /**
+      * Indicateur permettant de désactiver l'initialisation automatique
+      * lors des événements de cycle de vie {@code @PrePersist} et {@code @PreUpdate}.
+      * 
+      * Cet indicateur est plus précis que {@link @ActiveProfiles} car il est
+      * positionnable au niveau de la méthode, il peut (et doit) fonctionner en
+      * combinaison avec {@link @ActiveProfiles}.
+      *
+      * Ce champ n'est pas persistant en base de données ({@code @Transient}).
+      * Il est utilisé pour empêcher l'exécution de logique d'initialisation automatique,
+      * par exemple dans certaines situations de traitement ou de tests.
+      */
+      @Transient
+      private boolean ['disable auto init'.apply_attributeStatic()/];
+    [/if]
+    
+    // CONSTANTES ET ATTRIBUTS
+    [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+    
+    ['Constructeur'.commentMultiLines()/]
+    protected [any.nameClassEntityAbs()/]()
+    {
+       [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       [/protected]
+    }
+          
+    [for (prop : String | any.autoAttributes())]
+      [if (prop.hasToWriteAutoAttribute ())]
+        [prop.autoAttributeComment().commentSingleLine()/]
+        [prop.writeAnnotationColumn(target)/]
+        protected [prop.writeAttribute(target)/]
+      [/if]
+      
+    [/for]
+    
+    [if (any.cmdEntity().equalsIgnoreCase(target))]
+      /**
+       * Méthode de rappel appelée automatiquement avant l'insertion en base de
+       * données (persist).
+       *
+       * Cette méthode est exécutée une seule fois lors de la création de l'entité.
+       * Elle peut être utilisée pour initialiser certains champs par défaut, comme
+       * une date de création ou un booléen, sans avoir à les définir manuellement
+       * dans le code métier.
+       *
+       * <strong>Note :</strong> Le bloc utilisateur permet d'ajouter une logique
+       * personnalisée qui ne sera pas écrasée lors des régénérations de code.
+       */
+      @PrePersist
+      public void prePersist() {
+        if (![any.prefixAffectation()/]['disable auto init'.apply_attributeStatic()/]){
+          [protected ('prepersist'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [for (prop : String | any.autoAttributes())]
+              [if (prop.hasToWriteAutoAttribute ())]
+                [prop.writePrePersist()/]
+              [/if]
+            [/for]
+          [/protected]
+        }
+      }
+      
+      /**
+       * Méthode de rappel appelée automatiquement avant la mise à jour de l'entité en
+       * base de données.
+       * 
+       * Elle est utile pour mettre à jour des métadonnées, comme une date de
+       * modification ou un champ d'audit, à chaque modification de l'entité.
+       *
+       * <strong>Note :</strong> Le bloc utilisateur permet d'ajouter une logique
+       * personnalisée qui ne sera pas écrasée lors des régénérations de code.
+       */
+      @PreUpdate
+      public void preUpdate() {
+        if (![any.prefixAffectation()/]['disable auto init'.apply_attributeStatic()/]){
+          [protected ('preupdate'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [for (prop : String | any.autoAttributes())]
+              [if (prop.hasToWriteAutoAttribute ())]
+                [prop.writePreUpdate()/]
+              [/if]
+            [/for]
+          [/protected]
+        }
+      }
+      
+      /**
+       * Indique si l'initialisation automatique doit être désactivée
+       * lors des événements {@code @PrePersist} et {@code @PreUpdate}.
+       *
+       * @return {@code true} si l'initialisation automatique est désactivée, {@code false} sinon
+       */
+      public boolean ['disable auto init'.apply_methodGet()/](){
+        return [any.prefixAffectation()/]['disable auto init'.apply_attributeStatic()/];
+      }
+      
+      /**
+       * Active ou désactive l'initialisation automatique
+       * lors des événements {@code @PrePersist} et {@code @PreUpdate}.
+       *
+       * @param ['disable auto init'.apply_parameterMethodClassicIn()/] {@code true} pour désactiver 
+       * l'initialisation automatique, {@code false} pour l'activer
+       */
+      public void ['disable auto init'.apply_methodSet()/](final boolean ['disable auto init'.apply_parameterMethodClassicIn()/]){
+         [any.prefixAffectation()/]['disable auto init'.apply_attributeStatic()/] = ['disable auto init'.apply_parameterMethodClassicIn()/];
+      }
+    [/if]
+       
+    [for (prop : String | any.autoAttributes())]
+      [prop.writeAutomaticGetter()/]
+      [prop.writeAutomaticSetter()/]
+    [/for]
+    // METHODES
+    [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+  }
+[/template]
+
+[comment écriture des getters pour les champs automatiques./]
+[template private writeAutomaticGetter(prop : String)]
+  [if (prop.hasToWriteAutoAttribute())]
+    /**
+     * Retourne la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]' 
+     *
+     * @return la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]'
+     */
+    public [prop.autoAttributeType().type()/] [prop.nameAutoAttribute().apply_methodGet()/] ()
+    {
+      return [prop.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/];
+    }
+  [/if]
+  
+[/template]
+
+[comment écriture des setters pour les champs automatiques./]
+[template private writeAutomaticSetter(prop : String)]
+  [if (prop.hasToWriteAutoAttribute())]
+    /**
+     * Affecte la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]' 
+     *
+     * @param la valeur de '[prop.nameAutoAttribute().apply_attributeDefault()/]'
+     */
+    public void [prop.nameAutoAttribute().apply_methodSet()/]
+    (final [prop.autoAttributeType().type()/] [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/])
+    {
+      [prop.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/] 
+      	= [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/];
+    }
+  [/if]
+  
+[/template]
+
+[comment écriture de la ligne de définition pour l'attribut./]
+[query private writeAttribute(prop : String, target : String) : String = prop.autoAttributeType().type() + ' ' 
+	+ prop.nameAutoAttribute().apply_attributeDefault() + if (prop.cmdEntity().equalsIgnoreCase(target) 
+	and prop.autoAttributDefault().exists()) then ' = ' + if (prop.autoAttributeType().type().needsToBeQuoted()) 
+	then '"' + prop.autoAttributDefault() + '"' else prop.autoAttributDefault() endif else '' endif + ';'/]
+
+[comment écriture de la ligne pour l'annotation @column./]
+[query private writeAnnotationColumn(prop : String, target : String) : String =  if (target.cmdEntity().equalsIgnoreCase(target)) 
+	then '@Column(name = "' + prop.nameAutoAttribute() +'", nullable = ' + if (prop.autoAttributNull().exists()) 
+	then prop.autoAttributNull() else 'true' endif + if (prop.autoAttributSize().exists()) then ', length = ' 
+	+ prop.autoAttributSize() else '' endif + if (prop.equalsIgnoreCase(prop.get_XuuIdKey())) then 
+	', unique = true, updatable = false' else '' endif + ')' else '' endif/]
+
+[comment écriture de la ligne d'annotation pour l'entité./]
+[query private writeAnnotationEntity(target : String) : String = if (target.cmdEntity().equalsIgnoreCase(target)) 
+	then '@MappedSuperclass' + if (target.hasAutoAttributes()) then target.lineSeparator() + '@EntityListeners(AuditingEntityListener.class)' 
+	else '' endif else '' endif /]
+	
+[comment écriture de l'initialisation des champs avant création de l'entité (on utilise TestUtils ce qui n'est pas très propre!)./]
+[query private writePrePersist(prop : String ) : String = prop.nameAutoAttribute().apply_methodSet() + '(' 
+	+  prop.autoAttributeName().get_defaulValueForType() + ');'/]
+
+[comment écriture de l'initialisation des champs avant mise à jour de l'entité./]
+[query private writePreUpdate(prop : String ) : String =  if (not (prop.isXtopSup() or prop.isXUuid())) 
+	then prop.writePrePersist() else '' endif/]
+
+
+

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="fr.pacman.back.entity.ui.feature"
+      label="PacMan Backend - Entity"
+      version="5.0.0.qualifier"
+      provider-name="Cali"
+      plugin="fr.pacman.back.branding">
+
+   <includes
+         id="fr.pacman.back.core.ui.feature"
+         version="0.0.0"/>
+
+   <plugin
+         id="fr.pacman.back.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="fr.pacman.back.entity"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="fr.pacman.back.entity.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="fr.pacman.back.entity.spi4j"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="fr.pacman.back.entity.spring"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>

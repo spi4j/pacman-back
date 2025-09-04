@@ -1,0 +1,42 @@
+[module resources(	'http://www.obeonetwork.org/dsl/environment/3.0.0',
+					'http://www.obeonetwork.org/dsl/requirement/1.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::rule::method/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+
+[comment retourne les noms de toutes les ressources (fichiers) autres que classes java, packages, etc.../]
+
+[comment retourne le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
+[query public nameApplicationResources(any : ecore::EObject) : String = 'application'/]
+  
+[comment retourne le nom du fichier de configuration pour log4j2./]
+[query public nameLog4j2Resources(any : ecore::EObject) : String = 'log4j2'/]
+  
+[comment retourne le nom du fichier de ressources pour toutes les datasources de l'application (spring)./]
+[query public nameIntegrationResources(any : ecore::EObject) : String = 'tests'/]
+  
+[comment retourne le nom du fichier de ressources pour l'api de santé (info)./]
+[query public nameInfoResources(any : ecore::EObject) : String = 'info'/]
+    
+[comment retourne le nom du fichier de ressources pour l'api de santé (health))./]
+[query public nameHealthResources(any : ecore::EObject) : String = 'health'/]
+
+[comment retourne le nom pour l'exigence métier (requirement)./]
+[query public nameRequirement(r : requirement::Requirement) : String = ('exigence ' + r.id).apply_methodDefault()/]  
+
+[comment retourne le nom pour le fichier de validation des modèles./]
+[query public nameModelValidationFile(any : ecore::EObject) : String = (any.nameProject().toLower()+ '-validation')/]
+	
+[comment retourne le nom pour l'exigence métier (requirement)./]
+[query public nameRequirementId(r : requirement::Requirement) : String = (r.get_requirementPrefix() 
+  + r.id.sanitizeReqID()).apply_attributeFinalStatic()/]
+
+
+
+

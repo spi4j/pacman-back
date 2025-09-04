@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/fr.pacman.back.config.ui.feature_0.0.0.jar" id="fr.pacman.back.config.ui.feature" version="0.0.0">
+      <category name="fr.pacman.back.dev"/>
+   </feature>
+   <feature url="features/fr.pacman.back.core.ui.feature_0.0.0.jar" id="fr.pacman.back.core.ui.feature" version="0.0.0">
+      <category name="fr.pacman.back.dev"/>
+   </feature>
+   <feature url="features/fr.pacman.back.entity.ui.feature_0.0.0.jar" id="fr.pacman.back.entity.ui.feature" version="0.0.0">
+      <category name="fr.pacman.back.dev"/>
+   </feature>
+   <feature url="features/fr.pacman.back.requirement.ui.feature_0.0.0.jar" id="fr.pacman.back.requirement.ui.feature" version="0.0.0">
+      <category name="fr.pacman.back.dev"/>
+   </feature>
+   <feature url="features/fr.pacman.back.soa.ui.feature_0.0.0.jar" id="fr.pacman.back.soa.ui.feature" version="0.0.0">
+      <category name="fr.pacman.back.dev"/>
+   </feature>
+   <feature url="features/fr.pacman.back.soaclient.ui.feature_0.0.0.jar" id="fr.pacman.back.soaclient.ui.feature" version="0.0.0">
+      <category name="fr.pacman.back.dev"/>
+   </feature>
+   <feature url="features/fr.pacman.back.sql.ui.feature_0.0.0.jar" id="fr.pacman.back.sql.ui.feature" version="0.0.0">
+      <category name="fr.pacman.back.dev"/>
+   </feature>
+   <feature url="features/fr.pacman.back.start.ui.feature_0.0.0.jar" id="fr.pacman.back.start.ui.feature" version="0.0.0">
+      <category name="fr.pacman.back.dev"/>
+   </feature>
+   <category-def name="fr.pacman.back.dev" label="PacMan - Développement (Cali)"/>
+   <category-def name="fr.pacman.back.ana" label="PacMan - Analyse (Cali)"/>
+   <category-def name="fr.gouv.mindef" label="Outils Cali"/>
+</site>

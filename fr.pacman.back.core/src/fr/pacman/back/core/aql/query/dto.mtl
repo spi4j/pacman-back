@@ -1,0 +1,37 @@
+[module dto(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0',
+				'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::service::MandatoryUtils/]
+[import fr::pacman::back::core::service::AnnotationUtils/]
+
+[comment liste des requêtes possibles sur les objets de transfert./]
+
+[comment vérifie si une propriété (attribut ou référence) est obligatoire pour un dto./]
+[query public isMandatory(d : dtenvironment::DTO ,p : environment::Property) : Boolean = p.is_mandatorySoa()/]
+
+[comment vérifie si le dto a des attributs. /]
+[query public hasAttributes(d : environment::DTO) : Boolean = d.attributes->size() > 0 or d.references->size() > 0/]
+
+[comment vérifie si le dto est considéré comme persistant./]  
+[query public isPersistent(d : environment::DTO) : Boolean = d.isUseSqlPersistence() and d.associatedEntity().exists()/]
+ 
+[comment retourne l'entité associée au dto (dans le cadre de pacman, toujours une entité)./]
+[query public associatedEntity(d : environment::DTO) : entity::Entity = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
+   then d.associatedTypes->first().oclAsType(entity::Entity) else null endif/]
+
+[comment retourne le type associé au dto (dans le cadre de pacman, toujours une entité)./]
+[query public associatedType(d : environment::DTO) : environment::Type = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
+   then d.associatedTypes->first() else null endif/]
+
+[comment retourne la liste des dtos non hérités (noter qu'au niveau soa on a perdu la relation d'héritage mais ...)./]
+[query public subTypesDtos(r : environment::NamespacesContainer) : Sequence(environment::DTO) = r.eAllContents(environment::DTO)
+  ->select(o1 | r.eAllContents(environment::DTO)->forAll(o2 | not o2.associatedEntity()
+  .supertype->includes(o1.associatedEntity())))/]
+
+[comment retourne uniquement la liste des dtos hérités (que les dtos super)./]
+[query public superTypesDtos(r : environment::NamespacesContainer) : Sequence(environment::DTO) = let ds = r.subTypesDtos() 
+  in r.eAllContents(environment::DTO)->select(d | not ds->includes(d))/]
+

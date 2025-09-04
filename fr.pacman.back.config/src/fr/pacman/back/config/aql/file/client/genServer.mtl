@@ -1,0 +1,15 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::resources/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::config::aql::block::client::server/]
+
+[comment écriture du fichier de propriété pour log4j2./]
+[template public fileLog4j2(any : ecore::EObject)]
+  [file (any.nameLog4j2Resources().toFile(any.namePackageResources(), '.xml'), overwrite, 'ISO-8859-1')]
+    [any.log4j2()/]
+  [/file]
+[/template]

@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.back.test
+Bundle-ManifestVersion: 2
+Bundle-Name: Pacman back - Tests
+Bundle-SymbolicName: fr.pacman.back.test
+Bundle-Version: 5.0.0.qualifier
+Bundle-Vendor: Cali
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Eclipse-LazyStart: true
+Require-Bundle: org.junit,
+ org.eclipse.emf.common,
+ org.obeonetwork.dsl.environment,
+ org.obeonetwork.dsl.soa,
+ fr.pacman.back.core,
+ fr.pacman.back.core.ui,
+ fr.pacman.back.sql
+ 

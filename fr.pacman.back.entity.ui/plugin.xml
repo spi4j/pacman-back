@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="fr.pacman.back.entity.ui.handlers.EntityGeneratorsHandler"
+            commandId="fr.pacman.back.entity.ui.commands.EntityGeneratorCommand">
+      </handler>
+      <handler
+            class="fr.pacman.back.entity.ui.handlers.EntityValidationGeneratorsHandler"
+            commandId="fr.pacman.back.entity.validation.ui.commands.ValidationGeneratorCommand">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <menu
+               id="fr.pacman.back.ui.menus.generators"
+               icon="icons/pacmug.png"
+               tooltip="Liste des générateurs Cali"
+               label="Générateurs Cali">
+            <command
+                  icon="icons/generate.png"
+                  commandId="fr.pacman.back.entity.ui.commands.EntityGeneratorCommand"
+                  id="fr.pacman.back.entity.ui.commands.EntityGeneratorCommand" 
+                  label="Génération de la couche de persistance">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.core.resources.IFile">
+                           </instanceof>
+                           <test
+                                 property="org.eclipse.core.resources.extension"
+                                 value="entity">
+                           </test>
+                        </and>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
+            <command
+                  icon="icons/validate.png"
+                  commandId="fr.pacman.back.entity.validation.ui.commands.ValidationGeneratorCommand"
+                  id="fr.pacman.back.entity.validation.ui.commands.ValidationGeneratorCommand" 
+                  label="Validation de la couche de persistance">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.core.resources.IFile">
+                           </instanceof>
+                           <test
+                                 property="org.eclipse.core.resources.extension"
+                                 value="entity">
+                           </test>
+                        </and>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="fr.pacman.back.entity.ui.commands.generatorsCategory"
+            name="Generators">
+      </category>
+      <command
+            categoryId="fr.pacman.back.entity.ui.commands.generatorsCategory"
+            id="fr.pacman.back.entity.ui.commands.EntityGeneratorCommand"
+            name="Génération du fichier entité ">
+      </command>
+      <command
+            categoryId="fr.pacman.back.entity.ui.commands.generatorsCategory"
+            id="fr.pacman.back.entity.validation.ui.commands.ValidationGeneratorCommand"
+            name="Validation du fichier entité">
+      </command>
+   </extension>
+</plugin>
+

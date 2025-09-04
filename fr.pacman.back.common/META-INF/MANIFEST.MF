@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.back.common
+Bundle-ManifestVersion: 2
+Bundle-Name: PacMan back - Common
+Bundle-SymbolicName: fr.pacman.back.common
+Bundle-Version: 5.0.0.qualifier
+Bundle-Activator: fr.pacman.back.common.plugin.Activator
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.core.runtime,
+ fr.pacman.back.core,
+ org.eclipse.acceleo.aql,
+ org.eclipse.acceleo.query
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: fr.pacman.back.common.aql.block, 
+  fr.pacman.back.common.aql.file

@@ -1,0 +1,34 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]	
+[import fr::pacman::back::core::aql::name::classes/]	
+[import fr::pacman::back::core::aql::name::packages/]	
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::soaclient::spring::aql::block::service/]
+[import fr::pacman::back::soaclient::spring::aql::block::test/]
+
+[comment écriture du fichier d'implémentation pour le service client d'appel service fournisseur./]
+[template public fileRsClientImpl(s : soa::Service)]
+  [file (s.nameClassRsClientImpl().toFileJava(s.namePackageRsClientImpl()), overwrite, s.defaultFileEncoding())]
+    [s.serviceRsClientImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour les tests avant packaging./]
+[template public fileRsClientTestsImpl(s : soa::Service)]
+  [file (s.nameClassRsClientTestsImpl().toFileJavaT(s.namePackageRsClientImpl()), overwrite, s.defaultFileEncoding())]
+    [s.serviceRsClientTestsImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation d'une classe de gestion du token pour les tests avant packaging./]
+[template public fileRsClientTokenTestsHelper(o : soa::Operation)]
+  [file (o.nameClassRsClienTokenTestsHelper().toFileJavaT(o.namePackageRsBase()), overwrite, o.defaultFileEncoding())]
+    [o.serviceRsClientTokenTestsHelper()/]
+  [/file]
+[/template]
+
+
+
+

@@ -1,0 +1,1581 @@
+[module server(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::databases/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::variable/]
+[import fr::pacman::back::core::aql::rule::method/]
+
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+
+[comment écriture du fichier de configuration Maven pour le sous-projet serveur (infrastructure)./]
+[template public pom (any : ecore::EObject)]
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>[any.namePackageProject()/]</groupId>
+        <artifactId>[any.nameProject()/]</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <artifactId>[any.nameProjectServer()/]</artifactId>
+    <packaging>jar</packaging>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- swagger-ui -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+        </dependency>
+        <!-- circuit breaker -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot2</artifactId>
+        </dependency>
+        <!-- coffre fort -->
+        <dependency>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-starter-vault-config</artifactId>
+        </dependency>
+        <!-- projet métier (domaine). -->
+        <dependency>
+           <groupId>[any.namePackageProject()/]</groupId>
+           <artifactId>[any.nameProjectCommon()/]</artifactId>
+           <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+        </dependency>
+        <!-- Base H2 embarquée pour les tests. -->
+        <dependency>
+           <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+        [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
+          <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+          </dependency>
+    	[/if]
+    	[if (any.get_dataBasesNames().toLower().index('mysql') != -1)]
+    	  <dependency>
+    	    <groupId>mysql</groupId>
+    	    <artifactId>mysql-connector-java</artifactId>
+    	  </dependency>
+    	[/if]
+    	[if (any.get_dataBasesNames().toLower().index('mariadb') != -1)]
+    	  <dependency>
+    	    <groupId>org.mariadb.jdbc</groupId>
+    	    <artifactId>mariadb-java-client</artifactId>
+    	  </dependency>
+    	[/if]
+    	[if (any.get_dataBasesNames().toLower().index('oracle-') != -1)]
+    	  <dependency>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc7</artifactId>
+    	  </dependency>
+    	[/if]
+    	[if (any.get_dataBasesNames().toLower().index('oracle+') != -1)]
+    	  <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+    	  </dependency>
+    	[/if]
+    	<!-- (à voir si demande génération war et non jar..)
+    	<dependency>
+    	   <groupId>org.springframework.boot</groupId>
+    	   <artifactId>spring-boot-starter-tomcat</artifactId>
+    	   <scope>provided</scope>
+    	</dependency>
+    	-->
+    	
+    	<!--
+    	[protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          -->
+          <!--
+    	[/protected]
+    	-->
+    </dependencies>
+    
+    <build>
+      <plugins>
+         <!-- Génération du jar executable. -->
+         <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>repackage</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrap()/]</mainClass>
+            </configuration>
+         </plugin>
+         
+         <!-- 
+         [protected ('plugins'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           -->
+           <!--
+         [/protected]
+         -->
+      </plugins>
+    </build>
+    
+    <!--
+    [protected ('pom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      -->
+      <!--
+    [/protected]
+    -->
+    
+    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
+    <properties>
+       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+  </project>
+[/template]
+
+[comment écriture du bootstrap pour l'application./]
+[template public applicationBootstrapImpl(any : ecore::EObject)]
+  [any.classHeader(null)/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [any.defaultImports()/]
+    import java.util.TimeZone;
+    
+    import org.springframework.boot.CommandLineRunner;
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.context.ApplicationContext;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.EnableAspectJAutoProxy;
+    import org.springframework.context.annotation.FilterType;
+    import org.springframework.context.annotation.ComponentScan;
+    import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+    import org.springframework.data.domain.AuditorAware;
+    
+    import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+    import io.swagger.v3.oas.annotations.info.Info;
+    
+    import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationIn()/];
+    import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationOut()/];
+    
+  [/protected]
+  
+  /**
+   * Classe de démarrage de l'application Spring Boot. Cette classe est annotée
+   * avec {@link SpringBootApplication}, ce qui permet de configurer
+   * automatiquement les composants nécessaires à l'exécution de l'application.
+   * 
+   * Toutes les classes annotées {@link [any.nameClassAnnotationStubOut()/]} ne sont pas prises en compte
+   * par Spring ce qui désactive par défaut l'injection des différentes bouchons
+   * pour les tests d'intégration.
+   * 
+   * Elle active  par ailleurs la gestion des aspects avec
+   * {@link EnableAspectJAutoProxy} et configure un scan de composants
+   * personnalisé pour inclure les services annotés avec {@link [any.nameClassAnnotationOut()/]} et
+   * {@link [any.nameClassAnnotationIn()/]}.
+   * 
+   * La méthode {@link #main(String...)} est le point d'entrée principal de
+   * l'application, qui démarre l'application Spring Boot.
+   *
+   * @author [any.nameAuthor()/] 
+   *
+   * @see SpringBootApplication
+   * @see EnableAspectJAutoProxy
+   * @see ComponentScan
+   * @see DomainService
+   * @see AdapterService
+   */
+  @SpringBootApplication
+  @EnableAspectJAutoProxy
+  [if (any.hasAutoAttributes())] @EnableJpaAuditing(auditorAwareRef = "['auditor provider'.apply_methodDefault()/]")[/if]
+  @ComponentScan(basePackages = {"[any.namePackageProject()/]"}, includeFilters = {
+  @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationIn()/].class
+    ,  [any.nameClassAnnotationOut()/].class})})
+  public class [any.nameClassAppBootstrap()/]
+  {
+     
+    /**
+     * Le logger pour la classe.
+     */
+     private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([any.nameClassAppBootstrap()/].class);
+     
+     /**
+      * Point d'entrée de l'application Spring Boot. Il démarre l'application en appelant
+      * {@link SpringApplication#run(Class, String...)} avec la 
+      * classe {@code  [any.nameClassAppBootstrap()/]}.
+      *
+      * @param args Les arguments de la ligne de commande.
+      */
+      public static void main(String... args) {
+        
+        [protected ('main'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+        [/protected]
+        
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+08:00"));	
+        SpringApplication.run([any.nameClassAppBootstrap()/].class, args);
+      }
+      
+      [if (any.hasAutoAttributes())]
+        @Bean
+        public AuditorAware<String> ['auditor provider'.apply_methodDefault()/]() {
+            return () -> Optional.of("system"); // ou récupérer le nom de l'utilisateur connecté
+        }
+      [/if]
+	  
+	  /**
+	   * Un {@link CommandLineRunner} qui est exécuté au démarrage de l'application. Il affiche
+	   * la liste de tous les beans définis dans le contexte de l'application Spring.
+	   *
+	   * @param ctx Le contexte de l'application Spring contenant les beans.
+	   * @return Un {@link CommandLineRunner} qui est exécuté au démarrage de l'application.
+	   */
+	  //@Bean
+	  public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+	    return args -> {
+			['log'.apply_attributeFinalStatic()/].debug("Liste des beans disponibles pour Spring Boot:");
+	    	String['['/][']'/] beanNames = ctx.getBeanDefinitionNames();
+	    	Arrays.sort(beanNames);
+	    	for (String beanName : beanNames) {
+	    		['log'.apply_attributeFinalStatic()/].debug(beanName);
+	    	}
+	  	};
+	  }
+	  
+	  [protected (any.nameClassAppBootstrap().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+	  [/protected]
+  }
+[/template]
+
+[comment écriture de la classe d'exception pour les données rest non trouvées./]
+[template public rsDataNotFoundExceptionImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageException())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Services REST: Classe minimaliste (à titre d'exemple) pour une exception de
+   * type fonctionnelle. Elle est automatiquement renvoyée par les générateurs si
+   * dans le cadre des services rest sécurisés l'appelant n'a pas passé la phase
+   * d'authentification.
+   * 
+   * Cette classe fonctionne en relation avec les classes {@link [any.nameClassRsErrorBodyResponseImpl()/]} 
+   * et {@link [any.nameClassRsExceptionHandlerImpl()/]}
+   * 
+   * Si besoin, créer des exceptions supplémentaires et les positionner au niveau
+   * de ce package.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRsDataNotFoundExceptionImpl()/] extends RuntimeException {
+      
+      private static final long serialVersionUID = 3708878571796774828L;
+      
+      ['Code pour le statut HTTP'.commentMultiLines()/]
+      private int ['status code'.apply_attributeDefault()/];
+      
+      ['Constructeur'.commentMultiLines()/]
+      public [any.nameClassRsDataNotFoundExceptionImpl()/](final int ['status code'.apply_parameterMethodClassicIn()/], 
+          final String ['msg'.apply_parameterMethodClassicIn()/]) {
+          super(['msg'.apply_parameterMethodClassicIn()/]);
+          [any.prefixAffectation()/]['status code'.apply_attributeDefault()/] = ['status code'.apply_parameterMethodClassicIn()/];
+      }
+      
+      /**
+       * Retourne le code de statut HTTP.
+       * 
+       * @return le code de statut HTTP.
+       */
+      public int ['status code'.apply_methodGet()/]() {
+          return ['status code'.apply_attributeDefault()/];
+      }
+  }  
+[/template]
+
+[comment écriture de la classe d'exception pour les erreurs d'authentification rest./]
+[template public rsAuthenticationExceptionImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageException())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Services REST: Classe minimaliste (à titre d'exemple) pour une exception de
+   * type fonctionnelle. Elle est automatiquement renvoyée par les générateurs si
+   * dans le cadre des services rest sécurisés l'appelant n'a pas passé 
+   * l'authentification.
+   * 
+   * Cette classe fonctionne en relation avec les classes {@link [any.nameClassRsErrorBodyResponseImpl()/]} 
+   * et {@link [any.nameClassRsExceptionHandlerImpl()/]}
+   * 
+   * Si besoin, créer des exceptions supplémentaires et les positionner au niveau
+   * de ce package.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRsAuthenticationExceptionImpl()/] extends RuntimeException {
+      
+      private static final long serialVersionUID = 3708878571796774828L;
+      
+      ['Code pour le statut HTTP'.commentMultiLines()/]
+      private int ['status code'.apply_attributeDefault()/];
+      
+      ['Constructeur'.commentMultiLines()/]
+      public [any.nameClassRsAuthenticationExceptionImpl()/](final int ['status code'.apply_parameterMethodClassicIn()/], 
+          final String ['msg'.apply_parameterMethodClassicIn()/]) {
+          super(['msg'.apply_parameterMethodClassicIn()/]);
+          [any.prefixAffectation()/]['status code'.apply_attributeDefault()/] = ['status code'.apply_parameterMethodClassicIn()/];
+      }
+      
+      /**
+       * Retourne le code de statut HTTP.
+       * 
+       * @return le code de statut HTTP.
+       */
+      public int ['status code'.apply_methodGet()/]() {
+          return ['status code'.apply_attributeDefault()/];
+      }
+  }  
+[/template]
+[comment écriture de la classe de gestion globale des erreurs pour les api rest./]
+[template public rsExceptionhandlerImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  [any.defaultImports()/]
+  import org.springframework.http.HttpHeaders;
+  import org.springframework.http.HttpStatus;
+  import org.springframework.http.ResponseEntity;
+  import org.springframework.web.bind.annotation.ControllerAdvice;
+  import org.springframework.web.bind.annotation.ExceptionHandler;
+  import org.springframework.web.context.request.WebRequest;
+  import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+  
+  /**
+   * Gère les exceptions dans l'application en fournissant des réponses d'erreur personnalisées.
+   * Cette classe utilise l'annotation {@link ControllerAdvice} pour intercepter les exceptions globalement
+   * et les convertir en réponses HTTP structurées.
+   * 
+   * Compléter la classe si besoin avec autant de méthodes de gestion des
+   * exceptions que nécessaires;
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  @ControllerAdvice
+  public class [any.nameClassRsExceptionHandlerImpl()/] extends ResponseEntityExceptionHandler {
+    
+   /**
+    * Gère les exceptions {@link [any.nameClassRsDataNotFoundExceptionImpl()/]} et renvoie une réponse d'erreur avec le code de statut approprié.
+    * 
+    * @param ex L'exception {@link [any.nameClassRsDataNotFoundExceptionImpl()/]} capturée.
+    * @param request La requête HTTP associée à l'exception.
+    * @return Une réponse HTTP avec un corps contenant le message d'erreur et le code de statut approprié.
+    */
+    @ExceptionHandler(value = { [any.nameClassRsDataNotFoundExceptionImpl()/].class})
+    protected ResponseEntity<Object> ['handle data not found'.apply_methodDefault()/]
+      ([any.nameClassRsDataNotFoundExceptionImpl()/] ['ex'.apply_parameterMethodClassicIn()/]
+       , WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
+       [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
+         = new [any.nameClassRsErrorBodyResponseImpl()/] (['ex'.apply_parameterMethodClassicIn()/].['status code'.apply_methodGet()/](), 
+          ['ex'.apply_parameterMethodClassicIn()/].['message'.apply_methodGet()/]());
+          
+       [protected ('handle data not found'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       [/protected]
+       
+       return handleExceptionInternal(['ex'.apply_parameterMethodClassicIn()/], ['body response'.apply_variableDefault()/]
+       , new HttpHeaders(), [any.nameClassRsHttpStatusResolverImpl()/].['resolve'.apply_methodDefault()/]
+       (['body response'.apply_variableDefault()/].['status code'.apply_methodGet()/]()), ['request'.apply_parameterMethodClassicIn()/]);
+    }
+    
+    /**
+      * Gère les exceptions {@link [any.nameClassNotImplementedExceptionImpl()/]} et renvoie une réponse d'erreur avec un code de statut 501.
+      * 
+      * @param ex L'exception {@link [any.nameClassNotImplementedExceptionImpl()/]} capturée.
+      * @param request La requête HTTP associée à l'exception.
+      * @return Une réponse HTTP avec un corps contenant le message d'erreur et le code de statut 501.
+      */
+      @ExceptionHandler(value = { [any.nameClassNotImplementedExceptionImpl()/].class})
+      protected ResponseEntity<Object> ['handle not implemented'.apply_methodDefault()/]
+        ([any.nameClassNotImplementedExceptionImpl()/] ['ex'.apply_parameterMethodClassicIn()/]
+         , WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
+         [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
+           = new [any.nameClassRsErrorBodyResponseImpl()/] (HttpStatus.NOT_IMPLEMENTED.value() 
+            , ['ex'.apply_parameterMethodClassicIn()/].['message'.apply_methodGet()/]());
+            
+         [protected ('handle not implemented'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         [/protected]
+         
+         return handleExceptionInternal(ex, ['body response'.apply_variableDefault()/]
+         , new HttpHeaders(), HttpStatus.NOT_IMPLEMENTED, request);
+      }
+    
+   /**
+    * Gère les exceptions génériques {@link Exception} et renvoie une réponse d'erreur avec un code de statut 500.
+    * 
+    * @param ex L'exception générique capturée.
+    * @param request La requête HTTP associée à l'exception.
+    * @return Une réponse HTTP avec un corps contenant un message générique d'erreur et un code de statut 500.
+    */
+    @ExceptionHandler(value = { Exception.class })
+    protected ResponseEntity<Object> ['handle server error'.apply_methodDefault()/](
+	   Exception ['ex'.apply_parameterMethodClassicIn()/], WebRequest ['request'.apply_parameterMethodClassicIn()/]) {
+       [any.nameClassRsErrorBodyResponseImpl()/] ['body response'.apply_variableDefault()/] 
+         = new [any.nameClassRsErrorBodyResponseImpl()/](HttpStatus.INTERNAL_SERVER_ERROR.value()
+         , ['ex'.apply_parameterMethodClassicIn()/].getMessage());
+         
+       [protected ('handle server error'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       [/protected]
+       
+       return handleExceptionInternal(ex, ['body response'.apply_variableDefault()/]
+       , new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+  	}
+  	
+  	[protected (any.nameClassRsExceptionHandlerImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  	[/protected]
+  }
+[/template]
+
+[comment écriture de la classe de ddéfinition des vues json (rest)./]
+[template public rsJsonViewsImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  /**
+   * Définition des vues de sérialisation JSON utilisées avec
+   * {@link com.fasterxml.jackson.annotation.JsonView}.
+   * 
+   * Ces vues permettent de contrôler dynamiquement les champs d'un objet Java qui
+   * doivent être sérialisés en fonction du contexte d'utilisation (exposition
+   * publique, détails internes, administration, etc.).
+   *
+   * Les vues peuvent être utilisées dans les XTOs et les contrôleur REST en
+   * annotant les champs avec {@code @JsonView(NomDeLaVue.class)}.
+   *
+   * Exemple :
+   * <pre>
+   * {@code
+   * public class Utilisateur {
+   *     @JsonView([any.nameClassRsJsonViewsImpl()/].Public.class)
+   *     private String nom;
+   *
+   *     @JsonView([any.nameClassRsJsonViewsImpl()/].Internal.class)
+   *     private String email;
+   * }}
+   * </pre>
+   *
+   * Dans un contrôleur, la vue peut être appliquée de cette manière :
+   *
+   * <pre>
+   * {@code
+   * @GetMapping("/utilisateur")
+   * @JsonView([any.nameClassRsJsonViewsImpl()/].Public.class)
+   * public Utilisateur getUtilisateur() {
+   *     return utilisateurService.getUtilisateur();
+   * }}
+   * </pre>
+   * 
+   * Exemple de définitions de vues : 
+   * <ul>
+   *     <li>{@code Public} : Vue minimale, exposée publiquement.</li>
+   *     <li>{@code Summary} : Vue de synthèse, inclut {@code Public}.</li>
+   *     <li>{@code Details} : Vue détaillée, inclut {@code Summary}.</li>
+   *     <li>{@code Internal} : Données internes à l’application, inclut {@code Details}.</li>
+   *     <li>{@code Admin} : Vue complète, réservée à un usage administratif.</li>
+   * </ul>
+   *
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRsJsonViewsImpl()/] {
+  
+    [protected ('views'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+  }
+[/template]
+
+[comment écriture de la classe pour le corps des erreurs sur les api rest./]
+[template public rsErrorBodyResponseImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Représente une réponse d'erreur avec un code de statut HTTP et un message d'erreur.
+   * Cette classe est utilisée pour encapsuler les informations d'une erreur retournée par un service,
+   * incluant un code de statut HTTP et un message d'erreur associé.
+   * 
+   * Cette classe est utilisée par le gestionnaire global des exceptions de
+   * l'application [any.nameProject()/], la classe {@link [any.nameClassRsExceptionHandlerImpl()/]}. 
+   * Par défaut, la structure est minimale avec un statut HTTP (bien qu'il soit aussi présent au
+   * niveau de l'en-tête) et un message d'erreur. 
+   * 
+   * Compléter la classe selon le besoin et modifier la classe {@link [any.nameClassRsExceptionHandlerImpl()/]} 
+   * afin de prendre en compte l'ensemble des modifications apportées.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  class [any.nameClassRsErrorBodyResponseImpl()/] {
+     
+     ['Le code de statut HTTP associé à l\'erreur'.commentMultiLines()/]
+     private final int ['status code'.apply_attributeDefault()/];
+       
+     ['Le message d\'erreur ou d\'avertissement associé à l\'erreur.'.commentMultiLines()/]
+     private final String ['err message'.apply_attributeFinal()/];
+     
+     ['Constructeur'.commentMultiLines()/]
+     [any.nameClassRsErrorBodyResponseImpl()/](final int ['status code'.apply_parameterMethodClassicIn()/], 
+       final String ['err message'.apply_parameterMethodClassicIn()/])
+     {
+        [any.prefixAffectation()/]['status code'.apply_attributeFinal()/] = ['status code'.apply_parameterMethodClassicIn()/] ;
+        [any.prefixAffectation()/]['err message'.apply_attributeFinal()/] = ['err message'.apply_parameterMethodClassicIn()/];
+     }
+     
+     /**
+      * Retourne le statut HTTP pour l'exception.
+      * 
+      * @return le statut HTTP.
+      */
+     public int ['status code'.apply_methodGet()/]() {
+        return ['status code'.apply_attributeDefault()/];
+     }
+     
+     /**
+      * Retourne le message d'erreur ou d'avertissement pour l'exception.
+      * 
+      * @return le message d'erreur ou d'avertissment?
+      */
+     public String ['err message'.apply_methodGet()/]() {
+        return ['err message'.apply_attributeDefault()/];
+     }
+  }
+[/template]
+
+[comment écriture de la classe de résolution des statuts (int <-> HTttpStatus) pour les services rest./]
+[template public rsHttpStatusResolverImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  [any.defaultImports()/]
+  import org.springframework.http.HttpStatus;
+  
+  /**
+   * La classe {@code [any.nameClassRsHttpStatusResolverImpl()/]} fournit une méthode statique
+   * permettant de résoudre un code de statut HTTP en utilisant la classe
+   * {@link HttpStatus}. Cette méthode permet de retourner un objet
+   * {@link HttpStatus} correspondant au code de statut HTTP fourni.
+   *  
+   * @author [any.nameAuthor()/]
+   */
+  class [any.nameClassRsHttpStatusResolverImpl()/]
+  {
+      /**
+       * Résout un code de statut HTTP en un objet {@link HttpStatus}.
+       *
+       * @param ['status code'.apply_parameterMethodClassicIn()/] Le code de statut HTTP à résoudre.
+       * @return Un objet {@link HttpStatus} représentant le code de statut HTTP, ou {@code null} si le code n'est pas valide.
+       * @throws IllegalArgumentException Si le code de statut est invalide et ne peut être résolu.
+       * 
+       * @param ['status code'.apply_parameterMethodClassicIn()/] le code de statut HTTP sous forme d'entier.
+       * @return le statut sous forme d'énumération.
+       */
+      static HttpStatus ['resolve'.apply_methodDefault()/](final int ['status code'.apply_parameterMethodClassicIn()/]) {
+         return HttpStatus.resolve(['status code'.apply_parameterMethodClassicIn()/]);
+      }
+  }
+[/template]
+
+[comment écriture d'une classe utilitaire pour la mise à disposition du jeton JWT./]
+[template public rsCurrentTokenHelperImpl (any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  [any.defaultImports()/]
+  
+  import org.springframework.security.core.Authentication;
+  import org.springframework.security.core.context.SecurityContextHolder;
+  import org.springframework.security.oauth2.jwt.Jwt; 
+  import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;  
+  /**
+   * Classe utilitaire permettant d'accéder aux informations du token JWT courant
+   * à partir du contexte de sécurité Spring Security.
+   * Fournit des méthodes pratiques pour récupérer le JWT, l'ID utilisateur, les rôles, et tous les claims.
+   *
+   * Cette classe est générée dès la création du projet et ne peut présumer de la
+   * présence ou non d'une sécurité. A supprimer si le projet ne contient aucune
+   * règle de sécurité concernant l'accès pour ses apis.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRsCurrentTokenHelperImpl()/] {
+    
+   /**
+    * Récupère le token JWT courant à partir du {@link SecurityContextHolder}.
+    *
+    * @return un {@link Optional} contenant le {@link Jwt} si disponible, sinon vide
+    */
+    public static Optional<Jwt> getJwt() {
+       Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+       if (auth instanceof JwtAuthenticationToken jwtAuth) {
+          return Optional.of(jwtAuth.getToken());
+       }
+       return Optional.empty();
+    }
+    
+   /**
+    * Récupère l'identifiant de l'utilisateur (claim {@code sub}) depuis le token JWT.
+    *
+    * @return un {@link Optional} contenant l'identifiant de l'utilisateur, sinon vide
+    */
+    public static Optional<String> getUserId() {
+       return getJwt().map(Jwt::getSubject);
+    }
+    
+   /**
+    * Récupère la liste des rôles définis dans le claim {@code roles} du JWT.
+    *
+    * @return la liste des rôles, ou une liste vide si non définis
+    */
+    public static List<String> getRoles() {
+       return getJwt()
+          .map(jwt -> jwt.getClaimAsStringList("roles"))
+          .orElse(List.of());
+    }
+    
+   /**
+    * Récupère tous les claims du token JWT courant.
+    *
+    * @return une {@link Map} contenant les noms et valeurs 
+    * des claims, ou une map vide si aucun token n'est présent
+    */
+    public static Map<String, Object> getClaims() {
+       return getJwt()
+           .map(Jwt::getClaims)
+           .orElse(Map.of());
+    }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour la classe de gestion des transactions jpa./]
+[template public jpaTransactionExecutorImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageInfrastructureBase())/]
+  [any.defaultImports()/]
+  import java.util.function.Supplier;
+  import org.springframework.transaction.annotation.Transactional;
+  
+  /**
+   * Classe responsable de l'exécution d'opérations dans un contexte transactionnel.
+   * Elle utilise l'annotation {@code @Transactional} pour gérer les transactions.
+   * Cette classe permet d'exécuter des blocs de code dans une transaction, facilitant ainsi
+   * la gestion des transactions dans des applications où plusieurs opérations doivent être
+   * atomiquement validées ou annulées.
+   *
+   * Par défaut, {@code@Transactional} ne fait un rollback que sur RuntimeException 
+   * et Error, si besoin modifier l'annotation {@code @Transactional} pour ajouter une liste de
+   * toutes les exceptions sécifiques à prendre en compte, par example :
+   * {@code @Transactional(rollbackFor = Exception.class)}
+   *
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassJpaTransactionExecutorImpl()/]
+  {
+     /**
+      * Exécute une opération dans une transaction.
+      * Cette méthode prend un {@link Supplier} représentant l'opération à exécuter et renvoie
+      * le résultat de cette opération après l'avoir exécutée dans le cadre d'une transaction.
+      * La transaction est gérée automatiquement grâce à l'annotation {@code @Transactional}.
+      *
+      * @param <T> Le type du résultat de l'exécution.
+      * @param execution Le {@link Supplier} représentant l'opération à exécuter.
+      * @return Le résultat de l'exécution de l'opération.
+      * 
+      * @Author [any.nameAuthor()/]
+      */
+     [protected ('transactionnal'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       @Transactional
+     [/protected]
+     <T> T executeInTransaction(Supplier<T> execution) {
+        return execution.get();
+     }
+  }
+[/template]
+
+
+[comment écriture de l'implémentation pour la classe aspect de gestion des transactions jpa./]
+[template public jpaTransactionServiceAspectImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageInfrastructureBase())/]
+  [any.defaultImports()/]
+  import java.lang.reflect.UndeclaredThrowableException;
+  import org.aspectj.lang.ProceedingJoinPoint;
+  import org.aspectj.lang.annotation.Around;
+  import org.aspectj.lang.annotation.Aspect;
+  import org.aspectj.lang.annotation.Pointcut;
+  
+  /**
+   * Aspect responsable de l'encapsulation des méthodes annotées avec 
+   * {@link [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationTrans()/]}.
+   * Cet aspect garantit que les méthodes au sein du domaine de service spécifié soient 
+   * exécutées dans un contexte transactionnel.Il utilise le {@link [any.nameClassJpaTransactionExecutorImpl()/]} 
+   * pour exécuter les opérations dans une transaction.
+   *
+   * @author [any.nameAuthor()/]
+   */
+  @Aspect
+  class [any.nameClassJpaTransactionServiceAspectImpl()/]
+  {
+    
+    ['Le gestionnaire de transactions'.commentSingleLine()/]
+    private final [any.nameClassJpaTransactionExecutorImpl()/] ['transactional executor'.apply_attributeDefault()/];
+    
+   /**
+    * Constructeur de l'aspect, injectant un {@link [any.nameClassJpaTransactionExecutorImpl()/]} pour la gestion des transactions.
+    *
+    * @param ['transactional executor'.apply_parameterMethodClassicIn()/] L'exécuteur de transactions utilisé pour exécuter les méthodes dans un contexte transactionnel.
+    */
+    public [any.nameClassJpaTransactionServiceAspectImpl()/]([any.nameClassJpaTransactionExecutorImpl()/] ['transactional executor'.apply_parameterMethodClassicIn()/]) {
+       [any.prefixAffectation()/]['transactional executor'.apply_attributeDefault()/] 
+          = ['transactional executor'.apply_parameterMethodClassicIn()/];
+    }
+    
+    /**
+     * Méthode exécutée autour des méthodes annotées avec
+     * {@link [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassAnnotationTrans()/]} ou celles qui se trouvent
+     * dans des classes annotées par cette même annotation. Cette méthode garantit
+     * que l'exécution des méthodes annotées se déroule dans un contexte
+     * transactionnel.
+     * 
+     * La logique de gestion de la transaction est assurée par l'exécution de la
+     * méthode cible dans le contexte d'une transaction, et en cas d'exception, elle
+     * est capturée et transformée en une {@link RuntimeException} pour une gestion
+     * centralisée.
+     * </p>
+     * 
+     * @param proceedingJoinPoint Le point de jonction pour accéder à la méthode
+     *                            annotée, permettant de procéder à l'exécution de
+     *                            la méthode cible.
+     * 
+     * @return L'objet retourné par la méthode annotée après son exécution dans un
+     *         contexte transactionnel.
+     * 
+     * @throws RuntimeException Si une exception est levée pendant l'exécution de la
+     *                          méthode, elle est enveloppée dans une
+     *                          {@link RuntimeException}.
+     */
+    @Around(value = "@annotation([any.writeTransAnnotation()/]) " 
+          + "|| @within([any.writeTransAnnotation()/])")
+    private Object ['transactionnal operation'.apply_methodDefault()/](ProceedingJoinPoint ['proceeding join point'.apply_parameterMethodClassicIn()/]) {
+       return ['transactional executor'.apply_attributeDefault()/].executeInTransaction(() -> {
+          try {
+             return ['proceeding join point'.apply_parameterMethodClassicIn()/].proceed();
+          } catch (Throwable e) {
+             throw new UndeclaredThrowableException(e);
+          }
+       });
+    }
+  }
+[/template]
+
+[comment simple raccourci pur l'écriture de l'annotation./]
+[query private writeTransAnnotation(any : ecore::EObject) : String = any.namePackageProject() + '.' 
+  + any.namePackageCommonBase() + '.' + any.nameClassAnnotationTrans()/]
+
+[comment écriture de l'implémentation pour la classe de configuration des transactions jpa./]
+[template public jpaTransactionConfigImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageInfrastructureBase())/]
+  [any.defaultImports()/]
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.context.annotation.Configuration;
+  
+  /**
+   * Configuration de la gestion transactionnelle pour l'application [any.nameProject()/].
+   * 
+   * Cette classe configure les beans nécessaires à la gestion des transactions dans les services [any.nameProject()/].
+   * Elle définit les beans pour {@link [any.nameClassJpaTransactionServiceAspectImpl()/]} 
+   * et {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+   *
+   * @author [any.nameAuthor()/]
+   */
+  @Configuration
+  class [any.nameClassJpaTransactionConfigImpl()/]
+  {
+    
+   /**
+    * Crée un bean {@link [any.nameClassJpaTransactionServiceAspectImpl()/]}.
+    * Ce bean est responsable de l'aspect transactionnel pour les services dans l'application.
+    * 
+    * @param transactionalExecutor Le {@link [any.nameClassJpaTransactionExecutorImpl()/]} qui gère l'exécution des transactions.
+    * @return Un nouveau bean {@link [any.nameClassJpaTransactionServiceAspectImpl()/]} configuré 
+    * avec le {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+    */
+    @Bean
+    [any.nameClassJpaTransactionServiceAspectImpl()/] ['transactional aspect'.apply_methodDefault()/]
+        ([any.nameClassJpaTransactionExecutorImpl()/] ['transactional executor'.apply_parameterMethodClassicIn()/]) {
+        return new [any.nameClassJpaTransactionServiceAspectImpl()/](['transactional executor'.apply_parameterMethodClassicIn()/]);
+    }
+    
+   /**
+    * Crée un bean {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+    * Ce bean est responsable de l'exécution des transactions dans l'application.
+    * 
+    * @return Un nouveau bean {@link [any.nameClassJpaTransactionExecutorImpl()/]}.
+    */
+    @Bean
+    [any.nameClassJpaTransactionExecutorImpl()/] ['transactional executor'.apply_methodDefault()/]() {
+        return new [any.nameClassJpaTransactionExecutorImpl()/]();
+    }
+  }
+[/template]
+
+[comment ./]
+[template public applicationYaml(any : ecore::EObject)]
+  # En production, externaliser le fichier : 
+  # java -jar mon-app.jar --spring.config.location=file:/chemin/externe/application.yaml
+  
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info
+          exclude: mappings,heapdump
+        base-path: /actuator
+    server:
+      port: 8080
+    endpoint:
+      health:
+        show-details: never  
+      # Remplacez "[any.nameProject()/]" par le nom réel de votre health custom si besoin
+      [any.nameProject()/]_health:
+        enabled: false
+    health:
+      defaults:
+        enabled: false
+    info:
+      env:
+        enabled: true
+
+  app:
+    cusomInfo: Une information de type custom...
+
+  info:
+    app:
+      cusomInfo: "${app.cusomInfo}"
+      java-version: "${java.version}"
+      java-vendor: "${java.vendor}"
+      excluded-actuator-enpoints: "${management.endpoints.web.exposure.exclude}"
+    
+  springdoc:
+    api-docs:
+      path: /api-docs
+    swagger-ui:
+      path: /swagger-ui
+      operationsSorter: method
+      tagsSorter: alpha
+    
+  server:
+    port: 80
+  security:
+    jwt:
+      secret: HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+      
+  resilience4j:
+    circuitbreaker:
+      instances:
+        externalServiceCircuitBreaker:
+          registerHealthIndicator: true
+          failureRateThreshold: 50
+          waitDurationInOpenState: 10000ms
+          permittedNumberOfCallsInHalfOpenState: 3
+          slidingWindowSize: 10
+
+  spring:
+    datasource:
+      hikari:
+        connectionTimeout: 20000
+        maximumPoolSize: 5
+      testWhileIdle: true
+      validationQuery: SELECT 1
+      url: jdbc:h2:file:C:/h2/test
+      username: sa
+      password:
+    jpa:
+      hibernate:
+        ddl-auto: create-drop
+        naming:
+          implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+          physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+      open-in-view: false
+      database-platform: org.hibernate.dialect.H2Dialect
+
+  logging:
+    level:
+      org:
+        hibernate:
+          SQL: DEBUG
+          type:
+            descriptor:
+              sql:
+                BasicBinder: TRACE
+        hibernate.orm.jdbc.bind: TRACE
+
+  # -----------------------------------------
+  # Exemples pour PostgreSQL, MySQL, etc.
+  # (à activer en commentant H2 et décommentant ici)
+  # -----------------------------------------
+  
+  [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
+    spring:
+      datasource:
+        url: jdbc:postgresql://localhost:5432/<votre base de donnees>
+        username: <nom utilisateur>
+        password: <mot de passe utilisateur>
+      jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+  [/if]
+  [if (any.get_dataBasesNames().toLower().index('mysql') != -1)]
+    spring:
+      datasource:
+        url: jdbc:mysql://localhost:3306/<votre base de donnees>
+        username: <nom utilisateur>
+        password: <mot de passe utilisateur>
+      jpa:
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  [/if]
+  [if (any.get_dataBasesNames().toLower().index('mariadb') != -1)]
+    spring:
+      datasource:
+        url: jdbc:mariadb://localhost:3306/<votre base de donnees>
+        username: <nom utilisateur>
+        password: <mot de passe utilisateur>
+      jpa:
+        database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  [/if]
+  [if (any.get_dataBasesNames().toLower().index('oracle-') != -1)]
+    spring:
+      datasource:
+        url: jdbc:oracle:thin:<votre base de donnees>
+        username: <nom utilisateur>
+        password: <mot de passe utilisateur>
+      jpa:
+        database-platform: org.hibernate.dialect.Oracle10gDialect
+  [/if]
+[/template]
+
+[comment écriture de l'ensemble des informations pour les datasources, etc.../]
+[template public applicationProperties(any : ecore::EObject)]
+  
+  # En production, externaliser le fichier : 
+  # java -jar mon-app.jar --spring.config.location=file:/chemin/externe/application.properties
+  
+  # ----------------------------------------------------------------------------------------------
+  # API DE SANTE
+  # ----------------------------------------------------------------------------------------------
+  # /auditevents Liste les evenements lies aux audits de securite (connexion/deconnexion, etc..).
+  # /beans Liste les beans disponibles.
+  # /conditions Rapport des conditions pour l'autoconfiguration.
+  # /configprops Liste les beans de type @ConfigurationProperties.
+  # /env Renvoie les proprietes de l'environnement.
+  # /health Etat de sante de l'application.
+  # /heapdump Cree un dump à partir de la JVM utilisee par l'application.
+  # /info Renvoie les informations generales pour l'application.
+  # /flyway Details sur les migrations de bases de donnees Flyway.
+  # /liquibase se comporte comme /flyway mais pour Liquibase.
+  # /logfile Renvoie les journaux d'application ordinaires.
+  # /loggers Interroge le niveau de journalisation de notre application.
+  # /metrics Renvoie les métriques de l'application.
+  # /prometheus Renvoie des métriques, mais formatées pour fonctionner avec un serveur Prometheus.
+  # /scheduledtasks Détails sur chaque tâche planifiée dans l'application.
+  # /sessions Repertorie les sessions HTTP.
+  # /shutdown effectue un arret progressif de l'application.
+  # /threaddump vide les informations de thread de la JVM sous-jacente.
+  
+  # Activation des points de terminaison pour l'api de sante, par defaut, seuls '/health' et '/info' sont actifs.
+  management.endpoints.web.exposure.include=health,info
+  # Securite si demande d'activation de l'ensemble des points de terminaison.
+  management.endpoints.web.exposure.exclude=mappings,heapdump
+  
+  # Definition du port et de la racine des points de terminaison pour l'actuator.
+  # (a changer aussi au niveau du filtre de securite si besoin de modifications). 
+  management.endpoints.web.base-path=/actuator
+  management.server.port=8080
+  
+  # Configuration du point de terminaison '/health', valeurs possibles <never|always|when_authorized>
+  # Pattern: management.endpoint.{endpoint-name}.{property}={value}
+  management.endpoint.health.show-details=never
+  management.health.defaults.enabled=false
+  
+  # Activation du point de terminaison '/health' personnalise pour l'application [any.nameProject()/].
+  # Si non actif, c'est le parametrage du '/health' par defaut qui est utilise. Si actif, 
+  # avec des options de détail, ne pas oublier de positionner correctement le parametre 
+  # 'management.endpoint.health.show-details' afin de visualiser aussi le detail.
+  management.health.[any.nameProject()/]_health.enabled=false
+  
+  # Configuration du point  de terminaison /info, definir ici les informations necessaires.
+  management.info.env.enabled=true
+  app.cusomInfo=Une information de type custom...
+  info.app.cusomInfo=${app.cusomInfo}
+  info.app.java-version=${java.version}
+  info.app.java-vendor=${java.vendor}
+  info.app.excluded-actuator-enpoints=${management.endpoints.web.exposure.exclude}
+  
+  # ----------------------------------------------------------------------------------------------
+  # SWAGGER UI
+  # ----------------------------------------------------------------------------------------------
+  # Documentation JSON ex: http://localhost:8080/v1/api-docs
+  springdoc.api-docs.path=/api-docs
+  # Documentation Swagger (ihm) ex: http://localhost:8080/swagger-ui.html
+  springdoc.swagger-ui.path=/swagger-ui
+  # Definition de l'ordre d'affichage des operations (endpoints) <alpha|method>
+  springdoc.swagger-ui.operations-sorter=method
+  # Definition de l'ordre d'affichage des tags <alpha|fonction de tri JS personnalisee>
+  springdoc.swagger-ui.tags-sorter=alpha
+  
+  # ----------------------------------------------------------------------------------------------
+  # LISTE DES URIS NON SECURISEES
+  # ----------------------------------------------------------------------------------------------
+  # Ne pas oublier de reporter les modifications issues des rubriques precedentes 
+  security.whitelist.paths=/swagger-ui/**,/api-docs/**,/actuator/**
+  
+  # ----------------------------------------------------------------------------------------------
+  # HTTP SERVER
+  # ----------------------------------------------------------------------------------------------
+  # Le port par defaut.
+  server.port=80
+  # Chemin de contexte
+  server.servlet.context-path=/
+  # Encodage
+  server.servlet.encoding.charset=UTF-8
+  server.servlet.encoding.force=true
+  # Un exemple de cle symetrique (pour le developpement uniquement).
+  security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+  
+  # ----------------------------------------------------------------------------------------------
+  # LOGGING
+  # ----------------------------------------------------------------------------------------------
+  logging.level.root=INFO
+  logging.level.org.springframework.web=DEBUG
+  logging.level.com.example=DEBUG
+  # Format du log
+  logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
+  # Fichier de log
+  logging.file.name=logs/[any.nameProject()/].log
+  logging.file.max-size=10MB
+  logging.file.total-size-cap=100MB
+  
+  # ----------------------------------------------------------------------------------------------
+  # SPRING PROFILES
+  # ----------------------------------------------------------------------------------------------
+  spring.profiles.active=dev
+  
+  # ----------------------------------------------------------------------------------------------
+  # SPRING CACHE 
+  # ----------------------------------------------------------------------------------------------
+  # Valeurs possibles <none|simple|caffeine|ehcache|hazelcast|infinispan|jcache|redis>
+  spring.cache.type=simple
+  
+  # ----------------------------------------------------------------------------------------------
+  # CIRCUIT BREAKER
+  # ----------------------------------------------------------------------------------------------
+  # Enregistre un Health Indicator Spring Boot Actuator pour ce circuit breaker.
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.registerHealthIndicator=true
+  # Seuil de déclenchement du circuit breaker : si 50% des appels échouent, le circuit bloque les appels.
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.failureRateThreshold=50
+  # Une fois ouvert (OPEN), le circuit reste bloqué pendant 10 secondes.
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.waitDurationInOpenState=10000ms
+  # En mode HALF_OPEN, seul un petit nombre d'appels test sont autorisés (ici 3).
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.permittedNumberOfCallsInHalfOpenState=3
+  # Les 10 derniers appels sont analysés pour calculer le taux d'échec
+  resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.slidingWindowSize=10
+  
+  # ----------------------------------------------------------------------------------------------
+  # COFFRE FORT (VAULT)
+  # ----------------------------------------------------------------------------------------------
+  # Activation ou désactivation du coffre fort.
+  spring.cloud.vault.enabled=false
+  # L'application échoue au démarrage si Vault est inaccessible.
+  spring.cloud.vault.fail-fast=false	
+  # URL de Vault (par défaut : http://localhost:8200).
+  spring.cloud.vault.uri=http://localhost:8200
+  # Méthode d'authentification <token|approle|userpass|etc...>
+  spring.cloud.vault.authentication=token
+  # Le token d'accès Vault (à ne pas utiliser en dur en production !)
+  spring.cloud.vault.token=s.yourVaultToken
+  # Backend utilisé (kv v2 par défaut)
+  spring.cloud.vault.kv.enabled=true
+  # Nom du backend utilisé dans Vault (par défaut souvent secret).
+  spring.cloud.vault.kv.backend=secret
+  # Nom utilisé pour accéder au chemin dans Vault (ex. secret/data/myapp).
+  spring.cloud.vault.kv.application-name=[any.nameProject().toLower()/]
+  
+  # ----------------------------------------------------------------------------------------------
+  # DATASOURCES
+  # ----------------------------------------------------------------------------------------------
+  
+  # Note : il n'est pas utile de specifier le nom de classe du pilote, puisque Spring Boot 
+  # peut le deduire pour la plupart des bases de donnees a partir de l'URL de connexion.
+  # Si présence de schéma, il est aussi écrit au niveau de la chaine de connexion (mode create).
+  
+  ## pool de connexion par defaut
+  spring.datasource.hikari.connectionTimeout=20000
+  spring.datasource.hikari.maximumPoolSize=5
+  
+  # En production placer a 'none'. valeurs possibles : <create | create-drop | update | validate | none>  
+  spring.jpa.hibernate.ddl-auto=create-drop  
+  
+  # Fortement conseille de placer a 'false' (LazyInitializationException).
+  spring.jpa.open-in-view=false
+  
+  # Strategie de nommage
+  spring.jpa.hibernate.naming.implicit-strategy=org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+  spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  spring.jpa.hibernate.naming-strategy=org.hibernate.cfg.ImprovedNamingStrategy
+
+  # Maintient la connexion active en cas d'inaction prolongee (necessaire en production).
+  spring.datasource.testWhileIdle=true
+  spring.datasource.validationQuery=SELECT 1
+  
+  # Debug des requetes sql pour le developpement (couper en production).
+  logging.level.org.hibernate.SQL=DEBUG
+  logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+  logging.level.org.hibernate.orm.jdbc.bind=TRACE
+  
+  # H2 DB
+  spring.datasource.url=jdbc:h2:file:C:/h2/test[any.endDatasourceUrl()/]
+  spring.datasource.username=sa
+  spring.datasource.password=
+  spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+  
+  [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
+    ## PostgreSQL
+    #spring.datasource.url=jdbc:postgresql://localhost:5432/<votre base de donnees>[any.endDatasourceUrl()/]
+    #spring.datasource.username=<nom utilisateur>
+    #spring.datasource.password=<mot de passe utilisateur>
+    #spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+  [/if]
+  
+  [if (any.get_dataBasesNames().toLower().index('mysql') != -1)]
+    ## MySql
+    #spring.datasource.url=jdbc:mysql://localhost:3306/<votre base de donnees>[any.endDatasourceUrl()/]
+    #spring.datasource.username=<nom utilisateur>
+    #spring.datasource.password=<mot de passe utilisateur>
+    #spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+  [/if]
+  
+  [if (any.get_dataBasesNames().toLower().index('mariadb') != -1)]
+    ## MariaDB
+    #spring.datasource.url=jdbc:mariadb://localhost:3306/<votre base de donnees>[any.endDatasourceUrl()/]
+    #spring.datasource.username=<nom utilisateur>
+    #spring.datasource.password=<mot de passe utilisateur>
+    #spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+  [/if]
+
+  [if (any.get_dataBasesNames().toLower().index('oracle-') != -1)]
+    ## Oracle
+    #spring.datasource.url=jdbc:oracle:thin:<votre base de donnees>[any.endDatasourceUrl()/]
+    #spring.datasource.username=<nom utilisateur>
+    #spring.datasource.password=<mot de passe utilisateur>
+    #spring.jpa.database-platform=org.hibernate.dialect.Oracle10gDialect
+  [/if]
+  
+  [if (any.get_dataBasesNames().toLower().index('oracle+') != -1)]
+    ## Oracle
+    #spring.datasource.url=jdbc:oracle:thin:<votre base de donnees>[any.endDatasourceUrl()/]
+    #spring.datasource.username=<nom utilisateur>
+    #spring.datasource.password=<mot de passe utilisateur>
+    #spring.jpa.database-platform=org.hibernate.dialect.Oracle12cDialect
+  [/if]
+[/template]
+
+[comment écriture de l'ensemble des informations de configuration pour les tests d'intégration./]
+[template public integrationProperties(any : ecore::EObject)]
+  ## Base H2 embarquee par defaut.
+  spring.datasource.url = jdbc:h2:mem:test[any.get_projectName()/];DB_CLOSE_DELAY=-1
+  spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.H2Dialect
+  
+  # Attendre la creation des tables avant d'executer les scripts d'initialisation sql.
+  # spring.jpa.defer-datasource-initialization=true
+  
+  # Autres proprietes
+  spring.jpa.hibernate.ddl-auto=none 
+  spring.jpa.hibernate.naming.implicit-strategy=org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+  spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  spring.jpa.hibernate.naming-strategy=org.hibernate.cfg.ImprovedNamingStrategy
+  spring.jpa.properties.hibernate.format_sql=true
+  spring.sql.init.mode=always
+  
+  # Debug des requetes sql pour le developpement.
+  logging.level.org.hibernate.SQL=DEBUG
+  logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+  logging.level.org.hibernate.orm.jdbc.bind=TRACE
+[/template]
+
+[comment écriture de la classe utilitaire pour les tests d'intégration./]
+[template public integrationTestUtils(any : ecore::EObject)]
+  [any.classHeader(null)/]
+  
+  [any.defaultImports()/]
+  import java.util.Random;
+  import java.time.format.DateTimeFormatter;
+  
+  /**
+   * Classe utilitaire pour les tests unitaires ou d'intégration. Fournit des
+   * constantes de format de date/heure et une méthode de génération de données
+   * binaires aléatoires.
+   *
+   * Cette classe n'est pas instanciable.
+   *
+   * @author [any.nameAuthor()/]
+   */
+  public final class [any.nameClassIntegrationTestUtils()/]
+  {
+     
+     /**
+      * Formateur de temps au format {@code "HH:mm:ss.SSS"}.
+      * <p>Exemple : {@code 13:45:30.123}</p>
+      */
+     public static final DateTimeFormatter ['time formatter'.apply_attributeFinalStatic()/] = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+     
+     /**
+      * Formateur de date au format ISO-8601 (exemple : {@code 2025-04-30}).
+      */
+     public static final DateTimeFormatter ['date formatter'.apply_attributeFinalStatic()/] = DateTimeFormatter.ISO_LOCAL_DATE;
+     
+     ['Constructeur privé'.commentMultiLines()/]
+     private [any.nameClassIntegrationTestUtils()/](){
+        //RAS.
+     }
+     
+     /**
+     * Génère un tableau de bytes aléatoires de la taille spécifiée.
+     * 
+     * @param ['length'.apply_parameterMethodClassicIn()/] La taille du tableau de bytes à générer.
+     * @return Le tableau de bytes aléatoires.
+     */
+     public static byte['['/][']'/] ['generate random byte array'.apply_methodDefault()/](int ['length'.apply_parameterMethodClassicIn()/]) {
+        byte['['/][']'/] ['random bytes'.apply_variableDefault()/] = new byte['['/]['length'.apply_parameterMethodClassicIn()/][']'/];
+        Random ['random'.apply_variableDefault()/] = new Random();
+        ['random'.apply_variableDefault()/].nextBytes(['random bytes'.apply_variableDefault()/]);
+        return ['random bytes'.apply_variableDefault()/];
+     }
+  }
+[/template]
+
+[comment écriture de la classe abstraite pour les tests d'intégration (infra)./]
+[template public integrationTestAbstract(any : ecore::EObject)]
+  [any.classHeader(null)/]
+  
+  [any.defaultImports()/]
+  import javax.sql.DataSource;
+  import jakarta.persistence.EntityManager;
+  import org.springframework.core.io.ClassPathResource;
+  import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+  import static org.junit.jupiter.api.Assertions.assertTrue;
+  
+  /**
+  * Classe abstraite qui sert de base pour les tests utilisant une source de
+  * données SQL. Cette classe contient une méthode d'initialisation qui prépare
+  * la base de données avec des scripts SQL au début de l'exécution des tests.
+  * 
+  * La méthode {@link #initSql(DataSource)} initialise la base de données en
+  * exécutant les scripts SQL nécessaires, mais ce processus n'est effectué
+  * qu'une seule fois grâce à la variable statique {@code initialized}.
+  * 
+  * @Author [any.nameAuthor()/]
+  */
+  public abstract class [any.nameClassIntegrationTestAbstract()/]
+  {
+     
+    /**
+     * L'instance de {@link EntityManager} utilisée pour effectuer des opérations de
+     * persistance des entités dans la base de données. Elle est protégée afin
+     * d'être accessible dans les sous-classes de {@code [any.nameClassIntegrationTestAbstract()/]}.
+     */
+     protected EntityManager ['entity manager'.apply_attributeDefault()/];
+     
+    /**
+     * Variable statique indiquant si l'initialisation de la base de données a déjà
+     * été effectuée. Cette variable est utilisée pour éviter de réinitialiser la
+     * base de données plusieurs fois.
+     */
+     protected static boolean ['initialized'.apply_attributeStatic()/];
+     
+    /**
+     * Initialise la base de données en exécutant les scripts SQL spécifiés, si cela
+     * n'a pas déjà été fait.
+     * 
+     * Cette méthode vérifie si la base de données a déjà été initialisée en
+     * consultant la variable statique {@code ['initialized'.apply_attributeStatic()/]}. Si ce n'est pas le cas,
+     * elle charge et exécute les scripts SQL {@code [any.nameScriptCreate(any.defaultSqlDbType())/].sql} et
+     * {@code [any.nameScriptIntegrationInit(any.defaultSqlDbType())/].sql} via un {@link ResourceDatabasePopulator},
+     * puis marque l'initialisation comme effectuée en définissant
+     * {@code ['initialized'.apply_attributeStatic()/]} sur {@code true}.
+     * 
+     * @param dataSource La source de données sur laquelle exécuter les scripts
+     *                   d'initialisation. La source de données est utilisée pour se
+     *                   connecter à la base de données.
+     */
+     protected void initSql(DataSource ['data source'.apply_parameterMethodClassicIn()/])  {
+        
+        if(!initialized) {
+           
+           ClassPathResource ['script create'.apply_variableDefault()/] = new ClassPathResource("/[any.nameScriptCreate(any.defaultSqlDbType())/].sql");
+           assertTrue(['script create'.apply_variableDefault()/].exists(), "Le fichier de création des tables n'a pas été trouvé.");
+           
+           ClassPathResource ['script init'.apply_variableDefault()/] = new ClassPathResource("/[any.nameScriptIntegrationInit(any.defaultSqlDbType())/].sql");
+           assertTrue(['script init'.apply_variableDefault()/].exists(), "Le fichier d'initialisation des tables n'a pas été trouvé.");
+            
+           ResourceDatabasePopulator ['populator'.apply_variableDefault()/] = new ResourceDatabasePopulator();
+           ['populator'.apply_variableDefault()/].addScript(['script create'.apply_variableDefault()/]);
+           ['populator'.apply_variableDefault()/].addScript(['script init'.apply_variableDefault()/]);
+           ['populator'.apply_variableDefault()/].execute(['data source'.apply_parameterMethodClassicIn()/]);
+           ['initialized'.apply_attributeStatic()/] = true;
+        }
+     }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour le service de santé de l'application (ancien système)./]
+[template public serviceHealthImpl_old(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  
+  import java.io.IOException;
+  import java.nio.file.Files;
+  import java.nio.file.Path;
+  import net.minidev.json.JSONObject;
+  import [any.nameProject()/].[any.namePackageRsBase()/].[any.nameClassServiceHealthItf()/];
+    
+  public class [any.nameClassServiceHealthImpl()/] implements [any.nameClassServiceHealthItf()/]
+  {
+    private static String xmlInfoData;
+    
+    private static String xmlHealthData;
+    
+    static {
+      try {
+         Path path = Path.of(System.getenv("CALI" + "") + "/caliInfo.properties");
+         xmlInfoData = Files.readString(path);
+         path = Path.of(System.getenv("CALI" + "") + "caliHealth.properties");
+         xmlHealthData = Files.readString(path);
+      } catch (IOException e) {
+         throw new RuntimeException("Impossible de charger et/ou de " + "lire les fichiers de santé pour l'application.");
+      }
+    }
+    	
+    @Override
+    public JSONObject ['application info'.apply_methodGet()/]() {
+      //JSONObject applicationInfo = XML.toJSONObject(xmlInfoData);
+      //return applicationInfo;
+      return null;
+    }
+    
+    @Override
+    public JSONObject ['application health'.apply_methodGet()/]() {
+      //JSONObject applicationHealth = XML.toJSONObject(xmlHealthData);
+      //JSONObject healthNode = (JSONObject) applicationHealth.get("health");
+      //JSONObject dataNode = (JSONObject) healthNode.get("data");
+      //dataNode.put("services", SafranHealthExternalServices.getInfoExternalServices());
+      //return applicationHealth;
+      return null;
+    }
+  }
+    
+[/template]
+
+[comment écriture de l'implémentation pour le service de santé (nouveau systeme actuator)./]
+[template public rsServiceHealthImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  
+  [any.defaultImports()/]
+  import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
+  import org.springframework.boot.actuate.health.Health;
+  import org.springframework.boot.actuate.health.HealthIndicator;
+  import org.springframework.stereotype.Component;  
+  /**
+   * Implémentation de l'interface {@link HealthIndicator} pour vérifier l'état de santé d'un service.
+   * Cette classe est conditionnellement activée en fonction de la présence d'un indicateur de santé nommé
+   * {@code [any.nameProject()/]_health} dans le contexte de l'application.
+   * 
+   * La méthode {@link #health()} crée un état de santé "healthy" par défaut, mais peut être étendue pour fournir
+   * une vérification de santé plus complexe si nécessaire.
+   * 
+   * @see HealthIndicator
+   * @see Health
+   *
+   * @Author [any.nameAuthor()/]
+   */
+  @Component
+  @ConditionalOnEnabledHealthIndicator("[any.nameProject()/]_health")
+  class [any.nameClassRsServiceHealthImpl()/] implements HealthIndicator
+  {
+     
+     /**
+       * Vérifie l'état de santé d'un service et retourne un objet {@link Health} indiquant l'état.
+       * 
+       * Dans cette implémentation, la méthode retourne simplement un état de santé "healthy" par défaut,
+       * mais peut être enrichie pour effectuer des vérifications supplémentaires.
+       * </p>
+       *
+       * @return l'état de santé du service, sous la forme d'un objet {@link Health}.
+       */
+     @Override
+     public Health health() {
+        Health.Builder ['healthBuilder'.apply_variableDefault()/] = new Health.Builder();
+        
+        [protected ('health'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          ['healthBuilder'.apply_variableDefault()/].withDetail("version", "0.0.0").withDetail("latency", "0ms");
+          
+        [/protected]
+         
+        return ['healthBuilder'.apply_variableDefault()/].build();
+     }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour le service de santé (contrôleur) de l'application (ancien système)./]
+[template public serviceRsHealthImpl_old(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  
+  [any.defaultImports()/]
+  import org.springframework.stereotype.Controller;
+  import org.springframework.web.bind.annotation.RequestMapping;
+  import [any.namePackageProject()/].[any.namePackageRsBase()/].[any.nameClassExternalHealthImpl()/];
+  import [any.namePackageProject()/].[any.namePackageRsBase()/].[any.nameClassExternalInfoImpl()/];
+  
+  @Controller
+  @RequestMapping("/")
+  class [any.nameClassRsServiceHealthImpl()/]
+  {
+  
+  private 	SafranHealthService healthService;
+
+   @Autowired
+   public serviceHealthImpl(SafranHealthService healthService){
+	   
+   }
+   
+    @GET
+    @Path("/info")
+    @Produces(RsMediaType.c_application_json_utf8)
+    public Response getApplicationInfo() {
+  
+  	  return RsResponseHelper.responseForJSONObject(healthService.getApplicationInfo()
+  			, RsStatusType.create(200, "OK"));
+    }
+
+    @GET
+    @Path("/health")
+    @Produces(RsMediaType.c_application_json_utf8)
+    public Response getApplicationHealth() {
+
+  		return RsResponseHelper.responseForJSONObject(healthService.getApplicationHealth()
+  			, RsStatusType.create(200, "OK"));
+    }
+  }
+[/template]
+
+[comment écriture de la classe pour le corps des erreurs d'authentification sur les api rest (http - apikey)./]
+[template public rsAuthenticationEntryPointImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  
+  import java.io.IOException;
+  import org.springframework.security.core.AuthenticationException;
+  import org.springframework.security.web.AuthenticationEntryPoint;
+  import org.springframework.stereotype.Component;
+  import jakarta.servlet.ServletException;
+  import jakarta.servlet.http.HttpServletRequest;
+  import jakarta.servlet.http.HttpServletResponse;
+  
+  /**
+   * [any.nameClassRsAuthenticationEntryPointImpl()/] est une implémentation personnalisée de
+   * l'interface {@link AuthenticationEntryPoint}. Cette classe est utilisée pour
+   * gérer les erreurs d'authentification, en envoyant une réponse JSON avec un
+   * message d'erreur lorsqu'un utilisateur non authentifié tente d'accéder à une
+   * ressource protégée.
+   * 
+   * Dans ce cas, une réponse HTTP avec un statut 401 (Unauthorized) est renvoyée,
+   * et un message JSON est envoyé dans le corps de la réponse.
+   * 
+   * Cette classe est marquée comme un composant Spring afin qu'elle puisse être
+   * injectée dans la configuration de sécurité.
+   *
+   * Cette classe est générée dès la création du projet et ne peut présumer de la
+   * présence ou non d'une sécurité. A supprimer si le projet ne contient aucune
+   * règle de sécurité concernant l'accès pour ses apis.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  @Component(value = "[any.nameClassRsAuthenticationEntryPointImpl()/]")
+  public class [any.nameClassRsAuthenticationEntryPointImpl()/] implements AuthenticationEntryPoint {
+  
+    /**
+     * Méthode appelée lorsqu'une tentative d'accès à une ressource protégée 
+     * échoue en raison d'une authentification manquante ou incorrecte.
+     * Elle renvoie une réponse HTTP 401 (Unauthorized) avec un message d'erreur 
+     * dans le corps de la réponse en format JSON.
+     * 
+     * @param request La requête HTTP entrante.
+     * @param response La réponse HTTP qui sera envoyée au client.
+     * @param authException L'exception d'authentification qui a été levée.
+     * @throws IOException Si une erreur d'entrée/sortie se produit lors de l'écriture de la réponse.
+     * @throws ServletException Si une erreur liée à la servlet se produit.
+     */
+     @Override
+     public void commence(HttpServletRequest ['request'.apply_parameterMethodClassicIn()/]
+        , HttpServletResponse ['response'.apply_parameterMethodClassicIn()/], 
+        AuthenticationException ['authException'.apply_parameterMethodClassicIn()/]) throws IOException, ServletException {
+        
+        [protected ('commence'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          ['response'.apply_parameterMethodClassicIn()/].setContentType("application/json;charset=UTF-8");
+          ['response'.apply_parameterMethodClassicIn()/].setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+          ['response'.apply_parameterMethodClassicIn()/].getWriter().write("{\"message\": \"Veuillez vous identifier pour accéder à cette ressource.\"}");
+          
+        [/protected]
+     }
+  }
+[/template]
+
+[comment retourne la ligne de création du schéma si existe pour forcer la création avec hibernate (cas <create|drop>)./]
+[query private endDatasourceUrl(any : ecore::EObject) : String = ';DB_CLOSE_DELAY=-1;' + if (any.get_SQLTableSchema().exists()) then 
+  'INIT=CREATE SCHEMA IF NOT EXISTS ' + any.get_SQLTableSchema().toUpper() + ';' else '' endif/]

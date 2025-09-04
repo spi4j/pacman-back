@@ -1,0 +1,9 @@
+[module genValidation(	'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+
+[import fr::pacman::back::sql::aql::block::validation/]
+
+[comment @main/]	
+[comment lancement de la validation pour la modélisation./]				
+[template public genValidation(r : entity::Root)]
+  [r.validation()/]
+[/template]

@@ -1,0 +1,67 @@
+package fr.pacman.back.entity.ui.generators;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.emf.common.util.Logger;
+
+import fr.pacman.back.entity.ui.plugin.Activator;
+import fr.pacman.back.core.generator.PacmanGenerator;
+import fr.pacman.back.core.ui.generator.PacmanUIGenerator;
+import fr.pacman.back.core.ui.generator.PacmanUIGeneratorHelper;
+import fr.pacman.back.entity.main.GenValidation;
+
+/**
+ * UI Generateur pour la validation des modèles.
+ * 
+ * Se reporter à la classe {@link PacmanUIGenerator} pour l'explication des
+ * différentes méthodes.
+ * 
+ * @author MINARM
+ */
+public class EntityValidationUIGenerators extends PacmanUIGenerator {
+
+	/**
+	 * Constructeur.
+	 * 
+	 * @param p_selected la ressource sélectionnée (ici obligatoirement un fichier).
+	 */
+	public EntityValidationUIGenerators(final IFile p_selected) {
+		super(p_selected);
+	}
+
+	@Override
+	protected String getPluginId() {
+		return Activator.c_pluginId;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return Activator.getDefault().getPluginLogger();
+	}
+
+	@Override
+	protected List<String> getIncompatibleOptions() {
+		return null;
+	}
+
+	@Override
+	protected boolean doPostTreatments() {
+		PacmanUIGeneratorHelper
+				.displayPopUpInfo("Le fichier de modélisation pour la couche de persistance est valide.");
+		return false;
+	}
+
+	@Override
+	protected List<PacmanGenerator> getGenerators() {
+		final List<PacmanGenerator> v_generators = new ArrayList<>();
+		v_generators.add(new GenValidation());
+		return v_generators;
+	}
+
+	@Override
+	protected boolean hasView() {
+		return false;
+	}
+}

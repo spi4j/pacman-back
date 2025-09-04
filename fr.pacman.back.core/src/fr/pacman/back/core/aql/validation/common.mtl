@@ -1,0 +1,42 @@
+[module common(		'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::name::packages/]
+
+[comment écriture du nom de l'objet pour le rapport./]
+[query public nameObject (o : ecore::EObject) : String = o.toString().replace('\\[TRANSIENT\\]','') + ' : ' 
+  + let feature = o.eClass().getEStructuralFeature('name') in if feature <> null and o.eGet(feature) <> null 
+  then o.eGet(feature).toString() else 'unnamed' endif/]
+
+[comment écriture du nom de l'entité pour le rapport./]
+[query public nameEntity(e : entity::Entity) : String =  e.blockHierarchy().replaceFirst('.','') + '.' + e.name/]
+  
+[comment écriture du nom du dto pour le rapport./]
+[query public nameDto(d : environment::DTO) : String = d.blockHierarchy().replaceFirst('.','') + '.' + d.name/]
+
+[comment écriture du nom de la référence pour le rapport./]
+[query public nameReference(r : environment::Reference) : String = r.blockHierarchy().replaceFirst('.','')  + '.' + r.name/]
+  
+[comment écriture du nom du service pour le rapport (a améliorer)./]
+[query public nameService(s : soa::Service) : String = s.nameComponent() + '.' + s.name/]
+  
+[comment écriture du nom du paramètre pour le rapport (a améliorer)./]
+[query public nameParameter(p : soa::Parameter) : String =  p.eContainer().eContainer().oclAsType(soa::Interface).name 
+  + '.' +  p.eContainer().oclAsType(soa::Operation).name + '.' + p.name /]
+  
+[comment écriture du nom de l'opération pour le rapport (a améliorer)./]
+[query public nameOperation(o : soa::Operation) : String =  o.eContainer().oclAsType(soa::Interface).name 
+  + '.' + o.name /]
+  
+[comment écriture du nom du literal pour le rapport (a améliorer)./]
+[query public nameLiteral(l : environment::Literal) : String =  l.eContainer().oclAsType(environment::Enumeration).name 
+  + '.' + l.name /]
+  
+[comment écriture du nom de l'énumération pour le rapport (a améliorer)./]
+[query public nameEnumeration(e : environment::Enumeration) : String =  e.name /]
+  
+[comment écriture du nom de l'attrbut pour le rapport (a améliorer)./]
+[query public nameAttribute(a : environment::Attribute) : String =  a.eContainer().oclAsType(environment::StructuredType).name 
+  + '.' + a.name /]

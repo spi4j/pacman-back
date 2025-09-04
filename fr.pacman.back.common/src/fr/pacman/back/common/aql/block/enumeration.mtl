@@ -1,0 +1,132 @@
+[module enumeration( 'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::method/]
+[import fr::pacman::back::core::aql::rule::variable/]
+
+[import fr::pacman::back::core::service::AnnotationUtils/]
+[import fr::pacman::back::core::service::StringUtils/]
+
+[comment écriture du corps de la classe pour une énumération./]
+[template public enumerationImpl(e : environment::Enumeration)]
+  [e.classHeader(e.namePackageEnumeration())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [e.defaultImports()/]
+    
+  [/protected]
+  
+  public enum [e.nameClassEnumeration()/]
+  {
+  
+    [if (not e.literals->isEmpty())]
+      [if (e.has_metaLiteralParamsStruct())]
+        [e.literals->asSequence()->collect(o1 | o1.writeEnumStruct(e.get_metaLiteralParamsStruct()))->sep(',\r\n')/];
+      [else]
+        [e.literals->asSequence()->collect(o2 | o2.writeEnumStruct())->sep(',\r\n')/];
+      [/if]
+    [/if]
+    
+    ['La map de récuperation des énumérations par leur valeur'.commentSingleLine()/]
+    private static final Map <String, [e.nameClassEnumeration()/]> ['by value map'.apply_attributeFinalStatic()/] = new LinkedHashMap<>();
+     
+    ['La valeur courante de l\'énumération sous forme de String'.commentSingleLine()/]
+    private final String ['value'.apply_attributeFinal()/];
+    
+    [e.writeLiteralParams(0)/]
+    ['Initialisation de la map de récuperation des énumérations par leur valeur'.commentMultiLines()/]
+    static 
+    {
+      for ([e.nameClassEnumeration()/] ['enum value'.apply_variableDefault()/] : [e.nameClassEnumeration()/].values())
+      {
+         ['by value map'.apply_attributeFinalStatic()/].put(['enum value'.apply_variableDefault()/].['value'.apply_attributeFinal()/], ['enum value'.apply_variableDefault()/] );
+      }
+    }
+    
+    ['Contructeur par défaut'.commentMultiLines()/]
+    private [e.nameClassEnumeration()/] (final String ['literal'.apply_parameterMethodClassicIn()/][e.writeLiteralParams(1)/]) 
+    {
+       [e.prefixAffectation()/]['value'.apply_attributeFinal()/] = ['literal'.apply_parameterMethodClassicIn()/];
+      [e.writeLiteralParams(2)/]
+    }
+    
+    ['Retourne la valeur courante pour l\'énumération'.commentMultiLines()/]
+    public String ['get value'.apply_methodDefault()/]() 
+    {
+       return [e.prefixAffectation()/]['value'.apply_attributeFinal()/];
+    }
+    
+    ['Retourne l\'énumération en fonction de sa valeur sous forme de String'.commentSingleLine()/]
+    public static [e.nameClassEnumeration()/] ['get enum by value'.apply_methodDefault()/] (String ['value'.apply_parameterMethodClassicIn()/])
+    {
+       return ['by value map'.apply_attributeFinalStatic()/].get(['value'.apply_parameterMethodClassicIn()/]);
+    }
+    
+    [if (e.has_metaLiteralParamsStruct())]      [for (p : String | e.get_metaLiteralParamsStruct().tokenize(','))]
+        [('Retourne l\'attribut d\'énumération (metadata) : ' + p.attributeName()).commentSingleLine()/]
+        public [p.attributeType()/] [p.attributeName().apply_methodGet()/]() 
+        {
+          return [e.prefixAffectation()/][p.attributeName().apply_attributeFinal()/];
+        }
+        
+      [/for]
+    [/if]
+  }
+[/template]
+
+[comment construction sans paramètre particulier (énumération simple)./]
+[query private writeEnumStruct(l : environment::Literal) : String = l.writeComment() + if (l.name.exists()) then l.nameLiteral() else 'BLANK' endif + '("' 
+  + if (l.name.exists()) then  l.name() else '' endif + '")'/]
+  
+[comment construction avec des paramètres donnés par le développeur (énumération complexe)./]
+[query private writeEnumStruct(l : environment::Literal, s : String) : String = l.writeComment() + l.doEnumStruct(s)/]
+
+[comment construction avec des paramètres donnés par le développeur (énumération complexe)./]
+[template private doEnumStruct (l : environment::Literal, s : String) post(self.removeLineSeparators())]
+  [let nbParams : Integer = l.get_metaLiteralParamValues().tokenize(',')->size()]
+   [l.nameLiteral()/]("[l.name()/]", [for (p : String | l.get_metaLiteralParamValues().tokenize(','))][p.writeParamStruct(pIndex, nbParams)/][/for])
+  [/let]
+[/template]
+
+[comment échappement des guillemets pour les Strings et positionnement du séparateur de paramètres (énumération complexe)./]
+[query private writeParamStruct(s : String, i : Integer, nbParams : Integer) : String = s.replaceAll('\'', '"') + if (i < nbParams) then',' else '' endif/]
+
+[comment écvriture de la ligne de commentaire pour le literal (énumération simple ou complexe)./]
+[query private writeComment(l : environment::Literal) : String = (if (l.name.exists()) then l.nameLiteral() else 'BLANK' endif + ' : ' 
+  + if(l.description.exists()) then l.description.escapeComment() else 'Aucune description définie pour ce litéral' endif).commentSingleLine()/]
+  
+[comment écriture d'un paramètre utilisateur pour le literal. /]
+[comment ATTENTION cette méthode est utilisée pour la déclaration, la signature du constructeur et l'intialisation dans le constructeur ! /]
+[comment : m (mode) = 0 définition des paramètres, 1 signature constructeur, 2 initialisation constructeur. /][template private writeLiteralParams(e : environment::Enumeration, code : Integer)]
+  [if (e.has_metaLiteralParamsStruct())][for (p : String | e.get_metaLiteralParamsStruct().tokenize(','))]
+  [if (code = 0)]['Paramètre supplémentaire utilisateur (metadata)'.commentSingleLine()/][/if][p.writeLiteralParam(code)/][/for][/if][/template]
+
+[comment écriture d'un paramètre utilisateur pour le literal./]
+[query private writeLiteralParam (p : String, code : Integer) : String = if(code = 1) then ', ' else if(code = 0) then 'private ' else '' endif endif 
+  + if(code < 2) then 'final ' + p.attributeType() else '' endif + ' ' + p.attributeName().writeLiteralParam_2(code)/]
+
+[comment écriture d'un paramètre utilisateur pour le literal./]
+[query private writeLiteralParam_2(p : String, code : Integer) : String = if(code = 1) then p.apply_parameterMethodClassicIn() else if(code > 0) then 
+  p.prefixAffectation() else '' endif + p.apply_attributeFinal() endif + p.writeLiteralParam_3(code)/]
+[comment écriture d'un paramètre utilisateur pour le literal./]
+[query private writeLiteralParam_3(p : String, code : Integer) : String = if (code = 2) then ' = ' + p.apply_parameterMethodClassicIn() else '' endif 
+  + if (code = 0 or code = 2) then ';' + p.lineSeparator() else '' endif + if (code = 0) then p.lineSeparator() else '' endif/]
+
+[comment retourne le nom de l'attribut pour le paramètre de l'énumération./]
+[query private attributeName (s : String) : String = s.substring(1, s.index(':') - 1)/]
+
+[comment retourne le type de l'attribut pour le paramètre de l'énumération./]
+[query private attributeType (s : String) : String = s.substring(s.index(':') + 1)/]
+
+  
+

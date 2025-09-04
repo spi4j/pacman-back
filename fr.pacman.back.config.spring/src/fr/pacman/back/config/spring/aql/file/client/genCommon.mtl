@@ -1,0 +1,23 @@
+[module genCommon(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::config::spring::aql::block::client::common/]
+
+[comment écriture du fichier de configuration Maven pour le projet métier./]
+[template public filePom(any : ecore::EObject)]
+  [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())]
+    [any.pom()/]
+  [/file]
+[/template]
+
+[comment écriture du package info (uniquement pour empêcher le message no compilation unit)./]
+[template public filePackageInfo(any : ecore::EObject)]
+  [file (any.namePackageInfo().toFileJava(null), overwrite, any.defaultFileEncoding())]
+    [any.basePackageInfo()/]
+  [/file]
+[/template]
+
+
+
+

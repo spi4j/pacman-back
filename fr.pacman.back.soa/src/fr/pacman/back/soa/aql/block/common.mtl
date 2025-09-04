@@ -1,0 +1,57 @@
+[module common(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::query::dto/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::method/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+
+[comment écriture des assesseurs pour les attributs standards du dto | xto./]
+[template public writeGetterAndSetterForAttributes (d : environment::DTO, as : OrderedSet(environment::Attribute))]
+  [for (a : environment::Attribute | as)]
+    [a.commentGet()/]
+    public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
+    {
+      return [a.prefixAffectation()/][a.nameAttribute()/];
+    }
+     
+    [a.commentSet()/]
+    public void [a.nameAttribute().apply_methodSet()/](final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
+    {
+      [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+    }
+     
+  [/for]
+[/template]
+
+[comment écriture des assesseurs pour les références (liaisons avec les autres dtos | xtos)./]
+[template public writeGetterAndSetterForReferences(d : environment::DTO, rs : OrderedSet(environment::Reference), cmd : String)]
+  [for (r : environment::Reference | rs)]
+    [r.referencedDto(d).commentGet()/]
+    public [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
+    {
+       return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+    }
+    
+    [r.referencedDto(d).commentSet()/]
+    public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
+    (final [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
+    {
+       [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
+          = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
+    }
+  [/for]
+[/template]
+
+[comment écriture du type pour la référence (dépend si on écrit un dto ou un xto)./]
+[query private writeTypeSignature(d : environment::DTO, r : environment::Reference, cmd : String) : String = if (d.cmdDto().equalsIgnoreCase(cmd)) 
+  then r.referencedTypeSignature(d) else r.referencedOutTypeSignature(d) endif/]
+
+[comment raccourci pour l'écriture de la clé primaire./]
+[query public writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]

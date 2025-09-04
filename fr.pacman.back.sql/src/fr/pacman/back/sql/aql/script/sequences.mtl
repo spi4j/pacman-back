@@ -1,0 +1,26 @@
+[module sequences(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]	
+[import fr::pacman::back::core::aql::name::databases/]
+[import fr::pacman::back::core::aql::query::database/]
+[import fr::pacman::back::core::aql::query::entity/]
+[import fr::pacman::back::sql::aql::script::headers/]
+
+[import fr::pacman::back::core::service::DatabaseUtils/]
+
+[comment création des séquences pour la base de données en cours de traitement/]
+[template public createSequences(root : entity::Root, es : Sequence(entity::Entity))]
+  [root.sequencesHeader()/]
+  [for (e : entity::Entity | es)]
+    ['create sequence ' + e.nameSequence().toUpper() + ' start with ' + e.defaultSqlStartSequence() + ';'/]
+  [/for]
+[/template] 
+
+[comment suppression des séquences pour la base de données en cours de traitement./]
+[template public dropSequences(root : entity::Root, es : Sequence(entity::Entity), dbType : String)]
+  [root.sequencesHeader()/]
+  [for (e : entity::Entity | es)]
+    ['drop sequence ' + e.nameSequence().toUpper()/]
+  [/for]
+[/template]

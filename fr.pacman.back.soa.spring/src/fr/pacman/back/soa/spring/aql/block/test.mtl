@@ -1,0 +1,404 @@
+[module test(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::name::resources/]
+[import fr::pacman::back::core::aql::name::databases/]
+[import fr::pacman::back::core::aql::query::service/]
+[import fr::pacman::back::core::aql::query::database/]
+[import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::query::operation/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::dto/]
+[import fr::pacman::back::core::aql::query::property/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::variable/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::method/]
+
+[import fr::pacman::back::core::service::TestUtils/]
+[import fr::pacman::back::core::service::DatabaseUtils/]
+
+[comment écriture de l'implémentation du résolveur de paramètres pour les tests junit (domain + infra)./]
+[template public serviceOutResolverImpl(s : soa::Service)] 
+  [s.classHeader(s.namePackageCommonResolver())/]
+  
+  import org.junit.jupiter.api.extension.ExtensionContext;
+  import org.junit.jupiter.api.extension.ParameterContext;
+  import org.junit.jupiter.api.extension.ParameterResolutionException;
+  import org.junit.jupiter.api.extension.ParameterResolver;
+  import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+  import [s.namePackageProject()/].[s.namePackageOutStubImpl()/].[s.nameClassServiceOutStubImpl()/];
+  import [s.namePackageProject()/].[s.namePackageServiceImpl()/].[s.nameClassServiceImpl()/];
+  
+ /**
+  * Cette classe implémente l'interface {@link ParameterResolver} et sert à
+  * résoudre les paramètres dans le contexte d'un test, en fournissant une
+  * instance de {@link [s.nameClassServiceImpl()/]}. Elle est utilisée pour
+  * injecter une instance de {@link [s.nameClassServiceImpl()/]} dans les tests de
+  * manière automatique.
+  * 
+  * La méthode {@link #supportsParameter(ParameterContext, ExtensionContext)}
+  * vérifie si le paramètre peut être résolu par ce résolveur, et la méthode
+  * {@link #resolveParameter(ParameterContext, ExtensionContext)} résout le
+  * paramètre en créant une instance de {@link [s.nameClassServiceImpl()/]}.
+  * <p>
+  * Le resolveur permet d'injecter automatiquement le stub (au lieu de la couche
+  * de persistance) dans l'instance de {@link [s.nameClassServiceImpl()/]}.
+  * <p>
+  * Cette classe est typiquement utilisée dans le cadre des tests unitaires avec
+  * JUnit 5 et l'extension de test JUnit Jupiter.
+  *
+  * @Author [s.nameAuthor()/] 
+  * 
+  * @see ParameterResolver
+  * @see [s.nameClassServiceImpl()/]
+  * @see [s.nameClassServiceOutItf()/]
+  * @see [s.nameClassServiceOutStubImpl()/]
+  */
+  public class [s.nameClassServiceOutResolverImpl()/] implements ParameterResolver 
+  {
+  
+    /**
+     * Vérifie si ce résolveur prend en charge le paramètre en question.
+     * 
+     * @param parameterContext le contexte du paramètre à vérifier
+     * @param extensionContext le contexte de l'extension du test
+     * @return true si ce résolveur prend en charge le paramètre, sinon false
+     * @throws ParameterResolutionException si une erreur se produit lors de la
+     *                                      résolution du paramètre
+     */
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+    		throws ParameterResolutionException {
+    	return parameterContext.getParameter().getType() == [s.nameClassServiceImpl()/].class;
+    }
+    
+    /**
+    * Résout le paramètre en créant une instance de
+    * {@link [s.nameClassServiceImpl()/]} avec un {@link [s.nameClassServiceOutItf()/]}.
+    * Dans cet exemple, un stub de {@link [s.nameClassServiceOutItf()/]} est utilisé pour
+    * les tests.
+    * 
+    * @param parameterContext le contexte du paramètre à résoudre
+    * @param extensionContext le contexte de l'extension du test
+    * @return une instance de {@link [s.nameClassServiceImpl()/]} prête à être
+    *         utilisée dans le test
+    * @throws ParameterResolutionException si une erreur se produit lors de la
+    *                                      résolution du paramètre
+    */
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
+    		throws ParameterResolutionException {
+    	[s.nameClassServiceOutItf()/] [s.suffixInterfaceOut().apply_variableDefault()/] = new [s.nameClassServiceOutStubImpl()/]();
+    	return new [s.nameClassServiceImpl()/]([s.suffixInterfaceOut().apply_variableDefault()/]);
+    }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour les tests du domaine./]
+[template public serviceTestImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageServiceImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    import org.junit.jupiter.api.Test;
+    import org.junit.jupiter.api.extension.ExtendWith;
+    import static org.junit.jupiter.api.Assertions.*;
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
+    import [s.namePackageProject()/].[s.namePackageCommonResolver()/].[s.nameClassServiceOutResolverImpl()/];
+    
+  [/protected]
+  
+  /**
+   * Classe de test métier pour {@link [s.nameClassServiceImpl()/]}.
+   * 
+   * Cette classe contient des tests unitaires métier pour les méthodes du service
+   * {@link [s.nameClassServiceImpl()/]}. Les tests sont exécutés avec l'extension 
+   * {@link [s.nameClassServiceOutResolverImpl()/]} pour la gestion des paramètres.
+   * 
+   * @see [s.nameClassServiceImpl()/]
+   * @see [s.nameClassServiceOutResolverImpl()/]
+   */
+  @ExtendWith([s.nameClassServiceOutResolverImpl()/].class)
+  public class [s.nameClassServiceTestImpl()/]
+  {
+  
+    [for (o | s.ownedInterface.ownedOperations)]
+      @Test
+      public void [o.name().apply_methodDefault()/](final [s.nameClassServiceImpl()/] [s.name().apply_parameterMethodClassicIn()/])
+      {
+        
+        [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          throw new [s.nameClassNotImplementedExceptionImpl()/]
+            ("Le test n'a pas été implémenté pour le service : [s.nameClassServiceImpl()/]");
+          
+        [/protected]
+      }
+    [/for]
+    
+    [protected (s.nameClassServiceTestImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+  }
+[/template]
+
+[comment écriture de la classe de configuration commune pour le'ensemble des tests./]
+[template public integrationTestsConfigImpl (m : soa::System)]
+   [m.classHeader(null)/]
+
+   [m.defaultImports()/]
+   import org.springframework.test.context.ContextConfiguration;
+   import org.springframework.boot.test.context.TestConfiguration;
+   import org.springframework.context.annotation.ComponentScan;
+   import org.springframework.context.annotation.FilterType;
+   import [m.namePackageProject()/].[m.namePackageCommonBase()/].[m.nameClassAnnotationIn()/];
+   import [m.namePackageProject()/].[m.namePackageCommonBase()/].[m.nameClassAnnotationStubOut()/];
+   import [m.namePackageProject()/].[m.namePackageCommonBase()/].[m.nameClassAnnotationOut()/];
+   [for (o | m.eAllContents(soa::Service))]
+      import [o.namePackageProject()/].[o.namePackageOutStubImpl()/].[o.nameClassServiceOutStubImpl()/];
+   [/for]
+
+   
+   /**
+   * Configuration des composants spécifiques pour les tests d'intégration.
+   * 
+   * Cette configuration permet de scanner des classes spécifiques et d'inclure ou exclure
+   * certains beans dans le contexte Spring utilisé pour les tests.
+   * 
+   * Les classes annotées avec {@link TestConfiguration} sont exclues par défaut de l'analyse
+   * des composants. Les services annotés avec {@link [m.nameClassAnnotationIn()/]} 
+   * et {@link [m.nameClassAnnotationStubOut()/]} sont inclus.
+   * 
+   * Pour couper l'acces à la couche de persistance sur un service en particulier
+   * et passer sur le bouchon, modifier le nom de la (ou des) classe(s) de service
+   * au niveau de l'exclusion 'excludeFilters. Par défaut tous les bouchons (Stub)
+   * sont exclus. 
+   * 
+   * Remplacer le nom du bouchon par le nom de la classe JPA.
+   *
+   * @author [m.nameAuthor()/]
+   */
+   @TestConfiguration
+   @ComponentScan(
+         basePackages = { "[m.namePackageProject()/]" },
+         includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION
+          , classes = {[m.nameClassAnnotationIn()/].class, [m.nameClassAnnotationStubOut()/].class
+          , [m.nameClassAnnotationOut()/].class})},
+         excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE
+          , classes = {[m.writeStubServices()/]})})
+   public class [m.nameClassIntegrationTestsConfig()/] {
+   }
+[/template]
+
+[comment écriture de l'implémentation pour les tests de l'infrastructure./]
+[template public serviceIntegrationTestImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageInIntegrationTestImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import javax.sql.DataSource;
+    import jakarta.servlet.http.Cookie;
+    import java.time.temporal.ChronoUnit;
+    import org.junit.jupiter.api.Disabled;
+    import org.junit.jupiter.api.Test;
+    import org.junit.jupiter.api.extension.ExtendWith;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+    import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+    import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+    import org.springframework.boot.test.context.SpringBootTest; 
+    import org.springframework.context.annotation.Import;
+    import org.springframework.test.context.ActiveProfiles;
+    import org.springframework.test.context.TestPropertySource;
+    import org.springframework.test.context.junit.jupiter.SpringExtension;
+    import org.springframework.test.web.servlet.MockMvc;
+    import org.springframework.test.web.servlet.ResultActions;
+    import org.springframework.http.MediaType;
+    import com.fasterxml.jackson.databind.ObjectMapper;
+    import [s.namePackageProject()/].[s.nameClassIntegrationTestsConfig()/];
+    import [s.namePackageProject()/].[s.nameClassIntegrationTestUtils()/];
+    import [s.namePackageProject()/].[s.nameClassIntegrationTestAbstract()/];
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageOutStubImpl()/].[s.nameClassServiceOutStubImpl()/];
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
+    [for (d | s.associatedDtos())]
+      import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
+    [/for]
+    
+  [/protected]
+  
+  /**
+   * Test d'intégration pour la classe {@link [s.nameClassServiceTestImpl()/]}.
+   * 
+   * Cette classe est utilisée pour tester les fonctionnalités de la gestion des personnes
+   * via les tests d'intégration avec un environnement Spring Boot simulé. Elle utilise
+   * des annotations Spring comme {@link SpringBootTest}, {@link TestPropertySource}, et
+   * {@link AutoConfigureMockMvc} pour configurer un environnement de test spécifique.
+   * <p>
+   * Il est à noter que le fichier de propriétés chargé avec
+   * {@link @TestPropertySource} remplacera le fichier application.properties
+   * existant, il contient les détails pour configurer le stockage de persistance.
+   *
+   * @author [s.nameAuthor()/]
+   */
+  [protected ((s.nameClassServiceTestImpl() + 'anno').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
+  @ActiveProfiles("test")
+  @AutoConfigureMockMvc
+  @Import([s.nameClassIntegrationTestsConfig()/].class)
+  @ExtendWith(SpringExtension.class)
+  @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+  @TestPropertySource(locations = "classpath:[s.nameIntegrationResources()/].properties")
+  public class [s.nameClassServiceTestImpl()/] extends [s.nameClassIntegrationTestAbstract()/]
+  {
+     
+    /**
+     * Instance de {@link MockMvc} pour effectuer des requêtes HTTP simulées dans les tests.
+     */
+     private MockMvc ['rest helper'.apply_attributeDefault()/];
+     
+    /**
+     * Instance de {@link [s.nameClassServiceOutItf()/]} qui est utilisée pour gérer 
+     * les opérations de persistance au niveau des tests.
+     */
+     @SuppressWarnings("unused") // Pour l'instant.
+     private [s.nameClassServiceOutItf()/] ['provider'.apply_attributeDefault()/];
+     
+     /**
+      * Instance de {@link ObjectMapper} utilisée pour gérer les opérations de
+      * conversion entre une entité et json.
+      */
+     ObjectMapper ['object mapper'.apply_attributeDefault()/];
+     
+     ['Constructeur'.commentMultiLines()/]
+     @Autowired
+     [s.nameClassServiceTestImpl()/](final DataSource ['data source'.apply_parameterMethodClassicIn()/]
+        , final [s.nameClassServiceOutItf()/] ['provider'.apply_parameterMethodClassicIn()/]
+        , final MockMvc ['rest helper'.apply_parameterMethodClassicIn()/]
+        , final ObjectMapper ['object mapper'.apply_parameterMethodClassicIn()/]){
+        
+        [s.prefixAffectation()/]['provider'.apply_attributeDefault()/] = ['provider'.apply_parameterMethodClassicIn()/];
+        [s.prefixAffectation()/]['object mapper'.apply_attributeDefault()/] = ['object mapper'.apply_parameterMethodClassicIn()/];
+        [s.prefixAffectation()/]['rest helper'.apply_attributeDefault()/] = ['rest helper'.apply_parameterMethodClassicIn()/];
+        ['init sql'.apply_methodDefault()/](['data source'.apply_parameterMethodClassicIn()/]);
+     }
+     
+     [for (o | s.ownedInterface.ownedOperations)]
+       @Test
+       [protected ((o.name() + ' annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         @Disabled("En attente de l'implémentation de la couche de persistance")
+       [/protected]
+       public void [o.name().apply_methodDefault()/]() throws Exception
+       {
+          
+          [protected ((o.name() + ' init').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             
+             [o.writeRsInitInputParams()/]
+             
+          [/protected]
+          
+          [o.writeRsExpectedStatus()/]
+          [o.writeRsOperation(s)/]
+          
+          [protected ((o.name() + ' result').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          [/protected]
+          
+          .andExpect(status().is(['expected status'.apply_variableDefault()/]));
+       }
+       
+     [/for]
+     
+     [protected (s.nameClassServiceTestImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       
+     [/protected]
+  }
+[/template]
+
+[comment écriture du statut http attendu (code de réponse) pour le test./]
+[query private writeRsExpectedStatus(o : soa::Operation) : String = + 'Le statut attendu suite au test'.commentSingleLine() + 'int ' 
+	+ 'expected status'.apply_variableDefault() + ' = ' + if(o.mustHaveRsOutput()) then o.output->first().statusCode else '200' endif +';' 
+	+ o.lineSeparator() + ' '/]
+
+[comment écriture de liste des paramètres d'entrée de l'opération pour initialisation./]
+[query private writeRsInitInputParams(o : soa::Operation) : String = o.input->asOrderedSet()->collect(o1 | o1.description.commentSingleLine() 
+	+ if (o1.type.oclIsKindOf(environment::DTO)) then o1.type.oclAsType(environment::DTO).nameClassXtoImpl() else o1.type.type() endif 
+	+ ' ' + o1.name().apply_attributeDefault() + ' = ' + o1.writeDefaultValue() + ';')->sep(o.lineSeparator() + o.lineSeparator())->toString() 
+	+ o.lineSeparator()/]
+
+[comment écriture du corps de l'opération./]
+[query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'rest helper'.apply_attributeDefault() 
+	+ '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() + '.contentType("' + if (o.hasMediaRsType()) 
+	then  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '")' + ')'/]
+
+[comment écriture de l'uri (avec les paramètres) pour l'opération rest./]
+[query private writeRsUri(o : soa::Operation, s : soa::Service) : String = 
+  if (o.verb = soa::Verb::GET) then 'get("' + s.rsUri() + o.rsUri() + '"' + o.writeRsInputParams()
+  else if (o.verb = soa::Verb::POST) then 'post("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::PUT) then 'put("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::OPTIONS) then 'options("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::DELETE) then 'delete("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::HEAD) then 'head("' + s.rsUri() + o.rsUri() + '"' + o.writeRsInputParams()
+  else if (o.verb = soa::Verb::PATCH) then 'patch("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::TRACE) then o.cNoModelisation()
+  else '' endif endif endif endif endif endif endif endif/]
+  
+[comment écriture des différents paramètres à injecter pour l'opération (uri)./]
+[query private writeRsInputParams(o : soa::Operation) : String = o.writeRsInputPathParams() + o.writeRsInputQueryParams() 
+ 	+ o.writeRsInputCookieParams()/]
+
+[comment écriture des différents paramètres à injecter pour l'opération (uri /path)./]
+[query private writeRsInputPathParams(o : soa::Operation) : String = if (not o.input
+	->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)->isEmpty()) then ', ' +
+	o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::PATH)
+	->collect(o2 | o2.name().apply_variableDefault() + if (o2.type.name.equalsIgnoreCase('Date')) then '.format(' 
+	+ o.nameClassIntegrationTestUtils() + '.' + 'date formatter'.apply_attributeFinalStatic() + ')' 
+	else if (o2.type.name.equalsIgnoreCase('Time')) then '.format(' + o.nameClassIntegrationTestUtils() 
+	+ '.' + 'time formatter'.apply_attributeFinalStatic() + ')' else '' endif endif )->sep(', ')->toString() 
+	else '' endif + ')'/]
+	
+[comment écriture des différents paramètres à injecter pour l'opération (uri / query)./]
+[query private writeRsInputQueryParams(o : soa::Operation) : String = if (not o.input
+	->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)->isEmpty()) then 
+	o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::QUERY)
+	->collect(o2 | '.param("' + o2.restData.restId + '",' + if (o2.type.name.equalsIgnoreCase('String')) 
+	then o2.name().apply_variableDefault() else 'String.valueOf(' +  o2.name().apply_variableDefault() + ')' endif)
+	->sep(')')->toString() + ')' else '' endif/]
+	
+[comment écriture des différents paramètres à injecter pour l'opération (uri / cookie)/]
+[query private writeRsInputCookieParams(o : soa::Operation) : String = if (not o.input
+	->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::COOKIE)->isEmpty()) then 
+	o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::COOKIE)
+	->collect(o2 | '.cookie(new Cookie("' + o2.restData.restId +'", ' + o2.name().apply_variableDefault())
+	->sep('))')->toString() + '))' else '' endif /]
+
+[comment écriture des différents paramètres à injecter pour l'opération (uri / cookie)/]
+[query private writeRsInputHeaderParams(o : soa::Operation) : String = '.cookie(new Cookie("userId", input1))'/]
+	
+[comment écriture des différents paramètres à injecter pour l'opération (corps)./]
+[query private writeRsInputBodyParams(o : soa::Operation) : String = if (not o.input
+	->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)->isEmpty()) 
+	then '.' +  o.input->asOrderedSet()->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)
+	->collect(o2 | 'content(' + 'object mapper'.apply_variableDefault() + '.writeValueAsString(' 
+	+ o2.name().apply_attributeDefault() + '))')->sep('.')->toString() else '' endif/]
+	
+[comment écriture de la valeur par defaut à injecter dans l'attribut./]
+[query private writeDefaultValue (p : soa::Parameter) : String = if ('Time'.equalsIgnoreCase(p.type.name) 	
+	or 'Timestamp'.equalsIgnoreCase(p.type.name)) then p.type.name.get_defaulValueForType() + '.truncatedTo(ChronoUnit.MILLIS)' 
+	else if ('Binary'.equalsIgnoreCase(p.type.name)) then p.type.nameClassIntegrationTestUtils() + '.' + 'generate random byte array'
+	.apply_methodDefault() + '(10)' else if (p.type.oclIsKindOf(environment::DTO)) then 'new ' + p.type.oclAsType(environment::DTO)
+	.nameClassXtoImpl() + '()' else p.type.name.get_defaulValueForType() endif endif endif/]
+
+[comment écriture de la liste des services de type stub (bouchons) pour l'exclusion par défaut./]
+[query private writeStubServices(m : soa::System) : String = m.eAllContents(soa::Service)->collect(o | o.nameClassServiceOutStubImpl() 
+	+ '.class')->sep(',')->toString()/]
+	

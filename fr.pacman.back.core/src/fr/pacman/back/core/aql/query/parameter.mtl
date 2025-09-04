@@ -1,0 +1,44 @@
+[module parameter(		'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+						'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::query::property/]
+[import fr::pacman::back::core::aql::query::dto/]
+
+[comment liste des requêtes possibles sur les paramètres./]							
+
+[comment vérifie si le paramètre est une liste (0,*)(1,*). /]
+[query public isMultiple(p : soa::Parameter) : Boolean = p.multiplicity = environment::MultiplicityKind::ONE_STAR 
+  or p.multiplicity = environment::MultiplicityKind::ZERO_STAR/]
+
+[comment vérifie si le paramètre est optionnel (pour l'instant et dans ce cas, les listes ne sont pas considérées comme tel)./]
+[query public isOptional(p : soa::Parameter) : Boolean = if (p <> null) then p.multiplicity = environment::MultiplicityKind::ZERO_ONE 
+  else true endif/]
+  
+[comment vérifie si le paramètre est optionnel dans le cadre des services rest./]
+[query public isRsOptional(p : soa::Parameter) : Boolean = if (p <> null) then p.multiplicity = environment::MultiplicityKind::ZERO_ONE 
+  or p.multiplicity = environment::MultiplicityKind::ZERO_STAR else false endif/]
+
+[comment vérifie si le paramètre est obligatoire./]
+[query public isMandatory(p : soa::Parameter) : Boolean = if (p <> null) then p.multiplicity = environment::MultiplicityKind::ONE 
+  or p.multiplicity = environment::MultiplicityKind::ONE_STAR else false endif/]
+  
+[comment retourne le type pour le paramètre soa (si ...)./]
+[query public type(p : soa::Parameter, associatedEntity : Boolean) : String =  if (p.type = null) then 'String' else if (p.isMultiple()) 
+  then 'List<' + if (associatedEntity and p.type.oclIsKindOf(environment::DTO)) then p.type.oclAsType(environment::DTO)
+  .associatedType().type() else p.type.type() endif + '>'else if (associatedEntity and p.type.oclIsKindOf(environment::DTO)) 
+  then p.type.oclAsType(environment::DTO).associatedType().type() else p.type.type() endif endif endif/]
+
+[comment vérifie si le paramètre est passé par l'uri./]
+[query public isRsPathParam(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::PATH/]
+
+[comment vérifie si le paramètre est passé par le corps de la requête./]
+[query public isRsBodyParam(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::BODY/]
+
+[comment vérifie si le paramètre est passé par la query./]
+[query public isRsQueryParam(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::QUERY/]
+
+[comment vérifie si le paramètre est passé par l'en-tête./]
+[query public isRsHeaderParam(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::HEADER/]
+
+[comment vérifie si le paramètre est passé par le stockage des cookies./]
+[query public isRsCookieParam(p : soa::Parameter) : Boolean = p.restData.passingMode = soa::ParameterPassingMode::COOKIE/]

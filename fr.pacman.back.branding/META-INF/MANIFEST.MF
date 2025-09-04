@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.back.branding
+Bundle-ManifestVersion: 2
+Bundle-Name: Cali
+Bundle-SymbolicName: fr.pacman.back.branding;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Require-Bundle: org.eclipse.osgi
+Bundle-Activator: fr.pacman.back.branding.Activator
+Bundle-Vendor: Cali
+Bundle-RequiredExecutionEnvironment: JavaSE-17

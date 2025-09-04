@@ -1,0 +1,210 @@
+[module validation(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::query::parameter/]
+[import fr::pacman::back::core::aql::query::service/]
+[import fr::pacman::back::core::aql::query::operation/]
+[import fr::pacman::back::core::aql::query::dto/]
+[import fr::pacman::back::core::aql::validation::common/]
+[import fr::pacman::back::core::validation::PacmanValidatorsReport/]
+				
+[comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
+[comment pour les dtos on est pas relié directement à la base de données, doit on être plus souple sur les références ?/]
+[template public validation (m : soa::System)]
+  [for (d | m.eAllContents(environment::DTO))]
+    [comment pas de dto vide./]
+    [if (d.attributesNoPK()->isEmpty())][d.add(d.err1())/][/if]
+      
+    [comment pas d'attribut avec identifier./] 
+    [if (not d.attributesNoPK()->select(o | o.isIdentifier)->isEmpty())][d.add(d.err2())/][/if]
+      
+    [comment pas d'attribut avec (1,*) ou (0,*)./]
+    [if (not d.attributesNoPK()->select(o | o.isMultiple())->isEmpty())][d.add(d.err3())/][/if]
+      
+    [comment pas d'attribut sans nom défini./]
+    [if (not d.attributesNoPK()->select(o | not o.name.exists())->isEmpty())][d.add(d.err4())/][/if]
+      
+    [comment pas d'attribut sans type défini./]
+    [if (not d.attributesNoPK()->select(o | not o.type.exists())->isEmpty())][d.add(d.err5())/][/if]
+      
+    [comment pas d'héritage autre que des dtos/]
+  [/for]
+  
+  [let dtss = m.superTypesDtos()]
+  [for (s | m.providedServices())]
+    [if (s.ownedInterface <> null)]
+      [for (o | s.ownedInterface.ownedOperations)]
+      [comment pas de service mappé sur une entité./]
+      [if (not o.output->select(o1 | o1.type.oclIsKindOf(entity::Entity))->isEmpty())][o.add(s.err7(o))/][/if]
+        
+      [comment pas de service sans paramètre de retour./]
+      [if (o.output->isEmpty() and (o.mustHaveRsOutput()))][o.add(s.err8(o))/][/if]
+        
+      [comment pas de service sans code de retour./]
+      [if (o.mustHaveRsOutput() and not o.output->first().statusCode.exists())][o.add(s.err9(o))/][/if]
+        
+      [comment pas de service non rest (temporaire)./]
+      [if (not (o.exposition = soa::ExpositionKind::REST))][o.add(s.err10(o))/][/if]
+        
+      [comment pas de fault sans code de retour./]
+      [if (not o.fault->select(f | not (f.statusCode.exists()))->isEmpty())][o.add(s.err11(o))/][/if]
+        
+      [comment pas de pagination sur une opération qui ne retourne pas une liste./]
+      [if (o.paged and not o.output->first().isMultiple())][o.add(s.err12(o))/][/if]
+        
+      [comment pas de service paginé sans paramètres de pagination./]
+      [if (o.paged and (not o.page.name.exists() or not o.size.name.exists()))][o.add(s.err13(o))/][/if]
+        
+      [comment pas de service paginé si les paramètres de pagination de sont pas des entiers./]
+      [if (o.paged and not o.page.type.name.equalsIgnoreCase('integer'))][o.add(s.err14(o))/][/if]
+        
+      [comment pas de service paginé si les paramètres de pagination de sont pas des entiers./]
+      [if (o.paged and not o.size.type.name.equalsIgnoreCase('integer'))][o.add(s.err14(o))/][/if]
+        
+      [comment pas de service avec un '/' à la fin de l'URI (on pourrait le supprimer mais sensibilise le dévelopeur)./]
+      [if (o.URI.exists() and '/'.equalsIgnoreCase(o.URI.last(1)))][o.add(s.err15(o))/][/if]
+        
+      [comment pas de service avec plusieurs paramètres passés dans le corps (body), c'est la norme./]
+      [if (o.input->select(o1 | o1.restData.passingMode == soa::ParameterPassingMode::BODY)->size() > 1)][o.add(s.err16(o))/][/if]
+        
+      [comment pas de service avec plusieurs paramètres de sortie./]
+      [if (o.output->size() > 1)][o.add(s.err17(o))/][/if]
+        
+      [comment pas de service avec des dtos passés hors body (path ou query)/]
+      [if (not o.input->select(o1 | o1.type.oclIsKindOf(environment::DTO) 
+         and o1.restData.passingMode <> soa::ParameterPassingMode::BODY)->isEmpty())][o.add(s.err18(o))/][/if]
+         
+      [comment pas de service avec des binaires passés dans le path./]
+      [if (not o.input->select(o1 | o1.type.name.equalsIgnoreCase('Binary') 
+         and o1.restData.passingMode <> soa::ParameterPassingMode::PATH)->isEmpty())][o.add(s.err19(o))/][/if]
+         
+      [comment pas de service avec TRACE (désactivé pour raisons de sécurité)./]
+      [if (o.verb = soa::Verb::TRACE)][o.add(s.err20(o))/][/if]
+        
+      [comment pas de service OPTION avec des paramètres en entrée./]
+      [if (o.verb = soa::Verb::OPTIONS and not o.input->isEmpty())][o.add(s.err21(o))/][/if]  
+      
+      [comment pas de service HEAD avec un paramètre en sortie./]
+      [if (o.verb = soa::Verb::HEAD and not o.output->isEmpty())][o.add(s.err22(o))/][/if]  
+      
+      [comment pas de service avec un doute sur l'URI./]
+      
+      [comment pas de service avec des dtos hérités./]
+      [if (o.input->exists(p | dtss->includes(p.type)) or dtss->includes(o.output) )][o.add(s.err23(o))/][/if]
+      [/for]
+    [/if]
+  [/for]
+  [/let]
+  [for (s | m.requiredServices())]
+  [/for]
+  [comment pas de multiples components internes pour l'instant/]
+  [if (m.eAllContents(soa::Component)->size() > 1)][m.add(m.err24())/][/if]
+    
+  [comment pas de multiples sécurités pour l'instant./]
+  [if (m.eAllContents(soa::SecurityScheme)->size() > 1)][m.add(m.err25())/][/if]
+ 
+[/template]
+
+[comment impossible de créer des dtos sans attribut./]
+[query private err1 (d : environment::DTO) : String = 'RG_01@' + d.nameObject() + '@Dto sans aucun attribut@Ajoutez au moins un attribut au niveau du dto'/]
+
+[comment impossible de créer des dtos avec un attribut de type 'Identifier'./]
+[query private err2 (d : environment::DTO) : String = 'RG_02@' + d.nameObject() + '@Dto avec un attribut marqué comme \'Identifier\'' +  
+  '@Ne pas marquer l\'attribut(s) et laisser le générateur gérer l\'identifiant du dto'/]
+  
+[comment impossible de créer des dtos avec une multiplicité de type (0,*) ou (1,*)./]
+[query private err3 (d : environment::DTO) : String = 'RG_03@' + d.nameObject() + '@Dto avec un attribut de multiplicité (0,*) ou (1,*)' +  
+  '@Supprimez la multiplicité (0,*) ou (1,*) sur l\'attribut'/]
+  
+[comment impossible de créer des dtos avec un attribut sans nom./]
+[query private err4 (d : environment::DTO) : String = 'RG_04@' + d.nameObject() + '@Dto avec un attribut sans nom' 
+  + '@Définissez un nom pour l\'attribut'/]
+  
+[comment impossible de créer des dtos avec un attribut sans type./]
+[query private err5 (d : environment::DTO) : String = 'RG_05@' + d.nameObject() + '@Dto avec un attribut sans type' 
+  +  '@Définissez un type pour l\'attribut' /]
+  
+[comment impossible de créer des dtos .............../]
+[query private err6 (d : environment::DTO) : String = 'RG_06@' + d.nameObject() + 'xxxxxxxxx' /]
+ 
+[comment impossible d'avoir un service directement mappé sur des entités./]	
+[query private err7 (s : soa::Service, o : soa::Operation)  : String = 'RG_07@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Service référencant une (ou plusieurs) entité(s)@Ne référencez que des objets de transfert (dto) au niveau des services'/]
+
+[comment impossible d'avoir un service sans paramètre de retour./]
+[query private err8 (s : soa::Service, o : soa::Operation)  : String = 'RG_08@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération sans paramètre de retour@Modélisez un paramètre de retour pour une opération'/]
+	
+[comment impossible d'avoir un service sans statut de retour./]
+[query private err9 (s : soa::Service, o : soa::Operation)  : String = 'RG_91@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération sans statut de retour@Attachez un code statut au paramètre de retour pour une opération'/]
+	
+[comment impossible d'avoir un service non rest (temporaire)./]
+[query private err10 (s : soa::Service, o : soa::Operation)  : String = 'RG_10@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération sans exposition de définie@Attachez une exposition de type \'REST\' pour une opération'/]
+	
+[comment impossible d'avoir un service avec une fault sans code statut./]
+[query private err11 (s : soa::Service, o : soa::Operation)  : String = 'RG_11@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Paramètre \'fault\' sans statut@Attachez un code statut au paramètre \'fault\' pour une opération'/]
+	
+[comment impossible d'avoir un service paginé sans liste en sortie./]
+[query private err12 (s : soa::Service, o : soa::Operation)  : String = 'RG_12@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération paginée sans liste en retour@Définissez une liste en retour pour l\'opération'/]
+	
+[comment impossible d'avoir un service paginé sans liste en sortie./]
+[query private err13 (s : soa::Service, o : soa::Operation)  : String = 'RG_13@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération paginée sans paramètre de pagination@Définissez les paramètres page et size'/]
+	
+[comment impossible d'avoir un service paginé avec paramètre de pagination autre que Integer./]
+[query private err14 (s : soa::Service, o : soa::Operation)  : String = 'RG_14@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération paginée avec un mauvais typage du paramètre de pagination@Définissez le type \'Integer\' pour page et size'/]
+	
+[comment impossible d'avoir un service avec une URI qui se termine par '/'./]
+[query private err15 (s : soa::Service, o : soa::Operation)  : String = 'RG_15@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec une mauvaise spécification pour l\'URI@Supprimer le caractère \'/\' présent à la fin de l\'URI'/]
+	
+[comment impossible d'avoir un service avec plusieurs paramètres passés dans le corps (body)./]
+[query private err16 (s : soa::Service, o : soa::Operation)  : String = 'RG_16@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec plusieurs paramètres passés dans le corps (body)@Seul un paramètre est authorisé à etre passé en \'body\''/]
+	
+[comment impossible d'avoir un service avec plusieurs paramètres en sortie./]
+[query private err17 (s : soa::Service, o : soa::Operation)  : String = 'RG_17@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec plusieurs paramètres en sortie@Une opération ne peut avoir qu\'un seul paramètre en sortie'/]
+	
+[comment impossible d'avoir un service avec un ou des dtos passés ailleurs que dans le body./]
+[query private err18 (s : soa::Service, o : soa::Operation)  : String = 'RG_18@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec un ou des dto(s) passé(s) hors body@Mofifier le type de passage pour le DTO'/]
+	
+[comment impossible d'avoir un service avec un binaire passé dans le path./]
+[query private err19(s : soa::Service, o : soa::Operation)  : String = 'RG_19@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec un binaire passé dans le path@Mofifier le type de passage pour le binaire'/]
+	
+[comment impossible d'avoir un service avec le verbe trace (question de sécurité)./]
+[query private err20(s : soa::Service, o : soa::Operation)  : String = 'RG_20@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec le verbe TRACE@Cette option est désactivée pour raisons de sécurité'/]
+
+[comment impossible d'avoir un service avec le verbe options et ded paramètres en entrée./]
+[query private err21(s : soa::Service, o : soa::Operation)  : String = 'RG_21@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec le verbe OPTION@Supprimez les paramètres en entrée pour l\'opération'/]
+	
+[comment impossible d'avoir un service avec le verbe head et un paramètre en sortie./]
+[query private err22(s : soa::Service, o : soa::Operation)  : String = 'RG_22@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec le verbe HEAD@Supprimez le(s) paramètre(s) en sortie pour l\'opération'/]
+	
+[comment impossible d'avoir un service avec des paramètres (dto) hérités./]
+[query private err23(s : soa::Service, o : soa::Operation)  : String = 'RG_23@' + s.nameObject() + '.' + o.name() + '()' 
+	+ '@Opération avec un (des) dto(s) hérité(s)@Supprimez le(s) paramètre(s) hérité(s) pour l\'opération'/]
+	
+[comment impossible pour l'instant de définir plusieurs components./]
+[query private err24 (m : soa::System) : String = 'RG_24@' + m.nameObject() + '@Application modélisée avec plusieurs composants@Cette version de pacman ' 
+  + ' n\'authorise pour l\'instant qu\'un seul composant'/]
+  
+[comment impossible pour l'instant de définir plusieurs sécurités./]
+[query private err25 (m : soa::System) : String = 'RG_25@' + m.nameObject() + '@Application modélisée avec plusieurs sécurités@Cette version de pacman ' 
+  + ' n\'authorise pour l\'instant qu\'une seule sécurité'/]

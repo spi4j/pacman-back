@@ -1,0 +1,142 @@
+[module packages(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/requirement/1.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::rule::common/]
+
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+[import fr::pacman::back::core::convention::rule::PackageNamingRule/]
+
+[comment 	retourne les noms des différents packages (ne pas confondre avec les chemins de génération). 
+			ATTENTION, ici les noms de packages sont automatiquement concaténés avec le package racine 
+			de l'application, il n'est donc pas nécessaire de le préciser à ce niveau./]
+			
+[comment retourne le package pour les types spéciaux de Pacman./]
+[query public namePackageType(any : ecore::EObject) : String = 'domain.types'/]
+  
+[comment retourne le pakage pour le stockage de l'énumération globale des requirements./]
+[query public namePackageRequirement(any : ecore::EObject) : String = 'domain.services.requirements'/]
+  
+[comment retourne le package pour l'interface du port (domain->controller)./]
+[query public namePackageInItf(s : soa::Service) : String = s.get_suffixCommon() + '.port.features' + '.' + s.nameComponent()/]
+  
+[comment retourne le package pour l'implémentation du port par l'adaptateur (domain->controller)./]
+[query public namePackageInImpl(s : soa::Service) : String = s.get_suffixCommon() + '.port.features'/]
+
+[comment retourne le package pour la racine du projet domain./]
+[query public namePackageCommonBase(any : ecore::EObject) : String = any.get_suffixCommon()/]
+
+[comment retourne le package pour la racine des dto dans le projet domain (que l'on appelle aussi entities)./]
+[query public namePackageCommonDtoBase(any : ecore::EObject) : String = any.get_suffixCommon() + '.entities'/]
+ 
+[comment retourn le package pour l'ensemble des resolveurs de paramètres dans le cadre des tests métier (domain + infra)./]
+[query public namePackageCommonResolver(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService().trim() + 's.resolvers.' + s.nameComponent()/]
+  
+[comment retourne le package pour les exceptions métier du domain/]
+[query public namePackageCommonException(any : ecore::EObject) : String = any.get_suffixCommon() + '.a.exceptions'/]
+
+[comment retourne le package pour l'interface du port (domain->persistance)./]
+[query public namePackageOutItf(s : soa::Service) : String = s.get_suffixCommon() + '.port.' + s.suffixInterfaceIn().trim() + 's' + '.' + s.nameComponent()/]
+
+[comment retourne le package pour l'interface du port crud (domain->persistance)./]
+[query public namePackageCrudOutItf(d : environment::DTO) : String = d.get_suffixCommon() + '.port.' + d.suffixInterfaceIn().trim() + 's' + '.crud' + d.blockHierarchy()/]
+
+[comment retourne le package pour l'implémentation des stubs du domain./]
+[query public namePackageOutStubImpl(s :soa::Service) : String = s.get_suffixCommon() + '.port.' + s.suffixInterfaceIn().trim() + 's' + '.stub.' + s.nameComponent()/]
+
+[comment retourne le package pour l'implémentation du port par l'adaptateur (domain->persistance)./]
+[query public namePackageOutImpl(s : soa::Service) : String = 'infra.adapters.' + s.nameComponent()/]
+  
+[comment retourne le package pour l'implémentation du port crud par l'adaptateur (domain->persistance)./]
+[query public namePackageCrudOutImpl(d : environment::DTO) : String = 'infra.adapters.crud' + d.blockHierarchy()/]
+  
+[comment retourne le package pour une classe d'énumération./]
+[query public namePackageEnumeration(any : ecore::EObject) : String = 'domain.entities.enumerations'/]
+ 
+[comment retourne le package pour l'implémentation d'un service soa./]
+[query public namePackageServiceImpl(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService().trim() + 's.' + s.nameComponent()/]
+  
+[comment retourne le package pour l'implémentation du test métier (tests d'intégration)./]
+[query public namePackageInIntegrationTestImpl(s : soa::Service) : String = 'app.adapters' + s.nameComponent()/]
+  
+[comment retourne le package pour l'implémentation du test de persistance (tests d'intégration)./]
+[query public namePackageOutIntegrationTestImpl(e : entity::Entity) : String = 'infra.adapters' + e.blockHierarchy()/]
+  
+[comment retourne le package pour l'implémentation d'un contrôleur soa./]
+[query public namePackageRsControllerImpl(s : soa::Service) : String = 'app.adapters.controllers.' + s.nameComponent()/]
+
+[comment retourne le package de base pour l'implémentation d'un contrôleur soa./]
+[query public namePackageRsControllerBase(any : ecore::EObject) : String = 'app.adapters.controllers'/]
+  
+[comment retourne le package pour l'implémentation d'un client soa./]
+[query public namePackageRsClientImpl(s : soa::Service) : String = 'app.client.' + s.nameComponent()/]
+  
+[comment retourne le package racine pour la persistance./]
+[query public namePackageInfrastructureBase(any : ecore::EObject) : String = 'infra'/]
+  
+[comment retourne le package pour une classe d'implémentation (cas d'une entité)./]
+[query public namePackageEntityImpl(e : entity::Entity) : String = 'infra.entities' + e.blockHierarchy()/]
+  
+[comment retourne le package pour une interface (cas d'une entité)./]
+[query public namePackageEntityItf(e : entity::Entity) : String = ''/]
+  
+[comment retourne le package pour une classe d'interface de la persitance ORM./]
+[query public namePackageEntityPersistItf(e : entity::Entity) : String = 'infra.entities.repositories' + e.blockHierarchy()/]
+  
+[comment retourne le package pour une classe d'implémentation de la persistance ORM./]
+[query public namePackageEntityPersistImpl(e : entity::Entity) : String = 'infra.entities.repositories' + e.blockHierarchy()/]
+
+[comment retourne le package pour une classe d'implémentation (cas d'un objet de transfert)./]  
+[query public namePackageDtoImpl(d : environment::DTO) : String = d.get_suffixCommon() + '.entities' + d.blockHierarchy()/]
+  
+[comment retourne le package pour une classe d'implémentation (cas d'un objet sérialisé)./]  
+[query public namePackageXtoImpl(d : environment::DTO) : String = 'app.entities' + d.blockHierarchy()/]
+  
+[comment retourne le package pour une classe de mapping entre l'objet métier et l'objet d'infrastructure./]  
+[query public namePackageMapperOutImpl(d : environment::DTO) : String = 'infra.entities.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
+  
+[comment retourne le package pour une classe de mapping entre l'objet métier et l'objet application./]  
+[query public namePackageMapperInImpl(d : environment::DTO) : String = 'app.entities.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
+  
+[comment retourne le package pour les classes génériques concernant les services rest./]
+[query public namePackageRsBase(any : ecore::EObject) : String = 'app'/]
+
+[comment retourne le package pour le stockage de toutes les exceptions du projet./]
+[query public namePackageException(any : ecore::EObject) : String = 'app.exceptions'/]
+  
+[comment retourne le package pour les stockage des fichiers de ressources./]
+[query public namePackageResources(any : ecore::EObject) : String = any.dirResources()/]
+  
+[comment retourne le package pour les stockage des fichiers de ressources (partie tests)./]
+[query public namePackageTestResources(any : ecore::EObject) : String = any.dirTestResources()/]
+
+[comment la packahe des requirements, spécifiques pour une catégorie./]  
+[query public namePackageRequirementCategory(c : requirement::Category) : String = if (c.parentCategory = null) 
+  then c.repository.namePackageRequirement() else c.get_packageRequirement() + c.blockHierarchy() endif/]
+  
+[comment ESSAYER DE MUTUALISER ?????./]
+  
+[comment retourne le package en fonction de la hiérarchie des namespaces (cas d'une entité)./] 
+[query public blockHierarchy(e : entity::Entity) : String = if (e.ancestors(environment::Namespace)->size() < 1) then '' else '.' 
+  + e.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()->collect(o2 | o2.oclAsType(environment::Namespace))
+  ->collect(o3 | o3.name)->collect(o4 | o4.sanitize())->collect(o5 | o5.toLower())->sep('.') endif/]
+
+[comment . /]
+[query public blockHierarchy(d : environment::DTO) : String = if d.ancestors(environment::Namespace)->size() < 1 then '' else '.' 
+ + d.ancestors(environment::Namespace)->select(o1 | o1.oclIsTypeOf(environment::Namespace) and not (o1.name = null))
+ ->reverse()->collect(o2 | o2.oclAsType(environment::Namespace))->collect(o3 | o3.name)->collect(o4 | o4.sanitize())
+ ->collect(o5 | o5.toLower())->sep('.') endif/]
+ 
+[comment ./]
+[query public blockHierarchy(r : environment::Reference) : String = if (r.ancestors(environment::Namespace)->size() < 1) then '' else '.' 
+  + r.ancestors(environment::Namespace)->select(o1 | not (o1.name = null))->reverse()->collect(o2 | o2.oclAsType(environment::Namespace))
+  ->collect(o3 | o3.name)->collect(o4 | o4.sanitize())->collect(o5 | o5.toLower())->sep('.') endif/]
+  
+[comment ./]
+[query private blockHierarchy(c : requirement::Category) : String = if (c = null) then '' else '.' 
+  + c.ancestors(requirement::Category)->reverse()->collect(o1 | o1.id)->collect(o2 | o2.sanitize())
+  ->collect(o3 | o3.toLower())->sep('.') endif/]

@@ -1,0 +1,129 @@
+[module xto(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]	
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::query::property/]
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::dto/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::method/]
+[import fr::pacman::back::soa::aql::block::common/]	
+
+[comment écriture de l'implémentation pour un objet métier sérialisé (xto)./]
+[template public xtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
+  , dss : Sequence(environment::DTO))]
+  [d.classHeader(d.namePackageXtoImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [d.defaultImports()/]
+    import java.io.Serializable;
+    import com.fasterxml.jackson.annotation.JsonProperty;
+    import com.fasterxml.jackson.annotation.JsonIgnore;
+    import io.swagger.v3.oas.annotations.media.Schema;
+    import io.swagger.v3.oas.annotations.media.ArraySchema;
+    
+  [/protected]
+  
+  [d.commentClass()/]
+  [protected ('annotations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
+  @Schema(description = "[d.writeDescription()/]")
+  public class [d.nameClassXtoImpl()/] implements Serializable
+  {
+     
+     // CONSTANTES
+     
+     ['SerialUid'.commentMultiLines()/]
+     private static final long serialVersionUID = -1;
+     
+     [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+     [/protected]
+     
+     ['Id'.commentSingleLine()/]
+     @JsonProperty("id")
+     @Schema(description = "Identifiant unique de l'entité", accessMode = Schema.AccessMode.READ_ONLY)
+     private [d.defaultTypePk()/] [d.writePk()/];
+     
+     // ATTRIBUTS
+     
+     [comment liste des tables de liaison pour l'entité (directes + héritées)./]
+     [let jts = d.referencesJTSBResolved()]      [comment liste des clé étrangères (directes + héritées)./] 
+     [let fks = d.referencesFKSBResolved(ds, dss)]
+     [comment liste de toutes les références (clé étrangères + tables de jointure)./]
+     [let rs = jts->union(fks)]
+       
+       [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+         [a.comment().commentSingleLine()/]
+         [protected (a.nameAttribute().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           @JsonProperty("[a.nameAttribute()/]")
+         [/protected]
+         @Schema(description = "[a.writeDescription()/]")
+         private [a.type()/] [a.nameAttribute()/];
+         
+       [/for]
+       [for (r : environment::Reference | rs)]
+         [r.referencedDto(d).comment().commentSingleLine()/]
+         [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]")
+         [/protected]
+         [r.writeShemaAnnotation(d)/]
+         [comment r.containingType <> d and r.isMultiple()/]
+         private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+         
+       [/for]
+               
+       [('Constructeur sans paramètre pour la classe : ' + d.nameClassXtoImpl()).commentMultiLines()/]
+       public [d.nameClassXtoImpl()/] ()
+       {
+         super();
+       }
+       
+       [let e = d.associatedEntity()]
+         /**
+          * Retourne l'identifiant pour le dto. 
+          *
+          * @return la valeur de l'identifiant.
+          */
+          public [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_methodGet()/]()
+          {
+            return [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/];
+          }
+       
+         /**
+          * Affecte l'identifiant pour le dto'. 
+          *
+          * @param la valeur de l'identifiant'.
+          */
+          public void [e.nameSimplePropertyID().apply_methodSet()/](final [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
+          {
+            [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+          }
+       [/let]
+        
+       [d.writeGetterAndSetterForAttributes(d.attributesNoPKAndNoComputed())/]
+       [d.writeGetterAndSetterForReferences(rs, d.cmdXto())/]
+       
+       // METHODES
+       [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       [/protected]
+       
+     [/let][/let]
+     [/let]
+  }
+[/template]
+
+[comment écriture de l'annotation @Schema pour open api./]
+[query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String = if (r.isMultiple()) 
+	then '@ArraySchema(schema = @Schema(implementation =' + r.referencedDto(d).nameClassXtoImpl() + '.class))' 
+	else '@Schema(description = "' + r.writeDescription() + '")' endif/]
+

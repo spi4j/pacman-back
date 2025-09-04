@@ -1,0 +1,15 @@
+[module genEnumeration('http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]	
+[import fr::pacman::back::core::aql::name::classes/]	
+[import fr::pacman::back::core::aql::name::packages/]	
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::common::aql::block::enumeration/]
+
+[comment écriture du fichier d'implémentation pour une énumération./]
+[template public fileEnumerationImpl(e: environment::Enumeration)]
+  [file (e.nameClassEnumeration().toFileJava(e.namePackageEnumeration()), overwrite, e.defaultFileEncoding())]
+    [e.enumerationImpl()/]
+  [/file]
+[/template]
+

@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.back.requirement.spring
+Bundle-ManifestVersion: 2
+Bundle-Name: PacMan back - Requirement - Spring
+Bundle-SymbolicName: fr.pacman.back.requirement.spring
+Bundle-Version: 5.0.0.qualifier
+Bundle-Activator: fr.pacman.back.requirement.spring.plugin.Activator
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.core.runtime,
+ fr.pacman.back.core,
+ org.obeonetwork.dsl.requirement,
+ org.eclipse.acceleo.aql,
+ org.eclipse.acceleo.query
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: fr.pacman.back.requirement.spring.aql.file, 
+ fr.pacman.back.requirement.spring.aql.block 
+

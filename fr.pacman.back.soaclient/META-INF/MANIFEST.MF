@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.back.soaclient
+Bundle-ManifestVersion: 2
+Bundle-Name: PacMan back - Soa - Client
+Bundle-SymbolicName: fr.pacman.back.soaclient
+Bundle-Version: 5.0.0.qualifier
+Bundle-Activator: fr.pacman.back.soaclient.plugin.Activator
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.core.runtime,
+ fr.pacman.back.core,
+ fr.pacman.back.soa,
+ fr.pacman.back.common,
+ fr.pacman.back.soaclient.spring,
+ fr.pacman.back.soaclient.spi4j,
+ org.eclipse.acceleo.aql,
+ org.eclipse.acceleo.query
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: fr.pacman.back.soaclient.main, 
+ fr.pacman.back.soaclient.aql.block

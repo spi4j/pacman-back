@@ -1,0 +1,23 @@
+[module database(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::service::DatabaseUtils/]
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+
+[comment demande la réinitialisation complète pour les compteurs de contrainte (nommage)./]
+[query public resetCounters(any : ecore::EObject) : String = true.do_resetCounters()/]
+ 
+[comment génération de séquences dans tous les cas SAUF Mysql et MariaDB/]
+[query public hasSequence(dbType : String) : Boolean = dbType.use_sequences()/]
+
+[comment retourne le type de colonne en fonction du type de la base de données./]
+[query private typeDataColumn(a : environment::Attribute, dbType : String, size : String) : String = a.get_columnTypeForDatabase(dbType)/]
+
+[comment retourne le type pour une référence en fonction du type de la base données./]
+[query public typeColumnRef(r : environment::Reference, dbType : String) : String = dbType.get_columnTypeForDatabase('Reference')/]
+
+[comment retourne le type pour une primaire en fonction du type de base de données./]
+[query public typeColumnID(dbType : String) : String =  dbType.get_columnTypeForDatabase('Id')/]
+  
+[comment retourne le type pour la clé de jointure en fonction du type de la base de données./]	
+[query public typeColumnIDJoin(dbType : String) : String = dbType.get_columnTypeForDatabase('IdJoin')/]

@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: fr.pacman.back.soaclient.ui
+Bundle-ManifestVersion: 2
+Bundle-Name: PacMan back - Soa Client- UI
+Bundle-SymbolicName: fr.pacman.back.soaclient.ui;singleton:=true
+Bundle-Version: 5.0.0.qualifier
+Bundle-Activator: fr.pacman.back.soaclient.ui.plugin.Activator$Implementation
+Bundle-Vendor: Cali
+Require-Bundle: org.eclipse.emf.ecore,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.core.expressions,
+ org.eclipse.ui,
+ fr.pacman.back.core,
+ fr.pacman.back.core.ui,
+ fr.pacman.back.soaclient,
+ org.eclipse.acceleo.aql,
+ org.eclipse.acceleo.query
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
+Export-Package: fr.pacman.back.soaclient.ui.testers

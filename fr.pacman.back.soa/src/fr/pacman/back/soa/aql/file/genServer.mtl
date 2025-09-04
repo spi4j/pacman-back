@@ -1,0 +1,32 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]	
+[import fr::pacman::back::core::aql::name::classes/]	
+[import fr::pacman::back::core::aql::name::packages/]	
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::soa::aql::block::mapper/]
+[import fr::pacman::back::soa::aql::block::xto/]
+
+[comment écriture du fichier d'implémentation pour un mapper (objet métier -> objet infrastructure)./]
+[template public fileMapperOutImpl(d: environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO))]
+  [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperOutImpl()), overwrite, d.defaultFileEncoding())]
+    [d.mapperOutImpl(ds,dss)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour un mapper (objet métier -> application)./]
+[template public fileMapperInImpl(d: environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO))]
+  [file (d.nameClassMapperImpl().toFileJava(d.namePackageMapperInImpl()), overwrite, d.defaultFileEncoding())]
+    [d.mapperInImpl(ds,dss)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour objet sérialisé./]
+[template public fileXtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
+  , dss : Sequence(environment::DTO))]
+  [file (d.nameClassXtoImpl().toFileJava(d.namePackageXtoImpl()), overwrite, d.defaultFileEncoding())]
+    [d.xtoImpl(ds, dss)/]
+  [/file]
+[/template]
+

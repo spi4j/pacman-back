@@ -1,0 +1,273 @@
+[module reference(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::query::property/]
+[import fr::pacman::back::core::aql::query::eobject/]
+
+[import fr::pacman::back::core::service::DtoEntityUtils/]
+[import fr::pacman::back::core::service::DatabaseUtils/]
+[import fr::pacman::back::core::service::InheritanceUtils/]
+
+[comment liste des requêtes possibles au niveau des références pour les entités. 
+
+         Pour l'obtention du nom de l'objet référencé, dans le deuxième cas on ne peut 
+         se contenter du nom de l'objet il faut aussi le concaténer avec celui de la relation.
+         Ceci pour un cas particulier ou, entre deux entités (ou dtos) on a plusieurs relations 
+         (0,*) ou (1,*), pour la fk inverse il y aurait alors des duplicates. L'objet qui a 
+         la navigabilté récupère donc le nom de la relation et l'objet d'ou part la navigabilité 
+         à le nom de l'objet + celui de la relation. Dans tous les cas cela permet une meilleure 
+         lisibilité./]
+
+[comment retourne le nom pour l'attribut en provenance de la référence (pas de name pour StructuredType)./]
+[query public referencedName(e : entity::Entity, r : environment::Reference) : String = 
+	if(r.isReferenceName(e)) then r.name() else e.name() + '_' + r.name() endif/]
+
+[comment retourne le nom pour l'attribut en provenance de la référence (pas de name pour StructuredType)./]
+[query public referencedName(d : environment::DTO, r : environment::Reference) : String = 
+	if(r.isReferenceName(d)) then r.name() else d.name() + '_' + r.name() endif/]
+
+[comment vérifie si le type référencé implique que l'on doit prendre le nom de la référence et non celui de l'attribut./]
+[query private isReferenceName(r : environment::Reference, st : environment::StructuredType) : Boolean = 
+  r.isMultipleBidirectionnal() or (r.isMultiple() and r.containingType <> st) or r.isRecursive()/]
+  
+[comment raccourci pour l'obtention de l'entité référencée (toujours une entité, 
+		 mais pas toujours referencedType !).
+         Fait pour éviter la verbosité des références inverses... et aussi gérer l'héritage.
+         Cette méthode est souvent appelée  alors qu'il n'y en pas forcément besoin, 
+         mais cela est fait pour uniformiser les appels./]
+[query public referencedEntity(r : environment::Reference, e : entity::Entity) : entity::Entity = 
+	r.referencedType(e).oclAsType(entity::Entity)/]
+
+[comment raccourci pour l'obtention du dto dans le cadre des références (toujours un dto, 
+		 idem pour le reste)./]	
+[query public referencedDto(r : environment::Reference, d: environment::DTO) : environment::DTO = 
+	r.referencedType(d).oclAsType(environment::DTO)/]
+
+[comment raccourci pour l'obtention du 'containedType' dans le cadre d'une entité./]
+[query public containedEntity(r : environment::Reference, e : entity::Entity) : entity::Entity = 
+	r.containedType(e).oclAsType(entity::Entity)/]
+	
+[comment raccourci pour l'obtention du 'containedType' dans le cadre d'une entité./]
+[query public containedDto(r : environment::Reference, d: environment::DTO) : environment::DTO = 
+	r.containedType(d).oclAsType(environment::DTO)/]
+	
+[comment retourne le type référencé (si fonctionne mal peut toujours comparer les identifiants techniques !) 
+		 On sépare complètement la notion d'héritage qui est moins courante et qui si plante, ne porte pas 
+		 préjudice au reste du fonctionnement. Dans le cas de l'héritage si on a une récursivité alors 
+		 ne pas oublier qu'il faut redescendre la récursivité au niveau de la structure héritée (st)./] 
+[query private referencedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+	if (st.supertype <> null) then if (r.isZeroOneRecursive()) st else r.referencedType endif 
+	else if (r.containingType = st) then r.referencedType else r.containingType endif endif/]  
+
+[comment retourne le type contenu. Toujours 'r.containingType' sauf dans le cas de l'héritage ou il faut 
+		 redescendre la relation au niveau de la structure héritée (st)./]
+[query public containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+	if (st.supertype <> null) then st else r.containingType endif/]
+
+[comment vérifie si une référence appartient à un super-type (superclass). Concerne les FKs !
+		 Ne pas oublier que l'héritage est récursif, il n'y a donc pas besoin de remonter 
+		 la grappe pour les références. !!! ATTENTION : cette méthode ne peut peut être appelée 
+		 que pour les types directement issus d'un héritage -> .subTypesEntities() 
+		 ou .subTypesDtos(), sinon ne fonctionnera pas correctement !!!/]
+[query public isSuperTypeReference(r : environment::Reference, st : environment::StructuredType) : Boolean = 
+	st.supertype <> null and st.supertype.references->includes(r) /]
+	
+[comment vérifie si une référence appartient un type hérité (superclass). 
+		 On récupère en second paramètre la liste (éventuelle) des super-types. 
+		 Concerne les JTs !/]
+[query public isSuperTypeReference(r : environment::Reference, sts : Sequence( environment::StructuredType)) : Boolean = 
+	not sts->isEmpty() and (sts->includes(r.containingType) or sts->includes(r.referencedType))/]
+
+[comment vérifie si la référence est une référence inverse et à l'initiative d'une structure héritée.
+		 On récupère en second paramètre la liste (éventuelle) des super-types. Concerne les FKs !/]
+[query public isSuperTypeReference(r : environment::Reference, st : environment::StructuredType
+	, sts : Sequence(environment::StructuredType)) : Boolean = not sts->isEmpty() and (st = r.referencedType) 
+	and sts->includes(r.containingType)/]
+	
+[comment retourne les références triées par nom./]	
+[query private sortedByName(c : Sequence(environment::Reference)) : OrderedSet(environment::Reference) = 
+	c->asOrderedSet()->sortedBy(o | o.name.toLower())/]
+
+[comment retourne les références triées par nom et sans doublon fonctionnel pour les bidirectionnelles./]
+[query private skipDuplicates(c : Sequence(environment::Reference)) : OrderedSet(environment::Reference) = 
+	c->do_skipDuplicates()->sortedByName()/]
+
+[comment vérifie si un référence est de type recursif (0,*)(1,*)./]
+[query public isStarRecursive(r : environment::Reference) : Boolean = r.referencedType = r.containingType 
+  and r.oppositeOf = null and r.isMultiple()/]
+
+[comment vérifie si la référence est de type récursif (0,1) (1)./]
+[query public isZeroOneRecursive(r : environment::Reference) : Boolean = r.referencedType = r.containingType 
+  and not r.isMultiple()/]
+
+[comment vérifie si la référence est de type récursif (0,1)(1)(0,*)(1,*)./]
+[query public isRecursive(r : environment::Reference) : Boolean = r.isZeroOneRecursive() or r.isStarRecursive()/]
+  
+[comment vérifie si pour une entité il existe plusieurs références récursive avec le même nom./]
+[query public hasRecursivesWithSameName(c : OrderedSet(environment::Reference)) : Boolean = c->select(o | o.isRecursive())
+	->collect(o | o.name)->asSet()->size() = c->select(o | o.isRecursive())->size()/]
+
+[comment vérifie si la relation est bidirectionnelle et multiple (n-n)./]
+[query public isMultipleBidirectionnal(r : environment::Reference) : Boolean = 
+	r.isMultiple() and r.oppositeOf <> null and r.oppositeOf.isMultiple()/]
+
+[comment vérifie si la référence exige une entité ou un dto/xto (les listes sont considérées comme obligatoire)./]
+[query public isMandatory(r : environment::Reference) : Boolean = if (r.exists()) then not (r.multiplicity = 
+	environment::MultiplicityKind::ZERO_ONE) else false endif/]
+	
+[comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto, la requête est 
+		légèrement différente de 'referencesFK' et fonctionne sur les deux diagrammes (entity / soa).
+		-> pour spring boot uniquement./]	
+[query public referencesFKSB(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+	st.references
+	->select(o | (o.oppositeOf = null 
+		and not (o.isMultiple() 
+		and o.referencedType = st)))		
+	->union(st.eContainer( if (st.oclIsKindOf(entity::Entity)) 
+		then entity::Root else soa::System endif)
+		.eAllContents(environment::Reference)
+	->select(o | o.oppositeOf = null 
+		and o.isMultiple() 
+		and o.referencedType = st
+		and not (o.containingType = o.referencedType)))			
+	->sortedByName()/]
+
+[comment retourne les références simples niveau entité (FK) : 
+		- relations unidirectionnelles et récursives (0,1)(1)
+		- relations unidirectionnelles (0,*)(1,*) inversées (A->B devient B->A)
+		-> pour scripts sql et spi4j uniquement./]
+[query public referencesFK(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+	st.references
+	->select(o | (o.oppositeOf = null 
+		and not o.isMultiple()))					
+	->union(st.eContainer(entity::Root).eAllContents(environment::Reference)
+	->select(o | o.oppositeOf = null 
+		and o.isMultiple() 
+		and o.referencedType = st
+		and not (o.containingType = o.referencedType)))
+	->sortedByName()/]
+
+[comment on prend la liste complète des fks, on distingue une liste des fk inverses héritées, que l'on supprime 
+         de la liste des fks initiales, pour chaque fk héritée on crée une nouvelle référence par entité héritée, on 
+         re-concatène le tout avec les autres références fks. 
+         Ne pas oublier que l'on interdit les relations entre tables héritées, il est donc impossible d'avoir une 
+         table héritée en référence -> il n'y a donc jamais besoin de faire un downgrade sur une fk non inverse. 
+         Note : ifks = 'initial-fks', fkis = 'fks-inherited'. 
+         ATTENTION : cela signifie donc que le downgrade n'est pas effectué pour l'ensemble des fks, il n'y a pas 
+         d'impact au niveau de la couche 'entity/dto/xto' et tout le système est fait pour fonctionner de cette 
+         manière, par contre il y a un impact au niveau des mappers. Il y a donc un traitement particulier à 
+         effectuer à ce niveau. 
+         C'est cette méthode qui est appelée pour la récupération des clés étrangères pour les entités, etc.. et la 
+         création des scripts SQL. Elle seule a une surcouche qui pemet de gérer correctement la notion d'héritage.
+         Si tout n'est pas intégré dès le départ c'est uniquement pour pouvoir séparer les différentes notions et 
+         éventuellement deconnecter le plus simplement possible la notion d'héritage./] 
+[query private referencesFKResolved(st : environment::StructuredType, es : Sequence(environment::StructuredType)
+	, ess : Sequence(environment::StructuredType), rs : OrderedSet(environment::Reference)) : OrderedSet(environment::Reference) = 
+	let fkis = rs->reject(o | not o.isSuperTypeReference(st, ess)) in rs->select(o1 | not fkis->includes(o1)) 
+    ->union(fkis->collect(r | es->select(o2 | o2.isSubType(r.containingType) or o2.isSubType(r.referencedType))
+    ->collect(o3 | r.downgradeReference(o3))->collect(o4 | o4.set_multiplicityZeroStar())))/]
+
+[comment liste complète des clés étrangères avec héritage -> pour spring boot uniquement./]
+[query public referencesFKResolved(st : environment::StructuredType, es : Sequence(environment::StructuredType)
+	, ess : Sequence(environment::StructuredType)) : OrderedSet(environment::Reference) = 
+	st.referencesFKResolved(es,ess,st.referencesFK())/]
+
+[comment liste complètes des clés étrangères avec héritage -> pour sql et spi4j uniquement./]
+[query public referencesFKSBResolved(st : environment::StructuredType, es : Sequence(environment::StructuredType)
+	, ess : Sequence(environment::StructuredType)) : OrderedSet(environment::Reference) = 
+	st.referencesFKResolved(es,ess,st.referencesFKSB())/]
+
+[comment retourne les références pour les tables de jointure : 
+		- les relations bidirectionnelles (*,*)
+		- les relations unidirectionnelles récursives (0,*)(1,*)
+		-> pour scripts sql et spi4j uniquement./]	
+[query private referencesJT(rs : Sequence(environment::Reference)) : Sequence(environment::Reference) = 
+	rs->select(o : environment::Reference | o.isMultiple() 
+		and (not (o.oppositeOf = null) 
+		and o.oppositeOf.isMultiple()
+		and o.navigable) 
+		or (o.oppositeOf = null 
+		and o.isMultiple() 
+		and o.referencedType = o.containingType))/]
+
+[comment retourne les références des tables de jointure pour les deux diagrammes (entity / soa) 	
+ 		-> pour scripts sql, spi4j, spring boot. Pour l'instant ne gère pas l'héritage à ce niveau, 
+ 		préfère passer par une autre requête pour trouver les références bidirectionnelles héritées 
+ 		afin de ne pas alourdir (et polluer) cette méthode. Avoir dans le futur si on incorpore 
+ 		les bidirectionnelles héritées./]
+[query public referencesJT(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+	st.ownedReferences
+	->referencesJT()
+	->sortedByName()/]	
+	
+[comment retourne les références héritées des tables de jointure pour les deux diagrammes (entity / soa) 
+		 -> pour scripts sql, spi4j, spring boot./]
+[query public referencesJT(root : environment::NamespacesContainer, st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+	root.referencesJT()
+	->select(o | o.isSuperTypeReference(st))/]
+
+[comment retourne les références des tables de jointure, niveau root 
+		-> pour scripts sql et spi4j uniquement./]
+[query public referencesJT(root : environment::NamespacesContainer) : OrderedSet(environment::Reference) = 
+	root.eAllContents(environment::Reference)
+	->referencesJT()
+	->do_skipDuplicates()
+	->sortedByName()/]
+	
+[comment on récupère la liste des références pour les tables de jointures spécifiques pour la structure, et on ajoute 
+		 toutes les tables de jointure qui sont héritées, pour chaque liaison de jointure héritée on effectue un downgrade 
+		 pour ramener la référence au niveau de la structure que l'on traite. Seule, cette méthode  a une surcouche qui permet 
+		 de gérer correctement la notion d'héritage. Si tout n'est pas intégré dès le départ c'est uniquement pour pouvoir 
+		 séparer les différentes notions et éventuellement deconnecter le plus simplement possible la notion d'héritage.
+		 -> pour spring boot uniquement./]  
+[query public referencesJTSBResolved(st : environment::StructuredType) : OrderedSet(environment::Reference) = 
+	st.referencesJT()->union(st.root().referencesJT(st)->collect(o | o.downgradeReference(st)))/]
+
+[comment on récupère la liste des références pour les tables de jointures spécifiques pour le root, et on ajoute 
+		 toutes les tables de jointure qui sont héritées, pour chaque liaison de jointure héritée on effectue un downgrade 
+		 pour ramener la référence au niveau de la structure que l'on traite. Seule, cette méthode  a une surcouche qui permet 
+		 de gérer correctement la notion d'héritage. Si tout n'est pas intégré dès le départ c'est uniquement pour pouvoir 
+		 séparer les différentes notions et éventuellement deconnecter le plus simplement possible la notion d'héritage.
+		 -> pour spring boot uniquement. -> pour spi4j et scripts SQL uniquement./]
+[query public referencesJTResolved(root : environment::NamespacesContainer, es : Sequence(environment::StructuredType)
+	, ess : Sequence(environment::StructuredType)) : OrderedSet(environment::Reference) = let rs = root.referencesJT() in let irs = 
+	root.referencesJT()->reject(o | not o.isSuperTypeReference(ess)) in rs->select(o1 | not irs->includes(o1))
+	->union(irs->collect(r | es->select(o2 | o2.isSubType(r.containingType) or o2.isSubType(r.referencedType))
+	->collect(o3 | r.downgradeReference(o3))))/]
+  
+[comment écriture du type complet pour les entités ou les dtos référencés (pas d'optional sinon plante jpa)./]
+[query public referencedTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
+  if (r.isMultiple() and r.containedType(st) = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
+  + if (st.oclIsKindOf(entity::Entity)) then r.referencedEntity(st).nameClassEntityImpl() 
+  else r.referencedDto(st.oclAsType(environment::DTO)).nameClassDtoImpl() endif + '>' 
+  else if (st.oclIsKindOf(entity::Entity)) then  r.referencedEntity(st).nameClassEntityImpl() 
+  else r.referencedDto(st.oclAsType(environment::DTO)).nameClassDtoImpl() endif endif /]
+  
+[comment écriture du type complet pour les types référencés en sortie vers la couche application./]
+[query public referencedOutTypeSignature(r : environment::Reference, st : environment::StructuredType) : String = 
+  if (r.isMultiple() and r.containedType(st) = st) then if (r.isMultipleBidirectionnal()) then 'Set<' else  'List<' endif  
+  +  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() + '>' 
+  else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]
+
+[comment en Acceleo, deux objets peuvent être considérés comme différents même s’ils ont le même identifiant technique 
+         car l'identité des objets est aussi basée sur leur référence mémoire ou leur instance EMF, pas uniquement sur 
+         leurs attributs. Comme avec l'héritage on effectue un 'downgrade' par copie, on récupère une nouvelle référence 
+         mémoire et l'égalité n'est plus aquise alors qu'il s'agit bien du même objet. On se contente alors juste d'une 
+         égalité sur l'identifiant technique, ce qui est suffisant pour notre utilisation./]
+[comment query public isTypeContained(r : environment::Reference, st : environment::StructuredType) : Boolean =  
+  r.containingType = st or r.containingType.technicalid.equalsIgnoreCase(st.technicalid)/]
+  
+[template public blockHierarchy(r : environment::Reference) post(self.trim())]
+  [if (r.ancestors(environment::Namespace)->size() < 1)]
+  [else]
+    .[r.ancestors(environment::Namespace)->select(temp6 | not (temp6.name = null))
+    ->reverse()->collect(temp7 | temp7.oclAsType(environment::Namespace))
+    ->collect(temp8 | temp8.name)->collect(temp9 | temp9.safeCamelCase())
+    ->collect(temp10 | temp10.toLower())->sep('.')/]
+  [/if]
+[/template]  

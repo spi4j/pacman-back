@@ -1,9 +1,0 @@
-[module genValidation(	'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
-
-[import fr::pacman::soaclient::aql::block::validation/]
-
-[comment @main/]
-[comment lancement de la validation pour la modélisation./]
-[template public genValidation(s : soa::System)]
-  [s.validation()/]
-[/template]
