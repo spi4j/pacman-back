@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.requirement.spring
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Requirement - Spring
+Bundle-Name: PacMan Back - Requirement - Spring
 Bundle-SymbolicName: fr.pacman.back.requirement.spring
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.requirement.spring.plugin.Activator

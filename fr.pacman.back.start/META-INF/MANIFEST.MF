@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.start
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Start
+Bundle-Name: PacMan Back - Start
 Bundle-SymbolicName: fr.pacman.back.start
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.start.plugin.Activator

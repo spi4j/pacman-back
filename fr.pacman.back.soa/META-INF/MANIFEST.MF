@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.soa
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Soa
+Bundle-Name: PacMan Back - Soa
 Bundle-SymbolicName: fr.pacman.back.soa
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.soa.plugin.Activator

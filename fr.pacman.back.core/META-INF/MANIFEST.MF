@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.core
 Bundle-ManifestVersion: 2
-Bundle-Name: Pacman back - Core
+Bundle-Name: Pacman Back - Core
 Bundle-SymbolicName: fr.pacman.back.core
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.core.plugin.Activator

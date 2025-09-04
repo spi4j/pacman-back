@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.requirement.ui
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Requirement - UI
+Bundle-Name: PacMan Back - Requirement - UI
 Bundle-SymbolicName: fr.pacman.back.requirement.ui;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.requirement.ui.plugin.Activator$Implementation

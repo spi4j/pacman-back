@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.config
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Configuration
+Bundle-Name: PacMan Back - Configuration
 Bundle-SymbolicName: fr.pacman.back.config
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.config.plugin.Activator

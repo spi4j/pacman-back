@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.common
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Common
+Bundle-Name: PacMan Back - Common
 Bundle-SymbolicName: fr.pacman.back.common
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.common.plugin.Activator

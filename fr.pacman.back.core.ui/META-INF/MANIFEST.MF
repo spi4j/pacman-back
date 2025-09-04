@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.core.ui
 Bundle-ManifestVersion: 2
-Bundle-Name: Pacman back - Core - UI
+Bundle-Name: Pacman Back - Core - UI
 Bundle-SymbolicName: fr.pacman.back.core.ui;singleton:=true
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.core.ui.plugin.Activator

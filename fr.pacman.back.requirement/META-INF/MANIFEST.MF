@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.requirement
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Requirement
+Bundle-Name: PacMan Back - Requirement
 Bundle-SymbolicName: fr.pacman.back.requirement
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.requirement.plugin.Activator

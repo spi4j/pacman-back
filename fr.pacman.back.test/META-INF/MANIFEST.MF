@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.test
 Bundle-ManifestVersion: 2
-Bundle-Name: Pacman back - Tests
+Bundle-Name: Pacman Back - Tests
 Bundle-SymbolicName: fr.pacman.back.test
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: Cali

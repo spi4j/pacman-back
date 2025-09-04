@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.sql
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - SQL
+Bundle-Name: PacMan Back - SQL
 Bundle-SymbolicName: fr.pacman.back.sql
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.sql.plugin.Activator

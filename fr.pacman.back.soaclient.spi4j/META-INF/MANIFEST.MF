@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.soaclient.spi4j
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Soa - Client
+Bundle-Name: PacMan Back - Soa - Client
 Bundle-SymbolicName: fr.pacman.back.soaclient.spi4j
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.soaclient.spi4j.plugin.Activator

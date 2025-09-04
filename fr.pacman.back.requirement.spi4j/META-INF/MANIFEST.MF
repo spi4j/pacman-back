@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Automatic-Module-Name: fr.pacman.back.requirement.spi4j
 Bundle-ManifestVersion: 2
-Bundle-Name: PacMan back - Requirement - Spi4j
+Bundle-Name: PacMan Back - Requirement - Spi4j
 Bundle-SymbolicName: fr.pacman.back.requirement.spi4j
 Bundle-Version: 5.0.0.qualifier
 Bundle-Activator: fr.pacman.back.requirement.spi4j.plugin.Activator
