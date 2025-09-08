@@ -111,19 +111,30 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <ul>
 <li>20/05/2025 : Initialisation du document.</li>
 <li>04/06/2025 : Ajouts : Coffre fort, Héritage, Relations, Règles de gestion, Transactions.</li>
+<li>01/09/2025 : Modifications : Validation, Installation, Introduction, Structure générale du sommaire.</li>
+<li>01/09/2025 : Ajouts : Création d'un projet client, Génération d'un projet client.</li>
 </ul>
 <hr/>
 <h2 id="introduction">🚀 Introduction</h2>
 <hr/>
 <p>Cette documentation décrit le fonctionnement du plugin Eclipse <strong>Pacman</strong>, nouvelle version <strong>V5</strong>, dont l'objectif est de générer automatiquement du code Java à partir de différentes modélisations graphiques sous ISD (Information System Designer). </p>
-<p>Elle apporte l'ensemble des informations nécessaires sur la modélisation et la génération d'une application de type <strong>backend</strong> afin de mettre à disposition un ou plusieurs services REST pour une application de type <strong>frontend</strong>. </p>
+<p>Elle apporte l'ensemble des informations nécessaires sur la modélisation et la génération  : </p>
+<ul>
+<li>
+<p>d'une application de type <strong>backend</strong> afin de mettre à disposition un ou plusieurs services REST pour une application de type <strong>frontend</strong>.  </p>
+</li>
+<li>
+<p>d'une application de type <strong>backend&lt;-&gt;frontend</strong> afin de mettre à disposition du <strong>backend</strong> une librairie permettant d'appeler un fournisseur de services externes et de chainer les appels. Il est ainsi possible d'avoir un <strong>backend</strong> qui va lui-même appeler des services externes et retourner l'ensemble des informations éventuellement complétées par les informations issues directement du  <strong>backend</strong>. </p>
+</li>
+</ul>
+<p>Dans le cadre de ce document l'api utilisée sera l'api "<em>TheTVDB</em>" qui permet d'interroger une base de données contenant des films et séries télévisées (https://www.thetvdb.com/).</p>
 <p>Elle est destinée aux développeurs souhaitant comprendre et utiliser l'ensemble des générateurs. </p>
 <p>Il est à noter que cette documentation ne rentre pas dans les détails de la modélisation de l'application, aspect dont les bases sont censées être déjà connues et maîtrisées par les developpeurs qui vont utiliser cette version du plugin  <strong>pacman</strong>. Se reporter aux différents documents ad hoc pour plus d'informations sur ce sujet.</p>
 <p>❗ Les nommages des différentes classes est ici donné avec la configuration par défaut du fichier de nommage qui est généré avec un nouveau projet. Il sont donc susceptibles d'évoluer en fonction des règles précisées par les développeurs de l'application cible.</p>
 <p>❗ De nombreux exemples de code Java sont donnés dans le cadre de ce document, afin de ne pas rendre le code trop verbeux et trop long à lire, ces exemples ont pour la plupart, été expurgés de la majorité des commentaires de type Javadoc.</p>
-<h2 id="le-plugin-et-larchitecture-hexagonale">🧩 Le Plugin et l'architecture hexagonale</h2>
+<h2 id="plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</h2>
 <hr/>
-<h3 id="pacman">Pacman</h3>
+<h3 id="plugin-pacman">Plugin Pacman</h3>
 <p>Pacman V5 est un un générateur de code basé sur  : </p>
 <ul>
 <li>
@@ -183,6 +194,15 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>Le plugin (sous forme de fichier au format .zip) est téléchargeable à partir de l'URI suivante : https://github.com/spi4j/pacman-back...</li>
 <li>Charger le plugin et le stocker dans un répertoire de votre choix sur le disque. </li>
 </ul>
+<p>1b - Compilation des sources (développement)</p>
+<p>Il est aussi possible de récupérer l'ensemble des sources et de les compiler (JDK 17 au minimum et Maven 3.9.9) afin d'obtenir l'update site. Les étapes sont les suivantes : </p>
+<ul>
+<li>Créer un répertoire sur le disque local</li>
+<li>Lancer la commande : <code>git clone https://github.com/spi4j/pacman-back.git</code></li>
+<li>Se positionner dans le répertoire <code>cd pacman-back</code></li>
+<li>Lancer la commande : <code>mvn clean install -P integration</code></li>
+<li>Récupérer le zip de l'update site dans le répertoire <strong><em>target</em></strong> du projet <strong><em>fr.pacman.update</em></strong></li>
+</ul>
 <p>2 - Installation dans Eclipse  </p>
 <ul>
 <li>Ouvrir Information System Designer et aller dans le menu "<em>/Help/Install New Software...</em>".</li>
@@ -238,7 +258,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div align="center">
 <img alt="Installation" src="images/pcm-install-7.png" width="500"/>
 </div>
-<h2 id="creation-dun-projet">☕ Création d'un projet</h2>
+<h2 id="creation-du-projet">☕ Création du projet</h2>
 <hr/>
 <p>Une fois ISD activé, se positionner sur la perspective "<em>Modeling</em>", située en haut à gauche de l'IDE.   </p>
 <p>Puis, se positionner (comme tout autre création de projet) sur la vue "<em>Model Explorer</em>" et effectuer un click droit "<em>New/Project...</em>" ou se positionner dans le menu "<em>File/New/Project...</em>" en haut de l'IDE. </p>
@@ -248,7 +268,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Naviguer dans l'arborescence jusqu'au répertoire "<em>IS Designer</em>" et sélectionner "<em>Projet Cali</em>". Une fenêtre de création d'un nouvel applicatif de type "Pacman" apparait alors afin de saisir les diverses informations structurantes pour la génération du projet. </p>
 <h3 id="wizard-de-creation">Wizard de création</h3>
 <p>Trois onglets sont disponibles : </p>
-<p>➤ <strong>Projet</strong> : Saisir le nom désiré pour le projet, ainsi que l'auteur ou l'organisme, par défaut le package racine est automatiquement créé en fonction du nom préalabalement saisi. Il est toutefois possible de le modifier manuellement en le saisissant directement dans le champ prévu à cet effet. Au niveau des options la version actuelle de <strong>Pacman</strong> ne permet de créer que des projets de services REST avec le framework SpringBoot. Les champs "Type" et "Framework" ne contiennent donc pour l'instant qu'une seule valeur, à l'heure de l'écriture de ce document. Enfin sélectionner la (ou les) bases de données à l'aide des deux listes déroulantes et des deux boutons pour faire passer la sélection de l'une à l'autre des listes.</p>
+<p>➤ <strong>Projet</strong> : Saisir le nom désiré pour le projet, ainsi que l'auteur ou l'organisme, par défaut le package racine est automatiquement créé en fonction du nom préalabalement saisi. Il est toutefois possible de le modifier manuellement en le saisissant directement dans le champ prévu à cet effet. Au niveau des options la version actuelle de <strong>Pacman</strong> ne permet de créer que des projets de services REST avec le framework SpringBoot. Le champ Framework" ne contient pour l'instant qu'une seule valeur, à l'heure de l'écriture de ce document. Enfin sélectionner la (ou les) bases de données à l'aide des deux listes déroulantes et des deux boutons pour faire passer la sélection de l'une à l'autre des listes.</p>
 <p>❗ La base H2 est toujours embarquée par défaut, ne serait-ce que pour les tests unitaires.</p>
 <div align="center">
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-2.png" width="500"/>
@@ -274,6 +294,11 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div align="center">
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-4.png" width="500"/>
 </div>
+<p>Pour une demande de projet de type "<strong>appel de services externes</strong>" (création d'une librairie Java pour appeler un fournisseur services externes à partir d'un fichier Swagger), sélectionner la valeur "<em>Appel de services externes de type Rest</em>" au niveau de la rubrique "<em>Type</em>" sur le premier panneau du wizard de création. </p>
+<div align="center">
+<img alt="Nouveau projet pacman" src="images/pcm-new-project-5.png" width="500"/>
+</div>
+<p>❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "<strong>Base de données</strong>" et "<strong>Autres</strong>". En effet ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  </p>
 <p>❗ Bien noter que le contrôle de la saisie est effectué en temps réel et que le bouton "<em>Finish</em>" ne sera pas activé tant que la saisie utilisateur n'aura pas passé l'ensemble des contrôles de cohérence. Il est donc important de toujours vérifier le message informatif en haut du formulaire afin de vérifier ce qui manque ou n'est pas conforme au niveau de la saisie.</p>
 <p>Une fois la validation du formulaire effectuée en cliquant sur le bouton "<em>Finish</em>",  des vues vont être automatiquement activées (si certaines ne le sont pas déjà) au niveau de l'IDE. 
 Il s'agit des vues suivantes : </p>
@@ -284,17 +309,11 @@ Il s'agit des vues suivantes : </p>
 <li><strong>ErrorLog</strong> : La vue concernant les erreurs et informations sur les générations.</li>
 <li><strong>JUnit</strong> : La vue concernant les tests unitaires.</li>
 <li><strong>Récapitulatif pour le projet</strong> : Si la case "<em>Affichage automatique du fichier lisezmoi</em>" a été cochée au niveau du formulaire de création du projet, vue affichant le récapitulatif HTML pour la création du projet.</li>
+<li><strong>Rapport de validation</strong> : La vue qui permet de visualiser et corriger les différentes erreurs de validation (si présentes).</li>
 </ul>
 <p>❗ Selon l'état de l'IDE (juste ouvert, développeur ayant déjà travaillé dessus, etc...), il se peut que la création initiale du projet prenne un peu de temps, l'IDE ayant besoin de charger de nombreuses ressources pour travailler. Suivre les différentes étapes de la création à l'aide de la vue de progression des tâches qui est automatiquement mise en avant. </p>
 <h3 id="fichiers-generes">Fichiers Générés</h3>
-<p>Par la suite dans ce document le projet d'exemple sera appelé simplement "demo". Il est créé avec les options suivantes : </p>
-<ul>
-<li>Base de données H2 uniquement.</li>
-<li>"<em>TBL_</em>" comme préfixe pour l'ensemble des tables dans les scripts SQL.</li>
-<li>"<em>SCH</em>" comme schéma pour la datasource.</li>
-<li>"<em>REQ_</em>" comme préfixe pour l'ensemble des règles de gestion.</li>
-<li>"<em>Xtopsup</em>, <em>Xdmaj</em> et <em>Xuuid</em>" sélectionnés en tant que champs automatiques.</li>
-</ul>
+<p>Par la suite dans ce document le projet d'exemple sera appelé simplement "demo" (qu'il s'agisse d'un projet de type <strong>fournisseur</strong> de services ou consommateur (<strong>client</strong>) de services). </p>
 <p>❗ Dans tous les fichiers et classes générées, il est possible de trouver des balises de type "<em>user code</em>". Ces balises ressemblent à ceci : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code 56bcd4f8dd30c88089557e348b4165dc</span>
 
@@ -302,6 +321,15 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <p>Ces balises ont été positionnées à des endroits considérés comme stratégiques par le développeur du générateur, elles permettent par la suite de positionner du code personnalisé par le développeur de l'application cible sans que celui-ci soit par la suite, écrasé lors des prochaines demandes de génération. </p>
 <p>❗ Toutes les classes de haut niveau sont générées avec le nom de l'application en préfixe, cela permet de mieux les distinguer des autres classes issues de la modélisation utilisateur.</p>
+<h4 id="cas-fournisseur">📁 Cas fournisseur</h4>
+<p>Il est créé avec les options suivantes : </p>
+<ul>
+<li>Base de données H2 uniquement.</li>
+<li>"<em>TBL_</em>" comme préfixe pour l'ensemble des tables dans les scripts SQL.</li>
+<li>"<em>SCH</em>" comme schéma pour la datasource.</li>
+<li>"<em>REQ_</em>" comme préfixe pour l'ensemble des règles de gestion.</li>
+<li>"<em>Xtopsup</em>, <em>Xdmaj</em> et <em>Xuuid</em>" sélectionnés en tant que champs automatiques.</li>
+</ul>
 <p>Comme vu précédemment, la structure créée est donc la suivante : </p>
 <p><img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-1.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 120px;"/>
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-2.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 200px;"/>
@@ -404,9 +432,30 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="nt">&lt;/configuration&gt;</span>
 <span class="w"> </span><span class="nt">&lt;/plugin&gt;</span>
 </code></pre></div>
-<h2 id="les-fichiers-de-configuration-spring">📝 Les fichiers de configuration Spring</h2>
+<h4 id="cas-client">📁 Cas client</h4>
+<p>La structure créée est la suivante : </p>
+<p><img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-1.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 120px;"/>
+<img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-2.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 200px;"/>
+<img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-3-b.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 205px;"/>
+<img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-4.png" style="display: inline-block; vertical-align: top; width: 215px;"/></p>
+<p>➤ Le projet "<strong><em>demo</em></strong>" (comme dans le cas d'un projet de type fournisseur) n'a que pour seul et unique but de servir de projet parent pour l'ensemble des autres projets Maven. Il a donc uniquement un fichier <em>pom.xml</em> auquel se réfèrent tous les autres <em>pom.xml</em> des projets fils.</p>
+<p>➤ Le projet "<strong><em>demo-domain</em></strong>" qui porte l'ensemble des objets de transfert (DTO) métier ne contient aucune classe par défaut puisque l'ensemble des objets métier sont créés uniquement via les générateurs à partir du fichier de modélisation SOA. </p>
+<p>➤ Le projet "<strong><em>demo-model</em></strong>" qui contient la couche de modélisation avec cette fois ,uniquement un fichier  <strong><em>[nom du projet].soa</em></strong>, en l'occurence le fichier de modélisation pour l'ensemble des services.</p>
+<p>Au niveau du répertoire <strong><em>/pacman-properties</em></strong> les deux fichiers de paramètrage sont toujours présents. </p>
+<p>➤ Le projet "<strong><em>demo-server</em></strong>" qui contient l'ensemble des classes de haut niveau qui sont nécessaires pour l'écriture, le fonctionnement et les test des différents services client. Par défaut un seul package est généré : </p>
+<p>•️ <strong><em>[package racine].app</em></strong> : package racine pour la couche applicative, contient par défaut les classes de haut niveau pour le bon fonctionnement des appels REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité. Ces classes étant peu nombreuses il est ici possible de les lister : </p>
+<ul>
+<li><strong><em>[Nom de l'application]WebClientConfigImpl</em></strong> : Classe de configuration pour le client. Elle permet  notamment de gérer l'écriture des logs lorsque la librairie est en phase de test. </li>
+<li><strong><em>[Nom de l'application]WebClientHelper</em></strong> : Classe "principale" de la librairie, elle contient l'ensemble des couches techniques qui permettent d'écrire de manière "simple et lisible" les différents services d'appel qui seront modélisés au niveau du fichier "<strong>.soa</strong>".</li>
+<li><strong><em>[Nom de l'application]WebClientUtil</em></strong> : Classe utilitaire permettant de transformer simplement des tableaux associatifs (Maps) de type "<em>String, Object</em>" en tables de type "<em>String, String</em>"</li>
+</ul>
+<p>• <strong><em>/src/main/resources</em></strong> : contient le fichier de configuration SpringBoot pour l'application.</p>
+<p>Par défaut, relativement peu de code au niveau du fichier Maven (<em>pom.xml</em>), juste retenir que le projet à une dépendance vers la couche domaine (<strong><em>[nom de l'application]-domain</em></strong>).</p>
+<p>❗ Il est à noter que la notion de "circuit-breaker" n'est pas prise en compte au niveau du projet de type "<strong>client</strong>". En effet, l'objectif de ce type de projet étant de simplement fournir une librairie qui va premettre d'interroger un fournisseur et non pas d'en préciser les modalités d'appel. C'est donc au niveau du projet qui va encapsuler cette librairie d'implémenter ou non cette notion.</p>
+<h2 id="fichiers-de-configuration">📝 Fichiers de configuration</h2>
 <hr/>
-<h3 id="applicationproperties">application.properties</h3>
+<h3 id="cas-fournisseur_1">📁 Cas fournisseur</h3>
+<h4 id="applicationproperties">application.properties</h4>
 <p>Le fichier permet de configurer le framework SpringBoot. Il contient un ensemble de propriété par défaut, il est possible d'en rajouter et évidemment de les modifier à loisir. Il a été divisé en plusieurs sections qui sont respectivement : </p>
 <ul>
 <li>Le paramétrage de l'api de santé.</li>
@@ -477,7 +526,7 @@ Il s'agit des vues suivantes : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Un exemple de cle symetrique (pour le developpement uniquement).</span>
 <span class="na">security.jwt.secret</span><span class="o">=</span><span class="s">HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F</span>
 </code></pre></div>
-<p>Outre la définition du port et du contexte, une clé symétrique est automatiquement mide à disposition pour la classe de gestion de la sécurité des services REST lors du développement (à supprimer en production). </p>
+<p>Outre la définition du port et du contexte, une clé symétrique est automatiquement mise à disposition pour la classe de gestion de la sécurité des services REST lors du développement (à supprimer en production). </p>
 <p>Elle est utilisée dans le cadre de la modélisation et de la génération automatique d'une sécurité de type <em>Http</em> ou <em>ApiKey</em>. Grâce à la mise à disposition de cette clé, il n'y a rien à faire (hormis le paramétrage du jeton JWT attendu) pour la mise en place de ce type de sécurité.</p>
 <h4 id="logging">Logging</h4>
 <p>La configuration pour les fichiers de log :</p>
@@ -497,7 +546,7 @@ Il s'agit des vues suivantes : </p>
 <p>Par défaut c'est le profil de développement qui est activé pour Spring :  </p>
 <div class="codehilite"><pre><span></span><code><span class="na">spring.profiles.active</span><span class="o">=</span><span class="s">dev</span>
 </code></pre></div>
-<p>L'utilisation de ce profil permet nottament dans le cadre des tests unitaires pour la couche de persistance, de désactiver l'initialisation des champs automatiques (champs supplémentaires communs à l'ensemble des tables de la base de données) afin d'effectuer cette initialisation avec des valeurs spécifiquement fournies par le développeur du projet.</p>
+<p>L'utilisation de ce profil permet nottament dans le cadre des tests unitaires pour la couche de persistance, de désactiver l'initialisation des champs automatiques (champs supplémentaires communs à l'ensemble des tables de la base de données) afin d'effectuer cette initialisation avec des valeurs qui seront spécifiquement fournies par le développeur du projet.</p>
 <h4 id="cache">Cache</h4>
 <p>Cette propriété agit sur l’implémentation du cache utilisée par Spring Boot lorsqu’on utilise l’annotation @Cacheable, @CachePut, @CacheEvict, etc. Par défaut, elle utilise un cache en mémoire très basique (ConcurrentHashMap). </p>
 <p>Dans la configuration actuelle, bon pour des tests ou des petits projets.</p>
@@ -549,7 +598,7 @@ Il s'agit des vues suivantes : </p>
 <span class="na">spring.jpa.open-in-view</span><span class="o">=</span><span class="s">false</span>
 </code></pre></div>
 <p>La propriété essentielle pour la couche de persistance ! <strong>Pacman</strong> est un ensemble de générateurs destinés à la création de services REST. La notion de "<em>LAZYLOADING</em>" devrait donc être totalement absente dans les applications qui sont générées (hormis cas particuliers par la suite). Par ailleurs, le chargement par défaut pour les relations est toujours effectué en "<em>EAGER</em>" (sauf demande expresse au niveau de la modélisation). Il est donc totalement inutile et (à notre sens) deconseillé de positionner ce paramètre avec la valeur "<em>true</em>", ce qui laisserait ouverte la session JPA jusqu'a la couche applicative. La session devrait à priori être toujours fermée dès la requête initiale a été effectuée.</p>
-<h3 id="testsproperties">tests.properties</h3>
+<h4 id="testsproperties">tests.properties</h4>
 <p>Ce fichier permet de configurer le framework SpringBoot pour le déroulement des tests d'intégration pour l'ensemble de la couche  d'infrastructure. A ce niveau, il s'agit juste de configurer une datasource, le paramétrage n'implique à priori pas de commentaire particulier hormis le fait que le paramètre "<strong><em>spring.jpa.defer-datasource-initialization</em></strong>" est commenté puisque la demande de création de la base de données n'est plus gérée par le cycle de vie de Spring mais est expressement demandée par programmation. Le paramètre est toutefois conservé pour mémoire.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">## Base H2 embarquee par defaut.</span>
 <span class="na">spring.datasource.url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">jdbc:h2:mem:testdemo;DB_CLOSE_DELAY=-1</span>
@@ -571,11 +620,46 @@ Il s'agit des vues suivantes : </p>
 <span class="na">logging.level.org.hibernate.type.descriptor.sql.BasicBinder</span><span class="o">=</span><span class="s">TRACE</span>
 <span class="na">logging.level.org.hibernate.orm.jdbc.bind</span><span class="o">=</span><span class="s">TRACE</span>
 </code></pre></div>
-<h2 id="generation-de-la-couche-de-persistance">🛢️ Génération de la couche de persistance</h2>
+<h3 id="cas-client_1">📁 Cas client</h3>
+<h4 id="applicationproperties_1">application.properties</h4>
+<p>Le fichier permet de configurer le framework SpringBoot. Il contient un ensemble de propriété par défaut, il est possible d'en rajouter et évidemment de les modifier à loisir. Dans le cas d'un projet de type "<strong>client</strong>", il contient par défaut très peu de propriétés. </p>
+<p>Ce fichier est le suivant : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Adresse racine utilisée pour toutes les requêtes HTTP du client REST.</span>
+<span class="na">demo.api.base-url</span><span class="o">=</span><span class="w"> </span><span class="s">[Placer ici l'url de base pour le client]</span>
+<span class="c1"># Timeout de connexion TCP (en millisecondes).</span>
+<span class="na">demo.api.connection-timeout-ms</span><span class="o">=</span><span class="s">5000</span>
+<span class="c1"># Timeout de réponse HTTP (en millisecondes).</span>
+<span class="na">demo.api.response-timeout-ms</span><span class="o">=</span><span class="s">10000</span>
+<span class="c1"># Profil Spring actif. Ici, on active le profil 'dev'.</span>
+<span class="na">spring.profiles.active</span><span class="o">=</span><span class="s">dev</span>
+</code></pre></div>
+<p>❗ Bien noter que l'URL racine n'est jamais positionnée automatiquement par le générateur, c'est donc au développeur de l'insérer manuellement au niveau de ce fichier. Cela est lié au fait que <strong>Pacman</strong> ne peut pas connaitre la validité de l'URL qui a été donnée par un fournisseur externe. </p>
+<p>Quand on parle ici de validité, cela concerne en fait la profondeur de l'URL. Par exemple pour l'api utilisée dans le cadre de ce document (TheTVDB) l'URL fournie par défaut est la suivante : https://api4.thetvdb.com/v4. Or, pour <strong>Pacman</strong>, elle devrait être uniquement https://api4.thetvdb.com car la notion de version est gérée au niveau des services (plus fin) et non pas au niveau global. </p>
+<p>Ceci n'est pas detectable automatiquement.</p>
+<h2 id="gestion-des-imports">📦 Gestion des imports</h2>
+<p>Lors de chaque génération, ISD effectue en fin de cycle une passe sur l'ensemble des classes java afin d'effectuer une organisation automatique des imports. Il est par ailleur à rappeler que cette phase peut être évitée en positionnant la variable <strong>project.debug.enabled</strong> à la valeur '<strong>true</strong>'. ce qui permet de vérifier l'ensemble des imports qui ont été générés. </p>
+<div class="codehilite"><pre><span></span><code><span class="w">  </span><span class="c1"># Flag indiquant si la generation pour le projet fonctionne en mode debug (non par defaut)</span>
+<span class="w">  </span><span class="na">project.debug.enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+</code></pre></div>
+<p>La politique de <strong>Pacman</strong>  concernant les imports est la suivante : </p>
+<ul>
+<li>
+<p>Bien que la gestion des imports soit activée en fin de génération il est toujours préférable d'essayer d'écrire l'ensemble des imports afin d'éviter tout message indiquant un potentiel conflit qui doit être réglé manuellement par le développeur. C'est pour cette raison que la génération essaye d'écrire le maximum des imports en fonction de ce qui a été modélisé.</p>
+</li>
+<li>
+<p>Au niveau des générateurs, la gestion de imports est un sujet plus complexe qu'il n'y parait. La solution qui a été finalement adoptée (ratio : utilité / nombre de lignes de code) est de générer en 'brute force' un maximum d'imports utilisés ou non par la classe, quite ensuite à faire supprimer tous les imports inutiles par le système d'organisation automatique des imports de l'IDE.</p>
+</li>
+<li>
+<p>Ceci implique (si le booléen de debbugage est positionné à '<strong>true</strong>') que de nombreux imports inutiles sont visibles dans la zone et que pareillement, des imports de classes génériques potentiellement inexistantes sont en erreur. Enfin de nombreux imports peuvent êtres en doublons (ou plus) selon la modélisation. Il est à noter que ceci est le comportement "normal" de <strong>Pacman</strong>. </p>
+</li>
+</ul>
+<p>❗  Il est donc (encore une fois) normal que la majorité des classes soient en erreur si la génération est lancée avec le debbugage activé et ce dernier ne sert pratiquement qu'a cela : vérifier la bonne génération de l'ensemble des classes à importer par la classe en cours de génération. </p>
+<h2 id="cas-fournisseur_2">📁 Cas fournisseur</h2>
+<h3 id="generation-de-la-persistance">🛢 Génération de la persistance</h3>
 <hr/>
 <p>Dans un premier temps l'objectif ici (et dans le cadre des deux prochains chapitres de premier niveau) n'est pas d'entrer dans toutes les subtilités de la modélisation et/ou de la génération associée mais de comprendre avec une première modélisation très simple, l'ensemble du fonctionnement et de voir les différentes classes générées par <strong>Pacman</strong> dans le cadre de l'architecture hexagonale. </p>
 <p>A ce niveau il n'aura donc qu'une seule entité afin d'éviter de polluer la compréhension générale par une modélisation plus complexe. </p>
-<h3 id="modelisation">Modélisation</h3>
+<h4 id="modelisation">Modélisation</h4>
 <p>Comme précité la modélisation sera à ce niveau très simple, gestion d'une personne avec un nom, un prénom et un âge.... La modélisation ressemble donc à ceci (dans un namespace appelé arbitrairement "referentiel")  : </p>
 <p><img alt="Modélisation entité" src="images/pcm-model-entity-1.png" width="150"/></p>
 <p>Le paramétrage pour l'attribut nom : </p>
@@ -590,12 +674,14 @@ Il s'agit des vues suivantes : </p>
 <div align="center">
 <img alt="Modélisation entité" src="images/pcm-model-entity-4.png"/>
 </div>
-<h3 id="generation">Génération</h3>
+<h4 id="generation">Génération</h4>
 <p>Dans l'explorateur de modèles, aller au niveau du projet de modélisation <strong><em>[nom de l'application]-model</em></strong>, se positionner sur le fichier de modélisation des entités <strong><em>[nom de l'application].entity</em></strong> et par un clique droit, faire apparaitre le menu de génération <strong>Pacman</strong>. Sont présentés (à l'inverse des versions précedentes) uniquement les générateurs associés au type du fichier sur lequel le développeur s'est positionné. </p>
 <div align="center">
 <img alt="Génération entité" src="images/pcm-gen-entity-1.png" width="600"/>
 </div>
-<p>On peut remarquer la présence d'un générateur "<strong><em>Validation du diagramme de modélisation</em></strong>". Quelle que soit la couche à générer, il est toujours possible de lancer directement le générateur désiré et celui-ci va automatiquement activer la validation du diagramme avant de se lancer. Si des erreurs sont detectées, il est alors possible d'aller voir le résultat de la validation au niveau du projet de modélisation, en ouvrant le fichier "<strong><em>[nom de l'application]-validation.log</em></strong>". Par ailleurs il est aussi possible de lancer spécifiquement la validation du modèle afin de vérifier par avance si tout est correct. Si la validation est lancée en "standalone", et que le diagramme est valide, alors un message spécifique est affiché au développeur : </p>
+<p>❗ Il est à noter que, avec la version 5 de <strong>Pacman</strong>,  les menus contextuels affichés dépendent maintenant  directement de la nature du fichier source. Ainsi , le fichier '.entity' n'aura que les générateurs qui concernent directement cette ressource.</p>
+<p>On peut remarquer la présence d'un  "<strong><em>Validation du diagramme de modélisation</em></strong>". Quelle que soit la couche à générer, il est toujours possible de lancer directement le générateur désiré et celui-ci va automatiquement activer la validation du diagramme avant de se lancer. Si des erreurs sont detectées, il est alors possible d'aller voir le résultat de la validation au niveau de la vue dédiée à la validation (Rapport de validation). </p>
+<p>Par ailleurs il est aussi possible de lancer spécifiquement la validation du modèle afin de vérifier par avance si tout est correct. Si la validation est lancée en "standalone", et que le diagramme est valide, alors un message spécifique est affiché au développeur : </p>
 <div align="center">
 <img alt="Génération entité" src="images/pcm-gen-entity-2.png" width="400"/>
 </div>
@@ -677,7 +763,7 @@ Il s'agit des vues suivantes : </p>
 <span class="nd">@Column</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"xuuid"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="n">unique</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">updatable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
 <span class="kd">protected</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="n">xuuid</span><span class="p">;</span>
 </code></pre></div>
-<p>❗ Il est à noter que cette classe est toujours générée, même en l'absence de champ supplémentaire.</p>
+<p>❗ Il est à noter que cette classe est toujours générée, même en l'absence de champ supplémentaire. Par ailleurs, il est vrai que dans le cadre de <strong>Pacman</strong> on utilise l'héritage afin de factoriser les champs automatiques au niveau des entités (et dtos, xtos) ce qui dans une vision puriste de la programmation orientée objet n'est pas une bonne pratique. Il aurait pu être préférable de passer par de la composition, mais il ne faut pas oublier qu'il s'agit ici d'un générateur et que les entités générées n'auront jamais leur signature modifiable par le développeur lui même (il n'y aura jamais la possibilité de rajouter une notion d'héritage ou d'implémentation). Ainsi la notion d'héritage a été préférée, car plus lisible au premier abord.</p>
 <p>➤ <strong><em>[package racine].infra.entities.[nom du namespace]</em></strong> : implémentation de la ou des entités, dans le cas du projet "demo", il s'agit de l'entité "<em>PersonneEntityImpl</em>". Ici le générateur se contente de rajouter l'ensemble des annotations de persistance, encore une fois comme un indicateur de suppression logique a été demandé (<em>Xtopsup</em>) il est géré automatiquement par Spring Data. </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Entity</span>
 <span class="nd">@Table</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"TBL_PERSONNE"</span><span class="p">,</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"SCH"</span><span class="p">)</span>
@@ -726,7 +812,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">  </span><span class="n">List</span><span class="o">&lt;</span><span class="n">User</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">findActiveUsersByEmailContaining</span><span class="p">(</span><span class="nd">@Param</span><span class="p">(</span><span class="s">"emailPart"</span><span class="p">)</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">emailPart</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="tests">Tests</h3>
+<h4 id="tests">Tests</h4>
 <p>➤ <strong><em>[package racine].infra.adapters.[nom du namespace]</em></strong> : Des tests unitaires JUnit sont générés par défaut au niveau du package de test, avec pour chaque entité, une classe <strong><em>[nom de l'entité]RepositoryTestImpl</em></strong>, dans le cadre de l'application "demo", il s"agit de la classe <em>PersonneRepositoryTestImpl</em>. Ces tests de base auto générés permettent de vérifier le bon fonctionnement des opérations CRUD pour la base de  données. </p>
 <p>Chaque classe de test récupère le "Repository" par le biais d'une injection par constucteur, on active le profil Spring pour les tests et on demande expressement la configuration issue de "<strong><em>test.properties</em></strong>" au lieu de celle de production "<strong><em>application.properties</em></strong>". Enfin on demande l'initialisation de la base de donnée avec la ligne "<strong><em>initSql(dataSource);</em></strong>" :</p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@SpringBootTest</span>
@@ -781,13 +867,13 @@ Il s'agit des vues suivantes : </p>
 <div align="center">
 <img alt="Tests unitaires" src="images/pcm-test-entity-1.png" width="300"/>
 </div>
-<h2 id="generation-des-regles-de-gestion">📏 Génération des règles de gestion</h2>
+<h3 id="generation-des-regles-de-gestion">📏 Génération des règles de gestion</h3>
 <hr/>
 <p>Il est possible de modéliser un ensemble de règles de gestion afin de générer des méthodes dont le corps doit par la suite être implémenté par les développeurs. Ces règles peuvent être fonctionnelles ou techniques, elles peuvent être hiérarchisées en catégories et sous-catégories, elles sont versionnées, etc... </p>
 <p>Les règles de gestion sont toutes centralisées au niveau du domaine (couche métier) puisqu'il s'agit par excellence d'une partie du code métier. Ces règles seront par la suite appelées au niveau de l'implémentation du service métier qui a été modélisé dans le diagrame SOA.</p>
 <p>❗ Ne pas confondre règles de gestion et règles de calcul métier, ici les règles devraient êtres considérées comme des règles ou le seul retour possible est un booléen, ou ce que l'on teste est valide ou n'est pas valide.</p>
 <p>Dans le cadre de l'application "demo", avec les informations dont on dispose, une règle très simple va être modélisée, vérifier que la personne est majeure. </p>
-<h3 id="modelisation_1">Modélisation</h3>
+<h4 id="modelisation_1">Modélisation</h4>
 <p>Se positionner au niveau de fichier de modélisation des "Requirements" : <strong><em>[nom de l'application].requirements</em></strong> et ajouter la règle (encore une fois, dans le cadre de ce document l'objectif n'est pas de montrer en détail l'utilisation du modeleur) : </p>
 <p><img alt="Règle de gestion" src="images/pcm-model-req-1.png"/></p>
 <p>Puis se reporter au niveau du diagramme SOA pour attacher la règle de gestion au niveau de l'opération, grâce à la vue "<strong><em>Linked Requirements</em></strong>".</p>
@@ -796,7 +882,7 @@ Il s'agit des vues suivantes : </p>
 </div>
 <p>Une fois que la règle de gestion a été attachée à une opération, une clé jaune apparait alors au niveau de cette dernière afin de confirmer que l'opération à bien une ou plusieurs règles de gestion qui lui sont raccordées : </p>
 <p><img alt="Règle de gestion" src="images/pcm-model-req-3.png"/></p>
-<h3 id="generation_1">Génération</h3>
+<h4 id="generation_1">Génération</h4>
 <p>Pour lancer la génération des règles de gestions, utiliser en premier le générateur disponible au niveau du fichier de modélisation pour les "Requirements", en l'occurence le fichier <strong><em>[nom de l'application].requirements</em></strong> </p>
 <div align="center">
 <img alt="Règle de gestion" src="images/pcm-model-req-4.png"/>
@@ -809,10 +895,10 @@ Il s'agit des vues suivantes : </p>
 <span class="n">REQ_PERSONNE_AGE</span><span class="p">(</span><span class="s">"La personne doit etre majeure"</span><span class="p">,</span><span class="w"> </span><span class="s">"1"</span><span class="p">);</span>
 </code></pre></div>
 <p>Pour pouvoir utiliser cette nouvelle règle de gestion, il est maintenant nécessaire de passer à la génération de la couche de service avec le chapitre suivant.</p>
-<h2 id="generation-de-la-couche-de-service">🌐 Génération de la couche de service</h2>
+<h3 id="generation-des-services">🌐 Génération des services</h3>
 <hr/>
 <p>C'est ici qu'est effectuée la plus grosse partie du travail de génération et que l'ensemble de la modélisation va permettre d'articuler le code autour de l'architecture hexagonale.</p>
-<h3 id="modelisation_2">Modélisation</h3>
+<h4 id="modelisation_2">Modélisation</h4>
 <p>La modélisation des objets métier (DTO) est effectuée au niveau du fichier de modélisation (<strong><em>[nom de l'application].soa</em></strong>). Le plus simple (méthode conseillée lors de la première modélisation) est de sélectionner au niveau de la palette d'outils "<strong><em>Namespace from Entity Namespace</em></strong>" et de cocher l'ensemble des composants. </p>
 <p>Dans le cas de l'application "demo", le diagramme (encore une fois très simple) ressemble à ceci :</p>
 <p><img alt="Tests unitaires" src="images/pcm-model-dto-1.png" width="200"/></p>
@@ -827,7 +913,7 @@ Il s'agit des vues suivantes : </p>
 <li>Le service n'est pas sécurisé (accès libre).</li>
 <li>Dans le cas ou la personne n'est pas trouvée, une "fault" a été modélisée avec comme code de retour 404 (il est aussi possible de modéliser un 204).</li>
 </ul>
-<h3 id="generation_2">Génération</h3>
+<h4 id="generation_2">Génération</h4>
 <p>Dans l'explorateur de modèles, aller au niveau du projet de modélisation <strong><em>[nom de l'application]-model</em></strong>, se positionner sur le fichier de modélisation des entités <strong><em>[nom de l'application].soa</em></strong> et par un clique droit, faire apparaitre le menu de génération <strong>Pacman</strong> (Générateurs Cali). </p>
 <div align="center">
 <img alt="Génération soa" src="images/pcm-gen-soa-1.png" width="600"/>
@@ -1073,7 +1159,7 @@ Il s'agit des vues suivantes : </p>
 <div align="center">
 <img alt="Génération soa" src="images/pcm-gen-soa-2.png" width="600"/>
 </div>
-<p>• <strong><em>[package racine].domain.port.adapters.stub.[nom du namespace]</em></strong> : Au niveau des tests unitaires, le domaine doit pouvoir fonctionner en totale autonomie (il ne s'agit pas ici de tests d'intégration mais bien de tests métier). Dans cette optique une classe bouchon (stub) <strong><em>[nom du service]StubImpl</em></strong> est automatiquement générée pour chaque entité afin de remplacer la couche de persistance. Par défaut, toutes les méthodes renvoient une "<strong><em>NotImplementedException</em></strong>". C'est au développeur d'implémenter son propre jeu de test.</p>
+<p>• <strong><em>[package racine].domain.port.adapters.stub.[nom du namespace]</em></strong> (TESTS) : Au niveau des tests unitaires, le domaine doit pouvoir fonctionner en totale autonomie (il ne s'agit pas ici de tests d'intégration mais bien de tests métier). Dans cette optique une classe bouchon (stub) <strong><em>[nom du service]StubImpl</em></strong> est automatiquement générée pour chaque entité afin de remplacer la couche de persistance. Par défaut, toutes les méthodes renvoient une "<strong><em>NotImplementedException</em></strong>". C'est au développeur d'implémenter son propre jeu de test.</p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@StubService</span>
 <span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">GestionPersonnesProviderStubImpl</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">GestionPersonnesProvider</span><span class="w"> </span><span class="p">{</span>
 
@@ -1333,7 +1419,24 @@ Il s'agit des vues suivantes : </p>
 <span class="c1">// End of user code</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">nom</span><span class="p">;</span>
 </code></pre></div>
-<h3 id="tests_1">Tests</h3>
+<p>• <strong><em>[package racine].[nom de l'application]TestConfig</em></strong> (TESTS) : Classe de configuration pour les tests d'intégration au niveau serveur. Cette classe contient l'ensemble des filtres pour pouvoir basculer entre les tests effectués avec l'aide de la base de données embarquée H2 ou des bouchons (Stubs) qui permettent justement de se passer de cette dernière de de spécifier un jeu de données particulier pour des tests ponctuels. </p>
+<p>Par défaut le code de cette classe est le suivant (le corps est vide, il s'agit juste de positionner l'ensemble des annotations de configuration pour la prise en compte des classes de persistance) : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@TestConfiguration</span>
+<span class="nd">@ComponentScan</span><span class="p">(</span><span class="n">basePackages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">"fr.demo"</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="n">includeFilters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nd">@ComponentScan.Filter</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FilterType</span><span class="p">.</span><span class="na">ANNOTATION</span><span class="p">,</span><span class="w"> </span><span class="n">classes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">DomainService</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">StubService</span><span class="p">.</span><span class="na">class</span><span class="p">,</span><span class="w"> </span><span class="n">AdapterService</span><span class="p">.</span><span class="na">class</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="n">excludeFilters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nd">@ComponentScan.Filter</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FilterType</span><span class="p">.</span><span class="na">ASSIGNABLE_TYPE</span><span class="p">,</span><span class="w"> </span><span class="n">classes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span><span class="w"> </span><span class="p">})</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DemoTestConfig</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Avec ce code, on demande au framework Spring de prendre en compte les annotations du domaine pour le scan des différentes classes à injecter et par ailleurs, une liste de classes à exclure est mise à disposition par le biais du mot-clé : <strong><em>excludeFilters</em></strong>. Cette liste de classe est automatiquement générée par <strong>Pacman</strong> et, après génération, sont présents l'ensemble des Stubs (bouchons). Par défaut tous les tests sont automatiquement joués avec la base de données. </p>
+<p>Dans le cas du projet d'exemple, comme il n'y a qu'un seul service de modélisé, c'est le bouchon <strong><em>GestionPersonnesProviderStubImpl</em></strong> qui est évincé de l'injection. Comme Spring ne trouve plus qu'une seule classe éligible, il va injecter uniquement la classe pour la couche de persistance JPA, à savoir : <strong><em>GestionPersonnesJpaProviderImpl</em></strong>.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">excludeFilters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nd">@ComponentScan.Filter</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FilterType</span><span class="p">.</span><span class="na">ASSIGNABLE_TYPE</span><span class="p">,</span><span class="w"> </span><span class="n">classes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">GestionPersonnesProviderStubImpl</span><span class="p">.</span><span class="na">class</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">})</span>
+</code></pre></div>
+<p>Si le développeur souhaite basculer sur le (ou les) bouchon(s), il suffit alors de modifier la liste et de remplacer la classe bouchon par son homologue, la classe de gestion de la persistance JPA.</p>
+<p>❗ A noter que cette classe est recréé à chaque demande de génération pour la couche soa, pour l'instant il n'a pas été considéré comme justifié de positionner des balises de type 'user code'. A voir dans le futur si ce besoin s'avère nécessaire.</p>
+<h4 id="tests_1">Tests</h4>
 <p>• <strong><em>[package racine].app.adapters.[nom du namespace]</em></strong> : Contient la liste des classes de test d'intégration pour chaque service REST. Chaque classe <strong><em>[nom du service]ServiceTestImpl</em></strong> permet de lancer le serveur et d'effectuer un appel REST avec des informations par défaut. Suite à la génération, on vérifie si le code de retour du service est bien celui attendu et le test est alors validé. Le développeur, à l'aide des balises de type "<em>user code</em>" peut toujours ajouter à sa guise autant d'éléménts que nécessaires pour complexifier ses propres cas de test. </p>
 <p>A l'aide de l'annotation "<strong><em>@TestPropertySource</em></strong>" on demande à Spring de prendre le fichier de configuration "<strong><em>test.properties</em></strong>" au lieu de la configuration de production "<strong><em>application.properties</em></strong>", on demande le chargement et l'initialisation de la base de données. Toujours de la même manière, les différentes ressources sont injectées par le biais du constructeur.</p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@AutoConfigureMockMvc</span>
@@ -1406,10 +1509,10 @@ Il s'agit des vues suivantes : </p>
 <p><img alt="Tests d'intégration" src="images/pcm-test-soa-3.png"/></p>
 <p>C'est donc au développeur d'ajouter l'ensemble des attendus nécessaires pour compléter et consolider le test de base (si nécessaire). Une fois la couche de persistance complétée, les tests doivent êtres positifs.  </p>
 <p><img alt="Tests d'intégration" src="images/pcm-test-soa-2.png"/></p>
-<h2 id="gestion-des-champs-automatiques">➕ Gestion des champs automatiques</h2>
+<h3 id="gestion-des-champs-automatiques">➕ Gestion des champs automatiques</h3>
 <hr/>
 <p>Il a été brièvement évoqué la notion de champs automatiques précédemment (au niveau de la modélisation des entités) mais l'objectif de ce paragraphe est d'entrer plus en profondeur dans la classe de gestion pour l'ensemble de ces champs. A chaque demande de génération de la couche de persistance, c'est la classe <strong><em>[package racine].infra.[nom de l'application]EntityAbs</em></strong> qui est recréée et qui centralise la gestion des champs automatiques. A chaque demande de génération pour la couche de service, c'est la classe <strong><em>[package racine].domain.entities.[nom de l'application]EntityAbs</em></strong> qui est recréée et qui centralise les attributs pour mise à disposition au niveau des différents objets métier.</p>
-<h3 id="champs-predefinis">Champs prédéfinis</h3>
+<h4 id="champs-predefinis">Champs prédéfinis</h4>
 <p>Comme précité; il existe trois types de champs automatiques "prédéfinis" qui sont respectivement les champs : </p>
 <ul>
 <li><strong>Xtopsup</strong> : gère la suppression logique des entités dans le cas ou la base de données ne doit pas permettre la suppression physique des informations. Cet indicateur, sous la forme d'un booléen, est piloté automatiquement par Spring Data à l'aide des annotations suivantes au niveau de chaque entité : </li>
@@ -1432,7 +1535,7 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <p>Toutes les autres types de champs (String, Long, Boolean, etc...) sont (comme vu au niveau du formulaire de création), ajoutables en tant que champs automatiques à l'ensemble des entités.</p>
 <p>❗ Pour rappel, les champs automatiques sont des champs destinés à la couche de persistance, ils sont donc présents au niveau des entités et des objets métier uniquement, mais ne sont jamais transférés au niveau des services REST (la seule exception à la règle étant l'identifiant unique universel). Ainsi au niveau des mappeurs, la seule recopie globale se situe dans la copie de l'entité vers le dto afin de mettre à disposition de l'objet de transfert ces informations et de rendre possibles les traitements internes métier se basant sur ces informations.</p>
-<h3 id="cycle-de-vie">Cycle de vie</h3>
+<h4 id="cycle-de-vie">Cycle de vie</h4>
 <p>L'initialisation de ces champs est centralisée au niveau de la classe de définition des champs automatiques et sont gérés avec les annotations "<strong><em>@PrePersist</em></strong>"  et/ou "<strong><em>@PreUpdate</em></strong>". L'annotation "<em>@PrePersist</em>" est appelée uniquement lors de la création du tuple dans la base de données, "<em>@PreUpdate</em>" est appelé lors des demandes de mise à jour (totale ou partielle).</p>
 <p>Par exemple : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@PrePersist</span>
@@ -1469,7 +1572,7 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <p>L'avantage de cet attribut est qu'il est positionnable au niveau d'un seul traitement alors que l'utilisation de profils (<strong><em>@ActiveProfile</em></strong>) est, quant à elle, disponible uniquement au niveau de la classe de traitement. Mais encore une fois, cet attribut peut fonctionner en collaboration avec l'utilisation de profils.</p>
 <p>❗ Note : Les objets de transfert et les objets de sérialisation (pour les services REST) ont eux aussi leur classe parent, mais épurée selon le type de l'objet (DTO ou XTO). Cette classe est regénérée au moment de la demande de génération de la couche de services et a volontairement le même nom <strong><em>[nom de l'application]EntityAbs</em></strong> afin de bien rappeler qu'il s'agit avant tout d'attributs spécifiques à l'entité et non au DTO.</p>
-<h2 id="gestion-de-la-securite">🔑 Gestion de la sécurité</h2>
+<h3 id="gestion-de-la-securite">🔑 Gestion de la sécurité</h3>
 <hr/>
 <p>Par défaut, la sécurité des services REST est toujours activée, il est en effet considéré que tout service devrait à priori être sécurisé. Toutes les classes concernant la gestion de la sécurité sont situées au niveau du package suivant : <strong><em>[package racine].app</em></strong> dans le projet d'infrastructure.  </p>
 <p>La configuration de la sécurité pour l'ensemble de l'application se nomme : <strong><em>[nom de l'application]SecurityConfig</em></strong> et son code par défaut est le suivant : </p>
@@ -1488,7 +1591,7 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <p>Pour l'instant on peut constater que toutes les URIs sont en accès libre ce qui semble contredire la précédente affirmation mais la sécurité est quant à elle bien enclanchée, même si dans le cadre de la modélisation les développeurs ne veulent sécuriser aucun service ! </p>
 <p>❗ Avec les options prises pour <strong>Pacman</strong> quelle que soit la sécurité modélisée  (<em>Http</em>, <em>ApiKey</em>, etc...) le service va attendre un jeton de type JWT. Si cela fait partie intégrante de la norme pour <em>Oauth2</em>, c'est une décision qui a été prise dans le cadre de l'utilisation d'une sécurité de type <em>Http</em> ou <em>Apikey</em>. Dans ces deux derniers cas, un service d'obtiention du jeton est automatiquement généré sur le point de terminaison : "<strong><em>/token</em></strong>".</p>
-<h3 id="modelisation_3">Modélisation</h3>
+<h4 id="modelisation_3">Modélisation</h4>
 <p>Dans le cadre de l'application "demo" l'exemple ici donné va être la modélisation d'une sécurité de type Open Id Connect (sécurité de tpe <em>Oauth2</em> la plus courante pour les applications importantes). La sécurité se modélise toujours au niveau du composant dans le diagramme de modélisation SOA. Ceci s'effectue au niveau de l'onglet "<em>Security Schemes</em>" dans les propriétés du composant. </p>
 <p>❗ Il est à noter que, dans la version actuelle de <strong>Pacman</strong> il est pour l'instant impossible de modéliser plusieurs sécurités au niveau du composant. </p>
 <div align="center">
@@ -1516,7 +1619,7 @@ Il s'agit des vues suivantes : </p>
 <div align="center">
 <img alt="Gestion de la sécurité" src="images/pcm-model-security-7.png"/>
 </div>
-<h3 id="generation_3">Génération</h3>
+<h4 id="generation_3">Génération</h4>
 <p>La demande de génération est de type "SOA", toutes les informations concernant la sécurisation des services REST sont donc analysés et générées au moment de la demande de génération pour la couche de service. Suite à la génération, le nouveau code pour la classe de configuration de la sécurité devient donc le suivant : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Bean</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">tokenFilterChain</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
@@ -1671,16 +1774,16 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <p>Spring Boot n'a pas nativement de système de décodage des jetons JWT, il convient donc d'utiliser celui qui est fourni par les ressources pour la gestion <em>OAuth2</em>. C'est pourquoi <em>OAuth2</em> sera toujours présent au niveau de la classe de configuration de la sécurité, même si la sécurité demandée est de type <em>Http</em> ou <em>ApiKey</em>.</p>
-<h3 id="tests_2">Tests</h3>
+<h4 id="tests_2">Tests</h4>
 <p>Il est alors possible d'effectuer de nouveaux test (avec Swagger UI par example) afin de vérifier que l'appel est désormait sécurisé et que toute tentative d'accès non authorisé se soldera par un code de type 401 ou 403.</p>
 <p>❗ Dans le cas de l'utilisation de l'interface Swagger UI, et d'une sécurité de type Oauth2, il est important de comprendre que les points de terminaison doivent être valides, ce qui signifie que le serveur d'authentification doit exister et être en état de fonctionnement. dans le cas contraire, le service ne sera pas considéré comme sécurisé et l'icône avec le cadena ne sera pas affichée.</p>
-<h2 id="generation-des-relations">🧩 Génération des relations</h2>
+<h3 id="generation-des-relations">🧩 Génération des relations</h3>
 <p>Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple, bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l’outil, tant du point de vue des scripts SQL que de la configuration JPA. </p>
 <p>L’objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. </p>
 <p>Ici deux entités seront modélisées, avec toujours pour noms respectifs, simplement A et B.</p>
 <p>❗ Attention dans ce chapitre, à ne pas confondre bidirectionnel au sens JPA et bidirectionnel au sens de la modélisation. Ce n'est pas parceque le développeur doit tirer une relation bidirectionnelle (appelée telle qu'elle au niveau de l'outil de modélisation) que l'on désire au niveau JPA attaquer la relation dans les deux sens (bidirectionnel au sens JPA). La nécessité du bidirectionnel au sens JPA sera à étudier selon les éventuels futurs besoins au niveau des générateurs <strong>Pacman</strong>.</p>
 <p>❗ Au niveau des scripts SQL, ne sont pour l'instant affichées que les créations de table afin de rapidement visualiser les différentes relations. Ne sont donc pas présentés les indexs et contraintes inhérentes à la création de ces relations.</p>
-<h3 id="relation-101">Relation (1)/(0,1)</h3>
+<h4 id="relation-101">Relation (1)/(0,1)</h4>
 <p><img alt="Relations" src="images/pcm-model-relation-1.png"/></p>
 <p>La seule différence selon que la cardinalité soit à 1 ou à (0,1) consiste en la présence de "<em>not null</em>" au niveau de la clé étrangère pour l'entité A. La navigabilité étant dirigée vers l'entité B, c'est l'entité A qui récupère la clé étrangère.</p>
 <p>Le code SQL généré est donc le suivant : </p>
@@ -1709,7 +1812,7 @@ Il s'agit des vues suivantes : </p>
 <span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"B_ID"</span><span class="p">,</span><span class="w"> </span><span class="n">referencedColumnName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"B_ID"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">BEntityImpl</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
 </code></pre></div>
-<h3 id="relation-01">Relation (0,*)/(1,*)</h3>
+<h4 id="relation-01">Relation (0,*)/(1,*)</h4>
 <p><img alt="Relations" src="images/pcm-model-relation-2.png"/></p>
 <p>Ici, avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A. La relations se traduit par un <strong><em>@OneToMany</em></strong> au niveau de l'entité A et un <strong><em>@ManyToOne</em></strong> au niveau de l'entité B. Par défaut, <em>@OneToMany</em> sans <em>mappedBy</em> crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d’utiliser <em>mappedBy</em> dans A, et un <em>@ManyToOne</em> dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).</p>
 <div class="codehilite"><pre><span></span><code><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">A</span>
@@ -1741,7 +1844,7 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <p>❗ Il est particulièrement important de ne pas utiliser ce type de relation pour modéliser une véritable relation bidirectionnelle (0,*) ou (1,*). En effet, deux relations (0,*) ou (1,*) ne sont pas générées par <strong>Pacman</strong> de la même manière qu'une relation bidirectionnelle, et cela entrainera des effets de bords non désirés. Un des effets principaux étant simplement que l'on va perdre une relation (*) au niveau d'une des deux entités. </p>
 <p><img alt="Relations" src="images/pcm-model-relation-6.png"/></p>
-<h3 id="relation-recursive-101">Relation récursive (1)/(0,1)</h3>
+<h4 id="relation-recursive-101">Relation récursive (1)/(0,1)</h4>
 <p><img alt="Relations" src="images/pcm-model-relation-3.png"/></p>
 <p>Ici la relation récursive est annotée <strong><em>@ManyToOne</em></strong>, de même que pour une relation (1)(0,1) entre deux entités. La seule différence est que la clé étrangère prend le nom de la relation (avec toujours "<em>_ID</em>" comme suffixe).</p>
 <div class="codehilite"><pre><span></span><code><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">A</span>
@@ -1759,7 +1862,7 @@ Il s'agit des vues suivantes : </p>
 <span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"RELATIONA_ID"</span><span class="p">,</span><span class="w"> </span><span class="n">referencedColumnName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"A_ID"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">AEntityImpl</span><span class="w"> </span><span class="n">relationA</span><span class="p">;</span>
 </code></pre></div>
-<h3 id="relation-recursive-01">Relation récursive (0,*)/(1,*)</h3>
+<h4 id="relation-recursive-01">Relation récursive (0,*)/(1,*)</h4>
 <p>Comme pour les relations bidirectionnelles, une table de liaison est automatiquement créée, cette table prend pour nom la concaténation du nom de la table et du nom de la relation. Chaque nom est séparé par un underscore. Bien noter cependant que le nom de l'attribut au niveau de la classe est bien le nom de la relation.</p>
 <p><img alt="Relations" src="images/pcm-model-relation-4.png"/></p>
 <div class="codehilite"><pre><span></span><code><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">A_RELATIONA</span>
@@ -1774,7 +1877,7 @@ Il s'agit des vues suivantes : </p>
 <span class="nd">@JoinTable</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"A_RELATIONA"</span><span class="p">,</span><span class="w"> </span><span class="n">joinColumns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"A_ID"</span><span class="p">),</span><span class="w"> </span><span class="n">inverseJoinColumns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"A_RECURSIVE_ID"</span><span class="p">))</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">AEntityImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">relationA</span><span class="p">;</span>
 </code></pre></div>
-<h3 id="relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</h3>
+<h4 id="relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</h4>
 <p>❗ Il est impossible avec <strong>Pacman</strong> d'avoir des relations bidirectionnelles avec la navigabilité dans les deux sens, il est donc nécessaire après avoir tiré la relation bidirectionnelle entre deux entités, de supprimer une des deux navigabilités.</p>
 <p>Cette relation utilise l'annotation <strong><em>@ManyToMany</em></strong> soit au niveau de l'entité A, soit au niveau de l'entité B, selon la navigabilité qui a été initialement modélisée. Ici la navigabilité est pointée sur B, c'est donc l'entité A qui prend la relation. Par ailleurs, une table de liaison est automatiquement générée avec la concaténation du nom de la table et celui de la relation (dépend de la navigabilité). Les deux noms sont séparés par un underscore. Bien noter par contre que le nom de l'attribut au niveau de l'entité est celui de la relation (dépend aussi du sens de la navigabilité).</p>
 <p><img alt="Relations" src="images/pcm-model-relation-5.png"/></p>
@@ -1791,7 +1894,7 @@ Il s'agit des vues suivantes : </p>
 <span class="kd">private</span><span class="w"> </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">BEntityImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">relationB</span><span class="p">;</span>
 </code></pre></div>
 <p>❗ On peut aussi noter que dans le cadre des relations bidirectionnelles <em>@ManyToMany</em>, <strong>Pacman</strong> utilise des <em>Set</em> et non des <em>List</em> pour le stockage des collections. Cela est préconisé avec JPA car un <em>Set</em> garantit l’unicité des éléments, ce qui est cohérent avec le modèle relationnel sous-jacent (en base de données, une table de jointure pour une relation <em>@ManyToMany</em> n’a pas de doublons.). En outre, JPA (notamment avec Hibernate) traite les <em>Set</em> de manière plus simple et plus performante. Enfin le <em>Set</em> n’a pas d’ordre, il correspond naturellement à ce que fait la base de données (pas d’ordre garanti dans une table de jointure).</p>
-<h2 id="documentation-open-api">🔧 Documentation Open Api</h2>
+<h3 id="documentation-open-api">🔧 Documentation Open Api</h3>
 <hr/>
 <p>Lors de la génération de la couche de services, outre l'ensemble du code à éxécuter, la documentation Open Api est aussi créée automatiquement afin de pouvoir générer un fichier Swagger et être lue  (notamment) par l'interface "Swagger-ui". Cette documentation (par le biais d'annotations), est générée à trois niveaux :</p>
 <ul>
@@ -1800,7 +1903,7 @@ Il s'agit des vues suivantes : </p>
 <li>La documentation pour chaque objet sérialisé, en entrée ou en sortie.</li>
 </ul>
 <p>❗ Noter que lorsque l'on parle ici de service, il s'agit de service au sens global du terme, un service est modélisé avec des opérations, mais par rapport au client, une seule opération est aussi un service qui est fourni par le fournisseur de service, à ce niveau tout est service...</p>
-<h3 id="documentation-generale">Documentation générale</h3>
+<h4 id="documentation-generale">Documentation générale</h4>
 <p>Toutes les informations concernant la documentation générale de l'application (ainsi que celles concernant la sécurité) est à modéliser au niveau du composant dans le fichier de modélisation <strong><em>[nom de l'application].soa</em></strong>, principalement au niveau de l'onglet "<strong><em>Exposition</em></strong>".</p>
 <div align="center">
 <img alt="Open Api" src="images/pcm-swagger-soa-1.png"/>
@@ -1832,7 +1935,7 @@ Il s'agit des vues suivantes : </p>
 <span class="kd">class</span> <span class="nc">DemoOpenApiConfig</span><span class="w"> </span><span class="p">{</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="documentation-des-services">Documentation des services</h3>
+<h4 id="documentation-des-services">Documentation des services</h4>
 <p>La documentation pour les différents services est, quant à elle, accrochée à chaque opération qui a été modélisée, il n'y a pas de champ supplémentaire spécifique à saisir, toutes les informations sont récupérées à partir de la modélisation nécessaire (si correctement remplie) pour faire fonctionner un service (avec ses opérations). Cette documentation (toujours sous forme d'annotations) ressemble à ceci (on reprend le précédent exemple de code pour l'opération  "<em>chercheParId(...)</em>") mais cette fois avec la documentation Open Api :</p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@GetMapping</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"/{id}"</span><span class="p">,</span><span class="w"> </span><span class="n">produces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"application/json;charset=utf8"</span><span class="p">)</span>
 <span class="nd">@Operation</span><span class="p">(</span><span class="n">operationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"chercheParId"</span><span class="p">,</span><span class="w"> </span>
@@ -1848,7 +1951,7 @@ Il s'agit des vues suivantes : </p>
 <span class="p">....</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</h3>
+<h4 id="documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</h4>
 <p>Au niveau des objets de type "XTO", seule l'annotation "<strong><em>@Schema</em></strong>" permet de rajouter une description pour chaque attribut (et au niveau de l'objet) : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Schema</span><span class="p">(</span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Une personne pour l'application de démo"</span><span class="p">)</span>
 <span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">PersonneXtoImpl</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">Serializable</span><span class="w"> </span><span class="p">{</span>
@@ -1862,7 +1965,7 @@ Il s'agit des vues suivantes : </p>
 <span class="nd">@Schema</span><span class="p">(</span><span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"Le nom de la personne. Cette donnée est obligatoire."</span><span class="p">)</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">nom</span><span class="p">;</span>
 </code></pre></div>
-<h3 id="affichage-et-tests">Affichage et tests</h3>
+<h4 id="affichage-et-tests">Affichage et tests</h4>
 <p>Il est ainsi possible (après lancement de l'application), d'utiliser l'outil open source Swagger UI qui permet d'afficher et de tester visuellement une API décrite avec Swagger/OpenAPI, ceci, directement dans un navigateur web. Swagger UI va lire le fichier de spécification et le transformer en une interface web qui permet :</p>
 <ul>
 <li>De naviguer dans les endpoints de l’API (groupés par ressource).</li>
@@ -1872,9 +1975,9 @@ Il s'agit des vues suivantes : </p>
 <div align="center">
 <img alt="Open Api" src="images/pcm-swagger-soa-2.png"/>
 </div>
-<h2 id="generation-avancee">📐 Génération avancée</h2>
+<h3 id="generation-avancee">📐 Génération avancée</h3>
 <hr/>
-<h3 id="mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</h3>
+<h4 id="mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</h4>
 <p>Au niveau de la couche de persistance, pour l'accès à la base de données, il est préconisé de passer par la notion de "Repository". Spring Data fournit en effet  une abstraction très pratique pour la plupart des opérations CRUD et les requêtes simples ou modérément complexes. Cependant, il existe certains cas où il est préférable (ou nécessaire) d'utiliser directement l'EntityManager. Par exemple :</p>
 <ul>
 <li>Effectuer plusieurs opérations dans une seule transaction, avec un contrôle fin sur le flush, clear, ou l'ordre des opérations.</li>
@@ -1917,7 +2020,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="n">etc</span><span class="p">...</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="utilisation-du-lazy-loading">Utilisation du lazy loading</h3>
+<h4 id="utilisation-du-lazy-loading">Utilisation du lazy loading</h4>
 <p>Par défaut, dans les relations, toute entité référencée est automatiquement chargée en "EAGER", ainsi, si une entité référence une autre entité qui référence elle même une autre entité, etc... toute la grappe va être chargée et renvoyée au niveau du service REST. Il existe cependant de nombreux cas ou le chargement paresseux peut être préférable. <strong>Pacman</strong> met donc à disposition une métadonnée qui peut s'appliquer aux références entre les entités. </p>
 <p>Si on rajoute une entité au niveau de la modélisation déjà existante (par exemple, une personne habite à une ou plusieurs adresses), le diagramme devient le suivant : </p>
 <p><img alt="Entity manager" src="images/pcm-model-adv-entity-3.png"/></p>
@@ -1965,7 +2068,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">dto</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="utilisation-de-cascade">Utilisation de cascade</h3>
+<h4 id="utilisation-de-cascade">Utilisation de cascade</h4>
 <p>En JPA (Java Persistence API), l'attribut cascade est utilisé pour propager automatiquement certaines opérations (comme persist, merge, remove, etc.) d'une entité parent vers ses entités enfants associées via une relation (@OneToMany, @ManyToOne, @OneToOne, @ManyToMany).</p>
 <p>Pour rappel, les différentes valeurs possibles de propagation pour cet attribut sont :</p>
 <table>
@@ -2031,7 +2134,7 @@ Il s'agit des vues suivantes : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@OneToMany</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">EAGER</span><span class="p">,</span><span class="w"> </span><span class="n">cascade</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">CascadeType</span><span class="p">.</span><span class="na">PERSIST</span><span class="p">,</span><span class="w"> </span><span class="n">CascadeType</span><span class="p">.</span><span class="na">MERGE</span><span class="p">,</span><span class="w"> </span><span class="n">CascadeType</span><span class="p">.</span><span class="na">DETACH</span><span class="p">},</span><span class="w"> </span><span class="n">mappedBy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"personne"</span><span class="p">)</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">AdresseEntityImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">habite</span><span class="p">;</span>
 </code></pre></div>
-<h3 id="utilisation-des-transactions">Utilisation des transactions</h3>
+<h4 id="utilisation-des-transactions">Utilisation des transactions</h4>
 <p>Il est possible de positionner des transactions soit directement au niveau de l'infrastructure pour la couche de persistance, soit au niveau plus général de la couche métier. Dans le cas de la couche d'infrastructure, des balises de type "<em>user code</em>" permettent de positionner l'annotation "<strong><em>@Transactionnal</em></strong>" de JPA au niveau de la classe <strong><em>[nom du service]JpaProviderImpl</em></strong> : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code 488633ccb55331e8e15a31ef0159efbc</span>
 <span class="nd">@Transactional</span>
@@ -2064,7 +2167,7 @@ Il s'agit des vues suivantes : </p>
 <span class="p">}</span>
 </code></pre></div>
 <p>❗ Dans le dernier cas, il s'agit ici de l'annotation <strong><em>@Transactionnal</em></strong> du domaine (<strong>[package racine].domain.Transactionnal</strong><em>) et non celle de JPA, puisque le domaine est totalement indépendant de toute technologie. Pour rappel, cette annotation est gérée automatiquement grâce aux classes situées dans le package d'infrastructure : </em><strong>[package racine].infra</strong>*</p>
-<h3 id="utilisation-de-lheritage">Utilisation de l'héritage</h3>
+<h4 id="utilisation-de-lheritage">Utilisation de l'héritage</h4>
 <p>❗ La modélisation de l'héritage est encore en version Alpha, elle sera pleinement supportée très prochainement.</p>
 <p>Avec <strong>Pacman</strong> l'héritage entre entités est supporté afin de favoriser la réutilisation et la structuration du modèle métier. Cependant, de manière générale, il est conseillé de ne pas en abuser car il ne faut pas oublier que l’implémentation de l’héritage en JPA peut introduire une complexité technique non négligeable et avoir un impact négatif sur les performances.</p>
 <p>En effet, si JPA propose par défaut plusieurs stratégies de mapping pour l’héritage, aucune des stratégies disponibles (SINGLE_TABLE, JOINED, TABLE_PER_CLASS) n’est pleinement satisfaisante. Chacune présente des compromis importants en termes de performances, de lisibilité des données ou de complexité des requêtes SQL générées. Par exemple, la stratégie SINGLE_TABLE centralise toutes les entités dans une seule table avec des colonnes parfois inutilisées, ce qui peut alourdir la structure et la maintenance. La stratégie JOINED, plus propre sur le plan du modèle relationnel, implique de multiples jointures coûteuses à l'exécution. Quant à TABLE_PER_CLASS, elle rend les requêtes globales complexes voire inefficaces. </p>
@@ -2506,7 +2609,7 @@ Il s'agit des vues suivantes : </p>
 <div align="center">
 <img alt="Modélisation héritage" src="images/pcm-model-heritage-2.png"/>
 </div>
-<h3 id="renvoie-dentites-partielles">Renvoie d'entités partielles</h3>
+<h4 id="renvoie-dentites-partielles">Renvoie d'entités partielles</h4>
 <p>Pour une entité, il est souvent souhaitable de ne pas vouloir renvoyer la totalité des informations au niveau du client. </p>
 <p>Les solutions les plus simples consistent : </p>
 <ul>
@@ -2558,9 +2661,9 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="n">etc</span><span class="p">...</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="domaine-et-persistances">Domaine et persistances.</h3>
+<h4 id="domaine-et-persistances">Domaine et persistances.</h4>
 <p>Ce paragraphe sera complété prochainement.</p>
-<h3 id="mise-en-place-dun-service-pagine">Mise en place d'un service paginé</h3>
+<h4 id="mise-en-place-dun-service-pagine">Mise en place d'un service paginé</h4>
 <p>Les étapes pour mettre en place un service paginé, sont les suivantes : </p>
 <ul>
 <li>Définir un paramètre pour le numéro de la page demandée.</li>
@@ -2627,7 +2730,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">pageEntity</span><span class="p">.</span><span class="na">getContent</span><span class="p">().</span><span class="na">stream</span><span class="p">().</span><span class="na">map</span><span class="p">(</span><span class="n">o</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">PersonneMapper</span><span class="p">.</span><span class="na">toDto</span><span class="p">(</span><span class="n">o</span><span class="p">)).</span><span class="na">collect</span><span class="p">(</span><span class="n">Collectors</span><span class="p">.</span><span class="na">toList</span><span class="p">());</span>
 <span class="p">}</span>
 </code></pre></div>
-<h3 id="mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</h3>
+<h4 id="mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</h4>
 <p>Un "circuit-breaker" est un mécanisme qui empêche un système de continuer à appeler un service en échec, afin de limiter la propagation des erreurs et de laisser le service défaillant se rétablir.</p>
 <p>Dans le contexte des services REST il s'agit d'un mécanisme de protection qui interrompt temporairement les appels vers un service distant lorsqu’un certain seuil d’échecs est atteint, afin d’éviter de surcharger un service instable, de préserver les ressources du client, et améliorer la résilience globale de l’architecture. </p>
 <p>Les objectifs sont donc de : </p>
@@ -2989,30 +3092,316 @@ Il s'agit des vues suivantes : </p>
 <h2 id="validation-de-la-modelisation">✔️ Validation de la modélisation</h2>
 <hr/>
 <p>Bien que vu précédemment, un chapitre est toutefois consacré exclusivement à ce "générateur". Comme précité, la validation de la modélisation est automatiquement lancée avant chaque demande de génération pour la couche de persistance, la couche de service ou encore la création des scripts SQL.</p>
-<ul>
-<li>Si aucune erreur n'est détectée, le générateur est alors activé et la génération est effectuée.</li>
-<li>En cas d'erreur, une fenêtre est affichée et la poursuite de la génération est stoppée (ne pas tenir compte du "<em>java.lang.reflect.invocationTargetException</em>").</li>
-</ul>
+<p>• Si aucune erreur n'est détectée, le générateur est alors activé et la génération est effectuée.
+• En cas d'erreur, une fenêtre est affichée et la poursuite de la génération est stoppée.</p>
 <div align="center">
-<img alt="Pagination" src="images/pcm-gen-validation-1.png" width="500"/>
+<img alt="Validation" src="images/pcm-gen-validation-1.png" width="500"/>
 </div>
+<p>• Il est alors possible de visualiser le rapport au niveau de la vue de validation (Rapport de validation). Cette vue permet de cibler l'objet en cause, d'afficher la ou les erreur(s) rencontrée(s) et de proposer une solution pour le contournement de chaque erreur.</p>
+<p>Cette vue permet de trier les différentes colonnes (cliquer au niveau du libellé de la colonne pour modifier l'ordre de tri) et de filtrer les données grâce aux quatre critères : </p>
 <ul>
-<li>Il est alors possible de visualiser le rapport au niveau du projet de modélisation en ouvrant le fichier <strong><em>[nom de l'application]-validation.log</em></strong>. Ce fichier permet de cibler l'objet en cause, d'afficher la ou les erreur(s) rencontrée(s) et de proposer une solution pour le contournement de chaque erreur.</li>
+<li>Filtrer par règle</li>
+<li>Filtrer par objet </li>
+<li>Filtrer par erreur</li>
+<li>Filtrer par solution potentielle</li>
 </ul>
-<pre>
----------------------------------------------------------------------------------------------------------------------------------------------------
- objet                                       | erreur rencontrée               | solution potentielle                                             |
----------------------------------------------------------------------------------------------------------------------------------------------------
- referentiel.GestionPersonnes.chercheParId() | Opération sans statut de retour | Attachez un code statut au paramètre de retour pour une opération|
- referentiel.GestionPersonnes.retourneTous() | Opération sans statut de retour | Attachez un code statut au paramètre de retour pour une opération|
-
-</pre>
-<ul>
-<li>Il est aussi possible de lancer directement la vérification du modèle qui se soldera obligatoirement par l'affichage d'une fenêtre indiquant soit la présence d'erreur(s) de modélisation, soit la bonne prise en compte du modèle.</li>
-</ul>
+<p>En se positionnant sur une ligne, il est alors possible de se positionner directement sur l'élément au niveau de la représentation associée au diagramme et ainsi d'effectuer rapidement la modification demandée.</p>
+<div align="center">
+<img alt="Validation" src="images/pcm-gen-validation-2.png"/>
+</div>
+<p>❗ Il est parfois possible, en voulant se positionner directement sur l'élément, que l'utilisateur soit confronté au message suivant :   </p>
+<div align="center">
+<img alt="Validation" src="images/pcm-gen-validation-3.png" width="600"/>
+</div>
+<p>Comme indiqué, ce message signifie que la représentation n'existe pas (elle n'a pas encore été créée). Il est donc nécessaire pour l'utilisateur de créer manuellement ladite représentation, puis de sélectionner à nouveau la ligne incriminée. La représentation sera alors automatiquement chargée et l'élément du diagramme sera sélectionné. </p>
+<p>• Il est aussi possible de lancer directement la vérification du modèle qui se soldera obligatoirement par l'affichage d'une fenêtre indiquant soit la présence d'erreur(s) de modélisation, soit la bonne prise en compte du modèle.</p>
 <h2 id="deploiement-de-lapplication">📦 Déploiement de l'application</h2>
 <hr/>
 <p>Ce paragraphe sera complété prochainement.</p>
+<h2 id="cas-client_2">📁 Cas client</h2>
+<h3 id="webclient">WebClient</h3>
+<p>Pendant longtemps, le client HTTP de référence dans l’écosystème Spring a été RestTemplate, introduit pour simplifier les appels REST depuis une application Spring Boot. Il a été largement utilisé car il proposait une API simple, bloquante et proche des modèles de programmation classiques. </p>
+<p>Cependant, avec l’arrivée de Spring 5 et du paradigme réactif, RestTemplate a été marqué comme obsolète et ne bénéficie plus d’évolutions. Son fonctionnement bloquant le rend peu adapté aux architectures modernes, souvent distribuées et fortement concurrentes. Pour répondre à ces besoins, Spring a introduit WebClient, un client HTTP non bloquant, réactif et beaucoup plus flexible : il permet de gérer aussi bien des appels simples que des flux de données continus, tout en offrant un support natif pour l’asynchrone et une meilleure intégration avec Spring WebFlux. </p>
+<p>WebClient est aujourd’hui l’outil recommandé pour les appels REST dans Spring Boot, car il prépare les applications à la scalabilité et aux contraintes de performance actuelles.</p>
+<h3 id="recuperation-du-fichier-swagger">Récupération du fichier Swagger</h3>
+<p>Le fichier Swagger est à récupérer auprès du fournisseur externe de service, il est au format <em>Json</em> ou <em>Yaml</em> (<strong>Pacman</strong> accepte les deux formats) et à positionner sur le disque dans un répertoire au choix du développeur. Il est toutefois conseillé de le stocker au niveau du projet de modélisation afin de centraliser toutes les informations au niveau du projet. </p>
+<h3 id="generation-du-client">Génération du client</h3>
+<h4 id="modelisation_4">Modélisation</h4>
+<p>Pour modéliser l'ensemble des services, dans l'explorateur de modèles, aller au niveau du projet de modélisation <strong><em>[nom de l'application]-model</em></strong>, se positionner sur le fichier de modélisation des services <strong><em>[nom de l'application].soa</em></strong>, développer l'arborescence du fichier et se positionner dans l'arbre au niveau de l'élément <em>Components</em>. Par un clique droit, faire apparaitre le menu de génération <em>Is Designer/Import Swagger</em>.</p>
+<div align="center">
+<img alt="Génération soa client" src="images/pcm-gen-soa-3.png" width="600"/>
+</div>
+<p>A l'aide de la fenêtre de recherche, retrouver le fichier et valider avec le bouton "<em>Finish</em>" la demande d'importation du fichier Swagger.  </p>
+<div align="center">
+<img alt="Génération soa client" src="images/pcm-gen-soa-4.png" width="600"/>
+</div>
+<p>A ce stade le fichier de modélisation "<strong><em>.soa</em></strong>" contient maintenant l'ensemble des objets métier (les objets dto) ainsi que les différents services. Il est maintenant nécessaire (si besoin) d'affiner la modélisation en apposant quelques métadonnées.</p>
+<p>• Si un ou plusieurs services sont soumis à une authentification préalable (demande de jeton), lire le fichier de modélisation afin de retrouver l'opération liée à l'obtention dudit jeton. Dans le cas de l'api "TheTVDV", il s'agit du service "<em>Login</em>". Se positionner au niveau de l'opération et ajouter la métadonnée <em>@AUTH_TOKEN</em>. Le corps de l'annotation n'est pas utile ici, dans le cadre de cette fonctionnalité car le générateur se contente simplement de vérifier la présence de l'annotation. Le developpeur peut le laisser sans modification ou le supprimer. </p>
+<p>❗ Bien vérifier la présence de cette annotation (si elle est nécessaire) car en son absence, toutes les classes de test seront en erreur.</p>
+<div align="center">
+<img alt="Génération soa client" src="images/pmc-model-soaclient-1.png" width="600"/>
+</div>
+<p>• <strong>Pacman</strong> ne peut connaitre toutes les intentions du fournisseur de services externes. Il est possible que ce dernier ait par exemple, décidé que pour son api, seuls les paramètres renseignés devaient être envoyés. C'est le cas notamment pour le service de recherche de l'api utilisée dans le cadre de ce document. Afin de pallier à cette problématique, il est possible de positionner une métadonnée <strong><em>@SKIP_EMPTY_VALUES</em></strong> au niveau de l'opération concernée. Le générateur, lors de l'éxécution de la requête va alors vérifier à la volée quels sont les paramètres effectivement renseignés.       </p>
+<div align="center">
+<img alt="Génération soa client" src="images/pmc-model-soaclient-2.png" width="600"/>
+</div>
+<p>• Il est possible que le fournisseur externe de services ait utilisé un ou plusieurs mots-clé Java dans la définition des attributs ou références de son api (c'est la cas notamment dans le cadre "TheTVDB"). Il est alors nécessaire de modifier la modélisation sous peine de ne pas pouvoir compiler et de modifier le nom de l'élément incriminé. Cependant, une modification du nom de l'élement entrainera invariablement un disfonctionnement de l'api. </p>
+<p>Par défaut, l'ensemble des attributs et références sont automatiquement annotés avec <strong><em>@JsonPropery</em></strong> qui permet de spécifier un nom différent pour la sérialisation. Il est ainsi toujours possible de modifier ce nom manuellement. </p>
+<p>Cependant une métadonnée <strong><em>@JSON_NAME</em></strong> permet aussi d'indiquer au générateur la demande expresse de modification de nom (positionner la métadnnée et saisir dans le corps de la métadonnée le nolm désiré pour la référence ou l'attribut). </p>
+<p>Si la problématique se situe au niveau des paramètres en entrée du service, il suffit alors simplement de modifier la modélisation puisque la modification ne sera prise en compte qu'au niveau local pour la compilation.</p>
+<h4 id="generation_4">Génération</h4>
+<p>Dans l'explorateur de modèles, aller au niveau du projet de modélisation <strong><em>[nom de l'application]-model</em></strong>, se positionner sur le fichier de modélisation du métier <strong><em>[nom de l'application].soa</em></strong> et par un clique droit, faire apparaitre le menu de génération <strong>Pacman</strong> (<em>Générateurs Cali/Génération du client pour les services</em>). </p>
+<div align="center">
+<img alt="Génération soa client" src="images/pcm-gen-soaclient-1.png" width="600"/>
+</div>
+<p><strong>Au niveau du projet du domaine (couche métier)</strong> : </p>
+<p>• <strong><em>[package racine].domain.entities.[nom du namespace]</em></strong> : Ces packages contiennent l'ensemble des objets métier (<strong><em>dtos</em></strong>). Comme il s'agit d'objets sérialisés, on parlera donc d'objet de type "<strong><em>Xto</em></strong>" dans le cadre de générateurs <strong>Pacman</strong>.</p>
+<p><strong>Au niveau du projet serveur</strong> : </p>
+<p>•  <strong><em>[package racine].app.client.[nom du namespace]</em></strong> : Ces packages contiennent l'ensemble des services pour l'ensemble des appels du fournisseur externe. Chaque classe client à la même structure et récupère (par le biais de l'injection Spring) le WebClient (<strong><em>[Nom de l'application]WebClientHelper</em></strong>) permettant d'effectuer l'appel. </p>
+<p>Si l'opération nécessite une sécurisation par jeton, alors le paramètre "<strong><em>final String token</em></strong>" sera automatiquement ajouté dans la liste des différents paramètres en entrée. Ainsi, pour l'opération de recherche des films et séries, point d'entrée de l'api pour "TheTVDB", le code sera le suivant : </p>
+<div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">GetSearchResultsOutput200XtoImpl</span><span class="w"> </span><span class="nf">getSearchResults</span><span class="p">(</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">type</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">Double</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">company</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">director</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">language</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">primaryType</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">network</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">remote_id</span><span class="p">,</span><span class="w"> </span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">Double</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Double</span><span class="w"> </span><span class="n">limit</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">clientHelper</span><span class="p">.</span><span class="na">getBuilder</span><span class="p">()</span>
+<span class="w">       </span><span class="p">.</span><span class="na">get</span><span class="p">()</span>
+<span class="w">       </span><span class="p">.</span><span class="na">withResponseType</span><span class="p">(</span><span class="n">GetSearchResultsOutput200XtoImpl</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="na">withUri</span><span class="p">(</span><span class="s">"/v4/search"</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="na">withQueryParams</span><span class="p">(</span><span class="n">DemoWebClientMapUtils</span><span class="p">.</span><span class="na">mapOf</span><span class="p">(</span><span class="s">"query"</span><span class="p">,</span><span class="w"> </span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="s">"q"</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="s">"type"</span><span class="p">,</span>
+<span class="w">           </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="s">"year"</span><span class="p">,</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="s">"company"</span><span class="p">,</span><span class="w"> </span><span class="n">company</span><span class="p">,</span><span class="w"> </span><span class="s">"country"</span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span>
+<span class="w">           </span><span class="s">"director"</span><span class="p">,</span><span class="w"> </span><span class="n">director</span><span class="p">,</span><span class="w"> </span><span class="s">"language"</span><span class="p">,</span><span class="w"> </span><span class="n">language</span><span class="p">,</span><span class="w"> </span><span class="s">"primaryType"</span><span class="p">,</span><span class="w"> </span><span class="n">primaryType</span><span class="p">,</span><span class="w"> </span>
+<span class="w">           </span><span class="s">"network"</span><span class="p">,</span><span class="w"> </span><span class="n">network</span><span class="p">,</span><span class="w"> </span><span class="s">"remote_id"</span><span class="p">,</span><span class="w"> </span><span class="n">remote_id</span><span class="p">,</span><span class="w"> </span><span class="s">"offset"</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="s">"limit"</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="p">))</span>
+<span class="w">       </span><span class="p">.</span><span class="na">withHeaderToken</span><span class="p">(</span><span class="s">"Authorization"</span><span class="p">,</span><span class="w"> </span><span class="s">"Bearer "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">token</span><span class="p">)</span>
+<span class="w">       </span><span class="p">.</span><span class="na">withSkiEmptyValues</span><span class="p">()</span>
+<span class="w">       </span><span class="p">.</span><span class="na">execute</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Les différentes étapes dans la construction de la requête sont les suivantes : </p>
+<ul>
+<li>
+<p>"<strong><em>.get()</em></strong>" : Il s'agit d'une requête avec le verbe "GET" afin de récupérer une liste de films et séries en fonction de différents critères de recherche.</p>
+</li>
+<li>
+<p>"<strong><em>.withResponseType()</em></strong>" : On spécifie la classe (l'objet XTO) qui va être retourné par la requête afin que le WebClient puisse le peupler automatiquement avec la réponse du fournisseur externe.</p>
+</li>
+<li>
+<p>"<strong><em>.withUri()</em></strong>" : On spécifie l'URI pour accéder à la bonne requête. On peut remarquer encore une fois que la version est positionnée à ce niveau ce qui permet d'être plus souple au niveau de la gestion des versions entre les différents services.</p>
+</li>
+<li>
+<p>"<strong><em>.withQueryParams()</em></strong>" : Ici les différents paramètres en entrée ont été modélisés sous forme de paramètres de requête.</p>
+</li>
+<li>
+<p>"<strong><em>.withHeaderToken()</em></strong>" : Comme cette opération nécessite une authentification préalable, on injecte le jeton JWT qui aura été obtenu avec le service d'authentification.</p>
+</li>
+<li>
+<p>"<strong><em>.withSkipEmptyValues()</em></strong>" : Comme cette opération à une annotation "<strong><em>@SKIP_EMPTY_VALUES</em></strong>", la requête précise au WebClient qu'il doit filtrer toutes les données entrantes non saisies (nulles ou vide) et ne pas les injecter dans la demande.</p>
+</li>
+<li>
+<p>"<strong><em>.execute()</em></strong>" : L'execution de la requête est alors demandée et l'objet "<strong><em>GetSearchResultsOutput200XtoImpl</em></strong>" est retourné.</p>
+</li>
+</ul>
+<p>•  <strong><em>[package racine].app</em></strong> (TESTS) : Ce package contient (si l'api est sécurisée) la classe utilitaire de gestion du jeton d'authentification <strong><em>[Nom de l'application]TokenTestHelper</em></strong> afin de récupérer et de mettre à disposition le jeton JWT pour toutes les opérations sécurisées.</p>
+<p>Le code de la classe (très simple) est le suivant : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Component</span>
+<span class="nd">@Import</span><span class="p">(</span><span class="n">LoginWebClientImpl</span><span class="p">.</span><span class="na">class</span><span class="p">)</span>
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DemoTokenTestsHelper</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">token</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">LoginWebClientImpl</span><span class="w"> </span><span class="n">login</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@Autowired</span>
+<span class="w">    </span><span class="n">DemoTokenTestsHelper</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">LoginWebClientImpl</span><span class="w"> </span><span class="n">login</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">login</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">login</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">getToken</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">token</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">token</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">PostBodyXtoImpl</span><span class="w"> </span><span class="n">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// Initialisation des données en entrée.</span>
+<span class="w">        </span><span class="c1">// Start of user code e37f0136aa3ffaf149b351f6a4c948e9</span>
+<span class="w">        </span><span class="c1">// End of user code</span>
+
+<span class="w">        </span><span class="n">PostOutput200XtoImpl</span><span class="w"> </span><span class="n">output200</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">login</span><span class="p">.</span><span class="na">post</span><span class="p">(</span><span class="n">body</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Affectation du jeton avec les données en sortie.</span>
+<span class="w">        </span><span class="c1">// Start of user code 94a08da1fecbb6e8b46990538c7b50b2</span>
+
+<span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// End of user code</span>
+<span class="w">     </span><span class="p">}</span>
+<span class="w">     </span><span class="k">return</span><span class="w"> </span><span class="n">token</span><span class="p">;</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Une fois la génération effectué, il est alors nécessaire pour le développeur de compléter ce code (à l'aide des zones de type "<em>user code</em>") afin d'envoyer les données d'authentification et de récupérer le jeton en retour. Dans le cadre de ce document et de l'api "TheTVDB", le code serait alors le suivant (les données d'authentification sont factices) : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Initialisation des données en entrée.</span>
+<span class="c1">// Start of user code e37f0136aa3ffaf149b351f6a4c948e9</span>
+
+<span class="n">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PostBodyXtoImpl</span><span class="p">();</span>
+<span class="n">body</span><span class="p">.</span><span class="na">setApikey</span><span class="p">(</span><span class="s">"78f2v9d7-h8cb-568q-74df-b347487fg70s"</span><span class="p">);</span>
+<span class="n">body</span><span class="p">.</span><span class="na">setPin</span><span class="p">(</span><span class="s">"24GHG7LMN"</span><span class="p">);</span>
+
+<span class="c1">// End of user code</span>
+</code></pre></div>
+<p>La manière dont l'utilisateur désire récupérer les données d'authentification sont laissées à son libre arbitre, il peut les mettre "en dur", dans un coffre fort électronique, dans le fichier <em>application.properties</em> externalisé, etc....</p>
+<p>Et en retour : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Affectation du jeton avec les données en sortie.</span>
+<span class="c1">// Start of user code 94a08da1fecbb6e8b46990538c7b50b2</span>
+
+<span class="k">this</span><span class="p">.</span><span class="na">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">output200</span><span class="p">.</span><span class="na">getPostOutput200Data_data</span><span class="p">().</span><span class="na">getToken</span><span class="p">();</span>
+
+<span class="c1">// End of user code</span>
+</code></pre></div>
+<p>•  <strong><em>[package racine].app.client.[nom du namespace]</em></strong> (TESTS) : Ces packages contiennent l'ensemble des classes de test "<strong>Junit</strong>" qui permettent d'effectuer les appels de chaque opération (requête) vue précedemment. Comme il n'est à ce stade, plus possible de récupérer le code du statut de retour pour la requête (de manière automatique), le test se contente  de vérifier la présence de la réponse pour la requête.  </p>
+<p>Voici par exemple le test pour la requête de recherche vue précedemment : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Test</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">getGetSearchResultsTest</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">      </span><span class="c1">// Start of user code ee13f3b89b027c6b0e254b7b91f6db97</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">Double</span><span class="w"> </span><span class="n">year</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">company</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">country</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">director</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">language</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">primaryType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">network</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">String</span><span class="w"> </span><span class="n">remote_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">Double</span><span class="w"> </span><span class="n">offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">      </span><span class="n">Double</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+
+<span class="w">      </span><span class="c1">// End of user code</span>
+
+<span class="w">      </span><span class="n">assertNotNull</span><span class="p">(</span><span class="n">client</span><span class="p">.</span><span class="na">getSearchResults</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">company</span>
+<span class="w">          </span><span class="p">,</span><span class="w"> </span><span class="n">country</span><span class="p">,</span><span class="w"> </span><span class="n">director</span><span class="p">,</span><span class="w"> </span><span class="n">language</span><span class="p">,</span><span class="w"> </span><span class="n">primaryType</span><span class="p">,</span><span class="w"> </span><span class="n">network</span><span class="p">,</span><span class="w"> </span><span class="n">remote_id</span><span class="p">,</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="p">,</span><span class="w"> </span><span class="n">tokenHelper</span><span class="p">.</span><span class="na">getToken</span><span class="p">()),</span><span class="w"> </span><span class="s">"Réponse non valide !"</span><span class="p">);</span>
+
+<span class="w">      </span><span class="c1">// Placer ici les tests supplémentaires (si besoin).</span>
+<span class="w">      </span><span class="c1">// Start of user code ee13f3b89b027c6b0e254b7b91f6db97custom tests</span>
+<span class="w">      </span><span class="c1">// End of user code</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">etc</span><span class="w"> </span><span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Très simplement on constate la présence de l'ensemble des paramètres en entrée. Il suffit alors de compléter les paramètres avec les valeurs demandées. La requête est prête pour les tests.</p>
+<h4 id="tests_3">Tests</h4>
+<p>Comme tout test de type "<strong>**JUnit</strong>" il suffit simplement au développeur pour vérifier le bon fonctionnement de la requête, de se positionner au niveau de la méthode (opération), de la classe ou encore du/des package(s) et d'effectuer un click droit pour lancer le(s) test(s) Junit. </p>
+<div align="center">
+<img alt="Tests soa client" src="images/pcm-test-soaclient-1.png" width="600"/>
+</div>
+<p>A partir du momment ou le profil SpringBoot est toujours positionné à "<strong><em>dev</em></strong>" au niveau du fichier "<strong><em>application.properties</em></strong>", toute requête va automatiquement être tracée et affichée dans la console Eclipse. Pour rappel le fichier à les valeurs suivantes dans le cadre de cet exemple : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Adresse racine utilisée pour toutes les requêtes HTTP du client REST.</span>
+<span class="na">demo.api.base-url</span><span class="o">=</span><span class="s">https://api4.thetvdb.com</span>
+<span class="c1"># Timeout de connexion TCP (en millisecondes).</span>
+<span class="na">demo.api.connection-timeout-ms</span><span class="o">=</span><span class="s">5000</span>
+<span class="c1"># Timeout de réponse HTTP (en millisecondes).</span>
+<span class="na">demo.api.response-timeout-ms</span><span class="o">=</span><span class="s">10000</span>
+<span class="c1"># Profil Spring actif. Ici, on active le profil 'dev'.</span>
+<span class="na">spring.profiles.active</span><span class="o">=</span><span class="s">dev</span>
+</code></pre></div>
+<p>Voici à titre indicatif les logs affichés pour cette requête de recherche : </p>
+<div class="codehilite"><pre><span></span><code><span class="na">[</span><span class="w"> </span><span class="s">10:00:24] [main] INFO  fr.demo.app.DemoWebClientConfigImpl - WebClient &gt;&gt; POST https://api4.thetvdb.com/v4/login</span>
+<span class="na">[</span><span class="w"> </span><span class="s">10:00:25] [reactor-http-nio-2] INFO  fr.demo.app.DemoWebClientConfigImpl - </span>
+<span class="o">=</span><span class="s">================ WebClient Reponse =================</span>
+<span class="na">Statut</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">200 200 OK</span>
+<span class="o">=</span><span class="s">=====================================================</span>
+
+<span class="na">En-tête(s)</span><span class="w"> </span><span class="o">:</span>
+<span class="w">  </span><span class="na">Content-Type</span><span class="o">:</span><span class="w"> </span><span class="s">application/json; charset=UTF-8</span>
+<span class="w">  </span><span class="na">Content-Length</span><span class="o">:</span><span class="w"> </span><span class="s">1152</span>
+<span class="w">  </span><span class="na">Connection</span><span class="o">:</span><span class="w"> </span><span class="s">keep-alive</span>
+<span class="w">  </span><span class="na">Date</span><span class="o">:</span><span class="w"> </span><span class="s">Tue, 02 Sep 2025 07:59:25 GMT</span>
+<span class="w">  </span><span class="na">Vary</span><span class="o">:</span><span class="w"> </span><span class="s">Origin, Accept-Encoding</span>
+<span class="w">  </span><span class="na">X-Cache</span><span class="o">:</span><span class="w"> </span><span class="s">Miss from cloudfront</span>
+<span class="w">  </span><span class="na">Via</span><span class="o">:</span><span class="w"> </span><span class="s">1.1 a0bc907aac33bdff3d75027420967ef6.cloudfront.net (CloudFront)</span>
+<span class="w">  </span><span class="na">X-Amz-Cf-Pop</span><span class="o">:</span><span class="w"> </span><span class="s">CDG52-P3</span>
+<span class="w">  </span><span class="na">X-Amz-Cf-Id</span><span class="o">:</span><span class="w"> </span><span class="s">RUYkOGl4moBWYb3HN92vn2p2ykiVuJEltokn1rgl94Oh4skcZw4DVw==</span>
+<span class="o">=</span><span class="s">=====================================================</span>
+
+<span class="na">Body</span><span class="w"> </span><span class="s">(JSON sous forme de table):</span>
+<span class="w">  </span><span class="na">STATUS</span><span class="w"> </span><span class="s">-&gt; "success"</span>
+<span class="w">  </span><span class="na">data</span><span class="o">:</span>
+<span class="w">    </span><span class="na">TOKEN</span><span class="w"> </span><span class="s">-&gt; "eyJhbGciOiJSUzI1NiIsIn[...]ewHcyRsHWbX_amywsr-RVknxc4UQRis"</span>
+<span class="o">=</span><span class="s">=====================================================</span>
+</code></pre></div>
+<p>Comme la requête est soumise à authentification préalable, et qu'aucun jeton n'a encore été stocké, la requête de demande d'authentification est alors envoyée et le jeton est retourné. Une fois le jeton récupéré, il est alors possible d'effectuer la requête de recherche et d'obtenir en retour le résultat demandé.</p>
+<p>❗ Noter que même si le tests <strong><em>JUnit</em></strong> est en erreur, dans tous les cas la trace complète est affichée sur la console puisque la lecture et le log des informations sont effectués avant le peuplement de l'objet de retour. Il pourrait ainsi être possible d'avoir l'ensemble de la trace mais d'avoir un problème technique lors du peuplement de l'objet métier. Pour cette simple raison, toujours se reporter au niveau du résulat pour le test <strong>*JUnit</strong> et non simplement aux logs.</p>
+<div class="codehilite"><pre><span></span><code><span class="na">[</span><span class="w"> </span><span class="s">10:00:25] [main] INFO  fr.demo.app.DemoWebClientConfigImpl - WebClient &gt;&gt; GET https://api4.thetvdb.com/v4/search?query=stargate</span>
+<span class="na">[</span><span class="w"> </span><span class="s">10:00:26] [reactor-http-nio-2] INFO  fr.demo.app.DemoWebClientConfigImpl - </span>
+<span class="o">=</span><span class="s">================ WebClient Reponse =================</span>
+<span class="na">Statut</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">200 200 OK</span>
+<span class="o">=</span><span class="s">=====================================================</span>
+
+<span class="na">En-tête(s)</span><span class="w"> </span><span class="o">:</span>
+<span class="w">  </span><span class="na">Content-Type</span><span class="o">:</span><span class="w"> </span><span class="s">application/json; charset=UTF-8</span>
+<span class="w">  </span><span class="na">Transfer-Encoding</span><span class="o">:</span><span class="w"> </span><span class="s">chunked</span>
+<span class="w">  </span><span class="na">Connection</span><span class="o">:</span><span class="w"> </span><span class="s">keep-alive</span>
+<span class="w">  </span><span class="na">Date</span><span class="o">:</span><span class="w"> </span><span class="s">Tue, 02 Sep 2025 07:59:25 GMT</span>
+<span class="w">  </span><span class="na">Vary</span><span class="o">:</span><span class="w"> </span><span class="s">Origin, Accept-Encoding</span>
+<span class="w">  </span><span class="na">X-Cache</span><span class="o">:</span><span class="w"> </span><span class="s">Miss from cloudfront</span>
+<span class="w">  </span><span class="na">Via</span><span class="o">:</span><span class="w"> </span><span class="s">1.1 a0bc907aac33bdff3d75027420967ef6.cloudfront.net (CloudFront)</span>
+<span class="w">  </span><span class="na">X-Amz-Cf-Pop</span><span class="o">:</span><span class="w"> </span><span class="s">CDG52-P3</span>
+<span class="w">  </span><span class="na">X-Amz-Cf-Id</span><span class="o">:</span><span class="w"> </span><span class="s">SCpJNE5GTFKsv7vfsQrP1i4F-3LzQ6h4-P55FY_phimeek3JQRTrvA==</span>
+<span class="o">=</span><span class="s">=====================================================</span>
+
+<span class="na">Body</span><span class="w"> </span><span class="s">(JSON sous forme de table):</span>
+<span class="w">  </span><span class="na">STATUS</span><span class="w"> </span><span class="s">-&gt; "success"</span>
+<span class="w">  </span><span class="na">data</span><span class="o">:</span>
+
+<span class="w">    </span><span class="o">=</span><span class="s">==============</span>
+<span class="w">    </span><span class="na">Occurrence</span><span class="w"> </span><span class="s">#1</span>
+<span class="w">    </span><span class="o">=</span><span class="s">==============</span>
+
+<span class="w">        </span><span class="na">OBJECTID</span><span class="w"> </span><span class="s">-&gt; "movie-1292"</span>
+<span class="w">        </span><span class="na">COUNTRY</span><span class="w"> </span><span class="s">-&gt; "usa"</span>
+<span class="w">        </span><span class="na">DIRECTOR</span><span class="w"> </span><span class="s">-&gt; "Roland Emmerich"</span>
+<span class="w">        </span><span class="na">EXTENDED_TITLE</span><span class="w"> </span><span class="s">-&gt; "Stargate (1994)"</span>
+<span class="w">        </span><span class="na">genres</span><span class="o">:</span>
+
+<span class="w">          </span><span class="o">=</span><span class="s">==============</span>
+<span class="w">          </span><span class="na">Occurrence</span><span class="w"> </span><span class="s">#1</span>
+<span class="w">          </span><span class="o">=</span><span class="s">==============</span>
+
+<span class="w">            </span><span class="na">"Action"</span>
+
+<span class="w">          </span><span class="o">=</span><span class="s">==============</span>
+<span class="w">          </span><span class="na">Occurrence</span><span class="w"> </span><span class="s">#2</span>
+<span class="w">          </span><span class="o">=</span><span class="s">==============</span>
+
+<span class="w">            </span><span class="na">"Adventure"</span>
+
+<span class="w">          </span><span class="o">=</span><span class="s">==============</span>
+<span class="w">          </span><span class="na">Occurrence</span><span class="w"> </span><span class="s">#3</span>
+<span class="w">          </span><span class="o">=</span><span class="s">==============</span>
+
+<span class="w">            </span><span class="na">"Science</span><span class="w"> </span><span class="s">Fiction"</span>
+<span class="w">        </span><span class="na">studios</span><span class="o">:</span>
+
+<span class="w">          </span><span class="o">=</span><span class="s">==============</span>
+<span class="w">          </span><span class="na">Occurrence</span><span class="w"> </span><span class="s">#1</span>
+<span class="w">          </span><span class="o">=</span><span class="s">==============</span>
+
+<span class="w">            </span><span class="na">"StudioCanal"</span>
+<span class="w">        </span><span class="na">ID</span><span class="w"> </span><span class="s">-&gt; "movie-1292"</span>
+<span class="w">        </span><span class="na">IMAGE_URL</span><span class="w"> </span><span class="s">-&gt; "https://artworks.thetvdb.com/banners/v4/movie/1292/posters/68582b085ba89.jpg"</span>
+<span class="w">        </span><span class="na">NAME</span><span class="w"> </span><span class="s">-&gt; "Stargate"</span>
+<span class="w">        </span><span class="na">FIRST_AIR_TIME</span><span class="w"> </span><span class="s">-&gt; "1994-10-27"</span>
+<span class="w">        </span><span class="na">OVERVIEW</span><span class="w"> </span><span class="s">-&gt; "An interstellar teleportation device, found in Egypt, leads to a planet with humans resembling ancient Egyptians who worship the god Ra."</span>
+<span class="w">        </span><span class="na">PRIMARY_LANGUAGE</span><span class="w"> </span><span class="s">-&gt; "eng"</span>
+<span class="w">        </span><span class="na">PRIMARY_TYPE</span><span class="w"> </span><span class="s">-&gt; "movie"</span>
+<span class="w">        </span><span class="na">STATUS</span><span class="w"> </span><span class="s">-&gt; "Released"</span>
+<span class="w">        </span><span class="na">TYPE</span><span class="w"> </span><span class="s">-&gt; "movie"</span>
+<span class="w">        </span><span class="na">TVDB_ID</span><span class="w"> </span><span class="s">-&gt; "1292"</span>
+<span class="w">        </span><span class="na">YEAR</span><span class="w"> </span><span class="s">-&gt; "1994"</span>
+<span class="w">        </span><span class="na">SLUG</span><span class="w"> </span><span class="s">-&gt; "stargate"</span>
+<span class="w">        </span><span class="na">etc...</span>
+</code></pre></div>
 <h2 id="problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</h2>
 <hr/>
 <p>• <strong>Quand je relance une génération j'ai des erreurs au niveau de mes classes à cause de données manquantes dans les imports</strong> : ceci est une problématique liée plus précisément à des modifications de modélisation suite à générations antérieures. </p>
@@ -3022,6 +3411,7 @@ Il s'agit des vues suivantes : </p>
 <p>L'unique solution pour l'instant consiste donc à lancer une organisation automatique des imports manuellement sur les différentes classes en erreur et effectuer les choix nécessaires. Lors de la prochaine demande de génération, les imports étant reconstitués, les classes ne devraient plus être en erreur.</p>
 <p>• <strong>Suite à demande de génération, mes classes ont des warnings</strong> :  en ouvrant une classe, je vois que de nombreux imports ne sont pas utilisés. Pourtant, au niveau de mon fichier "<em>project.properties</em>" je ne suis pas en mode debug. </p>
 <p>Il peut arriver que, suite à une demande de génération (pour une raison encore non expliquée), les tâches de fin de traitement ne soient pas lancées. L'organisation automatique des imports n'est alors pas activée et comme <strong>Pacman</strong> dans sa politique de gestion des imports génère plus d'imports que nécessaires, ceux-ci ne sont alors pas supprimés. Il suffit simplement de relancer une génération pour résoudre le problème.</p>
+<p>• <strong>Pour une génération client, il me manque la classe de gestion du jeton</strong> : La demande de génération de la classe utilitaire pour la récupération du jeton d'authentification n'est pas basée uniquement sur le fait que l'api soit sécurisée, mais aussi sur la présence de l'annotation <strong><em>@AUTH_TOKEN</em></strong> au niveau de l'opération de gestion de jeton. Bien vérifier le positionnement de cette annotation au niveau de la modélisation des services.</p>
 <h2 id="annexes">📎 Annexes</h2>
 <hr/>
 <p>• Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que <strong>Pacman</strong> est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclu).</p>
@@ -3075,7 +3465,7 @@ Il s'agit des vues suivantes : </p>
 <tr>
 <td>VERSION</td>
 <td>OUI</td>
-<td>Version de l'entité (implique la gestion automatique du Lock Optimiste)</td>
+<td>Version de l'entité (gestion automatique du Lock Optimiste)</td>
 <td>SYSTEM, CATEGORY, DTO</td>
 </tr>
 <tr>
@@ -3148,6 +3538,18 @@ Il s'agit des vues suivantes : </p>
 <td>AUTH_TOKEN</td>
 <td>OUI</td>
 <td>Récupération d'un jeton d'authentification</td>
+<td>OPERATION</td>
+</tr>
+<tr>
+<td>JSON_NAME</td>
+<td>OUI</td>
+<td>Spécification d'un nom de sérialisation</td>
+<td>ATTRIBUT, REFERENCE</td>
+</tr>
+<tr>
+<td>SKIP_EMPTY_VALUES</td>
+<td>NON</td>
+<td>Filtrage des données non renseignées</td>
 <td>OPERATION</td>
 </tr>
 <tr>
@@ -3318,6 +3720,6 @@ Il s'agit des vues suivantes : </p>
 </tbody>
 </table>
 </main>
-<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#le-plugin-et-larchitecture-hexagonale">🧩 Le Plugin et l'architecture hexagonale</a></li><ul><li><a href="#pacman">Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#etapes">Etapes</a></li></ul><li><a href="#creation-dun-projet">☕ Création d'un projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#fichiers-generes">Fichiers Générés</a></li></ul><li><a href="#les-fichiers-de-configuration-spring">📝 Les fichiers de configuration Spring</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><ul><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre fort</a></li><li><a href="#datasources">Datasources</a></li></ul><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#generation-de-la-couche-de-persistance">🛢️ Génération de la couche de persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-de-la-couche-de-service">🌐 Génération de la couche de service</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li></ul></nav>
+<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#etapes">Etapes</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#fichiers-generes">Fichiers Générés</a></li><ul><li><a href="#cas-fournisseur">📁 Cas fournisseur</a></li><li><a href="#cas-client">📁 Cas client</a></li></ul></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-fournisseur_1">📁 Cas fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-client_1">📁 Cas client</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-fournisseur_2">📁 Cas fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li></ul><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li><li><a href="#cas-client_2">📁 Cas client</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#generation-du-client">Génération du client</a></li><ul><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#tests_3">Tests</a></li></ul></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li></ul></nav>
 </body>
 </html>
