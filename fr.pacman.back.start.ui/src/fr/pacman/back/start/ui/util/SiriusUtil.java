@@ -56,7 +56,7 @@ import fr.pacman.back.start.ui.exception.PacmanInitModelException;
  * <p>
  * Attention bien notter que les viewpoints sont écrits en dur au niveau du
  * studio, il ne faut donc jamais changer les libellés, sous peine d'engendrer
- * un erreur comme quoi le viewpoi,t n'a pas été trouvé.
+ * un erreur comme quoi le viewpoint n'a pas été trouvé.
  * 
  * @author MINARM
  */

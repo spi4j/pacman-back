@@ -350,6 +350,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 				if (cbx.getSelectionIndex() == 1)
 					_typeProject = "client";
 				manageCompositesActivation();
+				computeValidity();
 			}
 
 			@Override
@@ -369,12 +370,13 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private Combo addComboFramework(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Framework",
 				"Le framework à utiliser pour la génération des classes issues de la modélisation.",
-				new String[] { "Spring Boot" }, 0);
+				new String[] { "Spring Boot", "React" }, 0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(final SelectionEvent p_e) {
 				_typeFramework = (cbx.getItem(cbx.getSelectionIndex()).replaceAll(" +", "")).toLowerCase();
+				computeValidity();
 			}
 
 			@Override
@@ -848,8 +850,18 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		ValidatorUtil.INSTANCE.setRequirementPrefixOK(FormUtil.checkValueForPrefix(_requirementPrefix));
 		ValidatorUtil.INSTANCE.setDatabaseOK(FormUtil.checkForDatabase(_databases));
 		ValidatorUtil.INSTANCE.setAdditionalFieldsOK(computeAdditionalFieldsValidity());
+		ValidatorUtil.INSTANCE.setTypeFrameworkOK(computeTypeFrameworkForProject());
 		setMessage(ValidatorUtil.INSTANCE.getMessage(), ValidatorUtil.INSTANCE.getMessageType());
 		setPageComplete(ValidatorUtil.INSTANCE.isValid());
+	}
+
+	/**
+	 * Vérifie la compatibilité entre le type de projet et le type de framework.
+	 */
+	private boolean computeTypeFrameworkForProject() {
+		if ("server".equalsIgnoreCase(_typeProject) && "react".equalsIgnoreCase(_typeFramework))
+			return false;
+		return true;
 	}
 
 	/**

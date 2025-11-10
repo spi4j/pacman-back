@@ -220,6 +220,7 @@
 				<module>fr.pacman.back.config</module>
 				<module>fr.pacman.back.config.spi4j</module>
 				<module>fr.pacman.back.config.spring</module>
+				<module>fr.pacman.back.config.react</module>
 				<module>fr.pacman.back.core</module>
 				<module>fr.pacman.back.entity</module>
 				<module>fr.pacman.back.entity.spi4j</module>
@@ -233,6 +234,7 @@
 				<module>fr.pacman.back.soaclient</module>
 				<module>fr.pacman.back.soaclient.spi4j</module>
 				<module>fr.pacman.back.soaclient.spring</module>
+				<module>fr.pacman.back.soaclient.react</module>
 				<module>fr.pacman.back.sql</module>
 				<module>fr.pacman.back.start</module>
 				

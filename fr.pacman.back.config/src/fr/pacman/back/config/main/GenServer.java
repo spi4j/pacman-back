@@ -20,7 +20,7 @@ import fr.pacman.back.core.generator.PacmanGeneratorStart;
 import fr.pacman.back.core.property.project.ProjectProperties;
 
 /**
- * Générateur pour la couche de configuration. *
+ * Générateur pour la couche de configuration. 
  * 
  * Ce générateur est aussi susceptible d'être lancé directement par le plugin
  * fr.pacman.start, dans ce cas, il n'existe aucune ressource prééxistante pour
@@ -52,6 +52,8 @@ public class GenServer extends PacmanGeneratorStart {
 		if (ProjectProperties.isClientType()) {
 			if (ProjectProperties.isSpring())
 				return "fr::pacman::back::config::aql::client::genServerSpring";
+			if (ProjectProperties.isReact())
+				return "fr::pacman::back::config::aql::client::genServerReact";
 			return "fr::pacman::back::config::aql::client::genServerSpi4j";
 		}
 

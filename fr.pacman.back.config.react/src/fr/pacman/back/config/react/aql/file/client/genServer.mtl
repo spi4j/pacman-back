@@ -1,0 +1,17 @@
+[module genServer(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
+
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::resources/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::config::react::aql::block::client::server/]
+
+
+[comment écriture du fichier de configuration Maven pour le projet d'infrastructure./]
+[template public filePom(any : ecore::EObject)]
+  [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())]
+    [any.pom()/]
+  [/file]
+[/template]

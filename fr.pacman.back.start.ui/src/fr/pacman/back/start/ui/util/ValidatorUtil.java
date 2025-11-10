@@ -20,6 +20,7 @@ public class ValidatorUtil {
 	private boolean _sqlTableSchemaOK;
 	private boolean _requirementPrefixOK;
 	private boolean _additionnalFieldsOK;
+	private boolean _typeFrameworkOK;
 
 	/**
 	 * Constructeur privé pour éviter l'instanciation de la classe.
@@ -42,6 +43,7 @@ public class ValidatorUtil {
 				&& _sqlTablePrefixOK 
 				&& _requirementPrefixOK 
 				&& _additionnalFieldsOK
+				&& _typeFrameworkOK
 				&& _packageOK
 				&& _authorOK;
 	}
@@ -79,6 +81,9 @@ public class ValidatorUtil {
 
 		if (!_additionnalFieldsOK)
 			return "La rubrique champs automatiques n'est pas correctement renseignée.";
+		
+		if (!_typeFrameworkOK)
+			return "Le type de framework n'est pas encore disponible pour ce type de projet.";
 
 		return null;
 	}
@@ -127,5 +132,9 @@ public class ValidatorUtil {
 	
 	public void setDatabaseOK(boolean p_databaseOK) {
 		_databaseOK = p_databaseOK;
+	}
+
+	public void setTypeFrameworkOK(boolean _typeFrameworkOK) {
+		this._typeFrameworkOK = _typeFrameworkOK;
 	}
 }

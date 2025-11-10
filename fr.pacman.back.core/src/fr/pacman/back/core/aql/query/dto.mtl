@@ -16,7 +16,7 @@
 [query public hasAttributes(d : environment::DTO) : Boolean = d.attributes->size() > 0 or d.references->size() > 0/]
 
 [comment vérifie si le dto est considéré comme persistant./]  
-[query public isPersistent(d : environment::DTO) : Boolean = d.isUseSqlPersistence() and d.associatedEntity().exists()/]
+[query public isPersistent(d : environment::DTO) : Boolean = d.useSqlPersistence() and d.associatedEntity().exists()/]
  
 [comment retourne l'entité associée au dto (dans le cadre de pacman, toujours une entité)./]
 [query public associatedEntity(d : environment::DTO) : entity::Entity = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 

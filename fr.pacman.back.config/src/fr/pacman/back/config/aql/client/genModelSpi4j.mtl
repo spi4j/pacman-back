@@ -1,0 +1,16 @@
+[module genModelSpi4j(	'http://www.obeonetwork.org/dsl/overview/2.0.0')
+						extends fr::pacman::back::config::aql::client::genModel/]
+
+[comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
+[comment enlever ces imports suite a correction bug./]
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::config::aql::file::client::genModel/]
+[comment enlever ces imports suite a correction bug./]
+
+[comment @main/]
+[comment écriture de l'ensemble de la configuration de base pour le projet de modélisation./]
+[template public genModelConfig(r : overview::Root)]
+  [r.super:genModelConfig()/]
+[/template]
+
+

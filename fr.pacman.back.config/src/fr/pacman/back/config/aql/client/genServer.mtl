@@ -1,10 +1,15 @@
 [module genServer(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
+[import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::config::aql::file::client::genServer/]
 
 [comment écriture de l'ensemble de la configuration de base pour le projet d'infrastructure./]
 [template public genServerConfig(r : overview::Root)]
-  [r.fileLog4j2()/]
+  [comment écriture du fichier uniquement si le projet est sous java./]
+  [if (r.useJavaFramework())]
+    [comment écriture du fichier de configuration pour log4j./]
+    [r.fileLog4j2()/]
+  [/if]
 [/template]
 
 

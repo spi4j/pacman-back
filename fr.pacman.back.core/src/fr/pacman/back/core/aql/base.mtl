@@ -294,7 +294,10 @@
 [query public typeDatabases(any : ecore::EObject) : String = any.get_dataBasesNames().trim()/]
   
 [comment vérifie si le projet utilise ou non des bases de données./]
-[query public isUseSqlPersistence(any : ecore::EObject) : Boolean = any.typeDatabases().size() > 0/]  
+[query public useSqlPersistence(any : ecore::EObject) : Boolean = any.typeDatabases().size() > 0/]  
+
+[comment vérifie si le projet est un projet utilisant le language java./]
+[query public useJavaFramework(any : ecore::EObject) : Boolean = any.is_javaType()/]
 
 [comment retourne une ligne de séparation pour un commentaire./]
 [query public cLine(e : ecore::EObject) : String = '/******************************************************************/'/]

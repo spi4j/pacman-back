@@ -634,6 +634,18 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static boolean isSpring() {
 		return get_framework(null).indexOf("spring") != -1;
 	}
+	
+	public static boolean isSpi4j() {
+		return get_framework(null).indexOf("spi4j") != -1;
+	}
+	
+	public static boolean isReact() {
+		return get_framework(null).indexOf("react") != -1;
+	}
+	
+	public static boolean is_javaType(final Object p_object) {
+		return isSpring();
+	}
 
 	public static boolean isServerType() {
 		return "server".equals(get_type(null));

@@ -69,7 +69,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 
 	@Override
 	public void init(IWorkbench p_workbench, IStructuredSelection p_selection) {
-		setWindowTitle("Pacman backend : générateur de code JAVA [version " + c_version + "]");
+		setWindowTitle("Pacman Backend : générateur de code JAVA [version " + c_version + "]");
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 
 		final Map<String, String> startProperties = initProperties();
 
-		Job job = new Job("Creation du projet Cali") {
+		Job job = new Job("Creation du projet Cali Backend") {
 
 			@Override
 			public IStatus run(IProgressMonitor p_monitor) {
@@ -179,7 +179,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			properties.put(ProjectProperties.c_project_type, _pageOne.getTypeProject());
 			properties.putAll(_pageOne.getsqlAutoFields());
 		}
-		
+
 		return properties;
 	}
 
@@ -271,18 +271,18 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	 * l'itnterface d'intérogation swagger dans le cadre d'un projet spj4i. Si
 	 * Spring Boot alors on est full Spring et on utilise les librairies dédiées.
 	 * 
-	 * @param p_monitor l'objet de monitoring pour contrôler les fichiers créés sous
-	 *                  l'IDE.
-	 * @param p_project le nouveau projet en cours de création. * @param
-	 *                  p_properties l'ensemble des propriétés définies par le
-	 *                  formulaire de création.
+	 * @param p_monitor    l'objet de monitoring pour contrôler les fichiers créés
+	 *                     sous l'IDE.
+	 * @param p_project    le nouveau projet en cours de création.
+	 * @param p_properties l'ensemble des propriétés définies par le formulaire de
+	 *                     création.
 	 * @throws CoreException une exception levée lors de l'excécution du traitement.
 	 * @throws IOException
 	 */
 	private void addSwaggerUiToProject(final SubMonitor p_monitor, final IProject p_project)
 			throws CoreException, IOException {
 
-		if (!ProjectProperties.isSpring()) {
+		if (ProjectProperties.isSpi4j()) {
 			File target = new File((p_project).getLocation().toString() + File.separator
 					+ ProjectProperties.get_projectServerName(null) + c_swaggerUiFolder);
 			SwaggerUtils swaggerUtils = new SwaggerUtils(Activator.getDefault().getLog());

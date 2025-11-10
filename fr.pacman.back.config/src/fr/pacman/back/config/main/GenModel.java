@@ -46,8 +46,13 @@ public class GenModel extends PacmanGeneratorStart {
 		if (ProjectProperties.isServerType())
 			return "fr::pacman::back::config::aql::genModel";
 
-		if (ProjectProperties.isClientType())
-			return "fr::pacman::back::config::aql::client::genModel";
+		if (ProjectProperties.isClientType()) {
+			if (ProjectProperties.isSpring())
+				return "fr::pacman::back::config::aql::client::genModelSpring";
+			if (ProjectProperties.isReact())
+				return "fr::pacman::back::config::aql::client::genModelReact";
+			return "fr::pacman::back::config::aql::client::genModelSpi4j";
+		}
 
 		throw new RuntimeException("Impossible de récupérer le type de projet pour la génération.");
 	}
