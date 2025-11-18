@@ -6,7 +6,8 @@
 [comment définit et retourne la liste des suffixes, préfixes, types, 
 		 les valeurs par défaut ainsi que les propriétés de génération principales.
 		 Les autres propriétés de génération sont quant à elles, définies au niveau 
-		 des fichiers spécifiques en fonction de l'objet ou du domaine./]
+		 des fichiers spécifiques en fonction de l'objet ou du domaine. Ce fichier 
+		 fonctionne à la fois pour Java et pour React/]
 
 [comment commutateur pour indiquer si on gère l'uimmutabilité des dtos./]
 [query public immutable(any : ecore::EObject) : Boolean = false/]
@@ -188,16 +189,22 @@
 [query public keyCommentSqlAutoAttribut(prop : String) : String = prop + '.comment'/]
 
 [comment le répertoire pour l'ensemble des sources./]
-[query public dirSources(any : ecore::EObject) : String = 'src/main/java/'/]
+[query public dirReactSources(any : ecore::EObject) : String = 'src/'/] 
+
+[comment le répertoire pour l'ensemble des "binaires"./]
+[query public dirReactDistribution(any : ecore::EObject) : String = 'dist/'/] 
+
+[comment le répertoire pour l'ensemble des sources./]
+[query public dirJavaSources(any : ecore::EObject) : String = 'src/main/java/'/]
   
 [comment le répertoire pour l'ensemble des ressources./] 
-[query public dirResources(any : ecore::EObject) : String = 'src/main/resources/'/]
+[query public dirJavaResources(any : ecore::EObject) : String = 'src/main/resources/'/]
   
 [comment le répertoire pour l'ensemble des ressources de test./] 
-[query public dirTestResources(any : ecore::EObject) : String = 'src/test/resources/'/]
-  
+[query public dirJavaTestResources(any : ecore::EObject) : String = 'src/test/resources/'/]
+   
 [comment le répertoire pour l'ensemble des tests unitaires./]
-[query public dirTests(any : ecore::EObject) : String = 'src/test/java/'/]
+[query public dirJavaTests(any : ecore::EObject) : String = 'src/test/java/'/]
   
 [comment le répertoire pour la génération des scripts sql./]
 [query public dirSqlScripts(any : ecore::EObject) : String = 'sql/'/]
@@ -213,6 +220,15 @@
 
 [comment l'extension pour tous les fichiers de type '.sql'./]
 [query public extensionSql(any : ecore::EObject) : String = '.sql'/]  
+
+[comment l'extension pour tous les fichiers de type '.json'./]
+[query public extensionJson(any : ecore::EObject) : String = '.json'/]  
+
+[comment l'extension pour tous les fichiers de type '.js'./]
+[query public extensionJs(any : ecore::EObject) : String = '.js'/]  
+
+[comment l'extension pour tous les fichiers de type '.ts'./]
+[query public extensionTs(any : ecore::EObject) : String = '.ts'/]  
 
 [comment opérateur de commande pour des créations (dans les structures conditionnelles)./]
 [query public cmdCreate(any : ecore::EObject) : String = 'C'/]
@@ -232,7 +248,7 @@
 [query public cmdXto(any : ecore::EObject) : String = 'X'/]
   
 [comment le nom pour le fichier de configuration maven./] 
-[query public namePom(any : ecore::EObject) : String = 'pom'/]  
+[query public namePom(any : ecore::EObject) : String = 'pom'/]    
 
 [comment le nom pour un fichier package-info./] 
 [query public namePackageInfo(any : ecore::EObject) : String = 'package-info'/]  

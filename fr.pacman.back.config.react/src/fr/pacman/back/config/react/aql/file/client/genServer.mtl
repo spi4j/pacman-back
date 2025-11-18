@@ -8,10 +8,37 @@
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::config::react::aql::block::client::server/]
 
-
 [comment écriture du fichier de configuration Maven pour le projet d'infrastructure./]
 [template public filePom(any : ecore::EObject)]
   [file (any.namePom().toFilePom(null), overwrite, any.defaultFileEncoding())]
     [any.pom()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de configuration pour react./]
+[template public filePackageJson(any : ecore::EObject)]
+  [file ('package'.toFileJson(null), overwrite, any.defaultFileEncoding())]
+    [any.packageJson()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de configuration pour react./]
+[template public fileTsConfig(any : ecore::EObject)]
+  [file ('tsConfig'.toFileTs(null), overwrite, any.defaultFileEncoding())]
+    [any.tsConfig()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de configuration pour react./]
+[template public fileNmpIgnore(any : ecore::EObject)]
+  [file ('.npmignore'.toFile(any.nameProject().toLower(), ''), overwrite, any.defaultFileEncoding())]
+    [any.nmpIgnore()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de configuration pour react./]
+[template public fileTsConfigBuild(any : ecore::EObject)]
+  [file ('tsconfig.build'.toFileTs(null), overwrite, any.defaultFileEncoding())]
+    [any.tsConfigBuild()/]
   [/file]
 [/template]

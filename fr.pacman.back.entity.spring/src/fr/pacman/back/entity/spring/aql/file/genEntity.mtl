@@ -19,7 +19,7 @@
 [comment écriture du fichier d'implémentation des tests d'intégration pour la persistance (infra)./]
 [template public fileOutIntegrationTestImpl(e : entity::Entity, es : Sequence(entity::Entity)
   , ess : Sequence(entity::Entity))]
-  [file (e.nameClassOutIntegrationTestImpl().toFileJavaT(e.namePackageOutIntegrationTestImpl()), overwrite, e.defaultFileEncoding())]
+  [file (e.nameClassOutIntegrationTestImpl().toFileJavaTest(e.namePackageOutIntegrationTestImpl()), overwrite, e.defaultFileEncoding())]
     [e.outIntegrationTestImpl(es,ess)/]
   [/file]
 [/template]

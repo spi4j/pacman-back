@@ -1144,7 +1144,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		}
 
 		if ("client".equals(_typeProject)) {
-			models.add("soa");
+			if (_typeFramework.indexOf("spring") != -1)
+				models.add("soa");
 		}
 		return models;
 	}

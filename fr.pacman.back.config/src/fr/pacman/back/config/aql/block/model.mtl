@@ -63,18 +63,18 @@
        en <code>parameterMethodClassicIn=p_['['/]CamelCase.LowerFirst/[']'/]</code>. 
        Toute modification sera automatiquement prise en compte lors de la prochaine génération.
   </li>
-  <li style="margin-bottom: 10px;"><b>Configuration principale</b> : <code>[any.nameProjectServer()/]/[any.dirResources()/]application.properties</code>
+  <li style="margin-bottom: 10px;"><b>Configuration principale</b> : <code>[any.nameProjectServer()/]/[any.dirJavaResources()/]application.properties</code>
        Le fichier de configuration de SpringBoot, avec l'api de santé, les metrics, les datasources, etc...
   </li>
-  <li style="margin-bottom: 10px;"><b>Configuration pour les tests d'intégration</b> : <code>[any.nameProjectServer()/]/[any.dirTestResources()/]test.properties</code>
+  <li style="margin-bottom: 10px;"><b>Configuration pour les tests d'intégration</b> : <code>[any.nameProjectServer()/]/[any.dirJavaTestResources()/]test.properties</code>
        Le fichier de configuration pour les tests de SpringBoot avec les informations pour la configuration de la datasource de test.
        Attention : pour les tests, l'initialisation de la base de données est effectuée à l'aide des scripts SQL générés.
   </li>
-  <li style="margin-bottom: 10px;"><b>Répertoire de stockage des scripts SQL</b> : <code>[any.nameProjectServer()/]/[any.dirResources()/]sql</code>
+  <li style="margin-bottom: 10px;"><b>Répertoire de stockage des scripts SQL</b> : <code>[any.nameProjectServer()/]/[any.dirJavaResources()/]sql</code>
        Dans ce répertoire sont stockés tous les scripts SQL de création de la base de données pour la production, il existe un script 
        par type de base de données sélectionnée et présente dans le fichier de configuration <code>project.properties</code>.
   </li>
-  <li style="margin-bottom: 10px;"><b>Classe principale (à exécuter en Java Application)</b> : <code>[any.nameProjectServer()/]/[any.dirSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrap()/]</code>
+  <li style="margin-bottom: 10px;"><b>Classe principale (à exécuter en Java Application)</b> : <code>[any.nameProjectServer()/]/[any.dirJavaSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrap()/]</code>
        La classe de démarrage de SpringBoot.
   </li>
   </ul>
@@ -107,7 +107,7 @@
   </ul></li>
   <li><p>Lancer l'application :</p>
   <ul>
-  <li>Clic droit sur la classe principale dans <code>[any.nameProjectServer()/]/[any.dirSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrap()/]</code></li>
+  <li>Clic droit sur la classe principale dans <code>[any.nameProjectServer()/]/[any.dirJavaSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrap()/]</code></li>
   <li>Choisir : <code>/Run As</code> → <code>Java Application</code></li>
   </ul></li>
   <li><p>Par défaut, les URIs suivantes doivent répondre :</p>

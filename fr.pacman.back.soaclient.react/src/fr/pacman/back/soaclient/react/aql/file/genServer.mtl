@@ -3,5 +3,30 @@
 
 [import fr::pacman::back::core::aql::base/]	
 [import fr::pacman::back::core::aql::name::classes/]	
-[import fr::pacman::back::core::aql::name::packages/]	
+[import fr::pacman::back::core::aql::name::directories/]	
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::soaclient::react::aql::block::xto/]
+[import fr::pacman::back::soaclient::react::aql::block::service/]
+[import fr::pacman::back::core::aql::rule::class/]
 
+[comment écriture du fichier d'implémentation pour objet métier (react)./]
+[template public fileXtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
+  , dss : Sequence(environment::DTO))]
+  [file (d.name.apply_classInterface().toFileTs(d.nameDirModels()), overwrite, d.defaultFileEncoding())]
+    [d.xtoImpl(ds, dss)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour service (react)./]
+[template public fileServiceImpl(s : soa::Service)]
+  [file (s.name.toFileTs(s.nameDirServices()), overwrite, s.defaultFileEncoding())]
+    [s.serviceImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de configuration pour react./]
+[template public fileTsIndexImpl(any : ecore::EObject)]
+  [file ('index'.toFileTs(any.dirReactSources()), overwrite, any.defaultFileEncoding())]
+    [any.tsIndexImpl()/]
+  [/file]
+[/template]

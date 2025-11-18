@@ -18,7 +18,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>[any.nameProjectModel()/]</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     
     <build>
       <plugins>
@@ -61,7 +61,7 @@
             en <code>parameterMethodClassicIn=p_['['/]CamelCase.LowerFirst/[']'/]</code>. 
             Toute modification sera automatiquement prise en compte lors de la prochaine génération.
       </li>
-      <li style="margin-bottom: 10px;"><b>Configuration principale</b> : <code>[any.nameProjectServer()/]/[any.dirResources()/]application.properties</code>
+      <li style="margin-bottom: 10px;"><b>Configuration principale</b> : <code>[any.nameProjectServer()/]/[any.dirJavaResources()/]application.properties</code>
             Le fichier de configuration de SpringBoot, avec l'uri de base pour les appels, les timeouts de connexion, etc...
       </li>
       </ul>

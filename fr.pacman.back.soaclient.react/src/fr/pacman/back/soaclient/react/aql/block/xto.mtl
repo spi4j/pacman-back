@@ -1,0 +1,35 @@
+[module xto(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::rule::class/]
+[import fr::pacman::back::soa::aql::block::common/]
+[import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+				
+[comment écriture du fichier d'implémentation pour objet métier (react)./]			
+[template public xtoImpl (d : environment::DTO, ds : Sequence(environment::DTO)
+  , dss : Sequence(environment::DTO))]
+  export interface [d.name.apply_classInterface()/] {
+    
+    [d.writePk()/] : [d.defaultTypePk()/];
+    [comment liste des tables de liaison pour l'entité (directes + héritées)./]
+    [let jts = d.referencesJTSBResolved()]
+    [comment liste des clé étrangères (directes + héritées)./]
+    [let fks = d.referencesFKSBResolved(ds, dss)]
+    [comment liste de toutes les références (clé étrangères + tables de jointure)./]
+    [let rs = jts->union(fks)]
+      [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+        [a.nameAttribute()/]: [a.type()/];
+        
+      [/for]
+      [for (r : environment::Reference | rs)]
+        [r.referencedDto(d).referencedName(r).apply_attributeDefault()/] : [r.referencedOutTypeSignature(d)/] ;
+       
+      [/for]
+    [/let][/let]
+    [/let]
+  }
+[/template]

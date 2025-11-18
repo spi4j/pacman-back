@@ -17,14 +17,14 @@
 
 [comment écriture du fichier d'implémentation pour les tests avant packaging./]
 [template public fileRsClientTestsImpl(s : soa::Service)]
-  [file (s.nameClassRsClientTestsImpl().toFileJavaT(s.namePackageRsClientImpl()), overwrite, s.defaultFileEncoding())]
+  [file (s.nameClassRsClientTestsImpl().toFileJavaTest(s.namePackageRsClientImpl()), overwrite, s.defaultFileEncoding())]
     [s.serviceRsClientTestsImpl()/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'implémentation d'une classe de gestion du token pour les tests avant packaging./]
 [template public fileRsClientTokenTestsHelper(o : soa::Operation)]
-  [file (o.nameClassRsClienTokenTestsHelper().toFileJavaT(o.namePackageRsBase()), overwrite, o.defaultFileEncoding())]
+  [file (o.nameClassRsClienTokenTestsHelper().toFileJavaTest(o.namePackageRsBase()), overwrite, o.defaultFileEncoding())]
     [o.serviceRsClientTokenTestsHelper()/]
   [/file]
 [/template]

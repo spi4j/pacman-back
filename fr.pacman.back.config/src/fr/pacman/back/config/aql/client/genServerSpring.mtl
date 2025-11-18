@@ -3,6 +3,8 @@
 
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
 [comment enlever ces imports suite a correction bug./]
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::config::aql::file::client::genServer/]
 [comment enlever ces imports suite a correction bug./]
 
 [import fr::pacman::back::config::spring::aql::file::client::genServer/]

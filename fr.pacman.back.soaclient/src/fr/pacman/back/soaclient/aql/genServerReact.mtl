@@ -1,0 +1,29 @@
+[module genServerReact(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+                        'http://www.obeonetwork.org/dsl/environment/3.0.0') 
+							extends fr::pacman::back::soaclient::aql::genServer/]
+
+[comment toujours placer les 'main' au niveau des modules fils, sinon génération incomplète./]
+[comment enlever ces imports suite a correction bug./]
+[comment enlever ces imports suite a correction bug./]
+
+[import fr::pacman::back::soaclient::react::aql::file::genServer/]
+[import fr::pacman::back::core::aql::query::dto/]
+
+[comment @main/]
+[template protected genServer(m : soa::System)]
+  [m.super:genServer()/]
+  [comment écriture de l'ensemble des objets métier (à ce niveau on considère encore xto même si react) 
+           ATTENTION bien penser qu'ici on n'utilise pas le fichier swagger mais l'ensemble de la modélisation 
+           fournisseur./]
+  [let ds = m.subTypesDtos()]
+    [let dss = m.superTypesDtos()]
+      [for (d : environment::DTO | ds)]
+         [d.fileXtoImpl(ds, dss)/]
+      [/for]
+    [/let]
+  [/let]
+  [comment écriture de l'ensemble des services (ici tous les services sont rest)./]
+  [for (s : soa::Service | m.eAllContents(soa::Service))]
+  	[s.fileServiceImpl()/]
+  [/for]
+[/template]

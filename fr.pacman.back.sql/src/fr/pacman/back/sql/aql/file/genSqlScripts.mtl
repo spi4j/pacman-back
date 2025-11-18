@@ -23,14 +23,14 @@
 
 [comment écriture du script d'initialisation pour la base de données H2./]
 [template public genSqlIntegrationInitScript(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
-  [file (root.nameScriptIntegrationInit(dbType).toFileSqlT(), overwrite, root.defaultFileEncoding())]
+  [file (root.nameScriptIntegrationInit(dbType).toFileSqlTest(), overwrite, root.defaultFileEncoding())]
     [root.initSqlIntegrationData(es,ess,dbType)/]
   [/file]
 [/template]
 
 [comment écriture du script de création pour la base de données des tests d'intégration sur h2./]
 [template public genSqlIntegrationCreateScript(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
-  [file (root.nameScriptCreate(dbType).toFileSqlT(), overwrite, root.defaultFileEncoding())]
+  [file (root.nameScriptCreate(dbType).toFileSqlTest(), overwrite, root.defaultFileEncoding())]
     [root.createSqlIntegrationTables(es,ess,dbType)/]
   [/file]
 [/template]

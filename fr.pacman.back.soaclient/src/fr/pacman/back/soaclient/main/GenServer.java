@@ -35,6 +35,8 @@ public class GenServer extends PacmanGenerator {
 	public String getModuleQualifiedName() {
 		if (ProjectProperties.isSpring())
 			return "fr::pacman::back::soaclient::aql::genServerSpring";
+		if (ProjectProperties.isReact())
+			return "fr::pacman::back::soaclient::aql::genServerReact";
 		return "fr::pacman::back::soaclient::aql::genServerSpi4j";
 	}
 

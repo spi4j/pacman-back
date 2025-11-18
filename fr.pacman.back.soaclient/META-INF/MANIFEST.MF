@@ -12,6 +12,7 @@ Require-Bundle: org.eclipse.core.runtime,
  fr.pacman.back.common,
  fr.pacman.back.soaclient.spring,
  fr.pacman.back.soaclient.spi4j,
+ fr.pacman.back.soaclient.react,
  org.eclipse.acceleo.aql,
  org.eclipse.acceleo.query
 Bundle-RequiredExecutionEnvironment: JavaSE-17

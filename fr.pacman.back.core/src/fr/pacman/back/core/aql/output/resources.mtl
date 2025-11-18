@@ -25,18 +25,27 @@
 [query public toFilePom(fName : String, pkName : String) : String = fName.toFile(pkName, fName.extensionXml())/]
 	  
 [comment écriture d'un fichier de type 'classe Java'./]
-[query public toFileJava(fName : String, pkName : String) : String = fName.toFile(fName.dirSources() + (fName.namePackageProject() 
-	+ if(pkName.exists()) then '.' + pkName else '' endif).toPackage(), fName.extensionJava())/]
+[query public toFileJava(fName : String, pkName : String) : String = fName.toFile(fName.dirJavaSources() 
+  + (fName.namePackageProject() + if(pkName.exists()) then '.' + pkName else '' endif).toPackage(), fName.extensionJava())/]
 	
 [comment écriture d'un fichier java (junit, etc...) pour les tests./]
-[query public toFileJavaT(fName : String, pkName : String) : String = fName.toFile(fName.dirTests() + (fName.namePackageProject() 
-	+ if(pkName.exists()) then '.' + pkName else '' endif).toPackage(), fName.extensionJava())/]
+[query public toFileJavaTest(fName : String, pkName : String) : String = fName.toFile(fName.dirJavaTests() 
+  + (fName.namePackageProject() + if(pkName.exists()) then '.' + pkName else '' endif).toPackage(), fName.extensionJava())/]
   
 [comment écriture d'un fichier de type 'script sql'./]
-[query public toFileSql(fName : String, pkName : String) : String =  fName.toFile(fName.dirResources() + pkName, fName.extensionSql()) /]  
+[query public toFileSql(fName : String, pkName : String) : String =  fName.toFile(fName.dirJavaResources() 
+  + pkName, fName.extensionSql()) /]  
 
 [comment écriture d'un fichier de type 'script sql' pour les tests./]
-[query public toFileSqlT(fName : String) : String =  fName.toFile(fName.dirTestResources(), fName.extensionSql()) /]  
+[query public toFileSqlTest(fName : String) : String =  fName.toFile(fName.dirJavaTestResources(), fName.extensionSql()) /]  
+
+[comment écriture d'un fichier de type 'json'./]
+[query public toFileJson(fName : String, pkName : String) : String =  fName.toFile(fName.nameProject().toLower() 
+  + '/' + pkName, fName.extensionJson()) /]  
+
+[comment écriture d'un fichier de type 'ts'./]
+[query public toFileTs(fName : String, pkName : String) : String =  fName.toFile(fName.nameProject().toLower()
+  + '/' + pkName, fName.extensionTs()) /]  
 
 [comment fName le nom du fichier, path le chemin complet (à formatter correctement), fExt l'extension du fichier./]   
 [query public toFile(fName : String, path : String, fExt : String) : String = path.toPath().toLower() + fName + fExt/]

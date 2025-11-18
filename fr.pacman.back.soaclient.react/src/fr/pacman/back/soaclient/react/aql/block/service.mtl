@@ -1,0 +1,15 @@
+[module service(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+		
+[comment ./]		
+[template public serviceImpl(s : soa::Service)]
+[/template]
+					
+[comment ./]
+[template public tsIndexImpl(any : ecore::EObject)]
+  // Exports des DTO
+  export * from "./models/UserDto";
+
+  // Exports des services REST
+  export * from "./services/userService";
+[/template]

@@ -1,0 +1,10 @@
+[module directories(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+						'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+	
+[import fr::pacman::back::core::aql::base/]
+
+[comment retourne le nom du répertoire pour ...../]
+[query public nameDirModels(any : ecore::EObject) : String = any.dirReactSources() + 'models'/]
+
+[comment retourne le nom du répertoire pour ...../]
+[query public nameDirServices(any : ecore::EObject) : String = any.dirReactSources() + 'services'/]

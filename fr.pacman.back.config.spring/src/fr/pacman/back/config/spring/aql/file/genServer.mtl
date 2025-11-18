@@ -115,14 +115,14 @@
 
 [comment écriture de la classe abstraite pour les tests d'intégration (infra)./]
 [template public fileIntegrationTestAbstract(any : ecore::EObject)]
-  [file (any.nameClassIntegrationTestAbstract().toFileJavaT(null), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassIntegrationTestAbstract().toFileJavaTest(null), overwrite, any.defaultFileEncoding())]
     [any.integrationTestAbstract()/]
   [/file]
 [/template]
 
 [comment écriture de la classe utilitaire pour les tests d'intégration (infra / app)./]
 [template public fileIntegrationTestUtilsImpl(any : ecore::EObject)]
-  [file (any.nameClassIntegrationTestUtils().toFileJavaT(null), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassIntegrationTestUtils().toFileJavaTest(null), overwrite, any.defaultFileEncoding())]
     [any.integrationTestUtils()/]
   [/file]
 [/template]

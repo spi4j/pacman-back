@@ -109,10 +109,10 @@
 [query public namePackageException(any : ecore::EObject) : String = 'app.exceptions'/]
   
 [comment retourne le package pour les stockage des fichiers de ressources./]
-[query public namePackageResources(any : ecore::EObject) : String = any.dirResources()/]
+[query public namePackageResources(any : ecore::EObject) : String = any.dirJavaResources()/]
   
 [comment retourne le package pour les stockage des fichiers de ressources (partie tests)./]
-[query public namePackageTestResources(any : ecore::EObject) : String = any.dirTestResources()/]
+[query public namePackageTestResources(any : ecore::EObject) : String = any.dirJavaTestResources()/]
 
 [comment la packahe des requirements, spécifiques pour une catégorie./]  
 [query public namePackageRequirementCategory(c : requirement::Category) : String = if (c.parentCategory = null) 

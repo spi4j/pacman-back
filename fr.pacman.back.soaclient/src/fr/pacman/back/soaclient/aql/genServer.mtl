@@ -1,8 +1,7 @@
 [module genServer(	'http://www.obeonetwork.org/dsl/soa/4.0.0',
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
-[import fr::pacman::back::soaclient::aql::file::genServer/]
-
-[comment 	écriture des classes et fichiers soa client pour la partie infrastructure de l'application cible./]			
+[comment écriture des classes et fichiers soa client pour la partie infrastructure de l'application cible./]			
 [template public genServer(m : soa::System)]
+  [comment RSA pour l'instant ./]
 [/template]

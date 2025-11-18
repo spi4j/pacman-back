@@ -4,6 +4,7 @@
 [import fr::pacman::back::core::aql::base/]	
 [import fr::pacman::back::core::aql::name::classes/]	
 [import fr::pacman::back::core::aql::name::packages/]	
+[import fr::pacman::back::core::aql::name::directories/]	
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::common::aql::block::enumeration/]
 [import fr::pacman::back::soaclient::aql::block::xto/]

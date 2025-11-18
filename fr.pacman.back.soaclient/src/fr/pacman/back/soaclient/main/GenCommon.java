@@ -38,6 +38,8 @@ public class GenCommon extends PacmanGenerator {
 	public String getModuleQualifiedName() {
 		if (ProjectProperties.isSpring())
 			return "fr::pacman::back::soaclient::aql::genCommonSpring";
+		if (ProjectProperties.isReact())
+			return "fr::pacman::back::soaclient::aql::genCommonReact";
 		return "fr::pacman::back::soaclient::aql::genCommonSpi4j";
 	}
 

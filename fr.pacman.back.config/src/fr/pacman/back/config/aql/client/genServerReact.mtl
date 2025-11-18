@@ -3,6 +3,7 @@
 
 [comment toujours placer les '@main' au niveau des modules fils, sinon génération incomplète./]
 [comment enlever ces imports suite a correction bug./]
+[import fr::pacman::back::core::aql::base/]
 [comment enlever ces imports suite a correction bug./]
 
 [import fr::pacman::back::config::react::aql::file::client::genServer/]
@@ -13,6 +14,14 @@
    [r.super:genServerConfig()/]
    [comment écriture du fichier de configuration maven./]
    [r.filePom()/]
+   [comment écriture du fichier de configuration pour react./]
+   [r.filePackageJson()/]
+   [comment écriture du fichier de configuration pour react./]
+   [r.fileTsConfig()/]
+   [comment écriture du fichier de configuration pour react./]
+   [r.fileTsConfigBuild()/]
+   [comment écriture du fichier de configuration pour react./]
+   [r.fileNmpIgnore()/]
 [/template]
 
 

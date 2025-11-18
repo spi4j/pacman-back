@@ -1,6 +1,8 @@
 [module server(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
 [import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::versions/]
+[import fr::pacman::back::core::aql::name::directories/]
 
 [comment écriture du fichier de configuration Maven pour le sous-projet serveur (infrastructure)./]
 [template public pom (any : ecore::EObject)]
@@ -16,11 +18,88 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>[any.nameProjectServer()/]</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     
     <build>
       <plugins>
       </plugins>
     </build>
   </project>
+[/template]
+
+[comment ./]
+[template public packageJson (any : ecore::EObject)]
+  {
+    "name": "[any.nameProject().toLower()/]",
+    "version": "1.0.0",
+    "description": "Librairie TypeScript fournissant des services REST et des models métier",
+    "main": "[any.dirReactDistribution()/]index.js",
+    "module": "[any.dirReactDistribution()/]index.js",
+    "types": "[any.dirReactDistribution()/]index.d.ts",
+    "type": "module",
+    "files": ['['/]
+      "[any.dirReactDistribution().replaceAll('/','')/]"
+    [']'/],
+    "scripts": {
+      "clean": "rimraf dist",
+      "build": "tsc -p tsconfig.build.json",
+      "pack": "npm pack"
+    },
+    "peerDependencies": {
+      "axios": "^[any.versionAxios()/]"
+    },
+    "devDependencies": {
+      "typescript": "^[any.versionTypeScript()/]",
+      "axios": "^[any.versionAxios()/]",
+      "rimraf": "^[any.versionRimraf()/]"
+    },
+    "keywords": ['['/]                    
+      "typescript",
+      "react",
+      "services",
+      "models",
+      "library"
+    [']'/],
+    "license": "MIT"
+  }
+[/template]
+
+[template public nmpIgnore(any : ecore::EObject)]
+  src/
+  node_modules/
+  tsconfig.json
+  tsconfig.build.json
+  .gitignore
+  README.md
+[/template]
+
+[comment ./]
+[template public tsConfig (any : ecore::EObject)]
+  {
+    "compilerOptions": {
+      "target": "ES2020",
+      "module": "ESNext",
+      "jsx": "react-jsx",
+      "moduleResolution": "node",
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": true,
+      "baseUrl": "./[any.dirReactSources().replaceAll('/','')/]"
+    },
+    "include": ['['/]"[any.dirReactSources().replaceAll('/','')/]"[']'/]
+  }
+[/template]
+
+[template public tsConfigBuild (any : ecore::EObject)]
+  {
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+      "outDir": "[any.dirReactDistribution().replaceAll('/','')/]",
+      "declaration": true,
+      "declarationMap": false,
+      "sourceMap": false
+    },
+    "include": ['['/]"[any.dirReactSources().replaceAll('/','')/]"[']'/]
+  }
 [/template]

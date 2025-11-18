@@ -61,14 +61,14 @@
 
 [comment écriture du fichier d'implémentation les tests d'intégration pour un service (application)./]
 [template public fileInIntegrationTestImpl(s : soa::Service)]
-  [file (s.nameClassServiceTestImpl().toFileJavaT(s.namePackageInIntegrationTestImpl()), overwrite, s.defaultFileEncoding())]
+  [file (s.nameClassServiceTestImpl().toFileJavaTest(s.namePackageInIntegrationTestImpl()), overwrite, s.defaultFileEncoding())]
     [s.serviceIntegrationTestImpl()/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'implémentation pour la configuration des tests d'intégration (application)./]
 [template public fileInIntegrationTestsConfigImpl(m : soa::System)]
-  [file (m.nameClassIntegrationTestsConfig().toFileJavaT(null), overwrite, m.defaultFileEncoding())]
+  [file (m.nameClassIntegrationTestsConfig().toFileJavaTest(null), overwrite, m.defaultFileEncoding())]
     [m.integrationTestsConfigImpl()/]
   [/file]
 [/template]

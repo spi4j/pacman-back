@@ -96,44 +96,6 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	private String _representations;
 
 	/**
-	 * Constructeur pour une sélection par ressource de type 'fichier'. Ce fichier
-	 * peut être un fichier de type '.entities', '.soa', '.requirements',
-	 * .environment'.
-	 * 
-	 * A ce niveau et pour l'instant on ne prend en compte qu'une seule ressource,
-	 * même si le système est prévu à la base pour pouvoir traiter plusieurs
-	 * ressources (évolution future si besoin).
-	 * 
-	 * @param p_selectedResource la ressource sélectionnée par le développeur.
-	 * @throws CoreException
-	 */
-	public PacmanUIGenerator(IResource p_selectedResource) {
-		_resources = new ArrayList<>();
-		_resources.add(p_selectedResource.getLocation().toString());
-		_resources.addAll(loadAdditionnalResources(p_selectedResource));
-		_rootPath = new File(p_selectedResource.getLocation().toString()).getParentFile();
-		_representations = File.separator + _rootPath.getName() + File.separator + "representations.aird";
-		_values = Collections.emptyList();
-	}
-
-	/**
-	 * Constructeur pour une sélection de ressources de type {@link EObject}. Cette
-	 * ressource peut être un {@link Component}, un {@lin DTO}, une {@link Entity},
-	 * un {@link Namespace}, etc..
-	 * 
-	 * A ce niveau et pour l'instant on ne prend en compte qu'une seule ressource,
-	 * même si le système est prévu à la base pour plusieurs ressources (évolution
-	 * future si besoin).
-	 * 
-	 * @param p_selectedEObject la ressource sélectionnée par le développeur.
-	 */
-	public PacmanUIGenerator(EObject p_selectedEObject) {
-		_values = Collections.singletonList(p_selectedEObject);
-		_rootPath = new File(PlugInUtils.getModelFolderFromEObject(p_selectedEObject));
-		_resources = Collections.emptyList();
-	}
-
-	/**
 	 * Retourne la liste de l'ensemble des propriétés de génération (options) qui
 	 * sont incompatibles avec le modèle et le(s) générateur(s) sélectionné(s).
 	 * 
@@ -198,6 +160,94 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	protected abstract Logger getLogger();
 
 	/**
+	 * Constructeur pour une sélection par ressource de type 'fichier'. Ce fichier
+	 * peut être un fichier de type '.entities', '.soa', '.requirements',
+	 * .environment'.
+	 * 
+	 * A ce niveau et pour l'instant on ne prend en compte qu'une seule ressource,
+	 * même si le système est prévu à la base pour pouvoir traiter plusieurs
+	 * ressources (évolution future si besoin).
+	 * 
+	 * @param p_selectedResource la ressource sélectionnée par le développeur.
+	 * @throws CoreException
+	 */
+	public PacmanUIGenerator(IResource p_selectedResource) {
+		_resources = new ArrayList<>();
+		_resources.add(p_selectedResource.getLocation().toString());
+		_resources.addAll(loadAdditionnalResources(p_selectedResource));
+		_rootPath = new File(p_selectedResource.getLocation().toString()).getParentFile();
+		_representations = File.separator + _rootPath.getName() + File.separator + "representations.aird";
+		_rootPath = removeSegmentIfLibraryImport(_rootPath, "libraries");
+		_values = Collections.emptyList();
+	}
+
+	/**
+	 * Constructeur pour une sélection de ressources de type {@link EObject}. Cette
+	 * ressource peut être un {@link Component}, un {@lin DTO}, une {@link Entity},
+	 * un {@link Namespace}, etc..
+	 * 
+	 * A ce niveau et pour l'instant on ne prend en compte qu'une seule ressource,
+	 * même si le système est prévu à la base pour plusieurs ressources (évolution
+	 * future si besoin).
+	 * 
+	 * @param p_selectedEObject la ressource sélectionnée par le développeur.
+	 */
+	public PacmanUIGenerator(EObject p_selectedEObject) {
+		_values = Collections.singletonList(p_selectedEObject);
+		_rootPath = new File(PlugInUtils.getModelFolderFromEObject(p_selectedEObject));
+		_resources = Collections.emptyList();
+	}
+
+	/**
+	 * Supprime un segment spécifique d'un chemin de fichier, ainsi que tout ce qui
+	 * se trouve après ce segment, à partir du {@link File} fourni.
+	 * <p>
+	 * Cette méthode est généralement utilisée pour retirer des répertoires générés
+	 * ou imbriqués (par exemple <code>libraries</code>) afin de retrouver le chemin
+	 * racine du modèle d’un projet.
+	 * <p>
+	 * Si l'application s'exécute en mode « serveur » — tel qu'indiqué par
+	 * {@link ProjectProperties#isServerType()} — aucune modification n'est
+	 * appliquée et le fichier d'origine est retourné.
+	 * <p>
+	 * La méthode utilise {@code File.toURI().getPath()} pour obtenir un chemin
+	 * absolu normalisé (avec des slashs). Elle recherche ensuite la première
+	 * occurrence du motif :
+	 * </p>
+	 * 
+	 * <pre>
+	 * "/" + p_segment + "/"
+	 * </pre>
+	 *
+	 * Si ce segment est trouvé, la partie du chemin à partir de ce segment est
+	 * supprimée. Si le segment n'est pas présent dans le chemin, le fichier
+	 * d'origine est retourné.
+	 *
+	 * @param p_file    le fichier dont le chemin sera analysé et éventuellement
+	 *                  raccourci ; ne doit pas être {@code null}
+	 * @param p_segment le nom du répertoire à détecter et supprimer (ex. :
+	 *                  "libraries") ; ne doit pas être {@code null} ou vide
+	 *
+	 * @return un nouvel objet {@link File} représentant le chemin raccourci si le
+	 *         segment est trouvé ; sinon le fichier original
+	 *
+	 * @implNote Cette méthode ne vérifie pas si le chemin résultant correspond
+	 *           réellement à un fichier ou répertoire existant sur le disque.
+	 *
+	 * @see File#toURI()
+	 * @see ProjectProperties#isServerType()
+	 */
+	private static File removeSegmentIfLibraryImport(File p_file, String p_segment) {
+		if (ProjectProperties.isServerType())
+			return p_file;
+		String path = p_file.toURI().getPath();
+		int index = path.indexOf("/" + p_segment + "/");
+		if (index == -1)
+			return p_file;
+		return new File(path.substring(0, index));
+	}
+
+	/**
 	 * Retourne la liste de ressources additionnlles en fonction de la ressource
 	 * initialement sélectionnée par le développeur de l'application cible.
 	 * 
@@ -258,7 +308,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 					generator.setResources(_resources);
 					generator.setValues(_values);
 					generator.generate(monitor);
-					
+
 					if (PacmanValidatorsReport.hasReport())
 						displayAndfillReportView();
 				}
