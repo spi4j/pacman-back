@@ -1,6 +1,7 @@
 package fr.pacman.back.core.property.project;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import fr.pacman.back.core.enumeration.PropertyStatus;
 import fr.pacman.back.core.enumeration.PropertyTrigger;
@@ -143,7 +144,7 @@ public final class ProjectProperties extends PropertiesCategory {
 						"Flag indiquant si le profiling est actif lors des generations"),
 
 				PacmanProperty.newRequired(c_project_framework, "spring",
-						"Type de framework pour le projet (Spring par defaut)"),
+						"Type de framework pour le projet (Spring par defaut)", new NormeProjectStrategy()),
 
 				PacmanProperty.newRequired(c_project_type, "server", "Type de projet (server par defaut)"),
 
@@ -386,6 +387,34 @@ public final class ProjectProperties extends PropertiesCategory {
 	}
 
 	/**
+	 * Strategie pour la norme de nommage des methodes , classes, proprietes, etc...
+	 */
+	private class NormeProjectStrategy extends PropertyStrategy {
+
+		@Override
+		protected PropertyTrigger getStrategyTrigger() {
+			return PropertyTrigger.ONCREATE_CHANGE;
+		}
+
+		@Override
+		protected void updateProperty(PacmanProperty p_pacmanProperty) {
+			if ("react".equalsIgnoreCase(getRefValue())) {
+				p_pacmanProperty.setValueFromIndexedDefaultValue(1);
+				return;
+			}
+			p_pacmanProperty.setValueFromIndexedDefaultValue(0);
+		}
+
+		@Override
+		protected void doStrategy(Map<String, PacmanProperty> p_pacmanProperties) {
+			for (Entry<String, PacmanProperty> v_entry : p_pacmanProperties.entrySet()) {
+				if (v_entry.getValue().getPropertyFileName().equals("nommage.properties"))
+					updateProperty(v_entry.getValue());
+			}
+		}
+	}
+
+	/**
 	 * Fonctionnement particulier pour les proprietes additionnelles. On se contente
 	 * de lancer une exception si non trouvee.
 	 * 
@@ -510,7 +539,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static String get_validationConfigFile() {
 		return PropertiesHandler.getProperty(c_project_validation_config_file);
 	}
-	
+
 	public static String get_requirementCategoryBaseLevel(final Object p_object) {
 		return PropertiesHandler.getProperty(c_requirement_categoryBaseLevel);
 	}
@@ -634,15 +663,15 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static boolean isSpring() {
 		return get_framework(null).indexOf("spring") != -1;
 	}
-	
+
 	public static boolean isSpi4j() {
 		return get_framework(null).indexOf("spi4j") != -1;
 	}
-	
+
 	public static boolean isReact() {
 		return get_framework(null).indexOf("react") != -1;
 	}
-	
+
 	public static boolean is_javaType(final Object p_object) {
 		return isSpring();
 	}

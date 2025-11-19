@@ -98,6 +98,54 @@
   [/for][/if]
 [/template]
 
+[comment ./]
+[template public defaultImports2(any : ecore::EObject)]
+  [if (any.mustCheckModeledImports())]
+    [if (any.oclIsKindOf(environment::DTO))]
+      [for (o | any.oclAsType(environment::DTO).attributesNoPK())]
+        [if (o.type.oclIsTypeOf(environment::Enumeration))]
+          import [o.type.oclAsType(environment::Enumeration).namePackageEnumeration()
+            .package(o.type.oclAsType(environment::Enumeration).nameClassEnumeration())/]
+        [/if]
+     [/for]
+  [/if] 
+  [for (o : environment::ObeoDSMObject | any.eAllContents(environment::ObeoDSMObject))]
+    [if (o.oclIsKindOf(environment::Attribute))]
+      [if (o.type.oclIsTypeOf(environment::Enumeration))]
+        import [o.type.oclAsType(environment::Enumeration).namePackageEnumeration()
+          .package(o.type.oclAsType(environment::Enumeration).nameClassEnumeration())/]
+      [/if]
+      [if (o.type.oclIsTypeOf(entity::Entity))]
+        import [o.type/]
+      [/if]
+    [/if]
+    [if (o.oclIsKindOf(soa::Parameter))]
+      [if (o.type.oclIsTypeOf(entity::Entity))]
+        import [o.type.oclAsType(entity::Entity).namePackageEntityImpl()
+          .package(o.type.oclAsType(entity::Entity).nameClassEntityImpl())/]
+      [/if]
+      [if (o.type.oclIsTypeOf(environment::DTO))]
+        import [o.type.oclAsType(environment::DTO).namePackageDtoImpl()
+          .package(o.type.oclAsType(environment::DTO).nameClassDtoImpl())/]
+        import [o.type.oclAsType(environment::DTO).namePackageXtoImpl()
+          .package(o.type.oclAsType(environment::DTO).nameClassXtoImpl())/]
+      [/if]
+    [/if]
+    [if (o.oclIsKindOf(environment::Reference))]
+      [if (any.oclIsKindOf(environment::DTO))]
+        import [o.referencedDto(any).namePackageDtoImpl()
+        	.package(o.referencedDto(any).nameClassDtoImpl())/]
+        import [o.referencedDto(any).namePackageXtoImpl()
+        	.package(o.referencedDto(any).nameClassXtoImpl())/]
+      [/if]
+      [if (any.oclIsKindOf(entity::Entity))]
+        import [o.referencedEntity(any).namePackageEntityImpl()
+        	.package(o.referencedEntity(any).nameClassEntityImpl())/]
+      [/if]
+    [/if]
+  [/for][/if]
+[/template]
+
 [comment vérifie si l'objet permet d'effectuer une recherche sur ses imports éventuellement modélisés./]
 [query private mustCheckModeledImports(any : ecore::EObject) : Boolean = any.oclIsTypeOf(entity::Entity) or any.oclIsTypeOf(soa::Service) 
   or any.oclIsTypeOf(environment::DTO)/]

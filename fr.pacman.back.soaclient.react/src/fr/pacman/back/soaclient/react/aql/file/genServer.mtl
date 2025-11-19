@@ -7,20 +7,27 @@
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::soaclient::react::aql::block::xto/]
 [import fr::pacman::back::soaclient::react::aql::block::service/]
-[import fr::pacman::back::core::aql::rule::class/]
+[import fr::pacman::back::core::aql::name::javascript/]
 
 [comment écriture du fichier d'implémentation pour objet métier (react)./]
 [template public fileXtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
   , dss : Sequence(environment::DTO))]
-  [file (d.name.apply_classInterface().toFileTs(d.nameDirModels()), overwrite, d.defaultFileEncoding())]
+  [file (d.nameClassXtoImpl().toFileTs(d.nameDirModels()), overwrite, d.defaultFileEncoding())]
     [d.xtoImpl(ds, dss)/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'implémentation pour service (react)./]
 [template public fileServiceImpl(s : soa::Service)]
-  [file (s.name.toFileTs(s.nameDirServices()), overwrite, s.defaultFileEncoding())]
+  [file (s.nameClassServiceImpl().toFileTs(s.nameDirServices()), overwrite, s.defaultFileEncoding())]
     [s.serviceImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de configuration pour react./]
+[template public fileTsApiClientImpl(m : soa::System)]
+  [file ('apiClient'.toFileTs(m.nameDirConfig()), overwrite, m.defaultFileEncoding())]
+    [m.tsApiClientImpl()/]
   [/file]
 [/template]
 

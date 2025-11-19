@@ -2,34 +2,57 @@
 				'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::back::core::aql::base/]
-[import fr::pacman::back::core::aql::rule::class/]
+[import fr::pacman::back::core::aql::name::classes/]
 [import fr::pacman::back::soa::aql::block::common/]
 [import fr::pacman::back::core::aql::query::reference/]
 [import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::name::javascript/]
+[import fr::pacman::back::core::aql::query::eobject/]
 [import fr::pacman::back::core::aql::name::eobjects/]
 [import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::output::comments/]
 				
-[comment écriture du fichier d'implémentation pour objet métier (react)./]			
+[comment écriture du fichier d'implémentation pour objet métier (react) 
+         pour l'instant la base est toujours SpringBoot. Le contrat entre 
+         backend et frontend n’est jamais "classe <-> interface". C’est 
+         JSON <-> interface. Donc le nom des classes n'a aucune importance 
+         et il est dans ce cas largement préférable de respecter le nommage 
+         JavaScript avec des méthodes de type toJS...
+         
+         ATTENTION ceci immplique que le fichier de nommage ne doit jamais être 
+         modifié lors de la création d'un client react !!!!/]			
 [template public xtoImpl (d : environment::DTO, ds : Sequence(environment::DTO)
   , dss : Sequence(environment::DTO))]
-  export interface [d.name.apply_classInterface()/] {
+  [d.commentClass()/]
+  [comment liste des tables de liaison pour l'entité (directes + héritées)./]
+  [let jts = d.referencesJTSBResolved()]
+  [comment liste des clé étrangères (directes + héritées)./]
+  [let fks = d.referencesFKSBResolved(ds, dss)]
+  [comment liste de toutes les références (clé étrangères + tables de jointure)./]
+  [let rs = jts->union(fks)]
     
-    [d.writePk()/] : [d.defaultTypePk()/];
-    [comment liste des tables de liaison pour l'entité (directes + héritées)./]
-    [let jts = d.referencesJTSBResolved()]
-    [comment liste des clé étrangères (directes + héritées)./]
-    [let fks = d.referencesFKSBResolved(ds, dss)]
-    [comment liste de toutes les références (clé étrangères + tables de jointure)./]
-    [let rs = jts->union(fks)]
+    [comment liste des imports./]
+    [for (r : environment::Reference | rs)]
+      import { [r.referencedDto(d).nameClassXtoImpl()/] } from "./[r.referencedDto(d).nameClassXtoImpl()/]";
+    [/for]
+    
+    [comment écriture de l'objet métier./]
+    export interface [d.nameClassXtoImpl()/] {
+    
+      ['Id'.commentSingleLine()/]
+      [d.writePk()/] : [d.defaultTypePk().toJSType()/];
+      
       [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-        [a.nameAttribute()/]: [a.type()/];
+        [a.description.commentSingleLine()/]
+        [a.nameAttribute()/][if (not a.isMandatory())]?[/if]: [a.type().toJSType()/];
         
       [/for]
       [for (r : environment::Reference | rs)]
-        [r.referencedDto(d).referencedName(r).apply_attributeDefault()/] : [r.referencedOutTypeSignature(d)/] ;
+        [r.referencedDto(d).comment().commentSingleLine()/]
+        [r.referencedDto(d).referencedName(r).apply_attributeDefault()/] : [r.referencedOutTypeSignature(d).toJSList()/] ;
        
       [/for]
-    [/let][/let]
-    [/let]
+  [/let][/let]
+  [/let]
   }
 [/template]

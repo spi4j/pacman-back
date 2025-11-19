@@ -1,11 +1,36 @@
 [module service(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
 					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
-		
-[comment ./]		
+
+[import fr::pacman::back::core::aql::string/]
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::name::javascript/]
+[import fr::pacman::back::core::aql::name::directories/]
+[import fr::pacman::back::core::aql::query::operation/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+[import fr::pacman::back::core::aql::rule::method/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+
+[comment écriture d'un service rest./]
 [template public serviceImpl(s : soa::Service)]
+  [s.commentClass()/]
+  import { apiClient } from "[s.nameDirConfigForService()/]/apiClient";
+  [s.writeImports()/]
+  
+  export class [s.nameClassServiceImpl()/] {
+    [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+      [if (o.isRsOperation())]
+         [o.commentOperation()/]
+         async [o.name().apply_methodDefault()/]([o.writeRsInputs()/]) : Promise<[o.writeRsOutput()/]> {
+            const response = await apiClient.[o.writeOperationUri(s)/]
+            return response.data;
+         }
+      [/if]
+    [/for]
+  }
 [/template]
-					
-[comment ./]
+
+[comment écriture du fichier de référencement pour l'ensemble des services et objets métiers./]
 [template public tsIndexImpl(any : ecore::EObject)]
   // Exports des DTO
   export * from "./models/UserDto";
@@ -13,3 +38,67 @@
   // Exports des services REST
   export * from "./services/userService";
 [/template]
+
+[comment écriture de la classe utilitaire pour centraliser et faciliter les appels rest./]
+[template public tsApiClientImpl(m : soa::System)]
+  import axios from "axios";
+  
+  /**
+   * Client HTTP centralisé utilisé par tous les services.
+   * La baseURL devra être fournie par l'application consommatrice
+   * via une variable d'environnement ou une configuration runtime.
+   */
+  export const apiClient = axios.create({
+    baseURL: "http://localhost:8080/api", // pourra être surchargé
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+[/template]
+
+[comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
+[query private writeRsInputs2(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
+  ->collect(o1 : soa::Parameter | '${' + o1.name + '}')->sep(', ')->toString() else '' endif /] 
+
+[comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
+[query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
+  ->collect(o1 : soa::Parameter | o1.name().apply_parameterMethodClassicIn() + ': ' + o1.inputRsType())
+  ->sep(', ')->toString() else '' endif + if (o.isRsSecured()) then if(o.hasInputs()) then ', ' else '' endif 
+  + 'token'.apply_parameterMethodClassicIn() + ': string' else '' endif /]
+  
+[comment écriture du paramètre de sortie pour une opération de type rest./]
+[query private writeRsOutput(o : soa::Operation) : String =  if (not o.mustHaveRsOutput()) then '' 
+  else o.outputRsType() endif/]
+  
+[comment retourne l'uri (complète) pour un service rest./]
+[query public writeOperationUri( o : soa::Operation, s : soa::Service) : String =  o.verb.toString().toLower() 
+  + '(`' +  ( + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 
+  'v' + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif + '/' 
+  + s.eContainer().oclAsType(soa::Component).URI + '/' + s.URI).toUri() + '/' + o.writeRsInputs2() + '`);'/]
+
+[comment écriture des imports pour l'ensemble des dtos utilisés par le service. Ici on peut avoir l'impression de 
+         "tourner en rond" car o2.type.name permet de récupérer le nom voulu, mais on préfère rentrer dans le giron 
+         commun cad récupérer le dto, lui donner son nom en java et faire la conversion en javascript./]
+[query private writeImports(s : soa::Service) : String = '' + s.eAllContents(soa::Parameter)->select(o | o.type.oclIsKindOf(environment::DTO))
+    ->asSet()->collect(o2 | 'import { ' + o2.type.oclAsType(environment::DTO).nameClassXtoImpl() + ' } from "' + s.nameDirModelsForService() 
+    + '/' + o2.type.oclAsType(environment::DTO).nameClassXtoImpl()
+    +'";')->sep(';' + s.lineSeparator())/]
+
+[comment ----------------------------------------------------/]
+[comment surcharge de ces méthodes spécifiquement pour react./]
+[comment ----------------------------------------------------/]
+    
+[comment ajoute un slash à la fin de la chaine./]
+[query private ensureTrailingSlash(path : String) : String = if path = null then '/' 
+  else if path.endsWith('/') then path else path + '/' endif endif/]
+
+[comment normalisation d'un chemin de ressource à partir d'une chaine de caractères./]  
+[query private normalizePath(path : String) : String = path.replaceAll('/+', '/').trim()/]
+
+[comment normalisation d'un chemin de ressource à partir d'une chaine de caractères./]  
+[query private toPath(pkg : String) : String = if(pkg <> null and pkg.trim()->size() > 0) 
+  then  pkg.replaceAll('\\.', '/').normalizePath().ensureTrailingSlash() else '' endif/]
+
+[comment normalisation d'une uri pour les services rest etc..../]
+[query private toUri(uri : String) : String = if(uri.exists()) then uri.trim().toPath()
+  .replaceAll('\\/$', '') else '/' endif/]

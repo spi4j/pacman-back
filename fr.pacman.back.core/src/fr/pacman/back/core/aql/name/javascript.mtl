@@ -1,0 +1,33 @@
+[module javascript(	'http://www.obeonetwork.org/dsl/environment/3.0.0',
+					'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+					
+[comment retourne le transtypage des types pour javascript./]
+[query public toJSType(t : String) : String = if ('String'.equalsIgnoreCase(t)) then 'string' 
+ else if ('Char'.equalsIgnoreCase(t)) then 'string' 
+ else if ('Integer'.equalsIgnoreCase(t)) then 'number' 
+ else if ('Float'.equalsIgnoreCase(t)) then 'number' 
+ else if ('Double'.equalsIgnoreCase(t)) then 'number' 
+ else if ('Long'.equalsIgnoreCase(t)) then 'string'
+ else if ('Binary'.equalsIgnoreCase(t)) then 'File' 
+ else if ('Boolean'.equalsIgnoreCase(t)) then 'boolean' 
+ else if ('Date'.equalsIgnoreCase(t)) then 'string' 
+ else if ('LocalDate'.equalsIgnoreCase(t)) then 'string' 
+ else if ('OffsetDateTime'.equalsIgnoreCase(t)) then 'string' 
+ else if ('Instant'.equalsIgnoreCase(t)) then 'string'
+ else if ('UUID'.equalsIgnoreCase(t)) then 'string'
+ else if ('Time'.equalsIgnoreCase(t)) then 'string' 
+ else if ('LocalTime'.equalsIgnoreCase(t)) then 'string' 
+ else if ('Timestamp'.equalsIgnoreCase(t)) then 'string' 
+ else 'UNKNOWN TYPE !!' endif endif endif endif endif endif endif endif 
+ endif endif endif endif endif endif endif endif/]
+ 
+ [comment il est trop complexe de modifier le fonctionnement de la création du fichier nommage.properties 
+          afin de créer un fichier spécifique pour le nommage du framework react. Ne pas oublier que le 
+          générateur est un générateur java avant tout. On crée donc un fichier de nommage pour java, même 
+          pour un client react et par la suite, on "expurge" les données spécifique java pour être compatible 
+          avec le nommage javascript. Ceci implique que le fichier de nommage ne doit pas être modifié lors 
+          de la création d'un client react car les données sont "en dur" au niveau des queries ci-dessous. 
+          Ceci doit être précisé dans la documentation./]
+ 
+ [comment retourne la référence de liste sous format accepté par javascript./]
+ [query public toJSList(s: String) : String = s.replace('List<','').replace('Set<','').replace('>','[]')/]

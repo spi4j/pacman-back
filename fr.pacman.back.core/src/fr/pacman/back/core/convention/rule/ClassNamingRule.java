@@ -45,12 +45,12 @@ public class ClassNamingRule extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_idParam_classAbstract,
 						new String[] { "[" + NotationDefinition.normeCamelCase() + "/]Abs",
-								"[" + NotationDefinition.normeCamelCase() + "/]_Abs" },
+								"[" + NotationDefinition.normeCamelCase() + "/]" },
 						"La norme a appliquer pour une classe abstraite"),
 
 				PacmanProperty.newRequired(c_idParam_classInterface,
 						new String[] { "[" + NotationDefinition.normeCamelCase() + "/]",
-								"[" + NotationDefinition.normeCamelCase() + "/]_Itf" },
+								"[" + NotationDefinition.normeCamelCase() + "/]" },
 						"La norme a appliquer pour une interface"),
 
 				PacmanProperty.newRequired(c_idParam_classImplem,

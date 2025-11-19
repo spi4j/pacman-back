@@ -26,4 +26,6 @@
   [for (s : soa::Service | m.eAllContents(soa::Service))]
   	[s.fileServiceImpl()/]
   [/for]
+  [comment écriture du helper pour les appels rest./]
+  [m.fileTsApiClientImpl()/]
 [/template]

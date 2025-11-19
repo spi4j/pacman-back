@@ -8,3 +8,12 @@
 
 [comment retourne le nom du répertoire pour ...../]
 [query public nameDirServices(any : ecore::EObject) : String = any.dirReactSources() + 'services'/]
+
+[comment retourne le nom du répertoire pour ...../]
+[query public nameDirConfig(any : ecore::EObject) : String = any.dirReactSources() + 'api'/]
+
+[comment retourne le nom du répertoire pour ...../]
+[query public nameDirConfigForService(any : ecore::EObject) : String = '../api'/]
+
+[comment retourne le nom du répertoire pour ...../]
+[query public nameDirModelsForService(any : ecore::EObject) : String =  '../models'/]

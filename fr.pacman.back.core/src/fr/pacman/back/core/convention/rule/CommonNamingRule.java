@@ -17,6 +17,7 @@ public class CommonNamingRule extends PropertiesCategory {
 	private static final String c_idParam_suffixEntity = "suffixEntity";
 	private static final String c_idParam_suffixService = "suffixService";
 	private static final String c_idParam_suffixDto = "suffixDto";
+	private static final String c_idParam_suffixXto = "suffixXto";
 
 	@Override
 	protected String get_propertiesFileName() {
@@ -41,6 +42,9 @@ public class CommonNamingRule extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_idParam_suffixDto, new String[] { "dto", "" },
 						"Le suffixe des objets métier"),
+				
+				PacmanProperty.newRequired(c_idParam_suffixXto, new String[] { "xto", "" },
+						"Le suffixe des objets métier pour services rest"),
 
 				PacmanProperty.newRequired(c_idParam_suffixService, new String[] { "service", "" },
 						"Le suffixe des services soa"), };
@@ -68,6 +72,14 @@ public class CommonNamingRule extends PropertiesCategory {
 
 	public static String get_dtoSuffix(Object object) {
 		return get_dtoSuffix();
+	}
+	
+	public static String get_xtoSuffix() {
+		return PropertiesHandler.getProperty(c_idParam_suffixDto);
+	}
+
+	public static String get_xtoSuffix(Object object) {
+		return get_xtoSuffix();
 	}
 
 	public static String get_listPrefix() {

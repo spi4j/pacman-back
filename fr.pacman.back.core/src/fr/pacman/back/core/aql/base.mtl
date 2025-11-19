@@ -131,9 +131,6 @@
 [comment le suffixe pour le dao d'une entité./]
 [query public suffixEntityDao(any : ecore::EObject) : String = ' repository'/]
 
-[comment le suffixe par défaut pour les objets sérialisés./]
-[query public suffixXto(any : ecore::EObject) : String = ' xto'/]
-
 [comment le suffixe par défaut pour la gestion gloable des exceptions rest./]  
 [query public suffixRsExceptionHandler(any : ecore::EObject) : String = ' exception handler'/]
 

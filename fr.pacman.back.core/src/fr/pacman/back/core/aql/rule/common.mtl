@@ -16,4 +16,7 @@
     
 [comment retourne le suffixe pour les objets de transfert (si défini)./]
 [query public suffixDto(any : ecore::EObject) : String = ' ' + any.get_dtoSuffix().trim()/]
+  
+[comment retourne le suffixe pour les objets de transfert rest (si défini)./]
+[query public suffixXto(any : ecore::EObject) : String = ' ' + any.get_xtoSuffix().trim()/]
 
