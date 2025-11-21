@@ -3,6 +3,7 @@
 [query public versionMavenResourcesPlugin(any : ecore::EObject) : String = '3.3.1'/]
 [query public versionMavenCompilerPlugin(any : ecore::EObject) : String = '3.10.1'/]
 [query public versionMavenEnforcerPlugin(any : ecore::EObject) : String = '3.0.0-M2'/]
+[query public versionMavenExecPlugin(any : ecore::EObject) : String = '3.6.2'/]
 [query public versionMaven(any : ecore::EObject) : String = '3.6.3'/]
 [query public versionSpringBoot(any : ecore::EObject) : String = '3.4.1'/]
 [query public versionJsonCore(any : ecore::EObject) : String = '2.17.0'/]

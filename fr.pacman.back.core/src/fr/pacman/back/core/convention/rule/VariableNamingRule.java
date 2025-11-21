@@ -36,20 +36,20 @@ public class VariableNamingRule extends PropertiesCategory {
 						new String[] {
 								"[" + NotationDefinition.normeCamelCase()
 										.appendNorme(NotationDefinition.normeLowerFirst()) + "/]",
-								"v_[" + NotationDefinition.normeCamelCaseIgnoreFirst() + "/]" },
+								"[" + NotationDefinition.normeCamelCaseIgnoreFirst() + "/]" },
 						"Le nom d'une variable final"),
 
 				PacmanProperty.newRequired(c_idParam_variableDefault,
 						new String[] {
 								"[" + NotationDefinition.normeCamelCase()
 										.appendNorme(NotationDefinition.normeLowerFirst()) + "/]",
-								"v_[" + NotationDefinition.normeCamelCaseIgnoreFirst() + "/]" },
+								"[" + NotationDefinition.normeLowerFirst() + "/]" },
 						"Le nom d'une variable par defaut"),
 
 				PacmanProperty.newRequired(c_idParam_variableMultipleDefault, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"v_{$listPrefix}_["
+						"{$listPrefix}_["
 								+ NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]" },
 						"Le nom d'une variable multiple par defaut"),
@@ -57,7 +57,7 @@ public class VariableNamingRule extends PropertiesCategory {
 				PacmanProperty.newRequired(c_idParam_variableMultipleMap, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"v_{$mapPrefix}_["
+						"{$mapPrefix}_["
 								+ NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]" },
 						"Le nom d'une variable multiple (map) par defaut"),
@@ -66,14 +66,14 @@ public class VariableNamingRule extends PropertiesCategory {
 						new String[] {
 								"[" + NotationDefinition.normeCamelCase()
 										.appendNorme(NotationDefinition.normeLowerFirst()) + "/]",
-								"v_[" + NotationDefinition.normeCamelCase() + "/]" },
+								"[" + NotationDefinition.normeCamelCase() + "/]" },
 						"Le nom d'une variable objet final"),
 
 				PacmanProperty.newRequired(c_idParam_variableObjectDefault,
 						new String[] {
 								"[" + NotationDefinition.normeCamelCase()
 										.appendNorme(NotationDefinition.normeLowerFirst()) + "/]",
-								"v_[" + NotationDefinition.normeCamelCase() + "/]" },
+								"[" + NotationDefinition.normeCamelCase() + "/]" },
 						"Le nom d'une variable par objet defaut"), };
 	}
 

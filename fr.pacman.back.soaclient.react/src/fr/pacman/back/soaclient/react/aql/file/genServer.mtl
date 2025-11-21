@@ -32,8 +32,8 @@
 [/template]
 
 [comment écriture du fichier de configuration pour react./]
-[template public fileTsIndexImpl(any : ecore::EObject)]
-  [file ('index'.toFileTs(any.dirReactSources()), overwrite, any.defaultFileEncoding())]
-    [any.tsIndexImpl()/]
+[template public fileTsIndexImpl(m :  soa::System)]
+  [file ('index'.toFileTs(m.dirReactSources()), overwrite, m.defaultFileEncoding())]
+    [m.tsIndexImpl()/]
   [/file]
 [/template]

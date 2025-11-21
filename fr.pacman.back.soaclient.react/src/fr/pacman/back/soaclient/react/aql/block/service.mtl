@@ -4,12 +4,15 @@
 [import fr::pacman::back::core::aql::string/]
 [import fr::pacman::back::core::aql::name::classes/]
 [import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::core::aql::name::javascript/]
 [import fr::pacman::back::core::aql::name::directories/]
 [import fr::pacman::back::core::aql::query::operation/]
+[import fr::pacman::back::core::aql::query::parameter/]
 [import fr::pacman::back::core::aql::name::eobjects/]
 [import fr::pacman::back::core::aql::rule::method/]
 [import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::variable/]
 
 [comment écriture d'un service rest./]
 [template public serviceImpl(s : soa::Service)]
@@ -20,23 +23,36 @@
   export class [s.nameClassServiceImpl()/] {
     [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
       [if (o.isRsOperation())]
-         [o.commentOperation()/]
-         async [o.name().apply_methodDefault()/]([o.writeRsInputs()/]) : Promise<[o.writeRsOutput()/]> {
+         [o.commentOperation().toJSComment()/]
+         async [o.name().apply_methodDefault()/]([o.writeRsInputsRequest()/]) : Promise<[o.writeRsOutput()/]> {
+            [o.writePathParamsMapping()/]
             const response = await apiClient.[o.writeOperationUri(s)/]
             return response.data;
          }
       [/if]
+      
     [/for]
   }
+  
+  // On exporte une instance pour simplifier l’usage.
+  export const [s.name().apply_variableDefault()/] = new [s.nameClassServiceImpl()/]();
 [/template]
 
-[comment écriture du fichier de référencement pour l'ensemble des services et objets métiers./]
-[template public tsIndexImpl(any : ecore::EObject)]
-  // Exports des DTO
-  export * from "./models/UserDto";
-
-  // Exports des services REST
-  export * from "./services/userService";
+[comment écriture du fichier de référencement pour l'ensemble des services 
+         et objets métiers (ici tous les services sont rest)./]
+[template public tsIndexImpl(m : soa::System)]
+  // Models.
+  [for (d | m.eAllContents(environment::DTO))]
+    export * from "[d.nameDirModelsForExport()/]/[d.nameClassXtoImpl()/]";
+  [/for]
+  
+  // Services.
+  [for (s | m.eAllContents(soa::Service))]
+    export * from "[s.nameDirServicesForExport()/]/[s.nameClassServiceImpl()/]";
+  [/for]
+  
+  // API Client.
+  export * from "[m.nameDirConfigForExport()/]/apiClient";
 [/template]
 
 [comment écriture de la classe utilitaire pour centraliser et faciliter les appels rest./]
@@ -56,25 +72,34 @@
   });
 [/template]
 
-[comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
-[query private writeRsInputs2(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
-  ->collect(o1 : soa::Parameter | '${' + o1.name + '}')->sep(', ')->toString() else '' endif /] 
+[comment écriture du mapping pour les paramètres passés dans le path./]
+[query private writePathParamsMapping(o : soa::Operation) : String = '' + o.input->select(p | p.isRsPathParam() and 
+ not p.name.equalsIgnoreCase(p.restData.restId))->collect(p1 | 'const ' + p1.restData.restId  
+ + ' = ' + p1.name.apply_parameterMethodClassicIn() + ';')->sep(o.lineSeparator())/]
 
 [comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
-[query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
-  ->collect(o1 : soa::Parameter | o1.name().apply_parameterMethodClassicIn() + ': ' + o1.inputRsType())
+[query private writeRsInputsUri(o : soa::Operation) : String = if (o.hasInputs()) then
+  let queryParams : Sequence(soa::Parameter) = o.input->select(p | p.isRsQueryParam()) in
+  let bodyParams  : Sequence(soa::Parameter) = o.input->select(p | p.isRsBodyParam()) in
+  if(not queryParams->isEmpty()) then ', { params: {a terminer}}' else
+  if(not bodyParams->isEmpty()) then ', ' + bodyParams->first().name.apply_parameterMethodClassicIn() else
+  '' endif  endif else '' endif/]
+  
+[comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
+[query private writeRsInputsRequest(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
+  ->collect(o1 : soa::Parameter | o1.name().apply_parameterMethodClassicIn() + ': ' + o1.inputRsType().toJSType())
   ->sep(', ')->toString() else '' endif + if (o.isRsSecured()) then if(o.hasInputs()) then ', ' else '' endif 
   + 'token'.apply_parameterMethodClassicIn() + ': string' else '' endif /]
   
 [comment écriture du paramètre de sortie pour une opération de type rest./]
 [query private writeRsOutput(o : soa::Operation) : String =  if (not o.mustHaveRsOutput()) then '' 
-  else o.outputRsType() endif/]
+  else o.outputRsType().toJSList() endif/]
   
 [comment retourne l'uri (complète) pour un service rest./]
 [query public writeOperationUri( o : soa::Operation, s : soa::Service) : String =  o.verb.toString().toLower() 
-  + '(`' +  ( + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 
-  'v' + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif + '/' 
-  + s.eContainer().oclAsType(soa::Component).URI + '/' + s.URI).toUri() + '/' + o.writeRsInputs2() + '`);'/]
+  + '(`' +  ( + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then '/' 
+  + 'v' + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif
+   + '/' + s.URI + '/' + o.URI).toUri() + '`' + o.writeRsInputsUri() + ');'/]
 
 [comment écriture des imports pour l'ensemble des dtos utilisés par le service. Ici on peut avoir l'impression de 
          "tourner en rond" car o2.type.name permet de récupérer le nom voulu, mais on préfère rentrer dans le giron 
@@ -83,22 +108,3 @@
     ->asSet()->collect(o2 | 'import { ' + o2.type.oclAsType(environment::DTO).nameClassXtoImpl() + ' } from "' + s.nameDirModelsForService() 
     + '/' + o2.type.oclAsType(environment::DTO).nameClassXtoImpl()
     +'";')->sep(';' + s.lineSeparator())/]
-
-[comment ----------------------------------------------------/]
-[comment surcharge de ces méthodes spécifiquement pour react./]
-[comment ----------------------------------------------------/]
-    
-[comment ajoute un slash à la fin de la chaine./]
-[query private ensureTrailingSlash(path : String) : String = if path = null then '/' 
-  else if path.endsWith('/') then path else path + '/' endif endif/]
-
-[comment normalisation d'un chemin de ressource à partir d'une chaine de caractères./]  
-[query private normalizePath(path : String) : String = path.replaceAll('/+', '/').trim()/]
-
-[comment normalisation d'un chemin de ressource à partir d'une chaine de caractères./]  
-[query private toPath(pkg : String) : String = if(pkg <> null and pkg.trim()->size() > 0) 
-  then  pkg.replaceAll('\\.', '/').normalizePath().ensureTrailingSlash() else '' endif/]
-
-[comment normalisation d'une uri pour les services rest etc..../]
-[query private toUri(uri : String) : String = if(uri.exists()) then uri.trim().toPath()
-  .replaceAll('\\/$', '') else '/' endif/]

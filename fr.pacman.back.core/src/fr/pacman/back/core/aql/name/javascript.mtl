@@ -18,16 +18,11 @@
  else if ('Time'.equalsIgnoreCase(t)) then 'string' 
  else if ('LocalTime'.equalsIgnoreCase(t)) then 'string' 
  else if ('Timestamp'.equalsIgnoreCase(t)) then 'string' 
- else 'UNKNOWN TYPE !!' endif endif endif endif endif endif endif endif 
+ else t endif endif endif endif endif endif endif endif 
  endif endif endif endif endif endif endif endif/]
  
- [comment il est trop complexe de modifier le fonctionnement de la création du fichier nommage.properties 
-          afin de créer un fichier spécifique pour le nommage du framework react. Ne pas oublier que le 
-          générateur est un générateur java avant tout. On crée donc un fichier de nommage pour java, même 
-          pour un client react et par la suite, on "expurge" les données spécifique java pour être compatible 
-          avec le nommage javascript. Ceci implique que le fichier de nommage ne doit pas être modifié lors 
-          de la création d'un client react car les données sont "en dur" au niveau des queries ci-dessous. 
-          Ceci doit être précisé dans la documentation./]
+ [comment retourne la référence de liste sous format javascript (à la base chaine créé pout java)./]
+ [query public toJSList(s: String) : String = s.replace('List<([^>]+)>','$1[]').replace('Set<([^>]+)','$1[]')/]
  
- [comment retourne la référence de liste sous format accepté par javascript./]
- [query public toJSList(s: String) : String = s.replace('List<','').replace('Set<','').replace('>','[]')/]
+ [comment retourne le commentaire sous format javascript (à la base chaine créé pout java)./]
+ [query public toJSComment(s: String) : String =  s.replaceAll('Optional<([^>]+)>','$1').toJSList()/]

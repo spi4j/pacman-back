@@ -39,48 +39,27 @@
     <hr />
     <p>Ce fichier vous permet de rapidement prendre en main le démarrage de l'application :</p>
       <h2>📁 Projets inclus</h2>
-      <p>Quatre projets sont créés :</p>
+      <p>Trois projets sont créés :</p>
       <ul>
-      <li><strong>[any.nameProject()/]</strong> : le projet qui encapsule les trois autres projets, son seul rôle est de contenir le fichier pom.xml parent.</li>
-      <li><strong>[any.nameProjectModel()/]</strong> : le projet de modélisation. Aucune classe Java ne doit être présente dans ce projet. Il n'est, par ailleurs, pas embarqué lors du déploiement de l'application.</li>
-      <li><strong>[any.nameProjectServer()/]</strong> : le projet contenant les classes client d'appel pour les services de type rest.</li>
+      <li><strong>[any.nameProject()/]</strong> : le projet qui encapsule les deux autres projets, son seul rôle est de contenir le fichier pom.xml parent.</li>
+      <li><strong>[any.nameProjectModel()/]</strong> : le projet de modélisation. Aucun autre fichier ne doit être présent dans ce projet. Il n'est, par ailleurs, pas embarqué lors du déploiement de l'application.</li>
+      <li><strong>[any.nameProjectServer()/]</strong> : le projet contenant le client d'appel pour les services de type rest.</li>
       </ul>
       <hr/>
-        <h2>📂 Emplacement des fichiers de configuration et classe de démarrage</h2>
-      <ul>
-      <li style="margin-bottom: 10px;"><b>Configuration des options pour la génération</b> : <code>[any.nameProjectModel()/]/[any.namePropertiesDirectory()/]/project.properties</code>
-             Utiliser ce fichier de configuration pour modifier les différentes options utilisées pour la génération de code. Ce fichier a 
-             initialement été créé suite aux principaux choix dans le formulaire de création mais toute modification sera automatiquement prise 
-             en compte lors de la prochaine génération. Ce fichier de configuration interne pour la génération est commun pour l'ensemble 
-             des différents types de projet, certaines propriétés ne sont donc pas prises en considération suivant le type de projet"
-      </li>
-      <li style="margin-bottom: 10px;"><b>Configuration du nommage des classes et interfaces pour la génération</b> : <code>[any.nameProjectModel()/]/[any.namePropertiesDirectory()/]/nommage.properties</code>
-            Utiliser ce fichier de configuration pour modifier les différentes options de nommage utilisées pour la génération de code. Si 
-            par exemple vous désirez que tous la paramètres des méthodes soient préfixés par <code>'p_'</code>, il suffit de modifier la propriété
-            suivante dans le fichier de configuration <code>parameterMethodClassicIn=['['/]CamelCase.LowerFirst/[']'/]</code> 
-            en <code>parameterMethodClassicIn=p_['['/]CamelCase.LowerFirst/[']'/]</code>. 
-            Toute modification sera automatiquement prise en compte lors de la prochaine génération.
-      </li>
-      <li style="margin-bottom: 10px;"><b>Configuration principale</b> : <code>[any.nameProjectServer()/]/[any.dirJavaResources()/]application.properties</code>
-            Le fichier de configuration de SpringBoot, avec l'uri de base pour les appels, les timeouts de connexion, etc...
-      </li>
-      </ul>
-      <hr/>
-      <h2>📁 Principaux packages générés</h2>
-      <ul>
-        <li>[any.nameProjectServer()/]
-           <ul>
-             <li><code>[any.namePackageProject()/].[any.namePackageRsBase()/]</code> : classes de haut niveau pour le fonctionnement des clients rest.</li>
-           </ul>
-        </li>
-      </ul>
-      <hr/>
+      <h2>📂 Emplacement des fichiers de configuration</h2>
+      <p>⚠️ Les générateurs Pacman "pacman-back" sont à la base, des générateurs conçus et spécialisés pour la modélisation et la construction de projets de type Java.
+      Il en découle que tous les projets sont à la base des projets de type Maven (lié à la nature intrinsèque des générateurs Pacman), mais dans le cadre spécifique de la 
+      génération d'un client de type React, il est toutefois à noter que ces projets n'ont pas la nature Java. 
+      Pareillement, les deux fichiers de configurations situés dans le répertoire <code>/[any.namePropertiesDirectory()/]</code> au niveau du projet de modélisation 
+      [any.nameProjectModel()/] sont conçus pour des projets Java mais quelques propriétés sont cependant utilisées dans le cadre d'un projet React.
+      </p>Tous les fichiers de configuration sont donc situés au niveau du projet [any.nameProjectServer()/] dans le répertoire : <code>[any.nameProject()/]</code>, véritable 
+      répertoire de base pour l'ensemble du projet client React.
       <h2>🚀 Pour commencer rapidement</h2>
       <ol>
-        <li>Si besoin, appliquer la métadonnée @AUTH_TOKEN au niveau de l'opération d'authentification (récupération du jeton)</li>
-        <li>Générer le code client à partir du fichier de modélisation</li>
-        <li>Si besoin, compléter la classe <code>[any.nameClassRsClienTokenTestsHelper()/]</code> avec les données d'authentification.</li>
-        <li>Effectuer les tests pour vérifier le bon fonctionnement des différents appels.</li>
+        <li>Exporter le projet de modélisation du projet de fourniture des services (fichier au format ".mar").</li>
+        <li>Importer le fichier de modélisation (au format ".mar") dans le projet de modélisation : [any.nameProjectModel()/].</li>
+        <li>Générer le code client à partir du fichier de modélisation de type ".soa" récupéré.</li>
         <li>Procéder au déploiement et à l'intégration de la librairie dans le projet cible.</li>
       </ol>
+      Accéder à l'ensemble de la documentation : <a href="https://spi4j.github.io/pacman-back/pacman-backend.html" target="_blank">https://spi4j.github.io/pacman-back.</a>
 [/template]

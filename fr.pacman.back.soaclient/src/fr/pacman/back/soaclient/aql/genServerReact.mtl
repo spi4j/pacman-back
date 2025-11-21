@@ -28,4 +28,6 @@
   [/for]
   [comment écriture du helper pour les appels rest./]
   [m.fileTsApiClientImpl()/]
+  [comment écriture du fichier de centralisation des exports./]
+  [m.fileTsIndexImpl()/]
 [/template]

@@ -38,13 +38,13 @@ public class ParameterNamingRule extends PropertiesCategory {
 		return new PacmanProperty[] { PacmanProperty.newRequired(c_idParam_parameterMethodClassicIn, new String[] {
 				"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst()) + "/]",
 
-				"p_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst()) + "/]" },
+				"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst()) + "/]" },
 				"Le nom d'un parametre IN classic"),
 
 				PacmanProperty.newRequired(c_idParam_parameterMethodMultiple, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_{$listPrefix}_["
+						"{$listPrefix}_["
 								+ NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]" },
 						"Le nom d'un parametre Multiple"),
@@ -52,7 +52,7 @@ public class ParameterNamingRule extends PropertiesCategory {
 				PacmanProperty.newRequired(c_idParam_parameterMethodMultipleMap, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_{$mapPrefix}_["
+						"{$mapPrefix}_["
 								+ NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]" },
 						"Le nom d'un parametre Multiple"),
@@ -60,49 +60,49 @@ public class ParameterNamingRule extends PropertiesCategory {
 				PacmanProperty.newRequired(c_idParam_parameterMethodObjectIn, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeUpperFirst())
+						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeUpperFirst())
 								+ "/]" },
 						"Le nom d'un parametre IN objet"),
 
 				PacmanProperty.newRequired(c_idParam_parameterMethodClassicOut, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
+						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]" },
 						"Le nom d'un parametre OUT classique"),
 
 				PacmanProperty.newRequired(c_idParam_parameterMethodObjectOut, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeUpperFirst())
+						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeUpperFirst())
 								+ "/]" },
 						"Le nom d'un parametre OUT objet"),
 
 				PacmanProperty.newRequired(c_idParam_parameterMethodClassicInOut, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
+						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]" },
 						"Le nom d'un parametre IN/OUT classique"),
 
 				PacmanProperty.newRequired(c_idParam_parameterMethodObjectInOut, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeUpperFirst())
+						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeUpperFirst())
 								+ "/]" },
 						"Le nom d'un parametre IN/OUT objet"),
 
 				PacmanProperty.newRequired(c_idParam_parameterMethodReset, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
+						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]" },
 						"Le nom d'un parametre du methode reset"),
 
 				PacmanProperty.newRequired(c_idParam_parameterMethodSetter, new String[] {
 						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]",
-						"p_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
+						"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst())
 								+ "/]" },
 						"Le nom d'un parametre d'un setter") };
 	}

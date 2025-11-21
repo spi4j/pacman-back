@@ -35,7 +35,7 @@ public class AttributeNamingRule extends PropertiesCategory {
 		return new PacmanProperty[] { PacmanProperty.newRequired(c_idParam_attributeDefault, new String[] {
 				"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst()) + "/]",
 
-				"_[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst()) + "/]" },
+				"[" + NotationDefinition.normeCamelCase().appendNorme(NotationDefinition.normeLowerFirst()) + "/]" },
 				"Le nom d'un attribut par defaut"),
 
 				PacmanProperty.newRequired(c_idParam_attributeEnum, new String[] {

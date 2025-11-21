@@ -23,8 +23,8 @@
 [/template]
 
 [comment écriture du fichier de configuration pour react./]
-[template public fileTsConfig(any : ecore::EObject)]
-  [file ('tsConfig'.toFileTs(null), overwrite, any.defaultFileEncoding())]
+[template public fileConfigJson(any : ecore::EObject)]
+  [file ('tsconfig'.toFileJson(null), overwrite, any.defaultFileEncoding())]
     [any.tsConfig()/]
   [/file]
 [/template]
@@ -37,8 +37,8 @@
 [/template]
 
 [comment écriture du fichier de configuration pour react./]
-[template public fileTsConfigBuild(any : ecore::EObject)]
-  [file ('tsconfig.build'.toFileTs(null), overwrite, any.defaultFileEncoding())]
+[template public fileConfigBuildJson(any : ecore::EObject)]
+  [file ('tsconfig.build'.toFileJson(null), overwrite, any.defaultFileEncoding())]
     [any.tsConfigBuild()/]
   [/file]
 [/template]

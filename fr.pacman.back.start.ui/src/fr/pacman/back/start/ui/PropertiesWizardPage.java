@@ -113,7 +113,7 @@ abstract class PropertiesWizardPage<T extends Control> extends WizardPage {
 				if (control instanceof Button)
 					((Button) control).setSelection(false);
 			}
-			return;
+			//return;
 		}
 		p_widget.setEnabled(p_enable);
 		// ((Label) p_widget.getData()).setEnabled(p_enable);

@@ -376,6 +376,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			@Override
 			public void widgetSelected(final SelectionEvent p_e) {
 				_typeFramework = (cbx.getItem(cbx.getSelectionIndex()).replaceAll(" +", "")).toLowerCase();
+				manageCompositesActivation();
 				computeValidity();
 			}
 
@@ -827,12 +828,15 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		enable(getWidget("grp_database3"));
 		enable(getWidget("grp_options1"));
 		enable(getWidget("cb_databases"));
+		enable(getWidget("cb_javaVersion"));
 
-		if ("client".equals(_typeProject)) {
+		if ("client".equalsIgnoreCase(_typeProject)) {
 			disable(getWidget("grp_database2"));
 			disable(getWidget("grp_database3"));
 			disable(getWidget("grp_options1"));
 			disable(getWidget("cb_databases"));
+			if ("react".equalsIgnoreCase(_typeFramework))
+				disable(getWidget("cb_javaVersion"));
 		}
 	}
 

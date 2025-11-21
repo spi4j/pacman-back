@@ -20,14 +20,83 @@
     <artifactId>[any.nameProjectServer()/]</artifactId>
     <packaging>pom</packaging>
     
-    <build>
-      <plugins>
-      </plugins>
+    <properties>
+        <!-- Pas besoin de version node/npm pour l'installation locale -->
+        <frontend.dir>${project.basedir}/[any.nameProject()/]</frontend.dir>
+     </properties>
+     
+     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>[any.versionMavenExecPlugin()/]</version>
+                
+                <executions>
+                    <!-- npm install -->
+                    <execution>
+                        <id>npm-install</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                           <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <workingDirectory>${frontend.dir}</workingDirectory>
+                            <arguments>
+                               <argument>install</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    
+                    <!-- npm run build -->
+                    <execution>
+                        <id>npm-build</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <workingDirectory>${frontend.dir}</workingDirectory>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>build</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Copier dist/ vers les ressources Maven (si besoin) -->
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>[any.versionMavenResourcesPlugin()/]</version>
+                <executions>
+                    <execution>
+                        <id>copy-dist-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                           <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${frontend.dir}/[any.dirReactDistribution().replace('/','')/]</directory>
+                                    <targetPath>[any.dirReactDistribution().replace('/','')/]</targetPath>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
   </project>
 [/template]
 
-[comment ./]
+[comment écriture fichier de configuration./]
 [template public packageJson (any : ecore::EObject)]
   {
     "name": "[any.nameProject().toLower()/]",
@@ -38,7 +107,7 @@
     "types": "[any.dirReactDistribution()/]index.d.ts",
     "type": "module",
     "files": ['['/]
-      "[any.dirReactDistribution().replaceAll('/','')/]"
+      "[any.dirReactDistribution().replace('/','')/]"
     [']'/],
     "scripts": {
       "clean": "rimraf dist",
@@ -73,7 +142,7 @@
   README.md
 [/template]
 
-[comment ./]
+[comment écriture fichier de configuration./]
 [template public tsConfig (any : ecore::EObject)]
   {
     "compilerOptions": {
@@ -85,21 +154,22 @@
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "baseUrl": "./[any.dirReactSources().replaceAll('/','')/]"
+      "baseUrl": "./[any.dirReactSources().replace('/','')/]"
     },
-    "include": ['['/]"[any.dirReactSources().replaceAll('/','')/]"[']'/]
+    "include": ['['/]"[any.dirReactSources().replace('/','')/]"[']'/]
   }
 [/template]
 
+[comment écriture fichier de configuration./]
 [template public tsConfigBuild (any : ecore::EObject)]
   {
     "extends": "./tsconfig.json",
     "compilerOptions": {
-      "outDir": "[any.dirReactDistribution().replaceAll('/','')/]",
+      "outDir": "[any.dirReactDistribution().replace('/','')/]",
       "declaration": true,
       "declarationMap": false,
       "sourceMap": false
     },
-    "include": ['['/]"[any.dirReactSources().replaceAll('/','')/]"[']'/]
+    "include": ['['/]"[any.dirReactSources().replace('/','')/]"[']'/]
   }
 [/template]

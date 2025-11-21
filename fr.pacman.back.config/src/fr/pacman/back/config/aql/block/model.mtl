@@ -130,4 +130,5 @@
   <li><p>Aller dans le projet <code>[any.nameProjectServer()/]</code>, compléter et faire tourner les tests d'intégration.</p>
   <li><p>Lancer la classe de boostrap pour l'application et tester les réponses du serveur.</p>
   </ol>
+  Accéder à l'ensemble de la documentation : <a href="https://spi4j.github.io/pacman-back/pacman-backend.html" target="_blank">https://spi4j.github.io/pacman-back.</a>
 [/template]

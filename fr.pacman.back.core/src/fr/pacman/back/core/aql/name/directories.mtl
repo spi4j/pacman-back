@@ -17,3 +17,12 @@
 
 [comment retourne le nom du répertoire pour ...../]
 [query public nameDirModelsForService(any : ecore::EObject) : String =  '../models'/]
+
+[comment retourne le nom du répertoire pour ...../]
+[query public nameDirConfigForExport(any : ecore::EObject) : String = './api'/]
+
+[comment retourne le nom du répertoire pour ...../]
+[query public nameDirModelsForExport(any : ecore::EObject) : String =  './models'/]
+
+[comment retourne le nom du répertoire pour ...../]
+[query public nameDirServicesForExport(any : ecore::EObject) : String =  './services'/]
