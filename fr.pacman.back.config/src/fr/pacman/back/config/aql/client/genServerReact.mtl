@@ -22,6 +22,8 @@
    [r.fileConfigBuildJson()/]
    [comment écriture du fichier de configuration pour react./]
    [r.fileNmpIgnore()/]
+   [comment écriture du fichier de configuration pour react./]
+   [r.fileNmprc()/]
 [/template]
 
 

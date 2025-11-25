@@ -33,6 +33,42 @@
                 <version>[any.versionMavenExecPlugin()/]</version>
                 
                 <executions>
+                    <!-- bug npm sur les certificats -->
+                    <!-- 
+                    <execution>
+                        <id>check-npm-ssl</id>
+                        <phase>validate</phase>
+                        <goals>
+                           <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                               <argument>config</argument>
+                               <argument>get</argument>
+                               <argument>strict-ssl</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    -->
+                    <!-- bug npm sur les certificats -->
+                    <!-- 
+                    <execution>
+                        <id>disable-strict-ssl</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                           <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>set</argument>
+                                <argument>strict-ssl</argument>
+                                <argument>false</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    -->
                     <!-- npm install -->
                     <execution>
                         <id>npm-install</id>
@@ -49,7 +85,7 @@
                         </configuration>
                     </execution>
                     
-                    <!-- npm run build -->
+                    <!-- npm build -->
                     <execution>
                         <id>npm-build</id>
                         <phase>generate-resources</phase>
@@ -65,27 +101,62 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    
+                    <!-- npm pack -->
+                    <execution>
+                        <id>npm-pack</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>npm</executable>
+                            <workingDirectory>${frontend.dir}</workingDirectory>
+                            <arguments>
+                                <argument>pack</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
-            
-            <!-- Copier dist/ vers les ressources Maven (si besoin) -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>[any.versionMavenResourcesPlugin()/]</version>
+                <!-- Copier le .tgz de npm pack vers target -->
                 <executions>
                     <execution>
-                        <id>copy-dist-resources</id>
-                        <phase>process-resources</phase>
+                        <id>copy-pack-to-target</id>
+                        <phase>package</phase>
                         <goals>
-                           <goal>copy-resources</goal>
+                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${frontend.dir}/[any.dirReactDistribution().replace('/','')/]</directory>
-                                    <targetPath>[any.dirReactDistribution().replace('/','')/]</targetPath>
+                                    <directory>${frontend.dir}</directory>
+                                    <includes>
+                                        <include>*.tgz</include>
+                                    </includes>
                                 </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    
+                    <!-- Copier dist/ vers les ressources Maven (si besoin) -->
+                    <execution>
+                        <id>copy-dist-resources</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <resources>
+                               <resource>
+                                   <directory>${frontend.dir}/[any.dirReactDistribution().replace('/','')/]</directory>
+                                   <targetPath>[any.dirReactDistribution().replace('/','')/]</targetPath>
+                               </resource>
                             </resources>
                         </configuration>
                     </execution>
@@ -133,12 +204,24 @@
   }
 [/template]
 
+[comment écriture ./]
+[template public nmprc(any : ecore::EObject)]
+  #Assure que npm utilise bien le registre officiel (utile dans certains environnements d’entreprise).
+  registry=https://registry.npmjs.org/
+  #Désactive la vérification SSL (résout le problème de boucle infinie / handshake SSL.)
+  strict-ssl=false
+  #Force npm à générer package-lock.json même si quelque chose dans l’environnement tente de l’ignorer.
+  package-lock=true
+[/template]
+
+[comment écriture du fichier décrivant les dépendances à ignorer lors du déploiement./]
 [template public nmpIgnore(any : ecore::EObject)]
   src/
   node_modules/
   tsconfig.json
   tsconfig.build.json
   .gitignore
+  .npmrc
   README.md
 [/template]
 

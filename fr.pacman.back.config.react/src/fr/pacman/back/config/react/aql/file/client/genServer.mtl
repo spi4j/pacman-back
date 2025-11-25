@@ -37,6 +37,13 @@
 [/template]
 
 [comment écriture du fichier de configuration pour react./]
+[template public fileNmprc(any : ecore::EObject)]
+  [file ('.npmrc'.toFile(any.nameProject().toLower(), ''), overwrite, any.defaultFileEncoding())]
+    [any.nmprc()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de configuration pour react./]
 [template public fileConfigBuildJson(any : ecore::EObject)]
   [file ('tsconfig.build'.toFileJson(null), overwrite, any.defaultFileEncoding())]
     [any.tsConfigBuild()/]
