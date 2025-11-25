@@ -6,6 +6,7 @@
 - 04/06/2025 : Ajouts : Coffre fort, Héritage, Relations, Règles de gestion, Transactions.
 - 01/09/2025 : Modifications : Validation, Installation, Introduction, Structure générale du sommaire.
 - 01/09/2025 : Ajouts : Création d'un projet client, Génération d'un projet client.
+- 24/11/2025 : Ajouts : Création d'un projet client React, Génération d'un projet client React.
 ---
 
 ## 🚀 Introduction
@@ -212,14 +213,6 @@ Il s'agit ici de l'ensemble des autres options qui permettent de prendre les dé
   <img src="images/pcm-new-project-4.png" alt="Nouveau projet pacman" width="500">
 </div>
 
-Pour une demande de projet de type "**appel de services externes**" (création d'une librairie Java pour appeler un fournisseur services externes à partir d'un fichier Swagger), sélectionner la valeur "*Appel de services externes de type Rest*" au niveau de la rubrique "*Type*" sur le premier panneau du wizard de création. 
-
-<div align="center">
-  <img src="images/pcm-new-project-5.png" alt="Nouveau projet pacman" width="500">
-</div>
-
-❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "**Base de données**" et "**Autres**". En effet ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  
-
 ❗ Bien noter que le contrôle de la saisie est effectué en temps réel et que le bouton "*Finish*" ne sera pas activé tant que la saisie utilisateur n'aura pas passé l'ensemble des contrôles de cohérence. Il est donc important de toujours vérifier le message informatif en haut du formulaire afin de vérifier ce qui manque ou n'est pas conforme au niveau de la saisie.
 
 Une fois la validation du formulaire effectuée en cliquant sur le bouton "*Finish*",  des vues vont être automatiquement activées (si certaines ne le sont pas déjà) au niveau de l'IDE. 
@@ -235,7 +228,42 @@ Il s'agit des vues suivantes :
 
 ❗ Selon l'état de l'IDE (juste ouvert, développeur ayant déjà travaillé dessus, etc...), il se peut que la création initiale du projet prenne un peu de temps, l'IDE ayant besoin de charger de nombreuses ressources pour travailler. Suivre les différentes étapes de la création à l'aide de la vue de progression des tâches qui est automatiquement mise en avant. 
 
-### Fichiers Générés
+### Cas projet fournisseur
+
+Rien de particulier à ajouter pour ce chapître, il s'agit de la configuration par défaut pour le wizard de création.
+
+### Cas projet client (SpringBoot) 
+
+Pour une demande de projet de type "**appel de services externes**" (création d'une librairie Java pour appeler un fournisseur services externes à partir d'un fichier Swagger), sélectionner la valeur "*Appel de services externes de type Rest*" au niveau de la rubrique "*Type*" sur le premier panneau du wizard de création. 
+
+<div align="center">
+  <img src="images/pcm-new-project-5.png" alt="Nouveau projet pacman" width="500">
+</div>
+
+❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "**Base de données**" et "**Autres**". En effet ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  
+
+
+### Cas projet client (React)
+
+Pour une demande de projet de type "**appel de services externes**" (création d'une librairie React pour appeler un fournisseur services externes à partir d'une modélisation ), sélectionner la valeur "*Appel de services externes de type Rest*" au niveau de la rubrique "*Type*" sur le premier panneau du wizard de création. 
+
+Puis sélectionner la valeur "*React*" au niveau de la rubrique "*Framework*" sur le premier panneau du wizard de création. 
+
+<div align="center">
+  <img src="images/pcm-new-project-5.png" alt="Nouveau projet pacman" width="500">
+</div>
+
+❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "**Base de données**", "**Autres**" et de plus, la boîte de sélection de la version Java est aussi désactivée puisqu'il ne s'agit pas ici d'un projet Java. Comme vu précédemment, ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  
+
+<div align="center">
+  <img src="images/pcm-new-project-7.png" alt="Nouveau projet pacman" width="500">
+</div>
+
+❗ Il faut bien distinguer ici la différence entre la création d'un client React et celle d'un client SpringBoot (en dehors de la question du language). Le client SpringBoot est pour l'instant créé afin d'appeler une librairie d'un fournisseur externe, on part donc un fichier Swagger pour obtenir la modalisation. Le client React quant à lui est utilisé pour appeler une librairie interne (au sens ou le backend a été précédemment créé avec **Pacman**). 
+
+En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n’est pas possible de s’appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s’appuyer directement sur le fichier de modélisation. C’est ce modèle qui constitue la source de vérité et qui permet d’identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.
+
+## 📝 Fichiers Générés
 
 Par la suite dans ce document le projet d'exemple sera appelé simplement "demo" (qu'il s'agisse d'un projet de type **fournisseur** de services ou consommateur (**client**) de services). 
 
@@ -249,7 +277,7 @@ Ces balises ont été positionnées à des endroits considérés comme stratégi
 
 ❗ Toutes les classes de haut niveau sont générées avec le nom de l'application en préfixe, cela permet de mieux les distinguer des autres classes issues de la modélisation utilisateur.
 
-#### 📁 Cas fournisseur 
+### 📁 Cas projet fournisseur 
 
 Il est créé avec les options suivantes : 
 
@@ -389,7 +417,7 @@ Par défaut, relativement peu de code au niveau du fichier Maven (*pom.xml*), ju
     </configuration>
  </plugin>
 ```
-#### 📁 Cas client 
+### 📁 Cas projet client (SpringBoot)
 
 La structure créée est la suivante : 
 
@@ -411,7 +439,9 @@ Au niveau du répertoire ***/pacman-properties*** les deux fichiers de paramètr
 •️ ***[package racine].app*** : package racine pour la couche applicative, contient par défaut les classes de haut niveau pour le bon fonctionnement des appels REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité. Ces classes étant peu nombreuses il est ici possible de les lister : 
 
  - ***[Nom de l'application]WebClientConfigImpl*** : Classe de configuration pour le client. Elle permet  notamment de gérer l'écriture des logs lorsque la librairie est en phase de test. 
+ 
  - ***[Nom de l'application]WebClientHelper*** : Classe "principale" de la librairie, elle contient l'ensemble des couches techniques qui permettent d'écrire de manière "simple et lisible" les différents services d'appel qui seront modélisés au niveau du fichier "**.soa**".
+ 
  - ***[Nom de l'application]WebClientUtil*** : Classe utilitaire permettant de transformer simplement des tableaux associatifs (Maps) de type "*String, Object*" en tables de type "*String, String*"
 
 • ***/src/main/resources*** : contient le fichier de configuration SpringBoot pour l'application.
@@ -420,9 +450,29 @@ Par défaut, relativement peu de code au niveau du fichier Maven (*pom.xml*), ju
 
 ❗ Il est à noter que la notion de "circuit-breaker" n'est pas prise en compte au niveau du projet de type "**client**". En effet, l'objectif de ce type de projet étant de simplement fournir une librairie qui va premettre d'interroger un fournisseur et non pas d'en préciser les modalités d'appel. C'est donc au niveau du projet qui va encapsuler cette librairie d'implémenter ou non cette notion.
 
+### 📁 Cas projet client (React)
+
+La structure créée est la suivante : 
+
+<img src="images/pcm-react-new-project-arbo-1.png" alt="Nouveau projet pacman" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 170px;">
+<img src="images/pcm-react-new-project-arbo-2.png" alt="Nouveau projet pacman" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 180px;">
+<img src="images/pcm-react-new-project-arbo-3.png" alt="Nouveau projet pacman" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 150px;">
+
+➤ Le projet "***demo***" (comme dans le cas d'un projet de type fournisseur) n'a que pour seul et unique but de servir de projet parent pour l'ensemble des autres projets Maven. Il a donc uniquement un fichier *pom.xml* auquel se réfèrent tous les autres *pom.xml* des projets fils.
+
+➤ Le projet "***demo-model***" qui contient la couche de modélisation. Par défaut, le projet ne contient (au niveau des fichiers de modélisation) que le fichier de stockage des représentations ***representation.aird***, puisque le projet est destiné à récupérer la modélisation à partir d'un projet fournisseur.
+  
+Au niveau du répertoire ***/pacman-properties*** les deux fichiers de paramètrage sont toujours présents.  
+
+❗ Il est très important ici de noter que l'ensemble des projets générés sont des projets de type Maven. Cela est du à la structure même des générateurs **Pacman** qui à la base, sont des générateurs pour des projets de type Java. Cependant, à l'inverse des précédents projets vu précédemment, il est à préciser que les projets ici créés ne sont pas des projets avec la nature Java. 
+
+De même, si les fichiers de propriétés sont créés à la base pour des projets Java, il est encore une fois à préciser que seules, ici, quelques propriétés sont utilisés pour la génération des projets. Il ne faut donc pas s'étonner de la présence de certaines propriétés liées exclusivement à Java. Ces fichiers doivent obligatoirement être conservés pour le bon fonctionnement des générateurs.
+
+➤ Le projet "***demo-server***" dans lequel par défaut, un seul répertoire est créé, il s'agit du répertoire avec le nom du projet (équivalent du "*/src/main/java*"). Ce répertoire sert de base (racine) pour l'ensemble de la génération, il va contenir l'ensemble des fichiers de configuration générés à la création du projet ainsi que l'ensemble des sources pour les objets métier et les différents services.
+
 ## 📝 Fichiers de configuration
 ---
-### 📁 Cas fournisseur
+### 📁 Cas projet fournisseur
 
 #### application.properties
 
@@ -650,7 +700,7 @@ logging.level.org.hibernate.SQL=DEBUG
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
 logging.level.org.hibernate.orm.jdbc.bind=TRACE
 ```
-### 📁 Cas client
+### 📁 Cas projet client (SpringBoot)
 
 #### application.properties
 
@@ -673,11 +723,128 @@ spring.profiles.active=dev
 
 Quand on parle ici de validité, cela concerne en fait la profondeur de l'URL. Par exemple pour l'api utilisée dans le cadre de ce document (TheTVDB) l'URL fournie par défaut est la suivante : https://api4.thetvdb.com/v4. Or, pour **Pacman**, elle devrait être uniquement https://api4.thetvdb.com car la notion de version est gérée au niveau des services (plus fin) et non pas au niveau global. 
 
-Ceci n'est pas detectable automatiquement.
+Ceci n'est pas détectable automatiquement.
+
+### 📁 Cas projet client (React)
+
+❗  Dans le cadre des projets générés par Pacman, le fichier *package-lock.json* ne joue pas un rôle fonctionnel essentiel, puisque Pacman écrit lui-même les dépendances avec des versions figées dans le *package.json* (devDependencies, peerDependencies, etc.). Le rôle normal d’un *package-lock.json* est d’assurer une installation strictement reproductible des dépendances, en enregistrant les versions exactes réellement installées. Mais ici, comme les dépendances sont déjà imposées et contrôlées par Pacman, ce fichier ne sert pas à figer des choix du développeur — il ne fait que refléter l'état final de l'installation. 
+
+Il reste néanmoins utile pour garantir que deux installations successives (ou deux postes différents) utiliseront exactement la même arborescence npm, évitant ainsi les légères variations possibles dans la résolution interne de npm, même lorsque les versions sont verrouillées. En bref : ce n’est pas indispensable pour Pacman, mais cela renforce la reproductibilité et évite les comportements imprévisibles de npm. Il reste toujours possible de le désactiver en mettant la propriété à "false" au niveau du fichier *.npmrc*.
+
+#### .npmignore 
+
+Ce fichier permet d’indiquer à npm quels fichiers ne doivent pas être inclus lorsque le package est publié sur le registre npm. Par défaut le code de ce fichier est le suivant : 
+```ignore
+src/
+node_modules/
+tsconfig.json
+tsconfig.build.json
+.gitignore
+.npmrc
+README.md
+```
+
+#### .npmrc
+
+Fichier de configuration utilisé par npm pour définir le comportement du gestionnaire de paquets. Il permet de personnaliser des paramètres tels que le registre utilisé pour télécharger les packages, la gestion du SSL, le chemin du cache, la création du *package-lock.json*, l’authentification, ou encore des options réseau. On peut placer un *.npmrc* à plusieurs niveaux (global, utilisateur, projet), et npm combine ces fichiers pour déterminer la configuration finale. Dans un projet, le *.npmrc* local sert généralement à s’assurer que tous les développeurs utilisent les mêmes réglages pour installer ou publier des paquets.
+
+La ligne *registry=https://registry.npmjs.org/* indique l’URL du registre npm à utiliser pour récupérer les packages. *strict-ssl=false* désactive la vérification stricte SSL, utile pour contourner certains problèmes de certificats. Enfin, *package-lock=true* force la création d’un fichier *package-lock.json* pour verrouiller les versions exactes des dépendances installées, garantissant ainsi des builds reproductibles.
+```ini
+registry=https://registry.npmjs.org/
+strict-ssl=false
+package-lock=true
+```
+
+❗  Lorsque npm exécute une commande comme npm install, il contacte le registre officiel (https://registry.npmjs.org/) via une connexion HTTPS sécurisée. Sur certains environnements — notamment Windows avec des proxys d’entreprise, des antivirus, ou des serveurs vieillissants — il peut y avoir un problème de validation SSL : certificats expirés, certificats auto-signés, ou chaîne de confiance incomplète. Dans ce cas, npm bloque ou tourne indéfiniment, incapable d’établir une connexion sécurisée. 
+
+Une solution consiste à configurer npm pour assouplir cette vérification, par exemple en ajoutant dans le fichier .npmrc : strict-ssl=false. Cela permet à npm de continuer à fonctionner malgré les certificats problématiques, en attendant une configuration réseau correcte ou une mise à jour des certificats du poste ou du proxy. Cette option doit toutefois être vue comme un contournement, pas une solution définitive.
+
+#### package.json
+
+Ce fichier est le cœur d’un projet npm. Il décrit le nom, la version, les scripts, les dépendances, la licence, et les métadonnées du package. Il définit aussi les fichiers inclus dans le package publié (via "files"), les dépendances au runtime (dependencies), les dépendances pour le développement (devDependencies), ainsi que les peer dependencies si le package doit s’intégrer dans un écosystème particulier (comme React). C’est également ce fichier que npm install lit pour savoir quoi installer.
+
+Ce fichier définit donc précisément comment fonctionne la librairie générée : il indique son point d’entrée JavaScript (main), son point d’entrée pour TypeScript (types), et précise que le projet utilise les modules ECMAScript (type: "module"). La section "*files*" restreint la publication au seul dossier dist, garantissant que seules les sources compilées sont embarquées dans le package final. Les scripts "*clean*", "*build*" et "*pack*" automatisent respectivement la suppression des artefacts, la compilation TypeScript et la génération du package .tgz. Les peerDependencies déclarent des bibliothèques nécessaires mais non incluses — comme axios, utilisé par défaut dans les clients REST générés par **Pacman** tandis que les devDependencies rassemblent les outils utiles uniquement lors du build (TypeScript, rimraf, etc.).
+
+```json
+{
+  "name": "[Nom de l'application]",
+  "version": "[1.0.0]",
+  "description": "Librairie TypeScript fournissant des services REST et des models métier",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc -p tsconfig.build.json",
+    "pack": "npm pack"
+  },
+  "peerDependencies": {
+    "axios": "^1.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "axios": "^1.7.0",
+    "rimraf": "^5.0.0"
+  },
+  "keywords": [                    
+    "typescript",
+    "react",
+    "services",
+    "models",
+    "library"
+  ],
+  "license": "MIT"
+}
+```
+
+#### tsconfig.build.json
+
+Ce fichier est une variante de configuration TypeScript utilisée spécifiquement pour la compilation de build. Il complète ou étend un *tsconfig.json* principal et contient notamment les options de compilation pour produire le code final (outDir, module, target, etc.), les chemins ou patterns des fichiers à inclure/exclure, les réglages utilisés uniquement pour générer la version distribuée (dist/). Il sépare les options "de build" des options utilisées pour le développement (tests, IDE, tooling), ce qui permet un contrôle plus propre et plus fin de la compilation.
+
+Utilisée exclusivement pour la phase de build, il surcharge certaines options afin de produire les artefacts destinés à la distribution : génération des fichiers JavaScript dans le répertoire dist, création des fichiers de déclaration TypeScript (.d.ts), et désactivation des sourcemaps pour alléger le package final. Il ne compile que le répertoire src, sans inclure d’autres fichiers potentiellement présents dans le projet. 
+```json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": false
+  },
+  "include": ["src"]
+}
+```
+
+#### tsconfig.json
+
+Le fichier de configuration principal de TypeScript. Il indique au compilateur quels fichiers inclure, comment les analyser, et comment générer le JavaScript final. 
+
+On indique donc la cible JavaScript à générer (ES2020), le système de modules utilisé (ESNext), et active le support JSX pour React. Il impose également une résolution de modules compatible Node, active les règles strictes de compilation, et facilite l’interopérabilité avec les modules CommonJS (esModuleInterop). Des optimisations comme skipLibCheck accélèrent la compilation en évitant l’analyse des fichiers de définition externes. Enfin, baseUrl positionné sur *./src* simplifie les imports internes, et la section include précise que seuls les fichiers du dossier src doivent être pris en compte par le compilateur TypeScript.
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./src"
+  },
+  "include": ["src"]
+}
+
+```
 
 ## 📦 Gestion des imports 
 
-Lors de chaque génération, ISD effectue en fin de cycle une passe sur l'ensemble des classes java afin d'effectuer une organisation automatique des imports. Il est par ailleur à rappeler que cette phase peut être évitée en positionnant la variable **project.debug.enabled** à la valeur '**true**'. ce qui permet de vérifier l'ensemble des imports qui ont été générés. 
+Pour les projets Java, lors de chaque génération, ISD effectue en fin de cycle une passe sur l'ensemble des classes java afin d'effectuer une organisation automatique des imports. Il est par ailleur à rappeler que cette phase peut être évitée en positionnant la variable **project.debug.enabled** à la valeur '**true**'. ce qui permet de vérifier l'ensemble des imports qui ont été générés. 
 
 ```properties
   # Flag indiquant si la generation pour le projet fonctionne en mode debug (non par defaut)
@@ -693,7 +860,7 @@ La politique de **Pacman**  concernant les imports est la suivante :
 
 ❗  Il est donc (encore une fois) normal que la majorité des classes soient en erreur si la génération est lancée avec le debbugage activé et ce dernier ne sert pratiquement qu'a cela : vérifier la bonne génération de l'ensemble des classes à importer par la classe en cours de génération. 
 
-## 📁 Cas fournisseur
+## 📁 Cas projet fournisseur
 
 ### 🛢 Génération de la persistance
 ---
@@ -3204,7 +3371,7 @@ public class GestionAppelsExternesExternalProviderImpl implements GestionAppelsE
 ```
 Le paramètrage du nombre de tentatives d'appel, du délai entre chaque appel, etc.. est disponible au niveau du fichier de configuration de l'application : "***application.properties***".
 
-### Exemple de modélisation avancée
+#### Exemple de modélisation avancée
 
 Voici à titre d'exemple, une modélisation pour la couche de persistance qui permet de visualiser rapidement l'ensemble des possibilités disponibles, on ne s'interesse ici qu'a l'entité principale afin principalement de montrer les différentes relations générées. 
 
@@ -3532,7 +3699,7 @@ public boolean equals(Object obj) {
 		&& Objects.equals(this.xuuid, personneDetail.xuuid);
 }
 ```
-## ✔️ Validation de la modélisation
+### ✔️ Validation de la modélisation
 ---
 Bien que vu précédemment, un chapitre est toutefois consacré exclusivement à ce "générateur". Comme précité, la validation de la modélisation est automatiquement lancée avant chaque demande de génération pour la couche de persistance, la couche de service ou encore la création des scripts SQL.
 
@@ -3568,12 +3735,94 @@ Comme indiqué, ce message signifie que la représentation n'existe pas (elle n'
 
 • Il est aussi possible de lancer directement la vérification du modèle qui se soldera obligatoirement par l'affichage d'une fenêtre indiquant soit la présence d'erreur(s) de modélisation, soit la bonne prise en compte du modèle.
 
-## 📦 Déploiement de l'application
----
+### 📦 Déploiement de l'application
 
-Ce paragraphe sera complété prochainement.
+Pour déployer l'application, ouvrir une fenêtre de commande (cmd ou power shell, etc...) et se positionner à la racine du projet (un **dir** (ou **ls-al**) doit renvoyer l'ensemble des sous-projets). 
 
-## 📁 Cas client
+```bash
+07/11/2025  15:00    <DIR>          .
+07/11/2025  15:00    <DIR>          ..
+07/11/2025  15:00               384 .project
+07/11/2025  15:00    <DIR>          .settings
+07/11/2025  15:00    <DIR>          demo-domain
+07/11/2025  15:00    <DIR>          demo-model
+07/11/2025  15:00    <DIR>          demo-server
+07/11/2025  15:00             7 514 pom.xml
+               2 fichier(s)            7 898 octets
+               6 Rép(s)  350 891 282 432 octets libres
+```
+Puis tapper simplement la commande : 
+
+```bash
+mvn clean install 
+```
+Une fois le processus de compilation effectué, l'utilisateur doit alors avoir un récapitulatif du type : 
+```bash
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for cali 0.0.1-SNAPSHOT:
+[INFO]
+[INFO] cali ............................................... SUCCESS [  1.221 s]
+[INFO] demo-domain ........................................ SUCCESS [ 11.353 s]
+[INFO] demo-server ........................................ SUCCESS [  6.475 s]
+[INFO] demo-model ......................................... SUCCESS [  0.142 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  19.309 s
+[INFO] Finished at: 2025-11-07T15:03:39+01:00
+[INFO] ------------------------------------------------------------------------
+```
+
+Il est alors possible de récupérer l'executable au niveau du répertoire "*/target*" du sous-projet "*[nom de l'application]-server*". Dans le cas de notre application example, le fichier est appelé : **demo-server-0.0.1-SNAPSHOT.jar**. 
+
+Renommer le fichier si besoin, le positionner sur la machine de production et lancer l'application simplement avec la ligne de commande suivante (ne pas oublier que par défaut, le serveur est lancé sur le port 80, par ailleurs dans le cadre de ce document le profil est toujours sous "**dev**") : 
+
+```bash
+java -jar demo-server-0.0.1-SNAPSHOT.jar
+```
+
+Voici un extrait de ce qui doit être obtenu au niveau de la console : 
+
+```bash
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.1)
+
+2025-11-07 22:11:52 - fr.demo.DemoBootstrap - Starting DemoBootstrap using Java 21.0.1 with PID 17036
+(C:\Travail\runtime-EclipseApplication-back\demo\demo-server\target\demo-server-0.0.1-SNAPSHOT.jar started by
+patrice.garaud in C:\Travail\runtime-EclipseApplication-back\demo\demo-server\target)
+2025-11-07 22:11:52 - fr.demo.DemoBootstrap - The following 1 profile is active: "dev"
+2025-11-07 22:11:54 - o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories 
+2025-11-07 22:11:59 - o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded
+WebApplicationContext
+[.......]
+2025-11-07 22:11:59 - o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 89 ms
+2025-11-07 22:11:59 - o.s.b.a.e.web.EndpointLinksResolver - Exposing 2 endpoints beneath base path '/actuator'
+2025-11-07 22:11:59 - o.s.w.s.m.m.a.RequestMappingHandlerMapping - 1 mappings in 'requestMappingHandlerMapping'
+2025-11-07 22:11:59 - o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**,
+/swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2025-11-07 22:11:59 - o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute,
+0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2025-11-07 22:11:59 - o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path
+'/'
+2025-11-07 22:11:59 - fr.demo.DemoBootstrap - Started DemoBootstrap in 7.121 seconds (process running for
+7.66)
+```
+
+## 📁 Cas projet client 
+
+Deux possibilités de création de client sont offertes par **Pacman**. La création d'un client en SpringBoot et la création d'un client en React. Il faut bien distinguer la différence de positionnement entre ces deux frameworks car le processus de génération est complètement différent entre les deux languages.
+
+- Le client SpringBoot est à utiliser pour créer un client à partir d'une librairie externe (fournisseur externe avec fichier Swagger), c'est à dire d'une api non préalablement générée par la modélisation de **Pacman**. La librairie générée peux alors être utilisée, soit directement au niveau de l'api modélisée (service appelant un service), soit au niveau d'un front Java.
+
+- Le client React, quant à lui, est à utiliser pour créer un client à partir d'une modélisation de type  "*serveur*" par **Pacman** (un fichier de modélisation de type "**.soa"**). Il est à intégrer dans un front qui a été lui  même été modélisé par le générateur **Pacman** (voir le générateur pacman-front).
+
+## 📁 Cas projet client (SpringBoot)
 
 ### WebClient
 
@@ -3587,9 +3836,7 @@ WebClient est aujourd’hui l’outil recommandé pour les appels REST dans Spri
 
 Le fichier Swagger est à récupérer auprès du fournisseur externe de service, il est au format *Json* ou *Yaml* (**Pacman** accepte les deux formats) et à positionner sur le disque dans un répertoire au choix du développeur. Il est toutefois conseillé de le stocker au niveau du projet de modélisation afin de centraliser toutes les informations au niveau du projet. 
 
-### Génération du client 
-
-#### Modélisation
+### Modélisation
 
 Pour modéliser l'ensemble des services, dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des services ***[nom de l'application].soa***, développer l'arborescence du fichier et se positionner dans l'arbre au niveau de l'élément *Components*. Par un clique droit, faire apparaitre le menu de génération *Is Designer/Import Swagger*.
 
@@ -3627,7 +3874,7 @@ Cependant une métadonnée ***@JSON_NAME*** permet aussi d'indiquer au générat
 
 Si la problématique se situe au niveau des paramètres en entrée du service, il suffit alors simplement de modifier la modélisation puisque la modification ne sera prise en compte qu'au niveau local pour la compilation.
 
-#### Génération
+### Génération
 
 Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation du métier ***[nom de l'application].soa*** et par un clique droit, faire apparaitre le menu de génération **Pacman** (*Générateurs Cali/Génération du client pour les services*). 
 
@@ -3786,7 +4033,7 @@ void getGetSearchResultsTest() {
   
 Très simplement on constate la présence de l'ensemble des paramètres en entrée. Il suffit alors de compléter les paramètres avec les valeurs demandées. La requête est prête pour les tests.
   
-#### Tests
+### Tests
 
 Comme tout test de type "****JUnit**" il suffit simplement au développeur pour vérifier le bon fonctionnement de la requête, de se positionner au niveau de la méthode (opération), de la classe ou encore du/des package(s) et d'effectuer un click droit pour lancer le(s) test(s) Junit. 
 
@@ -3911,6 +4158,189 @@ Body (JSON sous forme de table):
         etc...
 ```
 
+### Déploiement
+
+[A traiter]
+
+## 📁 Cas projet client (React)
+
+### Axios
+
+Axios est une bibliothèque JavaScript et TypeScript qui permet de réaliser facilement des requêtes HTTP depuis le navigateur ou Node.js. Elle simplifie l’envoi et la réception de données, notamment au format JSON, et offre des fonctionnalités avancées comme la gestion des en-têtes, des paramètres de requête, des délais d’attente, et l’annulation de requêtes. 
+
+Axios supporte les promesses, ce qui permet d’écrire un code asynchrone clair et lisible, et propose des intercepteurs pour transformer ou traiter les requêtes et réponses avant leur utilisation. Elle est particulièrement appréciée dans les projets TypeScript pour sa simplicité d’usage et sa compatibilité à la fois côté client et côté serveur (si full React).
+
+Dans le cadre des générateurs **Pacman**, Axios est incluse comme bibliothèque de base, ce qui permet aux projets générés de l’utiliser directement pour la communication avec des services REST sans configuration supplémentaire.
+
+### Modélisation
+
+Le plus propre au niveau de la modélisation est d'exporter le projet de modélisation fournisseur en tant que librairie afin de pouvoir ensuite l'importer au niveau du projet de modélisation client. Pour exporter le projet fournisseur, se positionner au niveau du projet de modélisation ***[Nom de l'application]-model*** et par click droit, sélectionner le menu "*Export*". 
+
+Dans la nouvelle fenêtre qui apparait, sélectionner le wizard "*Export modeling project as library*" .
+
+<div align="center">
+  <img src="images/pcm-react-model-export-1.png" alt="Export de projet de modélisation en librairie" width="500">
+</div>
+
+Après avoir cliqué sur le bouton "*Next*" sélectionner le projet de modélisation à exporter ainsi que le répertoire de sortie pour la création du fichier au format "*.mar*".
+<div align="center">
+  <img src="images/pcm-react-model-export-2.png" alt="Export de projet de modélisation en librairie" width="500">
+</div>
+
+Enfin, toujours après avoir cliqué sur le bouton "*Next*" renseigner le numéro de version pour la librairie et ajouter ou modifier les informations présentes sur la fenêtre si nécessaire. Enfin cliquer sur le bouton "*Finish*" pour enclancher la procédure d'export.
+<div align="center">
+  <img src="images/pcm-react-model-export-3.png" alt="Export de projet de modélisation en librairie" width="500">
+</div>
+
+Récupérer le fichier "*.mar*" en se positionnant au niveau du projet de modélisation client (***[Nom de l'application]-model***) et par click droit, sélectionner le menu "*Import*". De même, dans la nouvelle fenêtre qui apparait, sélectionner le wizard "*Export modeling project as library*", rechercher le fichier d'export au format "*.mar*" et l'importer dans le projet de modélisation client. Les différents fichiers de modélisation seront alors positionnés au niveau du répertoire "***[Nom du fichier '.mar']***", lui même situé dans un répertoire générique "***libraries***" automatiquement créé au niveau du projet de modélisation client. 
+
+Il est alors possible de lancer la génération du client.
+
+### Génération
+
+Se positionner au niveau du projet de modélisation ***[Nom de l'application]-model*** et sélectionner le fichier de modélisation "***.soa***" au niveau du répertoire "*/libraries/[Nom du fichier '.mar']*". 
+
+Enfin toujours par click droit, lancer la génération du client à l'aide du menu vu précédemment (comme pour la création d'un client SpringBoot) : "*Générateur Cali / Génération du client pour les services*".
+
+• ***[Nom de l'application]/src/api*** : Ce répertoire contient le fichier *apiClient.ts* qui sert de point central pour gérer toutes les communications HTTP entre l’application et les services REST. Il encapsule l’utilisation d’axios, en configurant l’URL de base, les en-têtes communs (comme l’authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L’objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l’application n’ait pas à se soucier des détails d’implémentation d’axios. 
+
+Dans le cadre des générateurs Pacman, ce fichier est généré automatiquement pour chaque projet, prêt à l’emploi, garantissant une cohérence et une simplification du code métier.
+
+Ce fichier contient par défaut le code suivant (exemple ici en fonction des paramètres modélisés): 
+```typescript
+import axios from "axios";
+
+/**
+ * Client HTTP centralisé utilisé par tous les services.
+ * La baseURL devra être fournie par l'application consommatrice
+ * via une variable d'environnement ou une configuration runtime.
+ */
+export const apiClient = axios.create({
+  baseURL: "http://localhost:8080/api", // pourra être surchargé
+  headers: {
+    "Content-Type": "application/json",
+  },
+```
+
+• ***[Nom de l'application]/src/models*** : Ce répertoire contient l'ensemble des objets métier qui vont être utilisés par les différents services modélisés.
+
+• ***[Nom de l'application]/src/services*** : Contient le code pour l'ensemble des services qui vont appeler le fournisseur de services **Rest**. Voici à titre indicatif un exemple de codage pour un service. 
+
+❗ Il est à noter que l'application étant une application de type React, elle est destinée à communiquer avec un frontal React. Il est donc nécessaire de se reporter plus particulièrement à la documentation concernant les générateurs **Pacman** pour le frontend, ceci afin de prendre connaissance du sujet (qui diffère de celui utilisé dans le cadre des projet Java) de modélisation. 
+
+```typescript
+import { apiClient } from "../api/apiClient";
+import { UserDemo } from "../models/UserDemo";
+
+export class Users {
+   /**
+    * Création d'un nouvel utilisateur.
+    * 
+    * @param userIn : L'utilisateur à créer.
+    *
+    * @return UserDemo : L'utilisateur avec son identifiant.
+    */
+   async setUser(userIn: UserDemo) : Promise<UserDemo> {
+      
+      const response = await apiClient.post(`/v0/users`, userIn);
+      return response.data;
+   }
+  
+   /**
+    * Retourne un utilisateur en fonction de son identifiant.
+    * 
+    * @param id : L'identifiant unique pour l'utilisateur.
+    *
+    * @return UserDemo : L'utilisateur retourné en fonction de son identifiant.
+    */
+   async getUser(id: string) : Promise<UserDemo> {
+      
+      const response = await apiClient.get(`/v0/users/{id}`);
+      return response.data;
+   }
+  
+}
+
+// On exporte une instance pour simplifier l’usage.
+export const users = new Users();
+```
+
+• ***[Nom de l'application]/src*** : Contient le fichier *index.ts* qui permet l'exportation de l'ensemble des objets utilisés par la future librairies client. Ce fichier agit comme point d’entrée principal du module ou de la librairie. Dans le cadre d’un client Axios, il exporte généralement toutes les fonctionnalités publiques du client API, par exemple l’instance préconfigurée d’Axios, les services spécifiques (ex. UserService, ProductService), ou des types associés. 
+
+L'objectif est de permettre aux autres parties de l'application d'importer simplement le client et ses services via une seule ligne, par exemple :
+
+```typescript
+import { apiClient, UserService } from 'demo-client';
+```
+
+Dans le cadre de l'exemple qui a été choisi pour l'application de démonstration concernant la modélisation et la génération d'un frontend de type React, le code de ce fichier est le suivant : 
+
+```typescript
+// Models.
+export * from "./models/UserDemo";
+export * from "./models/RequestDemo";
+
+// Services.
+export * from "./services/Users";
+export * from "./services/Requests";
+
+// API Client.
+export * from "./api/apiClient";
+
+```
+### Déploiement
+
+Même dans le cadre d’un projet React, le processus de déploiement passe par Maven afin de conserver une cohérence avec l’ensemble des projets gérés par **Pacman**. La différence principale réside dans l’artifact produit : au lieu de générer un *.jar* comme pour un projet Java backend, Maven exécute les scripts Node/NPM définis dans le projet pour construire et empaqueter l’application front-end. Cela permet d’intégrer le workflow front-end dans le pipeline Maven existant, de gérer les dépendances et la configuration de manière centralisée, tout en produisant un package NPM prêt à être déployé ou distribué.
+
+Quelques explications complémentaires au niveau du fichier *pom.xml" pour la partie ***[Nom de l'application]-server***
+```xml
+<!-- npm run build -->
+<execution>
+	<id>npm-build</id>
+	<phase>generate-resources</phase>
+	<goals>
+	    <goal>exec</goal>
+	</goals>
+    <configuration>
+        <executable>npm</executable>
+	    <workingDirectory>${frontend.dir}</workingDirectory>
+	    <arguments>
+	    	<argument>run</argument>
+	    	<argument>build</argument>
+	    </arguments>
+    </configuration>
+</execution>
+<!-- npm pack -->
+<execution>
+	<id>npm-pack</id>
+	<phase>package</phase>
+	<goals>
+	    <goal>exec</goal>
+	</goals>
+	<configuration>
+	     <executable>npm</executable>
+	     <workingDirectory>${frontend.dir}</workingDirectory>
+	     <arguments>
+	         <argument>pack</argument>
+	     </arguments>
+	</configuration>
+</execution>
+```
+cette partie chargée de pallier aux éventuels problématiques de communication SSL avec les serveurs NPM est placée par défaut en commentaire dans le fichier, libre au développeur de la supprimer à sa guise si la procédure de déploiement fonctionne correctement. En effet, pour l'instant elle fait double emploi avec le contenu du fichier *.rpmrc* mais est laissée à titre indicatif et pour mémo. 
+
+Pour créer le package NPM, se positionner en ligne de commande au niveau du projet ***[Nom de l'application]-server***. A la racine de ce projet doit exister le fichier *pom.xml* pour la partie "*-server*". Exécuter la commande suivante afin de lancer le processus de déploiement du projet client (ici il n'y a rien à déposer dans le repository local).
+
+```bash
+mvn clean package
+```
+
+Au niveau du répertoire "*/target*" pour le projet ***[Nom de l'application]-server***, il est maintenant possible de récupérer un fichier au format compressé. Ce fichier est sous la forme ***[Nom de l'application]-[Version].tgz*** et est exploitable directement avec les commandes NMP pour effectuer l'importation de la librairie dans un projet React frontend.
+
+Lorsque Pacman génère un package NPM sous forme de fichier ***[Nom de l'application]-[Version].tgz***, ce fichier peut être installé sans être publié sur le registry NPM. Cela permet de tester ou distribuer la librairie en local ou dans un environnement maîtrisé. Il suffit de se positionner en ligne de commande à la racine du projet frontend (c’est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : 
+```bash
+npm install [Chemin vers la librairie]/[Nom de l'application]-[Version].tgz
+```
+
 ## ❓ Problèmes Courants et Résolution
 ---
 • **Quand je relance une génération j'ai des erreurs au niveau de mes classes à cause de données manquantes dans les imports** : ceci est une problématique liée plus précisément à des modifications de modélisation suite à générations antérieures. 
@@ -3929,6 +4359,33 @@ Il peut arriver que, suite à une demande de génération (pour une raison encor
 
 • **Pour une génération client, il me manque la classe de gestion du jeton** : La demande de génération de la classe utilitaire pour la récupération du jeton d'authentification n'est pas basée uniquement sur le fait que l'api soit sécurisée, mais aussi sur la présence de l'annotation ***@AUTH_TOKEN*** au niveau de l'opération de gestion de jeton. Bien vérifier le positionnement de cette annotation au niveau de la modélisation des services.
 
+• **Pour un déploiement du client react, le processus se bloque et ne rend pas la main** : Ce comportement  est typique des problèmes réseau Windows + antivirus / proxy / SSL / npm. 
+
+Voici la liste des causes possibles et comment les éliminer une par une.
+
+- Même si *strict-ssl=false* est dans le fichier *.npmrc*, npm peut continuer à essayer SSL si un autre *.npmrc* dans la hiérarchie l’écrase.
+
+- *npm install* se fige très souvent si l'antivirus inspecte les flux https. Désactiver temporairement la protection web (pas l'antivirus entier, juste le module web/détection https). 
+
+  Lancer la commande (au niveau du projet server, dans le répertoire source de react) : 
+  ```bash
+  npm install 
+  ```
+  Si cela fonctionne, l'antivirus est en cause.
+
+- Cache npm corrompu (courant sur Windows) : Réparer le cache à l'aide des commandes : 
+  ```bash
+  npm cache verify
+  npm cache clean --force
+  ```
+  
+  Si besoin le supprimer physiquement :
+
+  ```bash
+  %USERPROFILE%\AppData\Local\npm-cache
+  ```
+  
+- Problème avec IPv6 : Désactiver IPv6 dans Windows.
 ## 📎 Annexes
 ---
 • Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que **Pacman** est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclu).
