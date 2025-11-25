@@ -4336,10 +4336,45 @@ mvn clean package
 
 Au niveau du répertoire "*/target*" pour le projet ***[Nom de l'application]-server***, il est maintenant possible de récupérer un fichier au format compressé. Ce fichier est sous la forme ***[Nom de l'application]-[Version].tgz*** et est exploitable directement avec les commandes NMP pour effectuer l'importation de la librairie dans un projet React frontend.
 
-Lorsque Pacman génère un package NPM sous forme de fichier ***[Nom de l'application]-[Version].tgz***, ce fichier peut être installé sans être publié sur le registry NPM. Cela permet de tester ou distribuer la librairie en local ou dans un environnement maîtrisé. Il suffit de se positionner en ligne de commande à la racine du projet frontend (c’est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : 
+Lorsque Pacman génère un package NPM sous forme de fichier ***[Nom de l'application]-[Version].tgz***, ce fichier peut être installé sans être publié sur le registry NPM. Cela permet de tester ou distribuer la librairie en local ou dans un environnement maîtrisé. 
+
+Il suffit de se positionner en ligne de commande à la racine du projet frontend (c’est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : 
 ```bash
 npm install [Chemin vers la librairie]/[Nom de l'application]-[Version].tgz
 ```
+
+Par exemple : 
+
+• Sur le projet frontend, créer un répertoire "*/lib*" à la racine du projet, soit au niveau du répertoire ***[Nom de l'application]-server/[Nom de l'application]***
+
+• Copier la librairie "*.tgz*" du répertoire */target* dans le répertoire nouvellement créé */lib*
+
+• Se positionner à la racine du projet frontend, au niveau du répertoire ***[Nom de l'application]-server/[Nom de l'application]***
+
+• Lancer un éditeur de commandes et tapper la commande : 
+```bash
+npm install ./[Nom de la librairie].tgz
+```
+
+En retour (hormis les problématiques de vulnérabilité qui sont indépendantes de la génération **Pacman**) le développeur doit avoir les messages suivants : 
+
+```bash
+up to date, audited 227 packages in 1s
+
+55 packages are looking for funding
+  run `npm fund` for details
+
+2 moderate severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+```
+
+Enfin il est possible de vérifier la bonne prise en compte de la librairie au niveau du fichier *package.json* dans lequel une nouvelle dépendance qui pointe vers le fichier "*.tgz*" a été ajoutée.
+
+Il est maintenant possible d'importer les ressources (voir le fichier *index.ts*) dans les différents fichiers "*.ts*" comme n'importe quelle autre ressource.
 
 ## ❓ Problèmes Courants et Résolution
 ---
