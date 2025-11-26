@@ -75,7 +75,7 @@ public class CommonNamingRule extends PropertiesCategory {
 	}
 	
 	public static String get_xtoSuffix() {
-		return PropertiesHandler.getProperty(c_idParam_suffixDto);
+		return PropertiesHandler.getProperty(c_idParam_suffixXto);
 	}
 
 	public static String get_xtoSuffix(Object object) {
