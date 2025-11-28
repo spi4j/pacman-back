@@ -26,7 +26,7 @@
   [for (s : soa::Service | m.eAllContents(soa::Service))]
   	[s.fileServiceImpl()/]
   [/for]
-  [comment écriture du helper pour les appels rest./]
+  [comment écriture du helper pour les appels rest (finalement difficile à surcharger)./]
   [m.fileTsApiClientImpl()/]
   [comment écriture du fichier de centralisation des exports./]
   [m.fileTsIndexImpl()/]

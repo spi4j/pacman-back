@@ -26,3 +26,6 @@
  
  [comment retourne le commentaire sous format javascript (à la base chaine créé pout java)./]
  [query public toJSComment(s: String) : String =  s.replaceAll('Optional<([^>]+)>','$1').toJSList()/]
+ 
+ [comment retourne l'URI au format javascript (avec $ pour interpolation des paramètres)./]
+ [query public toJSUri(s: String) : String = s.replaceAll('\\{','\\${')/]

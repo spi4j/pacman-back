@@ -251,7 +251,11 @@
       "outDir": "[any.dirReactDistribution().replace('/','')/]",
       "declaration": true,
       "declarationMap": false,
-      "sourceMap": false
+      "sourceMap": false,
+      "module": "ESNext",
+      "moduleResolution": "Bundler",
+      "verbatimModuleSyntax": false,
+      "declarationDir": "[any.dirReactDistribution().replace('/','')/]"
     },
     "include": ['['/]"[any.dirReactSources().replace('/','')/]"[']'/]
   }

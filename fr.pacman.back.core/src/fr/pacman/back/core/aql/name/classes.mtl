@@ -147,6 +147,9 @@
 [query public nameClassEntityAbs(any: ecore::EObject) : String = (any.nameProject() + ' entity').apply_classAbstract()/]
   
 [comment retourne le nom de la classe de démarrage pour une application Spring./]
+[query public nameClassAppCors(any : ecore::EObject) : String = (any.nameProject() + ' cors').apply_classDefault()/]
+  
+[comment retourne le nom de la classe de démarrage pour une application Spring./]
 [query public nameClassAppBootstrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBootstrap()).apply_classDefault()/]
 
 [comment retourne le nom de la classe pour la configuratio (définition) open api (swagger)./]

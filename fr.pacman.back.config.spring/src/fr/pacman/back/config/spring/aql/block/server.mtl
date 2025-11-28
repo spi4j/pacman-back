@@ -187,6 +187,34 @@
   </project>
 [/template]
 
+[comment écriture de la configuration cross-origin pour l'application./]
+[template public applicationCorsImpl(any : ecore::EObject)]
+  [any.classHeader(null)/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.web.servlet.config.annotation.CorsRegistry;
+    import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+    
+  [/protected]
+  
+  @Configuration
+  public class [any.nameClassAppCors()/] implements WebMvcConfigurer { 
+  
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+    
+    [protected ('cors'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      registry.addMapping("/**")
+          .allowedOrigins("http://localhost:5173", "http://localhost:8080")
+          .allowedMethods("*")
+          .allowedHeaders("*")
+          .allowCredentials(true);
+      }
+    [/protected]
+  }
+[/template]
+
 [comment écriture du bootstrap pour l'application./]
 [template public applicationBootstrapImpl(any : ecore::EObject)]
   [any.classHeader(null)/]
@@ -1061,9 +1089,9 @@
   # ----------------------------------------------------------------------------------------------
   # SWAGGER UI
   # ----------------------------------------------------------------------------------------------
-  # Documentation JSON ex: http://localhost:8080/v1/api-docs
+  # Documentation JSON ex: http://localhost:8081/v1/api-docs
   springdoc.api-docs.path=/api-docs
-  # Documentation Swagger (ihm) ex: http://localhost:8080/swagger-ui.html
+  # Documentation Swagger (ihm) ex: http://localhost:8081/swagger-ui.html
   springdoc.swagger-ui.path=/swagger-ui
   # Definition de l'ordre d'affichage des operations (endpoints) <alpha|method>
   springdoc.swagger-ui.operations-sorter=method
@@ -1080,7 +1108,7 @@
   # HTTP SERVER
   # ----------------------------------------------------------------------------------------------
   # Le port par defaut.
-  server.port=80
+  server.port=8081
   # Chemin de contexte
   server.servlet.context-path=/
   # Encodage

@@ -17,10 +17,15 @@
 [comment écriture d'un service rest./]
 [template public serviceImpl(s : soa::Service)]
   [s.commentClass()/]
+  import type { AxiosInstance } from "axios";
   import { apiClient } from "[s.nameDirConfigForService()/]/apiClient";
   [s.writeImports()/]
   
   export class [s.nameClassServiceImpl()/] {
+    
+    // Permet la surchage du client.
+    constructor(private apiClient: AxiosInstance = apiClient) {}
+    
     [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
       [if (o.isRsOperation())]
          [o.commentOperation().toJSComment()/]
@@ -35,7 +40,7 @@
   }
   
   // On exporte une instance pour simplifier l’usage.
-  export const [s.name().apply_variableDefault()/] = new [s.nameClassServiceImpl()/]();
+  export const [s.name().apply_variableDefault()/] = new [s.nameClassServiceImpl()/](apiClient);
 [/template]
 
 [comment écriture du fichier de référencement pour l'ensemble des services 
@@ -65,7 +70,7 @@
    * via une variable d'environnement ou une configuration runtime.
    */
   export const apiClient = axios.create({
-    baseURL: "http://localhost:8080/api", // pourra être surchargé
+    baseURL: "http://localhost:8081", // pourra être surchargé
     headers: {
       "Content-Type": "application/json",
     },
@@ -99,7 +104,7 @@
 [query public writeOperationUri( o : soa::Operation, s : soa::Service) : String =  o.verb.toString().toLower() 
   + '(`' +  ( + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then '/' 
   + 'v' + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif
-   + '/' + s.URI + '/' + o.URI).toUri() + '`' + o.writeRsInputsUri() + ');'/]
+  + '/' + s.URI + '/' + o.URI.toJSUri()).toUri() + '`' + o.writeRsInputsUri() + ');'/]
 
 [comment écriture des imports pour l'ensemble des dtos utilisés par le service. Ici on peut avoir l'impression de 
          "tourner en rond" car o2.type.name permet de récupérer le nom voulu, mais on préfère rentrer dans le giron 

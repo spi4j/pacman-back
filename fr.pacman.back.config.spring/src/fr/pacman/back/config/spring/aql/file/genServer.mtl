@@ -15,6 +15,13 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation pour la configuration cross-origin./]
+[template public fileApplicationCors(any : ecore::EObject)]
+  [file (any.nameClassAppCors().toFileJava(null), overwrite, any.defaultFileEncoding())]
+    [any.applicationCorsImpl()/]
+  [/file]
+[/template]
+
 [comment écriture du fichier d'implémentation pour le bootstrap de l'application./]
 [template public fileApplicationBootstrap(any : ecore::EObject)]
   [file (any.nameClassAppBootstrap().toFileJava(null), overwrite, any.defaultFileEncoding())]
