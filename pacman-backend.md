@@ -7,6 +7,7 @@
 - 01/09/2025 : Modifications : Validation, Installation, Introduction, Structure générale du sommaire.
 - 01/09/2025 : Ajouts : Création d'un projet client, Génération d'un projet client.
 - 24/11/2025 : Ajouts : Création d'un projet client React, Génération d'un projet client React.
+- 05/12/2025 : Ajouts : Relation (0,\*)/(1,\*) et objets métier.
 ---
 
 ## 🚀 Introduction
@@ -540,10 +541,12 @@ OpenAPI est une spécification standardisée pour décrire, documenter et consom
 
 Il est ici possible (entre autres), de définir l'URI pour l'interface de visualisation et d'interrogation de l'API développée. Le fichier JSON généré sera par défaut sous "***/api-docs***".
 
+❗ Par défaut, le port utilisé pour la fourniture de services Rest est le port 8081.
+ 
 ```properties
-# Documentation JSON ex: http://localhost:8080/v1/api-docs
+# Documentation JSON ex: http://localhost:8081/v1/api-docs
 springdoc.api-docs.path=/api-docs
-# Documentation Swagger (ihm) ex: http://localhost:8080/swagger-ui.html
+# Documentation Swagger (ihm) ex: http://localhost:8081/swagger-ui.html
 springdoc.swagger-ui.path=/swagger-ui
 # Definition de l'ordre d'affichage des operations (endpoints) <alpha|method>
 springdoc.swagger-ui.operations-sorter=method
@@ -556,8 +559,8 @@ springdoc.swagger-ui.tags-sorter=alpha
 
 - ***http://localhost:8080/actuator/health***
 - ***http://localhost:8080/actuator/info***
-- ***http://localhost/swagger-ui***
-- ***http://localhost/api-docs***
+- ***http://localhost:8081/swagger-ui***
+- ***http://localhost:8081/api-docs***
 
 ```properties
 # Ne pas oublier de reporter les modifications issues des rubriques precedentes 
@@ -675,6 +678,12 @@ spring.jpa.open-in-view=false
 ``` 
 La propriété essentielle pour la couche de persistance ! **Pacman** est un ensemble de générateurs destinés à la création de services REST. La notion de "*LAZYLOADING*" devrait donc être totalement absente dans les applications qui sont générées (hormis cas particuliers par la suite). Par ailleurs, le chargement par défaut pour les relations est toujours effectué en "*EAGER*" (sauf demande expresse au niveau de la modélisation). Il est donc totalement inutile et (à notre sens) deconseillé de positionner ce paramètre avec la valeur "*true*", ce qui laisserait ouverte la session JPA jusqu'a la couche applicative. La session devrait à priori être toujours fermée dès la requête initiale a été effectuée.
 
+```properties
+# Active la poulation automatique de la base avec des données faker.
+spring.populate.faker.enabled=false
+``` 
+Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services rest.
+
 #### tests.properties
 
 Ce fichier permet de configurer le framework SpringBoot pour le déroulement des tests d'intégration pour l'ensemble de la couche  d'infrastructure. A ce niveau, il s'agit juste de configurer une datasource, le paramétrage n'implique à priori pas de commentaire particulier hormis le fait que le paramètre "***spring.jpa.defer-datasource-initialization***" est commenté puisque la demande de création de la base de données n'est plus gérée par le cycle de vie de Spring mais est expressement demandée par programmation. Le paramètre est toutefois conservé pour mémoire.
@@ -699,7 +708,17 @@ spring.sql.init.mode=always
 logging.level.org.hibernate.SQL=DEBUG
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
 logging.level.org.hibernate.orm.jdbc.bind=TRACE
+
+# Active la poulation automatique de la base avec des données faker.
+spring.populate.faker.enabled=false
 ```
+
+Dans le cas des tests, il est nécessaire de toujours laisser désactivé le peuplement automatique de la base SQL avec des données issues de la librairie DataFaker. En effet, cela viendrait perturber l'initialisation de la base de données de plus bas niveau avec le lancement des scripts SQL d'initialisation. Il faut en effet, bien différencier : 
+
+• Les tests Junit avec un script d'initialisation qui est la uniquement pour mettre des données anonymisées.
+
+• Le peuplement de la base avec DataFaker qui se situe cette fois au niveau Java pour mettre des données utilisateur lisibles et compréhensibles pour le développeur.
+
 ### 📁 Cas projet client (SpringBoot)
 
 #### application.properties
@@ -1890,6 +1909,141 @@ C'est donc au développeur d'ajouter l'ensemble des attendus nécessaires pour c
 
 <img src="images/pcm-test-soa-2.png" alt="Tests d'intégration">
 
+### Génération du peuplement de la base 
+
+Dans la cas d'un projet fournisseur de services, il est possible de peupler automatiquement la base de données avec des informations de type "Random" mais cohérentes et lisibles pour le développeur. Cette fonctionnalité peut être utilisée pour : 
+
+- Le développement de projets de démonstration avec une base H2 embarquée.
+
+- Le développement d'un projet de type fronted appelant la librairie. Le développeur peut ainsi avoir des données à afficher dans ses écrans en cours de développement, sans pour autant avoir à installer une base de données externe et la peupler "à la main". 
+
+#### Génération
+
+Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des entités ***[nom de l'application].entity*** et par un clique droit, faire apparaitre le menu de génération **Pacman** (Générateurs Cali). 
+
+<div align="center">
+  <img src="images/pcm-gen-entity-4.png" alt="Génération population entity" width=600>
+</div>
+
+• ***[package racine].infra*** : En supplément de la classe abstraite pour l'ensemble des entités et des classes de gestion pour le côté transactionnel, une nouvelle classe **[Nom de l'application]DbPopulateImpl** est générée. Cette classe est activée au lancement du serveur si la propriété "**spring.populate.faker.enabled**" (au niveau du fichier de configuration **application.properties**) est activée avec la valeur "**true**".
+
+Pour chaque entité une méthode est créé, avec en paramètres les autres entités si l'objet traité est une grappe d'objets plus ou moins complexe. 
+
+```java
+PersonneEntityImpl personnePopulateWithFakeData(final DemarcheEntityImpl demarche) {
+	PersonneEntityImpl personne = new PersonneEntityImpl();
+
+	// Start of user code cf79eb27d3d3d239876f4f42e3789192
+
+	personne.setNom(faker.lorem().characters(5, 20));
+	personne.setPrenom(faker.lorem().characters(5, 20));
+	personne.setTel(faker.lorem().characters(5, 20));
+	personne.setMail(faker.lorem().characters(5, 20));
+	personne.setVille(faker.lorem().characters(5, 20));
+	personne.setCodePostal(faker.lorem().characters(5, 20));
+	personne.setLogin(faker.lorem().characters(5, 20));
+	personne.setAdresse(faker.lorem().characters(5, 20));
+	personne.setCivilite(faker.lorem().characters(5, 20));
+	personne.setDateNaissance(randomLocalDate(0));
+	personne.setMotPasse(faker.lorem().characters(5, 20));
+	personne.setSecteurPro(faker.lorem().characters(5, 20));
+	
+	// End of user code
+
+	return personne;
+}
+```
+
+❗ Il est important de noter ici que par défaut, seuls les attributs modélisés de l'entité sont générés. En effet, pour des raisons de complexité liées aux références potentiellement cycliques, ces dernières ne sont pour l'instant pas générées. C'est donc au développeur de finaliser les appels en fonction du besoin. De même, toujours par défaut (et pour les mêmes raisons), les instances des paramètres sont toujours initialisées à "**null**" au niveau de la méthode principale de la classe qui permet de lancer le traitement. 
+L'idée et le but de la génération sont au départ, d'avoir un code qui compile : 
+
+```java
+@PostConstruct
+public void populate() {
+   if (!populateEnabled)
+      return;
+
+   for (int i = 0; i < nbEntities; i++) {
+
+	// Start of user code f1399e649e5189a1b6ddbc2110423d17
+	PersonneEntityImpl personne = personneRepository.save(personnePopulateWithFakeData(null));
+	// End of user code
+
+	// Start of user code eff84bdefaf9cdc14ddeb8376157f2a4
+	DemarcheEntityImpl demarche = demarcheRepository.save(demarchePopulateWithFakeData(null));
+	// End of user code
+
+	// Start of user code e679aa86ca55b033b965ba72500dbe92
+	// End of user code
+   }
+}
+```
+
+Ainsi dans une relation (0,\*) entre une *personne* et ses démarches, une *personne* a une liste de démarches, et ( pour le bidirectionnel Hibernate ), une *démarche* porte sur instance de *personne*. 
+Il est possible d'enregistrer une personne sans démarche en laissant le code par défaut. 
+
+Puis on enregistre la démarche pour la personne nouvellement crée en modifiant le code de la manière suivante (au niveau de la méthode *populate()*) ...
+
+```java
+// Start of user code eff84bdefaf9cdc14ddeb8376157f2a4
+DemarcheEntityImpl demarche = demarcheRepository.save(demarchePopulateWithFakeData(personne));
+// End of user code
+```
+
+... et en rajoutant une ligne au niveau de la démarche : 
+
+```java
+DemarcheEntityImpl demarchePopulateWithFakeData(final personneEntityImpl personne) {
+   DemarcheEntityImpl demarche = new DemarcheEntityImpl();
+
+   // Start of user code 2b3517d11bcb1172ba92edf896aa109a
+
+   demarche.setType(faker.lorem().characters(5, 20));
+   demarche.setRaison(faker.lorem().characters(5, 20));
+   demarche.setIdentifiant(faker.lorem().characters(5, 20));
+   demarche.setStatut(faker.lorem().characters(5, 20));
+   
+   demarche.setPersonne_demarche(personne);     <- Ajout de la ligne.
+
+   // End of user code
+
+   return demarche;
+}
+```
+Enfin, paramétrer le nombre d'occurences à insérer dans la base de données en modifiant le code suivant :
+
+```java
+// Start of user code ccd1066343c95877b75b79d47c36bebe
+/** Nombre de lignes à créer dans la base de données. */
+private final int nbEntities = 10;
+// End of user code
+```
+
+Bien évidemment, tout l'intérêt de ce générateur (par rapport à un script SQL) est de pouvoir afficher facilement des données compréhensibles pour l'utilisateur, même en phase de développement. Il est donc nécessaire de modifier le code par défaut afin de coller au code métier. Pour cela se reporter aux fonctionnalités de la librairie DataFaker.
+
+Exemple d'utilisation : 
+
+```java
+personne.setNom(faker.name().lastName());
+personne.setPrenom(faker.name().firstName());
+personne.setTel(faker.phoneNumber().phoneNumber());
+personne.setMail(faker.internet().emailAddress());
+personne.setVille(faker.address().city());
+personne.setCodePostal(faker.address().zipCode());
+personne.setLogin(faker.internet().username());
+personne.setAdresse(faker.address().streetAddress());
+personne.setCivilite(faker.name().prefix()); // ex : Mr, Mrs, Mme
+personne.setDateNaissance(randomLocalDate(80)); // personne âgée de max 80 ans
+personne.setMotPasse(faker.internet().password());
+personne.setSecteurPro(faker.company().industry());
+```
+
+#### Tests
+
+- Bien vérifier que la variable "**spring.populate.faker.enabled**" est à la valeur "**true**".
+
+- Démarrer le serveur.
+
 ### ➕ Gestion des champs automatiques
 ---
 Il a été brièvement évoqué la notion de champs automatiques précédemment (au niveau de la modélisation des entités) mais l'objectif de ce paragraphe est d'entrer plus en profondeur dans la classe de gestion pour l'ensemble de ces champs. A chaque demande de génération de la couche de persistance, c'est la classe ***[package racine].infra.[nom de l'application]EntityAbs*** qui est recréée et qui centralise la gestion des champs automatiques. A chaque demande de génération pour la couche de service, c'est la classe ***[package racine].domain.entities.[nom de l'application]EntityAbs*** qui est recréée et qui centralise les attributs pour mise à disposition au niveau des différents objets métier.
@@ -2408,6 +2562,59 @@ private Set<BEntityImpl> relationB;
 ```
 ❗ On peut aussi noter que dans le cadre des relations bidirectionnelles *@ManyToMany*, **Pacman** utilise des *Set* et non des *List* pour le stockage des collections. Cela est préconisé avec JPA car un *Set* garantit l’unicité des éléments, ce qui est cohérent avec le modèle relationnel sous-jacent (en base de données, une table de jointure pour une relation *@ManyToMany* n’a pas de doublons.). En outre, JPA (notamment avec Hibernate) traite les *Set* de manière plus simple et plus performante. Enfin le *Set* n’a pas d’ordre, il correspond naturellement à ce que fait la base de données (pas d’ordre garanti dans une table de jointure).
 
+#### Relation (0,\*)/(1,\*) et objets métier 
+
+Dans un modèle de persistance tel qu’Hibernate/JPA, il est naturel de représenter les relations entre entités sous forme d’objets imbriqués : un objet A contient une liste de B, et chaque B contient une référence vers A. Ces relations bidirectionnelles sont utiles pour la navigation interne, la gestion de la cohérence, le cache et les fonctionnalités ORM. 
+
+Mais ce modèle n’est absolument pas adapté à être exposé tel quel dans les DTO/XTO utilisés par les API et  la couche de service. La raison principale est qu’un graphe bidirectionnel crée des cycles  que l’on peut supporter côté JPA, mais qui deviennent ingérables dès que l’on quitte le monde ORM.
+
+En effet, lorsque l’on construit des DTO, le rôle n’est plus de représenter des entités persistantes, mais de produire une structure de données stable, simple, prévisible et sérialisable. Les DTO doivent être "plats", orientés transport, sans comportement implicite ni navigation cyclique. 
+
+Si un DTO B contient un DTO A, qui lui-même contient une liste de DTO B, on produit alors immédiatement une boucle infinie : la sérialisation JSON part en récursion infinie, les mappers se ré-appellent indéfiniment et finissent en StackOverflowError, et les outils de documentation (OpenAPI, Swagger) refusent le modèle car il n’est pas acyclique.
+
+Les générateurs **Pacman** vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d’API plus explicite.   
+
+Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l’API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l’architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non récursive et optimisée pour l’échange de données.
+
+<img src="images/pcm-model-relation-2.png" alt="Relations">
+
+L'impact direct est le suivant : au niveau du mappeur DTO <-> Entity il est nécessaire de retransformer l'identifiant de l'entité A en instance de A (uniquement avec son identifiant, cela est suffisant pour Hibernate).
+
+```java
+public static BEntityImpl toEntity(final BDtoImpl dto) {
+
+   ...
+   
+   BEntityImpl entity = new BEntityImpl();
+   try {
+      entity.setB_id(dto.getB_id());
+      ....
+
+     // Référence inverse jpa.
+     ADtoImpl a = new ADtoImpl();
+     a.setA_id(dto.getA_id());
+     entity.setA_relationB(AMapper.toEntity(a));
+
+   } catch (Exception e) {
+      throw new Demo_dsfr_restMapperException("Impossible de mapper la classe : RequestDemoEntityImpl");
+   }
+   return entity;
+}
+```
+
+Les mappeurs DTO <-> XTO quant à eux ne font que copier l'identifiant de l'entité pour la "back reference" : 
+
+```java
+dto.setB_id(xto.getB_id());
+dto.setAttribute1(xto.getAttribute1());
+dto.setA_id(xto.getA_id());
+
+ou :
+
+xto.setB_id(dto.getB_id());
+xto.setAttribute1(dto.getAttribute1());
+xto.setA_id(dto.getA_id());
+```
 
 ### 🔧 Documentation Open Api
 ---
@@ -3982,7 +4189,7 @@ body.setPin("24GHG7LMN");
 // End of user code
 ```
   
-La manière dont l'utilisateur désire récupérer les données d'authentification sont laissées à son libre arbitre, il peut les mettre "en dur", dans un coffre fort électronique, dans le fichier *application.properties* externalisé, etc....
+La manière dont l'utilisateur désire récupérer les données d'authentification sont laissées à son libre arbitre, il peut les mettre "en dur", dans un coffre fort électronique, dans le fichier **application.properties** externalisé, etc....
   
 Et en retour : 
   

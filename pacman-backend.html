@@ -113,6 +113,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>04/06/2025 : Ajouts : Coffre fort, Héritage, Relations, Règles de gestion, Transactions.</li>
 <li>01/09/2025 : Modifications : Validation, Installation, Introduction, Structure générale du sommaire.</li>
 <li>01/09/2025 : Ajouts : Création d'un projet client, Génération d'un projet client.</li>
+<li>24/11/2025 : Ajouts : Création d'un projet client React, Génération d'un projet client React.</li>
+<li>05/12/2025 : Ajouts : Relation (0,*)/(1,*) et objets métier.</li>
 </ul>
 <hr/>
 <h2 id="introduction">🚀 Introduction</h2>
@@ -294,11 +296,6 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div align="center">
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-4.png" width="500"/>
 </div>
-<p>Pour une demande de projet de type "<strong>appel de services externes</strong>" (création d'une librairie Java pour appeler un fournisseur services externes à partir d'un fichier Swagger), sélectionner la valeur "<em>Appel de services externes de type Rest</em>" au niveau de la rubrique "<em>Type</em>" sur le premier panneau du wizard de création. </p>
-<div align="center">
-<img alt="Nouveau projet pacman" src="images/pcm-new-project-5.png" width="500"/>
-</div>
-<p>❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "<strong>Base de données</strong>" et "<strong>Autres</strong>". En effet ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  </p>
 <p>❗ Bien noter que le contrôle de la saisie est effectué en temps réel et que le bouton "<em>Finish</em>" ne sera pas activé tant que la saisie utilisateur n'aura pas passé l'ensemble des contrôles de cohérence. Il est donc important de toujours vérifier le message informatif en haut du formulaire afin de vérifier ce qui manque ou n'est pas conforme au niveau de la saisie.</p>
 <p>Une fois la validation du formulaire effectuée en cliquant sur le bouton "<em>Finish</em>",  des vues vont être automatiquement activées (si certaines ne le sont pas déjà) au niveau de l'IDE. 
 Il s'agit des vues suivantes : </p>
@@ -312,7 +309,27 @@ Il s'agit des vues suivantes : </p>
 <li><strong>Rapport de validation</strong> : La vue qui permet de visualiser et corriger les différentes erreurs de validation (si présentes).</li>
 </ul>
 <p>❗ Selon l'état de l'IDE (juste ouvert, développeur ayant déjà travaillé dessus, etc...), il se peut que la création initiale du projet prenne un peu de temps, l'IDE ayant besoin de charger de nombreuses ressources pour travailler. Suivre les différentes étapes de la création à l'aide de la vue de progression des tâches qui est automatiquement mise en avant. </p>
-<h3 id="fichiers-generes">Fichiers Générés</h3>
+<h3 id="cas-projet-fournisseur">Cas projet fournisseur</h3>
+<p>Rien de particulier à ajouter pour ce chapître, il s'agit de la configuration par défaut pour le wizard de création.</p>
+<h3 id="cas-projet-client-springboot">Cas projet client (SpringBoot)</h3>
+<p>Pour une demande de projet de type "<strong>appel de services externes</strong>" (création d'une librairie Java pour appeler un fournisseur services externes à partir d'un fichier Swagger), sélectionner la valeur "<em>Appel de services externes de type Rest</em>" au niveau de la rubrique "<em>Type</em>" sur le premier panneau du wizard de création. </p>
+<div align="center">
+<img alt="Nouveau projet pacman" src="images/pcm-new-project-5.png" width="500"/>
+</div>
+<p>❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "<strong>Base de données</strong>" et "<strong>Autres</strong>". En effet ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  </p>
+<h3 id="cas-projet-client-react">Cas projet client (React)</h3>
+<p>Pour une demande de projet de type "<strong>appel de services externes</strong>" (création d'une librairie React pour appeler un fournisseur services externes à partir d'une modélisation ), sélectionner la valeur "<em>Appel de services externes de type Rest</em>" au niveau de la rubrique "<em>Type</em>" sur le premier panneau du wizard de création. </p>
+<p>Puis sélectionner la valeur "<em>React</em>" au niveau de la rubrique "<em>Framework</em>" sur le premier panneau du wizard de création. </p>
+<div align="center">
+<img alt="Nouveau projet pacman" src="images/pcm-new-project-5.png" width="500"/>
+</div>
+<p>❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "<strong>Base de données</strong>", "<strong>Autres</strong>" et de plus, la boîte de sélection de la version Java est aussi désactivée puisqu'il ne s'agit pas ici d'un projet Java. Comme vu précédemment, ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  </p>
+<div align="center">
+<img alt="Nouveau projet pacman" src="images/pcm-new-project-7.png" width="500"/>
+</div>
+<p>❗ Il faut bien distinguer ici la différence entre la création d'un client React et celle d'un client SpringBoot (en dehors de la question du language). Le client SpringBoot est pour l'instant créé afin d'appeler une librairie d'un fournisseur externe, on part donc un fichier Swagger pour obtenir la modalisation. Le client React quant à lui est utilisé pour appeler une librairie interne (au sens ou le backend a été précédemment créé avec <strong>Pacman</strong>). </p>
+<p>En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n’est pas possible de s’appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s’appuyer directement sur le fichier de modélisation. C’est ce modèle qui constitue la source de vérité et qui permet d’identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.</p>
+<h2 id="fichiers-generes">📝 Fichiers Générés</h2>
 <p>Par la suite dans ce document le projet d'exemple sera appelé simplement "demo" (qu'il s'agisse d'un projet de type <strong>fournisseur</strong> de services ou consommateur (<strong>client</strong>) de services). </p>
 <p>❗ Dans tous les fichiers et classes générées, il est possible de trouver des balises de type "<em>user code</em>". Ces balises ressemblent à ceci : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code 56bcd4f8dd30c88089557e348b4165dc</span>
@@ -321,7 +338,7 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <p>Ces balises ont été positionnées à des endroits considérés comme stratégiques par le développeur du générateur, elles permettent par la suite de positionner du code personnalisé par le développeur de l'application cible sans que celui-ci soit par la suite, écrasé lors des prochaines demandes de génération. </p>
 <p>❗ Toutes les classes de haut niveau sont générées avec le nom de l'application en préfixe, cela permet de mieux les distinguer des autres classes issues de la modélisation utilisateur.</p>
-<h4 id="cas-fournisseur">📁 Cas fournisseur</h4>
+<h3 id="cas-projet-fournisseur_1">📁 Cas projet fournisseur</h3>
 <p>Il est créé avec les options suivantes : </p>
 <ul>
 <li>Base de données H2 uniquement.</li>
@@ -432,7 +449,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="nt">&lt;/configuration&gt;</span>
 <span class="w"> </span><span class="nt">&lt;/plugin&gt;</span>
 </code></pre></div>
-<h4 id="cas-client">📁 Cas client</h4>
+<h3 id="cas-projet-client-springboot_1">📁 Cas projet client (SpringBoot)</h3>
 <p>La structure créée est la suivante : </p>
 <p><img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-1.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 120px;"/>
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-arbo-2.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 200px;"/>
@@ -445,16 +462,33 @@ Il s'agit des vues suivantes : </p>
 <p>➤ Le projet "<strong><em>demo-server</em></strong>" qui contient l'ensemble des classes de haut niveau qui sont nécessaires pour l'écriture, le fonctionnement et les test des différents services client. Par défaut un seul package est généré : </p>
 <p>•️ <strong><em>[package racine].app</em></strong> : package racine pour la couche applicative, contient par défaut les classes de haut niveau pour le bon fonctionnement des appels REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité. Ces classes étant peu nombreuses il est ici possible de les lister : </p>
 <ul>
-<li><strong><em>[Nom de l'application]WebClientConfigImpl</em></strong> : Classe de configuration pour le client. Elle permet  notamment de gérer l'écriture des logs lorsque la librairie est en phase de test. </li>
-<li><strong><em>[Nom de l'application]WebClientHelper</em></strong> : Classe "principale" de la librairie, elle contient l'ensemble des couches techniques qui permettent d'écrire de manière "simple et lisible" les différents services d'appel qui seront modélisés au niveau du fichier "<strong>.soa</strong>".</li>
-<li><strong><em>[Nom de l'application]WebClientUtil</em></strong> : Classe utilitaire permettant de transformer simplement des tableaux associatifs (Maps) de type "<em>String, Object</em>" en tables de type "<em>String, String</em>"</li>
+<li>
+<p><strong><em>[Nom de l'application]WebClientConfigImpl</em></strong> : Classe de configuration pour le client. Elle permet  notamment de gérer l'écriture des logs lorsque la librairie est en phase de test. </p>
+</li>
+<li>
+<p><strong><em>[Nom de l'application]WebClientHelper</em></strong> : Classe "principale" de la librairie, elle contient l'ensemble des couches techniques qui permettent d'écrire de manière "simple et lisible" les différents services d'appel qui seront modélisés au niveau du fichier "<strong>.soa</strong>".</p>
+</li>
+<li>
+<p><strong><em>[Nom de l'application]WebClientUtil</em></strong> : Classe utilitaire permettant de transformer simplement des tableaux associatifs (Maps) de type "<em>String, Object</em>" en tables de type "<em>String, String</em>"</p>
+</li>
 </ul>
 <p>• <strong><em>/src/main/resources</em></strong> : contient le fichier de configuration SpringBoot pour l'application.</p>
 <p>Par défaut, relativement peu de code au niveau du fichier Maven (<em>pom.xml</em>), juste retenir que le projet à une dépendance vers la couche domaine (<strong><em>[nom de l'application]-domain</em></strong>).</p>
 <p>❗ Il est à noter que la notion de "circuit-breaker" n'est pas prise en compte au niveau du projet de type "<strong>client</strong>". En effet, l'objectif de ce type de projet étant de simplement fournir une librairie qui va premettre d'interroger un fournisseur et non pas d'en préciser les modalités d'appel. C'est donc au niveau du projet qui va encapsuler cette librairie d'implémenter ou non cette notion.</p>
+<h3 id="cas-projet-client-react_1">📁 Cas projet client (React)</h3>
+<p>La structure créée est la suivante : </p>
+<p><img alt="Nouveau projet pacman" src="images/pcm-react-new-project-arbo-1.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 170px;"/>
+<img alt="Nouveau projet pacman" src="images/pcm-react-new-project-arbo-2.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 180px;"/>
+<img alt="Nouveau projet pacman" src="images/pcm-react-new-project-arbo-3.png" style="display: inline-block; margin-right: 30px; vertical-align: top; width: 150px;"/></p>
+<p>➤ Le projet "<strong><em>demo</em></strong>" (comme dans le cas d'un projet de type fournisseur) n'a que pour seul et unique but de servir de projet parent pour l'ensemble des autres projets Maven. Il a donc uniquement un fichier <em>pom.xml</em> auquel se réfèrent tous les autres <em>pom.xml</em> des projets fils.</p>
+<p>➤ Le projet "<strong><em>demo-model</em></strong>" qui contient la couche de modélisation. Par défaut, le projet ne contient (au niveau des fichiers de modélisation) que le fichier de stockage des représentations <strong><em>representation.aird</em></strong>, puisque le projet est destiné à récupérer la modélisation à partir d'un projet fournisseur.</p>
+<p>Au niveau du répertoire <strong><em>/pacman-properties</em></strong> les deux fichiers de paramètrage sont toujours présents.  </p>
+<p>❗ Il est très important ici de noter que l'ensemble des projets générés sont des projets de type Maven. Cela est du à la structure même des générateurs <strong>Pacman</strong> qui à la base, sont des générateurs pour des projets de type Java. Cependant, à l'inverse des précédents projets vu précédemment, il est à préciser que les projets ici créés ne sont pas des projets avec la nature Java. </p>
+<p>De même, si les fichiers de propriétés sont créés à la base pour des projets Java, il est encore une fois à préciser que seules, ici, quelques propriétés sont utilisés pour la génération des projets. Il ne faut donc pas s'étonner de la présence de certaines propriétés liées exclusivement à Java. Ces fichiers doivent obligatoirement être conservés pour le bon fonctionnement des générateurs.</p>
+<p>➤ Le projet "<strong><em>demo-server</em></strong>" dans lequel par défaut, un seul répertoire est créé, il s'agit du répertoire avec le nom du projet (équivalent du "<em>/src/main/java</em>"). Ce répertoire sert de base (racine) pour l'ensemble de la génération, il va contenir l'ensemble des fichiers de configuration générés à la création du projet ainsi que l'ensemble des sources pour les objets métier et les différents services.</p>
 <h2 id="fichiers-de-configuration">📝 Fichiers de configuration</h2>
 <hr/>
-<h3 id="cas-fournisseur_1">📁 Cas fournisseur</h3>
+<h3 id="cas-projet-fournisseur_2">📁 Cas projet fournisseur</h3>
 <h4 id="applicationproperties">application.properties</h4>
 <p>Le fichier permet de configurer le framework SpringBoot. Il contient un ensemble de propriété par défaut, il est possible d'en rajouter et évidemment de les modifier à loisir. Il a été divisé en plusieurs sections qui sont respectivement : </p>
 <ul>
@@ -502,9 +536,10 @@ Il s'agit des vues suivantes : </p>
 <h4 id="open-api">Open Api</h4>
 <p>OpenAPI est une spécification standardisée pour décrire, documenter et consommer des API RESTful. Elle permet de définir de manière structurée les endpoints, les méthodes HTTP, les paramètres d'entrée, les réponses, et les modèles de données associés. OpenAPI facilite l'interopérabilité entre services, la génération automatique de documentation interactive, ainsi que le développement et les tests d'API en offrant un format lisible par machine (généralement en JSON ou YAML).</p>
 <p>Il est ici possible (entre autres), de définir l'URI pour l'interface de visualisation et d'interrogation de l'API développée. Le fichier JSON généré sera par défaut sous "<strong><em>/api-docs</em></strong>".</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Documentation JSON ex: http://localhost:8080/v1/api-docs</span>
+<p>❗ Par défaut, le port utilisé pour la fourniture de services Rest est le port 8081.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Documentation JSON ex: http://localhost:8081/v1/api-docs</span>
 <span class="na">springdoc.api-docs.path</span><span class="o">=</span><span class="s">/api-docs</span>
-<span class="c1"># Documentation Swagger (ihm) ex: http://localhost:8080/swagger-ui.html</span>
+<span class="c1"># Documentation Swagger (ihm) ex: http://localhost:8081/swagger-ui.html</span>
 <span class="na">springdoc.swagger-ui.path</span><span class="o">=</span><span class="s">/swagger-ui</span>
 <span class="c1"># Definition de l'ordre d'affichage des operations (endpoints) &lt;alpha|method&gt;</span>
 <span class="na">springdoc.swagger-ui.operations-sorter</span><span class="o">=</span><span class="s">method</span>
@@ -516,8 +551,8 @@ Il s'agit des vues suivantes : </p>
 <ul>
 <li><strong><em>http://localhost:8080/actuator/health</em></strong></li>
 <li><strong><em>http://localhost:8080/actuator/info</em></strong></li>
-<li><strong><em>http://localhost/swagger-ui</em></strong></li>
-<li><strong><em>http://localhost/api-docs</em></strong></li>
+<li><strong><em>http://localhost:8081/swagger-ui</em></strong></li>
+<li><strong><em>http://localhost:8081/api-docs</em></strong></li>
 </ul>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Ne pas oublier de reporter les modifications issues des rubriques precedentes </span>
 <span class="na">security.whitelist.paths</span><span class="o">=</span><span class="s">/swagger-ui/**,/api-docs/**,/actuator/**</span>
@@ -598,6 +633,10 @@ Il s'agit des vues suivantes : </p>
 <span class="na">spring.jpa.open-in-view</span><span class="o">=</span><span class="s">false</span>
 </code></pre></div>
 <p>La propriété essentielle pour la couche de persistance ! <strong>Pacman</strong> est un ensemble de générateurs destinés à la création de services REST. La notion de "<em>LAZYLOADING</em>" devrait donc être totalement absente dans les applications qui sont générées (hormis cas particuliers par la suite). Par ailleurs, le chargement par défaut pour les relations est toujours effectué en "<em>EAGER</em>" (sauf demande expresse au niveau de la modélisation). Il est donc totalement inutile et (à notre sens) deconseillé de positionner ce paramètre avec la valeur "<em>true</em>", ce qui laisserait ouverte la session JPA jusqu'a la couche applicative. La session devrait à priori être toujours fermée dès la requête initiale a été effectuée.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Active la poulation automatique de la base avec des données faker.</span>
+<span class="na">spring.populate.faker.enabled</span><span class="o">=</span><span class="s">false</span>
+</code></pre></div>
+<p>Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services rest.</p>
 <h4 id="testsproperties">tests.properties</h4>
 <p>Ce fichier permet de configurer le framework SpringBoot pour le déroulement des tests d'intégration pour l'ensemble de la couche  d'infrastructure. A ce niveau, il s'agit juste de configurer une datasource, le paramétrage n'implique à priori pas de commentaire particulier hormis le fait que le paramètre "<strong><em>spring.jpa.defer-datasource-initialization</em></strong>" est commenté puisque la demande de création de la base de données n'est plus gérée par le cycle de vie de Spring mais est expressement demandée par programmation. Le paramètre est toutefois conservé pour mémoire.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">## Base H2 embarquee par defaut.</span>
@@ -619,8 +658,14 @@ Il s'agit des vues suivantes : </p>
 <span class="na">logging.level.org.hibernate.SQL</span><span class="o">=</span><span class="s">DEBUG</span>
 <span class="na">logging.level.org.hibernate.type.descriptor.sql.BasicBinder</span><span class="o">=</span><span class="s">TRACE</span>
 <span class="na">logging.level.org.hibernate.orm.jdbc.bind</span><span class="o">=</span><span class="s">TRACE</span>
+
+<span class="c1"># Active la poulation automatique de la base avec des données faker.</span>
+<span class="na">spring.populate.faker.enabled</span><span class="o">=</span><span class="s">false</span>
 </code></pre></div>
-<h3 id="cas-client_1">📁 Cas client</h3>
+<p>Dans le cas des tests, il est nécessaire de toujours laisser désactivé le peuplement automatique de la base SQL avec des données issues de la librairie DataFaker. En effet, cela viendrait perturber l'initialisation de la base de données de plus bas niveau avec le lancement des scripts SQL d'initialisation. Il faut en effet, bien différencier : </p>
+<p>• Les tests Junit avec un script d'initialisation qui est la uniquement pour mettre des données anonymisées.</p>
+<p>• Le peuplement de la base avec DataFaker qui se situe cette fois au niveau Java pour mettre des données utilisateur lisibles et compréhensibles pour le développeur.</p>
+<h3 id="cas-projet-client-springboot_2">📁 Cas projet client (SpringBoot)</h3>
 <h4 id="applicationproperties_1">application.properties</h4>
 <p>Le fichier permet de configurer le framework SpringBoot. Il contient un ensemble de propriété par défaut, il est possible d'en rajouter et évidemment de les modifier à loisir. Dans le cas d'un projet de type "<strong>client</strong>", il contient par défaut très peu de propriétés. </p>
 <p>Ce fichier est le suivant : </p>
@@ -635,9 +680,100 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <p>❗ Bien noter que l'URL racine n'est jamais positionnée automatiquement par le générateur, c'est donc au développeur de l'insérer manuellement au niveau de ce fichier. Cela est lié au fait que <strong>Pacman</strong> ne peut pas connaitre la validité de l'URL qui a été donnée par un fournisseur externe. </p>
 <p>Quand on parle ici de validité, cela concerne en fait la profondeur de l'URL. Par exemple pour l'api utilisée dans le cadre de ce document (TheTVDB) l'URL fournie par défaut est la suivante : https://api4.thetvdb.com/v4. Or, pour <strong>Pacman</strong>, elle devrait être uniquement https://api4.thetvdb.com car la notion de version est gérée au niveau des services (plus fin) et non pas au niveau global. </p>
-<p>Ceci n'est pas detectable automatiquement.</p>
+<p>Ceci n'est pas détectable automatiquement.</p>
+<h3 id="cas-projet-client-react_2">📁 Cas projet client (React)</h3>
+<p>❗  Dans le cadre des projets générés par Pacman, le fichier <em>package-lock.json</em> ne joue pas un rôle fonctionnel essentiel, puisque Pacman écrit lui-même les dépendances avec des versions figées dans le <em>package.json</em> (devDependencies, peerDependencies, etc.). Le rôle normal d’un <em>package-lock.json</em> est d’assurer une installation strictement reproductible des dépendances, en enregistrant les versions exactes réellement installées. Mais ici, comme les dépendances sont déjà imposées et contrôlées par Pacman, ce fichier ne sert pas à figer des choix du développeur — il ne fait que refléter l'état final de l'installation. </p>
+<p>Il reste néanmoins utile pour garantir que deux installations successives (ou deux postes différents) utiliseront exactement la même arborescence npm, évitant ainsi les légères variations possibles dans la résolution interne de npm, même lorsque les versions sont verrouillées. En bref : ce n’est pas indispensable pour Pacman, mais cela renforce la reproductibilité et évite les comportements imprévisibles de npm. Il reste toujours possible de le désactiver en mettant la propriété à "false" au niveau du fichier <em>.npmrc</em>.</p>
+<h4 id="npmignore">.npmignore</h4>
+<p>Ce fichier permet d’indiquer à npm quels fichiers ne doivent pas être inclus lorsque le package est publié sur le registre npm. Par défaut le code de ce fichier est le suivant : </p>
+<div class="codehilite"><pre><span></span><code><span class="nf">src</span><span class="err">/</span>
+<span class="nf">node_modules</span><span class="err">/</span>
+<span class="nf">tsconfig.json</span>
+<span class="nf">tsconfig.build.json</span>
+<span class="na">.gitignore</span>
+<span class="na">.npmrc</span>
+<span class="nf">README.md</span>
+</code></pre></div>
+<h4 id="npmrc">.npmrc</h4>
+<p>Fichier de configuration utilisé par npm pour définir le comportement du gestionnaire de paquets. Il permet de personnaliser des paramètres tels que le registre utilisé pour télécharger les packages, la gestion du SSL, le chemin du cache, la création du <em>package-lock.json</em>, l’authentification, ou encore des options réseau. On peut placer un <em>.npmrc</em> à plusieurs niveaux (global, utilisateur, projet), et npm combine ces fichiers pour déterminer la configuration finale. Dans un projet, le <em>.npmrc</em> local sert généralement à s’assurer que tous les développeurs utilisent les mêmes réglages pour installer ou publier des paquets.</p>
+<p>La ligne <em>registry=https://registry.npmjs.org/</em> indique l’URL du registre npm à utiliser pour récupérer les packages. <em>strict-ssl=false</em> désactive la vérification stricte SSL, utile pour contourner certains problèmes de certificats. Enfin, <em>package-lock=true</em> force la création d’un fichier <em>package-lock.json</em> pour verrouiller les versions exactes des dépendances installées, garantissant ainsi des builds reproductibles.</p>
+<div class="codehilite"><pre><span></span><code><span class="na">registry</span><span class="o">=</span><span class="s">https://registry.npmjs.org/</span>
+<span class="na">strict-ssl</span><span class="o">=</span><span class="s">false</span>
+<span class="na">package-lock</span><span class="o">=</span><span class="s">true</span>
+</code></pre></div>
+<p>❗  Lorsque npm exécute une commande comme npm install, il contacte le registre officiel (https://registry.npmjs.org/) via une connexion HTTPS sécurisée. Sur certains environnements — notamment Windows avec des proxys d’entreprise, des antivirus, ou des serveurs vieillissants — il peut y avoir un problème de validation SSL : certificats expirés, certificats auto-signés, ou chaîne de confiance incomplète. Dans ce cas, npm bloque ou tourne indéfiniment, incapable d’établir une connexion sécurisée. </p>
+<p>Une solution consiste à configurer npm pour assouplir cette vérification, par exemple en ajoutant dans le fichier .npmrc : strict-ssl=false. Cela permet à npm de continuer à fonctionner malgré les certificats problématiques, en attendant une configuration réseau correcte ou une mise à jour des certificats du poste ou du proxy. Cette option doit toutefois être vue comme un contournement, pas une solution définitive.</p>
+<h4 id="packagejson">package.json</h4>
+<p>Ce fichier est le cœur d’un projet npm. Il décrit le nom, la version, les scripts, les dépendances, la licence, et les métadonnées du package. Il définit aussi les fichiers inclus dans le package publié (via "files"), les dépendances au runtime (dependencies), les dépendances pour le développement (devDependencies), ainsi que les peer dependencies si le package doit s’intégrer dans un écosystème particulier (comme React). C’est également ce fichier que npm install lit pour savoir quoi installer.</p>
+<p>Ce fichier définit donc précisément comment fonctionne la librairie générée : il indique son point d’entrée JavaScript (main), son point d’entrée pour TypeScript (types), et précise que le projet utilise les modules ECMAScript (type: "module"). La section "<em>files</em>" restreint la publication au seul dossier dist, garantissant que seules les sources compilées sont embarquées dans le package final. Les scripts "<em>clean</em>", "<em>build</em>" et "<em>pack</em>" automatisent respectivement la suppression des artefacts, la compilation TypeScript et la génération du package .tgz. Les peerDependencies déclarent des bibliothèques nécessaires mais non incluses — comme axios, utilisé par défaut dans les clients REST générés par <strong>Pacman</strong> tandis que les devDependencies rassemblent les outils utiles uniquement lors du build (TypeScript, rimraf, etc.).</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"[Nom de l'application]"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"[1.0.0]"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Librairie TypeScript fournissant des services REST et des models métier"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"main"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist/index.js"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"module"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist/index.js"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"types"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist/index.d.ts"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"module"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"files"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"dist"</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"clean"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rimraf dist"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"build"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tsc -p tsconfig.build.json"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"pack"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm pack"</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"peerDependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"axios"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.7.0"</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"devDependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"typescript"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5.6.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"axios"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.7.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"rimraf"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^5.0.0"</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"keywords"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">                    </span>
+<span class="w">    </span><span class="s2">"typescript"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"react"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"services"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"models"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"library"</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"license"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MIT"</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="tsconfigbuildjson">tsconfig.build.json</h4>
+<p>Ce fichier est une variante de configuration TypeScript utilisée spécifiquement pour la compilation de build. Il complète ou étend un <em>tsconfig.json</em> principal et contient notamment les options de compilation pour produire le code final (outDir, module, target, etc.), les chemins ou patterns des fichiers à inclure/exclure, les réglages utilisés uniquement pour générer la version distribuée (dist/). Il sépare les options "de build" des options utilisées pour le développement (tests, IDE, tooling), ce qui permet un contrôle plus propre et plus fin de la compilation.</p>
+<p>Utilisée exclusivement pour la phase de build, il surcharge certaines options afin de produire les artefacts destinés à la distribution : génération des fichiers JavaScript dans le répertoire dist, création des fichiers de déclaration TypeScript (.d.ts), et désactivation des sourcemaps pour alléger le package final. Il ne compile que le répertoire src, sans inclure d’autres fichiers potentiellement présents dans le projet. </p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"extends"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./tsconfig.json"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"compilerOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"outDir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"declaration"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"declarationMap"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"sourceMap"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"src"</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="tsconfigjson">tsconfig.json</h4>
+<p>Le fichier de configuration principal de TypeScript. Il indique au compilateur quels fichiers inclure, comment les analyser, et comment générer le JavaScript final. </p>
+<p>On indique donc la cible JavaScript à générer (ES2020), le système de modules utilisé (ESNext), et active le support JSX pour React. Il impose également une résolution de modules compatible Node, active les règles strictes de compilation, et facilite l’interopérabilité avec les modules CommonJS (esModuleInterop). Des optimisations comme skipLibCheck accélèrent la compilation en évitant l’analyse des fichiers de définition externes. Enfin, baseUrl positionné sur <em>./src</em> simplifie les imports internes, et la section include précise que seuls les fichiers du dossier src doivent être pris en compte par le compilateur TypeScript.</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"compilerOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"target"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES2020"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"module"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ESNext"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"jsx"</span><span class="p">:</span><span class="w"> </span><span class="s2">"react-jsx"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"moduleResolution"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"strict"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"esModuleInterop"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"skipLibCheck"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"forceConsistentCasingInFileNames"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"baseUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./src"</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"src"</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
 <h2 id="gestion-des-imports">📦 Gestion des imports</h2>
-<p>Lors de chaque génération, ISD effectue en fin de cycle une passe sur l'ensemble des classes java afin d'effectuer une organisation automatique des imports. Il est par ailleur à rappeler que cette phase peut être évitée en positionnant la variable <strong>project.debug.enabled</strong> à la valeur '<strong>true</strong>'. ce qui permet de vérifier l'ensemble des imports qui ont été générés. </p>
+<p>Pour les projets Java, lors de chaque génération, ISD effectue en fin de cycle une passe sur l'ensemble des classes java afin d'effectuer une organisation automatique des imports. Il est par ailleur à rappeler que cette phase peut être évitée en positionnant la variable <strong>project.debug.enabled</strong> à la valeur '<strong>true</strong>'. ce qui permet de vérifier l'ensemble des imports qui ont été générés. </p>
 <div class="codehilite"><pre><span></span><code><span class="w">  </span><span class="c1"># Flag indiquant si la generation pour le projet fonctionne en mode debug (non par defaut)</span>
 <span class="w">  </span><span class="na">project.debug.enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
 </code></pre></div>
@@ -654,7 +790,7 @@ Il s'agit des vues suivantes : </p>
 </li>
 </ul>
 <p>❗  Il est donc (encore une fois) normal que la majorité des classes soient en erreur si la génération est lancée avec le debbugage activé et ce dernier ne sert pratiquement qu'a cela : vérifier la bonne génération de l'ensemble des classes à importer par la classe en cours de génération. </p>
-<h2 id="cas-fournisseur_2">📁 Cas fournisseur</h2>
+<h2 id="cas-projet-fournisseur_3">📁 Cas projet fournisseur</h2>
 <h3 id="generation-de-la-persistance">🛢 Génération de la persistance</h3>
 <hr/>
 <p>Dans un premier temps l'objectif ici (et dans le cadre des deux prochains chapitres de premier niveau) n'est pas d'entrer dans toutes les subtilités de la modélisation et/ou de la génération associée mais de comprendre avec une première modélisation très simple, l'ensemble du fonctionnement et de voir les différentes classes générées par <strong>Pacman</strong> dans le cadre de l'architecture hexagonale. </p>
@@ -1509,6 +1645,123 @@ Il s'agit des vues suivantes : </p>
 <p><img alt="Tests d'intégration" src="images/pcm-test-soa-3.png"/></p>
 <p>C'est donc au développeur d'ajouter l'ensemble des attendus nécessaires pour compléter et consolider le test de base (si nécessaire). Une fois la couche de persistance complétée, les tests doivent êtres positifs.  </p>
 <p><img alt="Tests d'intégration" src="images/pcm-test-soa-2.png"/></p>
+<h3 id="generation-du-peuplement-de-la-base">Génération du peuplement de la base</h3>
+<p>Dans la cas d'un projet fournisseur de services, il est possible de peupler automatiquement la base de données avec des informations de type "Random" mais cohérentes et lisibles pour le développeur. Cette fonctionnalité peut être utilisée pour : </p>
+<ul>
+<li>
+<p>Le développement de projets de démonstration avec une base H2 embarquée.</p>
+</li>
+<li>
+<p>Le développement d'un projet de type fronted appelant la librairie. Le développeur peut ainsi avoir des données à afficher dans ses écrans en cours de développement, sans pour autant avoir à installer une base de données externe et la peupler "à la main". </p>
+</li>
+</ul>
+<h4 id="generation_3">Génération</h4>
+<p>Dans l'explorateur de modèles, aller au niveau du projet de modélisation <strong><em>[nom de l'application]-model</em></strong>, se positionner sur le fichier de modélisation des entités <strong><em>[nom de l'application].entity</em></strong> et par un clique droit, faire apparaitre le menu de génération <strong>Pacman</strong> (Générateurs Cali). </p>
+<div align="center">
+<img alt="Génération population entity" src="images/pcm-gen-entity-4.png" width="600"/>
+</div>
+<p>• <strong><em>[package racine].infra</em></strong> : En supplément de la classe abstraite pour l'ensemble des entités et des classes de gestion pour le côté transactionnel, une nouvelle classe <strong>[Nom de l'application]DbPopulateImpl</strong> est générée. Cette classe est activée au lancement du serveur si la propriété "<strong>spring.populate.faker.enabled</strong>" (au niveau du fichier de configuration <strong>application.properties</strong>) est activée avec la valeur "<strong>true</strong>".</p>
+<p>Pour chaque entité une méthode est créé, avec en paramètres les autres entités si l'objet traité est une grappe d'objets plus ou moins complexe. </p>
+<div class="codehilite"><pre><span></span><code><span class="n">PersonneEntityImpl</span><span class="w"> </span><span class="nf">personnePopulateWithFakeData</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">DemarcheEntityImpl</span><span class="w"> </span><span class="n">demarche</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">PersonneEntityImpl</span><span class="w"> </span><span class="n">personne</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PersonneEntityImpl</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Start of user code cf79eb27d3d3d239876f4f42e3789192</span>
+
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setNom</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setPrenom</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setTel</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setMail</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setVille</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setCodePostal</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setLogin</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setAdresse</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setCivilite</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setDateNaissance</span><span class="p">(</span><span class="n">randomLocalDate</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setMotPasse</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">    </span><span class="n">personne</span><span class="p">.</span><span class="na">setSecteurPro</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">personne</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>❗ Il est important de noter ici que par défaut, seuls les attributs modélisés de l'entité sont générés. En effet, pour des raisons de complexité liées aux références potentiellement cycliques, ces dernières ne sont pour l'instant pas générées. C'est donc au développeur de finaliser les appels en fonction du besoin. De même, toujours par défaut (et pour les mêmes raisons), les instances des paramètres sont toujours initialisées à "<strong>null</strong>" au niveau de la méthode principale de la classe qui permet de lancer le traitement. 
+L'idée et le but de la génération sont au départ, d'avoir un code qui compile : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@PostConstruct</span>
+<span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">populate</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">populateEnabled</span><span class="p">)</span>
+<span class="w">      </span><span class="k">return</span><span class="p">;</span>
+
+<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nbEntities</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// Start of user code f1399e649e5189a1b6ddbc2110423d17</span>
+<span class="w">    </span><span class="n">PersonneEntityImpl</span><span class="w"> </span><span class="n">personne</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">personneRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">personnePopulateWithFakeData</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="c1">// Start of user code eff84bdefaf9cdc14ddeb8376157f2a4</span>
+<span class="w">    </span><span class="n">DemarcheEntityImpl</span><span class="w"> </span><span class="n">demarche</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">demarcheRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">demarchePopulateWithFakeData</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="c1">// Start of user code e679aa86ca55b033b965ba72500dbe92</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Ainsi dans une relation (0,*) entre une <em>personne</em> et ses démarches, une <em>personne</em> a une liste de démarches, et ( pour le bidirectionnel Hibernate ), une <em>démarche</em> porte sur instance de <em>personne</em>. 
+Il est possible d'enregistrer une personne sans démarche en laissant le code par défaut. </p>
+<p>Puis on enregistre la démarche pour la personne nouvellement crée en modifiant le code de la manière suivante (au niveau de la méthode <em>populate()</em>) ...</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code eff84bdefaf9cdc14ddeb8376157f2a4</span>
+<span class="n">DemarcheEntityImpl</span><span class="w"> </span><span class="n">demarche</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">demarcheRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">demarchePopulateWithFakeData</span><span class="p">(</span><span class="n">personne</span><span class="p">));</span>
+<span class="c1">// End of user code</span>
+</code></pre></div>
+<p>... et en rajoutant une ligne au niveau de la démarche : </p>
+<div class="codehilite"><pre><span></span><code><span class="n">DemarcheEntityImpl</span><span class="w"> </span><span class="nf">demarchePopulateWithFakeData</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">personneEntityImpl</span><span class="w"> </span><span class="n">personne</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">DemarcheEntityImpl</span><span class="w"> </span><span class="n">demarche</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DemarcheEntityImpl</span><span class="p">();</span>
+
+<span class="w">   </span><span class="c1">// Start of user code 2b3517d11bcb1172ba92edf896aa109a</span>
+
+<span class="w">   </span><span class="n">demarche</span><span class="p">.</span><span class="na">setType</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">   </span><span class="n">demarche</span><span class="p">.</span><span class="na">setRaison</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">   </span><span class="n">demarche</span><span class="p">.</span><span class="na">setIdentifiant</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+<span class="w">   </span><span class="n">demarche</span><span class="p">.</span><span class="na">setStatut</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">lorem</span><span class="p">().</span><span class="na">characters</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">));</span>
+
+<span class="w">   </span><span class="n">demarche</span><span class="p">.</span><span class="na">setPersonne_demarche</span><span class="p">(</span><span class="n">personne</span><span class="p">);</span><span class="w">     </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">Ajout</span><span class="w"> </span><span class="n">de</span><span class="w"> </span><span class="n">la</span><span class="w"> </span><span class="n">ligne</span><span class="p">.</span>
+
+<span class="w">   </span><span class="c1">// End of user code</span>
+
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">demarche</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Enfin, paramétrer le nombre d'occurences à insérer dans la base de données en modifiant le code suivant :</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code ccd1066343c95877b75b79d47c36bebe</span>
+<span class="cm">/** Nombre de lignes à créer dans la base de données. */</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nbEntities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="c1">// End of user code</span>
+</code></pre></div>
+<p>Bien évidemment, tout l'intérêt de ce générateur (par rapport à un script SQL) est de pouvoir afficher facilement des données compréhensibles pour l'utilisateur, même en phase de développement. Il est donc nécessaire de modifier le code par défaut afin de coller au code métier. Pour cela se reporter aux fonctionnalités de la librairie DataFaker.</p>
+<p>Exemple d'utilisation : </p>
+<div class="codehilite"><pre><span></span><code><span class="n">personne</span><span class="p">.</span><span class="na">setNom</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">name</span><span class="p">().</span><span class="na">lastName</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setPrenom</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">name</span><span class="p">().</span><span class="na">firstName</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setTel</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">phoneNumber</span><span class="p">().</span><span class="na">phoneNumber</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setMail</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">internet</span><span class="p">().</span><span class="na">emailAddress</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setVille</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">address</span><span class="p">().</span><span class="na">city</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setCodePostal</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">address</span><span class="p">().</span><span class="na">zipCode</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setLogin</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">internet</span><span class="p">().</span><span class="na">username</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setAdresse</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">address</span><span class="p">().</span><span class="na">streetAddress</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setCivilite</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">name</span><span class="p">().</span><span class="na">prefix</span><span class="p">());</span><span class="w"> </span><span class="c1">// ex : Mr, Mrs, Mme</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setDateNaissance</span><span class="p">(</span><span class="n">randomLocalDate</span><span class="p">(</span><span class="mi">80</span><span class="p">));</span><span class="w"> </span><span class="c1">// personne âgée de max 80 ans</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setMotPasse</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">internet</span><span class="p">().</span><span class="na">password</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setSecteurPro</span><span class="p">(</span><span class="n">faker</span><span class="p">.</span><span class="na">company</span><span class="p">().</span><span class="na">industry</span><span class="p">());</span>
+</code></pre></div>
+<h4 id="tests_2">Tests</h4>
+<ul>
+<li>
+<p>Bien vérifier que la variable "<strong>spring.populate.faker.enabled</strong>" est à la valeur "<strong>true</strong>".</p>
+</li>
+<li>
+<p>Démarrer le serveur.</p>
+</li>
+</ul>
 <h3 id="gestion-des-champs-automatiques">➕ Gestion des champs automatiques</h3>
 <hr/>
 <p>Il a été brièvement évoqué la notion de champs automatiques précédemment (au niveau de la modélisation des entités) mais l'objectif de ce paragraphe est d'entrer plus en profondeur dans la classe de gestion pour l'ensemble de ces champs. A chaque demande de génération de la couche de persistance, c'est la classe <strong><em>[package racine].infra.[nom de l'application]EntityAbs</em></strong> qui est recréée et qui centralise la gestion des champs automatiques. A chaque demande de génération pour la couche de service, c'est la classe <strong><em>[package racine].domain.entities.[nom de l'application]EntityAbs</em></strong> qui est recréée et qui centralise les attributs pour mise à disposition au niveau des différents objets métier.</p>
@@ -1619,7 +1872,7 @@ Il s'agit des vues suivantes : </p>
 <div align="center">
 <img alt="Gestion de la sécurité" src="images/pcm-model-security-7.png"/>
 </div>
-<h4 id="generation_3">Génération</h4>
+<h4 id="generation_4">Génération</h4>
 <p>La demande de génération est de type "SOA", toutes les informations concernant la sécurisation des services REST sont donc analysés et générées au moment de la demande de génération pour la couche de service. Suite à la génération, le nouveau code pour la classe de configuration de la sécurité devient donc le suivant : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Bean</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">tokenFilterChain</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
@@ -1774,7 +2027,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <p>Spring Boot n'a pas nativement de système de décodage des jetons JWT, il convient donc d'utiliser celui qui est fourni par les ressources pour la gestion <em>OAuth2</em>. C'est pourquoi <em>OAuth2</em> sera toujours présent au niveau de la classe de configuration de la sécurité, même si la sécurité demandée est de type <em>Http</em> ou <em>ApiKey</em>.</p>
-<h4 id="tests_2">Tests</h4>
+<h4 id="tests_3">Tests</h4>
 <p>Il est alors possible d'effectuer de nouveaux test (avec Swagger UI par example) afin de vérifier que l'appel est désormait sécurisé et que toute tentative d'accès non authorisé se soldera par un code de type 401 ou 403.</p>
 <p>❗ Dans le cas de l'utilisation de l'interface Swagger UI, et d'une sécurité de type Oauth2, il est important de comprendre que les points de terminaison doivent être valides, ce qui signifie que le serveur d'authentification doit exister et être en état de fonctionnement. dans le cas contraire, le service ne sera pas considéré comme sécurisé et l'icône avec le cadena ne sera pas affichée.</p>
 <h3 id="generation-des-relations">🧩 Génération des relations</h3>
@@ -1894,6 +2147,46 @@ Il s'agit des vues suivantes : </p>
 <span class="kd">private</span><span class="w"> </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">BEntityImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">relationB</span><span class="p">;</span>
 </code></pre></div>
 <p>❗ On peut aussi noter que dans le cadre des relations bidirectionnelles <em>@ManyToMany</em>, <strong>Pacman</strong> utilise des <em>Set</em> et non des <em>List</em> pour le stockage des collections. Cela est préconisé avec JPA car un <em>Set</em> garantit l’unicité des éléments, ce qui est cohérent avec le modèle relationnel sous-jacent (en base de données, une table de jointure pour une relation <em>@ManyToMany</em> n’a pas de doublons.). En outre, JPA (notamment avec Hibernate) traite les <em>Set</em> de manière plus simple et plus performante. Enfin le <em>Set</em> n’a pas d’ordre, il correspond naturellement à ce que fait la base de données (pas d’ordre garanti dans une table de jointure).</p>
+<h4 id="relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</h4>
+<p>Dans un modèle de persistance tel qu’Hibernate/JPA, il est naturel de représenter les relations entre entités sous forme d’objets imbriqués : un objet A contient une liste de B, et chaque B contient une référence vers A. Ces relations bidirectionnelles sont utiles pour la navigation interne, la gestion de la cohérence, le cache et les fonctionnalités ORM. </p>
+<p>Mais ce modèle n’est absolument pas adapté à être exposé tel quel dans les DTO/XTO utilisés par les API et  la couche de service. La raison principale est qu’un graphe bidirectionnel crée des cycles  que l’on peut supporter côté JPA, mais qui deviennent ingérables dès que l’on quitte le monde ORM.</p>
+<p>En effet, lorsque l’on construit des DTO, le rôle n’est plus de représenter des entités persistantes, mais de produire une structure de données stable, simple, prévisible et sérialisable. Les DTO doivent être "plats", orientés transport, sans comportement implicite ni navigation cyclique. </p>
+<p>Si un DTO B contient un DTO A, qui lui-même contient une liste de DTO B, on produit alors immédiatement une boucle infinie : la sérialisation JSON part en récursion infinie, les mappers se ré-appellent indéfiniment et finissent en StackOverflowError, et les outils de documentation (OpenAPI, Swagger) refusent le modèle car il n’est pas acyclique.</p>
+<p>Les générateurs <strong>Pacman</strong> vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d’API plus explicite.   </p>
+<p>Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l’API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l’architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non récursive et optimisée pour l’échange de données.</p>
+<p><img alt="Relations" src="images/pcm-model-relation-2.png"/></p>
+<p>L'impact direct est le suivant : au niveau du mappeur DTO &lt;-&gt; Entity il est nécessaire de retransformer l'identifiant de l'entité A en instance de A (uniquement avec son identifiant, cela est suffisant pour Hibernate).</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">BEntityImpl</span><span class="w"> </span><span class="nf">toEntity</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">BDtoImpl</span><span class="w"> </span><span class="n">dto</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">   </span><span class="p">...</span>
+
+<span class="w">   </span><span class="n">BEntityImpl</span><span class="w"> </span><span class="n">entity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BEntityImpl</span><span class="p">();</span>
+<span class="w">   </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">entity</span><span class="p">.</span><span class="na">setB_id</span><span class="p">(</span><span class="n">dto</span><span class="p">.</span><span class="na">getB_id</span><span class="p">());</span>
+<span class="w">      </span><span class="p">....</span>
+
+<span class="w">     </span><span class="c1">// Référence inverse jpa.</span>
+<span class="w">     </span><span class="n">ADtoImpl</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ADtoImpl</span><span class="p">();</span>
+<span class="w">     </span><span class="n">a</span><span class="p">.</span><span class="na">setA_id</span><span class="p">(</span><span class="n">dto</span><span class="p">.</span><span class="na">getA_id</span><span class="p">());</span>
+<span class="w">     </span><span class="n">entity</span><span class="p">.</span><span class="na">setA_relationB</span><span class="p">(</span><span class="n">AMapper</span><span class="p">.</span><span class="na">toEntity</span><span class="p">(</span><span class="n">a</span><span class="p">));</span>
+
+<span class="w">   </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Demo_dsfr_restMapperException</span><span class="p">(</span><span class="s">"Impossible de mapper la classe : RequestDemoEntityImpl"</span><span class="p">);</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">entity</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Les mappeurs DTO &lt;-&gt; XTO quant à eux ne font que copier l'identifiant de l'entité pour la "back reference" : </p>
+<div class="codehilite"><pre><span></span><code><span class="n">dto</span><span class="p">.</span><span class="na">setB_id</span><span class="p">(</span><span class="n">xto</span><span class="p">.</span><span class="na">getB_id</span><span class="p">());</span>
+<span class="n">dto</span><span class="p">.</span><span class="na">setAttribute1</span><span class="p">(</span><span class="n">xto</span><span class="p">.</span><span class="na">getAttribute1</span><span class="p">());</span>
+<span class="n">dto</span><span class="p">.</span><span class="na">setA_id</span><span class="p">(</span><span class="n">xto</span><span class="p">.</span><span class="na">getA_id</span><span class="p">());</span>
+
+<span class="n">ou</span><span class="w"> </span><span class="p">:</span>
+
+<span class="n">xto</span><span class="p">.</span><span class="na">setB_id</span><span class="p">(</span><span class="n">dto</span><span class="p">.</span><span class="na">getB_id</span><span class="p">());</span>
+<span class="n">xto</span><span class="p">.</span><span class="na">setAttribute1</span><span class="p">(</span><span class="n">dto</span><span class="p">.</span><span class="na">getAttribute1</span><span class="p">());</span>
+<span class="n">xto</span><span class="p">.</span><span class="na">setA_id</span><span class="p">(</span><span class="n">dto</span><span class="p">.</span><span class="na">getA_id</span><span class="p">());</span>
+</code></pre></div>
 <h3 id="documentation-open-api">🔧 Documentation Open Api</h3>
 <hr/>
 <p>Lors de la génération de la couche de services, outre l'ensemble du code à éxécuter, la documentation Open Api est aussi créée automatiquement afin de pouvoir générer un fichier Swagger et être lue  (notamment) par l'interface "Swagger-ui". Cette documentation (par le biais d'annotations), est générée à trois niveaux :</p>
@@ -2774,7 +3067,7 @@ Il s'agit des vues suivantes : </p>
 <span class="p">}</span>
 </code></pre></div>
 <p>Le paramètrage du nombre de tentatives d'appel, du délai entre chaque appel, etc.. est disponible au niveau du fichier de configuration de l'application : "<strong><em>application.properties</em></strong>".</p>
-<h3 id="exemple-de-modelisation-avancee">Exemple de modélisation avancée</h3>
+<h4 id="exemple-de-modelisation-avancee">Exemple de modélisation avancée</h4>
 <p>Voici à titre d'exemple, une modélisation pour la couche de persistance qui permet de visualiser rapidement l'ensemble des possibilités disponibles, on ne s'interesse ici qu'a l'entité principale afin principalement de montrer les différentes relations générées. </p>
 <div align="center">
 <img alt="Entity manager" src="images/pcm-model-adv-entity-8.png"/>
@@ -3089,7 +3382,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">        </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">Objects</span><span class="p">.</span><span class="na">equals</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">xuuid</span><span class="p">,</span><span class="w"> </span><span class="n">personneDetail</span><span class="p">.</span><span class="na">xuuid</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div>
-<h2 id="validation-de-la-modelisation">✔️ Validation de la modélisation</h2>
+<h3 id="validation-de-la-modelisation">✔️ Validation de la modélisation</h3>
 <hr/>
 <p>Bien que vu précédemment, un chapitre est toutefois consacré exclusivement à ce "générateur". Comme précité, la validation de la modélisation est automatiquement lancée avant chaque demande de génération pour la couche de persistance, la couche de service ou encore la création des scripts SQL.</p>
 <p>• Si aucune erreur n'est détectée, le générateur est alors activé et la génération est effectuée.
@@ -3115,18 +3408,89 @@ Il s'agit des vues suivantes : </p>
 </div>
 <p>Comme indiqué, ce message signifie que la représentation n'existe pas (elle n'a pas encore été créée). Il est donc nécessaire pour l'utilisateur de créer manuellement ladite représentation, puis de sélectionner à nouveau la ligne incriminée. La représentation sera alors automatiquement chargée et l'élément du diagramme sera sélectionné. </p>
 <p>• Il est aussi possible de lancer directement la vérification du modèle qui se soldera obligatoirement par l'affichage d'une fenêtre indiquant soit la présence d'erreur(s) de modélisation, soit la bonne prise en compte du modèle.</p>
-<h2 id="deploiement-de-lapplication">📦 Déploiement de l'application</h2>
-<hr/>
-<p>Ce paragraphe sera complété prochainement.</p>
-<h2 id="cas-client_2">📁 Cas client</h2>
+<h3 id="deploiement-de-lapplication">📦 Déploiement de l'application</h3>
+<p>Pour déployer l'application, ouvrir une fenêtre de commande (cmd ou power shell, etc...) et se positionner à la racine du projet (un <strong>dir</strong> (ou <strong>ls-al</strong>) doit renvoyer l'ensemble des sous-projets). </p>
+<div class="codehilite"><pre><span></span><code><span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">    </span>&lt;DIR&gt;<span class="w">          </span>.
+<span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">    </span>&lt;DIR&gt;<span class="w">          </span>..
+<span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">               </span><span class="m">384</span><span class="w"> </span>.project
+<span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">    </span>&lt;DIR&gt;<span class="w">          </span>.settings
+<span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">    </span>&lt;DIR&gt;<span class="w">          </span>demo-domain
+<span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">    </span>&lt;DIR&gt;<span class="w">          </span>demo-model
+<span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">    </span>&lt;DIR&gt;<span class="w">          </span>demo-server
+<span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">             </span><span class="m">7</span><span class="w"> </span><span class="m">514</span><span class="w"> </span>pom.xml
+<span class="w">               </span><span class="m">2</span><span class="w"> </span>fichier<span class="o">(</span>s<span class="o">)</span><span class="w">            </span><span class="m">7</span><span class="w"> </span><span class="m">898</span><span class="w"> </span>octets
+<span class="w">               </span><span class="m">6</span><span class="w"> </span>Rép<span class="o">(</span>s<span class="o">)</span><span class="w">  </span><span class="m">350</span><span class="w"> </span><span class="m">891</span><span class="w"> </span><span class="m">282</span><span class="w"> </span><span class="m">432</span><span class="w"> </span>octets<span class="w"> </span>libres
+</code></pre></div>
+<p>Puis tapper simplement la commande : </p>
+<div class="codehilite"><pre><span></span><code>mvn<span class="w"> </span>clean<span class="w"> </span>install<span class="w"> </span>
+</code></pre></div>
+<p>Une fois le processus de compilation effectué, l'utilisateur doit alors avoir un récapitulatif du type : </p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>------------------------------------------------------------------------
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>Reactor<span class="w"> </span>Summary<span class="w"> </span><span class="k">for</span><span class="w"> </span>cali<span class="w"> </span><span class="m">0</span>.0.1-SNAPSHOT:
+<span class="o">[</span>INFO<span class="o">]</span>
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>cali<span class="w"> </span>...............................................<span class="w"> </span>SUCCESS<span class="w"> </span><span class="o">[</span><span class="w">  </span><span class="m">1</span>.221<span class="w"> </span>s<span class="o">]</span>
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>demo-domain<span class="w"> </span>........................................<span class="w"> </span>SUCCESS<span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="m">11</span>.353<span class="w"> </span>s<span class="o">]</span>
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>demo-server<span class="w"> </span>........................................<span class="w"> </span>SUCCESS<span class="w"> </span><span class="o">[</span><span class="w">  </span><span class="m">6</span>.475<span class="w"> </span>s<span class="o">]</span>
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>demo-model<span class="w"> </span>.........................................<span class="w"> </span>SUCCESS<span class="w"> </span><span class="o">[</span><span class="w">  </span><span class="m">0</span>.142<span class="w"> </span>s<span class="o">]</span>
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>------------------------------------------------------------------------
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>BUILD<span class="w"> </span>SUCCESS
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>------------------------------------------------------------------------
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>Total<span class="w"> </span>time:<span class="w">  </span><span class="m">19</span>.309<span class="w"> </span>s
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>Finished<span class="w"> </span>at:<span class="w"> </span><span class="m">2025</span>-11-07T15:03:39+01:00
+<span class="o">[</span>INFO<span class="o">]</span><span class="w"> </span>------------------------------------------------------------------------
+</code></pre></div>
+<p>Il est alors possible de récupérer l'executable au niveau du répertoire "<em>/target</em>" du sous-projet "<em>[nom de l'application]-server</em>". Dans le cas de notre application example, le fichier est appelé : <strong>demo-server-0.0.1-SNAPSHOT.jar</strong>. </p>
+<p>Renommer le fichier si besoin, le positionner sur la machine de production et lancer l'application simplement avec la ligne de commande suivante (ne pas oublier que par défaut, le serveur est lancé sur le port 80, par ailleurs dans le cadre de ce document le profil est toujours sous "<strong>dev</strong>") : </p>
+<div class="codehilite"><pre><span></span><code>java<span class="w"> </span>-jar<span class="w"> </span>demo-server-0.0.1-SNAPSHOT.jar
+</code></pre></div>
+<p>Voici un extrait de ce qui doit être obtenu au niveau de la console : </p>
+<div class="codehilite"><pre><span></span><code><span class="w">  </span>.<span class="w">   </span>____<span class="w">          </span>_<span class="w">            </span>__<span class="w"> </span>_<span class="w"> </span>_
+<span class="w"> </span>/<span class="se">\\</span><span class="w"> </span>/<span class="w"> </span>___<span class="s1">'_ __ _ _(_)_ __  __ _ \ \ \ \</span>
+<span class="s1">( ( )\___ | '</span>_<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="s1">'_| | '</span>_<span class="w"> </span><span class="se">\/</span><span class="w"> </span>_<span class="sb">`</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\ \ \ \</span>
+<span class="w"> </span><span class="se">\\</span>/<span class="w">  </span>___<span class="o">)</span><span class="p">|</span><span class="w"> </span><span class="p">|</span>_<span class="o">)</span><span class="p">|</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">(</span>_<span class="p">|</span><span class="w"> </span><span class="p">|</span><span class="w">  </span><span class="o">)</span><span class="w"> </span><span class="o">)</span><span class="w"> </span><span class="o">)</span><span class="w"> </span><span class="o">)</span>
+<span class="w">  </span><span class="s1">'  |____| .__|_| |_|_| |_\__, | / / / /</span>
+<span class="s1"> =========|_|==============|___/=/_/_/_/</span>
+
+<span class="s1"> :: Spring Boot ::                (v3.4.1)</span>
+
+<span class="s1">2025-11-07 22:11:52 - fr.demo.DemoBootstrap - Starting DemoBootstrap using Java 21.0.1 with PID 17036</span>
+<span class="s1">(C:\Travail\runtime-EclipseApplication-back\demo\demo-server\target\demo-server-0.0.1-SNAPSHOT.jar started by</span>
+<span class="s1">patrice.garaud in C:\Travail\runtime-EclipseApplication-back\demo\demo-server\target)</span>
+<span class="s1">2025-11-07 22:11:52 - fr.demo.DemoBootstrap - The following 1 profile is active: "dev"</span>
+<span class="s1">2025-11-07 22:11:54 - o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories </span>
+<span class="s1">2025-11-07 22:11:59 - o.a.c.c.C.[Tomcat-1].[localhost].[/] - Initializing Spring embedded</span>
+<span class="s1">WebApplicationContext</span>
+<span class="s1">[.......]</span>
+<span class="s1">2025-11-07 22:11:59 - o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 89 ms</span>
+<span class="s1">2025-11-07 22:11:59 - o.s.b.a.e.web.EndpointLinksResolver - Exposing 2 endpoints beneath base path '</span>/actuator<span class="s1">'</span>
+<span class="s1">2025-11-07 22:11:59 - o.s.w.s.m.m.a.RequestMappingHandlerMapping - 1 mappings in '</span>requestMappingHandlerMapping<span class="s1">'</span>
+<span class="s1">2025-11-07 22:11:59 - o.s.w.s.h.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**,</span>
+<span class="s1">/swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in '</span>resourceHandlerMapping<span class="s1">'</span>
+<span class="s1">2025-11-07 22:11:59 - o.s.w.s.m.m.a.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute,</span>
+<span class="s1">0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice</span>
+<span class="s1">2025-11-07 22:11:59 - o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path</span>
+<span class="s1">'</span>/<span class="err">'</span>
+<span class="m">2025</span>-11-07<span class="w"> </span><span class="m">22</span>:11:59<span class="w"> </span>-<span class="w"> </span>fr.demo.DemoBootstrap<span class="w"> </span>-<span class="w"> </span>Started<span class="w"> </span>DemoBootstrap<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">7</span>.121<span class="w"> </span>seconds<span class="w"> </span><span class="o">(</span>process<span class="w"> </span>running<span class="w"> </span><span class="k">for</span>
+<span class="m">7</span>.66<span class="o">)</span>
+</code></pre></div>
+<h2 id="cas-projet-client">📁 Cas projet client</h2>
+<p>Deux possibilités de création de client sont offertes par <strong>Pacman</strong>. La création d'un client en SpringBoot et la création d'un client en React. Il faut bien distinguer la différence de positionnement entre ces deux frameworks car le processus de génération est complètement différent entre les deux languages.</p>
+<ul>
+<li>
+<p>Le client SpringBoot est à utiliser pour créer un client à partir d'une librairie externe (fournisseur externe avec fichier Swagger), c'est à dire d'une api non préalablement générée par la modélisation de <strong>Pacman</strong>. La librairie générée peux alors être utilisée, soit directement au niveau de l'api modélisée (service appelant un service), soit au niveau d'un front Java.</p>
+</li>
+<li>
+<p>Le client React, quant à lui, est à utiliser pour créer un client à partir d'une modélisation de type  "<em>serveur</em>" par <strong>Pacman</strong> (un fichier de modélisation de type "<strong>.soa"</strong>). Il est à intégrer dans un front qui a été lui  même été modélisé par le générateur <strong>Pacman</strong> (voir le générateur pacman-front).</p>
+</li>
+</ul>
+<h2 id="cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</h2>
 <h3 id="webclient">WebClient</h3>
 <p>Pendant longtemps, le client HTTP de référence dans l’écosystème Spring a été RestTemplate, introduit pour simplifier les appels REST depuis une application Spring Boot. Il a été largement utilisé car il proposait une API simple, bloquante et proche des modèles de programmation classiques. </p>
 <p>Cependant, avec l’arrivée de Spring 5 et du paradigme réactif, RestTemplate a été marqué comme obsolète et ne bénéficie plus d’évolutions. Son fonctionnement bloquant le rend peu adapté aux architectures modernes, souvent distribuées et fortement concurrentes. Pour répondre à ces besoins, Spring a introduit WebClient, un client HTTP non bloquant, réactif et beaucoup plus flexible : il permet de gérer aussi bien des appels simples que des flux de données continus, tout en offrant un support natif pour l’asynchrone et une meilleure intégration avec Spring WebFlux. </p>
 <p>WebClient est aujourd’hui l’outil recommandé pour les appels REST dans Spring Boot, car il prépare les applications à la scalabilité et aux contraintes de performance actuelles.</p>
 <h3 id="recuperation-du-fichier-swagger">Récupération du fichier Swagger</h3>
 <p>Le fichier Swagger est à récupérer auprès du fournisseur externe de service, il est au format <em>Json</em> ou <em>Yaml</em> (<strong>Pacman</strong> accepte les deux formats) et à positionner sur le disque dans un répertoire au choix du développeur. Il est toutefois conseillé de le stocker au niveau du projet de modélisation afin de centraliser toutes les informations au niveau du projet. </p>
-<h3 id="generation-du-client">Génération du client</h3>
-<h4 id="modelisation_4">Modélisation</h4>
+<h3 id="modelisation_4">Modélisation</h3>
 <p>Pour modéliser l'ensemble des services, dans l'explorateur de modèles, aller au niveau du projet de modélisation <strong><em>[nom de l'application]-model</em></strong>, se positionner sur le fichier de modélisation des services <strong><em>[nom de l'application].soa</em></strong>, développer l'arborescence du fichier et se positionner dans l'arbre au niveau de l'élément <em>Components</em>. Par un clique droit, faire apparaitre le menu de génération <em>Is Designer/Import Swagger</em>.</p>
 <div align="center">
 <img alt="Génération soa client" src="images/pcm-gen-soa-3.png" width="600"/>
@@ -3149,7 +3513,7 @@ Il s'agit des vues suivantes : </p>
 <p>Par défaut, l'ensemble des attributs et références sont automatiquement annotés avec <strong><em>@JsonPropery</em></strong> qui permet de spécifier un nom différent pour la sérialisation. Il est ainsi toujours possible de modifier ce nom manuellement. </p>
 <p>Cependant une métadonnée <strong><em>@JSON_NAME</em></strong> permet aussi d'indiquer au générateur la demande expresse de modification de nom (positionner la métadnnée et saisir dans le corps de la métadonnée le nolm désiré pour la référence ou l'attribut). </p>
 <p>Si la problématique se situe au niveau des paramètres en entrée du service, il suffit alors simplement de modifier la modélisation puisque la modification ne sera prise en compte qu'au niveau local pour la compilation.</p>
-<h4 id="generation_4">Génération</h4>
+<h3 id="generation_5">Génération</h3>
 <p>Dans l'explorateur de modèles, aller au niveau du projet de modélisation <strong><em>[nom de l'application]-model</em></strong>, se positionner sur le fichier de modélisation du métier <strong><em>[nom de l'application].soa</em></strong> et par un clique droit, faire apparaitre le menu de génération <strong>Pacman</strong> (<em>Générateurs Cali/Génération du client pour les services</em>). </p>
 <div align="center">
 <img alt="Génération soa client" src="images/pcm-gen-soaclient-1.png" width="600"/>
@@ -3248,7 +3612,7 @@ Il s'agit des vues suivantes : </p>
 
 <span class="c1">// End of user code</span>
 </code></pre></div>
-<p>La manière dont l'utilisateur désire récupérer les données d'authentification sont laissées à son libre arbitre, il peut les mettre "en dur", dans un coffre fort électronique, dans le fichier <em>application.properties</em> externalisé, etc....</p>
+<p>La manière dont l'utilisateur désire récupérer les données d'authentification sont laissées à son libre arbitre, il peut les mettre "en dur", dans un coffre fort électronique, dans le fichier <strong>application.properties</strong> externalisé, etc....</p>
 <p>Et en retour : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Affectation du jeton avec les données en sortie.</span>
 <span class="c1">// Start of user code 94a08da1fecbb6e8b46990538c7b50b2</span>
@@ -3290,7 +3654,7 @@ Il s'agit des vues suivantes : </p>
 <span class="p">}</span>
 </code></pre></div>
 <p>Très simplement on constate la présence de l'ensemble des paramètres en entrée. Il suffit alors de compléter les paramètres avec les valeurs demandées. La requête est prête pour les tests.</p>
-<h4 id="tests_3">Tests</h4>
+<h3 id="tests_4">Tests</h3>
 <p>Comme tout test de type "<strong>**JUnit</strong>" il suffit simplement au développeur pour vérifier le bon fonctionnement de la requête, de se positionner au niveau de la méthode (opération), de la classe ou encore du/des package(s) et d'effectuer un click droit pour lancer le(s) test(s) Junit. </p>
 <div align="center">
 <img alt="Tests soa client" src="images/pcm-test-soaclient-1.png" width="600"/>
@@ -3402,6 +3766,168 @@ Il s'agit des vues suivantes : </p>
 <span class="w">        </span><span class="na">SLUG</span><span class="w"> </span><span class="s">-&gt; "stargate"</span>
 <span class="w">        </span><span class="na">etc...</span>
 </code></pre></div>
+<h3 id="deploiement">Déploiement</h3>
+<p>[A traiter]</p>
+<h2 id="cas-projet-client-react_3">📁 Cas projet client (React)</h2>
+<h3 id="axios">Axios</h3>
+<p>Axios est une bibliothèque JavaScript et TypeScript qui permet de réaliser facilement des requêtes HTTP depuis le navigateur ou Node.js. Elle simplifie l’envoi et la réception de données, notamment au format JSON, et offre des fonctionnalités avancées comme la gestion des en-têtes, des paramètres de requête, des délais d’attente, et l’annulation de requêtes. </p>
+<p>Axios supporte les promesses, ce qui permet d’écrire un code asynchrone clair et lisible, et propose des intercepteurs pour transformer ou traiter les requêtes et réponses avant leur utilisation. Elle est particulièrement appréciée dans les projets TypeScript pour sa simplicité d’usage et sa compatibilité à la fois côté client et côté serveur (si full React).</p>
+<p>Dans le cadre des générateurs <strong>Pacman</strong>, Axios est incluse comme bibliothèque de base, ce qui permet aux projets générés de l’utiliser directement pour la communication avec des services REST sans configuration supplémentaire.</p>
+<h3 id="modelisation_5">Modélisation</h3>
+<p>Le plus propre au niveau de la modélisation est d'exporter le projet de modélisation fournisseur en tant que librairie afin de pouvoir ensuite l'importer au niveau du projet de modélisation client. Pour exporter le projet fournisseur, se positionner au niveau du projet de modélisation <strong><em>[Nom de l'application]-model</em></strong> et par click droit, sélectionner le menu "<em>Export</em>". </p>
+<p>Dans la nouvelle fenêtre qui apparait, sélectionner le wizard "<em>Export modeling project as library</em>" .</p>
+<div align="center">
+<img alt="Export de projet de modélisation en librairie" src="images/pcm-react-model-export-1.png" width="500"/>
+</div>
+<p>Après avoir cliqué sur le bouton "<em>Next</em>" sélectionner le projet de modélisation à exporter ainsi que le répertoire de sortie pour la création du fichier au format "<em>.mar</em>".</p>
+<div align="center">
+<img alt="Export de projet de modélisation en librairie" src="images/pcm-react-model-export-2.png" width="500"/>
+</div>
+<p>Enfin, toujours après avoir cliqué sur le bouton "<em>Next</em>" renseigner le numéro de version pour la librairie et ajouter ou modifier les informations présentes sur la fenêtre si nécessaire. Enfin cliquer sur le bouton "<em>Finish</em>" pour enclancher la procédure d'export.</p>
+<div align="center">
+<img alt="Export de projet de modélisation en librairie" src="images/pcm-react-model-export-3.png" width="500"/>
+</div>
+<p>Récupérer le fichier "<em>.mar</em>" en se positionnant au niveau du projet de modélisation client (<strong><em>[Nom de l'application]-model</em></strong>) et par click droit, sélectionner le menu "<em>Import</em>". De même, dans la nouvelle fenêtre qui apparait, sélectionner le wizard "<em>Export modeling project as library</em>", rechercher le fichier d'export au format "<em>.mar</em>" et l'importer dans le projet de modélisation client. Les différents fichiers de modélisation seront alors positionnés au niveau du répertoire "<strong><em>[Nom du fichier '.mar']</em></strong>", lui même situé dans un répertoire générique "<strong><em>libraries</em></strong>" automatiquement créé au niveau du projet de modélisation client. </p>
+<p>Il est alors possible de lancer la génération du client.</p>
+<h3 id="generation_6">Génération</h3>
+<p>Se positionner au niveau du projet de modélisation <strong><em>[Nom de l'application]-model</em></strong> et sélectionner le fichier de modélisation "<strong><em>.soa</em></strong>" au niveau du répertoire "<em>/libraries/[Nom du fichier '.mar']</em>". </p>
+<p>Enfin toujours par click droit, lancer la génération du client à l'aide du menu vu précédemment (comme pour la création d'un client SpringBoot) : "<em>Générateur Cali / Génération du client pour les services</em>".</p>
+<p>• <strong><em>[Nom de l'application]/src/api</em></strong> : Ce répertoire contient le fichier <em>apiClient.ts</em> qui sert de point central pour gérer toutes les communications HTTP entre l’application et les services REST. Il encapsule l’utilisation d’axios, en configurant l’URL de base, les en-têtes communs (comme l’authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L’objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l’application n’ait pas à se soucier des détails d’implémentation d’axios. </p>
+<p>Dans le cadre des générateurs Pacman, ce fichier est généré automatiquement pour chaque projet, prêt à l’emploi, garantissant une cohérence et une simplification du code métier.</p>
+<p>Ce fichier contient par défaut le code suivant (exemple ici en fonction des paramètres modélisés): </p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"axios"</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Client HTTP centralisé utilisé par tous les services.</span>
+<span class="cm"> * La baseURL devra être fournie par l'application consommatrice</span>
+<span class="cm"> * via une variable d'environnement ou une configuration runtime.</span>
+<span class="cm"> */</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">apiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s2">"http://localhost:8080/api"</span><span class="p">,</span><span class="w"> </span><span class="c1">// pourra être surchargé</span>
+<span class="w">  </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s2">"Content-Type"</span><span class="o">:</span><span class="w"> </span><span class="s2">"application/json"</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+</code></pre></div>
+<p>• <strong><em>[Nom de l'application]/src/models</em></strong> : Ce répertoire contient l'ensemble des objets métier qui vont être utilisés par les différents services modélisés.</p>
+<p>• <strong><em>[Nom de l'application]/src/services</em></strong> : Contient le code pour l'ensemble des services qui vont appeler le fournisseur de services <strong>Rest</strong>. Voici à titre indicatif un exemple de codage pour un service. </p>
+<p>❗ Il est à noter que l'application étant une application de type React, elle est destinée à communiquer avec un frontal React. Il est donc nécessaire de se reporter plus particulièrement à la documentation concernant les générateurs <strong>Pacman</strong> pour le frontend, ceci afin de prendre connaissance du sujet (qui diffère de celui utilisé dans le cadre des projet Java) de modélisation. </p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">apiClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../api/apiClient"</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">UserDemo</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"../models/UserDemo"</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">Users</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="cm">/**</span>
+<span class="cm">    * Création d'un nouvel utilisateur.</span>
+<span class="cm">    * </span>
+<span class="cm">    * @param userIn : L'utilisateur à créer.</span>
+<span class="cm">    *</span>
+<span class="cm">    * @return UserDemo : L'utilisateur avec son identifiant.</span>
+<span class="cm">    */</span>
+<span class="w">   </span><span class="k">async</span><span class="w"> </span><span class="nx">setUser</span><span class="p">(</span><span class="nx">userIn</span><span class="o">:</span><span class="w"> </span><span class="kt">UserDemo</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">UserDemo</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="sb">`/v0/users`</span><span class="p">,</span><span class="w"> </span><span class="nx">userIn</span><span class="p">);</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">   </span><span class="p">}</span>
+
+<span class="w">   </span><span class="cm">/**</span>
+<span class="cm">    * Retourne un utilisateur en fonction de son identifiant.</span>
+<span class="cm">    * </span>
+<span class="cm">    * @param id : L'identifiant unique pour l'utilisateur.</span>
+<span class="cm">    *</span>
+<span class="cm">    * @return UserDemo : L'utilisateur retourné en fonction de son identifiant.</span>
+<span class="cm">    */</span>
+<span class="w">   </span><span class="k">async</span><span class="w"> </span><span class="nx">getUser</span><span class="p">(</span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">UserDemo</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">      </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="sb">`/v0/users/{id}`</span><span class="p">);</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">   </span><span class="p">}</span>
+
+<span class="p">}</span>
+
+<span class="c1">// On exporte une instance pour simplifier l’usage.</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Users</span><span class="p">();</span>
+</code></pre></div>
+<p>• <strong><em>[Nom de l'application]/src</em></strong> : Contient le fichier <em>index.ts</em> qui permet l'exportation de l'ensemble des objets utilisés par la future librairies client. Ce fichier agit comme point d’entrée principal du module ou de la librairie. Dans le cadre d’un client Axios, il exporte généralement toutes les fonctionnalités publiques du client API, par exemple l’instance préconfigurée d’Axios, les services spécifiques (ex. UserService, ProductService), ou des types associés. </p>
+<p>L'objectif est de permettre aux autres parties de l'application d'importer simplement le client et ses services via une seule ligne, par exemple :</p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">,</span><span class="w"> </span><span class="nx">UserService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'demo-client'</span><span class="p">;</span>
+</code></pre></div>
+<p>Dans le cadre de l'exemple qui a été choisi pour l'application de démonstration concernant la modélisation et la génération d'un frontend de type React, le code de ce fichier est le suivant : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Models.</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./models/UserDemo"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./models/RequestDemo"</span><span class="p">;</span>
+
+<span class="c1">// Services.</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./services/Users"</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./services/Requests"</span><span class="p">;</span>
+
+<span class="c1">// API Client.</span>
+<span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./api/apiClient"</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="deploiement_1">Déploiement</h3>
+<p>Même dans le cadre d’un projet React, le processus de déploiement passe par Maven afin de conserver une cohérence avec l’ensemble des projets gérés par <strong>Pacman</strong>. La différence principale réside dans l’artifact produit : au lieu de générer un <em>.jar</em> comme pour un projet Java backend, Maven exécute les scripts Node/NPM définis dans le projet pour construire et empaqueter l’application front-end. Cela permet d’intégrer le workflow front-end dans le pipeline Maven existant, de gérer les dépendances et la configuration de manière centralisée, tout en produisant un package NPM prêt à être déployé ou distribué.</p>
+<p>Quelques explications complémentaires au niveau du fichier <em>pom.xml" pour la partie </em><strong>[Nom de l'application]-server</strong>*</p>
+<div class="codehilite"><pre><span></span><code><span class="cm">&lt;!-- npm run build --&gt;</span>
+<span class="nt">&lt;execution&gt;</span>
+<span class="w">    </span><span class="nt">&lt;id&gt;</span>npm-build<span class="nt">&lt;/id&gt;</span>
+<span class="w">    </span><span class="nt">&lt;phase&gt;</span>generate-resources<span class="nt">&lt;/phase&gt;</span>
+<span class="w">    </span><span class="nt">&lt;goals&gt;</span>
+<span class="w">        </span><span class="nt">&lt;goal&gt;</span>exec<span class="nt">&lt;/goal&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/goals&gt;</span>
+<span class="w">    </span><span class="nt">&lt;configuration&gt;</span>
+<span class="w">        </span><span class="nt">&lt;executable&gt;</span>npm<span class="nt">&lt;/executable&gt;</span>
+<span class="w">        </span><span class="nt">&lt;workingDirectory&gt;</span>${frontend.dir}<span class="nt">&lt;/workingDirectory&gt;</span>
+<span class="w">        </span><span class="nt">&lt;arguments&gt;</span>
+<span class="w">            </span><span class="nt">&lt;argument&gt;</span>run<span class="nt">&lt;/argument&gt;</span>
+<span class="w">            </span><span class="nt">&lt;argument&gt;</span>build<span class="nt">&lt;/argument&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/arguments&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/execution&gt;</span>
+<span class="cm">&lt;!-- npm pack --&gt;</span>
+<span class="nt">&lt;execution&gt;</span>
+<span class="w">    </span><span class="nt">&lt;id&gt;</span>npm-pack<span class="nt">&lt;/id&gt;</span>
+<span class="w">    </span><span class="nt">&lt;phase&gt;</span>package<span class="nt">&lt;/phase&gt;</span>
+<span class="w">    </span><span class="nt">&lt;goals&gt;</span>
+<span class="w">        </span><span class="nt">&lt;goal&gt;</span>exec<span class="nt">&lt;/goal&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/goals&gt;</span>
+<span class="w">    </span><span class="nt">&lt;configuration&gt;</span>
+<span class="w">         </span><span class="nt">&lt;executable&gt;</span>npm<span class="nt">&lt;/executable&gt;</span>
+<span class="w">         </span><span class="nt">&lt;workingDirectory&gt;</span>${frontend.dir}<span class="nt">&lt;/workingDirectory&gt;</span>
+<span class="w">         </span><span class="nt">&lt;arguments&gt;</span>
+<span class="w">             </span><span class="nt">&lt;argument&gt;</span>pack<span class="nt">&lt;/argument&gt;</span>
+<span class="w">         </span><span class="nt">&lt;/arguments&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/execution&gt;</span>
+</code></pre></div>
+<p>cette partie chargée de pallier aux éventuels problématiques de communication SSL avec les serveurs NPM est placée par défaut en commentaire dans le fichier, libre au développeur de la supprimer à sa guise si la procédure de déploiement fonctionne correctement. En effet, pour l'instant elle fait double emploi avec le contenu du fichier <em>.rpmrc</em> mais est laissée à titre indicatif et pour mémo. </p>
+<p>Pour créer le package NPM, se positionner en ligne de commande au niveau du projet <strong><em>[Nom de l'application]-server</em></strong>. A la racine de ce projet doit exister le fichier <em>pom.xml</em> pour la partie "<em>-server</em>". Exécuter la commande suivante afin de lancer le processus de déploiement du projet client (ici il n'y a rien à déposer dans le repository local).</p>
+<div class="codehilite"><pre><span></span><code>mvn<span class="w"> </span>clean<span class="w"> </span>package
+</code></pre></div>
+<p>Au niveau du répertoire "<em>/target</em>" pour le projet <strong><em>[Nom de l'application]-server</em></strong>, il est maintenant possible de récupérer un fichier au format compressé. Ce fichier est sous la forme <strong><em>[Nom de l'application]-[Version].tgz</em></strong> et est exploitable directement avec les commandes NMP pour effectuer l'importation de la librairie dans un projet React frontend.</p>
+<p>Lorsque Pacman génère un package NPM sous forme de fichier <strong><em>[Nom de l'application]-[Version].tgz</em></strong>, ce fichier peut être installé sans être publié sur le registry NPM. Cela permet de tester ou distribuer la librairie en local ou dans un environnement maîtrisé. </p>
+<p>Il suffit de se positionner en ligne de commande à la racine du projet frontend (c’est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : </p>
+<div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span><span class="o">[</span>Chemin<span class="w"> </span>vers<span class="w"> </span>la<span class="w"> </span>librairie<span class="o">]</span>/<span class="o">[</span>Nom<span class="w"> </span>de<span class="w"> </span>l<span class="err">'</span>application<span class="o">]</span>-<span class="o">[</span>Version<span class="o">]</span>.tgz
+</code></pre></div>
+<p>Par exemple : </p>
+<p>• Sur le projet frontend, créer un répertoire "<em>/lib</em>" à la racine du projet, soit au niveau du répertoire <strong><em>[Nom de l'application]-server/[Nom de l'application]</em></strong></p>
+<p>• Copier la librairie "<em>.tgz</em>" du répertoire <em>/target</em> dans le répertoire nouvellement créé <em>/lib</em></p>
+<p>• Se positionner à la racine du projet frontend, au niveau du répertoire <strong><em>[Nom de l'application]-server/[Nom de l'application]</em></strong></p>
+<p>• Lancer un éditeur de commandes et tapper la commande : </p>
+<div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>./<span class="o">[</span>Nom<span class="w"> </span>de<span class="w"> </span>la<span class="w"> </span>librairie<span class="o">]</span>.tgz
+</code></pre></div>
+<p>En retour (hormis les problématiques de vulnérabilité qui sont indépendantes de la génération <strong>Pacman</strong>) le développeur doit avoir les messages suivants : </p>
+<div class="codehilite"><pre><span></span><code>up<span class="w"> </span>to<span class="w"> </span>date,<span class="w"> </span>audited<span class="w"> </span><span class="m">227</span><span class="w"> </span>packages<span class="w"> </span><span class="k">in</span><span class="w"> </span>1s
+
+<span class="m">55</span><span class="w"> </span>packages<span class="w"> </span>are<span class="w"> </span>looking<span class="w"> </span><span class="k">for</span><span class="w"> </span>funding
+<span class="w">  </span>run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>fund<span class="sb">`</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>details
+
+<span class="m">2</span><span class="w"> </span>moderate<span class="w"> </span>severity<span class="w"> </span>vulnerabilities
+
+To<span class="w"> </span>address<span class="w"> </span>all<span class="w"> </span>issues,<span class="w"> </span>run:
+<span class="w">  </span>npm<span class="w"> </span>audit<span class="w"> </span>fix
+
+Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>audit<span class="sb">`</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>details.
+</code></pre></div>
+<p>Enfin il est possible de vérifier la bonne prise en compte de la librairie au niveau du fichier <em>package.json</em> dans lequel une nouvelle dépendance qui pointe vers le fichier "<em>.tgz</em>" a été ajoutée.</p>
+<p>Il est maintenant possible d'importer les ressources (voir le fichier <em>index.ts</em>) dans les différents fichiers "<em>.ts</em>" comme n'importe quelle autre ressource.</p>
 <h2 id="problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</h2>
 <hr/>
 <p>• <strong>Quand je relance une génération j'ai des erreurs au niveau de mes classes à cause de données manquantes dans les imports</strong> : ceci est une problématique liée plus précisément à des modifications de modélisation suite à générations antérieures. </p>
@@ -3412,6 +3938,32 @@ Il s'agit des vues suivantes : </p>
 <p>• <strong>Suite à demande de génération, mes classes ont des warnings</strong> :  en ouvrant une classe, je vois que de nombreux imports ne sont pas utilisés. Pourtant, au niveau de mon fichier "<em>project.properties</em>" je ne suis pas en mode debug. </p>
 <p>Il peut arriver que, suite à une demande de génération (pour une raison encore non expliquée), les tâches de fin de traitement ne soient pas lancées. L'organisation automatique des imports n'est alors pas activée et comme <strong>Pacman</strong> dans sa politique de gestion des imports génère plus d'imports que nécessaires, ceux-ci ne sont alors pas supprimés. Il suffit simplement de relancer une génération pour résoudre le problème.</p>
 <p>• <strong>Pour une génération client, il me manque la classe de gestion du jeton</strong> : La demande de génération de la classe utilitaire pour la récupération du jeton d'authentification n'est pas basée uniquement sur le fait que l'api soit sécurisée, mais aussi sur la présence de l'annotation <strong><em>@AUTH_TOKEN</em></strong> au niveau de l'opération de gestion de jeton. Bien vérifier le positionnement de cette annotation au niveau de la modélisation des services.</p>
+<p>• <strong>Pour un déploiement du client react, le processus se bloque et ne rend pas la main</strong> : Ce comportement  est typique des problèmes réseau Windows + antivirus / proxy / SSL / npm. </p>
+<p>Voici la liste des causes possibles et comment les éliminer une par une.</p>
+<ul>
+<li>
+<p>Même si <em>strict-ssl=false</em> est dans le fichier <em>.npmrc</em>, npm peut continuer à essayer SSL si un autre <em>.npmrc</em> dans la hiérarchie l’écrase.</p>
+</li>
+<li>
+<p><em>npm install</em> se fige très souvent si l'antivirus inspecte les flux https. Désactiver temporairement la protection web (pas l'antivirus entier, juste le module web/détection https). </p>
+</li>
+</ul>
+<p>Lancer la commande (au niveau du projet server, dans le répertoire source de react) : 
+  <code>bash
+  npm install</code>
+  Si cela fonctionne, l'antivirus est en cause.</p>
+<ul>
+<li>Cache npm corrompu (courant sur Windows) : Réparer le cache à l'aide des commandes : 
+  <code>bash
+  npm cache verify
+  npm cache clean --force</code></li>
+</ul>
+<p>Si besoin le supprimer physiquement :</p>
+<p><code>bash
+  %USERPROFILE%\AppData\Local\npm-cache</code></p>
+<ul>
+<li>Problème avec IPv6 : Désactiver IPv6 dans Windows.</li>
+</ul>
 <h2 id="annexes">📎 Annexes</h2>
 <hr/>
 <p>• Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que <strong>Pacman</strong> est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclu).</p>
@@ -3720,6 +4272,6 @@ Il s'agit des vues suivantes : </p>
 </tbody>
 </table>
 </main>
-<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#etapes">Etapes</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#fichiers-generes">Fichiers Générés</a></li><ul><li><a href="#cas-fournisseur">📁 Cas fournisseur</a></li><li><a href="#cas-client">📁 Cas client</a></li></ul></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-fournisseur_1">📁 Cas fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-client_1">📁 Cas client</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-fournisseur_2">📁 Cas fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li></ul><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li><li><a href="#cas-client_2">📁 Cas client</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#generation-du-client">Génération du client</a></li><ul><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#tests_3">Tests</a></li></ul></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li></ul></nav>
+<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#etapes">Etapes</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#cas-projet-fournisseur">Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot">Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react">Cas projet client (React)</a></li></ul><li><a href="#fichiers-generes">📝 Fichiers Générés</a></li><ul><li><a href="#cas-projet-fournisseur_1">📁 Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot_1">📁 Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react_1">📁 Cas projet client (React)</a></li></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-projet-fournisseur_2">📁 Cas projet fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-projet-client-springboot_2">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul><li><a href="#cas-projet-client-react_2">📁 Cas projet client (React)</a></li><ul><li><a href="#npmignore">.npmignore</a></li><li><a href="#npmrc">.npmrc</a></li><li><a href="#packagejson">package.json</a></li><li><a href="#tsconfigbuildjson">tsconfig.build.json</a></li><li><a href="#tsconfigjson">tsconfig.json</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-projet-fournisseur_3">📁 Cas projet fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#generation-du-peuplement-de-la-base">Génération du peuplement de la base</a></li><ul><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#tests_3">Tests</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li><li><a href="#relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li></ul><li><a href="#cas-projet-client">📁 Cas projet client</a></li><li><a href="#cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_5">Génération</a></li><li><a href="#tests_4">Tests</a></li><li><a href="#deploiement">Déploiement</a></li></ul><li><a href="#cas-projet-client-react_3">📁 Cas projet client (React)</a></li><ul><li><a href="#axios">Axios</a></li><li><a href="#modelisation_5">Modélisation</a></li><li><a href="#generation_6">Génération</a></li><li><a href="#deploiement_1">Déploiement</a></li></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li></ul></nav>
 </body>
 </html>
