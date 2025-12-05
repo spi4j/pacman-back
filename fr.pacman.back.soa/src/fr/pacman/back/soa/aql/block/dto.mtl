@@ -62,9 +62,16 @@
             private [a.type()/] [a.nameAttribute()/];
             
           [/for]
+          [comment si la référence est une référence inverse on "applati" 
+                   le dto avec un simple identifiant./]
           [for (r : environment::Reference | rs)]
-            [r.referencedDto(d).comment().commentSingleLine()/]
-            private [r.referencedTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+            [if (r.isInverseReference(d))]
+              /** L'identifiant pour [r.referencedDto(d).name()/]. */
+              private [d.defaultTypePk()/] [r.referencedDto(d).writePk()/];
+            [else]
+              [r.referencedDto(d).comment().commentSingleLine()/]
+              private [r.referencedTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+            [/if]
             
           [/for]
           
@@ -80,9 +87,9 @@
              }
              
             /**
-             * Affecte l'identifiant pour le dto'. 
+             * Affecte l'identifiant pour le dto. 
              *
-             * @param la valeur de l'identifiant'.
+             * @param la valeur de l'identifiant.
              */
              public void [e.nameSimplePropertyID().apply_methodSet()/]
              (final [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])

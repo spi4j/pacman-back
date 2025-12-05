@@ -1,4 +1,4 @@
-[module genEntity('http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+[module genEntity(	'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
 
 [comment ras pour l'instant./]
 

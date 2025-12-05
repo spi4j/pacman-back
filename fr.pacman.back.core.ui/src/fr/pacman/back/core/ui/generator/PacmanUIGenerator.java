@@ -177,7 +177,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 		_resources.addAll(loadAdditionnalResources(p_selectedResource));
 		_rootPath = new File(p_selectedResource.getLocation().toString()).getParentFile();
 		_representations = File.separator + _rootPath.getName() + File.separator + "representations.aird";
-		_rootPath = removeSegmentIfLibraryImport(_rootPath, "libraries");
+		_rootPath = removeSegmentIfFromLibraryImport(_rootPath);
 		_values = Collections.emptyList();
 	}
 
@@ -223,10 +223,8 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * supprimée. Si le segment n'est pas présent dans le chemin, le fichier
 	 * d'origine est retourné.
 	 *
-	 * @param p_file    le fichier dont le chemin sera analysé et éventuellement
-	 *                  raccourci ; ne doit pas être {@code null}
-	 * @param p_segment le nom du répertoire à détecter et supprimer (ex. :
-	 *                  "libraries") ; ne doit pas être {@code null} ou vide
+	 * @param p_file le fichier dont le chemin sera analysé et éventuellement
+	 *               raccourci ; ne doit pas être {@code null}
 	 *
 	 * @return un nouvel objet {@link File} représentant le chemin raccourci si le
 	 *         segment est trouvé ; sinon le fichier original
@@ -237,11 +235,9 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * @see File#toURI()
 	 * @see ProjectProperties#isServerType()
 	 */
-	private static File removeSegmentIfLibraryImport(File p_file, String p_segment) {
-		if (ProjectProperties.isServerType())
-			return p_file;
+	private static File removeSegmentIfFromLibraryImport(File p_file) {
 		String path = p_file.toURI().getPath();
-		int index = path.indexOf("/" + p_segment + "/");
+		int index = p_file.toURI().getPath().indexOf("/libraries/");
 		if (index == -1)
 			return p_file;
 		return new File(path.substring(0, index));

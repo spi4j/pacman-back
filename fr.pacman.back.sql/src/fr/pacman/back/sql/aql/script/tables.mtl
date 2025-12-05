@@ -225,17 +225,18 @@
 
 [comment écriture de la ligne pour chaque attribut de l'entité./]  
 [query private writeAttribute(a : environment::Attribute, dbType : String) : String = a.nameColumn().toUpper() + ' ' 
-	+ a.get_columnTypeForDatabase(dbType) + a.writeEndLine(dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT' 
+	+ a.get_columnTypeForDatabase(dbType) + a.writeEndLine(false, dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT' 
 	+ '\'' + a.get_metaPhysicalDefault() + '\'' else '' endif + ','/]
 
 [comment écriture de la ligne pour chacune des tables référencées (on récupère les références des tables héritées)./]
 [query private writeReferenceFK(r : environment::Reference, e : entity::Entity, dbType : String) : String = 
 	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e)
-	, 0).toUpper() endif + ' ' + r.typeColumnRef(dbType) + r.writeEndLine(dbType) + ','/]
+	, 0).toUpper() endif + ' ' + r.typeColumnRef(dbType) + r.writeEndLine((r.referencedType(e) <> e), dbType) + ','/]
 
-[comment écriture d'un segment commun pour certaines lignes./]
-[query private writeEndLine (p : environment::Property, dbType : String) : String = if (p.is_mandatoryEntity() ) then ' not null' else '' endif + 
-	if (dbType.is_mySqlType() and p.description.exists()) then ' ' + p.description.toString().escapeSqlComment() else '' endif/]
+[comment écriture d'un segment commun pour certaines lignes (nn: not null -> force not null sur FK si FK inverse)./]
+[query private writeEndLine (p : environment::Property, nn : Boolean, dbType : String) : String = if (p.is_mandatoryEntity() or nn) 
+	then ' not null' else '' endif + if (dbType.is_mySqlType() and p.description.exists()) then ' ' + p.description.toString()
+	.escapeSqlComment() else '' endif/]
 	
 [comment écriture de la référence ciblée pour la création de l'index (dépend si la référence est récursive ou pas)./]
 [query private writeReferenceId(r: environment::Reference, e : entity::Entity, rs : OrderedSet(environment::Reference)) : String = 

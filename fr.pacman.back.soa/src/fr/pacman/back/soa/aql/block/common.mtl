@@ -4,6 +4,7 @@
 
 [import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::property/]
 [import fr::pacman::back::core::aql::output::comments/]
 [import fr::pacman::back::core::aql::name::eobjects/]
 [import fr::pacman::back::core::aql::query::attribute/]
@@ -33,25 +34,63 @@
 [comment écriture des assesseurs pour les références (liaisons avec les autres dtos | xtos)./]
 [template public writeGetterAndSetterForReferences(d : environment::DTO, rs : OrderedSet(environment::Reference), cmd : String)]
   [for (r : environment::Reference | rs)]
-    [r.referencedDto(d).commentGet()/]
-    public [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
-    {
-       return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
-    }
-    
-    [r.referencedDto(d).commentSet()/]
-    public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
-    (final [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
-    {
-       [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
-          = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
-    }
+    [comment si la référence est une référence inverse on "applati" l'objet métier avec un simple identifiant../]
+    [if (r.isInverseReference(d))] 
+    /**
+     * Retourne l'identifiant pour [r.referencedDto(d).name()/]. 
+     *
+     * @return la valeur de l'identifiant.
+     */
+      public [r.defaultTypePk()/] [r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodGet()/]()
+      {
+        return [r.prefixAffectation()/][r.referencedDto(d).writePk()/];
+      }
+      
+     /**
+      * Affecte l'identifiant pour [r.referencedDto(d).name()/]. 
+      *
+      * @param la valeur de l'identifiant.
+      */
+      public void [r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodSet()/] 
+         ([r.defaultTypePk()/] [r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_parameterMethodClassicIn()/])
+      {
+        [r.prefixAffectation()/][r.referencedDto(d).writePk()/] 
+          = [r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+      }
+    [comment écriture pour les assesseurs "normaux"./]
+    [else]
+      [r.referencedDto(d).commentGet()/]
+      public [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
+      {
+         [if (r.isMultiple() and r.containedDto(d) = d)]
+           // Permet de gérer open api.
+           if (null ==  [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/]) { 
+            [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
+              = [d.writeNewTypeSignature(r, cmd)/];
+           }
+         [/if]
+         return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+      }
+      
+      [r.referencedDto(d).commentSet()/]
+      public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
+      (final [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
+      {
+         [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
+            = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
+      }
+    [/if]
+
   [/for]
 [/template]
 
+[comment écriture du type pour l'initialisation de la référence (on profite de writeTypeSignature)./]
+[query private writeNewTypeSignature(d : environment::DTO, r : environment::Reference, cmd : String) : String = 'new ' +
+  d.writeTypeSignature(r, cmd).replace('List<','ArrayList<').replace('Set<','HashSet<') + '()'/]
+
 [comment écriture du type pour la référence (dépend si on écrit un dto ou un xto)./]
-[query private writeTypeSignature(d : environment::DTO, r : environment::Reference, cmd : String) : String = if (d.cmdDto().equalsIgnoreCase(cmd)) 
-  then r.referencedTypeSignature(d) else r.referencedOutTypeSignature(d) endif/]
+[query private writeTypeSignature(d : environment::DTO, r : environment::Reference, cmd : String) : String = 
+  if (d.cmdDto().equalsIgnoreCase(cmd)) then r.referencedTypeSignature(d) else r.referencedOutTypeSignature(d) endif/]
 
 [comment raccourci pour l'écriture de la clé primaire./]
 [query public writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]

@@ -181,6 +181,12 @@
               <scope>runtime</scope>
             </dependency>
           [/if]
+          <!-- Peuplement de mocks -->
+          <dependency>
+             <groupId>net.datafaker</groupId>
+             <artifactId>datafaker</artifactId>
+             <version>[any.versionDataKaker()/]</version> 
+          </dependency>
           <!-- (voir si déclaratif ou non...)
           <dependency>
             <groupId>org.springframework.boot</groupId>

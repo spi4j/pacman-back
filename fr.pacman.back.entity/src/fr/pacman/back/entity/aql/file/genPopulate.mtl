@@ -1,0 +1,14 @@
+[module genPopulate(	'http://www.obeonetwork.org/dsl/entity/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]	
+[import fr::pacman::back::core::aql::name::classes/]	
+[import fr::pacman::back::core::aql::name::packages/]	
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::entity::aql::block::population/]
+
+[comment écriture de l'implémentation pour la classe de gestion du peuplement de la base de données./]
+[template public fileDbPopulateImpl(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
+  [file (root.nameClassDatabasePopulateImpl().toFileJava(root.namePackageInfrastructureBase()), overwrite, root.defaultFileEncoding())]
+    [root.population(es, ess, dbType)/]
+  [/file]
+[/template]

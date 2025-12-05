@@ -1,0 +1,177 @@
+[module population(	'http://www.obeonetwork.org/dsl/entity/3.0.0', 
+					'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::output::headers/]
+[import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::classes/]	
+[import fr::pacman::back::core::aql::name::eobjects/]	
+[import fr::pacman::back::core::aql::query::attribute/]
+[import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::parameter/]
+[import fr::pacman::back::core::aql::rule::variable/]
+[import fr::pacman::back::core::aql::rule::method/]
+
+[comment écriture des commandes pour le peuplement de la base de données./]
+[template public population (root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
+  [root.classHeader(root.namePackageInfrastructureBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [root.defaultImports()/]
+    import org.springframework.stereotype.Component;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import jakarta.annotation.PostConstruct;
+    import net.datafaker.Faker;
+    import java.util.Locale;
+    
+  [/protected]
+  
+  /**
+   * Composant chargé d'initialiser la base de données de l'application
+   * avec des données de démonstration.  
+   * <p>
+   * Cette implémentation utilise <strong>DataFaker</strong> pour générer
+   * des données textuelles aléatoires, et les API <strong>java.time</strong>
+   * pour produire des dates, heures et timestamps modernes et non dépréciés.
+   * </p>
+   *
+   * Au démarrage de l'application, la méthode {@link #populate()} est
+   * automatiquement exécutée grâce à l'annotation {@code @PostConstruct},
+   * ce qui entraîne la création des entités persistées en base via leurs 
+   * repositories Spring Data.
+   * </p>
+   *
+   * Les méthodes utilitaires {@code randomLocalDate()}, {@code randomTimeStamp()}
+   * et {@code randomTime()} permettent de générer des valeurs temporelles
+   * cohérentes et compatibles avec Java 17+ et DataFaker 2.5+.
+   * </p>
+   *
+   * @author [root.nameAuthor()/]
+   */
+  @Component
+  @SuppressWarnings("unused")
+  public class [root.nameClassDatabasePopulateImpl()/] {
+  
+    ['Gestionnaires de persistance disponibles'.commentSingleLine()/]
+    [for (e : entity::Entity | es)]
+      final [e.nameClassEntityPersistItf()/] [e.nameClassEntityPersistItf().apply_attributeDefault()/];
+    [/for]
+    
+    ['Gestionnaires de données aléatoires'.commentSingleLine()/]
+    private Faker ['faker'.apply_attributeDefault()/] = new Faker(Locale.FRANCE);
+    
+    ['Valeurs par défaut pour les dates et heures'.commentSingleLine()/]
+    private LocalDate ['random local date'.apply_methodDefault()/](int ['days ahead'.apply_parameterMethodClassicIn()/]) {
+        return LocalDate.now().plusDays(['faker'.apply_attributeDefault()/]
+          .number().numberBetween(0, ['days ahead'.apply_parameterMethodClassicIn()/]));
+    }
+    
+    ['Valeurs par défaut pour les dates et heures'.commentSingleLine()/]
+    private Timestamp ['random time stamp'.apply_methodDefault()/](int ['days ahead'.apply_parameterMethodClassicIn()/]) {
+        return Timestamp.from(Instant.now().plus(['faker'.apply_attributeDefault()/]
+          .number().numberBetween(0, ['days ahead'.apply_parameterMethodClassicIn()/]), ChronoUnit.DAYS));
+    }
+    
+    ['Valeurs par défaut pour les dates et heures'.commentSingleLine()/]
+    private Time ['random time'.apply_methodDefault()/]() {
+        return Time.valueOf(LocalTime.of(
+                faker.number().numberBetween(0, 23),
+                faker.number().numberBetween(0, 59),
+                faker.number().numberBetween(0, 59)
+        ));
+    }
+    
+    [protected ('configuration'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      ['Nombre de lignes à créer dans la base de données'.commentSingleLine()/]
+      private final int ['nb entities'.apply_attributeFinal()/] = 10;
+    [/protected]
+    
+    @Value("${spring.populate.faker.enabled:true}")
+    private boolean populateEnabled;
+    
+    @Autowired
+    ['Constructeur avec injection des persistance disponibles'.commentSingleLine()/]
+    public [root.nameClassDatabasePopulateImpl()/]([es->writeConstructorSignature()/]) {
+     [for (e : entity::Entity | es)]
+       [e.prefixAffectation()/][e.nameClassEntityPersistItf().apply_attributeDefault()/] 
+         = [e.nameClassEntityPersistItf().apply_parameterMethodClassicIn()/];
+     [/for]
+    }
+    
+    [for (e : entity::Entity | es)]
+      [e.description.commentMultiLines()/]
+      [e.nameClassEntityImpl()/] [(e.name() + ' populateWithFakeData').apply_methodDefault()/] ([e.writePopulateSignature(es,ess)/]) {
+          [e.nameClassEntityImpl()/] [e.name().apply_variableDefault()/] = new [e.nameClassEntityImpl()/]();
+          
+          [protected (e.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            
+          [for (a | e.attributesNoPK())]
+            [e.name().apply_variableDefault()/].[a.name().apply_methodSet()/]([a.type.writeFakerData()/]);
+          [/for]
+          
+          [/protected]
+          
+          return [e.name().apply_variableDefault()/];
+       } 
+       
+   [/for] 
+   
+  /**
+   * Initialise automatiquement la base de données avec un ensemble de
+   * données de démonstration à chaque démarrage de l'application.
+   * <p>
+   * Cette méthode est exécutée automatiquement grâce à l'annotation
+   * {@link PostConstruct}.  
+   * Elle crée {@code ['nb entities'.apply_attributeFinal()/]} entités dans la base.
+   */
+   @PostConstruct
+   public void populate() {
+      if (!populateEnabled) 
+         return;
+         
+      for (int i = 0; i < ['nb entities'.apply_attributeFinal()/]; i++) {
+        [for (e : entity::Entity | es)]
+          
+          [protected ((e.name() + 'persist').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [e.nameClassEntityImpl()/] [e.name().apply_variableDefault()/] = [e.nameClassEntityPersistItf().apply_attributeDefault()/]
+              .save([(e.name() + ' populateWithFakeData').apply_methodDefault()/] ([e.writePopulateSignatureWithDefaultNull(es,ess)/]));
+          [/protected]
+        [/for]
+        
+        [protected ('populate'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
+      }
+    }
+  }
+[/template]
+
+[comment écriture de la signature pour le constructeur de la classe./]
+[query private writeConstructorSignature (es : Sequence(entity::Entity)) : String = '' + es->collect(o | 'final ' 
+  + o.nameClassEntityPersistItf() + ' ' + o.nameClassEntityPersistItf().apply_parameterMethodClassicIn())->sep(', ')/]
+  
+[comment écriture de la signature pour la méthode de population de l'entité (entités référencées)/]
+[query private writePopulateSignature(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = '' 
+  + e.referencesFKSBResolved(es, ess)->collect(o |'final ' + o.referencedEntity(e).nameClassEntityImpl() 
+  + ' '+ o.referencedEntity(e).name().apply_parameterMethodClassicIn())->sep(',')/]
+  
+[comment écriture de la signature pour la méthode de population de l'entité (entités référencées)/]
+[query private writePopulateSignatureWithDefaultNull(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = '' 
+  + e.referencesFKSBResolved(es, ess)->collect(o | 'null')->sep(',')/]
+
+[comment écriture des données aléatoires par défaut pour le peuplement de l'entité./]
+[query private writeFakerData(t : environment::Type) : String = if ('Long'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() +'.number()' 
+  else if ('Long'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.numberBetween(10L, 100L)' 
+  else if ('Float'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.number().randomDouble(6, -500, 500)' 
+  else if ('Integer'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.numberBetween(0, 100)' 
+  else if ('Double'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.randomDouble(3, 1, 100)' 
+  else if ('UUID'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.lorem().characters(5, 20)' 
+  else if ('Boolean'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.nextBoolean()' 
+  else if ('Date'.equalsIgnoreCase(t.name)) then 'random local date'.apply_methodDefault() + '(0)'
+  else else if ('Time'.equalsIgnoreCase(t.name)) then 'random time'.apply_methodDefault() + '()'
+  else else if ('Timestamp'.equalsIgnoreCase(t.name)) then 'random time stamp'.apply_methodDefault() + '(0)'
+  else else if ('Long'.equalsIgnoreCase(t.name)) then '.number()' 
+  else 'faker'.apply_attributeDefault() + '.lorem().characters(5, 20)' endif  endif  endif  endif  endif   
+  endif endif endif endif endif endif/]

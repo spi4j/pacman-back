@@ -1,4 +1,4 @@
-[module genEnumeration('http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+[module genEnumeration(	'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
 
 [import fr::pacman::back::core::aql::base/]	
 [import fr::pacman::back::core::aql::name::classes/]	

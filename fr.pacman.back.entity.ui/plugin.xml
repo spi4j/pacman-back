@@ -11,6 +11,10 @@
             class="fr.pacman.back.entity.ui.handlers.EntityValidationGeneratorsHandler"
             commandId="fr.pacman.back.entity.validation.ui.commands.ValidationGeneratorCommand">
       </handler>
+      <handler
+            class="fr.pacman.back.entity.ui.handlers.EntityPopulationGeneratorsHandler"
+            commandId="fr.pacman.back.entity.population.ui.commands.PopulationGeneratorCommand">
+      </handler>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -71,6 +75,31 @@
                   </with>
                </visibleWhen>
             </command>
+            <command
+                  icon="icons/populate.png"
+                  commandId="fr.pacman.back.entity.population.ui.commands.PopulationGeneratorCommand"
+                  id="fr.pacman.back.entity.population.ui.commands.PopulationGeneratorCommand" 
+                  label="Population de la couche de persistance">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <and>
+                           <instanceof
+                                 value="org.eclipse.core.resources.IFile">
+                           </instanceof>
+                           <test
+                                 property="org.eclipse.core.resources.extension"
+                                 value="entity">
+                           </test>
+                        </and>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
          </menu>
       </menuContribution>
    </extension>
@@ -89,6 +118,11 @@
             categoryId="fr.pacman.back.entity.ui.commands.generatorsCategory"
             id="fr.pacman.back.entity.validation.ui.commands.ValidationGeneratorCommand"
             name="Validation du fichier entité">
+      </command>
+      <command
+            categoryId="fr.pacman.back.entity.ui.commands.generatorsCategory"
+            id="fr.pacman.back.entity.population.ui.commands.PopulationGeneratorCommand"
+            name="Population de la base de données">
       </command>
    </extension>
 </plugin>

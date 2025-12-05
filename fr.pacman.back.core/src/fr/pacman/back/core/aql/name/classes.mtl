@@ -16,6 +16,9 @@
 [comment query public nameClassEntityMapperItf(e : entity::Entity) : String = (e.name() + e.suffixMapper()).apply_classInterface()/]
 
 [comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
+[query public nameClassDatabasePopulateImpl(any : ecore::EObject) : String = (any.nameProject() + ' db populate').apply_classImplem()/]
+  
+[comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
 [query public nameClassRsClientConfigImpl(any : ecore::EObject) : String = (any.nameProject() + ' web client config').apply_classImplem()/]
 
 [comment retourne le nom pour l'implémentation du service de santé de l'application./]

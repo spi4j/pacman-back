@@ -129,6 +129,11 @@
             <artifactId>ojdbc8</artifactId>
     	  </dependency>
     	[/if]
+    	<!-- Peuplement des mocks -->
+    	<dependency>
+    	   <groupId>net.datafaker</groupId>
+    	   <artifactId>datafaker</artifactId>
+    	</dependency>
     	<!-- (à voir si demande génération war et non jar..)
     	<dependency>
     	   <groupId>org.springframework.boot</groupId>
@@ -1193,6 +1198,9 @@
   # Fortement conseille de placer a 'false' (LazyInitializationException).
   spring.jpa.open-in-view=false
   
+  # Active la population automatique de la base avec des données faker.
+  spring.populate.faker.enabled=false
+  
   # Strategie de nommage
   spring.jpa.hibernate.naming.implicit-strategy=org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
   spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -1275,6 +1283,9 @@
   logging.level.org.hibernate.SQL=DEBUG
   logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
   logging.level.org.hibernate.orm.jdbc.bind=TRACE
+  
+  # Active la population automatique de la base avec des données faker.
+  spring.populate.faker.enabled=false
 [/template]
 
 [comment écriture de la classe utilitaire pour les tests d'intégration./]

@@ -241,7 +241,8 @@
 [comment écriture du type de 'cascade' pour la référence./]  
 [query private writeCascade(r : environment::Reference) : String = 'cascade = ' + if (r.get_metaLiteralCascadeType().index(',') > 0) 
   then '{' + r.get_metaLiteralCascadeType().tokenize(',')->collect(o | 'CascadeType.' + o.trim())->sep(', ') + '}' 
-  else 'CascadeType.' + r.get_metaLiteralCascadeType().trim() endif /]
+  else 'CascadeType.' + r.get_metaLiteralCascadeType().trim().toUpper() endif + if (r.get_metaLiteralCascadeType().matches('(?i).*ALL.*')) 
+  then ', orphanRemoval = true' else '' endif/]
   
 [comment retourne les types et les nom des attributs pour l'entité (optional + list + type + nom)./]
 [query public writeInputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference), props : Sequence(String)) : String =  

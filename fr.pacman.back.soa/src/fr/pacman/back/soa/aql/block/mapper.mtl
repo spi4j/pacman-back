@@ -81,13 +81,11 @@
                    [r.writeListOutEntityMapper(d)/]
                  [/if]
                  [comment gestion des références inverses./]
-                 [if (r.isMultiple() and r.containedType(d) <> d
-                   and not d.isSubType(r.containingType) )]
-                   [r.writeReferenceOutEntityMapper(d)/]
+                 [if (r.isInverseReference(d))]
+                   [r.writeInverseReferenceOutEntityMapper(d)/]
                  [/if]
                  [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
-                 [if (r.isMultiple() and r.containedType(d) <> d
-                   and d.isSubType(r.containingType))]
+                 [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
                    [r.writeListOutEntityMapper(d)/]
                  [/if]
                [/for]
@@ -143,13 +141,11 @@
                     [r.writeListOutDtoMapper(d)/]
                   [/if]
                   [comment gestion des références inverses./]
-                  [if (r.isMultiple() and r.containedType(d) <> d
-                    and not d.isSubType(r.containingType) )]
-                    [r.writeReferenceOutDtoMapper(d)/]
+                  [if (r.isInverseReference(d))]
+                    [r.writeInverseReferenceOutDtoMapper(d)/]
                   [/if]
                   [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
-                  [if (r.isMultiple() and r.containedType(d) <> d 
-                    and d.isSubType(r.containingType))]
+                  [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
                     [r.writeListOutDtoMapper(d)/]
                   [/if]
                 [/for]
@@ -228,8 +224,8 @@
                    [r.writeListInDtoMapper(d)/]
                  [/if]
                  [comment gestion des références inverses./]
-                 [if (r.isMultiple() and r.containedType(d) <> d and not d.isSubType(r.containingType) )]
-                   [r.writeReferenceInDtoMapper(d)/]
+                 [if (r.isInverseReference(d))]
+                   [r.writeInverseReferenceInDtoMapper(d)/]
                  [/if]
                  [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
                  [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
@@ -284,8 +280,8 @@
                   [r.writeListInXtoMapper(d)/]
                 [/if]
                 [comment gestion des références inverses./]
-                [if (r.isMultiple() and r.containedType(d) <> d and not d.isSubType(r.containingType) )]
-                  [r.writeReferenceInXtoMapper(d)/]
+                [if (r.isInverseReference(d) )]
+                  [r.writeInverseReferenceInXtoMapper(d)/]
                 [/if]
                 [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
                 [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
@@ -369,19 +365,43 @@
   + ('to ' + d.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.' +  if (r.isMultipleBidirectionnal()) 
   then 'toSet' else 'toList' endif + '()));'/]
 
-[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[comment écriture de mapping pour une liste dans le cadre d'une référence inverse./]
+[query private writeInverseReferenceInXtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
+  d.suffixXto().apply_variableDefault() + '.' + r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodSet() + '(' 
+  + d.suffixDto() + '.' + r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodGet() + '());'/]
+  
+[comment écriture de mapping pour une liste dans le cadre d'une référence inverse./]
+[query private writeInverseReferenceInDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodSet() + '(' 
+  + d.suffixXto() + '.' + r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodGet() + '());'/]
+    
+[comment écriture de mapping pour une liste dans le cadre d'une référence inverse./]
+[query private writeInverseReferenceOutDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
+  d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodSet() + '(' 
+  + d.suffixEntity() + '.' + r.referencedDto(d).referencedName(r).apply_methodGet() + '().' 
+  + r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodGet() + '());'/]
+
+[comment écriture de mapping pour une liste dans le cadre d'une référence inverse./]
+[query private writeInverseReferenceOutEntityMapper (r : environment::Reference, d : environment::DTO) : String  =  let rd = r.referencedDto(d) 
+  in rd.lineSeparator()  + '// Référence inverse jpa.' + rd.lineSeparator() + rd.nameClassDtoImpl() + ' ' + rd.name().apply_variableDefault() + ' = new ' 
+  + rd.nameClassDtoImpl() + '();' + r.lineSeparator() + rd.name().apply_variableDefault() + '.' + rd.associatedEntity().nameSimplePropertyID().apply_methodSet() 
+  + '(' + d.suffixDto() + '.' + rd.associatedEntity().nameSimplePropertyID().apply_methodGet() + '());' + r.lineSeparator() 
+  + d.suffixEntity().apply_variableDefault() + '.' + rd.referencedName(r).apply_methodSet() + '(' + rd.nameClassMapperImpl() + '.' 
+  + ('to ' + d.suffixEntity()).apply_methodDefault() + '(' + rd.name().apply_variableDefault() + '));' /]
+  
+[comment écriture de la ligne de mapping pour une référence optionnelle ou non (hors liste)./]
 [query private writeReferenceInXtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
   d.suffixXto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
   + '.' + ('to ' + d.suffixXto()).apply_methodDefault() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
   + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));'/]
   
-[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[comment écriture de la ligne de mapping pour une référence optionnelle ou non (hors liste)./]
 [query private writeReferenceInDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
   d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
   + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' 
   + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));' /]
   
-[comment écriture de la ligne de mapping pour une référence optionelle ou non (hors liste)./]
+[comment écriture de la ligne de mapping pour une référence optionnelle ou non (hors liste)./]
 [query private writeReferenceOutDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
   d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
   + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 

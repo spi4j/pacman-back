@@ -1,0 +1,17 @@
+[module genPopulation(	'http://www.obeonetwork.org/dsl/entity/3.0.0',
+						'http://www.obeonetwork.org/dsl/environment/3.0.0',
+						'http://www.obeonetwork.org/dsl/entity/2.0.0/utilities')/]
+
+[import fr::pacman::back::core::aql::query::entity/]		
+[import fr::pacman::back::entity::aql::file::genPopulate/]
+
+[comment @main/]	
+[comment lancement de la population pour la base de données (uniquement h2 pour l'instant)./]
+[template public genPopulation(root : entity::Root)]
+  [let es = root.subTypesEntities()]
+    [let ess = root.superTypesEntities()]
+      [comment écriture de la classe pour le peuplement de la base de données./]
+      [root.fileDbPopulateImpl(es, ess, '')/]
+    [/let]
+  [/let]
+[/template]

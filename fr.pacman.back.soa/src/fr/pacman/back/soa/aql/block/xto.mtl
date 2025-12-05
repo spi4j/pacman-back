@@ -31,6 +31,8 @@
     import com.fasterxml.jackson.annotation.JsonIgnore;
     import io.swagger.v3.oas.annotations.media.Schema;
     import io.swagger.v3.oas.annotations.media.ArraySchema;
+    import com.fasterxml.jackson.annotation.JsonManagedReference;
+    import com.fasterxml.jackson.annotation.JsonBackReference;
     
   [/protected]
   
@@ -71,14 +73,23 @@
          private [a.type()/] [a.nameAttribute()/];
          
        [/for]
+       [comment si la référence est une référence inverse on "applati" le dto avec un simple identifiant./]
        [for (r : environment::Reference | rs)]
-         [r.referencedDto(d).comment().commentSingleLine()/]
-         [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-           @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]")
-         [/protected]
-         [r.writeShemaAnnotation(d)/]
-         [comment r.containingType <> d and r.isMultiple()/]
-         private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+          [if (r.isInverseReference(d))]
+            /** L'identifiant pour [r.referencedDto(d).name()/]. */
+            [protected (r.referencedDto(d).writePk().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              @JsonProperty("[r.referencedDto(d).writePk()/]")
+            [/protected]
+            [r.writeShemaAnnotation(null)/]
+            private [d.defaultTypePk()/] [r.referencedDto(d).writePk()/];
+          [else]
+            [r.referencedDto(d).comment().commentSingleLine()/]
+            [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]")
+            [/protected]
+            [r.writeShemaAnnotation(d)/]
+            private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+          [/if]
          
        [/for]
                
@@ -123,7 +134,16 @@
 [/template]
 
 [comment écriture de l'annotation @Schema pour open api./]
-[query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String = if (r.isMultiple()) 
-	then '@ArraySchema(schema = @Schema(implementation =' + r.referencedDto(d).nameClassXtoImpl() + '.class))' 
-	else '@Schema(description = "' + r.writeDescription() + '")' endif/]
+[comment query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String = if (r.isMultiple() 
+  and r.containedType(d) = d) then '@JsonManagedReference' + r.lineSeparator() + if (r.isMandatory()) then '@Schema(hidden = true)' 
+  + ' //Non utile pour swagger-ui.' else '@ArraySchema(schema = @Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
+  + '.class))' endif else '@JsonBackReference' + r.lineSeparator() + '@Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
+  + '.class, description = "' + r.referencedDto(d).writeDescription() + '")'  endif/]
+  
+[comment écriture de l'annotation @Schema pour open api./]
+[query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String = if (r.isMultiple() 
+  and r.containedType(d) = d) then + if (r.isMandatory()) then '@Schema(hidden = true)' 
+  + ' //Non utile pour swagger-ui.' else '@ArraySchema(schema = @Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
+  + '.class))' endif else if (d = null) then '@Schema(description = "' + r.referencedDto(d).writeDescription() + '")' else '@Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
+  + '.class, description = "' + r.referencedDto(d).writeDescription() + '")' endif  endif/]
 
