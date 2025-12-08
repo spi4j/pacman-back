@@ -5,12 +5,13 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -43,6 +44,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.part.ViewPart;
+import org.obeonetwork.dsl.environment.Reference;
 
 import fr.pacman.back.core.ui.generator.PacmanUIGeneratorHelper;
 import fr.pacman.back.core.validation.PacmanValidationRow;
@@ -342,21 +344,55 @@ public class PacmanUIValidationView extends ViewPart {
 	 * jeu. Dans notre cas cela n'est pas grave on se contente d'une égalité entre
 	 * les identifiants techniques des eObjects (ces identifiants sont uniques).
 	 * 
-	 * Cette méthode :
-	 * <ul>
-	 * <li>Vide la sélection courante dans la vue (TableViewer)</li>
-	 * <li>Récupère la session Sirius liée au fichier de représentations
-	 * (.aird)</li>
-	 * <li>Recherche la {@link DRepresentation} (ex: diagramme) qui contient
-	 * l'élément cible</li>
-	 * <li>Ouvre l'éditeur Sirius correspondant si trouvé</li>
-	 * <li>Sélectionne l’élément dans le diagramme via
-	 * {@code selectAndRevealInDiagram}</li>
-	 * </ul>
-	 * Si aucune session ou représentation n’est trouvée, un message d’erreur est
+	 * Parcourt toutes les représentations disponibles dans la session afin de
+	 * retrouver celle qui contient l'EObject cible.
+	 * <p>
+	 * La recherche se fait en deux étapes pour chaque représentation :
+	 * <ol>
+	 * <li>On vérifie directement si la représentation contient le {@code target}
+	 * via {@link #representationContainsTarget(DRepresentation, EObject)}.</li>
+	 * <li>Si ce n’est pas le cas, on vérifie si le {@code target} possède une
+	 * référence bidirectionnelle (opposite) vers un autre EObject en appelant
+	 * {@link #hasOppositeOf(EObject)}. Si cette cible opposée existe et est
+	 * présente dans la représentation, on la considère comme cible.</li>
+	 * </ol>
+	 * <p>
+	 * La première représentation correspondant à l'une de ces conditions est
+	 * conservée dans {@code containingRepresentation}. Si une target opposée est
+	 * utilisée, {@code target} est mis à jour pour pointer sur cette instance. Si
+	 * aucune session ou représentation n’est trouvée, un message d’erreur est
 	 * affiché via une pop-up.
 	 * </p>
-	 *
+	 * Utilisation d'un double {@link Display#asyncExec(Runnable)} pour la sélection
+	 * d'un élément dans un éditeur Sirius.
+	 * 
+	 * <p>
+	 * Lorsque l'on ouvre un éditeur via
+	 * {@link DialectUIManager#openEditor(Session, DRepresentation, NullProgressMonitor)},
+	 * la représentation graphique (diagramme) n'est pas instantanément entièrement
+	 * initialisée. Les {@link DRepresentationElement} correspondant aux objets
+	 * métier peuvent ne pas être encore créés au moment où le code de sélection
+	 * s'exécute.
+	 * </p>
+	 * 
+	 * <p>
+	 * Pour s'assurer que l'élément ciblé soit bien présent et sélectionnable, on
+	 * utilise un double appel à {@code Display.getDefault().asyncExec} :
+	 * <ol>
+	 * <li>Le premier {@code asyncExec} planifie l'exécution après la fin de la
+	 * création de l'éditeur et l'ajout du contrôle dans la UI.</li>
+	 * <li>Le second {@code asyncExec} décale l'exécution d'un cycle SWT
+	 * supplémentaire, garantissant que tous les {@link DRepresentationElement} ont
+	 * été construits et sont accessibles.</li>
+	 * </ol>
+	 * </p>
+	 * 
+	 * <p>
+	 * Cette technique est nécessaire notamment pour les cibles complexes comme les
+	 * références bidirectionnelles, où la création des éléments graphiques dépend
+	 * de l'intégrité des liens EMF et de l'initialisation complète du diagramme.
+	 * </p>
+	 * 
 	 * @param p_row La ligne de validation contenant l’élément EMF cible à localiser
 	 *              dans une représentation.
 	 *
@@ -394,14 +430,17 @@ public class PacmanUIValidationView extends ViewPart {
 			return;
 		}
 
-		// Collection<DRepresentation> allRepresentations =
-		// DialectManager.INSTANCE.getAllRepresentations(session);
 		Collection<DRepresentation> allRepresentations = getAllRepresentations(session);
 		DRepresentation containingRepresentation = null;
-
 		for (DRepresentation rep : allRepresentations) {
 			if (representationContainsTarget(rep, target)) {
 				containingRepresentation = rep;
+				break;
+			}
+			EObject oppositeTarget = hasOppositeOf(target);
+			if (null != oppositeTarget && representationContainsTarget(rep, oppositeTarget)) {
+				containingRepresentation = rep;
+				target = oppositeTarget;
 				break;
 			}
 		}
@@ -410,10 +449,13 @@ public class PacmanUIValidationView extends ViewPart {
 			IEditorPart editorPart = DialectUIManager.INSTANCE.openEditor(session, containingRepresentation,
 					new NullProgressMonitor());
 
+			final EObject finalTarget = target;
 			Display.getDefault().asyncExec(() -> {
-				if (editorPart instanceof DialectEditor dialectEditor) {
-					selectAndRevealInDiagram(target, dialectEditor);
-				}
+				Display.getDefault().asyncExec(() -> {
+					if (editorPart instanceof DialectEditor dialectEditor) {
+						selectAndRevealInDiagram(finalTarget, dialectEditor);
+					}
+				});
 			});
 		} else {
 			PacmanUIGeneratorHelper
@@ -447,7 +489,53 @@ public class PacmanUIValidationView extends ViewPart {
 				reps.addAll(getRepresentationsFromEObject(root, p_session));
 			}
 		}
-		return reps;
+		return reps.stream().filter(rep -> isDiagramRepresentation(rep)).collect(Collectors.toList());
+	}
+
+	/**
+	 * Détermine si une DRepresentation est un "diagramme" qu'on veut garder. Pas la
+	 * possibilité d'utiliser instanceOf...
+	 *
+	 * Règles : - Exclut explicitement les types contenant "Table" ou "Tree"
+	 * (DTable, DTree, ...) - Accepte les types dont le nom de classe contient
+	 * "Diagram" (ex : DSemanticDiagram) - Accepte aussi les représentations dont le
+	 * package contient ".diagram"
+	 *
+	 * Cette approche évite les dépendances à des types spécifiques non présents au
+	 * compile time.
+	 */
+	private static boolean isDiagramRepresentation(DRepresentation rep) {
+		if (rep == null) {
+			return false;
+		}
+
+		Class<?> cls = rep.getClass();
+		String simple = cls.getSimpleName();
+		String fullPkg = cls.getPackage() == null ? "" : cls.getPackage().getName();
+
+		if (simple == null) {
+			return false;
+		}
+
+		String low = simple.toLowerCase();
+
+		// Exclusions explicites
+		if (low.contains("table") || low.contains("tree") || low.contains("sequence") || low.contains("list")) {
+			return false;
+		}
+
+		// Accept if le nom contient "Diagram" (DSemanticDiagram, DDiagramImpl, ...)
+		if (simple.contains("Diagram")) {
+			return true;
+		}
+
+		// Accept si le package contient "diagram" (sécurité supplémentaire)
+		if (fullPkg.toLowerCase().contains(".diagram")) {
+			return true;
+		}
+
+		// Sinon on exclut (sécurisé par défaut)
+		return false;
 	}
 
 	/**
@@ -518,7 +606,9 @@ public class PacmanUIValidationView extends ViewPart {
 	/**
 	 * Vérifie si la représentation donnée contient l'élément métier cible.
 	 * Recherche parmi tous les décorateurs sémantiques la correspondance par ID EMF
-	 * ou instance.
+	 * ou instance. ATTENTION : Le target change la façon dont on analyse les
+	 * éléments du diagramme, donc en fonction du target on va avoir un nombre
+	 * différent de 'semanticId'.
 	 * 
 	 * @param rep    Représentation Sirius dans laquelle chercher
 	 * @param target Élément métier EMF recherché
@@ -549,6 +639,16 @@ public class PacmanUIValidationView extends ViewPart {
 			}
 		}
 		return false;
+	}
+
+	private EObject hasOppositeOf(EObject target) {
+		if (target instanceof Reference) {
+			Reference opposite = ((Reference) target).getOppositeOf();
+			if (null != opposite) {
+				return opposite;
+			}
+		}
+		return null;
 	}
 
 	/**
