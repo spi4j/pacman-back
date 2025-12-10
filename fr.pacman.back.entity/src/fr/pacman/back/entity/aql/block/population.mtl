@@ -8,6 +8,7 @@
 [import fr::pacman::back::core::aql::name::eobjects/]	
 [import fr::pacman::back::core::aql::query::attribute/]
 [import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::property/]
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::core::aql::output::comments/]
 [import fr::pacman::back::core::aql::rule::attribute/]
@@ -24,6 +25,7 @@
     import org.springframework.stereotype.Component;
     import org.springframework.beans.factory.annotation.Autowired;
     import jakarta.annotation.PostConstruct;
+    import java.util.stream.IntStream;
     import net.datafaker.Faker;
     import java.util.Locale;
     
@@ -87,6 +89,7 @@
     [protected ('configuration'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       ['Nombre de lignes à créer dans la base de données'.commentSingleLine()/]
       private final int ['nb entities'.apply_attributeFinal()/] = 10;
+      private final int ['nb relations'.apply_attributeFinal()/] = 5;
     [/protected]
     
     @Value("${spring.populate.faker.enabled:true}")
@@ -131,22 +134,34 @@
    public void populate() {
       if (!populateEnabled) 
          return;
-         
-      for (int i = 0; i < ['nb entities'.apply_attributeFinal()/]; i++) {
-        [for (e : entity::Entity | es)]
-          
-          [protected ((e.name() + 'persist').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-            [e.nameClassEntityImpl()/] [e.name().apply_variableDefault()/] = [e.nameClassEntityPersistItf().apply_attributeDefault()/]
-              .save([(e.name() + ' populateWithFakeData').apply_methodDefault()/] ([e.writePopulateSignatureWithDefaultNull(es,ess)/]));
-          [/protected]
-        [/for]
-        
+      
+      IntStream.range(0, ['nb entities'.apply_attributeFinal()/]).forEach(i -> {
+        [let ers = root.eAllContents(environment::Reference)
+          ->select(r | (r.isMultiple() or r.isMultipleBidirectionnal()))]
+          [for (e : entity::Entity | es)]
+            [protected ((e.name() + 'persist').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              [if (ers->exists(r | r.containedEntity(e) <> e))]
+                IntStream.range(0, ['nb relations'.apply_attributeFinal()/]).forEach(i2 -> {
+                   [e.writePopulateEntity(es, ess)/]
+                });
+              [else]
+                [e.writePopulateEntity(es, ess)/]
+              [/if]
+            [/protected]
+            
+          [/for]
+        [/let]
         [protected ('populate'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
         [/protected]
-      }
+      });
     }
   }
 [/template]
+
+[comment écriture de la ligne pour le peuplement de l'entité + sauvegarde./]
+[query private writePopulateEntity(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = e.nameClassEntityImpl() 
+  + ' ' + e.name().apply_variableDefault() + ' = ' + e.nameClassEntityPersistItf().apply_attributeDefault() + '.save(' 
+  + (e.name() + ' populateWithFakeData').apply_methodDefault() + ' ' + '(' + e.writePopulateSignatureWithDefaultNull(es, ess) + '));'/]
 
 [comment écriture de la signature pour le constructeur de la classe./]
 [query private writeConstructorSignature (es : Sequence(entity::Entity)) : String = '' + es->collect(o | 'final ' 
