@@ -47,9 +47,15 @@
         [a.nameAttribute()/][if (not a.isMandatory())]?[/if]: [a.type().toJSType()/];
         
       [/for]
+      [comment si la référence est une référence inverse on "applati" le dto avec un simple identifiant./]
       [for (r : environment::Reference | rs)]
-        [r.referencedDto(d).comment().commentSingleLine()/]
-        [r.referencedDto(d).referencedName(r).apply_attributeDefault()/] : [r.referencedOutTypeSignature(d).toJSList()/] ;
+        [if (r.isInverseReference(d))]
+          /** L'identifiant pour [r.referencedDto(d).name()/]. */
+          [(r.referencedDto(d).name() + r.suffixIdPk()).apply_attributeDefault()/]  : [r.defaultTypePk().toJSType()/];
+        [else]
+          [r.referencedDto(d).comment().commentSingleLine()/]
+          [r.referencedDto(d).referencedName(r).apply_attributeDefault()/] : [r.referencedOutTypeSignature(d).toJSList()/] ;
+        [/if]
        
       [/for]
   [/let][/let]
