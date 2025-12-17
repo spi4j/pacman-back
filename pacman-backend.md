@@ -85,7 +85,46 @@ Pour Pacman lors de l'initialisation d'un projet, le générateur va toujours cr
 - Version Information System Designer  :  5.1.1+
 - JDK : 17+
 
-### Etapes
+### Plugins externes
+
+1 - Vérification de la version pour l'IDE
+
+Avant de commencer l’installation ou l’utilisation du plugin, il est indispensable de vérifier que l’IDE Eclipse utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez Eclipse puis accédez au menu "*Help/About Eclipse IDE*". Dans la fenêtre d’information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d’éviter tout comportement inattendu ou erreur d’exécution liée à une version non conforme de l’environnement Eclipse.
+
+<div align="center">
+  <img src="images/pcm-ecr-about-version.png" alt="Installation" width="500">
+</div>
+
+2 - Installation des plugins d'édition
+
+Si leur installation est optionnelle, les plugins d’édition SQL, JSON, YAML dans l’IDE Eclipse sont  toutefois fortement recommandés pour améliorer la lisibilité, la cohérence et la fiabilité du développement. Ces plugins apportent des fonctionnalités clés telles que la coloration syntaxique, la validation de la structure, l’auto-complétion et la détection précoce des erreurs, facilitant ainsi l’édition des fichiers de configuration, des scripts de base de données et des paramètres de journalisation. 
+
+En centralisant ces outils dans l’environnement de développement, le développeur gagne en productivité, réduit les risques d’erreurs de syntaxe ou de configuration, et assure une meilleure conformité aux standards techniques du projet.
+
+<div align="center">
+  <img src="images/pcm-ecr-plugin-editor-sql-json.png" alt="Installation" width="500">
+</div>
+<div align="center">
+  <img src="images/pcm-ecr-plugin-editor-yaml.png" alt="Installation" width="500">
+</div>
+
+3 - Installation plugin SLF4J
+
+L’installation du plugin SLF4J dans Eclipse est particulièrement utile pour faciliter la gestion et la configuration de la journalisation au sein des applications. Il permet d’améliorer l’édition des fichiers de configuration liés au logging en offrant une meilleure lisibilité, une aide à la structuration et une détection plus rapide des incohérences. Grâce à ce plugin, le développeur peut configurer et maintenir plus efficacement les mécanismes de traçabilité, indispensables au diagnostic, au suivi des comportements applicatifs et à l’analyse des erreurs, tout en garantissant une utilisation cohérente et standardisée de l’API SLF4J dans le code.
+
+<div align="center">
+  <img src="images/pcm-ecr-pluginm2e-sl4j.png" alt="Installation" width="500">
+</div>
+
+3 - Installation plugin M2E
+
+L’installation et la configuration de Maven dans Eclipse sont essentielles pour assurer une gestion fiable et cohérente du cycle de vie des projets. Maven permet d’automatiser la gestion des dépendances, la compilation, les tests et le packaging des applications, tout en garantissant l’uniformité des versions utilisées au sein du projet. Son intégration dans l’IDE facilite l’import, la mise à jour et la maintenance des projets, réduit les erreurs liées aux dépendances manquantes ou incompatibles, et améliore la reproductibilité des builds, aussi bien en environnement de développement que d’intégration continue.
+
+<div align="center">
+  <img src="images/pcm-ecr-plugin-m2e-wtp.png" alt="Installation" width="500">
+</div>
+
+### Plugin Pacman
 
 1 - Téléchargement du plugin  
 
@@ -110,7 +149,7 @@ Il est aussi possible de récupérer l'ensemble des sources et de les compiler (
 - Rechercher et sélectionner l'archive **Pacman** (format .zip) préalablement chargée sur le disque.
 
 <div align="center">
-  <img src="images/pcm-install-1.png" alt="Installation" width="500">
+  <img src="images/pcm-ecr-install-new-software.png" alt="Installation" width="500">
 </div>
 
 - Cliquer sur le bouton "*Add*".
@@ -118,27 +157,27 @@ Il est aussi possible de récupérer l'ensemble des sources et de les compiler (
 - Décocher la case "*Contact all updates sites during install to find required software*".
 
 <div align="center">
-  <img src="images/pcm-install-2.png" alt="Installation" width="500">
+  <img src="images/pcm-ecr-install-pacman-back.png" alt="Installation" width="500">
 </div>
 
 - Cliquer sur le bouton "*Next*".
 - Vérifier la bonne prise en compte de l'ensemble des plugins qui vont être installés.
 
 <div align="center">
-  <img src="images/pcm-install-3.png" alt="Installation" width="500">
+  <img src="images/pcm-ecr-liste-plugin-install.png" alt="Installation" width="500">
 </div>
 
 - Cliquer sur le bouton "*Finish*"
 - **Pacman** n'étant pas signé, cliquer sur le bouton "Select All".
 
 <div align="center">
-  <img src="images/pcm-install-4.png" alt="Installation" width="500">
+  <img src="images/pcm-ecr-trust-all.png" alt="Installation" width="500">
 </div>
 
 - Cliquer sur le bouton "*True Selected*".
 
 <div align="center">
-  <img src="images/pcm-install-5.png" alt="Installation" width="500">
+  <img src="images/pcm-ecr-restart-install.png" alt="Installation" width="500">
 </div>
 
 - Valider la demande de redémarrage pour ISD en cliquant sur le bouton "*Restart Now*".
@@ -150,13 +189,13 @@ Il est aussi possible de récupérer l'ensemble des sources et de les compiler (
 - Vérifier la présence de l'icône **Pacman** au niveau de la fenêtre avec la liste des plugins installés. (icône non contractuelle)
 
 <div align="center">
-  <img src="images/pcm-install-6.png" alt="Installation" width="350">
+  <img src="images/pcm-ecr-about.png" alt="Installation" width="500">
 </div>
 
 - Il est aussi possible d'aller voir plus loin en cliquant sur le bouton "*Installation Details*" et en vérifiant la liste des plugins au niveau du premier onglet "*Installed Software*".
 
 <div align="center">
-  <img src="images/pcm-install-7.png" alt="Installation" width="500">
+  <img src="images/pcm-installed-softwares.png" alt="Installation" width="500">
 </div>
 
 ## ☕ Création du projet  
@@ -1963,19 +2002,17 @@ public void populate() {
    if (!populateEnabled)
       return;
 
-   for (int i = 0; i < nbEntities; i++) {
+   IntStream.range(0, nbEntities).forEach(i -> {
 
 	// Start of user code f1399e649e5189a1b6ddbc2110423d17
 	PersonneEntityImpl personne = personneRepository.save(personnePopulateWithFakeData(null));
 	// End of user code
 
-	// Start of user code eff84bdefaf9cdc14ddeb8376157f2a4
-	DemarcheEntityImpl demarche = demarcheRepository.save(demarchePopulateWithFakeData(null));
-	// End of user code
+	....
 
 	// Start of user code e679aa86ca55b033b965ba72500dbe92
 	// End of user code
-   }
+   });
 }
 ```
 
@@ -2016,7 +2053,27 @@ Enfin, paramétrer le nombre d'occurences à insérer dans la base de données e
 // Start of user code ccd1066343c95877b75b79d47c36bebe
 /** Nombre de lignes à créer dans la base de données. */
 private final int nbEntities = 10;
+private final int nbRelations = 5;
 // End of user code
+```
+
+La variable "**nbEntities**" indique le nombre d'occurences à enregistrer pour chaque entité et la variable "**nbRelations**" permet de définir le nombre d'occurences à enregistrer pour chaque entité qui est en relation avec une autre entité. Ainsi avec l'exemple précédent, 10 *personnes* sont enregistrées avec pur chaque personne 5 "*démarches*". Ceci donne le code suivant au niveau de la méthode *populate()* : 
+
+```java
+IntStream.range(0, nbEntities).forEach(i -> {
+    // Start of user code f1399e649e5189a1b6ddbc2110423d17
+    UserDemoEntityImpl userDemo = userDemoRepository.save(userDemoPopulateWithFakeData(null));
+    // End of user code
+    
+    // Start of user code eff84bdefaf9cdc14ddeb8376157f2a4
+    IntStream.range(0, nbRelations).forEach(i2 -> {
+        RequestDemoEntityImpl requestDemo = requestDemoRepository.save(requestDemoPopulateWithFakeData(userDemo));
+    });
+    // End of user code
+    
+    // Start of user code e679aa86ca55b033b965ba72500dbe92
+    // End of user code
+});
 ```
 
 Bien évidemment, tout l'intérêt de ce générateur (par rapport à un script SQL) est de pouvoir afficher facilement des données compréhensibles pour l'utilisateur, même en phase de développement. Il est donc nécessaire de modifier le code par défaut afin de coller au code métier. Pour cela se reporter aux fonctionnalités de la librairie DataFaker.

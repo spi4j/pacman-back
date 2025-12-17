@@ -190,7 +190,32 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>Version Information System Designer  :  5.1.1+</li>
 <li>JDK : 17+</li>
 </ul>
-<h3 id="etapes">Etapes</h3>
+<h3 id="plugins-externes">Plugins externes</h3>
+<p>1 - Vérification de la version pour l'IDE</p>
+<p>Avant de commencer l’installation ou l’utilisation du plugin, il est indispensable de vérifier que l’IDE Eclipse utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez Eclipse puis accédez au menu "<em>Help/About Eclipse IDE</em>". Dans la fenêtre d’information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d’éviter tout comportement inattendu ou erreur d’exécution liée à une version non conforme de l’environnement Eclipse.</p>
+<div align="center">
+<img alt="Installation" src="images/pcm-ecr-about-version.png" width="500"/>
+</div>
+<p>2 - Installation des plugins d'édition</p>
+<p>Si leur installation est optionnelle, les plugins d’édition SQL, JSON, YAML dans l’IDE Eclipse sont  toutefois fortement recommandés pour améliorer la lisibilité, la cohérence et la fiabilité du développement. Ces plugins apportent des fonctionnalités clés telles que la coloration syntaxique, la validation de la structure, l’auto-complétion et la détection précoce des erreurs, facilitant ainsi l’édition des fichiers de configuration, des scripts de base de données et des paramètres de journalisation. </p>
+<p>En centralisant ces outils dans l’environnement de développement, le développeur gagne en productivité, réduit les risques d’erreurs de syntaxe ou de configuration, et assure une meilleure conformité aux standards techniques du projet.</p>
+<div align="center">
+<img alt="Installation" src="images/pcm-ecr-plugin-editor-sql-json.png" width="500"/>
+</div>
+<div align="center">
+<img alt="Installation" src="images/pcm-ecr-plugin-editor-yaml.png" width="500"/>
+</div>
+<p>3 - Installation plugin SLF4J</p>
+<p>L’installation du plugin SLF4J dans Eclipse est particulièrement utile pour faciliter la gestion et la configuration de la journalisation au sein des applications. Il permet d’améliorer l’édition des fichiers de configuration liés au logging en offrant une meilleure lisibilité, une aide à la structuration et une détection plus rapide des incohérences. Grâce à ce plugin, le développeur peut configurer et maintenir plus efficacement les mécanismes de traçabilité, indispensables au diagnostic, au suivi des comportements applicatifs et à l’analyse des erreurs, tout en garantissant une utilisation cohérente et standardisée de l’API SLF4J dans le code.</p>
+<div align="center">
+<img alt="Installation" src="images/pcm-ecr-pluginm2e-sl4j.png" width="500"/>
+</div>
+<p>3 - Installation plugin M2E</p>
+<p>L’installation et la configuration de Maven dans Eclipse sont essentielles pour assurer une gestion fiable et cohérente du cycle de vie des projets. Maven permet d’automatiser la gestion des dépendances, la compilation, les tests et le packaging des applications, tout en garantissant l’uniformité des versions utilisées au sein du projet. Son intégration dans l’IDE facilite l’import, la mise à jour et la maintenance des projets, réduit les erreurs liées aux dépendances manquantes ou incompatibles, et améliore la reproductibilité des builds, aussi bien en environnement de développement que d’intégration continue.</p>
+<div align="center">
+<img alt="Installation" src="images/pcm-ecr-plugin-m2e-wtp.png" width="500"/>
+</div>
+<h3 id="plugin-pacman_1">Plugin Pacman</h3>
 <p>1 - Téléchargement du plugin  </p>
 <ul>
 <li>Le plugin (sous forme de fichier au format .zip) est téléchargeable à partir de l'URI suivante : https://github.com/spi4j/pacman-back...</li>
@@ -213,7 +238,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>Rechercher et sélectionner l'archive <strong>Pacman</strong> (format .zip) préalablement chargée sur le disque.</li>
 </ul>
 <div align="center">
-<img alt="Installation" src="images/pcm-install-1.png" width="500"/>
+<img alt="Installation" src="images/pcm-ecr-install-new-software.png" width="500"/>
 </div>
 <ul>
 <li>Cliquer sur le bouton "<em>Add</em>".</li>
@@ -221,27 +246,27 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>Décocher la case "<em>Contact all updates sites during install to find required software</em>".</li>
 </ul>
 <div align="center">
-<img alt="Installation" src="images/pcm-install-2.png" width="500"/>
+<img alt="Installation" src="images/pcm-ecr-install-pacman-back.png" width="500"/>
 </div>
 <ul>
 <li>Cliquer sur le bouton "<em>Next</em>".</li>
 <li>Vérifier la bonne prise en compte de l'ensemble des plugins qui vont être installés.</li>
 </ul>
 <div align="center">
-<img alt="Installation" src="images/pcm-install-3.png" width="500"/>
+<img alt="Installation" src="images/pcm-ecr-liste-plugin-install.png" width="500"/>
 </div>
 <ul>
 <li>Cliquer sur le bouton "<em>Finish</em>"</li>
 <li><strong>Pacman</strong> n'étant pas signé, cliquer sur le bouton "Select All".</li>
 </ul>
 <div align="center">
-<img alt="Installation" src="images/pcm-install-4.png" width="500"/>
+<img alt="Installation" src="images/pcm-ecr-trust-all.png" width="500"/>
 </div>
 <ul>
 <li>Cliquer sur le bouton "<em>True Selected</em>".</li>
 </ul>
 <div align="center">
-<img alt="Installation" src="images/pcm-install-5.png" width="500"/>
+<img alt="Installation" src="images/pcm-ecr-restart-install.png" width="500"/>
 </div>
 <ul>
 <li>Valider la demande de redémarrage pour ISD en cliquant sur le bouton "<em>Restart Now</em>".</li>
@@ -252,13 +277,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>Vérifier la présence de l'icône <strong>Pacman</strong> au niveau de la fenêtre avec la liste des plugins installés. (icône non contractuelle)</li>
 </ul>
 <div align="center">
-<img alt="Installation" src="images/pcm-install-6.png" width="350"/>
+<img alt="Installation" src="images/pcm-ecr-about.png" width="500"/>
 </div>
 <ul>
 <li>Il est aussi possible d'aller voir plus loin en cliquant sur le bouton "<em>Installation Details</em>" et en vérifiant la liste des plugins au niveau du premier onglet "<em>Installed Software</em>".</li>
 </ul>
 <div align="center">
-<img alt="Installation" src="images/pcm-install-7.png" width="500"/>
+<img alt="Installation" src="images/pcm-installed-softwares.png" width="500"/>
 </div>
 <h2 id="creation-du-projet">☕ Création du projet</h2>
 <hr/>
@@ -1692,19 +1717,17 @@ L'idée et le but de la génération sont au départ, d'avoir un code qui compil
 <span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">populateEnabled</span><span class="p">)</span>
 <span class="w">      </span><span class="k">return</span><span class="p">;</span>
 
-<span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nbEntities</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">IntStream</span><span class="p">.</span><span class="na">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">nbEntities</span><span class="p">).</span><span class="na">forEach</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="c1">// Start of user code f1399e649e5189a1b6ddbc2110423d17</span>
 <span class="w">    </span><span class="n">PersonneEntityImpl</span><span class="w"> </span><span class="n">personne</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">personneRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">personnePopulateWithFakeData</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
 <span class="w">    </span><span class="c1">// End of user code</span>
 
-<span class="w">    </span><span class="c1">// Start of user code eff84bdefaf9cdc14ddeb8376157f2a4</span>
-<span class="w">    </span><span class="n">DemarcheEntityImpl</span><span class="w"> </span><span class="n">demarche</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">demarcheRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">demarchePopulateWithFakeData</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
-<span class="w">    </span><span class="c1">// End of user code</span>
+<span class="w">    </span><span class="p">....</span>
 
 <span class="w">    </span><span class="c1">// Start of user code e679aa86ca55b033b965ba72500dbe92</span>
 <span class="w">    </span><span class="c1">// End of user code</span>
-<span class="w">   </span><span class="p">}</span>
+<span class="w">   </span><span class="p">});</span>
 <span class="p">}</span>
 </code></pre></div>
 <p>Ainsi dans une relation (0,*) entre une <em>personne</em> et ses démarches, une <em>personne</em> a une liste de démarches, et ( pour le bidirectionnel Hibernate ), une <em>démarche</em> porte sur instance de <em>personne</em>. 
@@ -1736,7 +1759,24 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code ccd1066343c95877b75b79d47c36bebe</span>
 <span class="cm">/** Nombre de lignes à créer dans la base de données. */</span>
 <span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nbEntities</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nbRelations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
 <span class="c1">// End of user code</span>
+</code></pre></div>
+<p>La variable "<strong>nbEntities</strong>" indique le nombre d'occurences à enregistrer pour chaque entité et la variable "<strong>nbRelations</strong>" permet de définir le nombre d'occurences à enregistrer pour chaque entité qui est en relation avec une autre entité. Ainsi avec l'exemple précédent, 10 <em>personnes</em> sont enregistrées avec pur chaque personne 5 "<em>démarches</em>". Ceci donne le code suivant au niveau de la méthode <em>populate()</em> : </p>
+<div class="codehilite"><pre><span></span><code><span class="n">IntStream</span><span class="p">.</span><span class="na">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">nbEntities</span><span class="p">).</span><span class="na">forEach</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Start of user code f1399e649e5189a1b6ddbc2110423d17</span>
+<span class="w">    </span><span class="n">UserDemoEntityImpl</span><span class="w"> </span><span class="n">userDemo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">userDemoRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">userDemoPopulateWithFakeData</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="c1">// Start of user code eff84bdefaf9cdc14ddeb8376157f2a4</span>
+<span class="w">    </span><span class="n">IntStream</span><span class="p">.</span><span class="na">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">nbRelations</span><span class="p">).</span><span class="na">forEach</span><span class="p">(</span><span class="n">i2</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">RequestDemoEntityImpl</span><span class="w"> </span><span class="n">requestDemo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">requestDemoRepository</span><span class="p">.</span><span class="na">save</span><span class="p">(</span><span class="n">requestDemoPopulateWithFakeData</span><span class="p">(</span><span class="n">userDemo</span><span class="p">));</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="c1">// Start of user code e679aa86ca55b033b965ba72500dbe92</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+<span class="p">});</span>
 </code></pre></div>
 <p>Bien évidemment, tout l'intérêt de ce générateur (par rapport à un script SQL) est de pouvoir afficher facilement des données compréhensibles pour l'utilisateur, même en phase de développement. Il est donc nécessaire de modifier le code par défaut afin de coller au code métier. Pour cela se reporter aux fonctionnalités de la librairie DataFaker.</p>
 <p>Exemple d'utilisation : </p>
@@ -4272,6 +4312,6 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 </tbody>
 </table>
 </main>
-<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#etapes">Etapes</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#cas-projet-fournisseur">Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot">Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react">Cas projet client (React)</a></li></ul><li><a href="#fichiers-generes">📝 Fichiers Générés</a></li><ul><li><a href="#cas-projet-fournisseur_1">📁 Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot_1">📁 Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react_1">📁 Cas projet client (React)</a></li></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-projet-fournisseur_2">📁 Cas projet fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-projet-client-springboot_2">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul><li><a href="#cas-projet-client-react_2">📁 Cas projet client (React)</a></li><ul><li><a href="#npmignore">.npmignore</a></li><li><a href="#npmrc">.npmrc</a></li><li><a href="#packagejson">package.json</a></li><li><a href="#tsconfigbuildjson">tsconfig.build.json</a></li><li><a href="#tsconfigjson">tsconfig.json</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-projet-fournisseur_3">📁 Cas projet fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#generation-du-peuplement-de-la-base">Génération du peuplement de la base</a></li><ul><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#tests_3">Tests</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li><li><a href="#relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li></ul><li><a href="#cas-projet-client">📁 Cas projet client</a></li><li><a href="#cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_5">Génération</a></li><li><a href="#tests_4">Tests</a></li><li><a href="#deploiement">Déploiement</a></li></ul><li><a href="#cas-projet-client-react_3">📁 Cas projet client (React)</a></li><ul><li><a href="#axios">Axios</a></li><li><a href="#modelisation_5">Modélisation</a></li><li><a href="#generation_6">Génération</a></li><li><a href="#deploiement_1">Déploiement</a></li></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li></ul></nav>
+<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#plugins-externes">Plugins externes</a></li><li><a href="#plugin-pacman_1">Plugin Pacman</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#cas-projet-fournisseur">Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot">Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react">Cas projet client (React)</a></li></ul><li><a href="#fichiers-generes">📝 Fichiers Générés</a></li><ul><li><a href="#cas-projet-fournisseur_1">📁 Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot_1">📁 Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react_1">📁 Cas projet client (React)</a></li></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-projet-fournisseur_2">📁 Cas projet fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-projet-client-springboot_2">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul><li><a href="#cas-projet-client-react_2">📁 Cas projet client (React)</a></li><ul><li><a href="#npmignore">.npmignore</a></li><li><a href="#npmrc">.npmrc</a></li><li><a href="#packagejson">package.json</a></li><li><a href="#tsconfigbuildjson">tsconfig.build.json</a></li><li><a href="#tsconfigjson">tsconfig.json</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-projet-fournisseur_3">📁 Cas projet fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#generation-du-peuplement-de-la-base">Génération du peuplement de la base</a></li><ul><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#tests_3">Tests</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li><li><a href="#relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li></ul><li><a href="#cas-projet-client">📁 Cas projet client</a></li><li><a href="#cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_5">Génération</a></li><li><a href="#tests_4">Tests</a></li><li><a href="#deploiement">Déploiement</a></li></ul><li><a href="#cas-projet-client-react_3">📁 Cas projet client (React)</a></li><ul><li><a href="#axios">Axios</a></li><li><a href="#modelisation_5">Modélisation</a></li><li><a href="#generation_6">Génération</a></li><li><a href="#deploiement_1">Déploiement</a></li></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li></ul></nav>
 </body>
 </html>
