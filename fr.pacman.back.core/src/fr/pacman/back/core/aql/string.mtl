@@ -15,13 +15,13 @@
 [query public exists(str : String ) : Boolean  = str <> null and str.trim().size() > 0/]
 
 [comment retourne la ligne expurgée des caractères spéciaux interdits./]
-[query public sanitize(str : String) : String = str.trim().normalize().do_sanitize()/]
+[query public sanitize(str : String) : String = if (str <> null) then str.trim().normalize().do_sanitize() else str endif/]
 
 [comment retourne la ligne expurgée des caractères spéciaux interdits (pour les tables, etc..)./]
-[query public sanitizeSql(str : String) : String = str.sanitize().replaceAll(' ','')/]
+[query public sanitizeSql(str : String) : String = if (str <> null) then str.sanitize().replaceAll(' ','') else str endif/]
   
 [comment retourne la ligne expurgée des caractères spéciaux interdits./]
-[query public sanitizeComment(str : String) : String = str.replaceAll('\\*','')/]
+[query public sanitizeComment(str : String) : String = if (str <> null) then str.replaceAll('\\*','') else str endif/]
 
 [comment retourne l'énumération de requirement expurgée des caractères spéciaux interdits../]  
 [query public sanitizeReqID(s : String) : String = if not (s = null) then s.replaceAll('-', '_') else 'ID_INVALID' endif/]

@@ -15,8 +15,7 @@
 		<java.version>17</java.version>
 		<tycho-version>4.0.8</tycho-version>
 		<properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
-		<central-repository-url>https://repo.maven.apache.org/maven2</central-repository-url>
-		<acceleo-releases_url>https://download.eclipse.org/acceleo/updates/releases/4.1/R202502130921/</acceleo-releases_url>
+		<acceleo-releases-url>https://download.eclipse.org/acceleo/updates/releases/4.1/R202502130921/</acceleo-releases-url>
 		<odc-updatesite-url>http://www.obeo.fr/download/release/designer/11.9/community/11.9.1/repository/</odc-updatesite-url>
 		<is-updatesite-url>https://www.obeosoft.com/download/release/informationsystem/5.1.0/design/repository/</is-updatesite-url>
 		<eclipse-updatesite-url>http://download.eclipse.org/releases/2023-03/</eclipse-updatesite-url> 
@@ -43,28 +42,11 @@
 		<repository>
             <id>acceleo-releases</id>
             <layout>p2</layout>
-            <url>${acceleo-releases_url}</url>
+            <url>${acceleo-releases-url}</url>
         </repository>
 	</repositories>
-	
-	<pluginRepositories>
-		<pluginRepository>
-			<id>central</id>
-			<name>Central Repository</name>
-			<url>${central-repository-url}</url>
-			<layout>default</layout>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<releases>
-				<updatePolicy>never</updatePolicy>
-			</releases>
-		</pluginRepository>
-	</pluginRepositories>
 
 	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>test</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -98,23 +80,6 @@
 							<version>${project.version}</version>
 						</extraClasspathElement> -->
 					</extraClasspathElements>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-					<encoding>UTF-8</encoding>
-					<compilerArgument>-Xlint</compilerArgument>
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -231,6 +196,7 @@
 				<module>fr.pacman.back.soa</module>
 				<module>fr.pacman.back.soa.spi4j</module>
 				<module>fr.pacman.back.soa.spring</module>
+				<module>fr.pacman.back.soa.spring.sso</module>
 				<module>fr.pacman.back.soaclient</module>
 				<module>fr.pacman.back.soaclient.spi4j</module>
 				<module>fr.pacman.back.soaclient.spring</module>

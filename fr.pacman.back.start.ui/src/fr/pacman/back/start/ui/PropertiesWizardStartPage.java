@@ -13,6 +13,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -62,6 +63,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _spi4jSecurity = "";
 	private String _projectCrud = "";
 	private String _databases = "";
+	private String _rsSSOAuth = "";
 
 	// Pas en String car ne vas pas dans les propriétés.
 	private boolean _displayReadme;
@@ -134,6 +136,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		registerWidget("txt_reqLevel", addTextReqLevel(options1));
 		registerWidget("cb_reqInitVerion", addComboReqInitVersion(options1));
 		registerWidget("ck_jerseyCdi", addCheckBoxCdi(options2));
+		registerWidget("ck_ssoMinarm", addCheckBoxSSOAuth(options2));
 		registerWidget("ck_fileConfig", addCheckBoxSpi4jConfig(options2));
 		registerWidget("ck_fetchStrategy", addCheckBoxFetchStrategy(options2));
 		registerWidget("ck_security", addCheckBoxSecurity(options2));
@@ -166,6 +169,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		_typeProject = "server";
 		_typeFramework = "springboot";
 		_spi4jRsCdi = "false";
+		_rsSSOAuth = "false";
 		_spi4jfetchingStrategy = "false";
 		_spi4jSecurity = "false";
 		_projectCrud = "false";
@@ -319,7 +323,11 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(final SelectionEvent p_e) {
-				_javaVersion = String.valueOf(cbx.getSelectionIndex());
+				//_javaVersion = String.valueOf(cbx.getSelectionIndex());
+				if (cbx.getSelectionIndex() == 0)
+					_javaVersion = "17";
+				if (cbx.getSelectionIndex() == 1)
+					_javaVersion = "21";
 			}
 
 			@Override
@@ -525,6 +533,26 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			@Override
 			public void widgetDefaultSelected(final SelectionEvent p_e) {
 				widgetSelected(p_e);
+			}
+		});
+		return cbx;
+	}
+
+	/**
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
+	private Button addCheckBoxSSOAuth(final Composite p_parent) {
+		Button cbx = addCheckBox(p_parent, "Api REST - Utilisation librairie SSO du ministère", "");
+		cbx.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent p_e) {
+				boolean v_selected = ((Button) p_e.getSource()).getSelection();
+				if (v_selected) {
+					_rsSSOAuth = "true";
+				} else {
+					_rsSSOAuth = "false";
+				}
 			}
 		});
 		return cbx;
@@ -829,12 +857,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		enable(getWidget("grp_options1"));
 		enable(getWidget("cb_databases"));
 		enable(getWidget("cb_javaVersion"));
+		enable(getWidget("ck_ssoMinarm"));
 
 		if ("client".equalsIgnoreCase(_typeProject)) {
 			disable(getWidget("grp_database2"));
 			disable(getWidget("grp_database3"));
 			disable(getWidget("grp_options1"));
 			disable(getWidget("cb_databases"));
+			disable(getWidget("ck_ssoMinarm"));
 			if ("react".equalsIgnoreCase(_typeFramework))
 				disable(getWidget("cb_javaVersion"));
 		}
@@ -1008,6 +1038,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getSpi4jRsCdi() {
 		return _spi4jRsCdi;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRsSSOAuth() {
+		return _rsSSOAuth;
 	}
 
 	/**

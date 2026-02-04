@@ -39,7 +39,7 @@
     [/for]
   }
   
-  // On exporte une instance pour simplifier l’usage.
+  // On exporte une instance pour simplifier l'usage.
   export const [s.name().apply_variableDefault()/] = new [s.nameClassServiceImpl()/](apiClient);
 [/template]
 

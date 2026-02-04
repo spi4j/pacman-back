@@ -55,14 +55,14 @@ import fr.pacman.back.core.validation.PacmanValidationRow;
  * Cette vue liste les erreurs détectées lors de la validation des données, avec
  * 4 colonnes principales : Règle, Objet, Erreur rencontrée, Solution
  * potentielle. Elle permet de filtrer les résultats, de trier chaque colonne,
- * et de naviguer vers l’élément métier correspondant dans la représentation
+ * et de naviguer vers l'élément métier correspondant dans la représentation
  * Sirius associée.
  * 
  * Le chemin relatif vers le fichier des représentations (fichier .aird) doit
  * être fourni via {@link #setRepresentations(String)} pour permettre la
  * navigation.
  * 
- * La navigation vers un élément valide automatiquement l’ouverture de la
+ * La navigation vers un élément valide automatiquement l'ouverture de la
  * représentation contenant cet élément, puis surligne la partie graphique
  * correspondante.
  * 
@@ -214,8 +214,19 @@ public class PacmanUIValidationView extends ViewPart {
 	 * Met à jour le titre de la vue pour afficher le nombre de lignes affichées.
 	 */
 	private void refreshViewTitle() {
-		if (_rows != null)
-			setPartName(TITLE + " (" + _rows.size() + " ligne(s))");
+		if (_viewer == null || _viewer.getTable().isDisposed() || _rows == null) {
+			setPartName(TITLE);
+			return;
+		}
+
+		int total = _rows.size();
+		int visible = _viewer.getTable().getItemCount();
+
+		if (visible == total) {
+			setPartName(TITLE + " (" + total + " ligne(s))");
+		} else {
+			setPartName(TITLE + " (" + visible + " / " + total + " ligne(s))");
+		}
 	}
 
 	/**
@@ -309,7 +320,10 @@ public class PacmanUIValidationView extends ViewPart {
 			Text text = new Text(filterComposite, SWT.SEARCH | SWT.ICON_CANCEL);
 			text.setMessage(hints[i]);
 			text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-			text.addModifyListener(e -> _viewer.refresh());
+			text.addModifyListener(e -> {
+				_viewer.refresh();
+				refreshViewTitle();
+			});
 			_filterTexts[i] = text;
 		}
 
@@ -333,7 +347,7 @@ public class PacmanUIValidationView extends ViewPart {
 	}
 
 	/**
-	 * Tente de naviguer automatiquement vers l’élément {@link EObject} associé à
+	 * Tente de naviguer automatiquement vers l'élément {@link EObject} associé à
 	 * une ligne de validation, en ouvrant la représentation graphique Sirius qui le
 	 * contient (le cas échéant), puis en le sélectionnant visuellement.
 	 * 
@@ -351,7 +365,7 @@ public class PacmanUIValidationView extends ViewPart {
 	 * <ol>
 	 * <li>On vérifie directement si la représentation contient le {@code target}
 	 * via {@link #representationContainsTarget(DRepresentation, EObject)}.</li>
-	 * <li>Si ce n’est pas le cas, on vérifie si le {@code target} possède une
+	 * <li>Si ce n'est pas le cas, on vérifie si le {@code target} possède une
 	 * référence bidirectionnelle (opposite) vers un autre EObject en appelant
 	 * {@link #hasOppositeOf(EObject)}. Si cette cible opposée existe et est
 	 * présente dans la représentation, on la considère comme cible.</li>
@@ -360,7 +374,7 @@ public class PacmanUIValidationView extends ViewPart {
 	 * La première représentation correspondant à l'une de ces conditions est
 	 * conservée dans {@code containingRepresentation}. Si une target opposée est
 	 * utilisée, {@code target} est mis à jour pour pointer sur cette instance. Si
-	 * aucune session ou représentation n’est trouvée, un message d’erreur est
+	 * aucune session ou représentation n'est trouvée, un message d'erreur est
 	 * affiché via une pop-up.
 	 * </p>
 	 * Utilisation d'un double {@link Display#asyncExec(Runnable)} pour la sélection
@@ -393,7 +407,7 @@ public class PacmanUIValidationView extends ViewPart {
 	 * de l'intégrité des liens EMF et de l'initialisation complète du diagramme.
 	 * </p>
 	 * 
-	 * @param p_row La ligne de validation contenant l’élément EMF cible à localiser
+	 * @param p_row La ligne de validation contenant l'élément EMF cible à localiser
 	 *              dans une représentation.
 	 *
 	 * @see org.eclipse.sirius.viewpoint.DRepresentation
@@ -675,13 +689,13 @@ public class PacmanUIValidationView extends ViewPart {
 	}
 
 	/**
-	 * Prépare l’environnement de la vue de validation en activant la
-	 * synchronisation entre l’éditeur et l’explorateur de modèles.
+	 * Prépare l'environnement de la vue de validation en activant la
+	 * synchronisation entre l'éditeur et l'explorateur de modèles.
 	 * 
-	 * Cette méthode tente d’ouvrir la vue de l’explorateur de modèles Sirius
-	 * (identifiée par {@code EXPLORER_VIEW_ID}) si elle n’est pas déjà ouverte,
-	 * puis active l’option "Link with Editor" pour que la sélection dans l’éditeur
-	 * principal soit reflétée automatiquement dans l’explorateur.
+	 * Cette méthode tente d'ouvrir la vue de l'explorateur de modèles Sirius
+	 * (identifiée par {@code EXPLORER_VIEW_ID}) si elle n'est pas déjà ouverte,
+	 * puis active l'option "Link with Editor" pour que la sélection dans l'éditeur
+	 * principal soit reflétée automatiquement dans l'explorateur.
 	 *
 	 * @param p_page La page de travail Eclipse active dans laquelle ouvrir et
 	 *               configurer la vue.

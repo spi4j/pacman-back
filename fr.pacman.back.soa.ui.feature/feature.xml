@@ -44,5 +44,12 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+         
+    <plugin
+         id="fr.pacman.back.soa.spring.sso"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

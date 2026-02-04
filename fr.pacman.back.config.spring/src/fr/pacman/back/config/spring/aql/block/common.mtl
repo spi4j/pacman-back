@@ -10,6 +10,7 @@
 [import fr::pacman::back::core::aql::rule::variable/]
 [import fr::pacman::back::core::aql::rule::method/]
 [import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::property::project::ProjectProperties/]
 
 [comment écriture du fichier de configuration Maven pour le sous-projet métier (domain)./]
 [template public pom (any : ecore::EObject)]
@@ -100,10 +101,12 @@
     [/protected]
     -->
     
-    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    <!-- Même si ce n'est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
     <properties>
        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+       <maven.compiler.release>[any.get_javaVersion()/]</maven.compiler.release>
+       <m2e.compiler.compliance>[any.get_javaVersion()/]</m2e.compiler.compliance>
     </properties>
   </project>
 [/template]

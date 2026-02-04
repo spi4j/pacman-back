@@ -39,7 +39,7 @@
   [d.commentClass()/]
   [protected ('annotations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
   [/protected]
-  @Schema(description = "[d.writeDescription()/]")
+  @Schema(description = "[d.writeDescriptionSingleLine()/]")
   public class [d.nameClassXtoImpl()/] implements Serializable
   {
      
@@ -69,7 +69,7 @@
          [protected (a.nameAttribute().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
            @JsonProperty("[a.nameAttribute()/]")
          [/protected]
-         @Schema(description = "[a.writeDescription()/]")
+         @Schema(description = "[a.writeDescriptionSingleLine()/]")
          private [a.type()/] [a.nameAttribute()/];
          
        [/for]
@@ -144,6 +144,7 @@
 [query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String = if (r.isMultiple() 
   and r.containedType(d) = d) then + if (r.isMandatory()) then '@Schema(hidden = true)' 
   + ' //Non utile pour swagger-ui.' else '@ArraySchema(schema = @Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
-  + '.class))' endif else if (d = null) then '@Schema(description = "' + r.referencedDto(d).writeDescription() + '")' else '@Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
-  + '.class, description = "' + r.referencedDto(d).writeDescription() + '")' endif  endif/]
+  + '.class))' endif else if (d = null) then '@Schema(description = "' + r.referencedDto(d).writeDescriptionSingleLine() + '")' 
+  else '@Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() + '.class, description = "' 
+  + r.referencedDto(d).writeDescriptionSingleLine() + '")' endif  endif/]
 

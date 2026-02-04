@@ -279,6 +279,7 @@
 [template public defaultSecurityRsConfigImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
   
+  import org.springframework.core.annotation.Order;
   import org.springframework.context.annotation.Bean;
   import org.springframework.context.annotation.Configuration;
   import org.springframework.security.config.Customizer;
@@ -321,6 +322,7 @@
     *                   sécurité HTTP.
     */
     @Bean
+    @Order(150)
     public SecurityFilterChain tokenFilterChain(HttpSecurity http) throws Exception {
         return http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
           .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

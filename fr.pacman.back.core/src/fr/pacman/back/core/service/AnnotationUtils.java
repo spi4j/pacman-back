@@ -245,6 +245,10 @@ public final class AnnotationUtils {
 		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS);
 	}
 	
+	public static boolean has_metaComputed(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
+	}
+	
 	public static boolean has_metaPermissionOr(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS_OR);
 	}

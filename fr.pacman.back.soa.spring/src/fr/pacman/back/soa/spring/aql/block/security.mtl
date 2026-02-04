@@ -86,9 +86,9 @@
    * Certaines autres routes non sécurisées sont définies explicitement. Toutes
    * les autres requêtes sont sécurisées et nécessitent une authentification.
    *
-   * Attention à bien mettre des urls valides pour la déclaration de la sécurité,
+   * Attention à bien mettre des URLs valides pour la déclaration de la sécurité,
    * si le tokenUrl est invalide ou manquant, Swagger UI ne pourra pas afficher le
-   * flow d’authentification le cadenas ne sera pas affiché.
+   * flow d'authentification le cadenas ne sera pas affiché.
    *
    * @Author [m.nameAuthor()/]
    */
@@ -129,7 +129,7 @@
         * gestion des sessions (toujours stateless par défaut pour les API REST).
         * 
         * Pour les API REST sans état, en particulier celles utilisant
-        * l’authentification basée sur des jetons, la désactivation du CSRF est une
+        * l'authentification basée sur des jetons, la désactivation du CSRF est une
         * décision courante et sûre.
         * <p>
         * On part sur le postulat suivant : la majorité des requêtes sont (et doivent)
@@ -139,7 +139,7 @@
         * génération ou la non génération d'un filtre de sécurité.
         *
         * Pour l'instant, la gestion des rôles est positionnée au niveau de la
-        * configuration de sécurité. Toutes les règles d’accès sont dans une seule
+        * configuration de sécurité. Toutes les règles d'accès sont dans une seule
         * configuration et cela est plus performant car géré très tôt dans la chaîne de
         * sécurité. Enfin, il y a une correspondance claire entre URI et rôles. Il est
         * cependant impossible d'avoir des logiques complexes, pour cela positionner
@@ -156,7 +156,7 @@
         * @throws Exception si une erreur se produit lors de la configuration.
         */
         @Bean
-        @Order(2)
+        @Order(150)
         public SecurityFilterChain ['token filter chain'.apply_methodDefault()/](HttpSecurity ['http'.apply_parameterMethodClassicIn()/]) throws Exception {
            return ['http'.apply_parameterMethodClassicIn()/].cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -200,7 +200,7 @@
         * @throws Exception si une erreur survient lors de la configuration
         */
         @Bean
-        @Order(1)
+        @Order(50)
         public SecurityFilterChain ['auth filter chain'.apply_methodDefault()/](HttpSecurity ['http'.apply_parameterMethodClassicIn()/]) throws Exception {
            return ['http'.apply_parameterMethodClassicIn()/].cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -350,13 +350,13 @@
         * {@code ROLE_permission:read} est ajoutée.</li>
         * </ul>
         *
-        * Cette méthode remplace l’utilisation du bean
+        * Cette méthode remplace l'utilisation du bean
         * {@link org.springframework.security.access.hierarchicalroles.RoleHierarchy},
-        * dont la classe d’implémentation {@code RoleHierarchyImpl} est obsolète à
+        * dont la classe d'implémentation {@code RoleHierarchyImpl} est obsolète à
         * partir de Spring Security 6.
         *
         * @return un convertisseur JWT vers {@link AbstractAuthenticationToken},
-        *         enrichi d’une hiérarchie de rôles simulée.
+        *         enrichi d'une hiérarchie de rôles simulée.
         */
        @Bean
        public Converter<Jwt, AbstractAuthenticationToken> ['jwt authentication converter'.apply_methodDefault()/]() {
@@ -593,10 +593,10 @@
   * d'échec ultérieur.
   * 
   * Placer le filtre avant les filtres de Spring Security s'il y a besoin de
-  * modifier la requête avant l’authentification.
+  * modifier la requête avant l'authentification.
   * 
   * Placer le filtre après si on désire accéder aux informations
-  * d’authentification (comme SecurityContextHolder) dans le filtre.
+  * d'authentification (comme SecurityContextHolder) dans le filtre.
   *
   * Utilise {@link OncePerRequestFilter} pour garantir que le filtre ne s'exécute
   * qu'une seule fois par requête HTTP, évitant ainsi les comportements
@@ -644,7 +644,7 @@
 [/template]
 
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
-[query private nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
+[query public nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
   ->select(o | not o.isRsSecured()) /]
   
 [comment retourne l'ensemble des opérations sécurisées (et avec rôle) dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]

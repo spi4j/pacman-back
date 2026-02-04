@@ -8,13 +8,16 @@
 [import fr::pacman::back::core::aql::query::entity/]
 [import fr::pacman::back::core::aql::validation::common/]
 [import fr::pacman::back::core::validation::PacmanValidatorsReport/]
+[import fr::pacman::back::core::service::AnnotationUtils/]
 				
 [comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
+[comment ATTENTION pour l'instant recopier la totalité au niveau de la validation pour sql./]
 [template public validation (r : entity::Root)]
   [let es = r.subTypesEntities()]
     [for (e | es)]
       [comment pas d'entité vide./]
       [if (e.attributes->isEmpty())][e.add(e.err1())/][/if]
+        
       [comment pas d'attribut avec identifier./] 
       [if (not e.attributes->select(o | o.isIdentifier)->isEmpty())][e.add(e.err2())/][/if]
       
@@ -38,6 +41,29 @@
       [comment pas d'héritage autre que des entités/]
       
       [comment pas de classe fille avec relation sur classe mère/]
+      
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (e.has_metaPhysicalUnique() and not e.get_metaPhysicalUnique().exists())][e.add(e.err14())/][/if]
+        
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (e.has_metaPhysicalDefault() and not e.get_metaPhysicalDefault().exists())][e.add(e.err14())/][/if]
+      
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (e.has_metaPhysicalName() and not e.has_metaPhysicalName().exists())][e.add(e.err14())/][/if]
+      
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (e.has_metaPhysicalShortname() and not e.get_metaPhysicalShortname().exists())][e.add(e.err14())/][/if]
+      
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (e.has_metaPhysicalCheck() and not e.get_metaPhysicalCheck().exists())][e.add(e.err14())/][/if]
+        
+      [for (a | e.attributes)]
+        [comment vérification des métadonnées (doit avoir un corps)./]
+        [if (a.has_metaPhysicalUnique() and not a.get_metaPhysicalUnique().exists())][a.add(a.err16())/][/if]
+          
+        [comment vérification des métadonnées (doit avoir un corps)./]
+        [if (a.has_metaPhysicalSize() and not a.get_metaPhysicalSize().exists())][a.add(a.err16())/][/if]
+      [/for]
     [/for]
     
     [let pes = r.eAllContents(entity::Entity)->select(e | not es->includes(e))]
@@ -60,6 +86,12 @@
         [comment pas de relation jt entre les classes parents./]
         [if (not pes->isEmpty() and (re.isMultipleBidirectionnal() and not re.isRecursive() 
         	and (pes->includes(re.containingType) and pes->includes(re.referencedType))))][re.add(re.err13())/][/if]
+        	
+        [comment vérification des métadonnées (doit avoir un corps)./]
+        [if (re.has_metaPhysicalShortname() and not re.get_metaPhysicalShortname().exists())][re.add(re.err15())/][/if]
+          
+        [comment vérification des métadonnées (doit avoir un corps)./]
+        [if (re.has_metaCascadeType() and not re.get_metaLiteralCascadeType().exists())][re.add(re.err15())/][/if]
       [/for]
     [/let]
   [/let]
@@ -116,3 +148,15 @@
 [comment impossible de créer des entités parent avec des références JT (autre que récursive) sur d'autres classes parents./]
 [query private err13 (r : environment::Reference) : String = 'RG_13@' + r.nameObject() + '@Références de type \'Join\' entre entités héritées' 
   + '@Supprimez les références de type \'Join\' pour les entités héritées'/]
+  
+[comment impossible de créer des entités avec des métadonnées sans corps./]
+[query private err14 (e : entity::Entity) : String = 'RG_14@' + e.nameObject() + '@Entité avec métadonnée sans corps' 
+  + '@Renseignez le corps obligatoire de la métadonnée'/]
+  
+[comment impossible de créer des références avec des métadonnées sans corps./]
+[query private err15 (r : environment::Reference) : String = 'RG_15@' + r.nameObject() + '@Référence avec métadonnée sans corps' 
+  + '@Renseignez le corps obligatoire de la métadonnée'/]
+  
+[comment impossible de créer des attributs avec des métadonnées sans corps./]
+[query private err16 (a : environment::Attribute) : String = 'RG_16@' + a.nameObject() + '@Attribut avec métadonnée sans corps' 
+  + '@Renseignez le corps obligatoire de la métadonnée'/]

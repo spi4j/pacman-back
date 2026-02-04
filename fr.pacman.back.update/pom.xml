@@ -25,21 +25,6 @@
 					<finalName>${project.groupId}-${unqualifiedVersion}.${buildQualifier}</finalName>
 				</configuration>
 			</plugin>
-			 <plugin>
-        		<groupId>org.apache.maven.plugins</groupId>
-        		<artifactId>maven-resources-plugin</artifactId>
-        		<executions>
-          			<execution>
-            			<phase>verify</phase>
-            			<goals>
-              				<goal>resources</goal>
-            			</goals>
-          			</execution>
-        		</executions>
-        		<configuration>
-          			<outputDirectory>${project.build.directory}</outputDirectory>
-        		</configuration>
-      		</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<executions>

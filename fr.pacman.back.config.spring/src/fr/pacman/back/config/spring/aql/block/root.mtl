@@ -181,6 +181,14 @@
               <scope>runtime</scope>
             </dependency>
           [/if]
+          [if (any.isRsSSOAuthEnabled())]
+            <!-- Utilisation librairie SSO -->
+            <dependency>
+              <groupId>fr.dga</groupId>
+              <artifactId>dga-sso-mindefconnect-spring-boot-starter</artifactId>
+              <version>[any.versionSSOMinarm()/]</version>
+            </dependency>
+          [/if]
           <!-- Peuplement de mocks -->
           <dependency>
              <groupId>net.datafaker</groupId>

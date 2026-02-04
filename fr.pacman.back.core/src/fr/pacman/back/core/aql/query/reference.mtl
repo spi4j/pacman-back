@@ -123,7 +123,7 @@
 [comment vérifie si la référence exige une entité ou un dto/xto (les listes sont considérées comme obligatoire)./]
 [query public isMandatory(r : environment::Reference) : Boolean = if (r.exists()) then not (r.multiplicity = 
 	environment::MultiplicityKind::ZERO_ONE) else false endif/]
-	
+
 [comment retourne toutes les références unidirectionnelles niveau entité ou dto/xto, la requête est 
 		légèrement différente de 'referencesFK' et fonctionne sur les deux diagrammes (entity / soa).
 		-> pour spring boot uniquement./]	
@@ -258,7 +258,7 @@
   +  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() + '>' 
   else  r.referencedDto(st.oclAsType(environment::DTO)).nameClassXtoImpl() endif /]
 
-[comment en Acceleo, deux objets peuvent être considérés comme différents même s’ils ont le même identifiant technique 
+[comment en Acceleo, deux objets peuvent être considérés comme différents même s'ils ont le même identifiant technique 
          car l'identité des objets est aussi basée sur leur référence mémoire ou leur instance EMF, pas uniquement sur 
          leurs attributs. Comme avec l'héritage on effectue un 'downgrade' par copie, on récupère une nouvelle référence 
          mémoire et l'égalité n'est plus aquise alors qu'il s'agit bien du même objet. On se contente alors juste d'une 

@@ -95,7 +95,7 @@
     [/protected]
     -->
     
-    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    <!-- Même si ce n'est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
     <properties>
        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

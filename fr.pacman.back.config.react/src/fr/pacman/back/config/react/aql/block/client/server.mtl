@@ -206,11 +206,11 @@
 
 [comment écriture ./]
 [template public nmprc(any : ecore::EObject)]
-  #Assure que npm utilise bien le registre officiel (utile dans certains environnements d’entreprise).
+  #Assure que npm utilise bien le registre officiel (utile dans certains environnements d'entreprise).
   registry=https://registry.npmjs.org/
   #Désactive la vérification SSL (résout le problème de boucle infinie / handshake SSL.)
   strict-ssl=false
-  #Force npm à générer package-lock.json même si quelque chose dans l’environnement tente de l’ignorer.
+  #Force npm à générer package-lock.json même si quelque chose dans l'environnement tente de l'ignorer.
   package-lock=true
 [/template]
 

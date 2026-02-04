@@ -53,6 +53,7 @@ public class WizardUtil {
 	public static final int c_codeKo = 1;
 	public static final int c_codeKoExists = 2;
 
+	private static final String c_view_task = "org.eclipse.ui.views.TaskList";
 	private static final String c_view_log = "org.eclipse.pde.runtime.LogView";
 	private static final String c_view_problem = "org.eclipse.ui.views.ProblemView";
 	private static final String c_view_properties = "org.eclipse.ui.views.PropertySheet";
@@ -123,6 +124,7 @@ public class WizardUtil {
 					try {
 						// IViewPart view = page.showView("org.eclipse.ui.views.ProgressView");
 						// page.setPartState(page.getReference(view), IWorkbenchPage.STATE_RESTORED);
+						view = page.showView(c_view_task);
 						view = page.showView(c_view_validation);
 						view = page.showView(c_view_log);
 						view = page.showView(c_view_problem);
@@ -134,7 +136,9 @@ public class WizardUtil {
 						view = page.showView(c_view_html);
 
 					} catch (PartInitException e) {
-						// RAS (pas grave à ce niveau, on ne vas pas polluer la création)
+						displayMessageInDialog("ATTENTION",
+								"Impossible d'activer automatiquement l'ensemble des vues nécessaires "
+										+ " pour le projet. \n Activez les différentes vues manuellement.");
 					} finally {
 						if (view != null) {
 							view.setFocus();

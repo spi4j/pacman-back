@@ -38,6 +38,14 @@
     import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
     import [d.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
     
+    [comment ajout des mappers et dtos référencés./]
+    [for (r | d.referencesFKSBResolved(ds,dss)->union(d.referencesJTSBResolved()))]
+      import [r.namePackageProject()/].[r.referencedDto(d).namePackageMapperOutImpl()/].[r.referencedDto(d).nameClassMapperImpl()/];
+      [if (r.isInverseReference(d))]
+        import [r.namePackageProject()/].[r.referencedDto(d).namePackageDtoImpl()/].[r.referencedDto(d).nameClassDtoImpl()/];
+      [/if]
+    [/for]
+    
   [/protected]
   
   /**
@@ -71,22 +79,12 @@
              try {
                [e.suffixEntity()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixDto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
                [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-                 [d.writeStandardOutEntityMapper(a)/]
+                 [d.writeAttributeOutEntityMapper(a)/]
                [/for]
                [for (r | rs)]
-                 [if (not r.isMultiple())]
-                   [r.writeReferenceOutEntityMapper(d)/]
-                 [/if]
-                 [if (r.isMultiple() and r.containedType(d) = d)]
-                   [r.writeListOutEntityMapper(d)/]
-                 [/if]
-                 [comment gestion des références inverses./]
-                 [if (r.isInverseReference(d))]
-                   [r.writeInverseReferenceOutEntityMapper(d)/]
-                 [/if]
-                 [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
-                 [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
-                   [r.writeListOutEntityMapper(d)/]
+                 [comment uniquement sur références communes dto-entity./]
+                 [if (d.hasAssociatedEntityReference(r))]
+                   [r.writeOutEntityReferenceMapper(d)/]
                  [/if]
                [/for]
                [for (prop : String | d.autoAttributes())]
@@ -131,22 +129,12 @@
                 
                 [d.suffixDto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixEntity()/].[e.nameSimplePropertyID().apply_methodGet()/]());
                 [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-                  [d.writeStandardOutDtoMapper(a)/]
+                  [d.writeAttributeOutDtoMapper(a, false)/]
                 [/for]
                 [for (r | rs)]
-                  [if (not r.isMultiple())]
-                    [r.writeReferenceOutDtoMapper(d)/]
-                  [/if]
-                  [if (r.isMultiple() and r.containedType(d) = d)]
-                    [r.writeListOutDtoMapper(d)/]
-                  [/if]
-                  [comment gestion des références inverses./]
-                  [if (r.isInverseReference(d))]
-                    [r.writeInverseReferenceOutDtoMapper(d)/]
-                  [/if]
-                  [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
-                  [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
-                    [r.writeListOutDtoMapper(d)/]
+                  [comment uniquement sur références communes dto-entity./]
+                  [if (d.hasAssociatedEntityReference(r))]
+                    [r.writeOutDtoReferenceMapper(d, false)/]
                   [/if]
                 [/for]
                 [for (prop : String | d.autoAttributes())]
@@ -154,6 +142,18 @@
                 [/for]
                 
                 [protected ((d.nameClassDtoImpl() + ' in').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+                  [comment uniquement sur attributs calculés dto, libre au développeur de rajouter le code 
+                           nécessaire pour initialiser sa propriété./]
+                  [for (a : environment::Attribute | d.attributesComputed())]
+                    [d.writeAttributeOutDtoMapper(a, true)/]
+                  [/for]
+                  [comment uniquement sur références supplémentaires dto, libre au développeur de rajouter le code 
+                           nécessaire pour initialiser sa propriété./]
+                  [for (r | rs)]
+                    [if (not d.hasAssociatedEntityReference(r))]
+                      [r.writeOutDtoReferenceMapper(d, true)/]
+                    [/if]
+                  [/for]
                 [/protected]
                 
                } catch (Exception e) {
@@ -176,7 +176,13 @@
     import [d.namePackageProject()/].[d.namePackageXtoImpl()/].[d.nameClassXtoImpl()/];
     import [d.namePackageProject()/].[d.namePackageDtoImpl()/].[d.nameClassDtoImpl()/];
     
-    [/protected]
+    [comment ajout des mappers et dtos référencés./]
+    [for (r | d.referencesFKSBResolved(ds,dss)->union(d.referencesJTSBResolved()))]
+      import [r.namePackageProject()/].[r.referencedDto(d).namePackageMapperInImpl()/].[r.referencedDto(d).nameClassMapperImpl()/];
+    [/for]
+    
+  [/protected]
+  
   /**
    * La classe {@code [d.nameClassMapperImpl()/]} est responsable de la conversion entre deux types d'objets : 
    * {@link [d.nameClassXtoImpl()/]} et {@link [d.nameClassDtoImpl()/]}. Elle fournit des méthodes statiques pour effectuer 
@@ -214,23 +220,10 @@
              
                [d.suffixDto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixXto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
                [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-                 [d.writeStandardInDtoMapper(a)/]
+                 [d.writeAttributeInDtoMapper(a)/]
                [/for]
                [for (r | rs)]
-                 [if (not r.isMultiple())]
-                   [r.writeReferenceInDtoMapper(d)/]
-                 [/if]
-                 [if (r.isMultiple() and r.containedType(d) = d)]
-                   [r.writeListInDtoMapper(d)/]
-                 [/if]
-                 [comment gestion des références inverses./]
-                 [if (r.isInverseReference(d))]
-                   [r.writeInverseReferenceInDtoMapper(d)/]
-                 [/if]
-                 [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
-                 [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
-                   [r.writeListInDtoMapper(d)/]
-                 [/if]
+                 [r.writeInDtoReferenceMapper(d)/]
                [/for]
                [for (prop : String | d.autoAttributes())]
                  [d.writeAutoAttributeInDto(prop)/]
@@ -270,23 +263,10 @@
                  
               [d.suffixXto()/].[e.nameSimplePropertyID().apply_methodSet()/]([d.suffixDto()/].[e.nameSimplePropertyID().apply_methodGet()/]());
               [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
-                [d.writeStandardInXtoMapper(a)/]
+                [d.writeAttributeInXtoMapper(a)/]
               [/for]
               [for (r | rs)]
-                [if (not r.isMultiple())]
-                  [r.writeReferenceInXtoMapper(d)/]
-                [/if]
-                [if (r.isMultiple() and r.containedType(d) = d)]
-                  [r.writeListInXtoMapper(d)/]
-                [/if]
-                [comment gestion des références inverses./]
-                [if (r.isInverseReference(d) )]
-                  [r.writeInverseReferenceInXtoMapper(d)/]
-                [/if]
-                [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
-                [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
-                  [r.writeListInXtoMapper(d)/]
-                [/if]
+                [r.writeInXtoReferenceMapper(d)/]
               [/for]
               [for (prop : String | d.autoAttributes())]
                 [d.writeAutoAttributeInXto(prop)/]
@@ -305,6 +285,78 @@
   }
 [/template]
 
+[comment écriture pour la partie spécifique de la gestion des références (positionner à null si b = 'true')./]
+[template private writeOutDtoReferenceMapper(r : environment::Reference, d : environment::DTO, b : Boolean)]
+  [if (not r.isMultiple())]
+    [r.writeReferenceOutDtoMapper(d, b)/]
+  [/if]
+  [if (r.isMultiple() and r.containedType(d) = d)]
+    [r.writeListOutDtoMapper(d)/]
+  [/if]
+  [comment gestion des références inverses./]
+  [if (r.isInverseReference(d))]
+    [r.writeInverseReferenceOutDtoMapper(d)/]
+  [/if]
+  [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
+  [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
+    [r.writeListOutDtoMapper(d)/]
+  [/if]
+[/template]
+
+[comment écriture pour la partie spécifique de la gestion des références./]
+[template private writeOutEntityReferenceMapper(r : environment::Reference, d : environment::DTO)]
+  [if (not r.isMultiple())]
+    [r.writeReferenceOutEntityMapper(d)/]
+  [/if]
+  [if (r.isMultiple() and r.containedType(d) = d)]
+    [r.writeListOutEntityMapper(d)/]
+  [/if]
+  [comment gestion des références inverses./]
+  [if (r.isInverseReference(d))]
+    [r.writeInverseReferenceOutEntityMapper(d)/]
+  [/if]
+  [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
+  [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
+    [r.writeListOutEntityMapper(d)/]
+  [/if]
+[/template]
+
+[comment écriture pour la partie spécifique de la gestion des références./]
+[template private writeInDtoReferenceMapper(r : environment::Reference, d : environment::DTO)]
+  [if (not r.isMultiple())]
+    [r.writeReferenceInDtoMapper(d)/]
+  [/if]
+  [if (r.isMultiple() and r.containedType(d) = d)]
+    [r.writeListInDtoMapper(d)/]
+  [/if]
+  [comment gestion des références inverses./]
+  [if (r.isInverseReference(d))]
+    [r.writeInverseReferenceInDtoMapper(d)/]
+  [/if]
+  [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
+  [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
+    [r.writeListInDtoMapper(d)/]
+  [/if]
+[/template]
+
+[comment écriture pour la partie spécifique de la gestion des références./]
+[template private writeInXtoReferenceMapper(r : environment::Reference, d : environment::DTO)]
+  [if (not r.isMultiple())]
+    [r.writeReferenceInXtoMapper(d)/]
+  [/if]
+  [if (r.isMultiple() and r.containedType(d) = d)]
+    [r.writeListInXtoMapper(d)/]
+  [/if]
+  [comment gestion des références inverses./]
+  [if (r.isInverseReference(d) )]
+    [r.writeInverseReferenceInXtoMapper(d)/]
+  [/if]
+  [comment on traite aussi les héritages non downgraded (autres que références inverses)./]
+  [if (r.isMultiple() and r.containedType(d) <> d and d.isSubType(r.containingType))]
+    [r.writeListInXtoMapper(d)/]
+  [/if]
+[/template]
+
 [comment écriture d'une ligne de mapping pour un attribut automatique./]
 [query private writeAutoAttributeOutEntity(d : environment::DTO, prop : String) : String = d.suffixEntity().apply_variableDefault() 
   + '.' + prop.nameAutoAttribute().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
@@ -319,19 +371,20 @@
 [comment écriture d'une ligne de mapping pour un attribut automatique./]
 [query private writeAutoAttributeInXto(d : environment::DTO, prop : String) : String =  ''/]  
 [comment écriture d'une ligne de mapping pour un attribut standard./]
-[query private writeStandardInXtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixXto().apply_variableDefault() 
+[query private writeAttributeInXtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixXto().apply_variableDefault() 
   + '.' + a.name().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '());'/]
   
 [comment écriture d'une ligne de mapping pour un attribut standard./]
-[query private writeStandardInDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
+[query private writeAttributeInDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
   + '.' + a.name().apply_methodSet() + '(' + d.suffixXto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '());'/]
 
-[comment écriture d'une ligne de mapping pour un attribut standard./]
-[query private writeStandardOutDtoMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixDto().apply_variableDefault() 
-  + '.' + a.name().apply_methodSet() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '());'/]
+[comment écriture d'une ligne de mapping pour un attribut Attribute (pour l'instant jamais null, à voir en fonction réponse vincent)./]
+[query private writeAttributeOutDtoMapper(d : environment::DTO, a : environment::Attribute, bComputed : Boolean) : String =  d.suffixDto().apply_variableDefault() 
+  + '.' + a.name().apply_methodSet() + '(' + if (bComputed) then 'null' else d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
+  + a.name().apply_methodGet() + '()' endif + ');' + if (bComputed) then '// TODO Champ calculé à initialiser.' else '' endif/]
   
 [comment écriture d'une ligne de mapping pour un attribut standard./]
-[query private writeStandardOutEntityMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixEntity().apply_variableDefault() 
+[query private writeAttributeOutEntityMapper(d : environment::DTO, a : environment::Attribute) : String = d.suffixEntity().apply_variableDefault() 
   + '.' + a.name().apply_methodSet() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' + a.name().apply_methodGet() + '());'/]
 
 [comment écriture de mapping pour une liste dans le cadre d'une référence./]
@@ -402,10 +455,10 @@
   + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));' /]
   
 [comment écriture de la ligne de mapping pour une référence optionnelle ou non (hors liste)./]
-[query private writeReferenceOutDtoMapper(r : environment::Reference, d : environment::DTO) : String  = 
+[query private writeReferenceOutDtoMapper(r : environment::Reference, d : environment::DTO, b : Boolean) : String  = 
   d.suffixDto().apply_variableDefault() + '.' + r.referencedDto(d).referencedName(r).apply_methodSet() + '(' + r.referencedDto(d).nameClassMapperImpl() 
-  + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
-  + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));'/]
+  + '.' + ('to ' + d.suffixDto()).apply_methodDefault() + '(' + if (b) then 'null' else d.suffixEntity().apply_parameterMethodClassicIn() + '.' 
+  + r.referencedDto(d).referencedName(r).apply_methodGet() + '()' endif + '));' + if (b) then '// TODO Champ calculé à initialiser.' else '' endif/]
   
 [comment écriture de la ligne de mapping pour une référence optionnelle ou non (hors liste)./]
 [query private writeReferenceOutEntityMapper(r : environment::Reference, d : environment::DTO) : String  =
@@ -413,6 +466,10 @@
   + '.' + ('to ' + d.suffixEntity()).apply_methodDefault() + '(' + d.suffixDto().apply_parameterMethodClassicIn() + '.' 
   + r.referencedDto(d).referencedName(r).apply_methodGet() + '()));' /]
   
+[comment ./]
+[query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() 
+  + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')->toString()/]
 
-[query private dsq1(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'entity'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')->toString()/]
-[query private dsq2(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'xto'.apply_parameterMethodClassicIn() + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')->toString()/]
+[comment ./]
+[query private dsq2(d : environment::DTO) : String = d.attributesNoPKAndNoComputed()->collect(o | 'xto'.apply_parameterMethodClassicIn() 
+  + '.' + o.nameAttribute().apply_methodGet() + '()'  + o.lineSeparator())->sep(',')->toString()/]

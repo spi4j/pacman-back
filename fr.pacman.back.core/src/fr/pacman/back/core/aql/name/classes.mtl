@@ -16,13 +16,22 @@
 [comment query public nameClassEntityMapperItf(e : entity::Entity) : String = (e.name() + e.suffixMapper()).apply_classInterface()/]
 
 [comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
-[query public nameClassDatabasePopulateImpl(any : ecore::EObject) : String = (any.nameProject() + ' db populate').apply_classImplem()/]
+[query public nameClassDatabasePopulateImpl (any : ecore::EObject) : String = (any.nameProject() + ' db populate').apply_classImplem()/]
   
 [comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
-[query public nameClassRsClientConfigImpl(any : ecore::EObject) : String = (any.nameProject() + ' web client config').apply_classImplem()/]
+[query public nameClassRsClientConfigImpl (any : ecore::EObject) : String = (any.nameProject() + ' web client config').apply_classImplem()/]
 
 [comment retourne le nom pour l'implémentation du service de santé de l'application./]
-[query public nameClassRsServiceHealthImpl  (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classImplem()/]
+[query public nameClassRsServiceHealthImpl (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation du handler sso keycloack./]
+[query public nameClassRsSSOLoginHandlerImpl (any : ecore::EObject) : String = (any.nameProject() + ' keycloack handler').apply_classDefault()/]
+
+[comment retourne le nom pour l'interface utilisateur pour le service sso keycloack./]
+[query public nameClassRsSSOUserServiceItf (any : ecore::EObject) : String = (any.nameProject() + ' sso user' + any.suffixService()).apply_classDefault()/]
+  
+[comment retourne le nom pour l'implémentation utilisateur pour le service sso keycloack./]
+[query public nameClassRsSSOUserServiceImpl (any : ecore::EObject) : String = (any.nameProject() + ' sso user' + any.suffixService()).apply_classImplem()/]
   
 [comment retourne le nom pour l'interface du service de santé de l'application./]
 [query public nameClassServiceHealthItf  (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classInterface()/]
@@ -31,7 +40,7 @@
 [query public nameClassExternalInfoImpl (any : ecore::EObject) : String = (any.nameProject() + ' health external info').apply_classImplem()/]
   
 [comment retourne le nom pour l'implémentation du service de santé de l'application./]
-[query public nameClassExternalHealthImpl (any : ecore::EObject) : String = (any.nameProject() + ' health external service').apply_classImplem()/]
+[query public nameClassExternalHealthImpl (any : ecore::EObject) : String = (any.nameProject() + ' health external' + any.suffixService()).apply_classImplem()/]
   
 [comment retourne le nom pour l'implémentation du service de santé de l'application./]
 [query public nameClassServiceHealthImpl (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classImplem()/]
@@ -186,7 +195,7 @@
 [query public nameClassRsAuthenticationExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' authentication exception').apply_classDefault()/]
 
 [comment retourne le nom de la classe de service pour la création d'un jeton jwt./]
-[query public nameClassRsTokenServiceImpl(any : ecore::EObject) : String = (any.get_projectName() + ' jwt token service').apply_classDefault()/]
+[query public nameClassRsTokenServiceImpl(any : ecore::EObject) : String = (any.get_projectName() + ' jwt token' + any.suffixService()).apply_classDefault()/]
   
 [comment retourne le nom de la classe d'exception dans le cas d'une problématique dans les mappers./]
 [query public nameClassMapperExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' mapper exception').apply_classDefault()/]

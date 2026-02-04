@@ -158,6 +158,9 @@
   }
 [/template]
 
+[comment écriture du nombre de lignes pour l'entité ./]
+[query private writeNbRows(e : entity::Entity) : String = '10'/]
+
 [comment écriture de la ligne pour le peuplement de l'entité + sauvegarde./]
 [query private writePopulateEntity(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = e.nameClassEntityImpl() 
   + ' ' + e.name().apply_variableDefault() + ' = ' + e.nameClassEntityPersistItf().apply_attributeDefault() + '.save(' 
@@ -173,20 +176,20 @@
   + ' '+ o.referencedEntity(e).name().apply_parameterMethodClassicIn())->sep(',')/]
   
 [comment écriture de la signature pour la méthode de population de l'entité (entités référencées)/]
-[query private writePopulateSignatureWithDefaultNull(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = '' 
-  + e.referencesFKSBResolved(es, ess)->collect(o | 'null')->sep(',')/]
+[query private writePopulateSignatureWithDefaultNull(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = 
+  e.writePopulateSignature(es, ess).replaceAll('[^,]+','null')/]
 
 [comment écriture des données aléatoires par défaut pour le peuplement de l'entité./]
 [query private writeFakerData(t : environment::Type) : String = if ('Long'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() +'.number()' 
-  else if ('Long'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.numberBetween(10L, 100L)' 
+  else if ('Long'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.number().numberBetween(10L, 100L)' 
   else if ('Float'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.number().randomDouble(6, -500, 500)' 
-  else if ('Integer'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.numberBetween(0, 100)' 
-  else if ('Double'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.randomDouble(3, 1, 100)' 
+  else if ('Integer'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.number().numberBetween(0, 100)' 
+  else if ('Double'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.number().randomDouble(3, 1, 100)' 
   else if ('UUID'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.lorem().characters(5, 20)' 
-  else if ('Boolean'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.nextBoolean()' 
+  else if ('Boolean'.equalsIgnoreCase(t.name)) then 'faker'.apply_attributeDefault() + '.bool().bool()' 
   else if ('Date'.equalsIgnoreCase(t.name)) then 'random local date'.apply_methodDefault() + '(0)'
   else else if ('Time'.equalsIgnoreCase(t.name)) then 'random time'.apply_methodDefault() + '()'
   else else if ('Timestamp'.equalsIgnoreCase(t.name)) then 'random time stamp'.apply_methodDefault() + '(0)'
-  else else if ('Long'.equalsIgnoreCase(t.name)) then '.number()' 
+  else else if ('XXX'.equalsIgnoreCase(t.name)) then '.number()' 
   else 'faker'.apply_attributeDefault() + '.lorem().characters(5, 20)' endif  endif  endif  endif  endif   
   endif endif endif endif endif endif/]

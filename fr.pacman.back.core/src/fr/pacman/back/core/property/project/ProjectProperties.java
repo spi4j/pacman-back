@@ -36,6 +36,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_project_databases = "project.databases";
 	public static final String c_project_ws = "project.ws.enabled";
 	public static final String c_project_security = "project.security.enabled";
+	public static final String c_project_sso_auth = "project.sso.auth.enabled";
 	public static final String c_project_crud = "project.crud.enabled";
 	public static final String c_project_testsCrud = "project.tests.crud.enabled";
 	public static final String c_project_fetchingStrategy = "project.fetchingstrategy.enabled";
@@ -196,6 +197,9 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_project_library, "false",
 						"Flag indiquant si le projet va servir comme librairie"),
+				
+				PacmanProperty.newRequired(c_project_sso_auth, "false",
+						"Flag indiquant si le projet utilise la librairie sso pour authentification"),
 
 				PacmanProperty.newRequired(c_project_library_rs, "false",
 						"Flag indiquant si le projet va servir comme librairie avec un import swagger",
@@ -686,6 +690,10 @@ public final class ProjectProperties extends PropertiesCategory {
 
 	public static boolean isProfilerEnabled() {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_profiler));
+	}
+	
+	public static boolean isRsSSOAuthEnabled(final Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_sso_auth));
 	}
 
 	public static String get_XtoSupKey(final Object p_object) {

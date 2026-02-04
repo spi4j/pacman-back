@@ -71,7 +71,7 @@
        /**
         * Retourne le jeton JWT à utiliser pour les appels protégés.
         * 
-        * Si le jeton n’a pas encore été récupéré, une requête d’authentification est
+        * Si le jeton n'a pas encore été récupéré, une requête d'authentification est
         * envoyée. Compléter le code avec l'initialisation des données nécessaires pour
         * obtenir le jeton. En retour, saisir la méthode utilisée pour la récupération
         * du jeton en fonction du type pour la paramètre de sortie.
@@ -163,7 +163,7 @@
             [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
               
             [for (p | o.input)]
-              [p.writeDescription().commentMultiLines()/]
+              [p.writeDescriptionMultiLines()/]
               [p.inputRsType()/] [p.name().apply_variableDefault()/] = null;
               
             [/for]

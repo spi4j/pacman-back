@@ -13,7 +13,10 @@
 [import fr::pacman::back::core::aql::query::dto/]
 [import fr::pacman::back::core::aql::validation::common/]
 [import fr::pacman::back::core::validation::PacmanValidatorsReport/]
-				
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+[import fr::pacman::back::core::service::AnnotationUtils/]
+[import fr::pacman::back::core::service::DtoEntityUtils/]
+
 [comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
 [comment pour les dtos on est pas relié directement à la base de données, doit on être plus souple sur les références ?/]
 [template public validation (m : soa::System)]
@@ -32,7 +35,15 @@
       
     [comment pas d'attribut sans type défini./]
     [if (not d.attributesNoPK()->select(o | not o.type.exists())->isEmpty())][d.add(d.err5())/][/if]
-      
+    
+    [comment pas d'attribut non présent dans l'entité et sans annotation computed./]
+    [if (d.isPersistent())]
+      [let diff : Sequence(environment::Attribute) = d.get_attributes()
+        ->select(a1 | not d.associatedEntity().get_attributes()->exists(a2 | a2.name = a1.name))]
+        [if (not diff->isEmpty())][for (o | diff)][if (not o.has_metaComputed())][o.add(o.err30())/][/if][/for][/if]
+      [/let]
+    [/if]
+    
     [comment pas d'héritage autre que des dtos/]
   [/for]
   
@@ -97,6 +108,19 @@
       
       [comment pas de service avec des dtos hérités./]
       [if (o.input->exists(p | dtss->includes(p.type)) or dtss->includes(o.output) )][o.add(s.err23(o))/][/if]
+        
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (o.has_metaPermission() and not o.get_metaPermission().exists())][o.add(o.err28())/][/if]
+      
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (o.has_metaPermissionOr() and not o.get_metaPermissionOr().exists())][o.add(o.err28())/][/if]
+      
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (o.has_metaPermissionAnd() and not o.get_metaPermissionAnd().exists())][o.add(o.err28())/][/if]
+      
+      [comment vérification des métadonnées (doit avoir un corps)./]
+      [if (o.has_metaAuthToken() and not o.get_metaAuthToken().exists())][o.add(o.err28())/][/if]
+      
       [/for]
     [/if]
   [/for]
@@ -108,7 +132,21 @@
     
   [comment pas de multiples sécurités pour l'instant./]
   [if (m.eAllContents(soa::SecurityScheme)->size() > 1)][m.add(m.err25())/][/if]
- 
+    
+  [if (m.eAllContents(soa::SecurityScheme)->size() > 0)]
+    [let s = m.eAllContents(soa::SecurityScheme)->first()]
+      [comment pas de sécurité oauth2/oidc avec URL non définies./]
+      [if (s.type = soa::SecuritySchemeType::OAUTH2 
+        or s.type = soa::SecuritySchemeType::OPEN_ID_CONNECT)]
+        [if (not s.connectURL.exists())][s.add(s.err26())/][/if]
+      [/if]
+      [comment pas librairie sso si pas oidc./]
+      [if (m.isRsSSOAuthEnabled() 
+        and s.type <> soa::SecuritySchemeType::OPEN_ID_CONNECT)]
+        [s.add(s.err27())/]
+      [/if]
+    [/let]
+ [/if]
 [/template]
 
 [comment impossible de créer des dtos sans attribut./]
@@ -208,3 +246,23 @@
 [comment impossible pour l'instant de définir plusieurs sécurités./]
 [query private err25 (m : soa::System) : String = 'RG_25@' + m.nameObject() + '@Application modélisée avec plusieurs sécurités@Cette version de pacman ' 
   + ' n\'authorise pour l\'instant qu\'une seule sécurité'/]
+  
+[comment impossible de modéliser une sécurité oauth2 sans URL(s)./]
+[query private err26 (s : soa::SecurityScheme) : String = 'RG_26@' + s.nameObject() + '@Sécurité modélisée sans URL définie'
+  + '@Complétez la définition de la sécurité.'/]
+  
+[comment impossible de modéliser une sécurité oauth2 sans URL(s)./]
+[query private err27 (s : soa::SecurityScheme) : String = 'RG_27@' + s.nameObject() + '@Sécurité non compatible avec la librairie'
+  + '@Repositionnez la sécurité sur OIDC.'/]
+  
+[comment impossible de créer des opération avec des métadonnées sans corps./]
+[query private err28 (o : soa::Operation) : String = 'RG_28@' + o.nameObject() + '@Opération avec métadonnée sans corps' 
+  + '@Renseignez le corps obligatoire de la métadonnée'/]
+  
+[comment impossible de créer des opération avec des métadonnées sans corps./]
+[query private err29 (s : soa::Service) : String = 'RG_29@' + s.nameObject() + '@Service avec métadonnée sans corps' 
+  + '@Renseignez le corps obligatoire de la métadonnée'/]
+  
+[comment impossible de créer des opération avec des métadonnées sans corps./]
+[query private err30 (a : environment::Attribute) : String = 'RG_30@' + a.nameObject() + '@Attribut non présent dans l\'entité associée' 
+  + '@Ajouter la métadonnée Computed'/]

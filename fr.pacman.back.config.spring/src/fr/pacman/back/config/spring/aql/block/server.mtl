@@ -5,6 +5,7 @@
 [import fr::pacman::back::core::aql::name::classes/]
 [import fr::pacman::back::core::aql::name::packages/]
 [import fr::pacman::back::core::aql::name::databases/]
+[import fr::pacman::back::core::aql::name::resources/]
 [import fr::pacman::back::core::aql::query::eobject/]
 [import fr::pacman::back::core::aql::output::headers/]
 [import fr::pacman::back::core::aql::output::comments/]
@@ -129,6 +130,13 @@
             <artifactId>ojdbc8</artifactId>
     	  </dependency>
     	[/if]
+    	[if (any.isRsSSOAuthEnabled())]
+    	  <!-- Utilisation librairie SSO pour Authentification -->
+    	  <dependency>
+    	    <groupId>fr.dga</groupId>
+    	    <artifactId>dga-sso-mindefconnect-spring-boot-starter</artifactId>
+    	  </dependency>
+    	[/if]
     	<!-- Peuplement des mocks -->
     	<dependency>
     	   <groupId>net.datafaker</groupId>
@@ -184,10 +192,12 @@
     [/protected]
     -->
     
-    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    <!-- Même si ce n'est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
     <properties>
        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+       <maven.compiler.release>[any.get_javaVersion()/]</maven.compiler.release>
+       <m2e.compiler.compliance>[any.get_javaVersion()/]</m2e.compiler.compliance>
     </properties>
   </project>
 [/template]
@@ -517,7 +527,7 @@
   }
 [/template]
 
-[comment écriture de la classe de ddéfinition des vues json (rest)./]
+[comment écriture de la classe de définition des vues json (rest)./]
 [template public rsJsonViewsImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageRsBase())/]
   /**
@@ -559,7 +569,7 @@
    *     <li>{@code Public} : Vue minimale, exposée publiquement.</li>
    *     <li>{@code Summary} : Vue de synthèse, inclut {@code Public}.</li>
    *     <li>{@code Details} : Vue détaillée, inclut {@code Summary}.</li>
-   *     <li>{@code Internal} : Données internes à l’application, inclut {@code Details}.</li>
+   *     <li>{@code Internal} : Données internes à l'application, inclut {@code Details}.</li>
    *     <li>{@code Admin} : Vue complète, réservée à un usage administratif.</li>
    * </ul>
    *
@@ -620,7 +630,7 @@
      /**
       * Retourne le message d'erreur ou d'avertissement pour l'exception.
       * 
-      * @return le message d'erreur ou d'avertissment?
+      * @return le message d'erreur ou d'avertissment
       */
      public String ['err message'.apply_methodGet()/]() {
         return ['err message'.apply_attributeDefault()/];
@@ -1034,6 +1044,11 @@
   [/if]
 [/template]
 
+[comment écriture de l'ensemble des informations pour la configurationb SSO./]
+[template public applicationSSOProperties(any : ecore::EObject)]
+  # En attente génération SOA.
+[/template]
+
 [comment écriture de l'ensemble des informations pour les datasources, etc.../]
 [template public applicationProperties(any : ecore::EObject)]
   
@@ -1094,33 +1109,39 @@
   # ----------------------------------------------------------------------------------------------
   # SWAGGER UI
   # ----------------------------------------------------------------------------------------------
-  # Documentation JSON ex: http://localhost:8081/v1/api-docs
+  # Documentation JSON ex: http://localhost:8081/api/v1/api-docs
   springdoc.api-docs.path=/api-docs
-  # Documentation Swagger (ihm) ex: http://localhost:8081/swagger-ui.html
+  # Documentation Swagger (ihm) ex: http://localhost:8081/api/v1/swagger-ui
   springdoc.swagger-ui.path=/swagger-ui
   # Definition de l'ordre d'affichage des operations (endpoints) <alpha|method>
   springdoc.swagger-ui.operations-sorter=method
   # Definition de l'ordre d'affichage des tags <alpha|fonction de tri JS personnalisee>
   springdoc.swagger-ui.tags-sorter=alpha
   
-  # ----------------------------------------------------------------------------------------------
-  # LISTE DES URIS NON SECURISEES
-  # ----------------------------------------------------------------------------------------------
-  # Ne pas oublier de reporter les modifications issues des rubriques precedentes 
-  security.whitelist.paths=/swagger-ui/**,/api-docs/**,/actuator/**
+  [comment si pas SSO alors c'est ici que l'on traite les points d'accès publiques)./]
+  [if (not any.isRsSSOAuthEnabled())]
+    # ----------------------------------------------------------------------------------------------
+    # LISTE DES URIS NON SECURISEES
+    # ----------------------------------------------------------------------------------------------
+    # Ne pas oublier de reporter les modifications issues des rubriques precedentes 
+    security.whitelist.paths=/swagger-ui/**,/api-docs/**,/actuator/**
+  [/if]
   
   # ----------------------------------------------------------------------------------------------
   # HTTP SERVER
   # ----------------------------------------------------------------------------------------------
   # Le port par defaut.
   server.port=8081
-  # Chemin de contexte
+  # Chemin du contexte (Toujours "/" au minimum).
   server.servlet.context-path=/
   # Encodage
   server.servlet.encoding.charset=UTF-8
   server.servlet.encoding.force=true
-  # Un exemple de cle symetrique (pour le developpement uniquement).
-  security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+  [comment uniquement si la librairie SSO n'est pas activée./]
+  [if (not any.isRsSSOAuthEnabled())]
+    # Un exemple de cle symetrique (pour le developpement uniquement).
+    security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+  [/if]
   
   # ----------------------------------------------------------------------------------------------
   # LOGGING
@@ -1179,6 +1200,122 @@
   spring.cloud.vault.kv.backend=secret
   # Nom utilisé pour accéder au chemin dans Vault (ex. secret/data/myapp).
   spring.cloud.vault.kv.application-name=[any.nameProject().toLower()/]
+  [if (any.isRsSSOAuthEnabled())]
+    
+    # ----------------------------------------------------------------------------------------------
+    # SSO - SERVEURS - URLS (Toujours sans "/" à la fin).
+    # ----------------------------------------------------------------------------------------------
+    server.auth.url.sso=http://['['/]server:port[']'/]
+    server.auth.url.front=http://['['/]server:port[']'/]
+    server.auth.url.back=http://['['/]server:port[']'/]
+    
+    # ----------------------------------------------------------------------------------------------
+    # SSO - DOMAINE D'AUTHENTIFICATION (REALM)
+    # ----------------------------------------------------------------------------------------------
+    server.auth.sso.realm=['['/]Nom du realm défini sur SSO[']'/]
+    
+    # ----------------------------------------------------------------------------------------------
+    # SSO - PROJET
+    # Facilite la réutilisation des URLs et contextes dans d'autres propriétés.
+    # ----------------------------------------------------------------------------------------------
+    # Aussi utilisé par myco.sso.front-redirect-uri
+    project.frontend.uri=['['/]Url du frontend[']'/]
+    # Contexte du backend
+    project.context=${server.servlet.context-path}
+    
+    # ----------------------------------------------------------------------------------------------
+    # SSO - SECURITE SPRING - OAUTH2 CLIENT
+    # Configure Spring pour se connecter à Keycloak et gérer les connexions utilisateurs.
+    # L'identifiant du client doit matcher {registrationId}.
+    # ----------------------------------------------------------------------------------------------
+    spring.security.oauth2.client.registration.keycloak.client-id=${myco.sso.client-id}
+    spring.security.oauth2.client.registration.keycloak.client-secret=${myco.sso.client-secret}
+    spring.security.oauth2.client.registration.keycloak.authorization-grant-type=authorization_code
+    spring.security.oauth2.client.registration.keycloak.scope=['['/]openid,profile,email[']'/]
+    spring.security.oauth2.client.registration.keycloak.provider=keycloak
+    spring.security.oauth2.client.provider.keycloak.issuer-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}
+    
+    # Url de callback pour le backend de l'application (registrationId = myco.sso.registration-id).
+    # Spring Security intercepte automatiquement cette URL et échange le code contre un access_token.
+    spring.security.oauth2.client.registration.keycloak.redirect-uri=${server.auth.url.back}${server.servlet.context-path}/login/oauth2/code/{registrationId}
+        # ---------------------------------------------------------------------------------------------{}-
+    # SSO - SERVEUR / EN-TÊTES DE TRANSFERT / COMPRESSION
+    # Configure le serveur Spring Boot et la gestion sécurisée des sessions.
+    # ----------------------------------------------------------------------------------------------
+    # Nécessaire si l'application est derrière un proxy / load balancer pour gérer correctement HTTPS et redirections.
+    server.compression.mime-types=application/json,text/plain
+    server.forward-headers-strategy=framework  
+    server.compression.enabled=true    
+    # ----------------------------------------------------------------------------------------------
+    # SSO - SERVEUR / SESSION
+    # Configure le serveur Spring Boot et la gestion sécurisée des sessions.
+    # ----------------------------------------------------------------------------------------------
+    server.servlet.session.cookie.secure=false
+    #En production, mettre true si SameSite=None
+    server.servlet.session.cookie.http-only=true
+    server.servlet.session.cookie.same-site=lax
+    server.servlet.session.cookie.name=JSESSIONID
+    server.servlet.session.timeout=30m    
+    # ----------------------------------------------------------------------------------------------
+    # SSO - CONFIGURATION DU MODULE STARTER
+    # Configure tout le SSO / OAuth2 côté backend.
+    # ----------------------------------------------------------------------------------------------
+    
+    # --- OIDC / JWT ---
+    # Sert uniquement à identifier la configuration côté Spring. 
+    # Par convention, même nom que Keycloak, mais ça pourrait être autre chose.
+    myco.sso.registration-id=keycloak
+    myco.sso.issuer-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}
+    myco.sso.jwk-set-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}/protocol/openid-connect/certs
+    
+    # --- REDIRECTION FRONT-END (Redirection front après login) --- 
+    myco.sso.front-redirect-uri=${project.frontend.uri}
+    
+    # --- CORS / ORIGINES AUTORISÉES --- 
+    myco.sso.allowed-origins['['/]0[']'/]=${server.auth.url.front}
+    myco.sso.allowed-origins['['/]1[']'/]=${server.auth.url.sso}
+    myco.sso.allowed-origins['['/]2[']'/]=${server.auth.url.back}
+      
+    # --- API EXTERNE (Cas d'une api externe protégée) --- 
+    myco.sso.external-api-enabled=false
+    myco.sso.external-api-patterns['['/]0[']'/]=['['/]Url externe[']'/]
+    myco.sso.external-api-patterns['['/]1[']'/]=['['/]Url externe[']'/]
+    myco.sso.external-jwt-secret=['['/]Secret externe spécifique[']'/]
+      
+    # --- COOKIE DE SESSION ---
+    myco.sso.session-cookie.enabled=true
+    myco.sso.session-cookie.name=SESSIONID
+    myco.sso.session-cookie.max-age-seconds=1800
+    myco.sso.session-cookie.http-only=true
+    # En developpement HTTP, possible de mettre false
+    myco.sso.session-cookie.secure=false
+    myco.sso.session-cookie.path=/    
+    # --- COOKIE D'AUTHENTIFICATION ---
+    myco.sso.auth-cookie.enabled=true
+    myco.sso.auth-cookie.name=SESSION_AUTH
+    myco.sso.auth-cookie.max-age-seconds=1800
+    myco.sso.auth-cookie.http-only=true
+    # En developpement HTTP, possible de mettre false
+    myco.sso.auth-cookie.secure=true
+    myco.sso.auth-cookie.path=/
+    
+    # --- ENDPOINTS INTEGRES (.../is-authenticated, .../profile, .../logout) ---
+    myco.sso.endpoints.enabled=true
+    
+    # --- DECONNEXION BACK-CHANNEL DE KEYCLOAK (Révocation du refresh_token) ---
+    myco.sso.keycloak-logout-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}/protocol/openid-connect/logout
+    
+    # --- IDENTIFIANTS CLIENT ---
+    myco.sso.client-id=['['/]Client keycloak[']'/]
+    myco.sso.client-secret=['['/]Secret du client[']'/]
+    
+    # --- PROCESSUS (THREADS) - (virtual threads si JVM=21+, sinon threads classiques) ---
+    myco.sso.threads-mode=auto
+    
+    # ----------------------------------------------------------------------------------------------
+    # IMPORT CONFIGURATION SSO DYNAMIQUE
+    # ----------------------------------------------------------------------------------------------
+    spring.config.import=classpath:[any.nameApplicationSSOResources()/].properties  [/if]
   
   # ----------------------------------------------------------------------------------------------
   # DATASOURCES
@@ -1458,6 +1595,130 @@
     }
   }
     
+[/template]
+
+[comment écriture de l'implémentation pour la configuration (surcharge) du sso keycloack (librairie du minarm)./]
+[template public rsSSOLoginHandlerImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsBase())/]
+  
+  [any.defaultImports()/]
+  import [any.namePackageProject()/].[any.namePackageInfrastructureBase()/].[any.nameClassRsSSOUserServiceItf()/];
+  import org.springframework.context.annotation.Configuration;
+  import org.springframework.beans.factory.annotation.Qualifier;
+  import org.springframework.context.annotation.Bean;
+  import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+  import org.springframework.stereotype.Component;
+  
+  /**
+   * Configuration Spring Security complémentaire pour la gestion du succès
+   * d'authentification dans le cadre d'un SSO (ex. Keycloak) avec la librairie du
+   * ministère des armées.
+   * <p>
+   * Cette configuration expose un {@link AuthenticationSuccessHandler} spécifique
+   * permettant d'effectuer une validation applicative supplémentaire après une
+   * authentification réussie au niveau du fournisseur d'identité.
+   *
+   * <p>
+   * Le bean est exposé avec le qualifiant {@code "mycoLoginSuccessHandlerExtra"}
+   * afin de pouvoir être référencé explicitement dans la configuration de
+   * sécurité Spring.
+   * </p>
+   *
+   * @author MINARM
+   */
+  @Configuration
+  class [any.nameClassRsSSOLoginHandlerImpl()/] 
+  {
+  
+    /**
+     * Fournit un {@link AuthenticationSuccessHandler} exécuté après une
+     * authentification réussie.
+     * <p>
+     * Ce handler réalise une vérification applicative de l'utilisateur courant.
+     */ 
+    @Bean
+    @Qualifier("mycoLoginSuccessHandlerExtra")    AuthenticationSuccessHandler ['login success handler'.apply_methodDefault()/]([any.nameClassRsSSOUserServiceItf()/] ['user service'.apply_parameterMethodClassicIn()/]) {
+        return (['req'.apply_variableDefault()/], ['res'.apply_variableDefault()/], ['auth'.apply_variableDefault()/]) -> {
+           var current = ['user service'.apply_parameterMethodClassicIn()/].getCurrentUser();
+           
+           [protected ('mycoLoginSuccessHandlerExtra'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             if (current == null) {
+                var session = req.getSession(false);
+                if (session != null) session.invalidate();
+                   org.springframework.security.core.context.SecurityContextHolder.clearContext();
+                  res.sendError(  HttpServletResponse.SC_FORBIDDEN, "Utilisateur non autorisé");
+              }
+           [/protected]
+       };
+    }
+  }
+[/template]
+
+[comment écriture de l'interface de service pour l'obtention d'un utilisateur dans le cas sso (librairie du minarm)./]
+[template public rsSSOUserService(any : ecore::EObject)]
+  [any.classHeader(any.namePackageInfrastructureBase())/]
+  
+  /**
+   * Service applicatif permettant d'accéder à l'utilisateur courant
+   * authentifié via le mécanisme de SSO.
+   * <p>
+   * Cette interface fait le lien entre le contexte de sécurité technique
+   * (ex. Spring Security / fournisseur d'identité SSO) et la notion
+   * d'utilisateur métier propre à l'application.
+   * </p>
+   *
+   * <p>
+   * L'implémentation est responsable de :
+   * </p>
+   * <ul>
+   *   <li>résoudre l'utilisateur courant à partir du contexte de sécurité,</li>
+   *   <li>effectuer les vérifications d'autorisation applicatives nécessaires,</li>
+   *   <li>retourner {@code null} si l'utilisateur n'est pas autorisé à accéder
+   *       à l'application.</li>
+   * </ul>
+   *
+   * <p>
+   * Cette abstraction permet de dissocier :
+   * </p>
+   * <ul>
+   *   <li>l'authentification SSO (technique),</li>
+   *   <li>la gestion des utilisateurs et des droits applicatifs.</li>
+   * </ul>
+   */
+  public interface [any.nameClassRsSSOUserServiceItf()/] {
+      ['l\'utilisateur courant ou null si non autorisé'.commentMultiLines()/]
+      Object ['current user'.apply_methodGet()/]();
+  }
+[/template]
+
+[comment écriture de l'implémentation de service pour l'obtention d'un utilisateur dans le cas sso (librairie du minarm)./]
+[template public rsSSOUserServiceImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageInfrastructureBase())/]
+  
+  import org.springframework.security.core.context.SecurityContextHolder;
+  import org.springframework.stereotype.Service;
+  
+  /**
+   * Implémentation par défaut du service {@link [any.nameClassRsSSOUserServiceItf()/]}.
+   * <p>
+   * Cette classe fournit une implémentation minimale permettant l’intégration
+   * avec le mécanisme d’authentification SSO Keycloak et le câblage automatique 
+   * par Spring.
+   */
+  @Service
+  public class [any.nameClassRsSSOUserServiceImpl()/] implements [any.nameClassRsSSOUserServiceItf()/] {
+    
+    @Override
+    public Object ['current user'.apply_methodGet()/]() {
+       
+       [protected ('current user'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         return null;
+       [/protected]
+       
+       [protected (any.nameClassRsSSOUserServiceImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+       [/protected]
+    }
+  }
 [/template]
 
 [comment écriture de l'implémentation pour le service de santé (nouveau systeme actuator)./]

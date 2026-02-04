@@ -24,7 +24,7 @@
   else if (t.name.equalsIgnoreCase('TimeStamp')) then 'Instant' 	
   else if (t.name.equalsIgnoreCase('Time')) then 'LocalTime' 
   else if (t.name.equalsIgnoreCase('Binary')) then 'byte[]' 
-  else t.name.sanitize() endif endif endif endif endif endif endif/] 
+  else t.name endif endif endif endif endif endif endif/] 
   
  [comment retourne le type formaté pour une propriété (attribut, paramètre, etc...)./]
  [query public type(str : String) : String = 

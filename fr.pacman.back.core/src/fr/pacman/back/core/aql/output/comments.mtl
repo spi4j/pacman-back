@@ -100,7 +100,7 @@
 [comment ./]
 [template public commentClass(any :: environment::ObeoDSMObject)]
   /**
-   * [any.writeDescription()/]
+   * [any.writeDescriptionMultiLines()/]
    *
    * @Author [any.nameAuthor()/]
    */
@@ -109,7 +109,7 @@
 [comment ./]
 [template public commentInterface(any :: environment::ObeoDSMObject)]
   /**
-   * [any.writeDescription()/]
+   * [any.writeDescriptionMultiLines()/]
    * 
    * @Author [any.nameAuthor()/]
    */
@@ -133,8 +133,12 @@
 [/template]
 
 [comment ./]
-[query public writeDescription(any :: environment::ObeoDSMObject) : String = if(any.description.exists()) then 
+[query public writeDescriptionMultiLines(any :: environment::ObeoDSMObject) : String = if(any.description.exists()) then 
    (any.description.escapeComment() + '.').lineCut(130, ' ') else any.cNoDescription() endif/]
+   
+[comment ./]
+[query public writeDescriptionSingleLine(any :: environment::ObeoDSMObject) : String = if(any.description.exists()) then 
+   (any.description.escapeComment() + '.') else any.cNoDescription() endif/]
 
 [comment ./]
 [query private writeParam(p : soa::Parameter) : String = '* @param ' + p.name().apply_parameterMethodClassicIn() 

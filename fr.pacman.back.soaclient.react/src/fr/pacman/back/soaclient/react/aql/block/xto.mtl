@@ -14,7 +14,7 @@
 				
 [comment écriture du fichier d'implémentation pour objet métier (react) 
          pour l'instant la base est toujours SpringBoot. Le contrat entre 
-         backend et frontend n’est jamais "classe <-> interface". C’est 
+         backend et frontend n'est jamais "classe <-> interface". C'est 
          JSON <-> interface. Donc le nom des classes n'a aucune importance 
          et il est dans ce cas largement préférable de respecter le nommage 
          JavaScript avec des méthodes de type toJS...

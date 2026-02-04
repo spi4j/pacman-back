@@ -111,7 +111,7 @@
     [/protected]
     -->
     
-    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    <!-- Même si ce n'est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
     <properties>
        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -155,7 +155,7 @@
       </plugins>
     </build>
     
-    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    <!-- Même si ce n'est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
     <properties>
        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -242,7 +242,7 @@
      private final Environment ['environment'.apply_attributeFinal()/];
      
      /**
-      * URL de base de l’API (ex. {@code https://api.thetvdb.com}).
+      * URL de base de l'API (ex. {@code https://api.thetvdb.com}).
       */
       @Value("${[any.nameProject().toLower()/].api.base-url}")
       private String ['base url'.apply_attributeDefault()/];
@@ -286,11 +286,11 @@
      * 
      * <ul>
      *   <li><b>Base URL :</b> défini par la propriété {@code baseUrl}.</li>
-     *   <li><b>Gestion des connexions :</b> utilisation d’un {@link ConnectionProvider} nommé {@code [any.namePackageProject().toLower()/]},
-     *       avec un maximum de 100 connexions simultanées et un délai d’acquisition limité à 5 secondes.</li>
-     *   <li><b>Timeouts :</b> configuration d’un timeout de connexion ({@code connectionTimeout}) et d’un
+     *   <li><b>Gestion des connexions :</b> utilisation d'un {@link ConnectionProvider} nommé {@code [any.namePackageProject().toLower()/]},
+     *       avec un maximum de 100 connexions simultanées et un délai d'acquisition limité à 5 secondes.</li>
+     *   <li><b>Timeouts :</b> configuration d'un timeout de connexion ({@code connectionTimeout}) et d'un
      *       timeout de réponse ({@code responseTimeout}).</li>
-     *   <li><b>Sérialisation JSON :</b> configuration d’un {@link ObjectMapper} Jackson avec une stratégie de
+     *   <li><b>Sérialisation JSON :</b> configuration d'un {@link ObjectMapper} Jackson avec une stratégie de
      *       nommage {@link PropertyNamingStrategies#SNAKE_CASE}, utilisé via un {@link Jackson2JsonDecoder}
      *       pour décoder les réponses JSON.</li>
      *   <li><b>Logs conditionnels :</b> si le profil Spring actif contient {@code dev}, des filtres
@@ -298,7 +298,7 @@
      * </ul>
      *
      * @param builder le builder Spring {@link WebClient.Builder}, injecté automatiquement par le conteneur Spring.
-     * @return un {@link WebClient} configuré pour l’API [any.nameProject().toUpper()/].
+     * @return un {@link WebClient} configuré pour l'API [any.nameProject().toUpper()/].
      */
       @Bean
       public WebClient [(any.nameProject() + ' web client').apply_methodDefault()/]
@@ -676,7 +676,7 @@
         private HttpMethod ['method'.apply_attributeDefault()/];
         
         /**
-         * Paramètres de chemin à insérer dans l’URI (ex : {id} -> 42).
+         * Paramètres de chemin à insérer dans l'URI (ex : {id} -> 42).
          * Exemple : "/users/{id}" avec "id" -> "42"
          */
         private Map<String, ?> ['path params'.apply_attributeDefault()/];
@@ -774,9 +774,9 @@
         }
         
         /**
-         * Définit les paramètres de chemin (path variables) à insérer dans l’URI.
+         * Définit les paramètres de chemin (path variables) à insérer dans l'URI.
          * 
-         * Les paramètres permettent de remplacer dynamiquement les portions de l’URI
+         * Les paramètres permettent de remplacer dynamiquement les portions de l'URI
          * définies entre accolades. Exemple : pour une URI "/users/{id}", le paramètre
          * "id" sera remplacé par la valeur fournie dans ce map.
          *
@@ -1000,11 +1000,11 @@
     }
      
     /**
-     * Gestionnaire d’erreur HTTP : convertit une réponse d’erreur en exception
+     * Gestionnaire d'erreur HTTP : convertit une réponse d'erreur en exception
      * RuntimeException.
      * 
-     * @param response réponse client HTTP contenant le statut d’erreur
-     * @return Mono d’exception avec message d’erreur
+     * @param response réponse client HTTP contenant le statut d'erreur
+     * @return Mono d'exception avec message d'erreur
      */
      private Mono<? extends Throwable> ['handle error'.apply_methodDefault()/](ClientResponse ['response'.apply_parameterMethodClassicIn()/]) {
        return response.bodyToMono(String.class)

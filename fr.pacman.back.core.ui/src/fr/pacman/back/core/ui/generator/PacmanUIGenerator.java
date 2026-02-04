@@ -204,7 +204,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * <p>
 	 * Cette méthode est généralement utilisée pour retirer des répertoires générés
 	 * ou imbriqués (par exemple <code>libraries</code>) afin de retrouver le chemin
-	 * racine du modèle d’un projet.
+	 * racine du modèle d'un projet.
 	 * <p>
 	 * Si l'application s'exécute en mode « serveur » — tel qu'indiqué par
 	 * {@link ProjectProperties#isServerType()} — aucune modification n'est
@@ -420,7 +420,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * Cette méthode :
 	 * 
 	 * <ul>
-	 * <li>Récupère la {@link IWorkbenchPage} active de l’environnement
+	 * <li>Récupère la {@link IWorkbenchPage} active de l'environnement
 	 * Eclipse.</li>
 	 * <li>Ouvre (ou affiche si déjà ouverte) la vue identifiée par
 	 * {@code VIEW_ID}.</li>
@@ -430,11 +430,11 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * est trouvée.</li>
 	 * <li>Active également le lien entre les lignes du rapport et les
 	 * représentations Sirius correspondantes.</li>
-	 * <li>Affiche une alerte pop-up pour notifier l’utilisateur de la présence
-	 * d’erreurs de validation.</li>
+	 * <li>Affiche une alerte pop-up pour notifier l'utilisateur de la présence
+	 * d'erreurs de validation.</li>
 	 * </ul>
 	 *
-	 * Si la vue n’est pas trouvée, un message d’alerte alternatif est affiché.
+	 * Si la vue n'est pas trouvée, un message d'alerte alternatif est affiché.
 	 */
 	private void displayAndfillReportView() {
 		CompletableFuture<Void> future = new CompletableFuture<>();
@@ -468,16 +468,16 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 * 
 	 * Cette méthode :
 	 * <ul>
-	 * <li>Récupère la {@link IWorkbenchPage} active de l’environnement
+	 * <li>Récupère la {@link IWorkbenchPage} active de l'environnement
 	 * Eclipse.</li>
 	 * <li>Recherche la vue identifiée par {@code VIEW_ID}.</li>
 	 * <li>Si la vue est une instance de {@link PacmanUIValidationView}, son contenu
 	 * est vidé (liste des lignes de validation remplacée par une liste vide).</li>
-	 * <li>Affiche ensuite une notification à l’utilisateur indiquant que le fichier
+	 * <li>Affiche ensuite une notification à l'utilisateur indiquant que le fichier
 	 * de modélisation est valide.</li>
 	 * </ul>
 	 *
-	 * Si la vue n’est pas trouvée, seule la notification d’information est
+	 * Si la vue n'est pas trouvée, seule la notification d'information est
 	 * affichée.
 	 *
 	 * @throws PartInitException si la vue ne peut pas être initialisée par le

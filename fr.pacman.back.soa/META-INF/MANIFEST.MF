@@ -10,6 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  fr.pacman.back.core,
  fr.pacman.back.common,
  fr.pacman.back.soa.spring,
+ fr.pacman.back.soa.spring.sso,
  fr.pacman.back.soa.spi4j,
  org.eclipse.acceleo.aql,
  org.eclipse.acceleo.query

@@ -66,12 +66,12 @@ public class TestUtils {
 			if (_defaultValues.containsKey(p_attribute.getType().getName()))
 				return _defaultValues.get(p_attribute.getType().getName());
 		}
-		return "Unknown default value !!!";
+		return null;
 	}
 
 	public static String get_defaulValueForType(final String p_prop) {
 		if (_defaultValues.containsKey(p_prop))
 			return _defaultValues.get(p_prop);
-		return "Unknown default value !!!";
+		return null;
 	}
 }

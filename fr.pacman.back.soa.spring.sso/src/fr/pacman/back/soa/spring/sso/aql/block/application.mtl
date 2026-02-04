@@ -1,0 +1,35 @@
+[module application(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+						'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::query::service/]
+[import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::soa::spring::aql::block::security/]
+
+[comment écriture de la configuration dynamique pour le sso keycloak./]
+[template public applicationSSOProperties(m : soa::System)]
+  # ----------------------------------------------------------------------------------------------
+  # BASE POUR POINTS D'ACCES PUBLICS INTEGRES (.../is-authenticated, .../profile, .../logout) 
+  # ----------------------------------------------------------------------------------------------
+  myco.sso.endpoints.base-path=[m.rsUri()/]
+  
+  # ----------------------------------------------------------------------------------------------
+  # POINTS D'ACCES PUBLICS (Non soumis à l'authentification)
+  # ----------------------------------------------------------------------------------------------
+  myco.sso.permit-all['['/]0[']'/]=[m.rsUri() + '/actuator/**'/]
+  myco.sso.permit-all['['/]1[']'/]=[m.rsUri() + '/api-docs/**'/]
+  myco.sso.permit-all['['/]2[']'/]=[m.rsUri() + '/swagger-ui/**'/]
+  myco.sso.permit-all['['/]3[']'/]=[m.rsUri() + '/login'/]
+  myco.sso.permit-all['['/]4[']'/]=[m.rsUri() + '/logout'/]
+  myco.sso.permit-all['['/]5[']'/]=[m.rsUri() + '/is-authenticated'/]
+  myco.sso.permit-all['['/]6[']'/]=[m.rsUri() + '/profile'/]
+  myco.sso.permit-all['['/]7[']'/]=[m.rsUri() + '/login/oauth2/code/*'/]
+  
+  # Liste des URLs directement issues de la modélisation.
+  [for (o | m.nonSecuredOperations())]
+    myco.sso.permit-all['['/][oIndex + 7/][']'/]=[(m.rsUri() + '/' + o.URI).toUri()/]
+  [/for]
+  
+  # Placer ici des URLs non issues de la modélisation.
+  [protected ('not protected uris'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
+[/template]

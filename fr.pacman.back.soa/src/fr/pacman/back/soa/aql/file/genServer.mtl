@@ -4,9 +4,11 @@
 [import fr::pacman::back::core::aql::base/]	
 [import fr::pacman::back::core::aql::name::classes/]	
 [import fr::pacman::back::core::aql::name::packages/]	
+[import fr::pacman::back::core::aql::name::resources/]	
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::soa::aql::block::mapper/]
 [import fr::pacman::back::soa::aql::block::xto/]
+[import fr::pacman::back::soa::spring::sso::aql::block::application/]
 
 [comment écriture du fichier d'implémentation pour un mapper (objet métier -> objet infrastructure)./]
 [template public fileMapperOutImpl(d: environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO))]
@@ -27,6 +29,13 @@
   , dss : Sequence(environment::DTO))]
   [file (d.nameClassXtoImpl().toFileJava(d.namePackageXtoImpl()), overwrite, d.defaultFileEncoding())]
     [d.xtoImpl(ds, dss)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de propriété pour la configuration SSO de l'application./]
+[template public fileApplicationSSOProperties(m : soa::System)]
+  [file (m.nameApplicationSSOResources().toFile(m.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')]
+    [m.applicationSSOProperties()/]
   [/file]
 [/template]
 

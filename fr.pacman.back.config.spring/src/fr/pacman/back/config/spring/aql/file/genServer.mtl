@@ -64,7 +64,28 @@
   [/file]
 [/template]
 
-[comment écriture de la classe pourla reponse dans le cadre d'une errueur d'authentification rest./]
+[comment écriture de la classe SSO de surcharge pour keycloack (services REST - librairie SSO)./]
+[template public fileRsSSOLoginHandlerImpl(any : ecore::EObject)]
+  [file (any.nameClassRsSSOLoginHandlerImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsSSOLoginHandlerImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de l'interface pour le service de réucpération utilisateur (services REST - librairie SSO)./]
+[template public fileRsSSOUserServiceItf(any : ecore::EObject)]
+  [file (any.nameClassRsSSOUserServiceItf().toFileJava(any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsSSOUserService()/]
+  [/file]
+[/template]
+
+[comment écriture de l'implémentation pour le service de réucpération utilisateur (services REST - librairie SSO)./]
+[template public fileRsSSOUserServiceImpl(any : ecore::EObject)]
+  [file (any.nameClassRsSSOUserServiceImpl().toFileJava(any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsSSOUserService()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe pour la reponse dans le cadre d'une erreur d'authentification rest./]
 [template public fileRsAuthenticationEntryPointImpl(any : ecore::EObject)]
   [file (any.nameClassRsAuthenticationEntryPointImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
     [any.rsAuthenticationEntryPointImpl()/]
@@ -85,10 +106,17 @@
   [/file]
 [/template]
 
-[comment écriture du fichier de propriété pour les datasources./]
+[comment écriture du fichier de propriété pour la configuration de l'application./]
 [template public fileApplicationProperties(any : ecore::EObject)]
   [file (any.nameApplicationResources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')]
     [any.applicationProperties()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier de propriété pour la configuration SSO de l'application./]
+[template public fileApplicationSSOProperties(any : ecore::EObject)]
+  [file (any.nameApplicationSSOResources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')]
+    [any.applicationSSOProperties()/]
   [/file]
 [/template]
 

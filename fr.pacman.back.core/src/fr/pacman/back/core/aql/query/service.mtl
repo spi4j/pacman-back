@@ -8,6 +8,8 @@
 [import fr::pacman::back::core::aql::query::operation/]
 [import fr::pacman::back::core::aql::output::resources/]
 
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+
 [comment retourne tous les service 'provided' de l'application./]
 [query public providedServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)
   ->select(o | o.kind = soa::InterfaceKind::provided)/]
@@ -35,9 +37,27 @@
 [query public isRsSecured(s : soa::Service) : Boolean = not s.ownedInterface.ownedOperations
   ->select(o | o.isRsSecured())->isEmpty()/]
 
-[comment retourne l'uri (partielle) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
-[query public rsUri(s : soa::Service) : String = if (s.isRsService()) then ('/' 
-  + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 'v' 
-  + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif 
-  + '/' + s.eContainer().oclAsType(soa::Component).URI + '/' + s.URI).toUri() 
-  else s.cNoModelisation() endif/]
+[comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]  
+[query public rsUri(s : soa::Service) : String = if (s.isRsSSOAuthEnabled()) then s.rsUriMinArm() else s.rsUriStandard() endif /]
+  
+[comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]  
+[query public rsUri(m : soa::System) : String = if (m.isRsSSOAuthEnabled()) then m.rsUriMinArm() else m.rsUriStandard() endif /]
+
+[comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
+[query private rsUriStandard(s : soa::Service) : String = if (s.isRsService()) then let c = s.eContainer().oclAsType(soa::Component) 
+  in ('/' + c.URI +  '/' + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 'v'  + c.apiVersion.substring(1,1) 
+  else '' endif  + '/' + s.URI).toUri() else s.cNoModelisation() endif/]
+  
+[comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
+[query private rsUriStandard (m : soa::System) : String =  if (m.eAllContents(soa::Component)->size() = 1) then '/' + 
+  let c = m.eAllContents(soa::Component)->first() in  c.URI + '/' + (if (c.apiVersion.exists()) then 'v' 
+  + c.apiVersion.substring(1,1) else '' endif).toUri() else m.cNoModelisation() endif/]
+ 
+[comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
+[query private rsUriMinArm(s : soa::Service) : String = if (s.isRsService()) then let c = s.eContainer().oclAsType(soa::Component) 
+  in  ('/' + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 'v'  + c.apiVersion.substring(1,1) 
+  else '' endif + '/' + c.URI + '/' + s.URI).toUri() else s.cNoModelisation() endif/]  
+[comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
+[query private rsUriMinArm (m : soa::System) : String =  if (m.eAllContents(soa::Component)->size() = 1) then '/' + 
+ let c = m.eAllContents(soa::Component)->first() in (if (c.apiVersion.exists()) then 'v' + c.apiVersion.substring(1,1) 
+ else '' endif + '/' + c.URI).toUri() else m.cNoModelisation() endif/]

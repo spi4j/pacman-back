@@ -84,7 +84,7 @@
     [/protected]
     -->
     
-    <!-- Même si ce n’est pas strictement nécessaire pour Maven, certains outils
+    <!-- Même si ce n'est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->
     <properties>
        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -134,7 +134,7 @@
     public class [any.nameClassRsClientConfigImpl()/] {
       
      /**
-      * URL de base de l’API (ex. {@code https://api.thetvdb.com}).
+      * URL de base de l'API (ex. {@code https://api.thetvdb.com}).
       */
       @Value("${[any.nameProject().toLower()/].api.base-url}")
       private String ['base url'.apply_attributeDefault()/];
@@ -236,7 +236,7 @@
   /**
    * Helper pour effectuer des requêtes HTTP REST avec Spring WebClient.
    * 
-   * Cette classe fournit deux types d’API pour effectuer les requêtes :
+   * Cette classe fournit deux types d'API pour effectuer les requêtes :
    * <ul>
    * <li>des méthodes synchrones bloquantes qui retournent directement l'objet de
    * réponse</li>
@@ -245,7 +245,7 @@
    * </ul>
    * 
    * Le helper gère aussi la construction des URI avec paramètres et la gestion
-   * d’erreur HTTP.
+   * d'erreur HTTP.
    */
   @Component
   public class [any.nameClassRsClientHelper()/] {
@@ -281,7 +281,7 @@
      * @param ['uri'.apply_parameterMethodClassicIn()/]          URI relative ou absolue de la ressource
      * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP à ajouter à la requête
      * @param ['response type'.apply_parameterMethodClassicIn()/] Classe de la réponse pour désérialisation
-     * @return l’objet désérialisé de type T
+     * @return l'objet désérialisé de type T
      */
      public <T> T get(String ['uri'.apply_parameterMethodClassicIn()/], 
        Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
@@ -298,7 +298,7 @@
        * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP à ajouter à la requête
        * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres à ajouter dans la requête
        * @param ['response type'.apply_parameterMethodClassicIn()/] Classe de la réponse pour désérialisation
-       * @return l’objet désérialisé de type T
+       * @return l'objet désérialisé de type T
        */
      public <T> T get(String ['uri'.apply_parameterMethodClassicIn()/], 
         Map<String, String> ['headers'.apply_parameterMethodClassicIn()/], 
@@ -369,7 +369,7 @@
      * @param <T>          Type de la réponse attendue
      * @param ['uri'.apply_parameterMethodClassicIn()/]          URI cible
      * @param ['headers'.apply_parameterMethodClassicIn()/]      En-têtes HTTP
-     * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres query à ajouter à l’URI
+     * @param ['query params'.apply_parameterMethodClassicIn()/]  Paramètres query à ajouter à l'URI
      * @param ['response type'.apply_parameterMethodClassicIn()/] Type de la réponse
      * @return la réponse désérialisée
      */
@@ -599,7 +599,7 @@
     /**
      * Construit une fonction pour créer une URI avec paramètres query.
      * 
-     * @param ['path'.apply_parameterMethodClassicIn()/]        Chemin de l’URI
+     * @param ['path'.apply_parameterMethodClassicIn()/]        Chemin de l'URI
      * @param ['query params'.apply_parameterMethodClassicIn()/] Paramètres query à ajouter (clé/valeur)
      * @return fonction UriBuilder -> URI
      */
@@ -615,11 +615,11 @@
      }
      
     /**
-     * Gestionnaire d’erreur HTTP : convertit une réponse d’erreur en exception
+     * Gestionnaire d'erreur HTTP : convertit une réponse d'erreur en exception
      * RuntimeException.
      * 
-     * @param response réponse client HTTP contenant le statut d’erreur
-     * @return Mono d’exception avec message d’erreur
+     * @param response réponse client HTTP contenant le statut d'erreur
+     * @return Mono d'exception avec message d'erreur
      */
      private Mono<? extends Throwable> ['handle error'.apply_methodDefault()/](ClientResponse ['response'.apply_parameterMethodClassicIn()/]) {
        return response.bodyToMono(String.class)
