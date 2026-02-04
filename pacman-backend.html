@@ -115,6 +115,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>01/09/2025 : Ajouts : Création d'un projet client, Génération d'un projet client.</li>
 <li>24/11/2025 : Ajouts : Création d'un projet client React, Génération d'un projet client React.</li>
 <li>05/12/2025 : Ajouts : Relation (0,*)/(1,*) et objets métier.</li>
+<li>12/01/2026 : Ajouts : Authentification avec la librairie SSO du ministère.</li>
 </ul>
 <hr/>
 <h2 id="introduction">🚀 Introduction</h2>
@@ -140,10 +141,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Pacman V5 est un un générateur de code basé sur  : </p>
 <ul>
 <li>
-<p><strong>Spring Boot</strong> : framework Java open-source conçu pour simplifier le développement d'applications Spring. Il permet de créer des applications prêtes à l’emploi avec un minimum de configuration, grâce à une approche "opinionated" (préconfigurée). Il intègre un serveur embarqué (comme Tomcat) et gère automatiquement les dépendances via Spring Boot Starters. C’est un choix courant pour développer des API REST et, de manière plus générale, des microservices en Java.</p>
+<p><strong>Spring Boot</strong> : framework Java open-source conçu pour simplifier le développement d'applications Spring. Il permet de créer des applications prêtes à l'emploi avec un minimum de configuration, grâce à une approche "opinionated" (préconfigurée). Il intègre un serveur embarqué (comme Tomcat) et gère automatiquement les dépendances via Spring Boot Starters. C'est un choix courant pour développer des API REST et, de manière plus générale, des microservices en Java.</p>
 </li>
 <li>
-<p><strong>l'architecture hexagonale</strong> : style d’architecture logicielle qui vise à isoler le cœur métier (la logique d'application) des détails techniques (comme les bases de données, les APIs, les interfaces utilisateur). Le cœur communique avec l’extérieur via des "ports" (interfaces), que des "adapters" implémentent. Cela facilite les tests, la maintenance et l’évolution, tout en favorisant une forte séparation des responsabilités.</p>
+<p><strong>l'architecture hexagonale</strong> : style d'architecture logicielle qui vise à isoler le cœur métier (la logique d'application) des détails techniques (comme les bases de données, les APIs, les interfaces utilisateur). Le cœur communique avec l'extérieur via des "ports" (interfaces), que des "adapters" implémentent. Cela facilite les tests, la maintenance et l'évolution, tout en favorisant une forte séparation des responsabilités.</p>
 </li>
 </ul>
 <h3 id="architecture-hexagonale">Architecture hexagonale</h3>
@@ -153,10 +154,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Dans le cadre de <strong>Pacman</strong> cette architecture a été choisie car elle apporte (entre autres), deux avantages particulièrement intéressants : </p>
 <ul>
 <li>
-<p>Grâce à cette isolation, le cœur de l’application (le domaine) n’a aucune connaissance directe de l’implémentation des interfaces techniques (comme les bases de données, les API externes ou les frameworks). Cela autorise, par exemple, à placer le code métier et le code d’infrastructure dans deux dépôts Git distincts. Ainsi, le dépôt contenant la logique métier peut être partagé ou ouvert sans exposer les détails sensibles ou propriétaires liés à l’infrastructure, ce qui renforçe la sécurité, la confidentialité et la portabilité du domaine métier.</p>
+<p>Grâce à cette isolation, le cœur de l'application (le domaine) n'a aucune connaissance directe de l'implémentation des interfaces techniques (comme les bases de données, les API externes ou les frameworks). Cela autorise, par exemple, à placer le code métier et le code d'infrastructure dans deux dépôts Git distincts. Ainsi, le dépôt contenant la logique métier peut être partagé ou ouvert sans exposer les détails sensibles ou propriétaires liés à l'infrastructure, ce qui renforçe la sécurité, la confidentialité et la portabilité du domaine métier.</p>
 </li>
 <li>
-<p>En encapsulant les dépendances techniques derrière des interfaces (<em>ports</em>), toute implémentation spécifique (<em>adaptateur</em>) peut être modifiée, remplacée ou mise à jour de manière transparente pour la logique métier. Ainsi, il est possible de migrer d’un framework web, d’un ORM ou d’un système de messagerie vers un autre sans réécrire ou altérer le code métier. Cette indépendance garantit une meilleure pérennité du cœur fonctionnel de l’application et réduit les coûts liés aux évolutions technologiques.</p>
+<p>En encapsulant les dépendances techniques derrière des interfaces (<em>ports</em>), toute implémentation spécifique (<em>adaptateur</em>) peut être modifiée, remplacée ou mise à jour de manière transparente pour la logique métier. Ainsi, il est possible de migrer d'un framework web, d'un ORM ou d'un système de messagerie vers un autre sans réécrire ou altérer le code métier. Cette indépendance garantit une meilleure pérennité du cœur fonctionnel de l'application et réduit les coûts liés aux évolutions technologiques.</p>
 </li>
 </ul>
 <p>❗  Il est à noter toutefois, un inconvient majeur de cette architecture. Dans le cadre de services de type CRUD (ou plus généralement pour des services qui ne font que manipuler des informations en base de données), la couche métier sert uniquement de "passe-plat" entre les couches d'appel et les couches de persistance et n'apporte pas nécessairement de plus-value.</p>
@@ -165,9 +166,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <img alt="Architecture hexagonale" src="images/pcm-hexagonal-1.png" width="500"/>
 </div>
 <h3 id="pacman-et-lhexagonal">Pacman et l'hexagonal</h3>
-<p>La manière dont Pacman gère et structure un projet en fonction de l'architecture hexagonale est la suivante (diffère très peu du standard). Il convient en premier lieu de noter que, en architecture hexagonale, le vocabulaire varie selon les auteurs et les contextes, d'où l'importance (de manière générale) de bien définir les termes dès le départ d'un projet pour assurer une compréhension commune et éviter toute ambiguïté dans l’architecture. </p>
+<p>La manière dont Pacman gère et structure un projet en fonction de l'architecture hexagonale est la suivante (diffère très peu du standard). Il convient en premier lieu de noter que, en architecture hexagonale, le vocabulaire varie selon les auteurs et les contextes, d'où l'importance (de manière générale) de bien définir les termes dès le départ d'un projet pour assurer une compréhension commune et éviter toute ambiguïté dans l'architecture. </p>
 <p>Les ports entrants (<em>inbound ports</em>) représentent les points d'entrée vers le cœur métier : ce sont généralement des interfaces définies dans le domaine que les adaptateurs entrants (par exemple, un contrôleur REST ou une interface utilisateur) appellent. Les ports sortants (<em>outbound ports</em>), eux, sont les interfaces que le domaine utilise pour solliciter des services externes (comme une base de données ou un service distant). Leurs implémentations sont fournies par des adaptateurs sortants. </p>
-<p>Certains parlent aussi d'API pour désigner les ports (<em>inbound</em>), et de SPI (Service Provider Interface) pour désigner les ports <em>outbound</em>. Les "<em>use cases</em>" ou cas d’usage incarnent la logique applicative et sont souvent mis en œuvre via des services métier appelés par les ports entrants. Le terme "<em>features</em>" peut quant à lui désigner un regroupement fonctionnel de use cases, surtout dans des approches modulaires ou orientées produit. Cependant, bien que la terminologie puisse varier, l’objectif reste toujours le même : séparer clairement les responsabilités.</p>
+<p>Certains parlent aussi d'API pour désigner les ports (<em>inbound</em>), et de SPI (Service Provider Interface) pour désigner les ports <em>outbound</em>. Les "<em>use cases</em>" ou cas d'usage incarnent la logique applicative et sont souvent mis en œuvre via des services métier appelés par les ports entrants. Le terme "<em>features</em>" peut quant à lui désigner un regroupement fonctionnel de use cases, surtout dans des approches modulaires ou orientées produit. Cependant, bien que la terminologie puisse varier, l'objectif reste toujours le même : séparer clairement les responsabilités.</p>
 <p>Pour Pacman lors de l'initialisation d'un projet, le générateur va toujours créer quatre projets distincts qui sont respectivement : </p>
 <ul>
 <li>
@@ -192,13 +193,13 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </ul>
 <h3 id="plugins-externes">Plugins externes</h3>
 <p>1 - Vérification de la version pour l'IDE</p>
-<p>Avant de commencer l’installation ou l’utilisation du plugin, il est indispensable de vérifier que l’IDE Eclipse utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez Eclipse puis accédez au menu "<em>Help/About Eclipse IDE</em>". Dans la fenêtre d’information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d’éviter tout comportement inattendu ou erreur d’exécution liée à une version non conforme de l’environnement Eclipse.</p>
+<p>Avant de commencer l'installation ou l'utilisation du plugin, il est indispensable de vérifier que l'IDE Eclipse utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez Eclipse puis accédez au menu "<em>Help/About Eclipse IDE</em>". Dans la fenêtre d'information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d'éviter tout comportement inattendu ou erreur d'exécution liée à une version non conforme de l'environnement Eclipse.</p>
 <div align="center">
 <img alt="Installation" src="images/pcm-ecr-about-version.png" width="500"/>
 </div>
 <p>2 - Installation des plugins d'édition</p>
-<p>Si leur installation est optionnelle, les plugins d’édition SQL, JSON, YAML dans l’IDE Eclipse sont  toutefois fortement recommandés pour améliorer la lisibilité, la cohérence et la fiabilité du développement. Ces plugins apportent des fonctionnalités clés telles que la coloration syntaxique, la validation de la structure, l’auto-complétion et la détection précoce des erreurs, facilitant ainsi l’édition des fichiers de configuration, des scripts de base de données et des paramètres de journalisation. </p>
-<p>En centralisant ces outils dans l’environnement de développement, le développeur gagne en productivité, réduit les risques d’erreurs de syntaxe ou de configuration, et assure une meilleure conformité aux standards techniques du projet.</p>
+<p>Si leur installation est optionnelle, les plugins d'édition SQL, JSON, YAML dans l'IDE Eclipse sont  toutefois fortement recommandés pour améliorer la lisibilité, la cohérence et la fiabilité du développement. Ces plugins apportent des fonctionnalités clés telles que la coloration syntaxique, la validation de la structure, l'auto-complétion et la détection précoce des erreurs, facilitant ainsi l'édition des fichiers de configuration, des scripts de base de données et des paramètres de journalisation. </p>
+<p>En centralisant ces outils dans l'environnement de développement, le développeur gagne en productivité, réduit les risques d'erreurs de syntaxe ou de configuration, et assure une meilleure conformité aux standards techniques du projet.</p>
 <div align="center">
 <img alt="Installation" src="images/pcm-ecr-plugin-editor-sql-json.png" width="500"/>
 </div>
@@ -206,12 +207,12 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <img alt="Installation" src="images/pcm-ecr-plugin-editor-yaml.png" width="500"/>
 </div>
 <p>3 - Installation plugin SLF4J</p>
-<p>L’installation du plugin SLF4J dans Eclipse est particulièrement utile pour faciliter la gestion et la configuration de la journalisation au sein des applications. Il permet d’améliorer l’édition des fichiers de configuration liés au logging en offrant une meilleure lisibilité, une aide à la structuration et une détection plus rapide des incohérences. Grâce à ce plugin, le développeur peut configurer et maintenir plus efficacement les mécanismes de traçabilité, indispensables au diagnostic, au suivi des comportements applicatifs et à l’analyse des erreurs, tout en garantissant une utilisation cohérente et standardisée de l’API SLF4J dans le code.</p>
+<p>L'installation du plugin SLF4J dans Eclipse est particulièrement utile pour faciliter la gestion et la configuration de la journalisation au sein des applications. Il permet d'améliorer l'édition des fichiers de configuration liés au logging en offrant une meilleure lisibilité, une aide à la structuration et une détection plus rapide des incohérences. Grâce à ce plugin, le développeur peut configurer et maintenir plus efficacement les mécanismes de traçabilité, indispensables au diagnostic, au suivi des comportements applicatifs et à l'analyse des erreurs, tout en garantissant une utilisation cohérente et standardisée de l'API SLF4J dans le code.</p>
 <div align="center">
 <img alt="Installation" src="images/pcm-ecr-pluginm2e-sl4j.png" width="500"/>
 </div>
 <p>3 - Installation plugin M2E</p>
-<p>L’installation et la configuration de Maven dans Eclipse sont essentielles pour assurer une gestion fiable et cohérente du cycle de vie des projets. Maven permet d’automatiser la gestion des dépendances, la compilation, les tests et le packaging des applications, tout en garantissant l’uniformité des versions utilisées au sein du projet. Son intégration dans l’IDE facilite l’import, la mise à jour et la maintenance des projets, réduit les erreurs liées aux dépendances manquantes ou incompatibles, et améliore la reproductibilité des builds, aussi bien en environnement de développement que d’intégration continue.</p>
+<p>L'installation et la configuration de Maven dans Eclipse sont essentielles pour assurer une gestion fiable et cohérente du cycle de vie des projets. Maven permet d'automatiser la gestion des dépendances, la compilation, les tests et le packaging des applications, tout en garantissant l'uniformité des versions utilisées au sein du projet. Son intégration dans l'IDE facilite l'import, la mise à jour et la maintenance des projets, réduit les erreurs liées aux dépendances manquantes ou incompatibles, et améliore la reproductibilité des builds, aussi bien en environnement de développement que d'intégration continue.</p>
 <div align="center">
 <img alt="Installation" src="images/pcm-ecr-plugin-m2e-wtp.png" width="500"/>
 </div>
@@ -287,6 +288,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <h2 id="creation-du-projet">☕ Création du projet</h2>
 <hr/>
+<p>❗ Avant toute création de projet, il est impératif de vérifier qu'aucun antivirus, pare-feu ou logiciel de sécurité (notamment avec inspection SSL/HTTPS) ne bloque l'accès aux dépôts Maven, aux certificats ou aux connexions réseau nécessaires au téléchargement des dépendances. Certains outils de sécurité peuvent intercepter les communications HTTPS et provoquer des erreurs de résolution de dépendances ou de certificats. Le cas échéant, il convient de désactiver temporairement ces protections ou de les configurer correctement (ajout des certificats requis, exclusions réseau) avant de lancer la création ou la construction du projet.</p>
 <p>Une fois ISD activé, se positionner sur la perspective "<em>Modeling</em>", située en haut à gauche de l'IDE.   </p>
 <p>Puis, se positionner (comme tout autre création de projet) sur la vue "<em>Model Explorer</em>" et effectuer un click droit "<em>New/Project...</em>" ou se positionner dans le menu "<em>File/New/Project...</em>" en haut de l'IDE. </p>
 <div align="center">
@@ -317,7 +319,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 <p>❗ Ces champs sont uniquement destinés à la couche de persistance, ils sont donc remontés uniquement au niveau des objets métier pour des éventuels traitements associés à la valeur des ces attributs, mais ne passent jamais la couche métier et ne sont donc jamais transmis au niveau des services REST. Un seul champ fait exception à cette règle, le champ <em>Xuuid</em>.</p>
 <p>➤ <strong>Autre</strong> : </p>
-<p>Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Au niveau de la version actuelle de <strong>Pacman</strong> et comme vu précédemment, toute la sous-rubrique "<em>Autre</em>" est désactivée car ces options ne concernent pas le framework SpringBoot. La rubrique "<em>Règles de gestion</em>" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "<em>REQ_XXXXXXX</em>" ou "<em>REGLE_GES_XXXXX</em>")</p>
+<p>Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Au niveau de la version actuelle de <strong>Pacman</strong> et comme vu précédemment, une grande partie de la sous-rubrique "<em>Autre</em>" est désactivée car ces options ne concernent pas le framework SpringBoot. Il reste cependant la possibilité de cocher la rubrique "<em>Utilisation librairie SSO ministère</em>" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées . La rubrique "<em>Règles de gestion</em>" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "<em>REQ_XXXXXXX</em>" ou "<em>REGLE_GES_XXXXX</em>")</p>
+<p>❗ Attention, la librairie de connexion pour le ministère des armées n'est pas disponible dans le cas de l'utilisation des générateur <strong>Pacman</strong> hors du réseau interne du ministère. Il est donc inutile de cocher cette case dans le cadre d'une utilisation open source.</p>
 <div align="center">
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-4.png" width="500"/>
 </div>
@@ -353,8 +356,13 @@ Il s'agit des vues suivantes : </p>
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-7.png" width="500"/>
 </div>
 <p>❗ Il faut bien distinguer ici la différence entre la création d'un client React et celle d'un client SpringBoot (en dehors de la question du language). Le client SpringBoot est pour l'instant créé afin d'appeler une librairie d'un fournisseur externe, on part donc un fichier Swagger pour obtenir la modalisation. Le client React quant à lui est utilisé pour appeler une librairie interne (au sens ou le backend a été précédemment créé avec <strong>Pacman</strong>). </p>
-<p>En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n’est pas possible de s’appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s’appuyer directement sur le fichier de modélisation. C’est ce modèle qui constitue la source de vérité et qui permet d’identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.</p>
+<p>En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n'est pas possible de s'appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s'appuyer directement sur le fichier de modélisation. C'est ce modèle qui constitue la source de vérité et qui permet d'identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.</p>
 <h2 id="fichiers-generes">📝 Fichiers Générés</h2>
+<p>❗ Lors de la création du projet, il est parfois possible (à la fin de processus de création) que l'utilisateur soit confronté au message suivant : </p>
+<div align="center">
+<img alt="Nouveau projet pacman" src="images/pcm-new-project-8.png" width="500"/>
+</div>
+<p>Cliquer simplement sur le bouton "<em>Yes</em>" afin de valider le rafraîchissement du fichier contenant l'ensemble des représentations pour la modélisation. Ce cas peut éventuellement arriver si l'ordre de création des fichiers de modélisation est inversé (dépend des api Sirius). </p>
 <p>Par la suite dans ce document le projet d'exemple sera appelé simplement "demo" (qu'il s'agisse d'un projet de type <strong>fournisseur</strong> de services ou consommateur (<strong>client</strong>) de services). </p>
 <p>❗ Dans tous les fichiers et classes générées, il est possible de trouver des balises de type "<em>user code</em>". Ces balises ressemblent à ceci : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code 56bcd4f8dd30c88089557e348b4165dc</span>
@@ -526,9 +534,11 @@ Il s'agit des vues suivantes : </p>
 <li>Le paramétrage des profils Spring.</li>
 <li>Le paramétrage du cache pour Spring.</li>
 <li>Le paramétrage du framework pour le circuit-breaker.</li>
+<li>Le paramétrage de la couche SSO (si librairie du ministère activée).</li>
 <li>Le paramétrage de la (ou des) datasource(s).</li>
 </ul>
 <p>Il n'est pas pour objectif dans le cadre de ce document, de développer chaque paramètre dont certains sont par ailleurs suffisamment explicites mais plutôt de préciser certaines options qui ont été prises pour le paramétrage par défaut qui a été généré.</p>
+<p>❗ Les valeurs de propriétés de type "<em>"[...]</em>" constituent des paramètres à renseigner par le développeur pour adapter et finaliser la configuration de l'application.</p>
 <h4 id="api-de-sante">Api de santé</h4>
 <p>❗ Bien noter que par défaut, l'api de santé ne permet d'exposer que le "<strong><em>/health</em></strong>" et le "<strong><em>/info</em></strong>", par ailleurs on décide d'exclure explicitement mappings et headdump à l'aide des paramètres suivants (bien faire attention à l'exposition de ces points de terminaison): </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Activation des points de terminaison pour l'api de sante, par defaut, seuls '/health' et '/info' sont actifs.</span>
@@ -586,6 +596,7 @@ Il s'agit des vues suivantes : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Un exemple de cle symetrique (pour le developpement uniquement).</span>
 <span class="na">security.jwt.secret</span><span class="o">=</span><span class="s">HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F</span>
 </code></pre></div>
+<p>❗ Cette propriété n'est présente que si la librairie SSO du ministère sur le gestion de la sécurité n'est pas utilisée (confère la case à cocher sur la rubrique "<em>Utilisation librairie SSO ministère</em>" au niveau des écrans de création d'un projet).</p>
 <p>Outre la définition du port et du contexte, une clé symétrique est automatiquement mise à disposition pour la classe de gestion de la sécurité des services REST lors du développement (à supprimer en production). </p>
 <p>Elle est utilisée dans le cadre de la modélisation et de la génération automatique d'une sécurité de type <em>Http</em> ou <em>ApiKey</em>. Grâce à la mise à disposition de cette clé, il n'y a rien à faire (hormis le paramétrage du jeton JWT attendu) pour la mise en place de ce type de sécurité.</p>
 <h4 id="logging">Logging</h4>
@@ -608,12 +619,12 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <p>L'utilisation de ce profil permet nottament dans le cadre des tests unitaires pour la couche de persistance, de désactiver l'initialisation des champs automatiques (champs supplémentaires communs à l'ensemble des tables de la base de données) afin d'effectuer cette initialisation avec des valeurs qui seront spécifiquement fournies par le développeur du projet.</p>
 <h4 id="cache">Cache</h4>
-<p>Cette propriété agit sur l’implémentation du cache utilisée par Spring Boot lorsqu’on utilise l’annotation @Cacheable, @CachePut, @CacheEvict, etc. Par défaut, elle utilise un cache en mémoire très basique (ConcurrentHashMap). </p>
+<p>Cette propriété agit sur l'implémentation du cache utilisée par Spring Boot lorsqu'on utilise l'annotation @Cacheable, @CachePut, @CacheEvict, etc. Par défaut, elle utilise un cache en mémoire très basique (ConcurrentHashMap). </p>
 <p>Dans la configuration actuelle, bon pour des tests ou des petits projets.</p>
 <div class="codehilite"><pre><span></span><code><span class="na">spring.cache.type</span><span class="o">=</span><span class="s">simple</span>
 </code></pre></div>
 <h4 id="circuit-breaker">Circuit-breaker</h4>
-<p>Grâce au framework Resilience4J, <strong>Pacman</strong> met à disposition un mécanisme de protection qui interrompt temporairement les appels vers un service externe lorsqu’un certain seuil d’échecs est atteint. Le paramétrage est donc mis à disposition dans le fichier "<strong><em>application.properties</em></strong>".</p>
+<p>Grâce au framework Resilience4J, <strong>Pacman</strong> met à disposition un mécanisme de protection qui interrompt temporairement les appels vers un service externe lorsqu'un certain seuil d'échecs est atteint. Le paramétrage est donc mis à disposition dans le fichier "<strong><em>application.properties</em></strong>".</p>
 <div class="codehilite"><pre><span></span><code><span class="na">resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.registerHealthIndicator</span><span class="o">=</span><span class="s">true</span>
 <span class="na">resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.failureRateThreshold</span><span class="o">=</span><span class="s">50</span>
 <span class="na">resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.waitDurationInOpenState</span><span class="o">=</span><span class="s">10000ms</span>
@@ -621,7 +632,7 @@ Il s'agit des vues suivantes : </p>
 <span class="na">resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.slidingWindowSize</span><span class="o">=</span><span class="s">10</span>
 </code></pre></div>
 <h4 id="coffre-fort">Coffre fort</h4>
-<p>Un coffre-fort est un système sécurisé permettant de stocker et de protéger des informations sensibles, telles que des mots de passe, des clés d’API, des certificats ou des secrets d’application. Contrairement à un simple fichier chiffré, un coffre-fort offre généralement des fonctionnalités avancées comme le contrôle d’accès, l’audit des accès, le versionnement des secrets et le chiffrement automatique des données au repos et en transit. Dans le cas de <strong>Pacman</strong> c'est la solution "<em>spring-cloud-vault</em>" qui a été choisie.</p>
+<p>Un coffre-fort est un système sécurisé permettant de stocker et de protéger des informations sensibles, telles que des mots de passe, des clés d'API, des certificats ou des secrets d'application. Contrairement à un simple fichier chiffré, un coffre-fort offre généralement des fonctionnalités avancées comme le contrôle d'accès, l'audit des accès, le versionnement des secrets et le chiffrement automatique des données au repos et en transit. Dans le cas de <strong>Pacman</strong> c'est la solution "<em>spring-cloud-vault</em>" qui a été choisie.</p>
 <p>❗ Par défaut le coffre-fort est désactivé.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Activation ou désactivation du coffre fort.</span>
 <span class="na">spring.cloud.vault.enabled</span><span class="o">=</span><span class="s">false</span>
@@ -662,6 +673,139 @@ Il s'agit des vues suivantes : </p>
 <span class="na">spring.populate.faker.enabled</span><span class="o">=</span><span class="s">false</span>
 </code></pre></div>
 <p>Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services rest.</p>
+<h4 id="librairie-sso-du-ministere">Librairie SSO du ministère</h4>
+<p>❗ De manière générale, se reporter aux différentes documentations internes du ministère sur l'utilisation et le paramétrage détaillé du mécanisme d'authentification par le biais de la librairie développée par le ministère des armées. Il est par ailleurs à noter que dans le cadre des générateurs <strong>Pacman</strong>, les différentes propriétés sont présentées sous la forme de fichier "<em>.properties</em>", car le format étant considéré comme plus lisible qu'un format "<em>.xml</em>" ou "<em>.yaml</em>". Cependant, à l'origine, ces propriétés sont sous format "<em>.yaml</em>" au niveau de la librairie. Il ne faut donc pas s'étonner de trouver ces informations sous ce format ("<em>.yaml</em>") au niveau de la documentation originelle (accessible uniquement pour les intervenants internes au ministère des armées).</p>
+<p>Si la couche de gestion du ministère a été activée pour la gestion de l'authentification utilisateur (Authentification sur SSO uniquement), le fichier de configuration est alors complété avec les (principales) propriétés suivantes par <strong>Pacman</strong> au niveau du fichier de configuration "<em>application.properties</em>" :    </p>
+<p>Les propriétés ci-dessous définissent les URLs d'accès aux différents points d'entrée de l'application :</p>
+<ul>
+<li>"<strong>server.auth.url.sso</strong>" : URL du serveur d'authentification SSO (Keycloak), utilisée pour les échanges liés à l'authentification.</li>
+<li>"<strong>server.auth.url.front</strong>" : URL publique du frontend de l'application, accessible par les utilisateurs.</li>
+<li>"<strong>server.auth.url.back</strong>" : URL du backend de l'application, utilisée pour les appels serveur à serveur.</li>
+</ul>
+<p>Les différentes valeurs doivent être remplacées par le développeur avec l'adresse et le port correspondant à l'environnement de déploiement (local, recette, production, etc.).</p>
+<div class="codehilite"><pre><span></span><code><span class="na">server.auth.url.sso</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">http://[server:port]</span>
+<span class="na">server.auth.url.front</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">http://[server:port]</span>
+<span class="na">server.auth.url.back</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">http://['server:port]</span>
+</code></pre></div>
+<p>Nom du realm configuré sur le serveur SSO (Keycloak). Cette valeur doit correspondre exactement au nom du realm défini côté SSO et utilisé pour l'authentification de l'application.</p>
+<div class="codehilite"><pre><span></span><code><span class="na">server.auth.sso.realm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">[Nom du realm défini sur SSO]</span>
+</code></pre></div>
+<p>Ici sont regroupées plusieurs propriétés qui sont en fait dispatchées dans différentes rubriques au niveau du fichier de configuration :</p>
+<ul>
+<li>
+<p>"<strong>project.frontend.uri</strong> : URL du frontend de l'application, utilisée pour les redirections après authentification réussie du SSO. Cette valeur doit être renseignée avec l'adresse publique d'accès au frontend. Si dans le cadre du développement d'un bakend, le développeur ne connait pas encore le frontend (ou plus simplement que le frontend n'est pas encore développé), mettre temporairement l'URL du backend.</p>
+</li>
+<li>
+<p>"<strong>project.context</strong> : chemin de contexte de l'application backend. Cette propriété reprend automatiquement la valeur de "<em>server.servlet.context-path</em>".</p>
+</li>
+<li>
+<p>"<strong>myco.sso.front-redirect-uri</strong> : URL de redirection vers le frontend après une authentification SSO réussie. Par défaut, cette valeur est alignée sur "<em>project.frontend.uri</em>".</p>
+</li>
+<li>
+<p>"<strong>myco.sso.endpoints.enabled</strong> : active ou désactive l'exposition des endpoints SSO au sein de l'application. La valeur "<em>true</em>" permet d'activer les endpoints nécessaires au fonctionnement pour l'interrogation du SSO.</p>
+</li>
+<li>
+<p>"<strong>myco.sso.threads-mode</strong> : mode de gestion des threads pour les traitements SSO.
+La valeur auto permet à l'application d'adapter automatiquement le mode de gestion des threads en fonction de l'environnement d'exécution.</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="na">project.frontend.uri</span><span class="o">=</span><span class="s">[URL du frontend]</span>
+<span class="na">project.context</span><span class="o">=</span><span class="s">${server.servlet.context-path}</span>
+<span class="na">myco.sso.front-redirect-uri</span><span class="o">=</span><span class="s">${project.frontend.uri}</span>
+<span class="na">myco.sso.endpoints.enabled</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.threads-mode</span><span class="o">=</span><span class="s">auto</span>
+</code></pre></div>
+<p>Ici, hormis pour la propriété "<strong>spring.security.oauth2.client.registration.keycloak.scope</strong>", il n'y a rien à modifier ou à compléter. Il est juste à noter que l'url définie pour la propriété "<strong>spring.security.oauth2.client.registration.keycloak.redirect-uri</strong>" est une URL technique interne automatiquement captée et gérée par Spring Security. Par ailleurs, "<em>{registrationId}</em>" est l'identifiant <strong>logique</strong> du client OAuth2, en général (pseudo-norme) cet identifiant est paramétré avec le nom du serveur SSO (dans notre cas : "<em>myco.sso.registration-id=keycloak</em>" ).</p>
+<div class="codehilite"><pre><span></span><code><span class="na">spring.security.oauth2.client.registration.keycloak.client-id</span><span class="o">=</span><span class="s">${myco.sso.client-id}</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.client-secret</span><span class="o">=</span><span class="s">${myco.sso.client-secret}</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.authorization-grant-type</span><span class="o">=</span><span class="s">authorization_code</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.scope</span><span class="o">=</span><span class="s">[openid,profile,email]</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.provider</span><span class="o">=</span><span class="s">keycloak</span>
+<span class="na">spring.security.oauth2.client.provider.keycloak.issuer-uri</span><span class="o">=</span><span class="s">${server.auth.url.sso}/realms/${server.auth.sso.realm}</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.redirect-uri</span><span class="o">=</span><span class="s">${server.auth.url.back}${server.servlet.context-path}/login/oauth2/code/{registrationId}</span>
+</code></pre></div>
+<p>Configuration du comportement des cookies de session de l'application. </p>
+<p>La propriété "<strong>server.servlet.session.cookie.same-site</strong>" permet de contrôler le comportement des cookies de session lors de requêtes inter-domaines, dans le cadre de la protection contre les attaques de type CSRF (Cross-Site Request Forgery). Elle définit la politique SameSite du cookie, c'est-à-dire les conditions dans lesquelles le navigateur enverra le cookie vers le serveur. </p>
+<p>Trois valeurs principales (officiellement supportées et fiables) sont possibles : </p>
+<ul>
+<li>
+<p>"<strong>strict</strong>", qui empêche le cookie d'être envoyé dans toutes les requêtes cross-site, offrant la sécurité maximale mais pouvant bloquer certaines redirections ou intégrations tierces </p>
+</li>
+<li>
+<p>"<strong>lax</strong>", qui autorise l'envoi du cookie pour les requêtes GET initiées depuis un autre site (comme les liens), tout en bloquant la plupart des requêtes cross-site sensibles</p>
+</li>
+<li>
+<p>"<strong>none</strong>", qui autorise le cookie dans toutes les requêtes cross-site, mais nécessite que Secure=true pour fonctionner sur HTTPS. Le choix de cette propriété permet donc d'équilibrer la sécurité des sessions et la compatibilité fonctionnelle de l'application avec des redirections ou des intégrations tierces.</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="na">server.servlet.session.cookie.secure</span><span class="o">=</span><span class="s">false</span>
+<span class="na">server.servlet.session.cookie.http-only</span><span class="o">=</span><span class="s">true</span>
+<span class="na">server.servlet.session.cookie.same-site</span><span class="o">=</span><span class="s">lax</span>
+<span class="na">server.servlet.session.cookie.name</span><span class="o">=</span><span class="s">JSESSIONID</span>
+<span class="na">server.servlet.session.timeout</span><span class="o">=</span><span class="s">30m</span>
+</code></pre></div>
+<p>Ces valeurs permettent de restreindre les origines autorisées aux seules adresses nécessaires au bon fonctionnement de l'authentification SSO et des échanges inter-applications.Les URLs doivent être correctement renseignées en fonction de l'environnement de déploiement (local, recette, production).</p>
+<div class="codehilite"><pre><span></span><code><span class="na">myco.sso.allowed-origins['['/]0[']'/]</span><span class="o">=</span><span class="s">${server.auth.url.front}</span>
+<span class="na">myco.sso.allowed-origins['['/]1[']'/]</span><span class="o">=</span><span class="s">${server.auth.url.sso}</span>
+<span class="na">myco.sso.allowed-origins['['/]2[']'/]</span><span class="o">=</span><span class="s">${server.auth.url.back}</span>
+</code></pre></div>
+<p>Ces deux propriétés permettent à l'application de s'identifier de manière sécurisée auprès du serveur SSO. Le "<em>client-id</em>" correspond à l'identifiant du client tel que défini sur le serveur SSO, tandis que le "<em>client-secret</em>" est le secret associé à ce client, utilisé pour authentifier l'application lors des échanges OAuth2 ou OpenID Connect. Ces deux valeurs doivent être renseignées exactement comme configurées côté serveur SSO, car toute incohérence empêchera l'authentification. Le "<em>client-secret</em>" est une information sensible et doit être protégé de manière appropriée, par exemple en le stockant dans des variables d'environnement ou dans un coffre à secrets, plutôt que dans le code ou dans un dépôt versionné.</p>
+<div class="codehilite"><pre><span></span><code><span class="na">myco.sso.client-id</span><span class="o">=</span><span class="s">['['/]Client keycloak[']'/]</span>
+<span class="na">myco.sso.client-secret</span><span class="o">=</span><span class="s">['['/]Secret du client[']'/]</span>
+</code></pre></div>
+<p>L'application utilise des cookies pour gérer la session et l'authentification SSO. Ces cookies sont configurés avec une durée de vie limitée, accessibles uniquement par le serveur pour protéger les informations sensibles, et sécurisés selon leur rôle pour garantir qu'ils soient transmis de manière appropriée (HTTP ou HTTPS). Ils couvrent l'ensemble de l'application et permettent de maintenir l'état de l'utilisateur de façon fiable et sécurisée pendant toute la durée de sa session.</p>
+<div class="codehilite"><pre><span></span><code><span class="na">myco.sso.session-cookie.enabled</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.session-cookie.name</span><span class="o">=</span><span class="s">SESSIONID</span>
+<span class="na">myco.sso.session-cookie.max-age-seconds</span><span class="o">=</span><span class="s">1800</span>
+<span class="na">myco.sso.session-cookie.http-only</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.session-cookie.secure</span><span class="o">=</span><span class="s">false</span>
+<span class="na">myco.sso.session-cookie.path</span><span class="o">=</span><span class="s">/</span>
+
+<span class="na">myco.sso.auth-cookie.enabled</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.auth-cookie.name</span><span class="o">=</span><span class="s">SESSION_AUTH</span>
+<span class="na">myco.sso.auth-cookie.max-age-seconds</span><span class="o">=</span><span class="s">1800</span>
+<span class="na">myco.sso.auth-cookie.http-only</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.auth-cookie.secure</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.auth-cookie.path</span><span class="o">=</span><span class="s">/</span>
+</code></pre></div>
+<p>Ici, on permet à Spring Boot d'importer un fichier de configuration supplémentaire au moment du démarrage de l'application. Ce fichier "<em>".properties</em>" situé dans le classpath, permet de séparer la configuration dynamique spécifique au SSO du reste de l'application et de la centraliser dans un fichier dédié. </p>
+<p>Dans le cas du fichier "<em>application-sso</em>", ce dernier va contenir l'ensemble des URLs non protégées (et donc à écarter de la vérification de la sécurité Spring Boot), lors de la demande de génération de la couche SOA. En effet, ces différentes URLs ne peuvent être connues qu'une fois la modélisation des différents services effectuée. Par défaut, ce fichier est donc vide.</p>
+<div class="codehilite"><pre><span></span><code><span class="na">spring.config.import</span><span class="o">=</span><span class="s">classpath:application-sso.properties</span>
+</code></pre></div>
+<p>Le contenu de ce fichier est le suivant (il s'agit ici d'un exemple puisque une partie de son contenu est généré dynamiquement en fonction de la modélisation utilisateur, par ailleurs sont aussi affichées les lignes de commentaire) : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ----------------------------------------------------------------------------------------------</span>
+<span class="c1"># BASE POUR POINTS D'ACCES PUBLICS INTEGRES (.../is-authenticated, .../profile, .../logout) </span>
+<span class="c1"># ----------------------------------------------------------------------------------------------</span>
+<span class="na">myco.sso.endpoints.base-path</span><span class="o">=</span><span class="s">/v1</span>
+
+<span class="c1"># ----------------------------------------------------------------------------------------------</span>
+<span class="c1"># POINTS D'ACCES PUBLICS (Non soumis à l'authentification)</span>
+<span class="c1"># ----------------------------------------------------------------------------------------------</span>
+<span class="na">myco.sso.permit-all[0]</span><span class="o">=</span><span class="s">/v1/actuator/**</span>
+<span class="na">myco.sso.permit-all[1]</span><span class="o">=</span><span class="s">/v1/api-docs/**</span>
+<span class="na">myco.sso.permit-all[2]</span><span class="o">=</span><span class="s">/v1/swagger-ui/**</span>
+<span class="na">myco.sso.permit-all[3]</span><span class="o">=</span><span class="s">/v1/login</span>
+<span class="na">myco.sso.permit-all[4]</span><span class="o">=</span><span class="s">/v1/logout</span>
+<span class="na">myco.sso.permit-all[5]</span><span class="o">=</span><span class="s">/v1/is-authenticated</span>
+<span class="na">myco.sso.permit-all[6]</span><span class="o">=</span><span class="s">/v1/profile</span>
+<span class="na">myco.sso.permit-all[7]</span><span class="o">=</span><span class="s">/v1/login/oauth2/code/*</span>
+
+<span class="c1"># Liste des URLs directement issues de la modélisation.</span>
+<span class="na">myco.sso.permit-all[8]</span><span class="o">=</span><span class="s">/v1/service1</span>
+<span class="na">myco.sso.permit-all[9]</span><span class="o">=</span><span class="s">/v1/service2</span>
+
+<span class="c1"># Placer ici des URLs non issues de la modélisation.</span>
+<span class="c1">// Start of user code c7647f28a1a1fc3dc99d5fd53e914e22</span>
+<span class="c1">// End of user code</span>
+</code></pre></div>
+<p>On peut toutefois constater que certaines URL de l'application sont accessibles sans authentification afin de permettre le bon fonctionnement des outils de supervision, de documentation et des endpoints publics. Cela inclut par exemple les points d'accès pour les métriques et l'actuator, la documentation Swagger, les pages de login et logout, la vérification de l'authentification et le profil utilisateur, ainsi que le point de retour OAuth2 après authentification. Ces chemins sont explicitement autorisés pour garantir l'accessibilité des fonctionnalités essentielles sans bloquer l'utilisateur.</p>
+<p>... Par contre dans cet exemple, il est possible de constater quen en complément des endpoints publics standard, certaines URL issues directement de la modélisation de l'application sont également accessibles sans authentification. Cela permet à des services spécifiques, comme "<em>/v1/service1</em>" et "<em>/v1/service2</em>", d'être appelés librement pour faciliter l'intégration et les tests, tout en maintenant la sécurité sur les autres endpoints.</p>
+<p>❗ L'URI de base d'un service REST est généralement construite à partir de plusieurs éléments, par exemple :
+"<em>/api</em>" + la version + le nom du service, ce qui donne typiquement une URI de la forme : "<em>/api/v1/mon-service</em>".</p>
+<p>Toutefois, dans le cadre de l'utilisation de la librairie développée par le ministère, l'application est considérée comme s'inscrivant dans le périmètre du ministère des Armées. À ce titre, elle doit se conformer aux référentiels d'urbanisation et de normalisation des API en vigueur au sein du ministère. Dans ce contexte, la norme de construction des URI est inversée : la version précède le contexte fonctionnel. La base URI adopte alors obligatoirement la forme suivante : "<em>/v1/api/mon-service</em>".</p>
+<p>❗ Il est important de bien comprendre que le fichier "<em>application.properties</em>" est généré une seule fois, à un moment où la phase de modélisation n'a pas encore commencé.</p>
+<p>En revanche, l'autre partie de la configuration, liée à la librairie développée spécifiquement pour le ministère, est dynamique. Dans ce contexte, il faut être particulièrement vigilant quant à la cohérence des informations entre les deux fichiers.</p>
+<p>Il peut donc être nécessaire de modifier manuellement le fichier "<em>application.properties</em>" afin d'aligner certaines propriétés avec les informations issues de la modélisation, lesquelles sont définies dans le fichier "<em>application-sso.properties</em>".</p>
 <h4 id="testsproperties">tests.properties</h4>
 <p>Ce fichier permet de configurer le framework SpringBoot pour le déroulement des tests d'intégration pour l'ensemble de la couche  d'infrastructure. A ce niveau, il s'agit juste de configurer une datasource, le paramétrage n'implique à priori pas de commentaire particulier hormis le fait que le paramètre "<strong><em>spring.jpa.defer-datasource-initialization</em></strong>" est commenté puisque la demande de création de la base de données n'est plus gérée par le cycle de vie de Spring mais est expressement demandée par programmation. Le paramètre est toutefois conservé pour mémoire.</p>
 <div class="codehilite"><pre><span></span><code><span class="c1">## Base H2 embarquee par defaut.</span>
@@ -695,7 +839,7 @@ Il s'agit des vues suivantes : </p>
 <p>Le fichier permet de configurer le framework SpringBoot. Il contient un ensemble de propriété par défaut, il est possible d'en rajouter et évidemment de les modifier à loisir. Dans le cas d'un projet de type "<strong>client</strong>", il contient par défaut très peu de propriétés. </p>
 <p>Ce fichier est le suivant : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Adresse racine utilisée pour toutes les requêtes HTTP du client REST.</span>
-<span class="na">demo.api.base-url</span><span class="o">=</span><span class="w"> </span><span class="s">[Placer ici l'url de base pour le client]</span>
+<span class="na">demo.api.base-url</span><span class="o">=</span><span class="w"> </span><span class="s">[Placer ici l'URL de base pour le client]</span>
 <span class="c1"># Timeout de connexion TCP (en millisecondes).</span>
 <span class="na">demo.api.connection-timeout-ms</span><span class="o">=</span><span class="s">5000</span>
 <span class="c1"># Timeout de réponse HTTP (en millisecondes).</span>
@@ -707,10 +851,10 @@ Il s'agit des vues suivantes : </p>
 <p>Quand on parle ici de validité, cela concerne en fait la profondeur de l'URL. Par exemple pour l'api utilisée dans le cadre de ce document (TheTVDB) l'URL fournie par défaut est la suivante : https://api4.thetvdb.com/v4. Or, pour <strong>Pacman</strong>, elle devrait être uniquement https://api4.thetvdb.com car la notion de version est gérée au niveau des services (plus fin) et non pas au niveau global. </p>
 <p>Ceci n'est pas détectable automatiquement.</p>
 <h3 id="cas-projet-client-react_2">📁 Cas projet client (React)</h3>
-<p>❗  Dans le cadre des projets générés par Pacman, le fichier <em>package-lock.json</em> ne joue pas un rôle fonctionnel essentiel, puisque Pacman écrit lui-même les dépendances avec des versions figées dans le <em>package.json</em> (devDependencies, peerDependencies, etc.). Le rôle normal d’un <em>package-lock.json</em> est d’assurer une installation strictement reproductible des dépendances, en enregistrant les versions exactes réellement installées. Mais ici, comme les dépendances sont déjà imposées et contrôlées par Pacman, ce fichier ne sert pas à figer des choix du développeur — il ne fait que refléter l'état final de l'installation. </p>
-<p>Il reste néanmoins utile pour garantir que deux installations successives (ou deux postes différents) utiliseront exactement la même arborescence npm, évitant ainsi les légères variations possibles dans la résolution interne de npm, même lorsque les versions sont verrouillées. En bref : ce n’est pas indispensable pour Pacman, mais cela renforce la reproductibilité et évite les comportements imprévisibles de npm. Il reste toujours possible de le désactiver en mettant la propriété à "false" au niveau du fichier <em>.npmrc</em>.</p>
+<p>❗  Dans le cadre des projets générés par Pacman, le fichier <em>package-lock.json</em> ne joue pas un rôle fonctionnel essentiel, puisque Pacman écrit lui-même les dépendances avec des versions figées dans le <em>package.json</em> (devDependencies, peerDependencies, etc.). Le rôle normal d'un <em>package-lock.json</em> est d'assurer une installation strictement reproductible des dépendances, en enregistrant les versions exactes réellement installées. Mais ici, comme les dépendances sont déjà imposées et contrôlées par Pacman, ce fichier ne sert pas à figer des choix du développeur — il ne fait que refléter l'état final de l'installation. </p>
+<p>Il reste néanmoins utile pour garantir que deux installations successives (ou deux postes différents) utiliseront exactement la même arborescence npm, évitant ainsi les légères variations possibles dans la résolution interne de npm, même lorsque les versions sont verrouillées. En bref : ce n'est pas indispensable pour Pacman, mais cela renforce la reproductibilité et évite les comportements imprévisibles de npm. Il reste toujours possible de le désactiver en mettant la propriété à "false" au niveau du fichier <em>.npmrc</em>.</p>
 <h4 id="npmignore">.npmignore</h4>
-<p>Ce fichier permet d’indiquer à npm quels fichiers ne doivent pas être inclus lorsque le package est publié sur le registre npm. Par défaut le code de ce fichier est le suivant : </p>
+<p>Ce fichier permet d'indiquer à npm quels fichiers ne doivent pas être inclus lorsque le package est publié sur le registre npm. Par défaut le code de ce fichier est le suivant : </p>
 <div class="codehilite"><pre><span></span><code><span class="nf">src</span><span class="err">/</span>
 <span class="nf">node_modules</span><span class="err">/</span>
 <span class="nf">tsconfig.json</span>
@@ -720,17 +864,17 @@ Il s'agit des vues suivantes : </p>
 <span class="nf">README.md</span>
 </code></pre></div>
 <h4 id="npmrc">.npmrc</h4>
-<p>Fichier de configuration utilisé par npm pour définir le comportement du gestionnaire de paquets. Il permet de personnaliser des paramètres tels que le registre utilisé pour télécharger les packages, la gestion du SSL, le chemin du cache, la création du <em>package-lock.json</em>, l’authentification, ou encore des options réseau. On peut placer un <em>.npmrc</em> à plusieurs niveaux (global, utilisateur, projet), et npm combine ces fichiers pour déterminer la configuration finale. Dans un projet, le <em>.npmrc</em> local sert généralement à s’assurer que tous les développeurs utilisent les mêmes réglages pour installer ou publier des paquets.</p>
-<p>La ligne <em>registry=https://registry.npmjs.org/</em> indique l’URL du registre npm à utiliser pour récupérer les packages. <em>strict-ssl=false</em> désactive la vérification stricte SSL, utile pour contourner certains problèmes de certificats. Enfin, <em>package-lock=true</em> force la création d’un fichier <em>package-lock.json</em> pour verrouiller les versions exactes des dépendances installées, garantissant ainsi des builds reproductibles.</p>
+<p>Fichier de configuration utilisé par npm pour définir le comportement du gestionnaire de paquets. Il permet de personnaliser des paramètres tels que le registre utilisé pour télécharger les packages, la gestion du SSL, le chemin du cache, la création du <em>package-lock.json</em>, l'authentification, ou encore des options réseau. On peut placer un <em>.npmrc</em> à plusieurs niveaux (global, utilisateur, projet), et npm combine ces fichiers pour déterminer la configuration finale. Dans un projet, le <em>.npmrc</em> local sert généralement à s'assurer que tous les développeurs utilisent les mêmes réglages pour installer ou publier des paquets.</p>
+<p>La ligne <em>registry=https://registry.npmjs.org/</em> indique l'URL du registre npm à utiliser pour récupérer les packages. <em>strict-ssl=false</em> désactive la vérification stricte SSL, utile pour contourner certains problèmes de certificats. Enfin, <em>package-lock=true</em> force la création d'un fichier <em>package-lock.json</em> pour verrouiller les versions exactes des dépendances installées, garantissant ainsi des builds reproductibles.</p>
 <div class="codehilite"><pre><span></span><code><span class="na">registry</span><span class="o">=</span><span class="s">https://registry.npmjs.org/</span>
 <span class="na">strict-ssl</span><span class="o">=</span><span class="s">false</span>
 <span class="na">package-lock</span><span class="o">=</span><span class="s">true</span>
 </code></pre></div>
-<p>❗  Lorsque npm exécute une commande comme npm install, il contacte le registre officiel (https://registry.npmjs.org/) via une connexion HTTPS sécurisée. Sur certains environnements — notamment Windows avec des proxys d’entreprise, des antivirus, ou des serveurs vieillissants — il peut y avoir un problème de validation SSL : certificats expirés, certificats auto-signés, ou chaîne de confiance incomplète. Dans ce cas, npm bloque ou tourne indéfiniment, incapable d’établir une connexion sécurisée. </p>
+<p>❗  Lorsque npm exécute une commande comme npm install, il contacte le registre officiel (https://registry.npmjs.org/) via une connexion HTTPS sécurisée. Sur certains environnements — notamment Windows avec des proxys d'entreprise, des antivirus, ou des serveurs vieillissants — il peut y avoir un problème de validation SSL : certificats expirés, certificats auto-signés, ou chaîne de confiance incomplète. Dans ce cas, npm bloque ou tourne indéfiniment, incapable d'établir une connexion sécurisée. </p>
 <p>Une solution consiste à configurer npm pour assouplir cette vérification, par exemple en ajoutant dans le fichier .npmrc : strict-ssl=false. Cela permet à npm de continuer à fonctionner malgré les certificats problématiques, en attendant une configuration réseau correcte ou une mise à jour des certificats du poste ou du proxy. Cette option doit toutefois être vue comme un contournement, pas une solution définitive.</p>
 <h4 id="packagejson">package.json</h4>
-<p>Ce fichier est le cœur d’un projet npm. Il décrit le nom, la version, les scripts, les dépendances, la licence, et les métadonnées du package. Il définit aussi les fichiers inclus dans le package publié (via "files"), les dépendances au runtime (dependencies), les dépendances pour le développement (devDependencies), ainsi que les peer dependencies si le package doit s’intégrer dans un écosystème particulier (comme React). C’est également ce fichier que npm install lit pour savoir quoi installer.</p>
-<p>Ce fichier définit donc précisément comment fonctionne la librairie générée : il indique son point d’entrée JavaScript (main), son point d’entrée pour TypeScript (types), et précise que le projet utilise les modules ECMAScript (type: "module"). La section "<em>files</em>" restreint la publication au seul dossier dist, garantissant que seules les sources compilées sont embarquées dans le package final. Les scripts "<em>clean</em>", "<em>build</em>" et "<em>pack</em>" automatisent respectivement la suppression des artefacts, la compilation TypeScript et la génération du package .tgz. Les peerDependencies déclarent des bibliothèques nécessaires mais non incluses — comme axios, utilisé par défaut dans les clients REST générés par <strong>Pacman</strong> tandis que les devDependencies rassemblent les outils utiles uniquement lors du build (TypeScript, rimraf, etc.).</p>
+<p>Ce fichier est le cœur d'un projet npm. Il décrit le nom, la version, les scripts, les dépendances, la licence, et les métadonnées du package. Il définit aussi les fichiers inclus dans le package publié (via "files"), les dépendances au runtime (dependencies), les dépendances pour le développement (devDependencies), ainsi que les peer dependencies si le package doit s'intégrer dans un écosystème particulier (comme React). C'est également ce fichier que npm install lit pour savoir quoi installer.</p>
+<p>Ce fichier définit donc précisément comment fonctionne la librairie générée : il indique son point d'entrée JavaScript (main), son point d'entrée pour TypeScript (types), et précise que le projet utilise les modules ECMAScript (type: "module"). La section "<em>files</em>" restreint la publication au seul dossier dist, garantissant que seules les sources compilées sont embarquées dans le package final. Les scripts "<em>clean</em>", "<em>build</em>" et "<em>pack</em>" automatisent respectivement la suppression des artefacts, la compilation TypeScript et la génération du package .tgz. Les peerDependencies déclarent des bibliothèques nécessaires mais non incluses — comme axios, utilisé par défaut dans les clients REST générés par <strong>Pacman</strong> tandis que les devDependencies rassemblent les outils utiles uniquement lors du build (TypeScript, rimraf, etc.).</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"[Nom de l'application]"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"[1.0.0]"</span><span class="p">,</span>
@@ -767,7 +911,7 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <h4 id="tsconfigbuildjson">tsconfig.build.json</h4>
 <p>Ce fichier est une variante de configuration TypeScript utilisée spécifiquement pour la compilation de build. Il complète ou étend un <em>tsconfig.json</em> principal et contient notamment les options de compilation pour produire le code final (outDir, module, target, etc.), les chemins ou patterns des fichiers à inclure/exclure, les réglages utilisés uniquement pour générer la version distribuée (dist/). Il sépare les options "de build" des options utilisées pour le développement (tests, IDE, tooling), ce qui permet un contrôle plus propre et plus fin de la compilation.</p>
-<p>Utilisée exclusivement pour la phase de build, il surcharge certaines options afin de produire les artefacts destinés à la distribution : génération des fichiers JavaScript dans le répertoire dist, création des fichiers de déclaration TypeScript (.d.ts), et désactivation des sourcemaps pour alléger le package final. Il ne compile que le répertoire src, sans inclure d’autres fichiers potentiellement présents dans le projet. </p>
+<p>Utilisée exclusivement pour la phase de build, il surcharge certaines options afin de produire les artefacts destinés à la distribution : génération des fichiers JavaScript dans le répertoire dist, création des fichiers de déclaration TypeScript (.d.ts), et désactivation des sourcemaps pour alléger le package final. Il ne compile que le répertoire src, sans inclure d'autres fichiers potentiellement présents dans le projet. </p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"extends"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./tsconfig.json"</span><span class="p">,</span>
 <span class="w">  </span><span class="nt">"compilerOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -781,7 +925,7 @@ Il s'agit des vues suivantes : </p>
 </code></pre></div>
 <h4 id="tsconfigjson">tsconfig.json</h4>
 <p>Le fichier de configuration principal de TypeScript. Il indique au compilateur quels fichiers inclure, comment les analyser, et comment générer le JavaScript final. </p>
-<p>On indique donc la cible JavaScript à générer (ES2020), le système de modules utilisé (ESNext), et active le support JSX pour React. Il impose également une résolution de modules compatible Node, active les règles strictes de compilation, et facilite l’interopérabilité avec les modules CommonJS (esModuleInterop). Des optimisations comme skipLibCheck accélèrent la compilation en évitant l’analyse des fichiers de définition externes. Enfin, baseUrl positionné sur <em>./src</em> simplifie les imports internes, et la section include précise que seuls les fichiers du dossier src doivent être pris en compte par le compilateur TypeScript.</p>
+<p>On indique donc la cible JavaScript à générer (ES2020), le système de modules utilisé (ESNext), et active le support JSX pour React. Il impose également une résolution de modules compatible Node, active les règles strictes de compilation, et facilite l'interopérabilité avec les modules CommonJS (esModuleInterop). Des optimisations comme skipLibCheck accélèrent la compilation en évitant l'analyse des fichiers de définition externes. Enfin, baseUrl positionné sur <em>./src</em> simplifie les imports internes, et la section include précise que seuls les fichiers du dossier src doivent être pris en compte par le compilateur TypeScript.</p>
 <div class="codehilite"><pre><span></span><code><span class="p">{</span>
 <span class="w">  </span><span class="nt">"compilerOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nt">"target"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES2020"</span><span class="p">,</span>
@@ -1502,6 +1646,28 @@ Il s'agit des vues suivantes : </p>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">dto</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
+<p>❗ Dans le cas du mapping d'un DTO vers un objet de la couche de persistance (Entity), il est possible selon la modélisation utilisateur que certaines données n'existent pas au niveau de la couche de persistance. En effet, un objet de la couche métier peut avoir des attributs qui ont été rajoutés au niveau de sa définition dans le fichier "<em>.soa</em>" et qui n'existent donc pas au niveau de l'entité, de même il est possible qu'une nouvelle référence soit appliquée entre plusieurs objets métier. </p>
+<p>Dans ce cas, ces attributs (ou références) sont considérés obligatoirement comme des champs calculés et doivent avoir la métadonnée "<em>COMPUTED</em>" (ceci est contrôlé lors de la validation du modèle). Lors de la génération de la couche de mapping, ces champs sont alors positionnés au niveau des balises de type "<em>user code</em>" et sont initialisés avec la valeur "<em>null</em>" par défaut. Libre au développeur de positionner le code adéquat pour renseigner ces données. Afin de ne pas oublier ces initialisations, un "<em>TODO</em>" est automatiquement positionné sur chaque ligne à traiter, il est alors possible de consulter la liste du reste à faire au niveau de la vue "<em>Tasks</em>".</p>
+<p>Il est par ailleurs tout à fait recommandé de ne pas initialiser ces champs au niveau de la couche de mapping mais plutôt au niveau de la couche métier dans le projet "<strong><em>[Nom de l'application]-domain</em></strong>". Libre au développeur de positionner son code la ou il le souhaite...</p>
+<div class="codehilite"><pre><span></span><code><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setCommune_id</span><span class="p">(</span><span class="w"> </span><span class="n">entity</span><span class="p">.</span><span class="na">getCommune_id</span><span class="p">());</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setVersion</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="na">getVersion</span><span class="p">());</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setMaj</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="na">getMaj</span><span class="p">());</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setCode</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="na">getCode</span><span class="p">());</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setLibelle</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="na">getLibelle</span><span class="p">());</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setPaysCode</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="na">getPaysCode</span><span class="p">());</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setRegionCode</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="na">getRegionCode</span><span class="p">());</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setDeptCode</span><span class="p">(</span><span class="n">entity</span><span class="p">.</span><span class="na">getDeptCode</span><span class="p">());</span>
+
+<span class="w">    </span><span class="c1">// Start of user code 71449f91c18802e1e99374941eb51e45</span>
+<span class="w">    </span><span class="n">dto</span><span class="p">.</span><span class="na">setDept_departements</span><span class="p">(</span><span class="n">DeptMapper</span><span class="p">.</span><span class="na">toDto</span><span class="p">(</span><span class="kc">null</span><span class="p">));</span><span class="c1">// TODO Champ calculé à initialiser.</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PackappliMapperException</span><span class="p">(</span><span class="s">"Impossible de mapper la classe : CommuneDtoImpl"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Bien, noter par ailleurs que cette distinction n'existe pas au niveau des mappeurs "<em>dto&lt;-&gt;xto</em>" puisque le xto s'appuie obligatoirement sur l'objet métier et qu'enfin, rien n'est écrit au niveau du mapping "<em>dto-&gt;entity</em>" puisque par définition le champ n'existe pas au niveau de la couche de persistance.</p>
 <p>• <strong><em>[package racine].app.adapters.controllers.[nom du namespace]</em></strong> : Contient les points d'entrée (sous forme de services REST dans le cas de <strong>Pacman</strong>) pour les différents service ("<em>outbounds</em>" au niveau de l'architecture REST). Chaque service <strong><em>[nom du service]ControllerImpl</em></strong> fait appel à  l'interface en provenance du domaine <strong><em>[nom du service]Feature</em></strong> dont l'injection de l'implémentation est effectuée dans le constructeur par le framework Spring : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Controller</span>
 <span class="nd">@RequestMapping</span><span class="p">(</span><span class="s">"/v0/api/personnes"</span><span class="p">)</span>
@@ -1873,6 +2039,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="nd">@EnableWebSecurity</span>
 <span class="kd">class</span> <span class="nc">DemoSecurityConfig</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="nd">@Order</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">tokenFilterChain</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
 <span class="w">       </span><span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">cors</span><span class="p">(</span><span class="n">Customizer</span><span class="p">.</span><span class="na">withDefaults</span><span class="p">()).</span><span class="na">csrf</span><span class="p">(</span><span class="n">csrf</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">csrf</span><span class="p">.</span><span class="na">disable</span><span class="p">())</span>
 <span class="w">          </span><span class="p">.</span><span class="na">sessionManagement</span><span class="p">(</span><span class="n">session</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">sessionCreationPolicy</span><span class="p">(</span><span class="n">SessionCreationPolicy</span><span class="p">.</span><span class="na">STATELESS</span><span class="p">))</span>
@@ -1915,6 +2082,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <h4 id="generation_4">Génération</h4>
 <p>La demande de génération est de type "SOA", toutes les informations concernant la sécurisation des services REST sont donc analysés et générées au moment de la demande de génération pour la couche de service. Suite à la génération, le nouveau code pour la classe de configuration de la sécurité devient donc le suivant : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Bean</span>
+<span class="nd">@Order</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">SecurityFilterChain</span><span class="w"> </span><span class="nf">tokenFilterChain</span><span class="p">(</span><span class="n">HttpSecurity</span><span class="w"> </span><span class="n">http</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
 <span class="k">return</span><span class="w"> </span><span class="n">http</span><span class="p">.</span><span class="na">cors</span><span class="p">(</span><span class="n">Customizer</span><span class="p">.</span><span class="na">withDefaults</span><span class="p">()).</span><span class="na">csrf</span><span class="p">(</span><span class="n">csrf</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">csrf</span><span class="p">.</span><span class="na">disable</span><span class="p">())</span>
 <span class="w">    </span><span class="p">.</span><span class="na">sessionManagement</span><span class="p">(</span><span class="n">session</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">session</span><span class="p">.</span><span class="na">sessionCreationPolicy</span><span class="p">(</span><span class="n">SessionCreationPolicy</span><span class="p">.</span><span class="na">STATELESS</span><span class="p">))</span>
@@ -1942,7 +2110,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="p">}</span>
 </code></pre></div>
 <p>Ce nouveau code appelle quelques explications : </p>
-<p>• La ligne d'authorisation a été modifiée et prend maintenant une variable nommée "<strong><em>whiteListPaths</em></strong>". cette variable est injectée un peu plus haut dans le code à l'aide des lignes suivantes : </p>
+<p>• La ligne d'autorisation a été modifiée et prend maintenant une variable nommée "<strong><em>whiteListPaths</em></strong>". cette variable est injectée un peu plus haut dans le code à l'aide des lignes suivantes : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Value</span><span class="p">(</span><span class="s">"${security.whitelist.paths}"</span><span class="p">)</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">whiteListPaths</span><span class="p">;</span>
 </code></pre></div>
@@ -2067,12 +2235,110 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <p>Spring Boot n'a pas nativement de système de décodage des jetons JWT, il convient donc d'utiliser celui qui est fourni par les ressources pour la gestion <em>OAuth2</em>. C'est pourquoi <em>OAuth2</em> sera toujours présent au niveau de la classe de configuration de la sécurité, même si la sécurité demandée est de type <em>Http</em> ou <em>ApiKey</em>.</p>
-<h4 id="tests_3">Tests</h4>
-<p>Il est alors possible d'effectuer de nouveaux test (avec Swagger UI par example) afin de vérifier que l'appel est désormait sécurisé et que toute tentative d'accès non authorisé se soldera par un code de type 401 ou 403.</p>
-<p>❗ Dans le cas de l'utilisation de l'interface Swagger UI, et d'une sécurité de type Oauth2, il est important de comprendre que les points de terminaison doivent être valides, ce qui signifie que le serveur d'authentification doit exister et être en état de fonctionnement. dans le cas contraire, le service ne sera pas considéré comme sécurisé et l'icône avec le cadena ne sera pas affichée.</p>
+<h4 id="librairie-sso-du-ministere_1">Librairie SSO du ministère</h4>
+<p>Le Backend For Frontend (BFF) est, à la base, une couche intermédiaire (design-pattern) entre un frontend et les services backend. Le BFF se charge d'appeler les services nécessaires, d'assembler et de transformer les données, et de ne retourner que les informations utiles au frontend. Cela permet au frontend de se concentrer uniquement sur l'affichage et l'expérience utilisateur.</p>
+<p>Ainsi, le BFF permet (entre autres) de :</p>
+<ul>
+<li>cacher les services internes (services ou micro-services),</li>
+<li>centraliser l'authentification,</li>
+<li>appliquer les règles d'accès,</li>
+<li>découpler (encore plus) le frontend et le backend métier.</li>
+</ul>
+<p>Si, pour l'ensemble du processus d'authentification, le développeur a coché la rubrique "<em>Utilisation librairie SSO du ministère</em>" au niveau de la création du projet (ou si la variable "<em>project.sso.auth.enabled</em>" a été directement modifiée avec la valeur "<em>true</em>" au niveau du fichier "<em>project.properties</em>"), les générateurs <strong>Pacman</strong> vont alors directement utiliser la couche développée par les services du ministère des armées.</p>
+<p>❗ Cette couche "prend la main" sur la modélisation initiale de la gestion de la sécurité et utilise donc le design-pattern "<em>Backend For Frontend</em>".</p>
+<p>La librairie SSO du ministère est conçue pour :</p>
+<ul>
+<li>Un environnement ministériel.</li>
+<li>Une sécurité forte.</li>
+<li>Aucune d'exposition de jeton côté navigateur.</li>
+<li>Une centralisation de la sécurité côté backend.</li>
+</ul>
+<p>Cette librairie effectue donc une autoconfiguration et s'appuie sur l'ensemble des paramètres  précédemment vus au niveau du paragraphe concernant les différents fichiers de configuration de l'application.</p>
+<p>❗ De manière plus générale, se reporter aux différentes documentations internes ministère pour l'utilisation et le paramétrage détaillé de l'authentification par le biais de cette librairie.</p>
+<p>Voici un rapide (non exhaustif) schéma explicatif sur le processus de connection pour la librairie (qui s'appuie dans tous les cas sur le processus standard de l'authentification Oauth2 et sur une mise en oeuvre spécifique de Spring Security) : </p>
+<div align="center">
+<img alt="Minarm authentification" src="images/pcm-minarm-sso-authentication.png"/>
+</div>
+<p>❗ Il est possible de définir d'autres "<em>SecurityFilterChain</em>" qui peuvent coexister avec celle des services d'authentification du ministère, il est alors nécessaire de les définir avec un ordre d'exécution plus petit (par exemple 100). Pour information l'ordre d'éxécution pour la chaîne BFF est positionné à 200.</p>
+<p>❗ La seule chose à retenir est qu'avec ce modèle d'authentification, le navigateur ne manipule jamais directement les jetons OAuth2. Après la connexion de l'utilisateur sur le SSO Keycloak, Spring Security échange le "<em>authorization code</em>" contre des jetons côté backend uniquement, puis crée une session HTTP serveur associée à l'utilisateur authentifié. </p>
+<p>Le backend envoie alors au navigateur un cookie de session (ex. JSESSIONID) qui ne contient qu'un identifiant opaque. À chaque requête suivante, le navigateur renvoie automatiquement ce cookie, ce qui permet au backend de retrouver la session, le contexte de sécurité et l'identité de l'utilisateur, sans transmettre d'informations sensibles au client. Le frontend agit donc comme un simple consommateur d'API, sans connaissance des jetons ni de la logique OAuth2.</p>
+<p>Cette approche présente plusieurs avantages par rapport à une gestion OAuth2 dite « classique » côté client (SPA avec JWT par exemple). Elle est beaucoup plus sécurisée, car aucun jeton n'est exposé au navigateur, ce qui élimine les risques de vol par XSS ou par inspection du stockage local. Elle simplifie également le code frontend, qui n'a pas à gérer le cycle de vie des jetons (stockage, rafraîchissement, expiration). Enfin, elle s'intègre naturellement aux mécanismes de sécurité des SI sensibles (comme ceux des environnements ministériels), en centralisant toute la logique d'authentification et de contrôle d'accès côté backend, avec une maîtrise complète des sessions, des invalidations et des règles de sécurité.</p>
+<p>➡️ Dans cette architecture, le frontend n’a strictement rien à implémenter en matière d’authentification OAuth2. Il ne gère ni jeton, ni rafraîchissement, ni stockage de "<em>credentials</em>". Toute la mécanique d'authentification est prise en charge automatiquement par le backend via Spring Security et la librairie du ministère des armées. Le navigateur renvoie ensuite ce cookie à chaque requête sans intervention du front, qui peut consommer les APIs sécurisées comme des endpoints HTTP classiques.</p>
+<p>Par ailleurs, bien que ces trois classes soient générées automatiquement lors de la création du projet, elles sont toutefois présentées au niveau de ce chapitre car elles sont spécifiques à l'utilisation de la librairie SSO interne. Ces classes permettent d'introduire un comportement applicatif spécifique lors de l'authentification de l'utilisateur. Elles offrent au développeur un point d'extension pour implémenter les différentes règles métier et les traitements fonctionnels nécessaires à la validation de l'accès à l'application. </p>
+<p>Ces classes sont au niveau du projet "<strong><em>[Nom de l'application]-server</em></strong>". Comme toujours il est possible de rajouter l'ensemble du code nécessaire à l'intérieur des zones délimitées par les balises de type "<em>user code</em>" : </p>
+<ul>
+<li>"<strong><em>[package racine].app/[Nom de l'application]KeycloackHandler</em></strong>" : Manipule l'interface "<strong><em>[Nom de l'application]SsoUserService</em></strong> afin de récupérer l'ensemble des informations de l'utilisateur connecté. Si un squelette est proposé par défaut, c'est au dévelopeur d'ajouter le code nécessaire pour appliquer l'ensemble de ses propres règles applicatives.</li>
+</ul>
+<p>```java
+  @Configuration
+  class DemoAppKeycloackHandler {
+      @Bean
+      @Qualifier("mycoLoginSuccessHandlerExtra")
+      AuthenticationSuccessHandler loginSuccessHandler(DemoAppSsoUserService userService) {
+          return (req, res, auth) -&gt; {
+              var current = userService.getCurrentUser();</p>
+<div class="codehilite"><pre><span></span><code><span class="w">          </span><span class="c1">// Start of user code 031e0a965ce78208b44b47340jkhp854lm</span>
+<span class="w">          </span><span class="c1">// End of user code</span>
+<span class="w">      </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<p>}
+  ```</p>
+<ul>
+<li>"<strong><em>[package racine].infra/[Nom de l'application]SsoUserService</em></strong>" : interface générique pour l'obtention d'un utilisateur.</li>
+</ul>
+<p><code>java
+  public interface DemoAppSsoUserService {
+      Object getCurrentUser(); 
+  }</code></p>
+<ul>
+<li>"<strong><em>[package racine].infra/[Nom de l'application]SsoUserServiceImpl</em></strong>" : implémentation du service pour l'obtention de l'interface utilisateur, c'est ici que le développeur peut ajouter l'ensemble des informations nécessaire pour la gestion d'un utilisateur authentifié.</li>
+</ul>
+<p>```java
+  @Service
+  public class DemoAppSsoUserServiceImpl implements DemoAppSsoUserService {
+      @Override
+      public Object getCurrentUser() {
+          // Start of user code 031e0a965ce78208b44b47340128ed45
+          return null;
+          // End of user code</p>
+<div class="codehilite"><pre><span></span><code><span class="w">      </span><span class="c1">// Start of user code 16c013eeefb39788076fc17cb6d909e0</span>
+<span class="w">      </span><span class="c1">// End of user code</span>
+<span class="w">  </span><span class="p">}</span>
+</code></pre></div>
+<p>}</p>
+<div class="codehilite"><pre><span></span><code><span class="err">####</span><span class="w"> </span><span class="nx">Tests</span>
+
+<span class="nx">Il</span><span class="w"> </span><span class="nx">est</span><span class="w"> </span><span class="nx">alors</span><span class="w"> </span><span class="nx">possible</span><span class="w"> </span><span class="nx">d</span><span class="err">'</span><span class="nx">effectuer</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">nouveaux</span><span class="w"> </span><span class="nx">test</span><span class="w"> </span><span class="p">(</span><span class="nx">avec</span><span class="w"> </span><span class="nx">Swagger</span><span class="w"> </span><span class="nx">UI</span><span class="w"> </span><span class="nx">par</span><span class="w"> </span><span class="nx">example</span><span class="p">)</span><span class="w"> </span><span class="nx">afin</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">vérifier</span><span class="w"> </span><span class="nx">que</span><span class="w"> </span><span class="nx">l</span><span class="err">'</span><span class="nx">appel</span><span class="w"> </span><span class="nx">est</span><span class="w"> </span><span class="nx">désormait</span><span class="w"> </span><span class="nx">sécurisé</span><span class="w"> </span><span class="nx">et</span><span class="w"> </span><span class="nx">que</span><span class="w"> </span><span class="nx">toute</span><span class="w"> </span><span class="nx">tentative</span><span class="w"> </span><span class="nx">d</span><span class="err">'</span><span class="nx">accès</span><span class="w"> </span><span class="nx">non</span><span class="w"> </span><span class="nx">authorisé</span><span class="w"> </span><span class="nx">se</span><span class="w"> </span><span class="nx">soldera</span><span class="w"> </span><span class="nx">par</span><span class="w"> </span><span class="nx">un</span><span class="w"> </span><span class="nx">code</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="mi">401</span><span class="w"> </span><span class="nx">ou</span><span class="w"> </span><span class="mi">403</span><span class="p">.</span>
+
+<span class="err">❗</span><span class="w"> </span><span class="nx">Dans</span><span class="w"> </span><span class="nx">le</span><span class="w"> </span><span class="nx">cas</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">l</span><span class="err">'</span><span class="nx">utilisation</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">l</span><span class="err">'</span><span class="kd">interface</span><span class="w"> </span><span class="nx">Swagger</span><span class="w"> </span><span class="nx">UI</span><span class="p">,</span><span class="w"> </span><span class="nx">et</span><span class="w"> </span><span class="nx">d</span><span class="err">'</span><span class="nx">une</span><span class="w"> </span><span class="nx">sécurité</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nx">Oauth2</span><span class="p">,</span><span class="w"> </span><span class="nx">il</span><span class="w"> </span><span class="nx">est</span><span class="w"> </span><span class="nx">important</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">comprendre</span><span class="w"> </span><span class="nx">que</span><span class="w"> </span><span class="o">**</span><span class="nx">tous</span><span class="o">**</span><span class="w"> </span><span class="nx">les</span><span class="w"> </span><span class="nx">points</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">terminaison</span><span class="w"> </span><span class="nx">doivent</span><span class="w"> </span><span class="nx">être</span><span class="w"> </span><span class="nx">valides</span><span class="p">,</span><span class="w"> </span><span class="nx">ce</span><span class="w"> </span><span class="nx">qui</span><span class="w"> </span><span class="nx">signifie</span><span class="w"> </span><span class="nx">que</span><span class="w"> </span><span class="o">**</span><span class="nx">le</span><span class="w"> </span><span class="nx">serveur</span><span class="w"> </span><span class="nx">d</span><span class="err">'</span><span class="nx">authentification</span><span class="w"> </span><span class="nx">doit</span><span class="w"> </span><span class="nx">exister</span><span class="w"> </span><span class="nx">et</span><span class="w"> </span><span class="nx">être</span><span class="w"> </span><span class="nx">en</span><span class="w"> </span><span class="nx">état</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">fonctionnement</span><span class="o">**</span><span class="p">.</span><span class="w"> </span><span class="nx">dans</span><span class="w"> </span><span class="nx">le</span><span class="w"> </span><span class="nx">cas</span><span class="w"> </span><span class="nx">contraire</span><span class="p">,</span><span class="w"> </span><span class="nx">le</span><span class="w"> </span><span class="nx">service</span><span class="w"> </span><span class="nx">ne</span><span class="w"> </span><span class="nx">sera</span><span class="w"> </span><span class="nx">pas</span><span class="w"> </span><span class="nx">considéré</span><span class="w"> </span><span class="nx">comme</span><span class="w"> </span><span class="nx">sécurisé</span><span class="w"> </span><span class="nx">et</span><span class="w"> </span><span class="nx">l</span><span class="err">'</span><span class="nx">icône</span><span class="w"> </span><span class="nx">avec</span><span class="w"> </span><span class="nx">le</span><span class="w"> </span><span class="nx">cadena</span><span class="w"> </span><span class="nx">ne</span><span class="w"> </span><span class="nx">sera</span><span class="w"> </span><span class="nx">pas</span><span class="w"> </span><span class="nx">affichée</span><span class="p">.</span>
+
+<span class="nx">Dans</span><span class="w"> </span><span class="nx">le</span><span class="w"> </span><span class="nx">cas</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">l</span><span class="err">'</span><span class="nx">utilisation</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">la</span><span class="w"> </span><span class="nx">librairie</span><span class="w"> </span><span class="nx">d</span><span class="err">'</span><span class="nx">authentification</span><span class="w"> </span><span class="nx">du</span><span class="w"> </span><span class="nx">ministère</span><span class="p">,</span><span class="w"> </span><span class="nx">il</span><span class="w"> </span><span class="nx">est</span><span class="w"> </span><span class="nx">aussi</span><span class="w"> </span><span class="nx">possible</span><span class="w"> </span><span class="nx">d</span><span class="err">'</span><span class="nx">utiliser</span><span class="w"> </span><span class="nx">un</span><span class="w"> </span><span class="nx">navigateur</span><span class="w"> </span><span class="p">(</span><span class="nx">le</span><span class="w"> </span><span class="nx">plus</span><span class="w"> </span><span class="nx">simple</span><span class="p">)</span><span class="w"> </span><span class="nx">et</span><span class="w"> </span><span class="nx">de</span><span class="w"> </span><span class="nx">saisir</span><span class="w"> </span><span class="nx">l</span><span class="err">'</span><span class="nx">URL</span><span class="w"> </span><span class="nx">suivante</span><span class="w"> </span><span class="p">:</span><span class="w"> </span>
+
+<span class="err">```</span><span class="nx">shell</span>
+<span class="nx">http</span><span class="p">:</span><span class="c1">//localhost:8081/oauth2/authorization/keycloak</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Ici, "<em>localhost:8081</em>" est bien évidemment un exemple à modidier selon le nommage du serveur avec le port associé. </p>
+</li>
+<li>
+<p>Pour rappel et comme vu plus haut, en Spring Security, on peux donner n'importe quel nom à "<em>registrationId</em>" dans l'URL : "<em>http://localhost:8081/oauth2/authorization/{</em><em>registrationId</em><em>}</em>". Ce nom sert uniquement à identifier la configuration côté Spring. Par convention, on met généralement le même nom que Keycloak (si on utilise un serveur Keycloack). A modifier éventuellement selon le besoin.</p>
+</li>
+</ul>
+<p>Il est aussi possible de saisir l'URL d'un service sécurisé quelconque, par exemple : </p>
+<div class="codehilite"><pre><span></span><code>http://localhost:8081/v1/api/monService
+</code></pre></div>
+<p>On doit alors arriver sur la mire de connexion pour le serveur SSO, il suffit de rentrer le login et le mot de passe pour l'utilisateur (l'utilisateur enregistré au niveau du serveur SSO) : </p>
+<div align="center">
+<img alt="Serveur Keycloack" src="images/pcm-minarm-sso-keycloack.png"/>
+</div>
+<p>Une fois la mire d'authentification passée, l'utilisateur doit alors être automatiquement routé vers la page initialement demandée. Pour rappel (si le développeur est juste en phase de développement du backend et que le frontend est encore inexistant), il faut alors modifier le fichier de configuration "<em>application.properties</em>" afin de renseigner l'URL sur laquelle le serveur doit retourner une fois l'authentification réussie : </p>
+<div class="codehilite"><pre><span></span><code><span class="na">project.frontend.uri</span><span class="o">=</span><span class="s">[URL complète du service backend]</span>
+</code></pre></div>
 <h3 id="generation-des-relations">🧩 Génération des relations</h3>
-<p>Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple, bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l’outil, tant du point de vue des scripts SQL que de la configuration JPA. </p>
-<p>L’objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. </p>
+<p>Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple, bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. </p>
+<p>L'objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. </p>
 <p>Ici deux entités seront modélisées, avec toujours pour noms respectifs, simplement A et B.</p>
 <p>❗ Attention dans ce chapitre, à ne pas confondre bidirectionnel au sens JPA et bidirectionnel au sens de la modélisation. Ce n'est pas parceque le développeur doit tirer une relation bidirectionnelle (appelée telle qu'elle au niveau de l'outil de modélisation) que l'on désire au niveau JPA attaquer la relation dans les deux sens (bidirectionnel au sens JPA). La nécessité du bidirectionnel au sens JPA sera à étudier selon les éventuels futurs besoins au niveau des générateurs <strong>Pacman</strong>.</p>
 <p>❗ Au niveau des scripts SQL, ne sont pour l'instant affichées que les créations de table afin de rapidement visualiser les différentes relations. Ne sont donc pas présentés les indexs et contraintes inhérentes à la création de ces relations.</p>
@@ -2098,8 +2364,8 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="w">  </span><span class="k">constraint</span><span class="w"> </span><span class="n">B_PK1_1</span><span class="w"> </span><span class="k">primary</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="p">(</span><span class="n">B_ID</span><span class="p">)</span>
 <span class="p">);</span>
 </code></pre></div>
-<p>Au niveau des classes Java, on retrouve une relation de type <strong><em>@ManyToOne</em></strong> au niveau de l'entité A (<strong>Pacman</strong> n'utilise pas les relations <strong><em>@OneToOne</em></strong>). Même si cela n’est pas exclusif dans le sens de la base de données et que cela n'est pas intuitif, du point de vue métier, la cardinalité (0,1) peut cependant, être exprimée avec <em>@ManyToOne</em>, c'est le choix qui a été effectué pour le générateur <strong>Pacman</strong>.</p>
-<p>En effet, <em>@ManyToOne</em> est plus courant et mieux optimisé dans les moteurs JPA/Hibernate. Il est chargé plus efficacement, et les jointures SQL sont plus simples. Si à terme la relation devait évoluer vers (0,*), <em>@ManyToOne</em> s’adapte sans pour autant casser le schéma. Par ailleurs, <em>@OneToOne</em> impose généralement une contrainte UNIQUE sur la colonne de jointure, ce qui peut poser des problèmes de performances si mal indexé, surtout sur de grandes tables.</p>
+<p>Au niveau des classes Java, on retrouve une relation de type <strong><em>@ManyToOne</em></strong> au niveau de l'entité A (<strong>Pacman</strong> n'utilise pas les relations <strong><em>@OneToOne</em></strong>). Même si cela n'est pas exclusif dans le sens de la base de données et que cela n'est pas intuitif, du point de vue métier, la cardinalité (0,1) peut cependant, être exprimée avec <em>@ManyToOne</em>, c'est le choix qui a été effectué pour le générateur <strong>Pacman</strong>.</p>
+<p>En effet, <em>@ManyToOne</em> est plus courant et mieux optimisé dans les moteurs JPA/Hibernate. Il est chargé plus efficacement, et les jointures SQL sont plus simples. Si à terme la relation devait évoluer vers (0,*), <em>@ManyToOne</em> s'adapte sans pour autant casser le schéma. Par ailleurs, <em>@OneToOne</em> impose généralement une contrainte UNIQUE sur la colonne de jointure, ce qui peut poser des problèmes de performances si mal indexé, surtout sur de grandes tables.</p>
 <p>Entité A : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@ManyToOne</span><span class="p">(</span><span class="n">fetch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FetchType</span><span class="p">.</span><span class="na">EAGER</span><span class="p">)</span>
 <span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"B_ID"</span><span class="p">,</span><span class="w"> </span><span class="n">referencedColumnName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"B_ID"</span><span class="p">,</span><span class="w"> </span><span class="n">nullable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">)</span>
@@ -2107,7 +2373,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 </code></pre></div>
 <h4 id="relation-01">Relation (0,*)/(1,*)</h4>
 <p><img alt="Relations" src="images/pcm-model-relation-2.png"/></p>
-<p>Ici, avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A. La relations se traduit par un <strong><em>@OneToMany</em></strong> au niveau de l'entité A et un <strong><em>@ManyToOne</em></strong> au niveau de l'entité B. Par défaut, <em>@OneToMany</em> sans <em>mappedBy</em> crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d’utiliser <em>mappedBy</em> dans A, et un <em>@ManyToOne</em> dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).</p>
+<p>Ici, avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A. La relations se traduit par un <strong><em>@OneToMany</em></strong> au niveau de l'entité A et un <strong><em>@ManyToOne</em></strong> au niveau de l'entité B. Par défaut, <em>@OneToMany</em> sans <em>mappedBy</em> crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d'utiliser <em>mappedBy</em> dans A, et un <em>@ManyToOne</em> dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).</p>
 <div class="codehilite"><pre><span></span><code><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">A</span>
 <span class="p">(</span>
 <span class="w">  </span><span class="cm">/* PK de la table A */</span>
@@ -2186,14 +2452,14 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="nd">@JoinTable</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"A_RELATIONB"</span><span class="p">,</span><span class="w"> </span><span class="n">joinColumns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"A_ID"</span><span class="p">),</span><span class="w"> </span><span class="n">inverseJoinColumns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@JoinColumn</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"B_ID"</span><span class="p">))</span>
 <span class="kd">private</span><span class="w"> </span><span class="n">Set</span><span class="o">&lt;</span><span class="n">BEntityImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">relationB</span><span class="p">;</span>
 </code></pre></div>
-<p>❗ On peut aussi noter que dans le cadre des relations bidirectionnelles <em>@ManyToMany</em>, <strong>Pacman</strong> utilise des <em>Set</em> et non des <em>List</em> pour le stockage des collections. Cela est préconisé avec JPA car un <em>Set</em> garantit l’unicité des éléments, ce qui est cohérent avec le modèle relationnel sous-jacent (en base de données, une table de jointure pour une relation <em>@ManyToMany</em> n’a pas de doublons.). En outre, JPA (notamment avec Hibernate) traite les <em>Set</em> de manière plus simple et plus performante. Enfin le <em>Set</em> n’a pas d’ordre, il correspond naturellement à ce que fait la base de données (pas d’ordre garanti dans une table de jointure).</p>
+<p>❗ On peut aussi noter que dans le cadre des relations bidirectionnelles <em>@ManyToMany</em>, <strong>Pacman</strong> utilise des <em>Set</em> et non des <em>List</em> pour le stockage des collections. Cela est préconisé avec JPA car un <em>Set</em> garantit l'unicité des éléments, ce qui est cohérent avec le modèle relationnel sous-jacent (en base de données, une table de jointure pour une relation <em>@ManyToMany</em> n'a pas de doublons.). En outre, JPA (notamment avec Hibernate) traite les <em>Set</em> de manière plus simple et plus performante. Enfin le <em>Set</em> n'a pas d'ordre, il correspond naturellement à ce que fait la base de données (pas d'ordre garanti dans une table de jointure).</p>
 <h4 id="relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</h4>
-<p>Dans un modèle de persistance tel qu’Hibernate/JPA, il est naturel de représenter les relations entre entités sous forme d’objets imbriqués : un objet A contient une liste de B, et chaque B contient une référence vers A. Ces relations bidirectionnelles sont utiles pour la navigation interne, la gestion de la cohérence, le cache et les fonctionnalités ORM. </p>
-<p>Mais ce modèle n’est absolument pas adapté à être exposé tel quel dans les DTO/XTO utilisés par les API et  la couche de service. La raison principale est qu’un graphe bidirectionnel crée des cycles  que l’on peut supporter côté JPA, mais qui deviennent ingérables dès que l’on quitte le monde ORM.</p>
-<p>En effet, lorsque l’on construit des DTO, le rôle n’est plus de représenter des entités persistantes, mais de produire une structure de données stable, simple, prévisible et sérialisable. Les DTO doivent être "plats", orientés transport, sans comportement implicite ni navigation cyclique. </p>
-<p>Si un DTO B contient un DTO A, qui lui-même contient une liste de DTO B, on produit alors immédiatement une boucle infinie : la sérialisation JSON part en récursion infinie, les mappers se ré-appellent indéfiniment et finissent en StackOverflowError, et les outils de documentation (OpenAPI, Swagger) refusent le modèle car il n’est pas acyclique.</p>
-<p>Les générateurs <strong>Pacman</strong> vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d’API plus explicite.   </p>
-<p>Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l’API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l’architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non récursive et optimisée pour l’échange de données.</p>
+<p>Dans un modèle de persistance tel qu'Hibernate/JPA, il est naturel de représenter les relations entre entités sous forme d'objets imbriqués : un objet A contient une liste de B, et chaque B contient une référence vers A. Ces relations bidirectionnelles sont utiles pour la navigation interne, la gestion de la cohérence, le cache et les fonctionnalités ORM. </p>
+<p>Mais ce modèle n'est absolument pas adapté à être exposé tel quel dans les DTO/XTO utilisés par les API et  la couche de service. La raison principale est qu'un graphe bidirectionnel crée des cycles  que l'on peut supporter côté JPA, mais qui deviennent ingérables dès que l'on quitte le monde ORM.</p>
+<p>En effet, lorsque l'on construit des DTO, le rôle n'est plus de représenter des entités persistantes, mais de produire une structure de données stable, simple, prévisible et sérialisable. Les DTO doivent être "plats", orientés transport, sans comportement implicite ni navigation cyclique. </p>
+<p>Si un DTO B contient un DTO A, qui lui-même contient une liste de DTO B, on produit alors immédiatement une boucle infinie : la sérialisation JSON part en récursion infinie, les mappers se ré-appellent indéfiniment et finissent en StackOverflowError, et les outils de documentation (OpenAPI, Swagger) refusent le modèle car il n'est pas acyclique.</p>
+<p>Les générateurs <strong>Pacman</strong> vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d'API plus explicite.   </p>
+<p>Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l'API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l'architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non récursive et optimisée pour l'échange de données.</p>
 <p><img alt="Relations" src="images/pcm-model-relation-2.png"/></p>
 <p>L'impact direct est le suivant : au niveau du mappeur DTO &lt;-&gt; Entity il est nécessaire de retransformer l'identifiant de l'entité A en instance de A (uniquement avec son identifiant, cela est suffisant pour Hibernate).</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">BEntityImpl</span><span class="w"> </span><span class="nf">toEntity</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">BDtoImpl</span><span class="w"> </span><span class="n">dto</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -2252,8 +2518,8 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="cm"> * telles que le titre, la version, la description, les informations de contact,</span>
 <span class="cm"> * les termes de licence et d'utilisation.</span>
 <span class="cm"> *</span>
-<span class="cm"> * Aucun code métier ou logique n’est présent ici, uniquement des déclarations</span>
-<span class="cm"> * d’annotations à but documentaire.</span>
+<span class="cm"> * Aucun code métier ou logique n'est présent ici, uniquement des déclarations</span>
+<span class="cm"> * d'annotations à but documentaire.</span>
 <span class="cm"> *</span>
 <span class="cm"> * @see io.swagger.v3.oas.annotations.OpenAPIDefinition</span>
 <span class="cm"> * @see io.swagger.v3.oas.annotations.info.Info</span>
@@ -2301,9 +2567,9 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <h4 id="affichage-et-tests">Affichage et tests</h4>
 <p>Il est ainsi possible (après lancement de l'application), d'utiliser l'outil open source Swagger UI qui permet d'afficher et de tester visuellement une API décrite avec Swagger/OpenAPI, ceci, directement dans un navigateur web. Swagger UI va lire le fichier de spécification et le transformer en une interface web qui permet :</p>
 <ul>
-<li>De naviguer dans les endpoints de l’API (groupés par ressource).</li>
+<li>De naviguer dans les endpoints de l'API (groupés par ressource).</li>
 <li>De voir les paramètres, le corps des requêtes ainsi que les réponses attendues.</li>
-<li>D’exécuter des requêtes HTTP directement via les formulaires interactifs.</li>
+<li>D'exécuter des requêtes HTTP directement via les formulaires interactifs.</li>
 </ul>
 <div align="center">
 <img alt="Open Api" src="images/pcm-swagger-soa-2.png"/>
@@ -2502,9 +2768,9 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <p>❗ Dans le dernier cas, il s'agit ici de l'annotation <strong><em>@Transactionnal</em></strong> du domaine (<strong>[package racine].domain.Transactionnal</strong><em>) et non celle de JPA, puisque le domaine est totalement indépendant de toute technologie. Pour rappel, cette annotation est gérée automatiquement grâce aux classes situées dans le package d'infrastructure : </em><strong>[package racine].infra</strong>*</p>
 <h4 id="utilisation-de-lheritage">Utilisation de l'héritage</h4>
 <p>❗ La modélisation de l'héritage est encore en version Alpha, elle sera pleinement supportée très prochainement.</p>
-<p>Avec <strong>Pacman</strong> l'héritage entre entités est supporté afin de favoriser la réutilisation et la structuration du modèle métier. Cependant, de manière générale, il est conseillé de ne pas en abuser car il ne faut pas oublier que l’implémentation de l’héritage en JPA peut introduire une complexité technique non négligeable et avoir un impact négatif sur les performances.</p>
-<p>En effet, si JPA propose par défaut plusieurs stratégies de mapping pour l’héritage, aucune des stratégies disponibles (SINGLE_TABLE, JOINED, TABLE_PER_CLASS) n’est pleinement satisfaisante. Chacune présente des compromis importants en termes de performances, de lisibilité des données ou de complexité des requêtes SQL générées. Par exemple, la stratégie SINGLE_TABLE centralise toutes les entités dans une seule table avec des colonnes parfois inutilisées, ce qui peut alourdir la structure et la maintenance. La stratégie JOINED, plus propre sur le plan du modèle relationnel, implique de multiples jointures coûteuses à l'exécution. Quant à TABLE_PER_CLASS, elle rend les requêtes globales complexes voire inefficaces. </p>
-<p>Ces limitations font que l’héritage JPA doit être abordé avec prudence. Il est donc recommandé de l'utiliser avec parcimonie et uniquement lorsqu’il apporte une réelle valeur métier, afin de garantir un code généré plus simple, plus lisible et plus efficace à l'exécution.</p>
+<p>Avec <strong>Pacman</strong> l'héritage entre entités est supporté afin de favoriser la réutilisation et la structuration du modèle métier. Cependant, de manière générale, il est conseillé de ne pas en abuser car il ne faut pas oublier que l'implémentation de l'héritage en JPA peut introduire une complexité technique non négligeable et avoir un impact négatif sur les performances.</p>
+<p>En effet, si JPA propose par défaut plusieurs stratégies de mapping pour l'héritage, aucune des stratégies disponibles (SINGLE_TABLE, JOINED, TABLE_PER_CLASS) n'est pleinement satisfaisante. Chacune présente des compromis importants en termes de performances, de lisibilité des données ou de complexité des requêtes SQL générées. Par exemple, la stratégie SINGLE_TABLE centralise toutes les entités dans une seule table avec des colonnes parfois inutilisées, ce qui peut alourdir la structure et la maintenance. La stratégie JOINED, plus propre sur le plan du modèle relationnel, implique de multiples jointures coûteuses à l'exécution. Quant à TABLE_PER_CLASS, elle rend les requêtes globales complexes voire inefficaces. </p>
+<p>Ces limitations font que l'héritage JPA doit être abordé avec prudence. Il est donc recommandé de l'utiliser avec parcimonie et uniquement lorsqu'il apporte une réelle valeur métier, afin de garantir un code généré plus simple, plus lisible et plus efficace à l'exécution.</p>
 <p>Cela dit,  <strong>Pacman</strong> permet de pallier pour majeure partie à ces limitations car il génère sa propre implémentation de l'héritage.  </p>
 <p>Les règles sont les suivantes : </p>
 <ul>
@@ -2957,7 +3223,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <ul>
 <li>A utiliser le lazy loading sur le chargement des références afin de renvoyer seulement une partie de la grappe d'objet. Cette solution est viable, mais son seul inconvénient est que cela n'évite pas l'affichage d'objets nulls au niveau de l'objet sérialisé (XTO). Le client est ainsi averti que  potentiellement, cette information est disponible, ce que ne désire pas forçément les développeurs. Par ailleur si la donnée que l'on ne souhaite pas renvoyer ne se situe pas au niveau d'une relation mais directement au niveau de l'entité, cette solution ne permet pas de résoudre la problématique.</li>
 </ul>
-<p>👍 Le plus simple et le plus efficace consiste à utiliser l'annotation "<strong><em>@JsonView</em></strong>" en collaboration avec la définition de "vues" qui sont essentiellement des groupes de propriétés que l'on souhaite sérialiser pour des cas d’utilisation spécifiques. </p>
+<p>👍 Le plus simple et le plus efficace consiste à utiliser l'annotation "<strong><em>@JsonView</em></strong>" en collaboration avec la définition de "vues" qui sont essentiellement des groupes de propriétés que l'on souhaite sérialiser pour des cas d'utilisation spécifiques. </p>
 <p>Ici, la modélisation n'apporte aucune valeur ajoutée et c'est au développeur d'écrire le code nécessaire pour la définition et la prise en compte de ses vues. Les différentes étapes sont les suivantes : </p>
 <p>1 - Renseigner la classe <strong><em>[nom de l'application]JsonViews</em></strong> située au niveau du package racine pour la couche application <strong><em>[package racine].app</em></strong> avec la définition des différentes vues souhaitées, par exemple : </p>
 <div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DemoJsonViews</span><span class="w"> </span><span class="p">{</span>
@@ -3065,12 +3331,12 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 </code></pre></div>
 <h4 id="mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</h4>
 <p>Un "circuit-breaker" est un mécanisme qui empêche un système de continuer à appeler un service en échec, afin de limiter la propagation des erreurs et de laisser le service défaillant se rétablir.</p>
-<p>Dans le contexte des services REST il s'agit d'un mécanisme de protection qui interrompt temporairement les appels vers un service distant lorsqu’un certain seuil d’échecs est atteint, afin d’éviter de surcharger un service instable, de préserver les ressources du client, et améliorer la résilience globale de l’architecture. </p>
+<p>Dans le contexte des services REST il s'agit d'un mécanisme de protection qui interrompt temporairement les appels vers un service distant lorsqu'un certain seuil d'échecs est atteint, afin d'éviter de surcharger un service instable, de préserver les ressources du client, et améliorer la résilience globale de l'architecture. </p>
 <p>Les objectifs sont donc de : </p>
 <ul>
-<li>Limiter l’impact des pannes de services tiers ou en cascade.</li>
-<li>Réduire les temps de réponse côté client en évitant des appels voués à l’échec.</li>
-<li>Permettre la reprise progressive d’un service REST une fois rétabli.</li>
+<li>Limiter l'impact des pannes de services tiers ou en cascade.</li>
+<li>Réduire les temps de réponse côté client en évitant des appels voués à l'échec.</li>
+<li>Permettre la reprise progressive d'un service REST une fois rétabli.</li>
 </ul>
 <p>Avec <strong>Pacman</strong> la modélisation d'un tel service s'effectue par l'ajout de services de type "<strong><em>Required</em></strong>", à la différence des services de type "<strong><em>Provided</em></strong>" utilisés jusqu'à maintenant. La modélisation n'impacte ni la couche domaine, ni la couche application au niveau de l'infrastructure, seul un "<em>adapter</em>" est ajouté avec pour nom <strong><em>[nom du service]ExternalProvider</em></strong> (au lieu de <strong><em>[nom du service]JpaProvider</em></strong>)</p>
 <p><img alt="Entity manager" src="images/pcm-model-adv-circuit-15.png"/></p>
@@ -3525,9 +3791,9 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 </ul>
 <h2 id="cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</h2>
 <h3 id="webclient">WebClient</h3>
-<p>Pendant longtemps, le client HTTP de référence dans l’écosystème Spring a été RestTemplate, introduit pour simplifier les appels REST depuis une application Spring Boot. Il a été largement utilisé car il proposait une API simple, bloquante et proche des modèles de programmation classiques. </p>
-<p>Cependant, avec l’arrivée de Spring 5 et du paradigme réactif, RestTemplate a été marqué comme obsolète et ne bénéficie plus d’évolutions. Son fonctionnement bloquant le rend peu adapté aux architectures modernes, souvent distribuées et fortement concurrentes. Pour répondre à ces besoins, Spring a introduit WebClient, un client HTTP non bloquant, réactif et beaucoup plus flexible : il permet de gérer aussi bien des appels simples que des flux de données continus, tout en offrant un support natif pour l’asynchrone et une meilleure intégration avec Spring WebFlux. </p>
-<p>WebClient est aujourd’hui l’outil recommandé pour les appels REST dans Spring Boot, car il prépare les applications à la scalabilité et aux contraintes de performance actuelles.</p>
+<p>Pendant longtemps, le client HTTP de référence dans l'écosystème Spring a été RestTemplate, introduit pour simplifier les appels REST depuis une application Spring Boot. Il a été largement utilisé car il proposait une API simple, bloquante et proche des modèles de programmation classiques. </p>
+<p>Cependant, avec l'arrivée de Spring 5 et du paradigme réactif, RestTemplate a été marqué comme obsolète et ne bénéficie plus d'évolutions. Son fonctionnement bloquant le rend peu adapté aux architectures modernes, souvent distribuées et fortement concurrentes. Pour répondre à ces besoins, Spring a introduit WebClient, un client HTTP non bloquant, réactif et beaucoup plus flexible : il permet de gérer aussi bien des appels simples que des flux de données continus, tout en offrant un support natif pour l'asynchrone et une meilleure intégration avec Spring WebFlux. </p>
+<p>WebClient est aujourd'hui l'outil recommandé pour les appels REST dans Spring Boot, car il prépare les applications à la scalabilité et aux contraintes de performance actuelles.</p>
 <h3 id="recuperation-du-fichier-swagger">Récupération du fichier Swagger</h3>
 <p>Le fichier Swagger est à récupérer auprès du fournisseur externe de service, il est au format <em>Json</em> ou <em>Yaml</em> (<strong>Pacman</strong> accepte les deux formats) et à positionner sur le disque dans un répertoire au choix du développeur. Il est toutefois conseillé de le stocker au niveau du projet de modélisation afin de centraliser toutes les informations au niveau du projet. </p>
 <h3 id="modelisation_4">Modélisation</h3>
@@ -3694,7 +3960,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="p">}</span>
 </code></pre></div>
 <p>Très simplement on constate la présence de l'ensemble des paramètres en entrée. Il suffit alors de compléter les paramètres avec les valeurs demandées. La requête est prête pour les tests.</p>
-<h3 id="tests_4">Tests</h3>
+<h3 id="tests_3">Tests</h3>
 <p>Comme tout test de type "<strong>**JUnit</strong>" il suffit simplement au développeur pour vérifier le bon fonctionnement de la requête, de se positionner au niveau de la méthode (opération), de la classe ou encore du/des package(s) et d'effectuer un click droit pour lancer le(s) test(s) Junit. </p>
 <div align="center">
 <img alt="Tests soa client" src="images/pcm-test-soaclient-1.png" width="600"/>
@@ -3810,9 +4076,9 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <p>[A traiter]</p>
 <h2 id="cas-projet-client-react_3">📁 Cas projet client (React)</h2>
 <h3 id="axios">Axios</h3>
-<p>Axios est une bibliothèque JavaScript et TypeScript qui permet de réaliser facilement des requêtes HTTP depuis le navigateur ou Node.js. Elle simplifie l’envoi et la réception de données, notamment au format JSON, et offre des fonctionnalités avancées comme la gestion des en-têtes, des paramètres de requête, des délais d’attente, et l’annulation de requêtes. </p>
-<p>Axios supporte les promesses, ce qui permet d’écrire un code asynchrone clair et lisible, et propose des intercepteurs pour transformer ou traiter les requêtes et réponses avant leur utilisation. Elle est particulièrement appréciée dans les projets TypeScript pour sa simplicité d’usage et sa compatibilité à la fois côté client et côté serveur (si full React).</p>
-<p>Dans le cadre des générateurs <strong>Pacman</strong>, Axios est incluse comme bibliothèque de base, ce qui permet aux projets générés de l’utiliser directement pour la communication avec des services REST sans configuration supplémentaire.</p>
+<p>Axios est une bibliothèque JavaScript et TypeScript qui permet de réaliser facilement des requêtes HTTP depuis le navigateur ou Node.js. Elle simplifie l'envoi et la réception de données, notamment au format JSON, et offre des fonctionnalités avancées comme la gestion des en-têtes, des paramètres de requête, des délais d'attente, et l'annulation de requêtes. </p>
+<p>Axios supporte les promesses, ce qui permet d'écrire un code asynchrone clair et lisible, et propose des intercepteurs pour transformer ou traiter les requêtes et réponses avant leur utilisation. Elle est particulièrement appréciée dans les projets TypeScript pour sa simplicité d'usage et sa compatibilité à la fois côté client et côté serveur (si full React).</p>
+<p>Dans le cadre des générateurs <strong>Pacman</strong>, Axios est incluse comme bibliothèque de base, ce qui permet aux projets générés de l'utiliser directement pour la communication avec des services REST sans configuration supplémentaire.</p>
 <h3 id="modelisation_5">Modélisation</h3>
 <p>Le plus propre au niveau de la modélisation est d'exporter le projet de modélisation fournisseur en tant que librairie afin de pouvoir ensuite l'importer au niveau du projet de modélisation client. Pour exporter le projet fournisseur, se positionner au niveau du projet de modélisation <strong><em>[Nom de l'application]-model</em></strong> et par click droit, sélectionner le menu "<em>Export</em>". </p>
 <p>Dans la nouvelle fenêtre qui apparait, sélectionner le wizard "<em>Export modeling project as library</em>" .</p>
@@ -3832,8 +4098,8 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <h3 id="generation_6">Génération</h3>
 <p>Se positionner au niveau du projet de modélisation <strong><em>[Nom de l'application]-model</em></strong> et sélectionner le fichier de modélisation "<strong><em>.soa</em></strong>" au niveau du répertoire "<em>/libraries/[Nom du fichier '.mar']</em>". </p>
 <p>Enfin toujours par click droit, lancer la génération du client à l'aide du menu vu précédemment (comme pour la création d'un client SpringBoot) : "<em>Générateur Cali / Génération du client pour les services</em>".</p>
-<p>• <strong><em>[Nom de l'application]/src/api</em></strong> : Ce répertoire contient le fichier <em>apiClient.ts</em> qui sert de point central pour gérer toutes les communications HTTP entre l’application et les services REST. Il encapsule l’utilisation d’axios, en configurant l’URL de base, les en-têtes communs (comme l’authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L’objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l’application n’ait pas à se soucier des détails d’implémentation d’axios. </p>
-<p>Dans le cadre des générateurs Pacman, ce fichier est généré automatiquement pour chaque projet, prêt à l’emploi, garantissant une cohérence et une simplification du code métier.</p>
+<p>• <strong><em>[Nom de l'application]/src/api</em></strong> : Ce répertoire contient le fichier <em>apiClient.ts</em> qui sert de point central pour gérer toutes les communications HTTP entre l'application et les services REST. Il encapsule l'utilisation d'axios, en configurant l'URL de base, les en-têtes communs (comme l'authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L'objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l'application n'ait pas à se soucier des détails d'implémentation d'axios. </p>
+<p>Dans le cadre des générateurs Pacman, ce fichier est généré automatiquement pour chaque projet, prêt à l'emploi, garantissant une cohérence et une simplification du code métier.</p>
 <p>Ce fichier contient par défaut le code suivant (exemple ici en fonction des paramètres modélisés): </p>
 <div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"axios"</span><span class="p">;</span>
 
@@ -3883,10 +4149,10 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 
 <span class="p">}</span>
 
-<span class="c1">// On exporte une instance pour simplifier l’usage.</span>
+<span class="c1">// On exporte une instance pour simplifier l'usage.</span>
 <span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">users</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Users</span><span class="p">();</span>
 </code></pre></div>
-<p>• <strong><em>[Nom de l'application]/src</em></strong> : Contient le fichier <em>index.ts</em> qui permet l'exportation de l'ensemble des objets utilisés par la future librairies client. Ce fichier agit comme point d’entrée principal du module ou de la librairie. Dans le cadre d’un client Axios, il exporte généralement toutes les fonctionnalités publiques du client API, par exemple l’instance préconfigurée d’Axios, les services spécifiques (ex. UserService, ProductService), ou des types associés. </p>
+<p>• <strong><em>[Nom de l'application]/src</em></strong> : Contient le fichier <em>index.ts</em> qui permet l'exportation de l'ensemble des objets utilisés par la future librairies client. Ce fichier agit comme point d'entrée principal du module ou de la librairie. Dans le cadre d'un client Axios, il exporte généralement toutes les fonctionnalités publiques du client API, par exemple l'instance préconfigurée d'Axios, les services spécifiques (ex. UserService, ProductService), ou des types associés. </p>
 <p>L'objectif est de permettre aux autres parties de l'application d'importer simplement le client et ses services via une seule ligne, par exemple :</p>
 <div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">,</span><span class="w"> </span><span class="nx">UserService</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">'demo-client'</span><span class="p">;</span>
 </code></pre></div>
@@ -3903,7 +4169,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="k">export</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">"./api/apiClient"</span><span class="p">;</span>
 </code></pre></div>
 <h3 id="deploiement_1">Déploiement</h3>
-<p>Même dans le cadre d’un projet React, le processus de déploiement passe par Maven afin de conserver une cohérence avec l’ensemble des projets gérés par <strong>Pacman</strong>. La différence principale réside dans l’artifact produit : au lieu de générer un <em>.jar</em> comme pour un projet Java backend, Maven exécute les scripts Node/NPM définis dans le projet pour construire et empaqueter l’application front-end. Cela permet d’intégrer le workflow front-end dans le pipeline Maven existant, de gérer les dépendances et la configuration de manière centralisée, tout en produisant un package NPM prêt à être déployé ou distribué.</p>
+<p>Même dans le cadre d'un projet React, le processus de déploiement passe par Maven afin de conserver une cohérence avec l'ensemble des projets gérés par <strong>Pacman</strong>. La différence principale réside dans l'artifact produit : au lieu de générer un <em>.jar</em> comme pour un projet Java backend, Maven exécute les scripts Node/NPM définis dans le projet pour construire et empaqueter l'application front-end. Cela permet d'intégrer le workflow front-end dans le pipeline Maven existant, de gérer les dépendances et la configuration de manière centralisée, tout en produisant un package NPM prêt à être déployé ou distribué.</p>
 <p>Quelques explications complémentaires au niveau du fichier <em>pom.xml" pour la partie </em><strong>[Nom de l'application]-server</strong>*</p>
 <div class="codehilite"><pre><span></span><code><span class="cm">&lt;!-- npm run build --&gt;</span>
 <span class="nt">&lt;execution&gt;</span>
@@ -3943,7 +4209,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 </code></pre></div>
 <p>Au niveau du répertoire "<em>/target</em>" pour le projet <strong><em>[Nom de l'application]-server</em></strong>, il est maintenant possible de récupérer un fichier au format compressé. Ce fichier est sous la forme <strong><em>[Nom de l'application]-[Version].tgz</em></strong> et est exploitable directement avec les commandes NMP pour effectuer l'importation de la librairie dans un projet React frontend.</p>
 <p>Lorsque Pacman génère un package NPM sous forme de fichier <strong><em>[Nom de l'application]-[Version].tgz</em></strong>, ce fichier peut être installé sans être publié sur le registry NPM. Cela permet de tester ou distribuer la librairie en local ou dans un environnement maîtrisé. </p>
-<p>Il suffit de se positionner en ligne de commande à la racine du projet frontend (c’est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : </p>
+<p>Il suffit de se positionner en ligne de commande à la racine du projet frontend (c'est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : </p>
 <div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span><span class="o">[</span>Chemin<span class="w"> </span>vers<span class="w"> </span>la<span class="w"> </span>librairie<span class="o">]</span>/<span class="o">[</span>Nom<span class="w"> </span>de<span class="w"> </span>l<span class="err">'</span>application<span class="o">]</span>-<span class="o">[</span>Version<span class="o">]</span>.tgz
 </code></pre></div>
 <p>Par exemple : </p>
@@ -3970,6 +4236,7 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 <p>Il est maintenant possible d'importer les ressources (voir le fichier <em>index.ts</em>) dans les différents fichiers "<em>.ts</em>" comme n'importe quelle autre ressource.</p>
 <h2 id="problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</h2>
 <hr/>
+<p>• <strong>La création ou la construction de mon projet Maven échoue avec des erreurs de téléchargement de dépendances ou de lecture de POM</strong> : Avant toute création de projet, vérifier qu'aucun antivirus, pare-feu ou logiciel de sécurité (notamment ceux effectuant une inspection SSL/HTTPS) ne bloque l'accès aux dépôts Maven, aux certificats ou aux connexions réseau nécessaires au téléchargement des dépendances. Ces outils peuvent intercepter les communications HTTPS et provoquer des erreurs de résolution de dépendances ou de certificats. Le cas échéant, désactiver temporairement ces protections ou configurez-les correctement (ajout des certificats requis, exclusions réseau) avant de relancer la création ou la construction du projet.</p>
 <p>• <strong>Quand je relance une génération j'ai des erreurs au niveau de mes classes à cause de données manquantes dans les imports</strong> : ceci est une problématique liée plus précisément à des modifications de modélisation suite à générations antérieures. </p>
 <p><strong>Pacman</strong>, afin de conserver les imports non générés (ceux spécifiquement (et éventuellement) rajoutés par les développeurs) est obligé de générer les imports entre balise de type "<em>user code</em>". Ainsi, lors des futures demandes de génération, les imports utilisateurs ne sont pas écrasés. </p>
 <p>La problématique est que, en conséquence, il devient impossible au générateur de créer de nouveaux imports si besoin. Bien souvent ces imports concernent des listes ou des sets, d'ou le message envoyé par l'IDE indiquant qu'il ne sait pas les résoudre et que cela nécessite une intervention utilisateur.</p>
@@ -3977,12 +4244,13 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 <p>L'unique solution pour l'instant consiste donc à lancer une organisation automatique des imports manuellement sur les différentes classes en erreur et effectuer les choix nécessaires. Lors de la prochaine demande de génération, les imports étant reconstitués, les classes ne devraient plus être en erreur.</p>
 <p>• <strong>Suite à demande de génération, mes classes ont des warnings</strong> :  en ouvrant une classe, je vois que de nombreux imports ne sont pas utilisés. Pourtant, au niveau de mon fichier "<em>project.properties</em>" je ne suis pas en mode debug. </p>
 <p>Il peut arriver que, suite à une demande de génération (pour une raison encore non expliquée), les tâches de fin de traitement ne soient pas lancées. L'organisation automatique des imports n'est alors pas activée et comme <strong>Pacman</strong> dans sa politique de gestion des imports génère plus d'imports que nécessaires, ceux-ci ne sont alors pas supprimés. Il suffit simplement de relancer une génération pour résoudre le problème.</p>
+<p>• <strong>Suite à l'utilisation de la librairie SSO j'ai un : ERR_TO_MANY_REDIRECT</strong> : Cette erreur avec le serveur d'authentification Keycloack peut avoir de nombreuses cause. Hormis le fait de vérifier dans le fichier "<em>application.properties</em>" que les URLs soient les bonnes, bien vérifier l'ensemble des paramètres qui sont par défaut à remplir par le développeur "<em>[...]</em>". Cette erreur peut par exemple provenir d'un oubli de suppression des crochets sur la propriété :  "<em>spring.security.oauth2.client.registration.keycloak.scope=[openid,profile,email]</em>". Ne pas oublier de supprimer ledits crochets : "<strong><em>spring.security.oauth2.client.registration.keycloak.scope=openid,profile,email</em></strong>"</p>
 <p>• <strong>Pour une génération client, il me manque la classe de gestion du jeton</strong> : La demande de génération de la classe utilitaire pour la récupération du jeton d'authentification n'est pas basée uniquement sur le fait que l'api soit sécurisée, mais aussi sur la présence de l'annotation <strong><em>@AUTH_TOKEN</em></strong> au niveau de l'opération de gestion de jeton. Bien vérifier le positionnement de cette annotation au niveau de la modélisation des services.</p>
 <p>• <strong>Pour un déploiement du client react, le processus se bloque et ne rend pas la main</strong> : Ce comportement  est typique des problèmes réseau Windows + antivirus / proxy / SSL / npm. </p>
 <p>Voici la liste des causes possibles et comment les éliminer une par une.</p>
 <ul>
 <li>
-<p>Même si <em>strict-ssl=false</em> est dans le fichier <em>.npmrc</em>, npm peut continuer à essayer SSL si un autre <em>.npmrc</em> dans la hiérarchie l’écrase.</p>
+<p>Même si <em>strict-ssl=false</em> est dans le fichier <em>.npmrc</em>, npm peut continuer à essayer SSL si un autre <em>.npmrc</em> dans la hiérarchie l'écrase.</p>
 </li>
 <li>
 <p><em>npm install</em> se fige très souvent si l'antivirus inspecte les flux https. Désactiver temporairement la protection web (pas l'antivirus entier, juste le module web/détection https). </p>
@@ -4006,7 +4274,8 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 </ul>
 <h2 id="annexes">📎 Annexes</h2>
 <hr/>
-<p>• Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que <strong>Pacman</strong> est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclu).</p>
+<h3 id="metadonnees-disponibles">Métadonnées disponibles</h3>
+<p>Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que <strong>Pacman</strong> est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclu).</p>
 <p>Ces métadonnées sont pour l'instant toujours listées mais avec une icône 🚫. </p>
 <table>
 <thead>
@@ -4046,7 +4315,7 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 <td>PHYSICAL_UNIQUE</td>
 <td>OUI</td>
 <td>Contrainte d'unicité pour la colonne</td>
-<td>ATTRIBUTE</td>
+<td>ATTRIBUTE, ENTITY</td>
 </tr>
 <tr>
 <td>PHYSICAL_SIZE</td>
@@ -4188,7 +4457,8 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 </tr>
 </tbody>
 </table>
-<p>• Liste des règles de validation dans les différents diagrammes.</p>
+<h3 id="regles-de-validation">Règles de validation</h3>
+<p>Liste des règles de validation dans les différents diagrammes.</p>
 <table>
 <thead>
 <tr>
@@ -4309,9 +4579,248 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 <td>Pas de multiples sécurités définies au niveau du 'component'</td>
 <td>SOA</td>
 </tr>
+<tr>
+<td>Pas de sécurité Oauth2/OIDC sans URL(s) définie(s)</td>
+<td>SOA</td>
+</tr>
+<tr>
+<td>Pas d'annotation sans corps (si besoin de corps)</td>
+<td>ENTITY/SOA</td>
+</tr>
 </tbody>
 </table>
+<h3 id="metadonnees-sso">Métadonnées SSO</h3>
+<p>Liste (non exhaustive) des propriétés si utilisation librairie SSO ministère 
+(issue de la documentation orignelle)</p>
+<table>
+<thead>
+<tr>
+<th>Propriété</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>myco.sso.registration-id</td>
+<td>ID d'inscription OAuth2 (ex. keycloak)</td>
+</tr>
+<tr>
+<td>myco.sso.issuer-uri</td>
+<td>Issuer du realm (ou jwk-set-uri)</td>
+</tr>
+<tr>
+<td>myco.sso.front-redirect-uri</td>
+<td>URL de redirection front après succès login</td>
+</tr>
+<tr>
+<td>myco.sso.allowed-origins</td>
+<td>Origines CORS autorisées (schéma + host + port)</td>
+</tr>
+<tr>
+<td>myco.sso.allowed-methods/headers/exposed-headers</td>
+<td>Paramétrage CORS fin (si exposé dans vos props)</td>
+</tr>
+<tr>
+<td>myco.sso.max-age-seconds</td>
+<td>Durée de cache des préflights CORS</td>
+</tr>
+<tr>
+<td>myco.sso.permit-all</td>
+<td>Patterns d'URL publics</td>
+</tr>
+<tr>
+<td>myco.sso.endpoints.enabled</td>
+<td>Expose /is-authenticated, /profile, /logout</td>
+</tr>
+<tr>
+<td>myco.sso.endpoints.base-path</td>
+<td>Préfixe des endpoints utilitaires (défaut /api)</td>
+</tr>
+<tr>
+<td>myco.sso.session-cookie.*</td>
+<td>Cookie additionnel (legacy) : name, http-only, secure, path, max-age-seconds</td>
+</tr>
+<tr>
+<td>myco.sso.auth-cookie.*</td>
+<td>Deuxième cookie additionnel (legacy)</td>
+</tr>
+<tr>
+<td>myco.sso.keycloak-logout-uri</td>
+<td>URL de back channel logout Keycloak</td>
+</tr>
+<tr>
+<td>myco.sso.client-id / client-secret</td>
+<td>Identifiants client pour la révocation logout</td>
+</tr>
+<tr>
+<td>myco.sso.cors.global-filter</td>
+<td>Active le filtre CORS global (par défaut true)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exemple-configuration-sso">Exemple configuration SSO</h3>
+<p>Exemple de fichier de configuration SSO pour tester une URL sécurisée "<em>/v1/api/secured</em>" avec l'ensemble des serveurs sur la machine de développement, uniquement un backend à tester et un client défini à "<em>testSSO</em>" au niveau du serveur Keycloack :</p>
+<p>1) L'utilisateur rentre l'URL dans le navigateur "<em>http://localhost:8081/v1/api/secured</em>",
+2) Il est routé automatiquement sur la mire de connexion de Keycloak,
+3) Une fois authentifié, il peut consulter le résultat de sa demande initiale.</p>
+<p>Le fichier "<em>application.properties</em>" :</p>
+<div class="codehilite"><pre><span></span><code><span class="na">management.server.port</span><span class="o">=</span><span class="s">8082</span>
+<span class="na">...</span>
+<span class="c1"># -------------------------------------------</span>
+<span class="c1"># HTTP SERVER</span>
+<span class="c1"># -------------------------------------------</span>
+<span class="c1"># Le port par defaut.</span>
+<span class="na">server.port</span><span class="o">=</span><span class="s">8081</span>
+<span class="c1"># Chemin du contexte (Toujours "/" au minimum).</span>
+<span class="na">server.servlet.context-path</span><span class="o">=</span><span class="s">/</span>
+<span class="na">...</span>
+</code></pre></div>
+<div class="codehilite"><pre><span></span><code><span class="c1"># --------------------------------------------</span>
+<span class="c1"># SSO - SERVEURS - URLS (Toujours sans "/" à la fin).</span>
+<span class="c1"># --------------------------------------------</span>
+<span class="na">server.auth.url.sso</span><span class="o">=</span><span class="s">http://localhost:8080</span>
+<span class="na">server.auth.url.front</span><span class="o">=</span><span class="s">http://localhost:8081</span>
+<span class="na">server.auth.url.back</span><span class="o">=</span><span class="s">http://localhost:8081</span>
+
+<span class="c1"># ---------------------------------------------</span>
+<span class="c1"># SSO - DOMAINE D'AUTHENTIFICATION (REALM)</span>
+<span class="c1"># ---------------------------------------------</span>
+<span class="na">server.auth.sso.realm</span><span class="o">=</span><span class="s">test</span>
+
+<span class="c1"># ---------------------------------------------</span>
+<span class="c1"># SSO - PROJET</span>
+<span class="c1"># Facilite la réutilisation des URLs et contextes </span>
+<span class="c1"># dans d'autres propriétés.</span>
+<span class="c1"># ---------------------------------------------</span>
+<span class="c1"># Aussi utilisé par myco.sso.front-redirect-uri</span>
+<span class="na">project.frontend.uri</span><span class="o">=</span><span class="s">http://localhost:8081/v1/api/secured</span>
+<span class="c1"># Contexte du backend</span>
+<span class="na">project.context</span><span class="o">=</span><span class="s">${server.servlet.context-path}</span>
+
+<span class="c1"># ----------------------------------------------</span>
+<span class="c1"># SSO - SECURITE SPRING - OAUTH2 CLIENT</span>
+<span class="c1"># Configure Spring pour se connecter à Keycloak et </span>
+<span class="c1"># gérer les connexions utilisateurs.</span>
+<span class="c1"># L'identifiant du client doit matcher {registrationId}.</span>
+<span class="c1"># -----------------------------------------------</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.client-id</span><span class="o">=</span><span class="s">${myco.sso.client-id}</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.client-secret</span><span class="o">=</span><span class="s">${myco.sso.client-secret}</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.authorization-grant-type</span><span class="o">=</span><span class="s">authorization_code</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.scope</span><span class="o">=</span><span class="s">openid,profile,email</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.provider</span><span class="o">=</span><span class="s">keycloak</span>
+<span class="na">spring.security.oauth2.client.provider.keycloak.issuer-uri</span><span class="o">=</span><span class="s">${server.auth.url.sso}/realms/${server.auth.sso.realm}</span>
+
+<span class="c1"># URL de callback pour le backend de l'application (registrationId = myco.sso.registration-id).</span>
+<span class="c1"># Spring Security intercepte automatiquement cette URL et échange le code contre un access_token.</span>
+<span class="na">spring.security.oauth2.client.registration.keycloak.redirect-uri</span><span class="o">=</span><span class="s">${server.auth.url.back}${server.servlet.context-path}/login/oauth2/code/{registrationId}</span>
+
+<span class="c1"># --------------------------------------------------</span>
+<span class="c1"># SSO - SERVEUR / EN-TÊTES DE TRANSFERT / COMPRESSION</span>
+<span class="c1"># Configure le serveur Spring Boot et la gestion </span>
+<span class="c1"># sécurisée des sessions.</span>
+<span class="c1"># --------------------------------------------------</span>
+<span class="c1"># Nécessaire si l'application est derrière un proxy / load balancer </span>
+<span class="c1">#pour gérer correctement HTTPS et redirections.</span>
+<span class="na">server.compression.mime-types</span><span class="o">=</span><span class="s">application/json,text/plain</span>
+<span class="na">server.forward-headers-strategy</span><span class="o">=</span><span class="s">framework  </span>
+<span class="na">server.compression.enabled</span><span class="o">=</span><span class="s">true</span>
+
+<span class="c1"># --------------------------------------------------</span>
+<span class="c1"># SSO - SERVEUR / SESSION</span>
+<span class="c1"># Configure le serveur Spring Boot et la gestion </span>
+<span class="c1"># sécurisée des sessions.</span>
+<span class="c1"># --------------------------------------------------</span>
+<span class="na">server.servlet.session.cookie.secure</span><span class="o">=</span><span class="s">false</span>
+<span class="c1">#En production, mettre true si SameSite=None</span>
+<span class="na">server.servlet.session.cookie.http-only</span><span class="o">=</span><span class="s">true</span>
+<span class="na">server.servlet.session.cookie.same-site</span><span class="o">=</span><span class="s">lax</span>
+<span class="na">server.servlet.session.cookie.name</span><span class="o">=</span><span class="s">JSESSIONID</span>
+<span class="na">server.servlet.session.timeout</span><span class="o">=</span><span class="s">30m</span>
+
+<span class="c1"># ---------------------------------------------------</span>
+<span class="c1"># SSO - CONFIGURATION DU MODULE STARTER</span>
+<span class="c1"># Configure tout le SSO / OAuth2 côté backend.</span>
+<span class="c1"># ---------------------------------------------------</span>
+
+<span class="c1"># --- OIDC / JWT ---</span>
+<span class="c1"># Sert uniquement à identifier la configuration côté Spring. </span>
+<span class="c1"># Par convention, même nom que Keycloak, mais ça pourrait être autre chose.</span>
+<span class="na">myco.sso.registration-id</span><span class="o">=</span><span class="s">keycloak</span>
+<span class="na">myco.sso.issuer-uri</span><span class="o">=</span><span class="s">${server.auth.url.sso}/realms/${server.auth.sso.realm}</span>
+<span class="na">myco.sso.jwk-set-uri</span><span class="o">=</span><span class="s">${server.auth.url.sso}/realms/${server.auth.sso.realm}/protocol/openid-connect/certs</span>
+
+<span class="c1"># --- REDIRECTION FRONT-END (Redirection front après login) --- </span>
+<span class="na">myco.sso.front-redirect-uri</span><span class="o">=</span><span class="s">${project.frontend.uri}</span>
+
+<span class="c1"># --- CORS / ORIGINES AUTORISÉES --- </span>
+<span class="na">myco.sso.allowed-origins[0]</span><span class="o">=</span><span class="s">${server.auth.url.front}</span>
+<span class="na">myco.sso.allowed-origins[1]</span><span class="o">=</span><span class="s">${server.auth.url.sso}</span>
+<span class="na">myco.sso.allowed-origins[2]</span><span class="o">=</span><span class="s">${server.auth.url.back}</span>
+
+<span class="c1"># --- API EXTERNE (Cas d'une api externe protégée) --- </span>
+<span class="na">myco.sso.external-api-enabled</span><span class="o">=</span><span class="s">false</span>
+<span class="na">myco.sso.external-api-patterns[0]</span><span class="o">=</span><span class="s">[URL externe]</span>
+<span class="na">myco.sso.external-api-patterns[1]</span><span class="o">=</span><span class="s">[URL externe]</span>
+<span class="na">myco.sso.external-jwt-secret</span><span class="o">=</span><span class="s">[Secret externe spécifique]</span>
+
+<span class="c1"># --- COOKIE DE SESSION ---</span>
+<span class="na">myco.sso.session-cookie.enabled</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.session-cookie.name</span><span class="o">=</span><span class="s">SESSIONID</span>
+<span class="na">myco.sso.session-cookie.max-age-seconds</span><span class="o">=</span><span class="s">1800</span>
+<span class="na">myco.sso.session-cookie.http-only</span><span class="o">=</span><span class="s">true</span>
+<span class="c1"># En developpement HTTP, possible de mettre false</span>
+<span class="na">myco.sso.session-cookie.secure</span><span class="o">=</span><span class="s">false</span>
+<span class="na">myco.sso.session-cookie.path</span><span class="o">=</span><span class="s">/</span>
+
+<span class="c1"># --- COOKIE D'AUTHENTIFICATION ---</span>
+<span class="na">myco.sso.auth-cookie.enabled</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.auth-cookie.name</span><span class="o">=</span><span class="s">SESSION_AUTH</span>
+<span class="na">myco.sso.auth-cookie.max-age-seconds</span><span class="o">=</span><span class="s">1800</span>
+<span class="na">myco.sso.auth-cookie.http-only</span><span class="o">=</span><span class="s">true</span>
+<span class="c1"># En developpement HTTP, possible de mettre false</span>
+<span class="na">myco.sso.auth-cookie.secure</span><span class="o">=</span><span class="s">true</span>
+<span class="na">myco.sso.auth-cookie.path</span><span class="o">=</span><span class="s">/</span>
+
+<span class="c1"># --- ENDPOINTS INTEGRES (.../is-authenticated, .../profile, .../logout) ---</span>
+<span class="na">myco.sso.endpoints.enabled</span><span class="o">=</span><span class="s">true</span>
+
+<span class="c1"># --- DECONNEXION BACK-CHANNEL DE KEYCLOAK (Révocation du refresh_token) ---</span>
+<span class="na">myco.sso.keycloak-logout-uri</span><span class="o">=</span><span class="s">${server.auth.url.sso}/realms/${server.auth.sso.realm}/protocol/openid-connect/logout</span>
+
+<span class="c1"># --- IDENTIFIANTS CLIENT ---</span>
+<span class="na">myco.sso.client-id</span><span class="o">=</span><span class="s">testSSO</span>
+<span class="na">myco.sso.client-secret</span><span class="o">=</span><span class="s">xuMaqi14PHpGbiwHGIC45dRH9wVKX189</span>
+
+<span class="c1"># --- PROCESSUS (THREADS) - (virtual threads si JVM=21+, sinon threads classiques) ---</span>
+<span class="na">myco.sso.threads-mode</span><span class="o">=</span><span class="s">auto</span>
+</code></pre></div>
+<p>Et le fichier "<em>application-sso.properties</em>" : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ----------------------------------------------------</span>
+<span class="c1"># BASE POUR POINTS D'ACCES PUBLICS INTEGRES </span>
+<span class="c1"># (.../is-authenticated, .../profile, .../logout) </span>
+<span class="c1"># ----------------------------------------------------</span>
+<span class="na">myco.sso.endpoints.base-path</span><span class="o">=</span><span class="s">/v1/api</span>
+
+<span class="c1"># ----------------------------------------------------</span>
+<span class="c1"># POINTS D'ACCES PUBLICS (Non soumis à l'authentification)</span>
+<span class="c1"># ----------------------------------------------------</span>
+<span class="na">myco.sso.permit-all[0]</span><span class="o">=</span><span class="s">/v1/api/actuator/**</span>
+<span class="na">myco.sso.permit-all[1]</span><span class="o">=</span><span class="s">/v1/api/api-docs/**</span>
+<span class="na">myco.sso.permit-all[2]</span><span class="o">=</span><span class="s">/v1/api/swagger-ui/**</span>
+<span class="na">myco.sso.permit-all[3]</span><span class="o">=</span><span class="s">/v1/api/login</span>
+<span class="na">myco.sso.permit-all[4]</span><span class="o">=</span><span class="s">/v1/api/logout</span>
+<span class="na">myco.sso.permit-all[5]</span><span class="o">=</span><span class="s">/v1/api/is-authenticated</span>
+<span class="na">myco.sso.permit-all[6]</span><span class="o">=</span><span class="s">/v1/api/profile</span>
+<span class="na">myco.sso.permit-all[7]</span><span class="o">=</span><span class="s">/v1/api/login/oauth2/code/*</span>
+
+<span class="c1"># Liste des URLs directement issues de la modélisation.</span>
+<span class="na">myco.sso.permit-all[8]</span><span class="o">=</span><span class="s">/v1/api/notsecured</span>
+
+<span class="c1"># Placer ici des URLs non issues de la modélisation.</span>
+<span class="c1">// Start of user code c7647f28a1a1fc3dc99d5fd53e914e22</span>
+<span class="c1">// End of user code</span>
+</code></pre></div>
 </main>
-<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#plugins-externes">Plugins externes</a></li><li><a href="#plugin-pacman_1">Plugin Pacman</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#cas-projet-fournisseur">Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot">Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react">Cas projet client (React)</a></li></ul><li><a href="#fichiers-generes">📝 Fichiers Générés</a></li><ul><li><a href="#cas-projet-fournisseur_1">📁 Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot_1">📁 Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react_1">📁 Cas projet client (React)</a></li></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-projet-fournisseur_2">📁 Cas projet fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-projet-client-springboot_2">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul><li><a href="#cas-projet-client-react_2">📁 Cas projet client (React)</a></li><ul><li><a href="#npmignore">.npmignore</a></li><li><a href="#npmrc">.npmrc</a></li><li><a href="#packagejson">package.json</a></li><li><a href="#tsconfigbuildjson">tsconfig.build.json</a></li><li><a href="#tsconfigjson">tsconfig.json</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-projet-fournisseur_3">📁 Cas projet fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#generation-du-peuplement-de-la-base">Génération du peuplement de la base</a></li><ul><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#tests_3">Tests</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li><li><a href="#relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li></ul><li><a href="#cas-projet-client">📁 Cas projet client</a></li><li><a href="#cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_5">Génération</a></li><li><a href="#tests_4">Tests</a></li><li><a href="#deploiement">Déploiement</a></li></ul><li><a href="#cas-projet-client-react_3">📁 Cas projet client (React)</a></li><ul><li><a href="#axios">Axios</a></li><li><a href="#modelisation_5">Modélisation</a></li><li><a href="#generation_6">Génération</a></li><li><a href="#deploiement_1">Déploiement</a></li></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li></ul></nav>
+<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#plugins-externes">Plugins externes</a></li><li><a href="#plugin-pacman_1">Plugin Pacman</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#cas-projet-fournisseur">Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot">Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react">Cas projet client (React)</a></li></ul><li><a href="#fichiers-generes">📝 Fichiers Générés</a></li><ul><li><a href="#cas-projet-fournisseur_1">📁 Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot_1">📁 Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react_1">📁 Cas projet client (React)</a></li></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-projet-fournisseur_2">📁 Cas projet fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#librairie-sso-du-ministere">Librairie SSO du ministère</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-projet-client-springboot_2">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul><li><a href="#cas-projet-client-react_2">📁 Cas projet client (React)</a></li><ul><li><a href="#npmignore">.npmignore</a></li><li><a href="#npmrc">.npmrc</a></li><li><a href="#packagejson">package.json</a></li><li><a href="#tsconfigbuildjson">tsconfig.build.json</a></li><li><a href="#tsconfigjson">tsconfig.json</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-projet-fournisseur_3">📁 Cas projet fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#generation-du-peuplement-de-la-base">Génération du peuplement de la base</a></li><ul><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#librairie-sso-du-ministere_1">Librairie SSO du ministère</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li><li><a href="#relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li></ul><li><a href="#cas-projet-client">📁 Cas projet client</a></li><li><a href="#cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_5">Génération</a></li><li><a href="#tests_3">Tests</a></li><li><a href="#deploiement">Déploiement</a></li></ul><li><a href="#cas-projet-client-react_3">📁 Cas projet client (React)</a></li><ul><li><a href="#axios">Axios</a></li><li><a href="#modelisation_5">Modélisation</a></li><li><a href="#generation_6">Génération</a></li><li><a href="#deploiement_1">Déploiement</a></li></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li><ul><li><a href="#metadonnees-disponibles">Métadonnées disponibles</a></li><li><a href="#regles-de-validation">Règles de validation</a></li><li><a href="#metadonnees-sso">Métadonnées SSO</a></li><li><a href="#exemple-configuration-sso">Exemple configuration SSO</a></li></ul></ul></nav>
 </body>
 </html>

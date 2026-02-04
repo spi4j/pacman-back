@@ -8,6 +8,7 @@
 - 01/09/2025 : Ajouts : Création d'un projet client, Génération d'un projet client.
 - 24/11/2025 : Ajouts : Création d'un projet client React, Génération d'un projet client React.
 - 05/12/2025 : Ajouts : Relation (0,\*)/(1,\*) et objets métier.
+- 12/01/2026 : Ajouts : Authentification avec la librairie SSO du ministère.
 ---
 
 ## 🚀 Introduction
@@ -35,9 +36,9 @@ Il est à noter que cette documentation ne rentre pas dans les détails de la mo
 ### Plugin Pacman
 Pacman V5 est un un générateur de code basé sur  : 
 
-* **Spring Boot** : framework Java open-source conçu pour simplifier le développement d'applications Spring. Il permet de créer des applications prêtes à l’emploi avec un minimum de configuration, grâce à une approche "opinionated" (préconfigurée). Il intègre un serveur embarqué (comme Tomcat) et gère automatiquement les dépendances via Spring Boot Starters. C’est un choix courant pour développer des API REST et, de manière plus générale, des microservices en Java.
+* **Spring Boot** : framework Java open-source conçu pour simplifier le développement d'applications Spring. Il permet de créer des applications prêtes à l'emploi avec un minimum de configuration, grâce à une approche "opinionated" (préconfigurée). Il intègre un serveur embarqué (comme Tomcat) et gère automatiquement les dépendances via Spring Boot Starters. C'est un choix courant pour développer des API REST et, de manière plus générale, des microservices en Java.
 
-* **l'architecture hexagonale** : style d’architecture logicielle qui vise à isoler le cœur métier (la logique d'application) des détails techniques (comme les bases de données, les APIs, les interfaces utilisateur). Le cœur communique avec l’extérieur via des "ports" (interfaces), que des "adapters" implémentent. Cela facilite les tests, la maintenance et l’évolution, tout en favorisant une forte séparation des responsabilités.
+* **l'architecture hexagonale** : style d'architecture logicielle qui vise à isoler le cœur métier (la logique d'application) des détails techniques (comme les bases de données, les APIs, les interfaces utilisateur). Le cœur communique avec l'extérieur via des "ports" (interfaces), que des "adapters" implémentent. Cela facilite les tests, la maintenance et l'évolution, tout en favorisant une forte séparation des responsabilités.
 
 ### Architecture hexagonale
 Si le framework SpringBoot ne nécessite pas d'explication particulière dans le cadre de ce document (les développeurs qui vont utiliser les générateurs Pacman sont censés être familier avec cette technologie) , un rappel plus approfondi est toutefois primordial concernant l'architecture hexagonale et ses diverses implications dans l'utilisation des générateurs.
@@ -48,9 +49,9 @@ Pour simplifier à ce niveau du document, la couche métier est généralement a
 
 Dans le cadre de **Pacman** cette architecture a été choisie car elle apporte (entre autres), deux avantages particulièrement intéressants : 
 
-* Grâce à cette isolation, le cœur de l’application (le domaine) n’a aucune connaissance directe de l’implémentation des interfaces techniques (comme les bases de données, les API externes ou les frameworks). Cela autorise, par exemple, à placer le code métier et le code d’infrastructure dans deux dépôts Git distincts. Ainsi, le dépôt contenant la logique métier peut être partagé ou ouvert sans exposer les détails sensibles ou propriétaires liés à l’infrastructure, ce qui renforçe la sécurité, la confidentialité et la portabilité du domaine métier.
+* Grâce à cette isolation, le cœur de l'application (le domaine) n'a aucune connaissance directe de l'implémentation des interfaces techniques (comme les bases de données, les API externes ou les frameworks). Cela autorise, par exemple, à placer le code métier et le code d'infrastructure dans deux dépôts Git distincts. Ainsi, le dépôt contenant la logique métier peut être partagé ou ouvert sans exposer les détails sensibles ou propriétaires liés à l'infrastructure, ce qui renforçe la sécurité, la confidentialité et la portabilité du domaine métier.
 
-* En encapsulant les dépendances techniques derrière des interfaces (*ports*), toute implémentation spécifique (*adaptateur*) peut être modifiée, remplacée ou mise à jour de manière transparente pour la logique métier. Ainsi, il est possible de migrer d’un framework web, d’un ORM ou d’un système de messagerie vers un autre sans réécrire ou altérer le code métier. Cette indépendance garantit une meilleure pérennité du cœur fonctionnel de l’application et réduit les coûts liés aux évolutions technologiques.
+* En encapsulant les dépendances techniques derrière des interfaces (*ports*), toute implémentation spécifique (*adaptateur*) peut être modifiée, remplacée ou mise à jour de manière transparente pour la logique métier. Ainsi, il est possible de migrer d'un framework web, d'un ORM ou d'un système de messagerie vers un autre sans réécrire ou altérer le code métier. Cette indépendance garantit une meilleure pérennité du cœur fonctionnel de l'application et réduit les coûts liés aux évolutions technologiques.
 
 ❗  Il est à noter toutefois, un inconvient majeur de cette architecture. Dans le cadre de services de type CRUD (ou plus généralement pour des services qui ne font que manipuler des informations en base de données), la couche métier sert uniquement de "passe-plat" entre les couches d'appel et les couches de persistance et n'apporte pas nécessairement de plus-value.
 
@@ -62,11 +63,11 @@ Voici un bref schéma récapitulatif de cette architecture (en rapport avec l'é
 
 ### Pacman et l'hexagonal
 
-La manière dont Pacman gère et structure un projet en fonction de l'architecture hexagonale est la suivante (diffère très peu du standard). Il convient en premier lieu de noter que, en architecture hexagonale, le vocabulaire varie selon les auteurs et les contextes, d'où l'importance (de manière générale) de bien définir les termes dès le départ d'un projet pour assurer une compréhension commune et éviter toute ambiguïté dans l’architecture. 
+La manière dont Pacman gère et structure un projet en fonction de l'architecture hexagonale est la suivante (diffère très peu du standard). Il convient en premier lieu de noter que, en architecture hexagonale, le vocabulaire varie selon les auteurs et les contextes, d'où l'importance (de manière générale) de bien définir les termes dès le départ d'un projet pour assurer une compréhension commune et éviter toute ambiguïté dans l'architecture. 
 
 Les ports entrants (*inbound ports*) représentent les points d'entrée vers le cœur métier : ce sont généralement des interfaces définies dans le domaine que les adaptateurs entrants (par exemple, un contrôleur REST ou une interface utilisateur) appellent. Les ports sortants (*outbound ports*), eux, sont les interfaces que le domaine utilise pour solliciter des services externes (comme une base de données ou un service distant). Leurs implémentations sont fournies par des adaptateurs sortants. 
 
-Certains parlent aussi d'API pour désigner les ports (*inbound*), et de SPI (Service Provider Interface) pour désigner les ports *outbound*. Les "*use cases*" ou cas d’usage incarnent la logique applicative et sont souvent mis en œuvre via des services métier appelés par les ports entrants. Le terme "*features*" peut quant à lui désigner un regroupement fonctionnel de use cases, surtout dans des approches modulaires ou orientées produit. Cependant, bien que la terminologie puisse varier, l’objectif reste toujours le même : séparer clairement les responsabilités.
+Certains parlent aussi d'API pour désigner les ports (*inbound*), et de SPI (Service Provider Interface) pour désigner les ports *outbound*. Les "*use cases*" ou cas d'usage incarnent la logique applicative et sont souvent mis en œuvre via des services métier appelés par les ports entrants. Le terme "*features*" peut quant à lui désigner un regroupement fonctionnel de use cases, surtout dans des approches modulaires ou orientées produit. Cependant, bien que la terminologie puisse varier, l'objectif reste toujours le même : séparer clairement les responsabilités.
 
 Pour Pacman lors de l'initialisation d'un projet, le générateur va toujours créer quatre projets distincts qui sont respectivement : 
 
@@ -89,7 +90,7 @@ Pour Pacman lors de l'initialisation d'un projet, le générateur va toujours cr
 
 1 - Vérification de la version pour l'IDE
 
-Avant de commencer l’installation ou l’utilisation du plugin, il est indispensable de vérifier que l’IDE Eclipse utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez Eclipse puis accédez au menu "*Help/About Eclipse IDE*". Dans la fenêtre d’information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d’éviter tout comportement inattendu ou erreur d’exécution liée à une version non conforme de l’environnement Eclipse.
+Avant de commencer l'installation ou l'utilisation du plugin, il est indispensable de vérifier que l'IDE Eclipse utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez Eclipse puis accédez au menu "*Help/About Eclipse IDE*". Dans la fenêtre d'information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d'éviter tout comportement inattendu ou erreur d'exécution liée à une version non conforme de l'environnement Eclipse.
 
 <div align="center">
   <img src="images/pcm-ecr-about-version.png" alt="Installation" width="500">
@@ -97,9 +98,9 @@ Avant de commencer l’installation ou l’utilisation du plugin, il est indispe
 
 2 - Installation des plugins d'édition
 
-Si leur installation est optionnelle, les plugins d’édition SQL, JSON, YAML dans l’IDE Eclipse sont  toutefois fortement recommandés pour améliorer la lisibilité, la cohérence et la fiabilité du développement. Ces plugins apportent des fonctionnalités clés telles que la coloration syntaxique, la validation de la structure, l’auto-complétion et la détection précoce des erreurs, facilitant ainsi l’édition des fichiers de configuration, des scripts de base de données et des paramètres de journalisation. 
+Si leur installation est optionnelle, les plugins d'édition SQL, JSON, YAML dans l'IDE Eclipse sont  toutefois fortement recommandés pour améliorer la lisibilité, la cohérence et la fiabilité du développement. Ces plugins apportent des fonctionnalités clés telles que la coloration syntaxique, la validation de la structure, l'auto-complétion et la détection précoce des erreurs, facilitant ainsi l'édition des fichiers de configuration, des scripts de base de données et des paramètres de journalisation. 
 
-En centralisant ces outils dans l’environnement de développement, le développeur gagne en productivité, réduit les risques d’erreurs de syntaxe ou de configuration, et assure une meilleure conformité aux standards techniques du projet.
+En centralisant ces outils dans l'environnement de développement, le développeur gagne en productivité, réduit les risques d'erreurs de syntaxe ou de configuration, et assure une meilleure conformité aux standards techniques du projet.
 
 <div align="center">
   <img src="images/pcm-ecr-plugin-editor-sql-json.png" alt="Installation" width="500">
@@ -110,7 +111,7 @@ En centralisant ces outils dans l’environnement de développement, le dévelop
 
 3 - Installation plugin SLF4J
 
-L’installation du plugin SLF4J dans Eclipse est particulièrement utile pour faciliter la gestion et la configuration de la journalisation au sein des applications. Il permet d’améliorer l’édition des fichiers de configuration liés au logging en offrant une meilleure lisibilité, une aide à la structuration et une détection plus rapide des incohérences. Grâce à ce plugin, le développeur peut configurer et maintenir plus efficacement les mécanismes de traçabilité, indispensables au diagnostic, au suivi des comportements applicatifs et à l’analyse des erreurs, tout en garantissant une utilisation cohérente et standardisée de l’API SLF4J dans le code.
+L'installation du plugin SLF4J dans Eclipse est particulièrement utile pour faciliter la gestion et la configuration de la journalisation au sein des applications. Il permet d'améliorer l'édition des fichiers de configuration liés au logging en offrant une meilleure lisibilité, une aide à la structuration et une détection plus rapide des incohérences. Grâce à ce plugin, le développeur peut configurer et maintenir plus efficacement les mécanismes de traçabilité, indispensables au diagnostic, au suivi des comportements applicatifs et à l'analyse des erreurs, tout en garantissant une utilisation cohérente et standardisée de l'API SLF4J dans le code.
 
 <div align="center">
   <img src="images/pcm-ecr-pluginm2e-sl4j.png" alt="Installation" width="500">
@@ -118,7 +119,7 @@ L’installation du plugin SLF4J dans Eclipse est particulièrement utile pour f
 
 3 - Installation plugin M2E
 
-L’installation et la configuration de Maven dans Eclipse sont essentielles pour assurer une gestion fiable et cohérente du cycle de vie des projets. Maven permet d’automatiser la gestion des dépendances, la compilation, les tests et le packaging des applications, tout en garantissant l’uniformité des versions utilisées au sein du projet. Son intégration dans l’IDE facilite l’import, la mise à jour et la maintenance des projets, réduit les erreurs liées aux dépendances manquantes ou incompatibles, et améliore la reproductibilité des builds, aussi bien en environnement de développement que d’intégration continue.
+L'installation et la configuration de Maven dans Eclipse sont essentielles pour assurer une gestion fiable et cohérente du cycle de vie des projets. Maven permet d'automatiser la gestion des dépendances, la compilation, les tests et le packaging des applications, tout en garantissant l'uniformité des versions utilisées au sein du projet. Son intégration dans l'IDE facilite l'import, la mise à jour et la maintenance des projets, réduit les erreurs liées aux dépendances manquantes ou incompatibles, et améliore la reproductibilité des builds, aussi bien en environnement de développement que d'intégration continue.
 
 <div align="center">
   <img src="images/pcm-ecr-plugin-m2e-wtp.png" alt="Installation" width="500">
@@ -200,6 +201,9 @@ Il est aussi possible de récupérer l'ensemble des sources et de les compiler (
 
 ## ☕ Création du projet  
  ---
+ 
+❗ Avant toute création de projet, il est impératif de vérifier qu'aucun antivirus, pare-feu ou logiciel de sécurité (notamment avec inspection SSL/HTTPS) ne bloque l'accès aux dépôts Maven, aux certificats ou aux connexions réseau nécessaires au téléchargement des dépendances. Certains outils de sécurité peuvent intercepter les communications HTTPS et provoquer des erreurs de résolution de dépendances ou de certificats. Le cas échéant, il convient de désactiver temporairement ces protections ou de les configurer correctement (ajout des certificats requis, exclusions réseau) avant de lancer la création ou la construction du projet.
+ 
 Une fois ISD activé, se positionner sur la perspective "*Modeling*", située en haut à gauche de l'IDE.   
 ![Perspective "Modeling"](images/pcm-modeling.png)
 
@@ -247,7 +251,9 @@ Exemple avec les trois champs prédéfinis (pour annuler une sélection, sélect
 
 ➤ **Autre** : 
 
-Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Au niveau de la version actuelle de **Pacman** et comme vu précédemment, toute la sous-rubrique "*Autre*" est désactivée car ces options ne concernent pas le framework SpringBoot. La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*")
+Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Au niveau de la version actuelle de **Pacman** et comme vu précédemment, une grande partie de la sous-rubrique "*Autre*" est désactivée car ces options ne concernent pas le framework SpringBoot. Il reste cependant la possibilité de cocher la rubrique "*Utilisation librairie SSO ministère*" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées . La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*")
+
+❗ Attention, la librairie de connexion pour le ministère des armées n'est pas disponible dans le cas de l'utilisation des générateur **Pacman** hors du réseau interne du ministère. Il est donc inutile de cocher cette case dans le cadre d'une utilisation open source.
 
 <div align="center">
   <img src="images/pcm-new-project-4.png" alt="Nouveau projet pacman" width="500">
@@ -301,9 +307,17 @@ Puis sélectionner la valeur "*React*" au niveau de la rubrique "*Framework*" su
 
 ❗ Il faut bien distinguer ici la différence entre la création d'un client React et celle d'un client SpringBoot (en dehors de la question du language). Le client SpringBoot est pour l'instant créé afin d'appeler une librairie d'un fournisseur externe, on part donc un fichier Swagger pour obtenir la modalisation. Le client React quant à lui est utilisé pour appeler une librairie interne (au sens ou le backend a été précédemment créé avec **Pacman**). 
 
-En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n’est pas possible de s’appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s’appuyer directement sur le fichier de modélisation. C’est ce modèle qui constitue la source de vérité et qui permet d’identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.
+En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n'est pas possible de s'appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s'appuyer directement sur le fichier de modélisation. C'est ce modèle qui constitue la source de vérité et qui permet d'identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.
 
 ## 📝 Fichiers Générés
+
+❗ Lors de la création du projet, il est parfois possible (à la fin de processus de création) que l'utilisateur soit confronté au message suivant : 
+
+<div align="center">
+  <img src="images/pcm-new-project-8.png" alt="Nouveau projet pacman" width="500">
+</div>
+
+Cliquer simplement sur le bouton "*Yes*" afin de valider le rafraîchissement du fichier contenant l'ensemble des représentations pour la modélisation. Ce cas peut éventuellement arriver si l'ordre de création des fichiers de modélisation est inversé (dépend des api Sirius). 
 
 Par la suite dans ce document le projet d'exemple sera appelé simplement "demo" (qu'il s'agisse d'un projet de type **fournisseur** de services ou consommateur (**client**) de services). 
 
@@ -527,9 +541,12 @@ Le fichier permet de configurer le framework SpringBoot. Il contient un ensemble
 - Le paramétrage des profils Spring.
 - Le paramétrage du cache pour Spring.
 - Le paramétrage du framework pour le circuit-breaker.
+- Le paramétrage de la couche SSO (si librairie du ministère activée).
 - Le paramétrage de la (ou des) datasource(s).
 
 Il n'est pas pour objectif dans le cadre de ce document, de développer chaque paramètre dont certains sont par ailleurs suffisamment explicites mais plutôt de préciser certaines options qui ont été prises pour le paramétrage par défaut qui a été généré.
+
+❗ Les valeurs de propriétés de type "*"[...]*" constituent des paramètres à renseigner par le développeur pour adapter et finaliser la configuration de l'application.
 
 #### Api de santé
 
@@ -607,11 +624,12 @@ security.whitelist.paths=/swagger-ui/**,/api-docs/**,/actuator/**
 ```
 
 #### Serveur HTTP
-        
+
 ```properties
 # Un exemple de cle symetrique (pour le developpement uniquement).
 security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
 ``` 
+❗ Cette propriété n'est présente que si la librairie SSO du ministère sur le gestion de la sécurité n'est pas utilisée (confère la case à cocher sur la rubrique "*Utilisation librairie SSO ministère*" au niveau des écrans de création d'un projet).
 
 Outre la définition du port et du contexte, une clé symétrique est automatiquement mise à disposition pour la classe de gestion de la sécurité des services REST lors du développement (à supprimer en production). 
 
@@ -646,7 +664,7 @@ L'utilisation de ce profil permet nottament dans le cadre des tests unitaires po
 
 #### Cache
 
-Cette propriété agit sur l’implémentation du cache utilisée par Spring Boot lorsqu’on utilise l’annotation @Cacheable, @CachePut, @CacheEvict, etc. Par défaut, elle utilise un cache en mémoire très basique (ConcurrentHashMap). 
+Cette propriété agit sur l'implémentation du cache utilisée par Spring Boot lorsqu'on utilise l'annotation @Cacheable, @CachePut, @CacheEvict, etc. Par défaut, elle utilise un cache en mémoire très basique (ConcurrentHashMap). 
 
 Dans la configuration actuelle, bon pour des tests ou des petits projets.
 
@@ -656,7 +674,7 @@ spring.cache.type=simple
 
 #### Circuit-breaker
 
-Grâce au framework Resilience4J, **Pacman** met à disposition un mécanisme de protection qui interrompt temporairement les appels vers un service externe lorsqu’un certain seuil d’échecs est atteint. Le paramétrage est donc mis à disposition dans le fichier "***application.properties***".
+Grâce au framework Resilience4J, **Pacman** met à disposition un mécanisme de protection qui interrompt temporairement les appels vers un service externe lorsqu'un certain seuil d'échecs est atteint. Le paramétrage est donc mis à disposition dans le fichier "***application.properties***".
 
 ```properties
 resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.registerHealthIndicator=true
@@ -667,7 +685,7 @@ resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.slidingWindo
 ``` 
 #### Coffre fort
 
-Un coffre-fort est un système sécurisé permettant de stocker et de protéger des informations sensibles, telles que des mots de passe, des clés d’API, des certificats ou des secrets d’application. Contrairement à un simple fichier chiffré, un coffre-fort offre généralement des fonctionnalités avancées comme le contrôle d’accès, l’audit des accès, le versionnement des secrets et le chiffrement automatique des données au repos et en transit. Dans le cas de **Pacman** c'est la solution "*spring-cloud-vault*" qui a été choisie.
+Un coffre-fort est un système sécurisé permettant de stocker et de protéger des informations sensibles, telles que des mots de passe, des clés d'API, des certificats ou des secrets d'application. Contrairement à un simple fichier chiffré, un coffre-fort offre généralement des fonctionnalités avancées comme le contrôle d'accès, l'audit des accès, le versionnement des secrets et le chiffrement automatique des données au repos et en transit. Dans le cas de **Pacman** c'est la solution "*spring-cloud-vault*" qui a été choisie.
 
 ❗ Par défaut le coffre-fort est désactivé.
 
@@ -723,6 +741,166 @@ spring.populate.faker.enabled=false
 ``` 
 Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services rest.
 
+#### Librairie SSO du ministère
+
+❗ De manière générale, se reporter aux différentes documentations internes du ministère sur l'utilisation et le paramétrage détaillé du mécanisme d'authentification par le biais de la librairie développée par le ministère des armées. Il est par ailleurs à noter que dans le cadre des générateurs **Pacman**, les différentes propriétés sont présentées sous la forme de fichier "*.properties*", car le format étant considéré comme plus lisible qu'un format "*.xml*" ou "*.yaml*". Cependant, à l'origine, ces propriétés sont sous format "*.yaml*" au niveau de la librairie. Il ne faut donc pas s'étonner de trouver ces informations sous ce format ("*.yaml*") au niveau de la documentation originelle (accessible uniquement pour les intervenants internes au ministère des armées).
+
+Si la couche de gestion du ministère a été activée pour la gestion de l'authentification utilisateur (Authentification sur SSO uniquement), le fichier de configuration est alors complété avec les (principales) propriétés suivantes par **Pacman** au niveau du fichier de configuration "*application.properties*" :    
+
+Les propriétés ci-dessous définissent les URLs d'accès aux différents points d'entrée de l'application :
+
+- "**server.auth.url.sso**" : URL du serveur d'authentification SSO (Keycloak), utilisée pour les échanges liés à l'authentification.
+- "**server.auth.url.front**" : URL publique du frontend de l'application, accessible par les utilisateurs.
+- "**server.auth.url.back**" : URL du backend de l'application, utilisée pour les appels serveur à serveur.
+
+Les différentes valeurs doivent être remplacées par le développeur avec l'adresse et le port correspondant à l'environnement de déploiement (local, recette, production, etc.).
+
+```properties
+server.auth.url.sso = http://[server:port]
+server.auth.url.front = http://[server:port]
+server.auth.url.back = http://['server:port]
+```
+
+Nom du realm configuré sur le serveur SSO (Keycloak). Cette valeur doit correspondre exactement au nom du realm défini côté SSO et utilisé pour l'authentification de l'application.
+
+```properties
+server.auth.sso.realm = [Nom du realm défini sur SSO]
+```
+Ici sont regroupées plusieurs propriétés qui sont en fait dispatchées dans différentes rubriques au niveau du fichier de configuration :
+
+- "**project.frontend.uri** : URL du frontend de l'application, utilisée pour les redirections après authentification réussie du SSO. Cette valeur doit être renseignée avec l'adresse publique d'accès au frontend. Si dans le cadre du développement d'un bakend, le développeur ne connait pas encore le frontend (ou plus simplement que le frontend n'est pas encore développé), mettre temporairement l'URL du backend.
+
+- "**project.context** : chemin de contexte de l'application backend. Cette propriété reprend automatiquement la valeur de "*server.servlet.context-path*".
+
+- "**myco.sso.front-redirect-uri** : URL de redirection vers le frontend après une authentification SSO réussie. Par défaut, cette valeur est alignée sur "*project.frontend.uri*".
+
+- "**myco.sso.endpoints.enabled** : active ou désactive l'exposition des endpoints SSO au sein de l'application. La valeur "*true*" permet d'activer les endpoints nécessaires au fonctionnement pour l'interrogation du SSO.
+
+- "**myco.sso.threads-mode** : mode de gestion des threads pour les traitements SSO.
+La valeur auto permet à l'application d'adapter automatiquement le mode de gestion des threads en fonction de l'environnement d'exécution.
+
+```properties
+project.frontend.uri=[URL du frontend]
+project.context=${server.servlet.context-path}
+myco.sso.front-redirect-uri=${project.frontend.uri}
+myco.sso.endpoints.enabled=true
+myco.sso.threads-mode=auto
+```
+
+Ici, hormis pour la propriété "**spring.security.oauth2.client.registration.keycloak.scope**", il n'y a rien à modifier ou à compléter. Il est juste à noter que l'url définie pour la propriété "**spring.security.oauth2.client.registration.keycloak.redirect-uri**" est une URL technique interne automatiquement captée et gérée par Spring Security. Par ailleurs, "*\{registrationId\}*" est l'identifiant **logique** du client OAuth2, en général (pseudo-norme) cet identifiant est paramétré avec le nom du serveur SSO (dans notre cas : "*myco.sso.registration-id=keycloak*" ).
+
+```properties
+spring.security.oauth2.client.registration.keycloak.client-id=${myco.sso.client-id}
+spring.security.oauth2.client.registration.keycloak.client-secret=${myco.sso.client-secret}
+spring.security.oauth2.client.registration.keycloak.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.keycloak.scope=[openid,profile,email]
+spring.security.oauth2.client.registration.keycloak.provider=keycloak
+spring.security.oauth2.client.provider.keycloak.issuer-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}
+spring.security.oauth2.client.registration.keycloak.redirect-uri=${server.auth.url.back}${server.servlet.context-path}/login/oauth2/code/{registrationId}
+```
+Configuration du comportement des cookies de session de l'application. 
+
+La propriété "**server.servlet.session.cookie.same-site**" permet de contrôler le comportement des cookies de session lors de requêtes inter-domaines, dans le cadre de la protection contre les attaques de type CSRF (Cross-Site Request Forgery). Elle définit la politique SameSite du cookie, c'est-à-dire les conditions dans lesquelles le navigateur enverra le cookie vers le serveur. 
+
+Trois valeurs principales (officiellement supportées et fiables) sont possibles : 
+
+- "**strict**", qui empêche le cookie d'être envoyé dans toutes les requêtes cross-site, offrant la sécurité maximale mais pouvant bloquer certaines redirections ou intégrations tierces 
+
+- "**lax**", qui autorise l'envoi du cookie pour les requêtes GET initiées depuis un autre site (comme les liens), tout en bloquant la plupart des requêtes cross-site sensibles
+
+- "**none**", qui autorise le cookie dans toutes les requêtes cross-site, mais nécessite que Secure=true pour fonctionner sur HTTPS. Le choix de cette propriété permet donc d'équilibrer la sécurité des sessions et la compatibilité fonctionnelle de l'application avec des redirections ou des intégrations tierces.
+
+```properties
+server.servlet.session.cookie.secure=false
+server.servlet.session.cookie.http-only=true
+server.servlet.session.cookie.same-site=lax
+server.servlet.session.cookie.name=JSESSIONID
+server.servlet.session.timeout=30m
+```
+Ces valeurs permettent de restreindre les origines autorisées aux seules adresses nécessaires au bon fonctionnement de l'authentification SSO et des échanges inter-applications.Les URLs doivent être correctement renseignées en fonction de l'environnement de déploiement (local, recette, production).
+
+```properties
+myco.sso.allowed-origins['['/]0[']'/]=${server.auth.url.front}
+myco.sso.allowed-origins['['/]1[']'/]=${server.auth.url.sso}
+myco.sso.allowed-origins['['/]2[']'/]=${server.auth.url.back}
+```
+Ces deux propriétés permettent à l'application de s'identifier de manière sécurisée auprès du serveur SSO. Le "*client-id*" correspond à l'identifiant du client tel que défini sur le serveur SSO, tandis que le "*client-secret*" est le secret associé à ce client, utilisé pour authentifier l'application lors des échanges OAuth2 ou OpenID Connect. Ces deux valeurs doivent être renseignées exactement comme configurées côté serveur SSO, car toute incohérence empêchera l'authentification. Le "*client-secret*" est une information sensible et doit être protégé de manière appropriée, par exemple en le stockant dans des variables d'environnement ou dans un coffre à secrets, plutôt que dans le code ou dans un dépôt versionné.
+
+```properties
+myco.sso.client-id=['['/]Client keycloak[']'/]
+myco.sso.client-secret=['['/]Secret du client[']'/]
+```
+
+L'application utilise des cookies pour gérer la session et l'authentification SSO. Ces cookies sont configurés avec une durée de vie limitée, accessibles uniquement par le serveur pour protéger les informations sensibles, et sécurisés selon leur rôle pour garantir qu'ils soient transmis de manière appropriée (HTTP ou HTTPS). Ils couvrent l'ensemble de l'application et permettent de maintenir l'état de l'utilisateur de façon fiable et sécurisée pendant toute la durée de sa session.
+
+```properties
+myco.sso.session-cookie.enabled=true
+myco.sso.session-cookie.name=SESSIONID
+myco.sso.session-cookie.max-age-seconds=1800
+myco.sso.session-cookie.http-only=true
+myco.sso.session-cookie.secure=false
+myco.sso.session-cookie.path=/
+    
+myco.sso.auth-cookie.enabled=true
+myco.sso.auth-cookie.name=SESSION_AUTH
+myco.sso.auth-cookie.max-age-seconds=1800
+myco.sso.auth-cookie.http-only=true
+myco.sso.auth-cookie.secure=true
+myco.sso.auth-cookie.path=/
+```
+
+Ici, on permet à Spring Boot d'importer un fichier de configuration supplémentaire au moment du démarrage de l'application. Ce fichier "*".properties*" situé dans le classpath, permet de séparer la configuration dynamique spécifique au SSO du reste de l'application et de la centraliser dans un fichier dédié. 
+
+Dans le cas du fichier "*application-sso*", ce dernier va contenir l'ensemble des URLs non protégées (et donc à écarter de la vérification de la sécurité Spring Boot), lors de la demande de génération de la couche SOA. En effet, ces différentes URLs ne peuvent être connues qu'une fois la modélisation des différents services effectuée. Par défaut, ce fichier est donc vide.
+
+```properties
+spring.config.import=classpath:application-sso.properties
+```
+
+Le contenu de ce fichier est le suivant (il s'agit ici d'un exemple puisque une partie de son contenu est généré dynamiquement en fonction de la modélisation utilisateur, par ailleurs sont aussi affichées les lignes de commentaire) : 
+
+```properties 
+# ----------------------------------------------------------------------------------------------
+# BASE POUR POINTS D'ACCES PUBLICS INTEGRES (.../is-authenticated, .../profile, .../logout) 
+# ----------------------------------------------------------------------------------------------
+myco.sso.endpoints.base-path=/v1
+
+# ----------------------------------------------------------------------------------------------
+# POINTS D'ACCES PUBLICS (Non soumis à l'authentification)
+# ----------------------------------------------------------------------------------------------
+myco.sso.permit-all[0]=/v1/actuator/**
+myco.sso.permit-all[1]=/v1/api-docs/**
+myco.sso.permit-all[2]=/v1/swagger-ui/**
+myco.sso.permit-all[3]=/v1/login
+myco.sso.permit-all[4]=/v1/logout
+myco.sso.permit-all[5]=/v1/is-authenticated
+myco.sso.permit-all[6]=/v1/profile
+myco.sso.permit-all[7]=/v1/login/oauth2/code/*
+
+# Liste des URLs directement issues de la modélisation.
+myco.sso.permit-all[8]=/v1/service1
+myco.sso.permit-all[9]=/v1/service2
+
+# Placer ici des URLs non issues de la modélisation.
+// Start of user code c7647f28a1a1fc3dc99d5fd53e914e22
+// End of user code
+```
+
+On peut toutefois constater que certaines URL de l'application sont accessibles sans authentification afin de permettre le bon fonctionnement des outils de supervision, de documentation et des endpoints publics. Cela inclut par exemple les points d'accès pour les métriques et l'actuator, la documentation Swagger, les pages de login et logout, la vérification de l'authentification et le profil utilisateur, ainsi que le point de retour OAuth2 après authentification. Ces chemins sont explicitement autorisés pour garantir l'accessibilité des fonctionnalités essentielles sans bloquer l'utilisateur.
+
+... Par contre dans cet exemple, il est possible de constater quen en complément des endpoints publics standard, certaines URL issues directement de la modélisation de l'application sont également accessibles sans authentification. Cela permet à des services spécifiques, comme "*/v1/service1*" et "*/v1/service2*", d'être appelés librement pour faciliter l'intégration et les tests, tout en maintenant la sécurité sur les autres endpoints.
+
+❗ L'URI de base d'un service REST est généralement construite à partir de plusieurs éléments, par exemple :
+"*/api*" + la version + le nom du service, ce qui donne typiquement une URI de la forme : "*/api/v1/mon-service*".
+
+Toutefois, dans le cadre de l'utilisation de la librairie développée par le ministère, l'application est considérée comme s'inscrivant dans le périmètre du ministère des Armées. À ce titre, elle doit se conformer aux référentiels d'urbanisation et de normalisation des API en vigueur au sein du ministère. Dans ce contexte, la norme de construction des URI est inversée : la version précède le contexte fonctionnel. La base URI adopte alors obligatoirement la forme suivante : "*/v1/api/mon-service*".
+
+❗ Il est important de bien comprendre que le fichier "*application.properties*" est généré une seule fois, à un moment où la phase de modélisation n'a pas encore commencé.
+
+En revanche, l'autre partie de la configuration, liée à la librairie développée spécifiquement pour le ministère, est dynamique. Dans ce contexte, il faut être particulièrement vigilant quant à la cohérence des informations entre les deux fichiers.
+
+Il peut donc être nécessaire de modifier manuellement le fichier "*application.properties*" afin d'aligner certaines propriétés avec les informations issues de la modélisation, lesquelles sont définies dans le fichier "*application-sso.properties*".
+
 #### tests.properties
 
 Ce fichier permet de configurer le framework SpringBoot pour le déroulement des tests d'intégration pour l'ensemble de la couche  d'infrastructure. A ce niveau, il s'agit juste de configurer une datasource, le paramétrage n'implique à priori pas de commentaire particulier hormis le fait que le paramètre "***spring.jpa.defer-datasource-initialization***" est commenté puisque la demande de création de la base de données n'est plus gérée par le cycle de vie de Spring mais est expressement demandée par programmation. Le paramètre est toutefois conservé pour mémoire.
@@ -768,7 +946,7 @@ Ce fichier est le suivant :
 
 ```properties
 # Adresse racine utilisée pour toutes les requêtes HTTP du client REST.
-demo.api.base-url= [Placer ici l'url de base pour le client]
+demo.api.base-url= [Placer ici l'URL de base pour le client]
 # Timeout de connexion TCP (en millisecondes).
 demo.api.connection-timeout-ms=5000
 # Timeout de réponse HTTP (en millisecondes).
@@ -785,13 +963,13 @@ Ceci n'est pas détectable automatiquement.
 
 ### 📁 Cas projet client (React)
 
-❗  Dans le cadre des projets générés par Pacman, le fichier *package-lock.json* ne joue pas un rôle fonctionnel essentiel, puisque Pacman écrit lui-même les dépendances avec des versions figées dans le *package.json* (devDependencies, peerDependencies, etc.). Le rôle normal d’un *package-lock.json* est d’assurer une installation strictement reproductible des dépendances, en enregistrant les versions exactes réellement installées. Mais ici, comme les dépendances sont déjà imposées et contrôlées par Pacman, ce fichier ne sert pas à figer des choix du développeur — il ne fait que refléter l'état final de l'installation. 
+❗  Dans le cadre des projets générés par Pacman, le fichier *package-lock.json* ne joue pas un rôle fonctionnel essentiel, puisque Pacman écrit lui-même les dépendances avec des versions figées dans le *package.json* (devDependencies, peerDependencies, etc.). Le rôle normal d'un *package-lock.json* est d'assurer une installation strictement reproductible des dépendances, en enregistrant les versions exactes réellement installées. Mais ici, comme les dépendances sont déjà imposées et contrôlées par Pacman, ce fichier ne sert pas à figer des choix du développeur — il ne fait que refléter l'état final de l'installation. 
 
-Il reste néanmoins utile pour garantir que deux installations successives (ou deux postes différents) utiliseront exactement la même arborescence npm, évitant ainsi les légères variations possibles dans la résolution interne de npm, même lorsque les versions sont verrouillées. En bref : ce n’est pas indispensable pour Pacman, mais cela renforce la reproductibilité et évite les comportements imprévisibles de npm. Il reste toujours possible de le désactiver en mettant la propriété à "false" au niveau du fichier *.npmrc*.
+Il reste néanmoins utile pour garantir que deux installations successives (ou deux postes différents) utiliseront exactement la même arborescence npm, évitant ainsi les légères variations possibles dans la résolution interne de npm, même lorsque les versions sont verrouillées. En bref : ce n'est pas indispensable pour Pacman, mais cela renforce la reproductibilité et évite les comportements imprévisibles de npm. Il reste toujours possible de le désactiver en mettant la propriété à "false" au niveau du fichier *.npmrc*.
 
 #### .npmignore 
 
-Ce fichier permet d’indiquer à npm quels fichiers ne doivent pas être inclus lorsque le package est publié sur le registre npm. Par défaut le code de ce fichier est le suivant : 
+Ce fichier permet d'indiquer à npm quels fichiers ne doivent pas être inclus lorsque le package est publié sur le registre npm. Par défaut le code de ce fichier est le suivant : 
 ```ignore
 src/
 node_modules/
@@ -804,24 +982,24 @@ README.md
 
 #### .npmrc
 
-Fichier de configuration utilisé par npm pour définir le comportement du gestionnaire de paquets. Il permet de personnaliser des paramètres tels que le registre utilisé pour télécharger les packages, la gestion du SSL, le chemin du cache, la création du *package-lock.json*, l’authentification, ou encore des options réseau. On peut placer un *.npmrc* à plusieurs niveaux (global, utilisateur, projet), et npm combine ces fichiers pour déterminer la configuration finale. Dans un projet, le *.npmrc* local sert généralement à s’assurer que tous les développeurs utilisent les mêmes réglages pour installer ou publier des paquets.
+Fichier de configuration utilisé par npm pour définir le comportement du gestionnaire de paquets. Il permet de personnaliser des paramètres tels que le registre utilisé pour télécharger les packages, la gestion du SSL, le chemin du cache, la création du *package-lock.json*, l'authentification, ou encore des options réseau. On peut placer un *.npmrc* à plusieurs niveaux (global, utilisateur, projet), et npm combine ces fichiers pour déterminer la configuration finale. Dans un projet, le *.npmrc* local sert généralement à s'assurer que tous les développeurs utilisent les mêmes réglages pour installer ou publier des paquets.
 
-La ligne *registry=https://registry.npmjs.org/* indique l’URL du registre npm à utiliser pour récupérer les packages. *strict-ssl=false* désactive la vérification stricte SSL, utile pour contourner certains problèmes de certificats. Enfin, *package-lock=true* force la création d’un fichier *package-lock.json* pour verrouiller les versions exactes des dépendances installées, garantissant ainsi des builds reproductibles.
+La ligne *registry=https://registry.npmjs.org/* indique l'URL du registre npm à utiliser pour récupérer les packages. *strict-ssl=false* désactive la vérification stricte SSL, utile pour contourner certains problèmes de certificats. Enfin, *package-lock=true* force la création d'un fichier *package-lock.json* pour verrouiller les versions exactes des dépendances installées, garantissant ainsi des builds reproductibles.
 ```ini
 registry=https://registry.npmjs.org/
 strict-ssl=false
 package-lock=true
 ```
 
-❗  Lorsque npm exécute une commande comme npm install, il contacte le registre officiel (https://registry.npmjs.org/) via une connexion HTTPS sécurisée. Sur certains environnements — notamment Windows avec des proxys d’entreprise, des antivirus, ou des serveurs vieillissants — il peut y avoir un problème de validation SSL : certificats expirés, certificats auto-signés, ou chaîne de confiance incomplète. Dans ce cas, npm bloque ou tourne indéfiniment, incapable d’établir une connexion sécurisée. 
+❗  Lorsque npm exécute une commande comme npm install, il contacte le registre officiel (https://registry.npmjs.org/) via une connexion HTTPS sécurisée. Sur certains environnements — notamment Windows avec des proxys d'entreprise, des antivirus, ou des serveurs vieillissants — il peut y avoir un problème de validation SSL : certificats expirés, certificats auto-signés, ou chaîne de confiance incomplète. Dans ce cas, npm bloque ou tourne indéfiniment, incapable d'établir une connexion sécurisée. 
 
 Une solution consiste à configurer npm pour assouplir cette vérification, par exemple en ajoutant dans le fichier .npmrc : strict-ssl=false. Cela permet à npm de continuer à fonctionner malgré les certificats problématiques, en attendant une configuration réseau correcte ou une mise à jour des certificats du poste ou du proxy. Cette option doit toutefois être vue comme un contournement, pas une solution définitive.
 
 #### package.json
 
-Ce fichier est le cœur d’un projet npm. Il décrit le nom, la version, les scripts, les dépendances, la licence, et les métadonnées du package. Il définit aussi les fichiers inclus dans le package publié (via "files"), les dépendances au runtime (dependencies), les dépendances pour le développement (devDependencies), ainsi que les peer dependencies si le package doit s’intégrer dans un écosystème particulier (comme React). C’est également ce fichier que npm install lit pour savoir quoi installer.
+Ce fichier est le cœur d'un projet npm. Il décrit le nom, la version, les scripts, les dépendances, la licence, et les métadonnées du package. Il définit aussi les fichiers inclus dans le package publié (via "files"), les dépendances au runtime (dependencies), les dépendances pour le développement (devDependencies), ainsi que les peer dependencies si le package doit s'intégrer dans un écosystème particulier (comme React). C'est également ce fichier que npm install lit pour savoir quoi installer.
 
-Ce fichier définit donc précisément comment fonctionne la librairie générée : il indique son point d’entrée JavaScript (main), son point d’entrée pour TypeScript (types), et précise que le projet utilise les modules ECMAScript (type: "module"). La section "*files*" restreint la publication au seul dossier dist, garantissant que seules les sources compilées sont embarquées dans le package final. Les scripts "*clean*", "*build*" et "*pack*" automatisent respectivement la suppression des artefacts, la compilation TypeScript et la génération du package .tgz. Les peerDependencies déclarent des bibliothèques nécessaires mais non incluses — comme axios, utilisé par défaut dans les clients REST générés par **Pacman** tandis que les devDependencies rassemblent les outils utiles uniquement lors du build (TypeScript, rimraf, etc.).
+Ce fichier définit donc précisément comment fonctionne la librairie générée : il indique son point d'entrée JavaScript (main), son point d'entrée pour TypeScript (types), et précise que le projet utilise les modules ECMAScript (type: "module"). La section "*files*" restreint la publication au seul dossier dist, garantissant que seules les sources compilées sont embarquées dans le package final. Les scripts "*clean*", "*build*" et "*pack*" automatisent respectivement la suppression des artefacts, la compilation TypeScript et la génération du package .tgz. Les peerDependencies déclarent des bibliothèques nécessaires mais non incluses — comme axios, utilisé par défaut dans les clients REST générés par **Pacman** tandis que les devDependencies rassemblent les outils utiles uniquement lors du build (TypeScript, rimraf, etc.).
 
 ```json
 {
@@ -863,7 +1041,7 @@ Ce fichier définit donc précisément comment fonctionne la librairie généré
 
 Ce fichier est une variante de configuration TypeScript utilisée spécifiquement pour la compilation de build. Il complète ou étend un *tsconfig.json* principal et contient notamment les options de compilation pour produire le code final (outDir, module, target, etc.), les chemins ou patterns des fichiers à inclure/exclure, les réglages utilisés uniquement pour générer la version distribuée (dist/). Il sépare les options "de build" des options utilisées pour le développement (tests, IDE, tooling), ce qui permet un contrôle plus propre et plus fin de la compilation.
 
-Utilisée exclusivement pour la phase de build, il surcharge certaines options afin de produire les artefacts destinés à la distribution : génération des fichiers JavaScript dans le répertoire dist, création des fichiers de déclaration TypeScript (.d.ts), et désactivation des sourcemaps pour alléger le package final. Il ne compile que le répertoire src, sans inclure d’autres fichiers potentiellement présents dans le projet. 
+Utilisée exclusivement pour la phase de build, il surcharge certaines options afin de produire les artefacts destinés à la distribution : génération des fichiers JavaScript dans le répertoire dist, création des fichiers de déclaration TypeScript (.d.ts), et désactivation des sourcemaps pour alléger le package final. Il ne compile que le répertoire src, sans inclure d'autres fichiers potentiellement présents dans le projet. 
 ```json
 {
   "extends": "./tsconfig.json",
@@ -881,7 +1059,7 @@ Utilisée exclusivement pour la phase de build, il surcharge certaines options a
 
 Le fichier de configuration principal de TypeScript. Il indique au compilateur quels fichiers inclure, comment les analyser, et comment générer le JavaScript final. 
 
-On indique donc la cible JavaScript à générer (ES2020), le système de modules utilisé (ESNext), et active le support JSX pour React. Il impose également une résolution de modules compatible Node, active les règles strictes de compilation, et facilite l’interopérabilité avec les modules CommonJS (esModuleInterop). Des optimisations comme skipLibCheck accélèrent la compilation en évitant l’analyse des fichiers de définition externes. Enfin, baseUrl positionné sur *./src* simplifie les imports internes, et la section include précise que seuls les fichiers du dossier src doivent être pris en compte par le compilateur TypeScript.
+On indique donc la cible JavaScript à générer (ES2020), le système de modules utilisé (ESNext), et active le support JSX pour React. Il impose également une résolution de modules compatible Node, active les règles strictes de compilation, et facilite l'interopérabilité avec les modules CommonJS (esModuleInterop). Des optimisations comme skipLibCheck accélèrent la compilation en évitant l'analyse des fichiers de définition externes. Enfin, baseUrl positionné sur *./src* simplifie les imports internes, et la section include précise que seuls les fichiers du dossier src doivent être pris en compte par le compilateur TypeScript.
 ```json
 {
   "compilerOptions": {
@@ -1744,6 +1922,34 @@ public static PersonneDtoImpl toDto(final PersonneEntityImpl entity) {
 }
 ```
 
+❗ Dans le cas du mapping d'un DTO vers un objet de la couche de persistance (Entity), il est possible selon la modélisation utilisateur que certaines données n'existent pas au niveau de la couche de persistance. En effet, un objet de la couche métier peut avoir des attributs qui ont été rajoutés au niveau de sa définition dans le fichier "*.soa*" et qui n'existent donc pas au niveau de l'entité, de même il est possible qu'une nouvelle référence soit appliquée entre plusieurs objets métier. 
+
+Dans ce cas, ces attributs (ou références) sont considérés obligatoirement comme des champs calculés et doivent avoir la métadonnée "*COMPUTED*" (ceci est contrôlé lors de la validation du modèle). Lors de la génération de la couche de mapping, ces champs sont alors positionnés au niveau des balises de type "*user code*" et sont initialisés avec la valeur "*null*" par défaut. Libre au développeur de positionner le code adéquat pour renseigner ces données. Afin de ne pas oublier ces initialisations, un "*TODO*" est automatiquement positionné sur chaque ligne à traiter, il est alors possible de consulter la liste du reste à faire au niveau de la vue "*Tasks*".
+
+Il est par ailleurs tout à fait recommandé de ne pas initialiser ces champs au niveau de la couche de mapping mais plutôt au niveau de la couche métier dans le projet "***[Nom de l'application]-domain***". Libre au développeur de positionner son code la ou il le souhaite...
+
+```java
+try {
+    dto.setCommune_id( entity.getCommune_id());
+    dto.setVersion(entity.getVersion());
+    dto.setMaj(entity.getMaj());
+    dto.setCode(entity.getCode());
+    dto.setLibelle(entity.getLibelle());
+    dto.setPaysCode(entity.getPaysCode());
+    dto.setRegionCode(entity.getRegionCode());
+    dto.setDeptCode(entity.getDeptCode());
+        
+    // Start of user code 71449f91c18802e1e99374941eb51e45
+    dto.setDept_departements(DeptMapper.toDto(null));// TODO Champ calculé à initialiser.
+    // End of user code
+        
+} catch (Exception e) {
+    throw new PackappliMapperException("Impossible de mapper la classe : CommuneDtoImpl");
+}
+```
+
+Bien, noter par ailleurs que cette distinction n'existe pas au niveau des mappeurs "*dto<->xto*" puisque le xto s'appuie obligatoirement sur l'objet métier et qu'enfin, rien n'est écrit au niveau du mapping "*dto->entity*" puisque par définition le champ n'existe pas au niveau de la couche de persistance.
+       
 • ***[package racine].app.adapters.controllers.[nom du namespace]*** : Contient les points d'entrée (sous forme de services REST dans le cas de **Pacman**) pour les différents service ("*outbounds*" au niveau de l'architecture REST). Chaque service ***[nom du service]ControllerImpl*** fait appel à  l'interface en provenance du domaine ***[nom du service]Feature*** dont l'injection de l'implémentation est effectuée dans le constructeur par le framework Spring : 
   
 ```java 
@@ -2193,6 +2399,7 @@ La configuration de la sécurité pour l'ensemble de l'application se nomme : **
 @EnableWebSecurity
 class DemoSecurityConfig {
     @Bean
+    @Order(150)
     public SecurityFilterChain tokenFilterChain(HttpSecurity http) throws Exception {
        return http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
 	      .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -2257,6 +2464,7 @@ La demande de génération est de type "SOA", toutes les informations concernant
 
 ```java
 @Bean
+@Order(150)
 public SecurityFilterChain tokenFilterChain(HttpSecurity http) throws Exception {
 return http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
 	.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -2286,7 +2494,7 @@ return http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
 
 Ce nouveau code appelle quelques explications : 
 
-• La ligne d'authorisation a été modifiée et prend maintenant une variable nommée "***whiteListPaths***". cette variable est injectée un peu plus haut dans le code à l'aide des lignes suivantes : 
+• La ligne d'autorisation a été modifiée et prend maintenant une variable nommée "***whiteListPaths***". cette variable est injectée un peu plus haut dans le code à l'aide des lignes suivantes : 
 
 ```java
 @Value("${security.whitelist.paths}")
@@ -2445,17 +2653,134 @@ Le développeur peut alors ajouter l'ensemble de son code personnalisé afin de 
 ```
 Spring Boot n'a pas nativement de système de décodage des jetons JWT, il convient donc d'utiliser celui qui est fourni par les ressources pour la gestion *OAuth2*. C'est pourquoi *OAuth2* sera toujours présent au niveau de la classe de configuration de la sécurité, même si la sécurité demandée est de type *Http* ou *ApiKey*.
 
+#### Librairie SSO du ministère
+
+Le Backend For Frontend (BFF) est, à la base, une couche intermédiaire (design-pattern) entre un frontend et les services backend. Le BFF se charge d'appeler les services nécessaires, d'assembler et de transformer les données, et de ne retourner que les informations utiles au frontend. Cela permet au frontend de se concentrer uniquement sur l'affichage et l'expérience utilisateur.
+
+Ainsi, le BFF permet (entre autres) de :
+
+- cacher les services internes (services ou micro-services),
+- centraliser l'authentification,
+- appliquer les règles d'accès,
+- découpler (encore plus) le frontend et le backend métier.
+
+Si, pour l'ensemble du processus d'authentification, le développeur a coché la rubrique "*Utilisation librairie SSO du ministère*" au niveau de la création du projet (ou si la variable "*project.sso.auth.enabled*" a été directement modifiée avec la valeur "*true*" au niveau du fichier "*project.properties*"), les générateurs **Pacman** vont alors directement utiliser la couche développée par les services du ministère des armées.
+
+❗ Cette couche "prend la main" sur la modélisation initiale de la gestion de la sécurité et utilise donc le design-pattern "*Backend For Frontend*".
+
+La librairie SSO du ministère est conçue pour :
+
+- Un environnement ministériel.
+- Une sécurité forte.
+- Aucune d'exposition de jeton côté navigateur.
+- Une centralisation de la sécurité côté backend.
+
+Cette librairie effectue donc une autoconfiguration et s'appuie sur l'ensemble des paramètres  précédemment vus au niveau du paragraphe concernant les différents fichiers de configuration de l'application.
+
+❗ De manière plus générale, se reporter aux différentes documentations internes ministère pour l'utilisation et le paramétrage détaillé de l'authentification par le biais de cette librairie.
+
+Voici un rapide (non exhaustif) schéma explicatif sur le processus de connection pour la librairie (qui s'appuie dans tous les cas sur le processus standard de l'authentification Oauth2 et sur une mise en oeuvre spécifique de Spring Security) : 
+
+<div align="center">
+  <img src="images/pcm-minarm-sso-authentication.png" alt="Minarm authentification">
+</div>
+
+❗ Il est possible de définir d'autres "*SecurityFilterChain*" qui peuvent coexister avec celle des services d'authentification du ministère, il est alors nécessaire de les définir avec un ordre d'exécution plus petit (par exemple 100). Pour information l'ordre d'éxécution pour la chaîne BFF est positionné à 200.
+
+❗ La seule chose à retenir est qu'avec ce modèle d'authentification, le navigateur ne manipule jamais directement les jetons OAuth2. Après la connexion de l'utilisateur sur le SSO Keycloak, Spring Security échange le "*authorization code*" contre des jetons côté backend uniquement, puis crée une session HTTP serveur associée à l'utilisateur authentifié. 
+
+Le backend envoie alors au navigateur un cookie de session (ex. JSESSIONID) qui ne contient qu'un identifiant opaque. À chaque requête suivante, le navigateur renvoie automatiquement ce cookie, ce qui permet au backend de retrouver la session, le contexte de sécurité et l'identité de l'utilisateur, sans transmettre d'informations sensibles au client. Le frontend agit donc comme un simple consommateur d'API, sans connaissance des jetons ni de la logique OAuth2.
+
+Cette approche présente plusieurs avantages par rapport à une gestion OAuth2 dite « classique » côté client (SPA avec JWT par exemple). Elle est beaucoup plus sécurisée, car aucun jeton n'est exposé au navigateur, ce qui élimine les risques de vol par XSS ou par inspection du stockage local. Elle simplifie également le code frontend, qui n'a pas à gérer le cycle de vie des jetons (stockage, rafraîchissement, expiration). Enfin, elle s'intègre naturellement aux mécanismes de sécurité des SI sensibles (comme ceux des environnements ministériels), en centralisant toute la logique d'authentification et de contrôle d'accès côté backend, avec une maîtrise complète des sessions, des invalidations et des règles de sécurité.
+
+➡️ Dans cette architecture, le frontend n’a strictement rien à implémenter en matière d’authentification OAuth2. Il ne gère ni jeton, ni rafraîchissement, ni stockage de "*credentials*". Toute la mécanique d'authentification est prise en charge automatiquement par le backend via Spring Security et la librairie du ministère des armées. Le navigateur renvoie ensuite ce cookie à chaque requête sans intervention du front, qui peut consommer les APIs sécurisées comme des endpoints HTTP classiques.
+
+Par ailleurs, bien que ces trois classes soient générées automatiquement lors de la création du projet, elles sont toutefois présentées au niveau de ce chapitre car elles sont spécifiques à l'utilisation de la librairie SSO interne. Ces classes permettent d'introduire un comportement applicatif spécifique lors de l'authentification de l'utilisateur. Elles offrent au développeur un point d'extension pour implémenter les différentes règles métier et les traitements fonctionnels nécessaires à la validation de l'accès à l'application. 
+
+Ces classes sont au niveau du projet "***[Nom de l'application]-server***". Comme toujours il est possible de rajouter l'ensemble du code nécessaire à l'intérieur des zones délimitées par les balises de type "*user code*" : 
+
+- "***[package racine].app/[Nom de l'application]KeycloackHandler***" : Manipule l'interface "***[Nom de l'application]SsoUserService*** afin de récupérer l'ensemble des informations de l'utilisateur connecté. Si un squelette est proposé par défaut, c'est au dévelopeur d'ajouter le code nécessaire pour appliquer l'ensemble de ses propres règles applicatives.
+
+  ```java
+  @Configuration
+  class DemoAppKeycloackHandler {
+      @Bean
+      @Qualifier("mycoLoginSuccessHandlerExtra")
+      AuthenticationSuccessHandler loginSuccessHandler(DemoAppSsoUserService userService) {
+          return (req, res, auth) -> {
+              var current = userService.getCurrentUser();
+              
+              // Start of user code 031e0a965ce78208b44b47340jkhp854lm
+              // End of user code
+          };
+      } 
+  }
+  ```
+
+- "***[package racine].infra/[Nom de l'application]SsoUserService***" : interface générique pour l'obtention d'un utilisateur.
+
+  ```java
+  public interface DemoAppSsoUserService {
+      Object getCurrentUser(); 
+  }
+  ```
+
+- "***[package racine].infra/[Nom de l'application]SsoUserServiceImpl***" : implémentation du service pour l'obtention de l'interface utilisateur, c'est ici que le développeur peut ajouter l'ensemble des informations nécessaire pour la gestion d'un utilisateur authentifié.
+
+  ```java
+  @Service
+  public class DemoAppSsoUserServiceImpl implements DemoAppSsoUserService {
+      @Override
+      public Object getCurrentUser() {
+          // Start of user code 031e0a965ce78208b44b47340128ed45
+          return null;
+          // End of user code
+        
+          // Start of user code 16c013eeefb39788076fc17cb6d909e0
+          // End of user code
+      }
+  }
+```
+
 #### Tests
 
 Il est alors possible d'effectuer de nouveaux test (avec Swagger UI par example) afin de vérifier que l'appel est désormait sécurisé et que toute tentative d'accès non authorisé se soldera par un code de type 401 ou 403.
 
-❗ Dans le cas de l'utilisation de l'interface Swagger UI, et d'une sécurité de type Oauth2, il est important de comprendre que les points de terminaison doivent être valides, ce qui signifie que le serveur d'authentification doit exister et être en état de fonctionnement. dans le cas contraire, le service ne sera pas considéré comme sécurisé et l'icône avec le cadena ne sera pas affichée.
+❗ Dans le cas de l'utilisation de l'interface Swagger UI, et d'une sécurité de type Oauth2, il est important de comprendre que **tous** les points de terminaison doivent être valides, ce qui signifie que **le serveur d'authentification doit exister et être en état de fonctionnement**. dans le cas contraire, le service ne sera pas considéré comme sécurisé et l'icône avec le cadena ne sera pas affichée.
+
+Dans le cas de l'utilisation de la librairie d'authentification du ministère, il est aussi possible d'utiliser un navigateur (le plus simple) et de saisir l'URL suivante : 
+
+```shell
+http://localhost:8081/oauth2/authorization/keycloak
+```
+
+- Ici, "*localhost:8081*" est bien évidemment un exemple à modidier selon le nommage du serveur avec le port associé. 
+
+- Pour rappel et comme vu plus haut, en Spring Security, on peux donner n'importe quel nom à "*registrationId*" dans l'URL : "*http://localhost:8081/oauth2/authorization/\{**registrationId**\}*". Ce nom sert uniquement à identifier la configuration côté Spring. Par convention, on met généralement le même nom que Keycloak (si on utilise un serveur Keycloack). A modifier éventuellement selon le besoin.
+
+Il est aussi possible de saisir l'URL d'un service sécurisé quelconque, par exemple : 
+
+```shell
+http://localhost:8081/v1/api/monService
+```
+
+On doit alors arriver sur la mire de connexion pour le serveur SSO, il suffit de rentrer le login et le mot de passe pour l'utilisateur (l'utilisateur enregistré au niveau du serveur SSO) : 
+
+<div align="center">
+  <img src="images/pcm-minarm-sso-keycloack.png" alt="Serveur Keycloack">
+</div>
+
+Une fois la mire d'authentification passée, l'utilisateur doit alors être automatiquement routé vers la page initialement demandée. Pour rappel (si le développeur est juste en phase de développement du backend et que le frontend est encore inexistant), il faut alors modifier le fichier de configuration "*application.properties*" afin de renseigner l'URL sur laquelle le serveur doit retourner une fois l'authentification réussie : 
+
+```properties
+project.frontend.uri=[URL complète du service backend]
+```
 
 ### 🧩 Génération des relations
 
-Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple, bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l’outil, tant du point de vue des scripts SQL que de la configuration JPA. 
+Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple, bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. 
 
-L’objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. 
+L'objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. 
 
 Ici deux entités seront modélisées, avec toujours pour noms respectifs, simplement A et B.
 
@@ -2490,9 +2815,9 @@ create table B
   constraint B_PK1_1 primary key (B_ID)
 );
 ```
-Au niveau des classes Java, on retrouve une relation de type ***@ManyToOne*** au niveau de l'entité A (**Pacman** n'utilise pas les relations ***@OneToOne***). Même si cela n’est pas exclusif dans le sens de la base de données et que cela n'est pas intuitif, du point de vue métier, la cardinalité (0,1) peut cependant, être exprimée avec *@ManyToOne*, c'est le choix qui a été effectué pour le générateur **Pacman**.
+Au niveau des classes Java, on retrouve une relation de type ***@ManyToOne*** au niveau de l'entité A (**Pacman** n'utilise pas les relations ***@OneToOne***). Même si cela n'est pas exclusif dans le sens de la base de données et que cela n'est pas intuitif, du point de vue métier, la cardinalité (0,1) peut cependant, être exprimée avec *@ManyToOne*, c'est le choix qui a été effectué pour le générateur **Pacman**.
 
-En effet, *@ManyToOne* est plus courant et mieux optimisé dans les moteurs JPA/Hibernate. Il est chargé plus efficacement, et les jointures SQL sont plus simples. Si à terme la relation devait évoluer vers (0,\*), *@ManyToOne* s’adapte sans pour autant casser le schéma. Par ailleurs, *@OneToOne* impose généralement une contrainte UNIQUE sur la colonne de jointure, ce qui peut poser des problèmes de performances si mal indexé, surtout sur de grandes tables.
+En effet, *@ManyToOne* est plus courant et mieux optimisé dans les moteurs JPA/Hibernate. Il est chargé plus efficacement, et les jointures SQL sont plus simples. Si à terme la relation devait évoluer vers (0,\*), *@ManyToOne* s'adapte sans pour autant casser le schéma. Par ailleurs, *@OneToOne* impose généralement une contrainte UNIQUE sur la colonne de jointure, ce qui peut poser des problèmes de performances si mal indexé, surtout sur de grandes tables.
 
 Entité A : 
 
@@ -2506,7 +2831,7 @@ private BEntityImpl b;
 
 <img src="images/pcm-model-relation-2.png" alt="Relations">
 
-Ici, avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A. La relations se traduit par un ***@OneToMany*** au niveau de l'entité A et un ***@ManyToOne*** au niveau de l'entité B. Par défaut, *@OneToMany* sans *mappedBy* crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d’utiliser *mappedBy* dans A, et un *@ManyToOne* dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).
+Ici, avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A. La relations se traduit par un ***@OneToMany*** au niveau de l'entité A et un ***@ManyToOne*** au niveau de l'entité B. Par défaut, *@OneToMany* sans *mappedBy* crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d'utiliser *mappedBy* dans A, et un *@ManyToOne* dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).
 
 ```sql
 create table A
@@ -2617,21 +2942,21 @@ Entité A :
 @JoinTable(name = "A_RELATIONB", joinColumns = @JoinColumn(name = "A_ID"), inverseJoinColumns = @JoinColumn(name = "B_ID"))
 private Set<BEntityImpl> relationB;
 ```
-❗ On peut aussi noter que dans le cadre des relations bidirectionnelles *@ManyToMany*, **Pacman** utilise des *Set* et non des *List* pour le stockage des collections. Cela est préconisé avec JPA car un *Set* garantit l’unicité des éléments, ce qui est cohérent avec le modèle relationnel sous-jacent (en base de données, une table de jointure pour une relation *@ManyToMany* n’a pas de doublons.). En outre, JPA (notamment avec Hibernate) traite les *Set* de manière plus simple et plus performante. Enfin le *Set* n’a pas d’ordre, il correspond naturellement à ce que fait la base de données (pas d’ordre garanti dans une table de jointure).
+❗ On peut aussi noter que dans le cadre des relations bidirectionnelles *@ManyToMany*, **Pacman** utilise des *Set* et non des *List* pour le stockage des collections. Cela est préconisé avec JPA car un *Set* garantit l'unicité des éléments, ce qui est cohérent avec le modèle relationnel sous-jacent (en base de données, une table de jointure pour une relation *@ManyToMany* n'a pas de doublons.). En outre, JPA (notamment avec Hibernate) traite les *Set* de manière plus simple et plus performante. Enfin le *Set* n'a pas d'ordre, il correspond naturellement à ce que fait la base de données (pas d'ordre garanti dans une table de jointure).
 
 #### Relation (0,\*)/(1,\*) et objets métier 
 
-Dans un modèle de persistance tel qu’Hibernate/JPA, il est naturel de représenter les relations entre entités sous forme d’objets imbriqués : un objet A contient une liste de B, et chaque B contient une référence vers A. Ces relations bidirectionnelles sont utiles pour la navigation interne, la gestion de la cohérence, le cache et les fonctionnalités ORM. 
+Dans un modèle de persistance tel qu'Hibernate/JPA, il est naturel de représenter les relations entre entités sous forme d'objets imbriqués : un objet A contient une liste de B, et chaque B contient une référence vers A. Ces relations bidirectionnelles sont utiles pour la navigation interne, la gestion de la cohérence, le cache et les fonctionnalités ORM. 
 
-Mais ce modèle n’est absolument pas adapté à être exposé tel quel dans les DTO/XTO utilisés par les API et  la couche de service. La raison principale est qu’un graphe bidirectionnel crée des cycles  que l’on peut supporter côté JPA, mais qui deviennent ingérables dès que l’on quitte le monde ORM.
+Mais ce modèle n'est absolument pas adapté à être exposé tel quel dans les DTO/XTO utilisés par les API et  la couche de service. La raison principale est qu'un graphe bidirectionnel crée des cycles  que l'on peut supporter côté JPA, mais qui deviennent ingérables dès que l'on quitte le monde ORM.
 
-En effet, lorsque l’on construit des DTO, le rôle n’est plus de représenter des entités persistantes, mais de produire une structure de données stable, simple, prévisible et sérialisable. Les DTO doivent être "plats", orientés transport, sans comportement implicite ni navigation cyclique. 
+En effet, lorsque l'on construit des DTO, le rôle n'est plus de représenter des entités persistantes, mais de produire une structure de données stable, simple, prévisible et sérialisable. Les DTO doivent être "plats", orientés transport, sans comportement implicite ni navigation cyclique. 
 
-Si un DTO B contient un DTO A, qui lui-même contient une liste de DTO B, on produit alors immédiatement une boucle infinie : la sérialisation JSON part en récursion infinie, les mappers se ré-appellent indéfiniment et finissent en StackOverflowError, et les outils de documentation (OpenAPI, Swagger) refusent le modèle car il n’est pas acyclique.
+Si un DTO B contient un DTO A, qui lui-même contient une liste de DTO B, on produit alors immédiatement une boucle infinie : la sérialisation JSON part en récursion infinie, les mappers se ré-appellent indéfiniment et finissent en StackOverflowError, et les outils de documentation (OpenAPI, Swagger) refusent le modèle car il n'est pas acyclique.
 
-Les générateurs **Pacman** vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d’API plus explicite.   
+Les générateurs **Pacman** vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d'API plus explicite.   
 
-Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l’API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l’architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non récursive et optimisée pour l’échange de données.
+Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l'API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l'architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non récursive et optimisée pour l'échange de données.
 
 <img src="images/pcm-model-relation-2.png" alt="Relations">
 
@@ -2706,8 +3031,8 @@ Par exemple :
  * telles que le titre, la version, la description, les informations de contact,
  * les termes de licence et d'utilisation.
  *
- * Aucun code métier ou logique n’est présent ici, uniquement des déclarations
- * d’annotations à but documentaire.
+ * Aucun code métier ou logique n'est présent ici, uniquement des déclarations
+ * d'annotations à but documentaire.
  *
  * @see io.swagger.v3.oas.annotations.OpenAPIDefinition
  * @see io.swagger.v3.oas.annotations.info.Info
@@ -2762,9 +3087,9 @@ private String nom;
 
 Il est ainsi possible (après lancement de l'application), d'utiliser l'outil open source Swagger UI qui permet d'afficher et de tester visuellement une API décrite avec Swagger/OpenAPI, ceci, directement dans un navigateur web. Swagger UI va lire le fichier de spécification et le transformer en une interface web qui permet :
 
-- De naviguer dans les endpoints de l’API (groupés par ressource).
+- De naviguer dans les endpoints de l'API (groupés par ressource).
 - De voir les paramètres, le corps des requêtes ainsi que les réponses attendues.
-- D’exécuter des requêtes HTTP directement via les formulaires interactifs.
+- D'exécuter des requêtes HTTP directement via les formulaires interactifs.
 
 <div align="center">
   <img src="images/pcm-swagger-soa-2.png" alt="Open Api">
@@ -2979,11 +3304,11 @@ public PersonneDtoImpl sauvegarde(final PersonneDtoImpl personne, etc...) {
 
 ❗ La modélisation de l'héritage est encore en version Alpha, elle sera pleinement supportée très prochainement.
 
-Avec **Pacman** l'héritage entre entités est supporté afin de favoriser la réutilisation et la structuration du modèle métier. Cependant, de manière générale, il est conseillé de ne pas en abuser car il ne faut pas oublier que l’implémentation de l’héritage en JPA peut introduire une complexité technique non négligeable et avoir un impact négatif sur les performances.
+Avec **Pacman** l'héritage entre entités est supporté afin de favoriser la réutilisation et la structuration du modèle métier. Cependant, de manière générale, il est conseillé de ne pas en abuser car il ne faut pas oublier que l'implémentation de l'héritage en JPA peut introduire une complexité technique non négligeable et avoir un impact négatif sur les performances.
 
-En effet, si JPA propose par défaut plusieurs stratégies de mapping pour l’héritage, aucune des stratégies disponibles (SINGLE\_TABLE, JOINED, TABLE\_PER\_CLASS) n’est pleinement satisfaisante. Chacune présente des compromis importants en termes de performances, de lisibilité des données ou de complexité des requêtes SQL générées. Par exemple, la stratégie SINGLE\_TABLE centralise toutes les entités dans une seule table avec des colonnes parfois inutilisées, ce qui peut alourdir la structure et la maintenance. La stratégie JOINED, plus propre sur le plan du modèle relationnel, implique de multiples jointures coûteuses à l'exécution. Quant à TABLE\_PER\_CLASS, elle rend les requêtes globales complexes voire inefficaces. 
+En effet, si JPA propose par défaut plusieurs stratégies de mapping pour l'héritage, aucune des stratégies disponibles (SINGLE\_TABLE, JOINED, TABLE\_PER\_CLASS) n'est pleinement satisfaisante. Chacune présente des compromis importants en termes de performances, de lisibilité des données ou de complexité des requêtes SQL générées. Par exemple, la stratégie SINGLE\_TABLE centralise toutes les entités dans une seule table avec des colonnes parfois inutilisées, ce qui peut alourdir la structure et la maintenance. La stratégie JOINED, plus propre sur le plan du modèle relationnel, implique de multiples jointures coûteuses à l'exécution. Quant à TABLE\_PER\_CLASS, elle rend les requêtes globales complexes voire inefficaces. 
 
-Ces limitations font que l’héritage JPA doit être abordé avec prudence. Il est donc recommandé de l'utiliser avec parcimonie et uniquement lorsqu’il apporte une réelle valeur métier, afin de garantir un code généré plus simple, plus lisible et plus efficace à l'exécution.
+Ces limitations font que l'héritage JPA doit être abordé avec prudence. Il est donc recommandé de l'utiliser avec parcimonie et uniquement lorsqu'il apporte une réelle valeur métier, afin de garantir un code généré plus simple, plus lisible et plus efficace à l'exécution.
 
 Cela dit,  **Pacman** permet de pallier pour majeure partie à ces limitations car il génère sa propre implémentation de l'héritage.  
 
@@ -3449,7 +3774,7 @@ Les solutions les plus simples consistent :
 
 - A utiliser le lazy loading sur le chargement des références afin de renvoyer seulement une partie de la grappe d'objet. Cette solution est viable, mais son seul inconvénient est que cela n'évite pas l'affichage d'objets nulls au niveau de l'objet sérialisé (XTO). Le client est ainsi averti que  potentiellement, cette information est disponible, ce que ne désire pas forçément les développeurs. Par ailleur si la donnée que l'on ne souhaite pas renvoyer ne se situe pas au niveau d'une relation mais directement au niveau de l'entité, cette solution ne permet pas de résoudre la problématique.
 
-👍 Le plus simple et le plus efficace consiste à utiliser l'annotation "***@JsonView***" en collaboration avec la définition de "vues" qui sont essentiellement des groupes de propriétés que l'on souhaite sérialiser pour des cas d’utilisation spécifiques. 
+👍 Le plus simple et le plus efficace consiste à utiliser l'annotation "***@JsonView***" en collaboration avec la définition de "vues" qui sont essentiellement des groupes de propriétés que l'on souhaite sérialiser pour des cas d'utilisation spécifiques. 
 
 Ici, la modélisation n'apporte aucune valeur ajoutée et c'est au développeur d'écrire le code nécessaire pour la définition et la prise en compte de ses vues. Les différentes étapes sont les suivantes : 
 
@@ -3587,13 +3912,13 @@ public List<PersonneDtoImpl> retourneTous(final Integer page, final Integer size
 
 Un "circuit-breaker" est un mécanisme qui empêche un système de continuer à appeler un service en échec, afin de limiter la propagation des erreurs et de laisser le service défaillant se rétablir.
 
-Dans le contexte des services REST il s'agit d'un mécanisme de protection qui interrompt temporairement les appels vers un service distant lorsqu’un certain seuil d’échecs est atteint, afin d’éviter de surcharger un service instable, de préserver les ressources du client, et améliorer la résilience globale de l’architecture. 
+Dans le contexte des services REST il s'agit d'un mécanisme de protection qui interrompt temporairement les appels vers un service distant lorsqu'un certain seuil d'échecs est atteint, afin d'éviter de surcharger un service instable, de préserver les ressources du client, et améliorer la résilience globale de l'architecture. 
 
 Les objectifs sont donc de : 
 
-- Limiter l’impact des pannes de services tiers ou en cascade.
-- Réduire les temps de réponse côté client en évitant des appels voués à l’échec.
-- Permettre la reprise progressive d’un service REST une fois rétabli.
+- Limiter l'impact des pannes de services tiers ou en cascade.
+- Réduire les temps de réponse côté client en évitant des appels voués à l'échec.
+- Permettre la reprise progressive d'un service REST une fois rétabli.
 
 Avec **Pacman** la modélisation d'un tel service s'effectue par l'ajout de services de type "***Required***", à la différence des services de type "***Provided***" utilisés jusqu'à maintenant. La modélisation n'impacte ni la couche domaine, ni la couche application au niveau de l'infrastructure, seul un "*adapter*" est ajouté avec pour nom ***[nom du service]ExternalProvider*** (au lieu de ***[nom du service]JpaProvider***)
 
@@ -3963,6 +4288,7 @@ public boolean equals(Object obj) {
 		&& Objects.equals(this.xuuid, personneDetail.xuuid);
 }
 ```
+
 ### ✔️ Validation de la modélisation
 ---
 Bien que vu précédemment, un chapitre est toutefois consacré exclusivement à ce "générateur". Comme précité, la validation de la modélisation est automatiquement lancée avant chaque demande de génération pour la couche de persistance, la couche de service ou encore la création des scripts SQL.
@@ -4090,11 +4416,11 @@ Deux possibilités de création de client sont offertes par **Pacman**. La créa
 
 ### WebClient
 
-Pendant longtemps, le client HTTP de référence dans l’écosystème Spring a été RestTemplate, introduit pour simplifier les appels REST depuis une application Spring Boot. Il a été largement utilisé car il proposait une API simple, bloquante et proche des modèles de programmation classiques. 
+Pendant longtemps, le client HTTP de référence dans l'écosystème Spring a été RestTemplate, introduit pour simplifier les appels REST depuis une application Spring Boot. Il a été largement utilisé car il proposait une API simple, bloquante et proche des modèles de programmation classiques. 
 
-Cependant, avec l’arrivée de Spring 5 et du paradigme réactif, RestTemplate a été marqué comme obsolète et ne bénéficie plus d’évolutions. Son fonctionnement bloquant le rend peu adapté aux architectures modernes, souvent distribuées et fortement concurrentes. Pour répondre à ces besoins, Spring a introduit WebClient, un client HTTP non bloquant, réactif et beaucoup plus flexible : il permet de gérer aussi bien des appels simples que des flux de données continus, tout en offrant un support natif pour l’asynchrone et une meilleure intégration avec Spring WebFlux. 
+Cependant, avec l'arrivée de Spring 5 et du paradigme réactif, RestTemplate a été marqué comme obsolète et ne bénéficie plus d'évolutions. Son fonctionnement bloquant le rend peu adapté aux architectures modernes, souvent distribuées et fortement concurrentes. Pour répondre à ces besoins, Spring a introduit WebClient, un client HTTP non bloquant, réactif et beaucoup plus flexible : il permet de gérer aussi bien des appels simples que des flux de données continus, tout en offrant un support natif pour l'asynchrone et une meilleure intégration avec Spring WebFlux. 
 
-WebClient est aujourd’hui l’outil recommandé pour les appels REST dans Spring Boot, car il prépare les applications à la scalabilité et aux contraintes de performance actuelles.
+WebClient est aujourd'hui l'outil recommandé pour les appels REST dans Spring Boot, car il prépare les applications à la scalabilité et aux contraintes de performance actuelles.
 
 ### Récupération du fichier Swagger
 
@@ -4430,11 +4756,11 @@ Body (JSON sous forme de table):
 
 ### Axios
 
-Axios est une bibliothèque JavaScript et TypeScript qui permet de réaliser facilement des requêtes HTTP depuis le navigateur ou Node.js. Elle simplifie l’envoi et la réception de données, notamment au format JSON, et offre des fonctionnalités avancées comme la gestion des en-têtes, des paramètres de requête, des délais d’attente, et l’annulation de requêtes. 
+Axios est une bibliothèque JavaScript et TypeScript qui permet de réaliser facilement des requêtes HTTP depuis le navigateur ou Node.js. Elle simplifie l'envoi et la réception de données, notamment au format JSON, et offre des fonctionnalités avancées comme la gestion des en-têtes, des paramètres de requête, des délais d'attente, et l'annulation de requêtes. 
 
-Axios supporte les promesses, ce qui permet d’écrire un code asynchrone clair et lisible, et propose des intercepteurs pour transformer ou traiter les requêtes et réponses avant leur utilisation. Elle est particulièrement appréciée dans les projets TypeScript pour sa simplicité d’usage et sa compatibilité à la fois côté client et côté serveur (si full React).
+Axios supporte les promesses, ce qui permet d'écrire un code asynchrone clair et lisible, et propose des intercepteurs pour transformer ou traiter les requêtes et réponses avant leur utilisation. Elle est particulièrement appréciée dans les projets TypeScript pour sa simplicité d'usage et sa compatibilité à la fois côté client et côté serveur (si full React).
 
-Dans le cadre des générateurs **Pacman**, Axios est incluse comme bibliothèque de base, ce qui permet aux projets générés de l’utiliser directement pour la communication avec des services REST sans configuration supplémentaire.
+Dans le cadre des générateurs **Pacman**, Axios est incluse comme bibliothèque de base, ce qui permet aux projets générés de l'utiliser directement pour la communication avec des services REST sans configuration supplémentaire.
 
 ### Modélisation
 
@@ -4466,9 +4792,9 @@ Se positionner au niveau du projet de modélisation ***[Nom de l'application]-mo
 
 Enfin toujours par click droit, lancer la génération du client à l'aide du menu vu précédemment (comme pour la création d'un client SpringBoot) : "*Générateur Cali / Génération du client pour les services*".
 
-• ***[Nom de l'application]/src/api*** : Ce répertoire contient le fichier *apiClient.ts* qui sert de point central pour gérer toutes les communications HTTP entre l’application et les services REST. Il encapsule l’utilisation d’axios, en configurant l’URL de base, les en-têtes communs (comme l’authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L’objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l’application n’ait pas à se soucier des détails d’implémentation d’axios. 
+• ***[Nom de l'application]/src/api*** : Ce répertoire contient le fichier *apiClient.ts* qui sert de point central pour gérer toutes les communications HTTP entre l'application et les services REST. Il encapsule l'utilisation d'axios, en configurant l'URL de base, les en-têtes communs (comme l'authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L'objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l'application n'ait pas à se soucier des détails d'implémentation d'axios. 
 
-Dans le cadre des générateurs Pacman, ce fichier est généré automatiquement pour chaque projet, prêt à l’emploi, garantissant une cohérence et une simplification du code métier.
+Dans le cadre des générateurs Pacman, ce fichier est généré automatiquement pour chaque projet, prêt à l'emploi, garantissant une cohérence et une simplification du code métier.
 
 Ce fichier contient par défaut le code suivant (exemple ici en fonction des paramètres modélisés): 
 ```typescript
@@ -4525,11 +4851,11 @@ export class Users {
   
 }
 
-// On exporte une instance pour simplifier l’usage.
+// On exporte une instance pour simplifier l'usage.
 export const users = new Users();
 ```
 
-• ***[Nom de l'application]/src*** : Contient le fichier *index.ts* qui permet l'exportation de l'ensemble des objets utilisés par la future librairies client. Ce fichier agit comme point d’entrée principal du module ou de la librairie. Dans le cadre d’un client Axios, il exporte généralement toutes les fonctionnalités publiques du client API, par exemple l’instance préconfigurée d’Axios, les services spécifiques (ex. UserService, ProductService), ou des types associés. 
+• ***[Nom de l'application]/src*** : Contient le fichier *index.ts* qui permet l'exportation de l'ensemble des objets utilisés par la future librairies client. Ce fichier agit comme point d'entrée principal du module ou de la librairie. Dans le cadre d'un client Axios, il exporte généralement toutes les fonctionnalités publiques du client API, par exemple l'instance préconfigurée d'Axios, les services spécifiques (ex. UserService, ProductService), ou des types associés. 
 
 L'objectif est de permettre aux autres parties de l'application d'importer simplement le client et ses services via une seule ligne, par exemple :
 
@@ -4554,7 +4880,7 @@ export * from "./api/apiClient";
 ```
 ### Déploiement
 
-Même dans le cadre d’un projet React, le processus de déploiement passe par Maven afin de conserver une cohérence avec l’ensemble des projets gérés par **Pacman**. La différence principale réside dans l’artifact produit : au lieu de générer un *.jar* comme pour un projet Java backend, Maven exécute les scripts Node/NPM définis dans le projet pour construire et empaqueter l’application front-end. Cela permet d’intégrer le workflow front-end dans le pipeline Maven existant, de gérer les dépendances et la configuration de manière centralisée, tout en produisant un package NPM prêt à être déployé ou distribué.
+Même dans le cadre d'un projet React, le processus de déploiement passe par Maven afin de conserver une cohérence avec l'ensemble des projets gérés par **Pacman**. La différence principale réside dans l'artifact produit : au lieu de générer un *.jar* comme pour un projet Java backend, Maven exécute les scripts Node/NPM définis dans le projet pour construire et empaqueter l'application front-end. Cela permet d'intégrer le workflow front-end dans le pipeline Maven existant, de gérer les dépendances et la configuration de manière centralisée, tout en produisant un package NPM prêt à être déployé ou distribué.
 
 Quelques explications complémentaires au niveau du fichier *pom.xml" pour la partie ***[Nom de l'application]-server***
 ```xml
@@ -4602,7 +4928,7 @@ Au niveau du répertoire "*/target*" pour le projet ***[Nom de l'application]-se
 
 Lorsque Pacman génère un package NPM sous forme de fichier ***[Nom de l'application]-[Version].tgz***, ce fichier peut être installé sans être publié sur le registry NPM. Cela permet de tester ou distribuer la librairie en local ou dans un environnement maîtrisé. 
 
-Il suffit de se positionner en ligne de commande à la racine du projet frontend (c’est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : 
+Il suffit de se positionner en ligne de commande à la racine du projet frontend (c'est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : 
 ```bash
 npm install [Chemin vers la librairie]/[Nom de l'application]-[Version].tgz
 ```
@@ -4642,6 +4968,9 @@ Il est maintenant possible d'importer les ressources (voir le fichier *index.ts*
 
 ## ❓ Problèmes Courants et Résolution
 ---
+
+• **La création ou la construction de mon projet Maven échoue avec des erreurs de téléchargement de dépendances ou de lecture de POM** : Avant toute création de projet, vérifier qu'aucun antivirus, pare-feu ou logiciel de sécurité (notamment ceux effectuant une inspection SSL/HTTPS) ne bloque l'accès aux dépôts Maven, aux certificats ou aux connexions réseau nécessaires au téléchargement des dépendances. Ces outils peuvent intercepter les communications HTTPS et provoquer des erreurs de résolution de dépendances ou de certificats. Le cas échéant, désactiver temporairement ces protections ou configurez-les correctement (ajout des certificats requis, exclusions réseau) avant de relancer la création ou la construction du projet.
+
 • **Quand je relance une génération j'ai des erreurs au niveau de mes classes à cause de données manquantes dans les imports** : ceci est une problématique liée plus précisément à des modifications de modélisation suite à générations antérieures. 
     
 **Pacman**, afin de conserver les imports non générés (ceux spécifiquement (et éventuellement) rajoutés par les développeurs) est obligé de générer les imports entre balise de type "*user code*". Ainsi, lors des futures demandes de génération, les imports utilisateurs ne sont pas écrasés. 
@@ -4656,13 +4985,15 @@ L'unique solution pour l'instant consiste donc à lancer une organisation automa
   
 Il peut arriver que, suite à une demande de génération (pour une raison encore non expliquée), les tâches de fin de traitement ne soient pas lancées. L'organisation automatique des imports n'est alors pas activée et comme **Pacman** dans sa politique de gestion des imports génère plus d'imports que nécessaires, ceux-ci ne sont alors pas supprimés. Il suffit simplement de relancer une génération pour résoudre le problème.
 
+• **Suite à l'utilisation de la librairie SSO j'ai un : ERR_TO_MANY_REDIRECT** : Cette erreur avec le serveur d'authentification Keycloack peut avoir de nombreuses cause. Hormis le fait de vérifier dans le fichier "*application.properties*" que les URLs soient les bonnes, bien vérifier l'ensemble des paramètres qui sont par défaut à remplir par le développeur "*[...]*". Cette erreur peut par exemple provenir d'un oubli de suppression des crochets sur la propriété :  "*spring.security.oauth2.client.registration.keycloak.scope=[openid,profile,email]*". Ne pas oublier de supprimer ledits crochets : "***spring.security.oauth2.client.registration.keycloak.scope=openid,profile,email***"
+
 • **Pour une génération client, il me manque la classe de gestion du jeton** : La demande de génération de la classe utilitaire pour la récupération du jeton d'authentification n'est pas basée uniquement sur le fait que l'api soit sécurisée, mais aussi sur la présence de l'annotation ***@AUTH_TOKEN*** au niveau de l'opération de gestion de jeton. Bien vérifier le positionnement de cette annotation au niveau de la modélisation des services.
 
 • **Pour un déploiement du client react, le processus se bloque et ne rend pas la main** : Ce comportement  est typique des problèmes réseau Windows + antivirus / proxy / SSL / npm. 
 
 Voici la liste des causes possibles et comment les éliminer une par une.
 
-- Même si *strict-ssl=false* est dans le fichier *.npmrc*, npm peut continuer à essayer SSL si un autre *.npmrc* dans la hiérarchie l’écrase.
+- Même si *strict-ssl=false* est dans le fichier *.npmrc*, npm peut continuer à essayer SSL si un autre *.npmrc* dans la hiérarchie l'écrase.
 
 - *npm install* se fige très souvent si l'antivirus inspecte les flux https. Désactiver temporairement la protection web (pas l'antivirus entier, juste le module web/détection https). 
 
@@ -4687,7 +5018,10 @@ Voici la liste des causes possibles et comment les éliminer une par une.
 - Problème avec IPv6 : Désactiver IPv6 dans Windows.
 ## 📎 Annexes
 ---
-• Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que **Pacman** est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclu).
+
+###  Métadonnées disponibles
+
+Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que **Pacman** est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclu).
 
   Ces métadonnées sont pour l'instant toujours listées mais avec une icône 🚫. 
 
@@ -4698,7 +5032,7 @@ Voici la liste des causes possibles et comment les éliminer une par une.
 | PHYSICAL_SHORT_NAME | OUI | Nom (longues tables) | ENTITY, REFERENCE |
 | PHYSICAL_DEFAULT | OUI | Valeur par défaut | ENTITY |
 | PHYSICAL_CHECK | OUI | Contrainte de vérification pour insertion ou modification | ENTITY |
-| PHYSICAL_UNIQUE | OUI | Contrainte d'unicité pour la colonne | ATTRIBUTE |
+| PHYSICAL_UNIQUE | OUI | Contrainte d'unicité pour la colonne | ATTRIBUTE, ENTITY |
 | PHYSICAL_SIZE | OUI | Taille de l'attribut | ATTRIBUTE |
 | VERSION | OUI | Version de l'entité (gestion automatique du Lock Optimiste) | SYSTEM, CATEGORY, DTO |
 | REFERENTIAL🚫 |     |   |          |
@@ -4723,8 +5057,9 @@ Voici la liste des causes possibles et comment les éliminer une par une.
 | FETCH_LAZY | NON | Demande de chargement paresseux | REFERENCE |
 | ENTITY_MANAGER | NON | Demande d'utilisation de l'entity manager | ENTITY |
 
+### Règles de validation
 
- • Liste des règles de validation dans les différents diagrammes.
+Liste des règles de validation dans les différents diagrammes.
 
 | Règle| S'applique sur |
 |------|----------------|
@@ -4756,4 +5091,200 @@ Voici la liste des causes possibles et comment les éliminer une par une.
 |Pas de service HEAD avec un paramètre en sortie.|SOA|
 |Pas de multiples 'components' comme conteneur de services|SOA|
 |Pas de multiples sécurités définies au niveau du 'component'|SOA|
+|Pas de sécurité Oauth2/OIDC sans URL(s) définie(s)|SOA|
+|Pas d'annotation sans corps (si besoin de corps)|ENTITY/SOA|
 
+### Métadonnées SSO 
+
+Liste (non exhaustive) des propriétés si utilisation librairie SSO ministère 
+(issue de la documentation orignelle)
+ 
+| Propriété| Description|
+|------|----------------|
+|myco.sso.registration-id|ID d'inscription OAuth2 (ex. keycloak)|
+|myco.sso.issuer-uri|Issuer du realm (ou jwk-set-uri)|
+|myco.sso.front-redirect-uri|URL de redirection front après succès login|
+|myco.sso.allowed-origins|Origines CORS autorisées (schéma + host + port)|
+|myco.sso.allowed-methods/headers/exposed-headers|Paramétrage CORS fin (si exposé dans vos props)|
+|myco.sso.max-age-seconds|Durée de cache des préflights CORS|
+|myco.sso.permit-all|Patterns d'URL publics|
+|myco.sso.endpoints.enabled	|Expose /is-authenticated, /profile, /logout|
+|myco.sso.endpoints.base-path|Préfixe des endpoints utilitaires (défaut /api)|
+|myco.sso.session-cookie.*|Cookie additionnel (legacy) : name, http-only, secure, path, max-age-seconds|
+|myco.sso.auth-cookie.*|Deuxième cookie additionnel (legacy)|
+|myco.sso.keycloak-logout-uri|URL de back channel logout Keycloak|
+|myco.sso.client-id / client-secret|Identifiants client pour la révocation logout|
+|myco.sso.cors.global-filter|Active le filtre CORS global (par défaut true)|
+
+### Exemple configuration SSO
+
+Exemple de fichier de configuration SSO pour tester une URL sécurisée "*/v1/api/secured*" avec l'ensemble des serveurs sur la machine de développement, uniquement un backend à tester et un client défini à "*testSSO*" au niveau du serveur Keycloack :
+
+1) L'utilisateur rentre l'URL dans le navigateur "*http://localhost:8081/v1/api/secured*",
+2) Il est routé automatiquement sur la mire de connexion de Keycloak,
+3) Une fois authentifié, il peut consulter le résultat de sa demande initiale.
+
+Le fichier "*application.properties*" :
+
+```properties
+management.server.port=8082
+...
+# -------------------------------------------
+# HTTP SERVER
+# -------------------------------------------
+# Le port par defaut.
+server.port=8081
+# Chemin du contexte (Toujours "/" au minimum).
+server.servlet.context-path=/
+...
+```
+
+```properties
+# --------------------------------------------
+# SSO - SERVEURS - URLS (Toujours sans "/" à la fin).
+# --------------------------------------------
+server.auth.url.sso=http://localhost:8080
+server.auth.url.front=http://localhost:8081
+server.auth.url.back=http://localhost:8081
+
+# ---------------------------------------------
+# SSO - DOMAINE D'AUTHENTIFICATION (REALM)
+# ---------------------------------------------
+server.auth.sso.realm=test
+
+# ---------------------------------------------
+# SSO - PROJET
+# Facilite la réutilisation des URLs et contextes 
+# dans d'autres propriétés.
+# ---------------------------------------------
+# Aussi utilisé par myco.sso.front-redirect-uri
+project.frontend.uri=http://localhost:8081/v1/api/secured
+# Contexte du backend
+project.context=${server.servlet.context-path}
+
+# ----------------------------------------------
+# SSO - SECURITE SPRING - OAUTH2 CLIENT
+# Configure Spring pour se connecter à Keycloak et 
+# gérer les connexions utilisateurs.
+# L'identifiant du client doit matcher {registrationId}.
+# -----------------------------------------------
+spring.security.oauth2.client.registration.keycloak.client-id=${myco.sso.client-id}
+spring.security.oauth2.client.registration.keycloak.client-secret=${myco.sso.client-secret}
+spring.security.oauth2.client.registration.keycloak.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.keycloak.scope=openid,profile,email
+spring.security.oauth2.client.registration.keycloak.provider=keycloak
+spring.security.oauth2.client.provider.keycloak.issuer-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}
+
+# URL de callback pour le backend de l'application (registrationId = myco.sso.registration-id).
+# Spring Security intercepte automatiquement cette URL et échange le code contre un access_token.
+spring.security.oauth2.client.registration.keycloak.redirect-uri=${server.auth.url.back}${server.servlet.context-path}/login/oauth2/code/{registrationId}
+
+# --------------------------------------------------
+# SSO - SERVEUR / EN-TÊTES DE TRANSFERT / COMPRESSION
+# Configure le serveur Spring Boot et la gestion 
+# sécurisée des sessions.
+# --------------------------------------------------
+# Nécessaire si l'application est derrière un proxy / load balancer 
+#pour gérer correctement HTTPS et redirections.
+server.compression.mime-types=application/json,text/plain
+server.forward-headers-strategy=framework  
+server.compression.enabled=true
+
+# --------------------------------------------------
+# SSO - SERVEUR / SESSION
+# Configure le serveur Spring Boot et la gestion 
+# sécurisée des sessions.
+# --------------------------------------------------
+server.servlet.session.cookie.secure=false
+#En production, mettre true si SameSite=None
+server.servlet.session.cookie.http-only=true
+server.servlet.session.cookie.same-site=lax
+server.servlet.session.cookie.name=JSESSIONID
+server.servlet.session.timeout=30m
+
+# ---------------------------------------------------
+# SSO - CONFIGURATION DU MODULE STARTER
+# Configure tout le SSO / OAuth2 côté backend.
+# ---------------------------------------------------
+
+# --- OIDC / JWT ---
+# Sert uniquement à identifier la configuration côté Spring. 
+# Par convention, même nom que Keycloak, mais ça pourrait être autre chose.
+myco.sso.registration-id=keycloak
+myco.sso.issuer-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}
+myco.sso.jwk-set-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}/protocol/openid-connect/certs
+
+# --- REDIRECTION FRONT-END (Redirection front après login) --- 
+myco.sso.front-redirect-uri=${project.frontend.uri}
+
+# --- CORS / ORIGINES AUTORISÉES --- 
+myco.sso.allowed-origins[0]=${server.auth.url.front}
+myco.sso.allowed-origins[1]=${server.auth.url.sso}
+myco.sso.allowed-origins[2]=${server.auth.url.back}
+  
+# --- API EXTERNE (Cas d'une api externe protégée) --- 
+myco.sso.external-api-enabled=false
+myco.sso.external-api-patterns[0]=[URL externe]
+myco.sso.external-api-patterns[1]=[URL externe]
+myco.sso.external-jwt-secret=[Secret externe spécifique]
+  
+# --- COOKIE DE SESSION ---
+myco.sso.session-cookie.enabled=true
+myco.sso.session-cookie.name=SESSIONID
+myco.sso.session-cookie.max-age-seconds=1800
+myco.sso.session-cookie.http-only=true
+# En developpement HTTP, possible de mettre false
+myco.sso.session-cookie.secure=false
+myco.sso.session-cookie.path=/
+
+# --- COOKIE D'AUTHENTIFICATION ---
+myco.sso.auth-cookie.enabled=true
+myco.sso.auth-cookie.name=SESSION_AUTH
+myco.sso.auth-cookie.max-age-seconds=1800
+myco.sso.auth-cookie.http-only=true
+# En developpement HTTP, possible de mettre false
+myco.sso.auth-cookie.secure=true
+myco.sso.auth-cookie.path=/
+
+# --- ENDPOINTS INTEGRES (.../is-authenticated, .../profile, .../logout) ---
+myco.sso.endpoints.enabled=true
+
+# --- DECONNEXION BACK-CHANNEL DE KEYCLOAK (Révocation du refresh_token) ---
+myco.sso.keycloak-logout-uri=${server.auth.url.sso}/realms/${server.auth.sso.realm}/protocol/openid-connect/logout
+
+# --- IDENTIFIANTS CLIENT ---
+myco.sso.client-id=testSSO
+myco.sso.client-secret=xuMaqi14PHpGbiwHGIC45dRH9wVKX189
+
+# --- PROCESSUS (THREADS) - (virtual threads si JVM=21+, sinon threads classiques) ---
+myco.sso.threads-mode=auto
+```
+
+Et le fichier "*application-sso.properties*" : 
+
+```properties
+# ----------------------------------------------------
+# BASE POUR POINTS D'ACCES PUBLICS INTEGRES 
+# (.../is-authenticated, .../profile, .../logout) 
+# ----------------------------------------------------
+myco.sso.endpoints.base-path=/v1/api
+
+# ----------------------------------------------------
+# POINTS D'ACCES PUBLICS (Non soumis à l'authentification)
+# ----------------------------------------------------
+myco.sso.permit-all[0]=/v1/api/actuator/**
+myco.sso.permit-all[1]=/v1/api/api-docs/**
+myco.sso.permit-all[2]=/v1/api/swagger-ui/**
+myco.sso.permit-all[3]=/v1/api/login
+myco.sso.permit-all[4]=/v1/api/logout
+myco.sso.permit-all[5]=/v1/api/is-authenticated
+myco.sso.permit-all[6]=/v1/api/profile
+myco.sso.permit-all[7]=/v1/api/login/oauth2/code/*
+
+# Liste des URLs directement issues de la modélisation.
+myco.sso.permit-all[8]=/v1/api/notsecured
+
+# Placer ici des URLs non issues de la modélisation.
+// Start of user code c7647f28a1a1fc3dc99d5fd53e914e22
+// End of user code
+```
