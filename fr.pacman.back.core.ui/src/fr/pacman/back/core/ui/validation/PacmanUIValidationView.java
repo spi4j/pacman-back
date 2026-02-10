@@ -30,6 +30,7 @@ import org.eclipse.sirius.ui.business.api.dialect.DialectUIManager;
 import org.eclipse.sirius.viewpoint.DRepresentation;
 import org.eclipse.sirius.viewpoint.DRepresentationElement;
 import org.eclipse.sirius.viewpoint.DSemanticDecorator;
+import org.eclipse.sirius.viewpoint.description.RepresentationDescription;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -46,7 +47,9 @@ import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.part.ViewPart;
 import org.obeonetwork.dsl.environment.Reference;
 
+import fr.pacman.back.core.ui.generator.PacmanUIGenerator.SelectionType_Enum;
 import fr.pacman.back.core.ui.generator.PacmanUIGeneratorHelper;
+import fr.pacman.back.core.ui.util.RepresentationUtils;
 import fr.pacman.back.core.validation.PacmanValidationRow;
 
 /**
@@ -93,7 +96,7 @@ public class PacmanUIValidationView extends ViewPart {
 	/**
 	 * Identifiant de la vue pour le model explorer.
 	 */
-	private static final String c_view_explorer_id = "org.eclipse.sirius.ui.tools.views.model.explorer";
+	private final static String c_view_explorer_id = "org.eclipse.sirius.ui.tools.views.model.explorer";
 
 	/**
 	 * Pourcentage de largeur de chaque colonne par rapport à la largeur totale du
@@ -110,7 +113,7 @@ public class PacmanUIValidationView extends ViewPart {
 	/**
 	 * Titre de la vue affiché dans l'onglet Eclipse, avec le nombre de lignes.
 	 */
-	private static final String TITLE = "Rapport de validation";
+	private final static String TITLE = "Rapport de validation";
 
 	/**
 	 * Tableau des zones de texte utilisées pour filtrer dynamiquement le contenu de
@@ -119,10 +122,18 @@ public class PacmanUIValidationView extends ViewPart {
 	private Text[] _filterTexts = new Text[4];
 
 	/**
-	 * Lec chemin relatif utilisé pour créer le chemin de chargement du fichier
-	 * contenenant l'ensemble des représentations (représentations.aird).
+	 * Le chemin relatif utilisé pour créer le chemin de chargement du fichier
+	 * contenant l'ensemble des représentations (représentations.aird).
 	 */
 	private String _representations;
+
+	/**
+	 * Type de modèle actuellement sélectionné dans la vue.
+	 * 
+	 * Ce champ définit le contexte de sélection afin de garantir que la navigation
+	 * ou les traitements se font sur le bon type de modèle.
+	 */
+	private SelectionType_Enum _selection;
 
 	/**
 	 * Constructeur par défaut.
@@ -446,7 +457,28 @@ public class PacmanUIValidationView extends ViewPart {
 
 		Collection<DRepresentation> allRepresentations = getAllRepresentations(session);
 		DRepresentation containingRepresentation = null;
+
+		// Nom attendu de la représentation selon le type de sélection l'avantage est
+		// que cela fonctionne même si l'utilisateur change le nom de la représentation,
+		// il doit y avoir un alias avec le premier nom initialement utilisé pour la
+		// création du diagramme.
+		String expectedDiagramName = switch (_selection) {
+		case ENTITY -> RepresentationUtils.c_entityR;
+		case SOA -> RepresentationUtils.c_soaR;
+		case REQUIREMENT -> RepresentationUtils.c_requirementR;
+		default -> throw new IllegalArgumentException("Unexpected value: " + _selection);
+		};
+
 		for (DRepresentation rep : allRepresentations) {
+			RepresentationDescription desc = DialectManager.INSTANCE.getDescription(rep);
+
+			if (desc == null)
+				continue;
+
+			// Filtre par type de diagramme.
+			if (expectedDiagramName.indexOf(desc.getName()) == -1)
+				continue;
+
 			if (representationContainsTarget(rep, target)) {
 				containingRepresentation = rep;
 				break;
@@ -539,7 +571,7 @@ public class PacmanUIValidationView extends ViewPart {
 		}
 
 		// Accept if le nom contient "Diagram" (DSemanticDiagram, DDiagramImpl, ...)
-		if (simple.contains("Diagram")) {
+		if (low.contains("diagram")) {
 			return true;
 		}
 
@@ -733,7 +765,21 @@ public class PacmanUIValidationView extends ViewPart {
 	 * @param p_representations chemin relatif vers le fichier .aird
 	 */
 	public void setRepresentations(String p_representations) {
-		this._representations = p_representations;
+		_representations = p_representations;
+	}
+
+	/**
+	 * Définit le type de modèle actuellement sélectionné dans la vue.
+	 * 
+	 * Ce setter permet de préciser le contexte de sélection afin que la vue ou les
+	 * traitements associés utilisent le bon modèle
+	 * ({@link SelectionType_Enum#ENTITY}, {@link SelectionType_Enum#SOA} ou
+	 * {@link SelectionType_Enum#REQUIREMENT}).
+	 *
+	 * @param p_selection le type de modèle à sélectionner
+	 */
+	public void setSelection(SelectionType_Enum p_selection) {
+		_selection = p_selection;
 	}
 
 	/**

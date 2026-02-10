@@ -351,9 +351,7 @@ public abstract class PacmanGenerator {
 				Map<String, Object> variables = new LinkedHashMap<>();
 				for (EObject value : values) {
 					variables.put(parameterName, value);
-
 					System.out.println("Génération dans : " + targetURI.toString());
-
 					AcceleoUtil.generate(template, variables, evaluator, queryEnvironment, strategy, targetURI, logURI,
 							p_monitor);
 				}

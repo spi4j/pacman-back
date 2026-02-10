@@ -64,4 +64,9 @@ public class ConfigUIGenerators extends PacmanUIGenerator {
 	protected boolean hasView() {
 		return false;
 	}
+
+	@Override
+	protected SelectionType_Enum getSelectionType() {
+		return null;
+	}
 }

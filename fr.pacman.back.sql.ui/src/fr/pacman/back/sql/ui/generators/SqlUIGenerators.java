@@ -6,11 +6,11 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.emf.common.util.Logger;
 
+import fr.pacman.back.core.generator.PacmanGenerator;
+import fr.pacman.back.core.ui.generator.PacmanUIGenerator;
 import fr.pacman.back.sql.main.GenServer;
 import fr.pacman.back.sql.main.GenValidation;
 import fr.pacman.back.sql.ui.plugin.Activator;
-import fr.pacman.back.core.generator.PacmanGenerator;
-import fr.pacman.back.core.ui.generator.PacmanUIGenerator;
 
 /**
  * UI Generator for JDBC based on Entity model file. Il est à noter qu'il
@@ -64,5 +64,10 @@ public class SqlUIGenerators extends PacmanUIGenerator {
 	@Override
 	protected boolean hasView() {
 		return false;
+	}
+
+	@Override
+	protected SelectionType_Enum getSelectionType() {
+		return PacmanUIGenerator.SelectionType_Enum.ENTITY;
 	}
 }

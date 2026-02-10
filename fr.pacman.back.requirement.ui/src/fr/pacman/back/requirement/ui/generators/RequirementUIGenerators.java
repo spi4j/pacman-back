@@ -6,10 +6,10 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.emf.common.util.Logger;
 
-import fr.pacman.back.requirement.main.GenCommon;
-import fr.pacman.back.requirement.ui.plugin.Activator;
 import fr.pacman.back.core.generator.PacmanGenerator;
 import fr.pacman.back.core.ui.generator.PacmanUIGenerator;
+import fr.pacman.back.requirement.main.GenCommon;
+import fr.pacman.back.requirement.ui.plugin.Activator;
 
 /**
  * UI Generator for JDBC based on Requirement model file.
@@ -60,5 +60,10 @@ public class RequirementUIGenerators extends PacmanUIGenerator {
 	@Override
 	protected boolean hasView() {
 		return false;
+	}
+	
+	@Override
+	protected SelectionType_Enum getSelectionType() {
+		return PacmanUIGenerator.SelectionType_Enum.REQUIREMENT;
 	}
 }

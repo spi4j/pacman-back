@@ -63,6 +63,9 @@
           
         [comment vérification des métadonnées (doit avoir un corps)./]
         [if (a.has_metaPhysicalSize() and not a.get_metaPhysicalSize().exists())][a.add(a.err16())/][/if]
+          
+        [comment vérification des métadonnées (doit avoir un corps)./]
+        [if (a.has_metaPhysicalName() and not a.get_metaPhysicalName().exists())][a.add(a.err16())/][/if]
       [/for]
     [/for]
     

@@ -6,12 +6,12 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.emf.common.util.Logger;
 
+import fr.pacman.back.core.generator.PacmanGenerator;
+import fr.pacman.back.core.ui.generator.PacmanUIGenerator;
 import fr.pacman.back.soaclient.main.GenCommon;
 import fr.pacman.back.soaclient.main.GenServer;
 import fr.pacman.back.soaclient.main.GenValidation;
 import fr.pacman.back.soaclient.ui.plugin.Activator;
-import fr.pacman.back.core.generator.PacmanGenerator;
-import fr.pacman.back.core.ui.generator.PacmanUIGenerator;
 
 /**
  * UI Generator for Service based on Soa model file.
@@ -65,5 +65,10 @@ public class SoaUIGenerators extends PacmanUIGenerator {
 	@Override
 	protected boolean hasView() {
 		return false;
+	}
+	
+	@Override
+	protected SelectionType_Enum getSelectionType() {
+		return PacmanUIGenerator.SelectionType_Enum.SOA;
 	}
 }

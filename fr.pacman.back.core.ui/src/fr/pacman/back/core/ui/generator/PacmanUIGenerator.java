@@ -160,6 +160,16 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	protected abstract Logger getLogger();
 
 	/**
+	 * Retourne le type de sélection courant pour cette instance. Le type de
+	 * sélection détermine notamment quel diagramme ou représentation doit être
+	 * utilisé pour la navigation et la validation.
+	 *
+	 * @return le type de sélection courant, jamais {@code null} si implémenté
+	 *         correctement
+	 */
+	protected abstract SelectionType_Enum getSelectionType();
+
+	/**
 	 * Constructeur pour une sélection par ressource de type 'fichier'. Ce fichier
 	 * peut être un fichier de type '.entities', '.soa', '.requirements',
 	 * .environment'.
@@ -306,7 +316,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 					generator.generate(monitor);
 
 					if (PacmanValidatorsReport.hasReport())
-						displayAndfillReportView();
+						displayAndfillReportView(getSelectionType());
 				}
 				postTreatment();
 			}
@@ -436,7 +446,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 	 *
 	 * Si la vue n'est pas trouvée, un message d'alerte alternatif est affiché.
 	 */
-	private void displayAndfillReportView() {
+	private void displayAndfillReportView(SelectionType_Enum p_selection) {
 		CompletableFuture<Void> future = new CompletableFuture<>();
 		Display.getDefault().asyncExec(() -> {
 			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
@@ -447,6 +457,7 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 					IViewPart viewPart = page.findView(PacmanUIValidationView.c_view_validation_id);
 					if (viewPart instanceof PacmanUIValidationView validationView) {
 						validationView.setRepresentations(_representations);
+						validationView.setSelection(p_selection);
 						validationView.setLinkingEnabled(page);
 						validationView.setRows(PacmanValidatorsReport.get());
 						throw new PacmanValidationException(
@@ -493,5 +504,15 @@ public abstract class PacmanUIGenerator extends PacmanUIProjectAction {
 					validationView.setRows(Collections.emptyList());
 			}
 		});
+	}
+
+	/**
+	 * Définit le type de modèle concerné par une sélection ou une navigation. Cet
+	 * enum permet de lever toute ambiguïté lors de la navigation vers une
+	 * représentation Sirius lorsque plusieurs modèles dérivés partagent les mêmes
+	 * identifiants EMF. Utilisé dans le cadre des vérifications de modèlisation.
+	 */
+	public enum SelectionType_Enum {
+		SOA, ENTITY, REQUIREMENT, ALL
 	}
 }

@@ -43,6 +43,7 @@ import org.obeonetwork.dsl.requirement.RequirementFactory;
 import org.obeonetwork.dsl.soa.SoaFactory;
 import org.obeonetwork.dsl.soa.System;
 
+import fr.pacman.back.core.ui.util.RepresentationUtils;
 import fr.pacman.back.start.ui.exception.PacmanInitModelException;
 
 /**
@@ -72,29 +73,28 @@ public class SiriusUtil {
 	// ISD consolidated view
 	static {
 		_openedRepresentations = new ArrayList<String>();
-		_openedRepresentations.add("Entities Namespaces Hierarchy");
-		_openedRepresentations.add("DTO Namespaces Hierarchy");
+		_openedRepresentations.add(RepresentationUtils.c_entityNH);
+		_openedRepresentations.add(RepresentationUtils.c_dtoNH);
 
 		_models = new HashMap<String, SiriusModelDescriptor>();
 		_models.put("entity",
 				new SiriusModelDescriptor(".entity",
-						Arrays.asList("Entities Namespaces Hierarchy", "EV_Entities_PhysicalNames"),
+						Arrays.asList(RepresentationUtils.c_entityNH, RepresentationUtils.c_entityPN),
 						Arrays.asList("org.obeonetwork.dsl.entity.design/Entity Views",
 								"org.obeonetwork.is.design/Entity (ISD consolidated view)",
 								"org.obeonetwork.dsl.environment.properties/Environment Views")));
 
 		_models.put("requirement",
-				new SiriusModelDescriptor(".requirement", Arrays.asList("Requirements Table"),
+				new SiriusModelDescriptor(".requirement", Arrays.asList(RepresentationUtils.c_requirementT),
 						Arrays.asList("org.obeonetwork.dsl.environment.properties/Environment Views",
 								"org.obeonetwork.dsl.requirement.design/Requirements",
 								"org.obeonetwork.graal.design/Requirements (Graal consolidated view)")));
 
-		_models.put("soa",
-				new SiriusModelDescriptor(".soa",
-						Arrays.asList("SOA Diagram", "DTO Namespaces Hierarchy", "EV_DTO_PhysicalNames"),
-						Arrays.asList("org.obeonetwork.is.design/SOA (ISD consolidated view)",
-								"org.obeonetwork.dsl.soa.design/SOA Views",
-								"org.obeonetwork.dsl.environment.properties/Environment Views")));
+		_models.put("soa", new SiriusModelDescriptor(".soa",
+				Arrays.asList(RepresentationUtils.c_soaD, RepresentationUtils.c_dtoNH, RepresentationUtils.c_dtoPN),
+				Arrays.asList("org.obeonetwork.is.design/SOA (ISD consolidated view)",
+						"org.obeonetwork.dsl.soa.design/SOA Views",
+						"org.obeonetwork.dsl.environment.properties/Environment Views")));
 	}
 
 	/**

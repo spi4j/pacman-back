@@ -30,4 +30,5 @@ Bundle-ActivationPolicy: lazy
 Export-Package: fr.pacman.back.core.ui.generator,
  fr.pacman.back.core.ui.plugin.activator,
  fr.pacman.back.core.ui.service, 
- fr.pacman.back.core.ui.validation
+ fr.pacman.back.core.ui.validation,
+ fr.pacman.back.core.ui.util

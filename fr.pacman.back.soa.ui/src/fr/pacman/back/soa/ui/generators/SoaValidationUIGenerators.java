@@ -6,11 +6,11 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.emf.common.util.Logger;
 
-import fr.pacman.back.soa.main.GenValidation;
-import fr.pacman.back.soa.ui.plugin.Activator;
 import fr.pacman.back.core.generator.PacmanGenerator;
 import fr.pacman.back.core.ui.generator.PacmanUIGenerator;
 import fr.pacman.back.core.ui.generator.PacmanUIGeneratorHelper;
+import fr.pacman.back.soa.main.GenValidation;
+import fr.pacman.back.soa.ui.plugin.Activator;
 
 /**
  * UI Generateur pour la validation des modèles.
@@ -63,5 +63,10 @@ public class SoaValidationUIGenerators extends PacmanUIGenerator {
 	@Override
 	protected boolean hasView() {
 		return false;
+	}
+	
+	@Override
+	protected SelectionType_Enum getSelectionType() {
+		return PacmanUIGenerator.SelectionType_Enum.SOA;
 	}
 }

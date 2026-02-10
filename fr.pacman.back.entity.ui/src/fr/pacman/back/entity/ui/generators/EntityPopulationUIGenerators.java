@@ -53,4 +53,9 @@ public class EntityPopulationUIGenerators extends PacmanUIGenerator {
 	protected boolean hasView() {
 		return false;
 	}
+
+	@Override
+	protected SelectionType_Enum getSelectionType() {
+		return PacmanUIGenerator.SelectionType_Enum.ENTITY;
+	}
 }
