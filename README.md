@@ -1,5 +1,6 @@
 # pacman-back
-Nouvelle version du générateur Pacman, spécialisée pour le backend.
+Nouvelle version du générateur Pacman, spécialisée pour le backend. 
+Cette version propose la modélisation et la génération de services rest basés sur une architecture hexagonale.
 
 La documentation complète pour l'installation et l'utilisation de **Pacman** est disponible à l'adresse suivante :
 
