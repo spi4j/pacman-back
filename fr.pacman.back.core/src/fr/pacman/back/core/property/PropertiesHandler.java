@@ -20,6 +20,7 @@ import fr.pacman.back.core.convention.rule.ParameterNamingRule;
 import fr.pacman.back.core.convention.rule.VariableNamingRule;
 import fr.pacman.back.core.enumeration.PropertyStatus;
 import fr.pacman.back.core.property.project.ProjectProperties;
+import fr.pacman.back.core.property.project.Spi4jProperties;
 import fr.pacman.back.core.service.LoggerUtils;
 
 /**
@@ -153,26 +154,44 @@ public class PropertiesHandler {
 		if (null == p_properties)
 			p_properties = PropertiesUtils.loadPropertyFiles(p_modelPath);
 		if (null == _referential.get(p_modelPath))
-			_referential.put(p_modelPath, createReferential());
+			_referential.put(p_modelPath, createReferential(PropertiesUtils.isSpi4j(p_properties)));
 		_instance = new PropertiesHandler(p_modelPath, p_properties, _referential.get(p_modelPath));
 		_instance.checkProperties();
 		return _instance;
 	}
 
 	/**
-	 * Creation de la liste des propriétés qui sont potentiellement utilisables par
-	 * les différents générateurs. Cela comprend la liste des propriétés pour le
-	 * projet et celles qui sont utilisée pour les normes de nommage.
-	 * 
-	 * , new Spi4jProperties()......
-	 * 
-	 * @return le référentiel pour le model courant.
+	 * Crée le référentiel des {@link PropertiesCategory} utilisées par l’outil.
+	 * <p>
+	 * Les catégories de base (règles de nommage, propriétés projet, etc.) sont
+	 * systématiquement ajoutées. Les propriétés spécifiques à SPI4J sont ajoutées
+	 * conditionnellement en fonction du paramètre fourni.
+	 * </p>
+	 * <p>
+	 * La méthode retourne un tableau pour des raisons historiques (compatibilité
+	 * avec l'API existante). En interne, une {@link List} est utilisée pour
+	 * faciliter la construction dynamique du contenu.
+	 * </p>
+	 *
+	 * @param p_addSpi4Props indique si les propriétés spécifiques SPI4J doivent
+	 *                       être ajoutées
+	 *
+	 * @return un tableau contenant l’ensemble des catégories de propriétés
 	 */
-	protected static PropertiesCategory[] createReferential() {
-		return new PropertiesCategory[] {
-
-				new ProjectProperties(), new AttributeNamingRule(), new MethodNamingRule(), new ClassNamingRule(),
-				new VariableNamingRule(), new ParameterNamingRule(), new PackageNamingRule(), new CommonNamingRule() };
+	protected static PropertiesCategory[] createReferential(final boolean p_addSpi4Props) {
+		List<PropertiesCategory> categories = new ArrayList<>();
+		categories.add(new ProjectProperties());
+		categories.add(new AttributeNamingRule());
+		categories.add(new MethodNamingRule());
+		categories.add(new ClassNamingRule());
+		categories.add(new VariableNamingRule());
+		categories.add(new ParameterNamingRule());
+		categories.add(new PackageNamingRule());
+		categories.add(new CommonNamingRule());
+		
+		if (p_addSpi4Props)
+			categories.add(new Spi4jProperties());
+		return categories.toArray(new PropertiesCategory[0]);
 	}
 
 	/**

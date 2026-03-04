@@ -1,7 +1,10 @@
 package fr.pacman.back.core.property.project;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.eclipse.emf.ecore.EObject;
 
 import fr.pacman.back.core.enumeration.PropertyStatus;
 import fr.pacman.back.core.enumeration.PropertyTrigger;
@@ -34,14 +37,12 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_project_author = "project.author";
 	public static final String c_project_package = "project.package";
 	public static final String c_project_databases = "project.databases";
-	public static final String c_project_ws = "project.ws.enabled";
 	public static final String c_project_security = "project.security.enabled";
 	public static final String c_project_sso_auth = "project.sso.auth.enabled";
 	public static final String c_project_crud = "project.crud.enabled";
 	public static final String c_project_testsCrud = "project.tests.crud.enabled";
 	public static final String c_project_fetchingStrategy = "project.fetchingstrategy.enabled";
 	public static final String c_project_servicerequirements = "project.servicerequirements.enabled";
-	public static final String c_project_validation_config_file = "project.validation.configfile";
 	public static final String c_project_library = "project.library.enabled";
 	public static final String c_project_library_rs = "project.library.rs.enabled";
 	public static final String c_project_profiler = "project.profiler.enabled";
@@ -90,7 +91,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	// public static final String c_project_libraries =
 	// "project.additional.libraries";
 	// public static final String c_is_debug = "pacman.debug.enabled";
-	// public static final String c_is_wsHk2 = "project.ws.hk2.enabled";
+	public static final String c_is_wsHk2 = "project.ws.hk2.enabled";
 
 	// public static final String c_is_wms = "project.wms.layer.enabled";
 
@@ -145,7 +146,8 @@ public final class ProjectProperties extends PropertiesCategory {
 						"Flag indiquant si le profiling est actif lors des generations"),
 
 				PacmanProperty.newRequired(c_project_framework, "spring",
-						"Type de framework pour le projet (Spring par defaut)", new NormeProjectStrategy()),
+						"Type de framework pour le projet (Spring par defaut)",
+						List.of(new ReactStrategy(), new Spi4jStrategy(), new SpringStrategy())),
 
 				PacmanProperty.newRequired(c_project_type, "server", "Type de projet (server par defaut)"),
 
@@ -177,31 +179,31 @@ public final class ProjectProperties extends PropertiesCategory {
 //				PacmanProperty.newRequired(c_is_lazyLoading, "false",
 //						"Flag indiquant si la generation de la couche de persistance (= Entity) se fait avec les methodes de LazyLoading"),
 
-				PacmanProperty.newRequired(c_project_fetchingStrategy, "false",
+				PacmanProperty.newConditional(c_project_fetchingStrategy, "false",
 						"Flag indiquant si la fetching strategy doit etre generee dans l'application (non actif par defaut)"),
 
 				PacmanProperty.newRequired(c_project_servicerequirements, "true",
 						"Flag indiquant si les service requirements doivent etre generes dans l'application (generes par defaut)"),
 
-				PacmanProperty.newRequired(c_is_log4j, "true",
+				PacmanProperty.newConditional(c_is_log4j, "true",
 						"Flag indiquant si le log4j2.xml doit etre genere dans l'application (actif par defaut)"),
 
-				PacmanProperty.newRequired(c_project_security, "false",
+				PacmanProperty.newConditional(c_project_security, "false",
 						"Flag pour la generation de la couche de securite (serveur / client) (non actif par defaut)"),
 
-				PacmanProperty.newRequired(c_project_crud, "false",
+				PacmanProperty.newConditional(c_project_crud, "false",
 						"Flag indiquant si une application des gestion des entites (crud) doit etre generee (non actif par defaut)"),
 
-				PacmanProperty.newRequired(c_tests_bdd_enabled, "false",
+				PacmanProperty.newConditional(c_tests_bdd_enabled, "false",
 						"Flag indiquant si les tests de comportement (JBehave) doivent etre generes (non actif par defaut)"),
 
-				PacmanProperty.newRequired(c_project_library, "false",
+				PacmanProperty.newConditional(c_project_library, "false",
 						"Flag indiquant si le projet va servir comme librairie"),
-				
-				PacmanProperty.newRequired(c_project_sso_auth, "false",
+
+				PacmanProperty.newConditional(c_project_sso_auth, "false",
 						"Flag indiquant si le projet utilise la librairie sso pour authentification"),
 
-				PacmanProperty.newRequired(c_project_library_rs, "false",
+				PacmanProperty.newConditional(c_project_library_rs, "false",
 						"Flag indiquant si le projet va servir comme librairie avec un import swagger",
 						new WSLibraryStrategy()),
 
@@ -209,20 +211,16 @@ public final class ProjectProperties extends PropertiesCategory {
 						"Flag indiquant si on permet la regeneration des fichiers pom.xml, web.xml et log4j2.xml (non par defaut)"
 								+ "\n# ATTENTION : IL S'AGIT D'UNE RESTAURATION D'USINE ! PERTE DES VERSIONS ET DES AJOUTS."),
 
-				PacmanProperty.newRequired(c_project_ws, "false",
-						"Flag indiquant si on veut generer des services web (non actif par defaut)",
-						new WSProjectStrategy()),
-
 //				PacmanProperty.newRequired(c_is_wms, "false",
 //						"Flag indiquant si on veut generer des micro services web (non actif par defaut)"),
 
-//				PacmanProperty.newRequired(c_is_wsHk2, "true",
-//						"Flag indiquant si on veut utiliser l'injection pour les services web REST (oui par defaut)"),
+				PacmanProperty.newConditional(c_is_wsHk2, "true",
+						"Flag indiquant si on veut utiliser l'injection pour les services web REST (oui par defaut)"),
 
 				PacmanProperty.newRequired(c_project_debug, "false",
 						"Flag indiquant si la generation pour le projet fonctionne en mode debug (non par defaut)"),
 
-				PacmanProperty.newRequired(c_project_testsCrud, "true",
+				PacmanProperty.newConditional(c_project_testsCrud, "true",
 						"Flag indiquant si les tests unitaires sur le crud doivent etre generes (generes par defaut)"),
 
 				PacmanProperty.newRequired(c_requirement_categoryBaseLevel, "0",
@@ -233,10 +231,7 @@ public final class ProjectProperties extends PropertiesCategory {
 								+ "\n#" + c_requirement_versionningInitialNone + "\" : exigence non implementee ou \""
 								+ c_requirement_versionningInitialCurrent + "\" pour la version du modele)"),
 
-				PacmanProperty.newRequired(c_project_validation_config_file, "validation.xml",
-						"Fichier de configuration des regles de validation"),
-
-				PacmanProperty.newRequired(c_is_spi4jConfig, "false",
+				PacmanProperty.newConditional(c_is_spi4jConfig, "false",
 						"Utilisation du framework spi4j pour la gestion de fichiers de configuration"),
 
 				PacmanProperty.newConditional(c_ws_security_scheme_id, "",
@@ -251,7 +246,7 @@ public final class ProjectProperties extends PropertiesCategory {
 //				PacmanProperty.newRequired(c_project_libraries, "",
 //						"Champs additionnels pour les librairies supplémentaires de l'application"),
 
-				PacmanProperty.newRequired(c_paging_mode, c_noDefaultValue,
+				PacmanProperty.newConditional(c_paging_mode, c_noDefaultValue,
 						"Mode de fonctionnement pour la pagination (auto, user, vide par defaut)",
 						new PagingModeStrategy()),
 
@@ -342,9 +337,13 @@ public final class ProjectProperties extends PropertiesCategory {
 	}
 
 	/**
-	 * Stratégie pour la webapp.
+	 * Stratégie pour le framework spring. A titre indicatif il aurait aussi été
+	 * possible de regrouper plusieurs stratégies (spring et spi4j par exemple) et
+	 * de la nommer "FrameworkStrategy", dans ce cas au niveau de la méthode
+	 * {@code "doStrategy"} on aurait positionné plusieurs if...au choix du
+	 * développeur de générateurs.
 	 */
-	private class WSProjectStrategy extends PropertyStrategy {
+	private class SpringStrategy extends PropertyStrategy {
 		@Override
 		protected PropertyTrigger getStrategyTrigger() {
 			return PropertyTrigger.ALWAYS;
@@ -357,9 +356,41 @@ public final class ProjectProperties extends PropertiesCategory {
 
 		@Override
 		protected void doStrategy(Map<String, PacmanProperty> p_pacmanProperties) {
-			if (Boolean.parseBoolean(getRefValue())) {
-//				updateProperty(p_pacmanProperties.get(c_is_httpEmbeddedServer));
-//				updateProperty(p_pacmanProperties.get(c_is_h2EmbeddedDatabase));
+			if (getRefValue().indexOf("spring") != -1) {
+				updateProperty(p_pacmanProperties.get(c_project_sso_auth));
+			}
+		}
+	}
+
+	/**
+	 * Stratégie pour le framework spi4j.
+	 */
+	private class Spi4jStrategy extends PropertyStrategy {
+
+		@Override
+		protected PropertyTrigger getStrategyTrigger() {
+			return PropertyTrigger.ALWAYS;
+		}
+
+		@Override
+		protected void updateProperty(PacmanProperty p_pacmanProperty) {
+			p_pacmanProperty.setStatus(PropertyStatus.REQUIRED);
+		}
+
+		@Override
+		protected void doStrategy(Map<String, PacmanProperty> p_pacmanProperties) {
+			if ("spi4j".equalsIgnoreCase(getRefValue())) {
+				updateProperty(p_pacmanProperties.get(c_is_wsHk2));
+				updateProperty(p_pacmanProperties.get(c_is_spi4jConfig));
+				updateProperty(p_pacmanProperties.get(c_tests_bdd_enabled));
+				updateProperty(p_pacmanProperties.get(c_project_fetchingStrategy));
+				updateProperty(p_pacmanProperties.get(c_project_security));
+				updateProperty(p_pacmanProperties.get(c_paging_mode));
+				updateProperty(p_pacmanProperties.get(c_project_crud));
+				updateProperty(p_pacmanProperties.get(c_project_library));
+				updateProperty(p_pacmanProperties.get(c_project_library_rs));
+				updateProperty(p_pacmanProperties.get(c_project_testsCrud));
+				updateProperty(p_pacmanProperties.get(c_is_log4j));
 			}
 		}
 	}
@@ -393,7 +424,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	/**
 	 * Strategie pour la norme de nommage des methodes , classes, proprietes, etc...
 	 */
-	private class NormeProjectStrategy extends PropertyStrategy {
+	private class ReactStrategy extends PropertyStrategy {
 
 		@Override
 		protected PropertyTrigger getStrategyTrigger() {
@@ -496,8 +527,8 @@ public final class ProjectProperties extends PropertiesCategory {
 		return false;
 	}
 
-	public static String get_useSpi4jSecurity() {
-		return PropertiesHandler.getProperty(c_project_security);
+	public static Boolean get_useSpi4jSecurity(final Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_security));
 	}
 
 	public static String get_useTestBDD() {
@@ -516,10 +547,6 @@ public final class ProjectProperties extends PropertiesCategory {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_rootfiles_generate_enabled));
 	}
 
-	public static boolean get_useWS() {
-		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_ws));
-	}
-
 	public static boolean isModeDebug() {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_debug));
 	}
@@ -528,9 +555,9 @@ public final class ProjectProperties extends PropertiesCategory {
 //		return PropertiesHandler.getProperty(c_is_wms);
 //	}
 
-//	public static String get_useWsServiceInjection() {
-//		return PropertiesHandler.getProperty(c_is_wsHk2);
-//	}
+	public static Boolean get_useWsServiceInjection(final EObject p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_is_wsHk2));
+	}
 
 	public static String get_wsSecuritySchemeId() {
 		return PropertiesHandler.getProperty(c_ws_security_scheme_id);
@@ -538,10 +565,6 @@ public final class ProjectProperties extends PropertiesCategory {
 
 	public static String getVersion() {
 		return PropertiesHandler.getProperty(c_project_version);
-	}
-
-	public static String get_validationConfigFile() {
-		return PropertiesHandler.getProperty(c_project_validation_config_file);
 	}
 
 	public static String get_requirementCategoryBaseLevel(final Object p_object) {
@@ -565,8 +588,8 @@ public final class ProjectProperties extends PropertiesCategory {
 		// return PropertiesHandler.getProperty(c_is_crud);
 	}
 
-	public static final String get_useConfigFilesSpi4jFrwk(Object p_object) {
-		return "false";
+	public static final Boolean get_useConfigFilesSpi4jFrwk(Object p_object) {
+		return false;
 		// return PropertiesHandler.getProperty(c_is_spi4jConfig);
 	}
 
@@ -604,23 +627,23 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_project_java_version);
 	}
 
-	public static String get_pagingMode() {
+	public static String get_pagingMode(final Object p_object) {
 		return PropertiesHandler.getProperty(c_paging_mode);
 	}
 
-	public static String get_pagingTotalCountKey() {
+	public static String get_pagingTotalCountKey(final Object p_object) {
 		return PropertiesHandler.getProperty(c_paging_totalCount);
 	}
 
-	public static String get_pagingCurrentPageSizeKey() {
+	public static String get_pagingCurrentPageSizeKey(final Object p_object) {
 		return PropertiesHandler.getProperty(c_paging_currentPageSize);
 	}
 
-	public static String get_pagingCurrentPageIdxKey() {
+	public static String get_pagingCurrentPageIdxKey(final Object p_object) {
 		return PropertiesHandler.getProperty(c_paging_currentPageIdx);
 	}
 
-	public static String get_javaPagingCount() {
+	public static String get_javaPagingCount(final Object p_object) {
 		return PropertiesHandler.getProperty(c_paging_pageCount);
 	}
 
@@ -691,7 +714,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static boolean isProfilerEnabled() {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_profiler));
 	}
-	
+
 	public static boolean isRsSSOAuthEnabled(final Object p_object) {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_sso_auth));
 	}

@@ -172,7 +172,7 @@
               </execution>
             </executions>
             <configuration>
-               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrap()/]</mainClass>
+               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrapImpl()/]</mainClass>
             </configuration>
          </plugin>
          
@@ -288,18 +288,18 @@
   @ComponentScan(basePackages = {"[any.namePackageProject()/]"}, includeFilters = {
   @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { [any.nameClassAnnotationIn()/].class
     ,  [any.nameClassAnnotationOut()/].class})})
-  public class [any.nameClassAppBootstrap()/]
+  public class [any.nameClassAppBootstrapImpl()/]
   {
      
     /**
      * Le logger pour la classe.
      */
-     private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([any.nameClassAppBootstrap()/].class);
+     private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([any.nameClassAppBootstrapImpl()/].class);
      
      /**
       * Point d'entrée de l'application Spring Boot. Il démarre l'application en appelant
       * {@link SpringApplication#run(Class, String...)} avec la 
-      * classe {@code  [any.nameClassAppBootstrap()/]}.
+      * classe {@code  [any.nameClassAppBootstrapImpl()/]}.
       *
       * @param args Les arguments de la ligne de commande.
       */
@@ -310,7 +310,7 @@
         [/protected]
         
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+08:00"));	
-        SpringApplication.run([any.nameClassAppBootstrap()/].class, args);
+        SpringApplication.run([any.nameClassAppBootstrapImpl()/].class, args);
       }
       
       [if (any.hasAutoAttributes())]
@@ -339,7 +339,7 @@
 	  	};
 	  }
 	  
-	  [protected (any.nameClassAppBootstrap().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+	  [protected (any.nameClassAppBootstrapImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
 	  [/protected]
   }
 [/template]

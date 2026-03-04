@@ -26,11 +26,12 @@
 			niveau du script appelant. 
 			
 			Pour la gestion de l'héritage, toutes les références héritées sont redescendues fonctionnellement au niveau de 
-			chaque entité qui hérite. Techniquement cette manipulation est aussi effectuée par recopie de la référence 
-			initialement trouvée et on modifie les données de cette référence pour mettre les données des entités héritées. 
-			Cela permet par la suite de récupérer le "tronc commun' pour le traitement. Ainsi si une relation concerne 
-			une entité 'Vehicule' par exemple et que 'Camion' hérite de véhicule, alors la référence contiendra 'Camion' 
-			au au lieu d'initialement 'Véhicule' (comme si la référence avait été initialement tirée de 'Camion' vers 'xxx). 
+			chaque entité qui hérite. Techniquement cette manipulation est effectuée par recopie de la référence initialement
+			trouvée et on modifie les données de cette référence pour mettre les données des entités héritées. 
+			
+			Cela permet par la suite de récupérer le "tronc commun' pour le traitement. Ainsi, si une relation concerne 
+			une entité 'Vehicule' par exemple, et que 'Camion' hérite de véhicule, alors la référence contiendra 'Camion' 
+			au lieu d'initialement 'Véhicule' (comme si la référence avait été initialement tirée de 'Camion' vers 'xxx). 
 			
 			Pour les relations (n-n), on crée une table de liaison par entité héritée, pour les relations (0,n) on crée une 
 			une clé étrangère par table de liaison, ce qui fait que l'on aura des clés nulles pour un tuple avec une clé 

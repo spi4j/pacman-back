@@ -15,7 +15,7 @@
 [query public versionMariaDb(any : ecore::EObject) : String = '3.5.2'/]
 [query public versionOracle(any : ecore::EObject) : String = '12.1.0.2'/]
 [query public versionOracle32(any : ecore::EObject) : String = '12.2.0.1'/]
-[query public versionSl4j(any : ecore::EObject) : String = '2.0.2'/]
+[query public versionSl4j(any : ecore::EObject) : String = '2.0.17'/]
 [query public versionLog4j(any : ecore::EObject) : String = '2.25.1'/]
 [query public versionResilience4j(any : ecore::EObject) : String = '2.3.0'/]
 [query public versionOpenApiSwagger(any : ecore::EObject) : String = '2.8.6'/]
@@ -26,7 +26,7 @@
 [query public versionAxios(any : ecore::EObject) : String = '1.7.0'/]  
 [query public versionTypeScript(any : ecore::EObject) : String = '5.6.0'/]  
 [query public versionRimraf(any : ecore::EObject) : String = '5.0.0'/]
-[query public versionDataKaker(any : ecore::EObject) : String = '2.5.3'/]
+[query public versionDataFaker(any : ecore::EObject) : String = '2.5.3'/]
 [query public versionSSOMinarm(any : ecore::EObject) : String = '1.1.0'/]
 
    

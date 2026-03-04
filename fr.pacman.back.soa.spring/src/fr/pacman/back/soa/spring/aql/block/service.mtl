@@ -138,14 +138,14 @@
   [/protected]
   
   @[d.nameClassAnnotationOut()/]
-  public class [d.nameClassServiceCrudOutImpl()/] implements [d.nameClassServiceCrudOutItf()/]
+  public class [d.nameClassServiceCrudOutImpl('jpa')/] implements [d.nameClassServiceCrudOutItf()/]
   {
   
     ['Le gestionnaire de persistance'.commentSingleLine()/]
     private [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeDefault()/];
     
     ['Constructeur avec injection des parametres'.commentMultiLines()/]
-    public [d.nameClassServiceCrudOutImpl()/](final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_parameterMethodClassicIn()/]){
+    public [d.nameClassServiceCrudOutImpl('jpa')/](final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_parameterMethodClassicIn()/]){
       
       [d.prefixAffectation()/][d.nameRepository().apply_attributeDefault()/] = [d.nameRepository().apply_parameterMethodClassicIn()/];
     }
@@ -257,7 +257,7 @@
   
   [s.commentInterface()/]
   @[s.nameClassAnnotationOut()/]
-  public class [s.nameClassServiceOutImpl()/] implements [s.nameClassServiceOutItf()/]
+  public class [s.nameClassServiceOutImpl('jpa')/] implements [s.nameClassServiceOutItf()/]
   {
       
       [protected ('gestionnaires de persistance custom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -272,7 +272,7 @@
       
         ['Constructeur'.commentMultiLines()/]
         @Autowired
-        public [s.nameClassServiceOutImpl()/] ([ds->writePersistInputs(em)/])
+        public [s.nameClassServiceOutImpl('jpa')/] ([ds->writePersistInputs(em)/])
         {
            
            [ds->writePersistAffectation(em)/]

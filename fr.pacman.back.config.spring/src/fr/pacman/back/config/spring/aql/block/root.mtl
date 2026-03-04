@@ -193,7 +193,7 @@
           <dependency>
              <groupId>net.datafaker</groupId>
              <artifactId>datafaker</artifactId>
-             <version>[any.versionDataKaker()/]</version> 
+             <version>[any.versionDataFaker()/]</version> 
           </dependency>
           <!-- (voir si déclaratif ou non...)
           <dependency>

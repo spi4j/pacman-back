@@ -110,7 +110,7 @@ public class PacmanProperties {
 
 			PacmanProperty pacmanProperty = _pacmanProperties.get(key);
 			if (null != pacmanProperty) {
-				if (pacmanProperty.hasStrategy())
+				if (pacmanProperty.hasStrategies())
 					strategies.add(pacmanProperty);
 				pacmanProperty.setValue((String) p_props.getProperty(key));
 			} else {

@@ -1,6 +1,8 @@
 package fr.pacman.back.core.property;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import fr.pacman.back.core.enumeration.PropertyFileAction;
@@ -39,9 +41,10 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	private String _value;
 
 	/**
-	 * La strategie à appliquer lors de la modification de cette propriété.
+	 * La (ou les) strategie(s) à appliquer lors de la modification de cette
+	 * propriété.
 	 */
-	private final PropertyStrategy _strategy;
+	private final List<PropertyStrategy> _strategies;
 
 	/**
 	 * Le statut de référence de la propriété.
@@ -84,11 +87,11 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 * @param p_strategy     la strategie (si elle existe) pour l'élément.
 	 */
 	private PacmanProperty(final String p_id, final String[] p_defaultValues, final String p_comment,
-			final PropertyStatus p_status, final PropertyStrategy p_strategy) {
+			final PropertyStatus p_status, final List<PropertyStrategy> p_strategies) {
 		_id = p_id;
 		_status = p_status;
 		_comment = p_comment;
-		_strategy = p_strategy;
+		_strategies = p_strategies;
 		_order = _incWriteOrder;
 		_defaultStatus = p_status;
 		_value = p_defaultValues[0];
@@ -97,8 +100,8 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 		// Incrementation du compteur d'ecriture.
 		_incWriteOrder++;
 
-		if (null != p_strategy)
-			p_strategy.setRefPacmanProperty(this);
+		if (hasStrategies())
+			p_strategies.forEach(s -> s.setRefPacmanProperty(this));
 	}
 
 	/**
@@ -110,7 +113,8 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 * @return l'instance de la propriété.
 	 */
 	public static PacmanProperty newRequired(final String p_id, final String p_defaultValue, final String p_comment) {
-		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.REQUIRED, null);
+		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.REQUIRED,
+				Collections.emptyList());
 	}
 
 	/**
@@ -123,7 +127,7 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 */
 	public static PacmanProperty newRequired(final String p_id, final String[] p_defaultValues,
 			final String p_comment) {
-		return new PacmanProperty(p_id, p_defaultValues, p_comment, PropertyStatus.REQUIRED, null);
+		return new PacmanProperty(p_id, p_defaultValues, p_comment, PropertyStatus.REQUIRED, Collections.emptyList());
 	}
 
 	/**
@@ -139,7 +143,23 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	public static PacmanProperty newRequired(final String p_id, final String p_defaultValue, final String p_comment,
 			final PropertyStrategy p_strategy) {
 		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.REQUIRED,
-				p_strategy);
+				List.of(p_strategy));
+	}
+
+	/**
+	 * Creation d'une propriété obligatoire avec plusieurs stratégies.
+	 * 
+	 * @param p_id           la clé de la propriété.
+	 * @param p_defaultValue la valeur par défaut de la propriété.
+	 * @param p_comment      le commentaire à afficher pour la propriété.
+	 * @param p_strategy     les stratégies à appliquer en fonction de la valeur de
+	 *                       la propriété.
+	 * @return l'instance de la propriété.
+	 */
+	public static PacmanProperty newRequired(final String p_id, final String p_defaultValue, final String p_comment,
+			final List<PropertyStrategy> p_strategies) {
+		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.REQUIRED,
+				p_strategies);
 	}
 
 	/**
@@ -152,7 +172,24 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 */
 	public static PacmanProperty newConditional(final String p_id, final String p_defaultValue,
 			final String p_comment) {
-		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.CONDITIONAL, null);
+		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.CONDITIONAL,
+				Collections.emptyList());
+	}
+
+	/**
+	 * Creation d'une propriété soumise à condition(s).
+	 * 
+	 * @param p_id           la clé de la propriété.
+	 * @param p_defaultValue la valeur par défaut de la propriété.
+	 * @param p_comment      le commentaire à afficher pour la propriété.
+	 * @param p_strategy     la stratégie à appliquer en fonction de la valeur de la
+	 *                       propriété.
+	 * @return l'instance de la propriété.
+	 */
+	public static PacmanProperty newConditional(final String p_id, final String p_defaultValue, final String p_comment,
+			final PropertyStrategy p_strategy) {
+		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.CONDITIONAL,
+				List.of(p_strategy));
 	}
 
 	/**
@@ -165,7 +202,8 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 */
 	public static PacmanProperty newConditional(final String p_id, final String[] p_defaultValues,
 			final String p_comment) {
-		return new PacmanProperty(p_id, p_defaultValues, p_comment, PropertyStatus.CONDITIONAL, null);
+		return new PacmanProperty(p_id, p_defaultValues, p_comment, PropertyStatus.CONDITIONAL,
+				Collections.emptyList());
 	}
 
 	/**
@@ -178,7 +216,8 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 * @return l'instance de la propriété.
 	 */
 	public static PacmanProperty newOptional(final String p_id, final String p_defaultValue, final String p_comment) {
-		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.OPTIONAL, null);
+		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.OPTIONAL,
+				Collections.emptyList());
 	}
 
 	/**
@@ -190,7 +229,8 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 * @return l'instance de la propriété.
 	 */
 	public static PacmanProperty newAdditional(final String p_id, final String p_defaultValue, final String p_comment) {
-		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.CONDITIONAL, null);
+		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.CONDITIONAL,
+				Collections.emptyList());
 	}
 
 	/**
@@ -203,7 +243,8 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 * @return l'instance de la propriété.
 	 */
 	public static PacmanProperty newMemoryOnly(final String p_id, final String p_defaultValue, final String p_comment) {
-		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.MEMORY, null);
+		return new PacmanProperty(p_id, new String[] { p_defaultValue }, p_comment, PropertyStatus.MEMORY,
+				Collections.emptyList());
 	}
 
 	/**
@@ -244,13 +285,13 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	}
 
 	/**
-	 * Execute la stratégie de l'élément.
+	 * Execute la (ou les) stratégie(s) de l'élément.
 	 * 
 	 * @param p_pacmanProperties la liste globale des propriétés.
 	 */
 	protected void applyStrategy(final Map<String, PacmanProperty> p_pacmanProperties) {
-		if (hasStrategy())
-			_strategy.applyStrategy(p_pacmanProperties);
+		if (hasStrategies())
+			_strategies.forEach(s -> s.applyStrategy(p_pacmanProperties));
 	}
 
 	/**
@@ -307,8 +348,8 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	public void setValue(final String p_value) {
 		_value = p_value;
 		setStatus(PropertyStatus.FILLED);
-		if (hasStrategy())
-			getStrategy().updateWithOldRefValue(_value);
+		if (hasStrategies())
+			getStrategies().forEach(s -> s.updateWithOldRefValue(_value));
 	}
 
 	/**
@@ -434,12 +475,12 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	}
 
 	/**
-	 * Obtenir la strategie conjointe a appliquer.
+	 * Obtenir la liste des strategies conjointes à appliquer.
 	 * 
-	 * @return la strategie (si elle existe).
+	 * @return les strategies (si elle(s) existe(nt)).
 	 */
-	protected PropertyStrategy getStrategy() {
-		return _strategy;
+	protected List<PropertyStrategy> getStrategies() {
+		return _strategies;
 	}
 
 	/**
@@ -447,8 +488,8 @@ public class PacmanProperty implements Comparable<PacmanProperty> {
 	 * 
 	 * @return 'true' si l'élément à une stratégie associée.
 	 */
-	protected boolean hasStrategy() {
-		return (null != _strategy);
+	protected boolean hasStrategies() {
+		return (!_strategies.isEmpty());
 	}
 
 	/**

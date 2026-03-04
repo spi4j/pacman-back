@@ -88,8 +88,8 @@ public abstract class PropertyStrategy {
 	private void applyChainedStrategy(final Map<String, PacmanProperty> p_pacmanProperties) {
 		if (null == getChainedStrategy())
 			return;
-		PacmanProperty pacmanProperty = p_pacmanProperties.get(getChainedStrategy());
-		pacmanProperty.getStrategy().doStrategy(p_pacmanProperties);
+//		PacmanProperty pacmanProperty = p_pacmanProperties.get(getChainedStrategy());
+//		pacmanProperty.getStrategy().doStrategy(p_pacmanProperties);
 	}
 
 	/**

@@ -858,15 +858,34 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		enable(getWidget("cb_databases"));
 		enable(getWidget("cb_javaVersion"));
 		enable(getWidget("ck_ssoMinarm"));
+		enable(getWidget("cb_javaVersion"));
 
+		disable(getWidget("ck_jerseyCdi"));
+		disable(getWidget("ck_fileConfig"));
+		disable(getWidget("ck_fetchStrategy"));
+		disable(getWidget("ck_security"));
+		disable(getWidget("ck_crud"));
+		disable(getWidget("ck_batch"));
+
+		if ("spi4j".equalsIgnoreCase(_typeFramework)) {
+			disable(getWidget("ck_ssoMinarm"));
+			enable(getWidget("ck_jerseyCdi"));
+			enable(getWidget("ck_fileConfig"));
+			enable(getWidget("ck_fetchStrategy"));
+			enable(getWidget("ck_security"));
+			enable(getWidget("ck_crud"));
+			enable(getWidget("ck_batch"));
+		}
+		if ("react".equalsIgnoreCase(_typeFramework)) {
+			disable(getWidget("ck_ssoMinarm"));
+			disable(getWidget("cb_javaVersion"));
+		}
 		if ("client".equalsIgnoreCase(_typeProject)) {
 			disable(getWidget("grp_database2"));
 			disable(getWidget("grp_database3"));
 			disable(getWidget("grp_options1"));
 			disable(getWidget("cb_databases"));
 			disable(getWidget("ck_ssoMinarm"));
-			if ("react".equalsIgnoreCase(_typeFramework))
-				disable(getWidget("cb_javaVersion"));
 		}
 	}
 

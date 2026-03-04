@@ -7,6 +7,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Properties;
 
+import fr.pacman.back.core.property.project.ProjectProperties;
 import fr.pacman.back.core.service.LoggerUtils;
 
 /**
@@ -136,7 +137,7 @@ public class PropertiesUtils {
 	 * @return le répertoire de stockage pour les différents fichiers de
 	 *         configuration
 	 */
-	public static File getPropertiesDirectory(final String p_modelPath) {
+	static File getPropertiesDirectory(final String p_modelPath) {
 		final int nbMaxIterations = 3;
 		int iteration = 1;
 		File currentDirectory = new File(p_modelPath);
@@ -173,5 +174,26 @@ public class PropertiesUtils {
 		if (dirFiles.length > 0)
 			return p_directory + File.separator + dirFiles[0];
 		return null;
+	}
+
+	/**
+	 * Indique si le projet associé aux propriétés fournies est de type SPI4J.
+	 * <p>
+	 * La vérification repose sur la valeur de la propriété
+	 * {@code ProjectProperties.c_project_type}. Si cette propriété est absente ou
+	 * ne correspond pas à {@code "spi4j"} (insensible à la casse), la méthode
+	 * retourne {@code false}.
+	 * </p>
+	 *
+	 * @param p_properties les propriétés du projet à analyser
+	 *
+	 * @return {@code true} si le type de projet est {@code "spi4j"}, {@code false}
+	 *         sinon ou si la propriété est absente
+	 */
+	static boolean isSpi4j(final Properties p_properties) {
+		String projectFramework = p_properties.getProperty(ProjectProperties.c_project_framework);
+		if (null == projectFramework)
+			return false;
+		return "spi4j".equalsIgnoreCase(projectFramework);
 	}
 }

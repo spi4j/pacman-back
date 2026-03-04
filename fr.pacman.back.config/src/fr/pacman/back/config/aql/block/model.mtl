@@ -74,7 +74,7 @@
        Dans ce répertoire sont stockés tous les scripts SQL de création de la base de données pour la production, il existe un script 
        par type de base de données sélectionnée et présente dans le fichier de configuration <code>project.properties</code>.
   </li>
-  <li style="margin-bottom: 10px;"><b>Classe principale (à exécuter en Java Application)</b> : <code>[any.nameProjectServer()/]/[any.dirJavaSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrap()/]</code>
+  <li style="margin-bottom: 10px;"><b>Classe principale (à exécuter en Java Application)</b> : <code>[any.nameProjectServer()/]/[any.dirJavaSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrapImpl()/]</code>
        La classe de démarrage de SpringBoot.
   </li>
   </ul>
@@ -107,7 +107,7 @@
   </ul></li>
   <li><p>Lancer l'application :</p>
   <ul>
-  <li>Clic droit sur la classe principale dans <code>[any.nameProjectServer()/]/[any.dirJavaSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrap()/]</code></li>
+  <li>Clic droit sur la classe principale dans <code>[any.nameProjectServer()/]/[any.dirJavaSources()/][any.namePackageProject()/]/[any.nameClassAppBootstrapImpl()/]</code></li>
   <li>Choisir : <code>/Run As</code> → <code>Java Application</code></li>
   </ul></li>
   <li><p>Par défaut, les URIs suivantes doivent répondre :</p>

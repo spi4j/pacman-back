@@ -91,7 +91,7 @@
               </execution>
             </executions>
             <configuration>
-               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrap()/]</mainClass>
+               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrapImpl()/]</mainClass>
             </configuration>
          </plugin>
          
@@ -149,7 +149,7 @@
               </execution>
             </executions>
             <configuration>
-               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrap()/]</mainClass>
+               <mainClass>[any.namePackageProject()/].[any.nameClassAppBootstrapImpl()/]</mainClass>
             </configuration>
          </plugin>
       </plugins>

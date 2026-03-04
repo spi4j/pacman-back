@@ -26,7 +26,7 @@
 
 [comment écriture du fichier d'implémentation pour un service de persistance (infra)./]
 [template public fileServiceOutImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
-  [file (s.nameClassServiceOutImpl().toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
+  [file (s.nameClassServiceOutImpl('jpa').toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
     [s.outImpl(ds)/]
   [/file]
 [/template]
@@ -40,7 +40,7 @@
 
 [comment écriture du fichier d'implémentation pour le service de persistance crud (infra)./]
 [template public fileServiceCrudOutImpl(d: environment::DTO, ds : OrderedSet(environment::DTO))]
-  [file (d.nameClassServiceCrudOutImpl().toFileJava(d.namePackageCrudOutImpl()), overwrite, d.defaultFileEncoding())]
+  [file (d.nameClassServiceCrudOutImpl('jpa').toFileJava(d.namePackageCrudOutImpl()), overwrite, d.defaultFileEncoding())]
     [d.crudOutImpl()/]
   [/file]
 [/template]

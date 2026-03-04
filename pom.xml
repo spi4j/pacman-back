@@ -21,6 +21,7 @@
 		<eclipse-updatesite-url>http://download.eclipse.org/releases/2023-03/</eclipse-updatesite-url> 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.compiler.release>${java.version}</maven.compiler.release>
 	</properties>
 	
 	<repositories>

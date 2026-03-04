@@ -24,7 +24,7 @@
 
 [comment écriture du fichier d'implémentation pour le bootstrap de l'application./]
 [template public fileApplicationBootstrap(any : ecore::EObject)]
-  [file (any.nameClassAppBootstrap().toFileJava(null), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassAppBootstrapImpl().toFileJava(null), overwrite, any.defaultFileEncoding())]
     [any.applicationBootstrapImpl()/]
   [/file]
 [/template]

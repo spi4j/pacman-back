@@ -18,21 +18,6 @@
 [comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
 [query public nameClassDatabasePopulateImpl (any : ecore::EObject) : String = (any.nameProject() + ' db populate').apply_classImplem()/]
   
-[comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
-[query public nameClassRsClientConfigImpl (any : ecore::EObject) : String = (any.nameProject() + ' web client config').apply_classImplem()/]
-
-[comment retourne le nom pour l'implémentation du service de santé de l'application./]
-[query public nameClassRsServiceHealthImpl (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classImplem()/]
-  
-[comment retourne le nom pour l'implémentation du handler sso keycloack./]
-[query public nameClassRsSSOLoginHandlerImpl (any : ecore::EObject) : String = (any.nameProject() + ' keycloack handler').apply_classDefault()/]
-
-[comment retourne le nom pour l'interface utilisateur pour le service sso keycloack./]
-[query public nameClassRsSSOUserServiceItf (any : ecore::EObject) : String = (any.nameProject() + ' sso user' + any.suffixService()).apply_classDefault()/]
-  
-[comment retourne le nom pour l'implémentation utilisateur pour le service sso keycloack./]
-[query public nameClassRsSSOUserServiceImpl (any : ecore::EObject) : String = (any.nameProject() + ' sso user' + any.suffixService()).apply_classImplem()/]
-  
 [comment retourne le nom pour l'interface du service de santé de l'application./]
 [query public nameClassServiceHealthItf  (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classInterface()/]
   
@@ -81,6 +66,21 @@
 [comment retourne le nom de l'implémentation du résolveur de paramètres dans le cadre des tests junit./]
 [query public nameClassServiceOutResolverImpl(s : soa::Service) : String = (s.name() + s.suffixService() + ' param resolver').apply_classDefault()/]
   
+[comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
+[query public nameClassRsClientConfigImpl (any : ecore::EObject) : String = (any.nameProject() + ' web client config').apply_classImplem()/]
+
+[comment retourne le nom pour l'implémentation du service de santé de l'application./]
+[query public nameClassRsServiceHealthImpl (any : ecore::EObject) : String = (any.nameProject() + ' health').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation du handler sso keycloack./]
+[query public nameClassRsSSOLoginHandlerImpl (any : ecore::EObject) : String = (any.nameProject() + ' keycloack handler').apply_classDefault()/]
+
+[comment retourne le nom pour l'interface utilisateur pour le service sso keycloack./]
+[query public nameClassRsSSOUserServiceItf (any : ecore::EObject) : String = (any.nameProject() + ' sso user' + any.suffixService()).apply_classDefault()/]
+  
+[comment retourne le nom pour l'implémentation utilisateur pour le service sso keycloack./]
+[query public nameClassRsSSOUserServiceImpl (any : ecore::EObject) : String = (any.nameProject() + ' sso user' + any.suffixService()).apply_classImplem()/]
+  
 [comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
 [query public nameClassRsServiceImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]
   
@@ -111,14 +111,14 @@
 [comment retourne le nom pour l'interface d'une classe de service soa crud (infra)./]  
 [query public nameClassServiceCrudOutItf(d : environment::DTO) : String = (d.name() + ' crud ' + d.suffixInterfaceOut()).apply_classInterface()/]  
 
-[comment retourne le nom d'implémentation d'une classe pour un service de persistance./]
-[query public nameClassServiceOutImpl(s : soa::Service) : String = (s.name() + ' jpa' + s.suffixInterfaceOut()).apply_classImplem()/]  
+[comment retourne le nom d'implémentation d'une classe pour un service de persistance (t = type de persistance)./]
+[query public nameClassServiceOutImpl(s : soa::Service, t : String) : String = (s.name() + ' ' + t + s.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour un service avec appel externe./]
 [query public nameClassServiceOutExtImpl(s : soa::Service) : String = (s.name() + ' external' + s.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour le service crud de persistance./]
-[query public nameClassServiceCrudOutImpl(d : environment::DTO) : String = (d.name() +' crud jpa' + d.suffixInterfaceOut()).apply_classImplem()/]  
+[query public nameClassServiceCrudOutImpl(d : environment::DTO, t : String) : String = (d.name() +' crud ' + t + d.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom de l'implémentation pour les règles de gestion associées au service./]
 [query public nameClassServiceRequirementImpl(s : soa::Service) : String = (s.name() + ' requirement').apply_classImplem()/]
@@ -162,7 +162,7 @@
 [query public nameClassAppCors(any : ecore::EObject) : String = (any.nameProject() + ' cors').apply_classDefault()/]
   
 [comment retourne le nom de la classe de démarrage pour une application Spring./]
-[query public nameClassAppBootstrap(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBootstrap()).apply_classDefault()/]
+[query public nameClassAppBootstrapImpl(any : ecore::EObject) : String = (any.nameProject() + any.suffixApplicationBootstrap()).apply_classDefault()/]
 
 [comment retourne le nom de la classe pour la configuratio (définition) open api (swagger)./]
 [query public nameClassOpenApiConfigImpl(any : ecore::EObject) : String = (any.nameProject() + ' open api config').apply_classDefault()/]
