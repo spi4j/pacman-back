@@ -67,7 +67,7 @@
 [query public namePackageOutIntegrationTestImpl(e : entity::Entity) : String = 'infra.adapters' + e.blockHierarchy()/]
   
 [comment retourne le package pour l'implémentation d'un contrôleur soa./]
-[query public namePackageRsControllerImpl(s : soa::Service) : String = 'app.adapters.controllers.' + s.nameComponent()/]
+[query public namePackageRsControllerImpl(s : soa::Service) : String = 'app.adapters.controllers' + '.' + s.nameComponent()/]
 
 [comment retourne le package de base pour l'implémentation d'un contrôleur soa./]
 [query public namePackageRsControllerBase(any : ecore::EObject) : String = 'app.adapters.controllers'/]
@@ -103,7 +103,7 @@
 [query public namePackageMapperInImpl(d : environment::DTO) : String = 'app.entities.' + d.suffixMapper().trim() + 's' + d.blockHierarchy()/]
   
 [comment retourne le package pour les classes génériques concernant les services rest./]
-[query public namePackageRsBase(any : ecore::EObject) : String = 'app'/]
+[query public namePackageApplicationBase(any : ecore::EObject) : String = 'app'/]
 
 [comment retourne le package pour le stockage de toutes les exceptions du projet./]
 [query public namePackageException(any : ecore::EObject) : String = 'app.exceptions'/]

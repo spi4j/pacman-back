@@ -53,14 +53,16 @@ public enum AnnotationEnum {
 	LITERAL_PARAM_VALUES("LITERAL_PARAM_VALUES", ModelEnum.DSL_ENTITY, true),
 
 	LITERALS_PARAMS_STRUCT("LITERALS_PARAMS_STRUCT", ModelEnum.DSL_ENTITY, true),
-	
-	CASCADE_TYPE("CASCADE_TYPE", ModelEnum.DSL_ENTITY, true), 
-	
+
+	CASCADE_TYPE("CASCADE_TYPE", ModelEnum.DSL_ENTITY, true),
+
 	FETCH_LAZY("FETCH_LAZY", ModelEnum.DSL_ENTITY, false),
-	
+
 	SKIP_EMPTY_VALUES("SKIP_EMPTY_VALUES", ModelEnum.DSL_SOA_DTO, false),
-	
-	ENTITY_MANAGER("ENTITY_MANAGER", ModelEnum.DSL_ENTITY,false);
+
+	ENTITY_MANAGER("ENTITY_MANAGER", ModelEnum.DSL_ENTITY, false),
+
+	S3_STORAGE("S3_STORAGE", ModelEnum.DSL_SOA_SERVICE, false);
 
 	/** Le nom de l'annotation */
 	private String _annotationName;

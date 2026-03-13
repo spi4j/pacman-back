@@ -24,10 +24,17 @@
   [/file]
 [/template]
 
-[comment écriture du fichier d'implémentation pour un service de persistance (infra)./]
+[comment écriture du fichier d'implémentation pour un service de persistance jpa (infra)./]
 [template public fileServiceOutImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
   [file (s.nameClassServiceOutImpl('jpa').toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
     [s.outImpl(ds)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour un service de persistance S3 (infra)./]
+[template public fileServiceOutImpl(s: soa::Service)]
+  [file (s.nameClassServiceOutImpl('s3').toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
+    [s.outImpl()/]
   [/file]
 [/template]
 
@@ -47,14 +54,14 @@
 
 [comment écriture du fichier d'implémentation la configuration de la sécurité des services rest (application)./]
 [template public fileRsSecurityConfigImpl(m : soa::System)]
-  [file (m.nameClassRsSecurityConfigImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
+  [file (m.nameClassRsSecurityConfigImpl().toFileJava(m.namePackageApplicationBase()), overwrite, m.defaultFileEncoding())]
     [m.securityRsConfigImpl()/]
   [/file]
 [/template]
 
 [comment écriture de l'implémentation pour le service de création d'un jeton jwt (application)./]
 [template public fileRsSecurityTokenServiceImpl(any : ecore::EObject)]
-  [file (any.nameClassRsTokenServiceImpl().toFileJava(any.namePackageRsBase()), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassRsTokenServiceImpl().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
     [any.securityRsTokenServiceImpl()/]
   [/file]
 [/template]
@@ -75,14 +82,14 @@
 
 [comment écriture d'un filtre pour gérer notamment les en-têtes génériques si besoin./]
 [template public fileRsHeaderFilterImpl(m : soa::System)]
-  [file (m.nameClassRsHeaderFilterImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
+  [file (m.nameClassRsHeaderFilterImpl().toFileJava(m.namePackageApplicationBase()), overwrite, m.defaultFileEncoding())]
     [m.headerRsFilterImpl()/]
   [/file]
 [/template]
 
 [comment écriture de la classe de configuration pour la documentation swagger./]
 [template public fileOpenApiConfigImpl(m : soa::System)]
-  [file (m.nameClassOpenApiConfigImpl().toFileJava(m.namePackageRsBase()), overwrite, m.defaultFileEncoding())]
+  [file (m.nameClassOpenApiConfigImpl().toFileJava(m.namePackageApplicationBase()), overwrite, m.defaultFileEncoding())]
     [m.openApiConfigImpl()/]
   [/file]
 [/template]

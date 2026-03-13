@@ -10,6 +10,7 @@
 [import fr::pacman::back::core::aql::query::parameter/]
 [import fr::pacman::back::core::aql::query::service/]
 [import fr::pacman::back::core::aql::query::operation/]
+[import fr::pacman::back::core::aql::query::property/]
 [import fr::pacman::back::core::aql::query::dto/]
 [import fr::pacman::back::core::aql::validation::common/]
 [import fr::pacman::back::core::validation::PacmanValidatorsReport/]
@@ -81,8 +82,9 @@
       [comment pas de service avec un '/' à la fin de l'URI (on pourrait le supprimer mais sensibilise le dévelopeur)./]
       [if (o.URI.exists() and '/'.equalsIgnoreCase(o.URI.last(1)))][o.add(s.err15(o))/][/if]
         
-      [comment pas de service avec plusieurs paramètres passés dans le corps (body), c'est la norme./]
-      [if (o.input->select(o1 | o1.restData.passingMode == soa::ParameterPassingMode::BODY)->size() > 1)][o.add(s.err16(o))/][/if]
+      [comment pas de service avec plusieurs paramètres passés dans le corps (body), c'est la norme (hormis s3)./]
+      [if (o.input->select(o1 | s.isJpaService() and o1.restData.passingMode == soa::ParameterPassingMode::BODY)->size() > 1)]
+        [o.add(s.err16(o))/][/if]
         
       [comment pas de service avec plusieurs paramètres de sortie./]
       [if (o.output->size() > 1)][o.add(s.err17(o))/][/if]
@@ -93,7 +95,7 @@
          
       [comment pas de service avec des binaires passés dans le path./]
       [if (not o.input->select(o1 | o1.type.name.equalsIgnoreCase('Binary') 
-         and o1.restData.passingMode <> soa::ParameterPassingMode::PATH)->isEmpty())][o.add(s.err19(o))/][/if]
+         and o1.restData.passingMode = soa::ParameterPassingMode::PATH)->isEmpty())][o.add(s.err19(o))/][/if]
          
       [comment pas de service avec TRACE (désactivé pour raisons de sécurité)./]
       [if (o.verb = soa::Verb::TRACE)][o.add(s.err20(o))/][/if]
@@ -121,6 +123,21 @@
       [comment vérification des métadonnées (doit avoir un corps)./]
       [if (o.has_metaAuthToken() and not o.get_metaAuthToken().exists())][o.add(o.err28())/][/if]
       
+      [comment pas de service avec des streams passés hors du body(on modifie à la génération)./]
+      [if (o.input->exists(o1 | 'InputStream'.equalsIgnoreCase(o1.type.type()) 
+         and o1.restData.passingMode <> soa::ParameterPassingMode::BODY))][o.add(o.err31())/][/if]
+         
+      [comment pas de service avec une liste de streams en sortie./]
+      [if (o.output->exists(o1 | 'InputStream'.equalsIgnoreCase(o1.type.type()) 
+         and o1.isMultiple()))][o.add(o.err32())/][/if]
+         
+      [comment pas de service avec une liste de streams en entrée./]
+      [if (o.input->exists(o1 | 'InputStream'.equalsIgnoreCase(o1.type.type()) 
+         and o1.isMultiple()))][o.add(o.err32())/][/if]
+           
+      [comment impossible d'avoir un service S3 si opération n'est pas GET|POST|DELETE/]
+      [if (s.isRsService() and s.operations()->exists(o1 | o1.verb <> soa::Verb::GET 
+      	and o1.verb <> soa::Verb::POST and o1.verb <> soa::Verb::DELETE ))][s.add(s.err33())/][/if]
       [/for]
     [/if]
   [/for]
@@ -253,7 +270,7 @@
   
 [comment impossible de modéliser une sécurité oauth2 sans URL(s)./]
 [query private err27 (s : soa::SecurityScheme) : String = 'RG_27@' + s.nameObject() + '@Sécurité non compatible avec la librairie'
-  + '@Repositionnez la sécurité sur OIDC.'/]
+  + '@Repositionnez la sécurité sur OIDC'/]
   
 [comment impossible de créer des opération avec des métadonnées sans corps./]
 [query private err28 (o : soa::Operation) : String = 'RG_28@' + o.nameObject() + '@Opération avec métadonnée sans corps' 
@@ -266,3 +283,15 @@
 [comment impossible de créer des opération avec des métadonnées sans corps./]
 [query private err30 (a : environment::Attribute) : String = 'RG_30@' + a.nameObject() + '@Attribut non présent dans l\'entité associée' 
   + '@Ajouter la métadonnée Computed'/]
+  
+[comment impossible de passer un stream autrement que dans le body de la requête./]
+[query private err31 (o : soa::Operation) : String = 'RG_31@' + o.nameObject() + '@Impossible de passer un stream hors du body' 
+  + '@Modifier le passage de paramètre en body'/]
+  
+[comment impossible de passer un stream avec une multiplicité sous forme de liste./]
+[query private err32 (o : soa::Operation) : String = 'RG_32@' + o.nameObject() + '@Impossible de passer ou retourner une liste de streams' 
+  + '@Supprimez la liste'/]
+  
+[comment impossible d'avoir un service S3 si opération n'est pas GET|POST|DELETE/]
+[query private err33 (s : soa::Service) : String = 'RG_33@' + s.nameObject() + '@Un service S3 ne peut avoir que des opérations GET|POST|DELETE' 
+  + '@Modifiez le verbe des opérations du service'/]

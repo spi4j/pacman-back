@@ -46,6 +46,10 @@ import org.obeonetwork.dsl.soa.System;
 import fr.pacman.back.core.ui.util.RepresentationUtils;
 import fr.pacman.back.start.ui.exception.PacmanInitModelException;
 
+import org.obeonetwork.dsl.environment.Environment;
+import org.obeonetwork.dsl.environment.EnvironmentFactory;
+import org.obeonetwork.dsl.environment.PrimitiveType;
+
 /**
  * Classe utilitaire pour tout ce qui concerne la création d'un projet de
  * modélisation, de ses différents fichiers de modélisation, de leur
@@ -144,10 +148,15 @@ public class SiriusUtil {
 	 * de la création de nouvelles ressources. On ouvre donc les représentations
 	 * uniquement lorsque toutes les ressources sont créées afin d'améliorer le
 	 * 'confort visuel' pour l'utilisateur.
-	 *
+	 * 
+	 * On crée aussi une ressource de type ".environment" pour ajouter des types qui
+	 * n'existent pas par défaut dans le métamodèle. Cette ressource doit toujours
+	 * être créée juste avant la création des représentations. Pour l'instant cette
+	 * ressource est créée dans tous les cas.
+	 * 
 	 * @param p_session         la session Sirius.
-	 * @param p_lstModelCodes   la liste des codes pour les fichiers de
-	 *                          modélisation.
+	 * @param p_lstModelCodes   la liste des codes pour les fichiers de modélisation
+	 *                          à créer.
 	 * @param p_applicationName le nom de l'application.
 	 * @param p_monitor         l'objet de monitoring.
 	 */
@@ -155,6 +164,7 @@ public class SiriusUtil {
 			final IProject p_project, final String p_applicationName, final SubMonitor p_monitor)
 			throws PacmanInitModelException {
 		Map<String, DRepresentation> v_lstCreatedRepresentations = new HashMap<String, DRepresentation>();
+		createCustomEnvironment(p_session, p_project, p_applicationName, p_monitor);
 		for (String v_code : p_lstModelCodes) {
 			SiriusModelDescriptor v_modelHelper = _models.get(v_code);
 			EObject v_eObject = getEObjectForModeling(p_session, v_code, p_applicationName, p_project);
@@ -198,6 +208,60 @@ public class SiriusUtil {
 		if (null == v_EObject)
 			throw new PacmanInitModelException("Aucun objet EObject pour le code : " + p_code);
 		return v_EObject;
+	}
+
+	/**
+	 * Crée un fichier ".environment" minimal dans le projet Eclipse spécifié,
+	 * contenant des types supplémentaires (hors métamodèle initial), et ajoute le
+	 * fichier à la session Sirius. La ressource est ensuite ajoutée à la session
+	 * pour qu'elle soit disponible dans les autres modèles (Entity, SOA, etc.).
+	 * </p>
+	 * 
+	 * @param session           La session Sirius dans laquelle la ressource sera
+	 *                          ajoutée.
+	 * @param p_project         Le projet Eclipse où sera créé le fichier
+	 *                          ".environment".
+	 * @param p_applicationName Le nom de l'application (différent de celui du
+	 *                          projet)
+	 * @param p_monitor         Moniteur de progression Eclipse pour suivre
+	 *                          l'exécution.
+	 * @return La ressource EMF créée correspondant au nouveau fichier
+	 *         ".environment".
+	 */
+	private static Resource createCustomEnvironment(final Session session, final IProject p_project,
+			final String p_applicationName, final SubMonitor p_monitor) {
+
+		URI uri = URI.createPlatformResourceURI("/" + p_project.getName() + "/" + p_applicationName + ".environment",
+				true);
+		final Resource resource = session.getTransactionalEditingDomain().getResourceSet().createResource(uri);
+		session.getTransactionalEditingDomain().getCommandStack()
+				.execute(new RecordingCommand(session.getTransactionalEditingDomain()) {
+					@Override
+					protected void doExecute() {
+						Environment env = EnvironmentFactory.eINSTANCE.createEnvironment();
+						env.setName(p_applicationName);
+
+						// Type représentant un document stocké dans S3
+						PrimitiveType s3Document = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+						s3Document.setName("S3Document");
+						resource.getContents().add(s3Document);
+
+						// Type représentant les métadonnées associées
+						PrimitiveType s3Metadata = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+						s3Metadata.setName("S3Metadata");
+						resource.getContents().add(s3Metadata);
+						
+						// Type représentant le type du document (pdf, word, ect...)
+						PrimitiveType s3ContentType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+						s3ContentType.setName("S3ContentType");
+						resource.getContents().add(s3ContentType);
+
+						resource.getContents().add(env);
+						session.addSemanticResource(uri, p_monitor);
+					}
+				});
+		session.save(p_monitor);
+		return resource;
 	}
 
 	/**

@@ -9,6 +9,7 @@
 [import fr::pacman::back::core::aql::output::resources/]
 
 [import fr::pacman::back::core::property::project::ProjectProperties/]
+[import fr::pacman::back::core::service::AnnotationUtils/]
 
 [comment retourne tous les service 'provided' de l'application./]
 [query public providedServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)
@@ -36,6 +37,12 @@
 [comment vérifie si le service utilise au moins une opération sécurisée./]
 [query public isRsSecured(s : soa::Service) : Boolean = not s.ownedInterface.ownedOperations
   ->select(o | o.isRsSecured())->isEmpty()/]
+
+[comment vérifie si le service est un service de persistance de type jpa (base de données)./]
+[query public isJpaService(s : soa::Service) : Boolean = not s.is_metaS3Storage()/]
+
+[comment vérifie si le service est un service de type stockage S3 (documents)./]
+[query public isS3Service(s : soa::Service) : Boolean = s.is_metaS3Storage()/]
 
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]  
 [query public rsUri(s : soa::Service) : String = if (s.isRsSSOAuthEnabled()) then s.rsUriMinArm() else s.rsUriStandard() endif /]

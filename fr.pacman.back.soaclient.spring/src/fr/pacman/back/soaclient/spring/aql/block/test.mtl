@@ -18,7 +18,7 @@
 [comment écriture de la classe helper pour la gestion du jeton (token)./]
 [template public serviceRsClientTokenTestsHelper (o : soa::Operation)]
   [let s = o.eContainer().eContainer().oclAsType(soa::Service)]
-    [o.classHeader(o.namePackageRsBase())/]
+    [o.classHeader(o.namePackageApplicationBase())/]
     [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       
       [o.defaultImports()/]
@@ -116,9 +116,9 @@
     import org.junit.jupiter.api.BeforeEach;
     import org.junit.jupiter.api.Test;
     import [s.namePackageProject()/].[s.namePackageRsClientImpl().toPackage()/].[s.nameClassRsClientImpl()/];
-    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClienTokenTestsHelper()/];
-    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientConfigImpl()/];
-    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientHelper()/];
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassRsClienTokenTestsHelper()/];
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassRsClientConfigImpl()/];
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassRsClientHelper()/];
     
   [/protected]
   

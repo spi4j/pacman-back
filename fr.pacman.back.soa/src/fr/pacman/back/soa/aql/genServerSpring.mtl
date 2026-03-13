@@ -22,6 +22,7 @@
     [m.fileOpenApiConfigImpl()/]
     [comment classe de configuration pour les tests d'intégration/]
     [m.fileInIntegrationTestsConfigImpl()/]
+    
     [comment implémentation de la configuration pour la sécurité rest./]
     [if (m.isRsSecured() and not m.isRsSSOAuthEnabled())]
       [comment écrase et remplace le fichier généré par défaut./]
@@ -31,22 +32,27 @@
       [comment implémentation du service d'authentification jwt./]
       [m.fileRsServiceTokenImpl()/]
     [/if]
+    
     [comment implémentation de la configuration pour la sécurité rest./]
     [if (m.isRsSecured() and m.isRsSSOAuthEnabled())]
       [comment écriture de la partie dynamique pour configuration sso (keycloack)./]
       [m.fileApplicationSSOProperties()/]
     [/if]
+    
     [comment écriture d'un filtre pour la gestion générique des en-têtes./]
     [m.fileRsHeaderFilterImpl()/]
+    
     [comment écriture pour les services sur couche de persistance./]
     [for (s : soa::Service | m.providedServices())]
       [let ads = s.associatedDtos()]
         [comment implémentation du service application (rest, etc..)./]
         [s.fileRsServiceImpl(ads)/]
-        [comment implémentation du service infrastructure (persistance)./]
-        [s.fileServiceOutImpl(ads)/]
+        [comment implémentation du service infrastructure (persistance jpa)./]
+        [if (s.isJpaService())][s.fileServiceOutImpl(ads)/][/if]
+        [comment implémentation du service infrastructure (persistance stockage s3)./]
+        [if (s.isS3Service())][s.fileServiceOutImpl()/][/if]
         [comment implémentation des tests pour le contrôleur (application)./]
-        [s.fileInIntegrationTestImpl()/]
+        [if (s.isJpaService())][s.fileInIntegrationTestImpl()/][/if]
       [/let]
     [/for]
   

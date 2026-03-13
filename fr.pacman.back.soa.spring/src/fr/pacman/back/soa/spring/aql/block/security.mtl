@@ -21,7 +21,7 @@
 
 [comment écriture de l'implémentation pour la configuration de la sécurité des services rest./]
 [template public securityRsConfigImpl(m : soa::System)]
-  [m.classHeader(m.namePackageRsBase())/]
+  [m.classHeader(m.namePackageApplicationBase())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [m.defaultImports()/]
@@ -65,7 +65,7 @@
     import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
     
     import com.nimbusds.jose.jwk.source.ImmutableSecret;
-    import [m.namePackageProject()/].[m.namePackageRsBase()/].[m.nameClassRsAuthenticationEntryPointImpl()/];
+    import [m.namePackageProject()/].[m.namePackageApplicationBase()/].[m.nameClassRsAuthenticationEntryPointImpl()/];
     
   [/protected]
   
@@ -420,7 +420,7 @@
 
 [comment écriture de l'implémentation pour le service de création d'un jeton jwt./]
 [template public securityRsTokenServiceImpl(any : ecore::EObject)]
-   [any.classHeader(any.namePackageRsBase())/]
+   [any.classHeader(any.namePackageApplicationBase())/]
    
    [any.defaultImports()/]
    import java.time.Instant;
@@ -516,7 +516,7 @@
     import org.springframework.security.core.Authentication;
     import org.springframework.web.bind.annotation.PostMapping;
     import org.springframework.web.bind.annotation.RequestMapping;
-    import [m.namePackageProject()/].[m.namePackageRsBase()/].[m.nameClassRsTokenServiceImpl()/];
+    import [m.namePackageProject()/].[m.namePackageApplicationBase()/].[m.nameClassRsTokenServiceImpl()/];
     
   [/protected]
   
@@ -567,7 +567,7 @@
 
 [comment écriture d'un filtre pour la gestion générique des en-têtes./]
 [template public headerRsFilterImpl(m : soa::System)]
-  [m.classHeader(m.namePackageRsBase())/]
+  [m.classHeader(m.namePackageApplicationBase())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [m.defaultImports()/]

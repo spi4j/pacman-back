@@ -7,6 +7,7 @@
 [import fr::pacman::back::core::aql::versions/]
 [import fr::pacman::back::core::aql::output::headers/]
 [import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::output::streams/]
 [import fr::pacman::back::core::aql::name::classes/]
 [import fr::pacman::back::core::aql::name::eobjects/]
 [import fr::pacman::back::core::aql::name::packages/]
@@ -15,6 +16,7 @@
 [import fr::pacman::back::core::aql::query::operation/]
 [import fr::pacman::back::core::aql::query::parameter/]
 [import fr::pacman::back::core::aql::query::application/]
+[import fr::pacman::back::core::aql::query::property/]
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::core::aql::query::dto/]
 [import fr::pacman::back::core::aql::rule::attribute/]
@@ -27,19 +29,34 @@
 [import fr::pacman::back::core::property::project::ProjectProperties/]
 [import fr::pacman::back::core::service::AnnotationUtils/]
 
-[comment écriture de l'implémentation d'un service contrôleur soa (couche application)./]
+[comment 	écriture de l'implémentation d'un service contrôleur soa (couche application). Dans le cas d'un service 
+			de stockage de type S3 on va utiliser un InputStreamResource. Cependant c'est bien un InputStream qui 
+			sera utilisé pour le reste de la chaine. Ceci est lié au principe de l'architecture hexagonale ou aucune 
+			classe ne doit permettre de deviner le type de framewok utilisé au niveau du domaine. Ajoute une complexité
+			supplémentaire mais toutefois obligatoire. Dans le cas d'un S3Document toujours passer un MediaType 
+			'multipart/form-data' en upload et 'application/octet-stream' en sortie. 
+			
+			Dans les différents traitements on compare parfois avec 'S3Document' et parfois avec 'InputStream', 
+			selon le niveau de contrainte appliqué au typage. Dans un cas il faudra alors comparer simplement 
+			avec 'type.name' et dans l'autre avec 'type.type()'. Il en est de même pour 'S3ContentType' 
+			et 'S3Metadata'/]
+			
 [template public serviceRsImpl (s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageRsControllerImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
+    import java.io.IOException;
     
     import org.springframework.http.HttpStatus;
     import org.springframework.http.MediaType;
     import org.springframework.http.ResponseEntity;
     import org.springframework.http.HttpHeaders;
+    
     import org.springframework.stereotype.Controller;
+    import org.springframework.core.io.InputStreamResource;
     import org.springframework.beans.factory.annotation.Autowired;
+    
     import org.springframework.web.bind.annotation.CookieValue;
     import org.springframework.web.bind.annotation.DeleteMapping;
     import org.springframework.web.bind.annotation.GetMapping;
@@ -49,10 +66,13 @@
     import org.springframework.web.bind.annotation.RequestMapping;
     import org.springframework.web.bind.annotation.RequestBody;
     import org.springframework.web.bind.annotation.RequestParam;
+    import org.springframework.web.bind.annotation.RequestPart;
     import org.springframework.web.bind.annotation.RequestMethod;
     import org.springframework.web.bind.annotation.RequestAttribute;  
     import org.springframework.web.bind.annotation.RequestHeader;
     import org.springframework.web.bind.annotation.ResponseBody;
+    
+    import org.springframework.web.multipart.MultipartFile;
     import org.springframework.security.access.prepost.PreAuthorize;
     
     import io.swagger.v3.oas.annotations.Operation;
@@ -100,9 +120,9 @@
         [o.commentOperation()/]
         [protected ((o.name + 'annotation').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
         [/protected]
-        [o.writeRsAnnotations()/]
+        [o.writeRsAnnotations(s)/]
         [o.writeRsSwaggerAnnotation(o.securityRsScheme())/]
-        [o.writeRsSignature()/]
+        [o.writeRsSignature(s)/]
         {
            [o.lineSeparator()/]
            [o.writeRsResponseBuilder()/]
@@ -113,6 +133,7 @@
              [o.writeCheckSizeParam()/]
              [o.writeSortByParam()/]
              [o.writeRsHeadOptionOperation(s)/]
+             [o.writeRsDocumentAttachment(s)/]
              
            [/protected]
            
@@ -176,7 +197,7 @@
   }
 [/template]
 
-[comment écriture de l'implémentation pour le service avec appel externe (couche infrastructure)./]
+[comment écriture de l'implémentation pour un service d'appel externe (couche infrastructure - circuit-breaker)./]
 [template public outExtImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageOutImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -230,7 +251,7 @@
   }
 [/template]
 
-[comment écriture de l'implémentation pour le service de persistance (couche infrastructure)./]
+[comment écriture de l'implémentation pour le service de persistance jpa (couche infrastructure)./]
 [template public outImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageOutImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -313,9 +334,87 @@
   }
 [/template]
 
+[comment écriture de l'implémentation pour le service de persistance s3 (couche infrastructure)./]
+[template public outImpl(s : soa::Service)]
+  [s.classHeader(s.namePackageOutImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+
+    import io.minio.MinioClient;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassStorageS3PropsImpl()/];
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassStorageS3ConfigImpl()/];
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];  
+    
+  [/protected]
+  
+  [s.commentInterface()/]
+  @[s.nameClassAnnotationOut()/]
+  public class [s.nameClassServiceOutImpl('s3')/] implements [s.nameClassServiceOutItf()/]
+  {
+      
+      ['Client technique utilisé pour interagir avec le mécanisme de stockage s3 externe'.commentSingleLine()/]
+      private final MinioClient ['client storage'.apply_attributeFinal()/];
+      
+      ['Propriétés pour interagir avec le mécanisme de stockage s3 externe'.commentSingleLine()/]
+      private final [s.nameClassStorageS3PropsImpl()/] ['props storage'.apply_attributeFinal()/];
+      
+      /**
+       * Constructeur permettant l'injection du client technique responsable
+       * des opérations de communication avec le système de stockage externe.
+       *
+       * @param ['client storage'.apply_parameterMethodClassicIn()/] client utilisé pour accéder 
+       *     au système de stockage.
+       * @param ['props storage'.apply_parameterMethodClassicIn()/] propriétés utilisées pour accéder 
+       *     au système de stockage.
+       */
+      @Autowired
+      public [s.nameClassServiceOutImpl('s3')/](final MinioClient ['client storage'.apply_parameterMethodClassicIn()/], 
+      	final [s.nameClassStorageS3PropsImpl()/] ['props storage'.apply_parameterMethodClassicIn()/])
+      {
+         [s.prefixAffectation()/]['client storage'.apply_attributeFinal()/] = ['client storage'.apply_parameterMethodClassicIn()/];
+         [s.prefixAffectation()/]['props storage'.apply_attributeFinal()/] = ['props storage'.apply_parameterMethodClassicIn()/];
+      }
+
+      [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+        [if (o.fsd())]
+          [o.commentOperation()/]
+          @Override
+          [o.writePersistSignature()/]
+          {
+            
+              [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+                
+                try 
+                {
+                  [if (o.canWriteS3Get())][o.writeS3Get()/][/if]
+                  [if (o.canWriteS3Post())][o.writeS3Post()/][/if]
+                  [if (o.canWriteS3Delete())][o.writeS3Delete()/][/if]
+                } catch (Exception ['exception'.apply_parameterMethodClassicIn()/])
+                {
+                  [if (o.canWriteS3Operation())]
+                    throw new RuntimeException
+                          ("Erreur dans l'execution de l'opération '[o.nameOperation()/]' : " 
+                            + ['exception'.apply_parameterMethodClassicIn()/].getMessage());
+                  [else]
+                    throw new [s.nameClassNotImplementedExceptionImpl()/] 
+                          ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
+                  [/if]
+                }
+                
+              [/protected]
+          }
+        [/if]
+      [/for]
+  }
+[/template]
+
 [comment écriture de l'implémentation pour la classe de définition openapi (swagger)./]
 [template public openApiConfigImpl(m :soa::System)]
-   [m.classHeader(m.namePackageRsBase())/]
+   [m.classHeader(m.namePackageApplicationBase())/]
    
    import io.swagger.v3.oas.annotations.OpenAPIDefinition;
    import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -365,7 +464,7 @@
 [comment ?????./]
 [query private fsd(o : soa::Operation) : Boolean =  if (o.hasOutput()) then 
   if(o.output->first().type.oclIsKindOf(environment::DTO)) then if (o.output->first().type.oclAsType(environment::DTO).isPersistent()) 
-  then true  else  false  endif else  true endif else true endif /]
+  then true else false endif else true endif else true endif/]
   
 [comment écriture de l'éventuel paramètre de pagination./]
 [query private writeSortByParam(o : soa::Operation) : String = if (o.paged) then 'final String ' + 'sort by'.apply_variableDefault() + '= "' 
@@ -446,11 +545,11 @@
   + '(' + if (o.paged) then 'final PageRequest ' + 'page request'.apply_parameterMethodClassicIn() else o.inputSignature() endif  + ')' /]
   
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writeRsSignature(o : soa::Operation) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 
-  + ' (' + o.writeRsInputs() + ')'/]
+[query private writeRsSignature(o : soa::Operation, s : soa::Service) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 
+  + ' (' + o.writeRsInputs() + ')' + if (s.isS3Service()) then ' throws IOException' else '' endif/]
   
 [comment écriture des annotations au niveau de l'opération rest./]
-[query private writeRsAnnotations(o : soa::Operation) : String = o.writeRsPreAuthorize() 
+[query private writeRsAnnotations(o : soa::Operation, s : soa::Service) : String = o.writeRsPreAuthorize() 
   + if (o.verb = soa::Verb::GET) then '@GetMapping(' + o.writeRsUri()
   else if (o.verb = soa::Verb::POST) then '@PostMapping(' + o.writeRsUri()
   else if (o.verb = soa::Verb::PUT) then '@PutMapping(' + o.writeRsUri()
@@ -459,13 +558,19 @@
   else if (o.verb = soa::Verb::HEAD) then '@RequestMapping(' + o.writeRsUri() + ' method = RequestMethod.HEAD)'
   else if (o.verb = soa::Verb::PATCH) then '@PatchMapping(' + o.writeRsUri()
   else if (o.verb = soa::Verb::TRACE) then '' else '' endif endif endif endif endif endif endif endif 
-  + if (o.hasToWriteRsProduce()) then 'produces = ' + '"' + if (o.hasMediaRsType()) then  
-  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + o.defaultRsEncoding() + '")' 
-  else '' endif/]
+  + if (o.hasToWriteRsProduce()) then 'produces = ' + '"' + if (o.hasMediaRsOutputType()) then  
+  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + if (s.isS3Service()) 
+  then '' else o.defaultRsEncoding() endif + '"' + if (o.hasToWriteRsConsume()) then ', consumes = "' 
+  + if (o.hasMediaRsInputsType()) then o.firstMediaRsInputType() else o.defaultRsMediaType() endif + '"' 
+  else '' endif + ')' else '' endif/]
   
 [comment vérifie si il y a besoin d'écrire le paramètre 'produce = './]
 [query private hasToWriteRsProduce(o : soa::Operation) : Boolean = o.verb <> soa::Verb::OPTIONS 
   and o.verb <> soa::Verb::TRACE and o.verb <> soa::Verb::HEAD/]
+  
+[comment vérifie si il y a besoin d'écrire le paramètre 'consume = './]
+[query private hasToWriteRsConsume(o : soa::Operation) : Boolean = o.verb = soa::Verb::POST 
+  or o.verb = soa::Verb::PUT or o.verb = soa::Verb::PATCH/]
 
 [comment écriture de l'uri pour l'opération./]
 [query private writeRsUri(o : soa::Operation) : String =  if (o.rsUri().exists()) then 'value = "'+ o.rsUri() + '", ' 
@@ -485,9 +590,11 @@
  else if (p.restData.passingMode = soa::ParameterPassingMode::PATH) then '@PathVariable(name = "' + p.restData.restId + '", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::QUERY) then '@RequestParam(name = "' + p.restData.restId + '", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::HEADER) then '@RequestHeader(name = "' + p.restData.restId + '", '
+ else if (p.restData.passingMode = soa::ParameterPassingMode::BODY and 'S3Metadata'.equalsIgnoreCase(p.type.name))then '@RequestPart(name = "metadata", '
+ else if (p.restData.passingMode = soa::ParameterPassingMode::BODY and 'InputStream'.equalsIgnoreCase(p.type.type()))then '@RequestPart(name = "file", '
  else if (p.restData.passingMode = soa::ParameterPassingMode::BODY) then '@RequestBody(' 
  else if (p.restData.passingMode = soa::ParameterPassingMode::COOKIE) then '@CookieValue(name = "' + p.restData.restId + '", '
- else '' endif endif endif endif endif endif endif + 'required = ' + p.isMandatory() +  ')'/]
+ else '' endif endif endif endif endif endif endif endif endif + 'required = ' + p.isMandatory() +  ')'/]
 
 [comment écriture du statut modélisé pour la réponse, si aucun statut on prend celui par défaut./]
 [query private writeRsStatus(o : soa::Operation) : String = if (o.hasRsStatusCode()) then o.output->first().statusCode 
@@ -495,12 +602,12 @@
 
 [comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
 [query private writeRsInputs(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
-  ->collect(o1 : soa::Parameter |  o1.writeRsAnnotation(o)  + ' ' + o1.inputRsType() + ' ' + o1.name().apply_parameterMethodClassicIn())
-  ->sep(', ')->toString() else '' endif/]
+  ->collect(o1 : soa::Parameter |  o1.writeRsAnnotation(o)  + ' ' + if ('InputStream'.equalsIgnoreCase(o1.type.type())) then 'MultipartFile' 
+  else o1.inputRsType() endif + ' ' + o1.name().apply_parameterMethodClassicIn())->sep(', ')->toString() else '' endif/]
 
 [comment écriture du paramètre de sortie pour une opération de type rest (toute opération doit avoir un paramètre de sortie, même HEAD et OPTIONS)./]
 [query private writeRsOutput(o : soa::Operation) : String =  'ResponseEntity<' + if (not o.mustHaveRsOutput()) 
-  then 'Void' else o.outputRsType() endif + '>'/]
+  then 'Void' else o.outputRsType().convertRsStreamToResource() endif + '>'/]
 
 [comment écriture de la chaine complète (avec mapper) pour les paramètres en entrée du service domaine./]
 [query private writeRsInputsForService(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
@@ -513,16 +620,27 @@
   + '.add(' + if (o.verb = soa::Verb::OPTIONS) then '"Allow", "<GET|POST|DELETE|OPTIONS|ETC...>");' else '"X-", "<VOTRE PARAMETRE>");' endif
   + o.lineSeparator() +  'return ResponseEntity.ok().headers(' + 'headers'.apply_variableDefault() + ').build();' else '' endif/]
 
+[comment écriture particulièer pour le download d'un document S3 (ou autre), il faut spécifier le type et le nom du document./]
+[query private writeRsDocumentAttachment(o : soa::Operation, s : soa::Service) : String = if (o.hasOutput() and s.isS3Service()) 
+  and o.verb = soa::Verb::GET then  if (o.canWriteS3Get()) then 'response builder'.apply_variableDefault() + '.header("Content-Disposition", ' 
+  + '"attachment; filename=" + ' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
+  + ' + "");' else '// ' + 'response builder'.apply_variableDefault() + '.header("Content-Disposition", ' + '"attachment; filename=" + ' 
+  + '[PARAMETRE AVEC LE NOM DU FICHIER]' + ' + "");' endif else '' endif/]
+
 [comment écriture du builder pour l'objet de réponse du service rest./]
 [query private writeRsResponseBuilder(o : soa::Operation) : String = if (o.mustHaveRsOutput()) then 'ResponseEntity.BodyBuilder ' 
   + 'response builder'.apply_variableDefault() + ' = ResponseEntity.status(' + o.writeRsStatus() + ');' else '' endif/]
+
+[comment écriture de la requête pour le service rest, si opération stockage S3 on parse la chaine pour modifier qqes paramètres./]
+[comment query private writeRsOperationxx(o : soa::Operation, s : soa::Service) : String = let rs = o.writeRsOperationCore(s) in 
+  if ('InputStream'.equalsIgnoreCase(o.outputRsType())) then rs.wrapRsStreamAsResource() else rs endif/]
 
 [comment écriture de la requête pour le service rest, sert d'aiguillage pour les autres queries en fonction du type de sortie./]
 [query private writeRsOperation(o : soa::Operation, s : soa::Service) : String =  if (o.mustHaveRsOutput()) then 
  if (o.output->first().isRsOptional()) then if(o.output->first().isMultiple()) then o.writeRsOptionalOutputStar(s) else o.writeRsOptionalOutputOne(s) endif 
  else if(o.output->first().isMultiple()) then o.writeRsNonOptionalOutputStar(s) else o.writeRsNonOptionalOutputOne(s) endif endif + ';' else '' endif/]
  
-[comment écriture pour un résultat optionnel sur un enregistrement (plus compliqué car deux réponses complétement différentes si dto ou primitif)./]
+[comment écriture pour un résultat optionnel sur un enregistrement (deux réponses complétement différentes si dto ou primitif/InputStream en sortie)./]
 [query private writeRsOptionalOutputOne(o : soa::Operation, s : soa::Service) : String =  if (o.output->first().type.oclIsKindOf(environment::DTO)) 
   then 'return ' + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() 
   + ').map(o -> ' + 'response builder'.apply_variableDefault() + '.body(' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
@@ -530,10 +648,12 @@
   + if (o.hasRsNotFoundFault()) then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
   + ', "' endif + '"))' 
   
-  else 'Optional<String>' +  'value'.apply_variableDefault() + '= ' + o.prefixAffectation() + s.name().apply_attributeFinal() 
-  + '.' + o.nameOperation() + '(' + o.writeRsInputsForService()  + ');' + 'if (' + 'value'.apply_variableDefault() + '.isPresent()) { return ' 
-  + 'response builder'.apply_variableDefault() + '.body(' + 'value'.apply_variableDefault() + '.get());} else throw new ' + o.nameClassRsDataNotFoundExceptionImpl() 
-  + '(' + if (o.hasRsNotFoundFault()) then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
+  else let stream = o.hasRsOutputStream() in 'Optional<'+ if (stream) then o.outputRsType() else 'String' endif + '>' 
+  + 'value'.apply_variableDefault() + '= ' + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService()  
+  + ');' + 'if (' + 'value'.apply_variableDefault() + '.isPresent()) { return ' + 'response builder'.apply_variableDefault() + '.body(' 
+  + if (stream) then 'new ' + o.outputRsType().convertRsStreamToResource() + '(' else '' endif + 'value'.apply_variableDefault() 
+  + '.get()' + if (stream) then ')' else '' endif +');} else throw new ' + o.nameClassRsDataNotFoundExceptionImpl() + '(' 
+  + if (o.hasRsNotFoundFault()) then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
   + ', "' endif + '")' endif/]
 
 [comment écriture pour un résultat optionnel sur une liste d'enregistrements (pour l'instant 200 avec liste vide)./]
@@ -543,12 +663,13 @@
   + '.' + ('to ' + o.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
   + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif/]
 
-[comment écriture pour un résultat obligatoire sur un enregistrement./]
-[query private writeRsNonOptionalOutputOne(o : soa::Operation, s : soa::Service) : String = 'return ' + 'response builder'.apply_variableDefault() 
-  + '.body(' + if (o.output->first().type.oclIsKindOf(environment::DTO)) then o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
-  + '.' + 'to xto'.apply_methodDefault() + '(' + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() 
-  + '(' + o.writeRsInputsForService() + ')))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() 
-  + '(' + o.writeRsInputsForService() + '))' endif /]
+[comment écriture pour un résultat obligatoire sur un enregistrement (cas ou on peut traiter un inpustream en sortie)./]
+[query private writeRsNonOptionalOutputOne(o : soa::Operation, s : soa::Service) : String = let stream = o.hasRsOutputStream() in 'return ' 
+  + 'response builder'.apply_variableDefault() + '.body(' + if (o.output->first().type.oclIsKindOf(environment::DTO)) 
+  then o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' + 'to xto'.apply_methodDefault() + '(' + o.prefixAffectation() 
+  + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ')))' else if(stream) then 'new ' 
+  + o.outputRsType().convertRsStreamToResource() + '(' else '' endif + o.prefixAffectation() + s.name().apply_attributeFinal() 
+  + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif + if (stream) then ')' else '' endif/]
 
 [comment écriture pour un résultat obligatoire sur un liste d'enregistrements./]
 [query private writeRsNonOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + 'response builder'.apply_variableDefault() + '.body(' +
@@ -561,25 +682,34 @@
 [query private writeRsInputForService(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) 
   then if (p.isMultiple()) then p.name().apply_parameterMethodClassicIn() + '.stream().map(o -> ' +  p.type.oclAsType(environment::DTO).nameClassMapperImpl() 
   + '.' + ('to ' + p.suffixDto()).apply_methodDefault() + '(o)).collect(Collectors.toList())' else  p.type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' 
-  + ('to ' + p.suffixDto()).apply_methodDefault() + '(' + p.name().apply_parameterMethodClassicIn() + ')' endif 
-  else p.name().apply_parameterMethodClassicIn() endif /]
+  + ('to ' + p.suffixDto()).apply_methodDefault() + '(' + p.name().apply_parameterMethodClassicIn() + ')' endif else p.name().apply_parameterMethodClassicIn() 
+  + if ('InputStream'.equalsIgnoreCase(p.type.type())) then '.getInputStream()' else '' endif endif /]
 
-[comment écriture de l'annotion explicative pour swagger-ui (pour paramètre en body un seul, mais plus simple d'utiliser la boucle)./]
+[comment 	écriture de l'annotion explicative pour swagger-ui (pour paramètre en body un seul, mais plus simple d'utiliser la boucle). 
+			Dans le cas d'un document S3, on écrit pas la partie @RequestBody qui ajoute de la complexité inutile et surtout qui empèche 
+			la bonne prise en compte de la partie @RequestPart avec le nom de la variable de passage. Toujours faire au plus simple avec 
+			open api dès que c'est correctement implémenté dans swagger-ui. On teste sur 'InputStream' car c'est la clase générique pour 
+			les fichiers, qu'il soit S3 ou autre, par contre on teste directement sur 'S3Metadata' pour l'autre condition car c'est 
+			uniquement dans le cas S3 qu'on ne peut pas afficher le 'RequestBody'./]
+			
 [query private writeRsSwaggerAnnotation(o : soa::Operation, ss : soa::SecurityScheme) : String = '@Operation(operationId = "' + o.name() + '", description = "' 
-  + o.writeDescriptionSingleLine() + '", tags = {"' + o.eContainer(soa::Service).name() + '"}' + if (o.isRsSecured()) then ', security = ' + if (ss.type = soa::SecuritySchemeType::OAUTH2 
-  or ss.type = soa::SecuritySchemeType::OPEN_ID_CONNECT) then '{' + ss.flows->collect(o0 | '@SecurityRequirement(name = "' +  ss.name + '_' 
-  + o0.flowType.toString().toLower() + '")')->sep(',') + '}' else '@SecurityRequirement(name = "' + ss.name + '")' endif  else '' endif + if (o.hasInputs() and not 
-  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)->isEmpty()) then ', requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(' 
+  + o.writeDescriptionSingleLine() + '", tags = {"' + o.eContainer(soa::Service).name() + '"}' + if (o.isRsSecured()) then ', security = ' 
+  + if (ss.type = soa::SecuritySchemeType::OAUTH2 or ss.type = soa::SecuritySchemeType::OPEN_ID_CONNECT) then '{' + ss.flows->collect(o0 | '@SecurityRequirement(name = "' 
+  +  ss.name + '_' + o0.flowType.toString().toLower() + '")')->sep(',') + '}' else '@SecurityRequirement(name = "' + ss.name + '")' endif  else '' endif 
+  + if (o.hasInputs() and o.input->exists(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY and not 'InputStream'.equalsIgnoreCase(o1.inputRsType()) 
+  and not 'S3Metadata'.equalsIgnoreCase(o1.type.name))) then ', requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(' 
   +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)->collect(o2 | ' required = true, description = "' 
   + o2.writeDescriptionSingleLine() + '", content = @Content( mediaType = "' + if (o2.hasMediaRsType()) then o2.mediaRsType() else o2.defaultRsMediaType() endif 
-  + '", schema = @Schema(implementation = ' + o2.inputRsType().replaceAll('\\b(?:List|Set)<([^<>]+)>', '$1')  + '.class)))') else '' endif 
+  + '", schema = @Schema(implementation = ' + o2.inputRsType().replaceAll('\\b(?:List|Set)<([^<>]+)>', '$1')  + '.class)))' ) else '' endif 
+  
   + if (o.hasInputs() and not o.input->select(o3 | o3.restData.passingMode <> soa::ParameterPassingMode::BODY)->isEmpty() ) then ', parameters = {' 
   + o.input->select(o4 | o4.restData.passingMode <> soa::ParameterPassingMode::BODY)->collect(o5 | '@Parameter( '+ 'name = "' + o5.restData.restId 
   + '", description = "' + o5.writeDescriptionSingleLine() + '", required = ' + o5.isMandatory() + ', in = ParameterIn.' + o5.restData.passingMode 
   + ', example = "")')->sep(', ') +  '}' else '' endif + ')' + '@ApiResponses(value = { ' + if (o.hasOutput()) then '@ApiResponse(responseCode = "'
   + o.output->first().statusCode + '", description = "' + o.output->first().statusMessage + '", content = @Content(mediaType = "' 
-  + if (o.hasMediaRsType()) then o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '", schema = @Schema(implementation = ' 
-  + o.outputRsType().replaceAll('\\b(?:List|Set)<([^<>]+)>', '$1') + '.class)))' else '' endif + if(not o.fault->isEmpty()) then ', ' else '' endif 
+  + if (o.hasMediaRsOutputType()) then o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '", schema = @Schema(' 
+  + if ('InputStream'.equalsIgnoreCase(o.outputRsType())) then 'type = "string", format = "binary"' else 'implementation = ' 
+  + o.outputRsType().replaceAll('\\b(?:List|Set)<([^<>]+)>', '$1') + '.class' endif + ')))' else '' endif + if(not o.fault->isEmpty()) then ', ' else '' endif 
   + o.fault->collect(o6 | '@ApiResponse(responseCode = "' + o6.statusCode + '", description = "' + o6.statusMessage + '")')->sep(', ') + '})'/]
 
 [comment écriture de l'annotion explicative pour swagger-ui (vide pour l'instant car redondant avec l'opération) attention à ne 
@@ -618,3 +748,59 @@
   else if (f.flowType = soa::FlowType::AUTHORIZATIONCODE) then 'authorizationCode ' 
   else if (f.flowType = soa::FlowType::PASSWORD) then 'password' 
   else f.cNoModelisation() endif endif endif endif/]
+  
+[comment vérifie si on peut écrire automatiquement le download d'un document S3./]
+[query private canWriteS3Get(o : soa::Operation) : Boolean = o.verb = soa::Verb::GET and o.hasOutput() and o.hasInputs() 
+  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1 and 'S3Document'.equalsIgnoreCase(o.output
+  ->first().type.name)/]
+
+[comment vérifie si on peut écrire automatiquement l'upload d'un document S3./]
+[query private canWriteS3Post(o : soa::Operation) : Boolean = o.verb = soa::Verb::POST and o.hasOutput() and o.hasInputs() 
+  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1 and o.input->select(p | 'S3Document'
+  .equalsIgnoreCase(p.type.name))->size() = 1/]
+
+[comment vérifie si on peut écrire automatiquement le delete d'un document S3./]
+[query private canWriteS3Delete(o : soa::Operation) : Boolean = o.verb = soa::Verb::DELETE and o.hasOutput() and o.hasInputs() 
+  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1/]
+
+[comment vérifie si il est possible d'écrire automatiquement l'opération S3./]
+[query private canWriteS3Operation(o : soa::Operation) : Boolean = o.canWriteS3Delete() or o.canWriteS3Get() or o.canWriteS3Post()/]
+  
+[comment écriture de l'opération de download pour un document avec stockage S3./]
+[query private writeS3Get(o : soa::Operation) : String = 'return ' + 'client storage'.apply_attributeFinal() + '.getObject(GetObjectArgs.builder()' 
+  + '.bucket(' + 'props storage'.apply_attributeFinal() + '.getBucket()).object(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn()  + ').build());'/]
+  
+[comment écriture de l'opération d'upload pour un document avec stockage S3./]
+[query private writeS3Post(o : soa::Operation) : String = 'client storage'.apply_attributeFinal() + '.putObject(PutObjectArgs.builder()' 
+  + '.bucket(' + 'props storage'.apply_attributeFinal() + '.getBucket()).object(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn() + ').stream(' + o.input->select(p | 'S3Document'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn() + ', -1, 10 * 1024 * 1024).contentType(' + if (o.input->select(p | 'S3ContentType'
+  .equalsIgnoreCase(p.type.name))->size() = 1) then o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn()  else '"application/octet-stream"' endif + ').build());' + o.lineSeparator() 
+  + 'return null;'/]
+  
+[comment écriture de l'opération de delete pour un document avec stockage S3./]
+[query private writeS3Delete(o : soa::Operation) : String = 'client storage'.apply_attributeFinal() + '.removeObject(RemoveObjectArgs.builder()'
+  + '.bucket(' + 'props storage'.apply_attributeFinal() + '.getBucket()).object(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn() +').build());' + o.lineSeparator()  + 'return null;' /]
+
+  [comment query private writeRsSwaggerAnnotation(o : soa::Operation, ss : soa::SecurityScheme) : String = '@Operation(operationId = "' + o.name() + '", description = "' 
+  + o.writeDescriptionSingleLine() + '", tags = {"' + o.eContainer(soa::Service).name() + '"}' + if (o.isRsSecured()) then ', security = ' + if (ss.type = soa::SecuritySchemeType::OAUTH2 
+  or ss.type = soa::SecuritySchemeType::OPEN_ID_CONNECT) then '{' + ss.flows->collect(o0 | '@SecurityRequirement(name = "' +  ss.name + '_' 
+  + o0.flowType.toString().toLower() + '")')->sep(',') + '}' else '@SecurityRequirement(name = "' + ss.name + '")' endif  else '' endif + if (o.hasInputs() and not 
+  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)->isEmpty()) then ', requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(' 
+  +  o.input->select(o1 | o1.restData.passingMode = soa::ParameterPassingMode::BODY)->collect(o2 | ' required = true, description = "' 
+  + o2.writeDescriptionSingleLine() + '", content = @Content( mediaType = "' + if (o2.hasMediaRsType()) then o2.mediaRsType() else o2.defaultRsMediaType() endif 
+  + '", schema = @Schema(' + if ('InputStream'.equalsIgnoreCase(o2.inputRsType())) then 'type = "string", format = "binary"' else 'implementation = ' 
+  + o2.inputRsType().replaceAll('\\b(?:List|Set)<([^<>]+)>', '$1')  + '.class' endif + ')))') else '' endif 
+  
+  + if (o.hasInputs() and not o.input->select(o3 | o3.restData.passingMode <> soa::ParameterPassingMode::BODY)->isEmpty() ) then ', parameters = {' 
+  + o.input->select(o4 | o4.restData.passingMode <> soa::ParameterPassingMode::BODY)->collect(o5 | '@Parameter( '+ 'name = "' + o5.restData.restId 
+  + '", description = "' + o5.writeDescriptionSingleLine() + '", required = ' + o5.isMandatory() + ', in = ParameterIn.' + o5.restData.passingMode 
+  + ', example = "")')->sep(', ') +  '}' else '' endif + ')' + '@ApiResponses(value = { ' + if (o.hasOutput()) then '@ApiResponse(responseCode = "'
+  + o.output->first().statusCode + '", description = "' + o.output->first().statusMessage + '", content = @Content(mediaType = "' 
+  + if (o.hasMediaRsOutputType()) then o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '", schema = @Schema(' 
+  + if ('InputStream'.equalsIgnoreCase(o.outputRsType())) then 'type = "string", format = "binary"' else 'implementation = ' 
+  + o.outputRsType().replaceAll('\\b(?:List|Set)<([^<>]+)>', '$1') + '.class' endif + ')))' else '' endif + if(not o.fault->isEmpty()) then ', ' else '' endif 
+  + o.fault->collect(o6 | '@ApiResponse(responseCode = "' + o6.statusCode + '", description = "' + o6.statusMessage + '")')->sep(', ') + '})'/]

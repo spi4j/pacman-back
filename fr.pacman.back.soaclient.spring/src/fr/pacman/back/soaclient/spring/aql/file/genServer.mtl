@@ -24,7 +24,7 @@
 
 [comment écriture du fichier d'implémentation d'une classe de gestion du token pour les tests avant packaging./]
 [template public fileRsClientTokenTestsHelper(o : soa::Operation)]
-  [file (o.nameClassRsClienTokenTestsHelper().toFileJavaTest(o.namePackageRsBase()), overwrite, o.defaultFileEncoding())]
+  [file (o.nameClassRsClienTokenTestsHelper().toFileJavaTest(o.namePackageApplicationBase()), overwrite, o.defaultFileEncoding())]
     [o.serviceRsClientTokenTestsHelper()/]
   [/file]
 [/template]

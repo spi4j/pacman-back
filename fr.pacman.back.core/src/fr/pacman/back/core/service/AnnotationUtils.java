@@ -232,7 +232,7 @@ public final class AnnotationUtils {
 	public static boolean has_metaPhysicalUnique(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PHYSICAL_UNIQUE);
 	}
-	
+
 	public static boolean has_metaCascadeType(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.CASCADE_TYPE);
 	}
@@ -240,19 +240,19 @@ public final class AnnotationUtils {
 	public static boolean has_metaVersion(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.VERSION);
 	}
-	
+
 	public static boolean has_metaPermission(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS);
 	}
-	
+
 	public static boolean has_metaComputed(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
 	}
-	
+
 	public static boolean has_metaPermissionOr(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS_OR);
 	}
-	
+
 	public static boolean has_metaPermissionAnd(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS_AND);
 	}
@@ -260,15 +260,23 @@ public final class AnnotationUtils {
 	public static boolean is_metaComputed(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
 	}
-	
+
 	public static boolean is_metaFetchLazy(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.FETCH_LAZY);
 	}
 
+	public static boolean is_metaS3Storage(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.S3_STORAGE);
+	}
+
+//	public static String get_metaS3Storage(final ObeoDSMObject p_object) {
+//		return get_annotationBody(p_object, AnnotationEnum.S3_STORAGE);
+//	}
+
 	public static boolean has_metaAuthToken(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.AUTH_TOKEN);
 	}
-	
+
 	public static String get_metaUser(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.USER);
 	}
@@ -308,19 +316,19 @@ public final class AnnotationUtils {
 	public static String get_metaVersion(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.VERSION);
 	}
-	
+
 	public static String get_metaPermission(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.PERMISSIONS);
 	}
-	
+
 	public static String get_metaPermissionOr(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.PERMISSIONS_OR);
 	}
-	
+
 	public static String get_metaPermissionAnd(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.PERMISSIONS_AND);
 	}
-	
+
 	public static String get_metaComputed(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.COMPUTED);
 	}
@@ -372,19 +380,18 @@ public final class AnnotationUtils {
 	public static String get_metaLiteralParamsStruct(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.LITERALS_PARAMS_STRUCT);
 	}
-	
+
 	public static String get_metaLiteralCascadeType(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.CASCADE_TYPE);
 	}
-	
+
 	public static boolean has_metaEntityManager(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.ENTITY_MANAGER);
 	}
-	
+
 	public static boolean has_metaSkipEmptyValues(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.SKIP_EMPTY_VALUES);
 	}
-	
 
 	public static boolean has_metaLiteralParamsStruct(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.LITERALS_PARAMS_STRUCT)

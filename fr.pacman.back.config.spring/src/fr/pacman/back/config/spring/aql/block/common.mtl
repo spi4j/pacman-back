@@ -112,6 +112,62 @@
   </project>
 [/template]
 
+[comment écriture de l'interface pour le storage S3 (non utilisé pour l'instant)./]
+[template public storageServiceItf(any : ecore::EObject)]
+  [any.classHeader(any.namePackageCommonBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [any.defaultImports()/]
+    import java.io.InputStream;
+    
+  [/protected]
+  
+  /**
+   * Port applicatif définissant les opérations de gestion de contenu binaire.
+   * <p>
+   * Cette interface expose les capacités nécessaires pour stocker, récupérer
+   * et supprimer des ressources identifiées par une clé unique. Elle constitue
+   * un point d'abstraction entre la logique applicative et les mécanismes
+   * techniques de persistance du contenu.
+   * </p>
+   * <p>
+   * Les implémentations concrètes sont fournies par la couche d'infrastructure
+   * et peuvent s'appuyer sur différents mécanismes de stockage.
+   * </p>
+   * @author [any.nameAuthor()/]
+   */
+  public interface [any.nameClassStorageS3Itf()/] {
+      
+      /**
+       * Enregistre un contenu binaire associé à une clé.
+       *
+       * @param ['key'.apply_parameterMethodClassicIn()/] identifiant unique de la ressource
+       * @param ['stream'.apply_parameterMethodClassicIn()/] flux de données représentant le contenu à stocker
+       * @param ['content type'.apply_parameterMethodClassicIn()/] type MIME du contenu
+       */
+      void ['upload'.apply_methodDefault()/](final String ['key'.apply_parameterMethodClassicIn()/], 
+      final InputStream ['stream'.apply_parameterMethodClassicIn()/], 
+      final String ['content type'.apply_parameterMethodClassicIn()/]);
+      
+      /**
+       * Récupère le contenu binaire associé à une clé.
+       *
+       * @param ['key'.apply_parameterMethodClassicIn()/] identifiant unique de la ressource
+       * @return flux de données permettant de lire le contenu stocké
+       */
+      InputStream ['download'.apply_methodDefault()/](String ['key'.apply_parameterMethodClassicIn()/]);
+      
+      /**
+       * Supprime le contenu associé à une clé.
+       *
+       * @param ['key'.apply_parameterMethodClassicIn()/] identifiant unique de la ressource à supprimer
+       */
+      void ['delete'.apply_methodDefault()/](String ['key'.apply_parameterMethodClassicIn()/]);
+      
+      [protected ('storage'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
+  }
+[/template]
 
 [comment écriture de l'annotation pour l'injection de service métier./]
 [template public annotationIn(any : ecore::EObject)]

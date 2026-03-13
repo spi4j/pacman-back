@@ -122,7 +122,7 @@
   <metaDataDefinitions 
      technicalid="_q_mkAL1cEe-jcvmoMOdyBg" 
      title="LITERALS_PARAMS_STRUCT" 
-     body="ENUML :  Affecte le type de chaque paramètre attendu. ex : [param1:String,param2:Integer,param3:Boolean,param4:Float]." 
+     body="ENUM :  Affecte le type de chaque paramètre attendu. ex : [param1:String,param2:Integer,param3:Boolean,param4:Float]." 
      condition="aql:Sequence{'enumeration'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_tmSXkO4eEe-hJvFgO8ER5w"
@@ -141,6 +141,10 @@
      title="SKIP_EMPTY_VALUES"
      body="REST : Ne prend pas en compte les paramètres nuls ou vides dans les requêtes." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
+   <metaDataDefinitions technicalid="_vnrOMBjBEfGiFZ_syMSqfQ" 
+     title="S3_STORAGE"
+     body="DOCUMENT : Opération de stockage pour un document (implémentation S3 par défaut)." 
+     condition="aql:Sequence{'service'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_ig-wcIiEEfC8-K9GNeeGuw"
     title="JSON_NAME"
      body="REST : Modifie le nom de sérialisation ex : [nouveau nom]." 

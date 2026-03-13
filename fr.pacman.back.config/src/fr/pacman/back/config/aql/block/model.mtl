@@ -83,7 +83,7 @@
   <ul>
     <li>[any.nameProjectServer()/]
        <ul>
-          <li><code>[any.namePackageProject()/].[any.namePackageRsBase()/]</code> : classes de haut niveau pour les services rest.</li>
+          <li><code>[any.namePackageProject()/].[any.namePackageApplicationBase()/]</code> : classes de haut niveau pour les services rest.</li>
           <li><code>[any.namePackageProject()/].[any.namePackageRsControllerBase()/]</code> : contrôleur par défaut pour la customisation de l'api de santé.</li>
           <li><code>[any.namePackageProject()/].[any.namePackageException()/]</code> : exceptions de base pour les services rest.</li>
           <li><code>[any.namePackageProject()/].[any.namePackageInfrastructureBase()/]</code> : classes de haut niveau pour les services de persistance.</li>
@@ -114,8 +114,9 @@
   <ul>
   <li><code>http://localhost:8080/actuator/health</code></li>
   <li><code>http://localhost:8080/actuator/info</code></li>
-  <li><code>http://localhost/swagger-ui</code></li>
-  <li><code>http://localhost/api-docs</code></li>
+  <li><code>http://localhost:8081/swagger-ui</code></li>
+  <li><code>http://localhost:8081/api-docs</code></li>
+  <li><code>http://localhost:8081/v['['/]version[']'/]/['['/]uri accès aux services[']'/]/['['/]uri service[']'/]</code></li>
   </ul></li>
   </ol>
   <hr/>

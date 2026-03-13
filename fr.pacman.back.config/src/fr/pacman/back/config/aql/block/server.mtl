@@ -90,7 +90,7 @@
 
 [comment écriture de l'interface pour le service de santé de l'application./]
 [template public serviceHealthItf(any : ecore::EObject)]
-  [any.classHeader(any.namePackageRsBase())/]
+  [any.classHeader(any.namePackageApplicationBase())/]
   
   import net.minidev.json.JSONObject;
   import org.json.JSONPropertyName;
@@ -126,7 +126,7 @@
 [/template]
   
 [comment écriture de l'implémentation pour l'api de santé./][template public externalHealthImpl(any : ecore::EObject)]
-   [any.classHeader(any.namePackageRsBase())/]
+   [any.classHeader(any.namePackageApplicationBase())/]
    
    import net.minidev.json.JSONArray;
    import net.minidev.json.JSONObject;
@@ -169,7 +169,7 @@
    }[/template]
     
 [comment écriture de l'implémentation pour l'api de santé./][template public externalInfoImpl (any : ecore::EObject)]
-   [any.classHeader(any.namePackageRsBase())/]
+   [any.classHeader(any.namePackageApplicationBase())/]
    
    import com.fasterxml.jackson.annotation.JsonProperty;
    
@@ -277,7 +277,7 @@
 [comment écriture de l'implémentation pour la configuration par défaut de la sécurité des services rest.
          cette configuration est écrasée dès lors qu'uné sécurité est activée./]
 [template public defaultSecurityRsConfigImpl(any : ecore::EObject)]
-  [any.classHeader(any.namePackageRsBase())/]
+  [any.classHeader(any.namePackageApplicationBase())/]
   
   import org.springframework.core.annotation.Order;
   import org.springframework.context.annotation.Bean;

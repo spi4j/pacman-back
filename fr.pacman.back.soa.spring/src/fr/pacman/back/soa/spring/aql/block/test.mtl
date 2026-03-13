@@ -20,6 +20,7 @@
 [import fr::pacman::back::core::aql::output::headers/]
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::aql::output::streams/]
 [import fr::pacman::back::core::aql::rule::parameter/]
 [import fr::pacman::back::core::aql::rule::variable/]
 [import fr::pacman::back::core::aql::rule::attribute/]
@@ -212,6 +213,7 @@
     import org.junit.jupiter.api.Test;
     import org.junit.jupiter.api.extension.ExtendWith;
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.core.io.InputStreamResource;
     import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
     import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
     import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -329,15 +331,15 @@
 	+ 'expected status'.apply_variableDefault() + ' = ' + if(o.mustHaveRsOutput()) then o.output->first().statusCode else '200' endif +';' 
 	+ o.lineSeparator() + ' '/]
 
-[comment écriture de liste des paramètres d'entrée de l'opération pour initialisation./]
+[comment écriture de la liste des paramètres d'entrée de l'opération pour initialisation./]
 [query private writeRsInitInputParams(o : soa::Operation) : String = o.input->asOrderedSet()->collect(o1 | o1.description.commentSingleLine() 
-	+ if (o1.type.oclIsKindOf(environment::DTO)) then o1.type.oclAsType(environment::DTO).nameClassXtoImpl() else o1.type.type() endif 
-	+ ' ' + o1.name().apply_attributeDefault() + ' = ' + o1.writeDefaultValue() + ';')->sep(o.lineSeparator() + o.lineSeparator())->toString() 
-	+ o.lineSeparator()/]
+	+ if (o1.type.oclIsKindOf(environment::DTO)) then o1.type.oclAsType(environment::DTO).nameClassXtoImpl() else 
+	o1.type.type().convertRsStreamToResource() endif + ' ' + o1.name().apply_attributeDefault() + ' = ' 
+	+ o1.writeDefaultValue() + ';')->sep(o.lineSeparator() + o.lineSeparator())->toString() + o.lineSeparator()/]
 
 [comment écriture du corps de l'opération./]
 [query private writeRsOperation(o : soa::Operation, s : soa::Service) : String = 'rest helper'.apply_attributeDefault() 
-	+ '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() + '.contentType("' + if (o.hasMediaRsType()) 
+	+ '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() + '.contentType("' + if (o.hasMediaRsOutputType()) 
 	then  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '")' + ')'/]
 
 [comment écriture de l'uri (avec les paramètres) pour l'opération rest./]

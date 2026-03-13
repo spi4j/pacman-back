@@ -28,7 +28,8 @@
 [query public versionRimraf(any : ecore::EObject) : String = '5.0.0'/]
 [query public versionDataFaker(any : ecore::EObject) : String = '2.5.3'/]
 [query public versionSSOMinarm(any : ecore::EObject) : String = '1.1.0'/]
-
+[query public versionS3(any : ecore::EObject) : String = '8.6.0'/]
+[query public versionOkhttp3(any : ecore::EObject) : String = '4.12.0'/]
    
 [comment query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
 [comment query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]

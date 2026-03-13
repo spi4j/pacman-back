@@ -1,0 +1,7 @@
+[comment encoding = UTF-8 /]
+[module streams(		'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[comment 	simple transcodage, si la chaine contient un InputStream, alors InputStreamResource, mieux géré par Spring. 
+		 	On passe par un parsing car les queries utilisées en amont sont pour l'ensemble de la chaine, or cette 
+		 	partie ne concerne que le controlleur./]
+[query public convertRsStreamToResource(s : String) : String = s.replace('InputStream', 'InputStreamResource')/]

@@ -24,7 +24,10 @@
   else if (t.name.equalsIgnoreCase('TimeStamp')) then 'Instant' 	
   else if (t.name.equalsIgnoreCase('Time')) then 'LocalTime' 
   else if (t.name.equalsIgnoreCase('Binary')) then 'byte[]' 
-  else t.name endif endif endif endif endif endif endif/] 
+  else if (t.name.equalsIgnoreCase('S3Document')) then 'InputStream' 
+  else if (t.name.equalsIgnoreCase('S3Metadata')) then 'Map<String, String>'
+  else if (t.name.equalsIgnoreCase('S3ContentType')) then 'String'
+  else t.name endif endif endif endif endif endif endif endif endif endif/] 
   
  [comment retourne le type formaté pour une propriété (attribut, paramètre, etc...)./]
  [query public type(str : String) : String = 

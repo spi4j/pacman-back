@@ -71,7 +71,7 @@
       <ul>
         <li>[any.nameProjectServer()/]
            <ul>
-             <li><code>[any.namePackageProject()/].[any.namePackageRsBase()/]</code> : classes de haut niveau pour le fonctionnement des clients rest.</li>
+             <li><code>[any.namePackageProject()/].[any.namePackageApplicationBase()/]</code> : classes de haut niveau pour le fonctionnement des clients rest.</li>
            </ul>
         </li>
       </ul>

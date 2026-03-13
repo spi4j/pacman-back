@@ -72,6 +72,6 @@ public class TestUtils {
 	public static String get_defaulValueForType(final String p_prop) {
 		if (_defaultValues.containsKey(p_prop))
 			return _defaultValues.get(p_prop);
-		return null;
+		return "null";
 	}
 }

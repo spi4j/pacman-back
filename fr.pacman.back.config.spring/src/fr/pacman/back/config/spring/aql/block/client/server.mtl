@@ -165,7 +165,7 @@
 
 [comment écriture de l'implémentation de la classe de configuration du client rest (webClient)./]
 [template public rsClientConfigImpl (any : ecore::EObject)]
-    [any.classHeader(any.namePackageRsBase())/]
+    [any.classHeader(any.namePackageApplicationBase())/]
     [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       
       import java.io.IOException; 
@@ -594,7 +594,7 @@
 
 [comment écriture de l'implémentation de la classe utilitaire du client rest (webClient)./]
 [template public rsClientHelper (any : ecore::EObject)]
-  [any.classHeader(any.namePackageRsBase())/]
+  [any.classHeader(any.namePackageApplicationBase())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [any.defaultImports()/]
@@ -1044,7 +1044,7 @@
 
 [comment écriture d'une classe utilitaire pour l'initialisation des maps dans le cas ou plus de 10 entrées./]
 [template public rsMapUtils (any : ecore::EObject)]
-  [any.classHeader(any.namePackageRsBase())/]
+  [any.classHeader(any.namePackageApplicationBase())/]
   import java.util.HashMap;
   import java.util.Map;
   
@@ -1078,7 +1078,7 @@
 
 [comment écriture de la classe utilitaire de gestion et d'écriture des logs pour les tests du client./]
 [template public rsClientTestLogHelper (any : ecore::EObject)]
-  [any.classHeader(any.namePackageRsBase())/]
+  [any.classHeader(any.namePackageApplicationBase())/]
 
   public abstract class [any.nameClassRsClientLogTestHelper()/] {
     

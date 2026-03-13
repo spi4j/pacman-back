@@ -25,8 +25,8 @@
     import org.springframework.stereotype.Service;
     import org.springframework.beans.factory.annotation.Autowired;
     import reactor.core.publisher.Mono;
-    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsClientHelper()/];
-    import [s.namePackageProject()/].[s.namePackageRsBase()/].[s.nameClassRsMapUtils()/];
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassRsClientHelper()/];
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassRsMapUtils()/];
     
   [/protected]
   

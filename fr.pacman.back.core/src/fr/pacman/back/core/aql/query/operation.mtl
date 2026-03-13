@@ -29,10 +29,6 @@
   
 [comment retourne le type complet (optional + list) pour le paramètre de sortie dans le cadre d'une opération rest./]
 [query public outputRsType(o : soa::Operation) : String = if (o.hasOutput()) then o.output->first().outputRsType() else o.cNoModelisation() endif/]
-  
-[comment retourne le type complet (optional + list) pour le paramètre en entrée, pour une opération rest./]
-[query public inputRsType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
-  + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif else p.type(false) endif/]
 
 [comment retourne le type complet (optional + list) pour le paramètre de sortie pour une opération de persistance (si paginé obligatoirement un param de sortie)./]
 [query public outputPersistType(o : soa::Operation) : String = if (o.paged) then 'Page<' + if (o.output->first().type.oclIsKindOf(environment::DTO)) then 
@@ -49,24 +45,38 @@
   + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif 
   else p.outputType(true, false) endif/]
 
+[comment retourne le type complet (optional + list) pour le paramètre en entrée, pour une opération rest./]
+[query public inputRsType(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'List<' 
+  + p.type.oclAsType(environment::DTO).nameClassXtoImpl() + '>' else  p.type.oclAsType(environment::DTO).nameClassXtoImpl() endif else p.type(false) endif/]
+  
 [comment retourne l'opération chargée de la récupération du jeton jwt (token) dans le cadre de la génération d'un web client./]
 [query public operationRsToken (m : soa::System) : soa::Operation = m.eAllContents(soa::Operation)->select(o | o.has_metaAuthToken())->first()/]
 
 [comment vérifie si l'opération a un code de retour pour les services rest. /]
 [query public hasRsStatusCode(o : soa::Operation) : Boolean = o.exists() and o.hasOutput() and not (o.output->first().statusCode = null) 
   and o.output->first().statusCode.size() > 0/]
+  
+[comment vérifie si l'opération a un InputStream en paramètre de sortie (traitement spécifique pour le controlleur)./]
+[query public hasRsOutputStream(o : soa::Operation) : Boolean = o.hasOutput() and 'InputStream'.equalsIgnoreCase(o.outputRsType())/]
 
 [comment vérifie si le paramètre de retour est obligatoire, toutes les opérations autre que HEAD et OPTIONS doivent avoir un paramètre de retour./]
 [query public mustHaveRsOutput(o : soa::Operation) : Boolean = o.verb <> soa::Verb::HEAD and o.verb <> soa::Verb::OPTIONS/]
+  
+[comment vérifie si l'opération a défini un type de média pour l'entrée du service rest (il suffit de le définir sur un seul paramètre)./]
+[query public hasMediaRsInputsType(o : soa::Operation) : Boolean = o.exists() and o.input->exists(o1 | o1.hasMediaRsType())/]
 
 [comment vérifie si l'opération a défini un type de média pour la sortie du service rest./]
-[query public hasMediaRsType(o : soa::Operation) : Boolean = o.exists() and o.output->first().exists() and o.output->first().hasMediaRsType()/]
+[query public hasMediaRsOutputType(o : soa::Operation) : Boolean = o.exists() and o.output->first().exists() and o.output->first().hasMediaRsType()/]
   
-[comment vérifie si le paramètre de sortie a défini un type de média pour le service rest./]
+[comment vérifie si le paramètre a défini un type de média pour le service rest./]
 [query public hasMediaRsType(p : soa::Parameter) : Boolean = p.exists() and p.mediaType <> null and  p.mediaType->size() > 0/]
   
-[comment retourne le type de média pour le paramètre de sortie du service rest./]
+[comment retourne le type de média pour le paramètre du service rest./]
 [query public mediaRsType(p : soa::Parameter) : String = p.mediaType->first().identifier/]
+
+[comment retourne le media type du premier paramètre d'entrée qui en possède un pour l'opération rest./]
+[query public firstMediaRsInputType(o : soa::Operation) : String =  if o.hasMediaRsInputsType() then o.input
+  ->select(p | p.hasMediaRsType())->first().mediaRsType() else '' endif/]
 
 [comment vérifie si une 'fault' de type 'Not Found' a été définie sur l'opération rest./]
 [query public hasRsNotFoundFault (o :soa::Operation) : Boolean = o.exists() and not o.fault->select(f | f.statusCode.equalsIgnoreCase
