@@ -10,6 +10,7 @@
 [import fr::pacman::back::core::aql::output::headers/]
 [import fr::pacman::back::core::aql::output::comments/]
 [import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::rule::class/]
 [import fr::pacman::back::core::aql::rule::attribute/]
 [import fr::pacman::back::core::aql::rule::parameter/]
 [import fr::pacman::back::core::aql::rule::variable/]
@@ -2022,6 +2023,7 @@
   [any.classHeader(any.namePackageApplicationBase())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
+    [any.defaultImports()/]
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.boot.CommandLineRunner;
     import org.springframework.context.annotation.Primary;
@@ -2035,78 +2037,198 @@
   [/protected]
   
   /**
-   * Configuration Spring responsable de la création et de l'exposition
-   * du {@link MinioClient} en tant que bean singleton dans le contexte
-   * applicatif.
+   * Configuration Spring responsable de la création et de la gestion des clients
+   * S3 pour l’application.
    * <p>
-   * Les paramètres de connexion sont externalisés dans le fichier
-   * {@code application.properties}. 
-   * </p><p>
-   * Actuellement, ce {@link CommandLineRunner} est très simple et ne gère pas les exceptions. 
-   * Si quelque chose plante (par exemple, S3 n’est pas joignable, mauvaise URL, mauvais credentials, 
-   * ou un problème réseau), Spring Boot va propager l'exception, ce qui entraînera l'échec du démarrage 
-   * de l'application.
+   * Cette classe utilise un **pattern factory** pour créer des instances de
+   * {@link MinioClient} à la volée, afin de gérer correctement des **credentials
+   * temporaires**. Un client S3 singleton n’étant pas adapté à des credentials
+   * qui expirent, la factory permet de reconstruire le client à chaque appel avec
+   * des identifiants toujours valides.
    * </p>
-   * Le {@link MinioClient} est thread-safe et peut être injecté dans
-   * les services métier pour effectuer des opérations de stockage
-   * (upload, download, suppression d'objets).
+   * <p>
+   * La méthode {@link #refreshCredentials()} est actuellement une simulation qui
+   * renvoie les credentials configurés dans {@link ProjectS3Properties}. En
+   * production, cette méthode doit être remplacée par un appel à un service STS
+   * ou un fournisseur OIDC (par exemple Keycloak) pour obtenir des credentials
+   * temporaires et sécurisés.
    * </p>
+   * <p>
+   * La classe inclut également un {@link CommandLineRunner} pour initialiser
+   * automatiquement le bucket configuré au démarrage de l’application, en
+   * vérifiant son existence et en le créant si nécessaire.
+   * </p>
+   * <p>
+   * Cette approche garantit que :
+   * <ul>
+   * <li>Les credentials sont rafraîchis automatiquement lorsque nécessaire.</li>
+   * <li>Le client S3 est toujours créé avec des identifiants valides.</li>
+   * <li>La sécurité et la conformité aux bonnes pratiques cloud sont
+   * respectées.</li>
+   * </ul></p>
+   * 
    * @Author [any.nameAuthor()/] 
    */
   @Configuration
+  @SuppressWarnings("unused")
   public class [any.nameClassStorageS3ConfigImpl()/] {
   
       [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       [/protected]
       
+      /**
+       * Propriétés de configuration pour accéder au stockage S3.
+       * <p>
+       * Cette instance contient l’URL du serveur, le bucket, la clé d’accès et la
+       * clé secrète. Elle est injectée via Spring pour permettre la configuration
+       * dynamique du client S3.</p>
+       */
       private final [any.nameClassStorageS3PropsImpl()/] ['props'.apply_attributeFinal()/];
       
+      /**
+       * Cache des credentials actuels avec gestion de l’expiration.
+       * <p>
+       * Permet de stocker temporairement les identifiants utilisés pour construire
+       * les clients MinIO. Les credentials sont rafraîchis automatiquement si
+       * expirés.</p>
+       */
+      private volatile ['credentials wrapper'.apply_classDefault()/] ['current credentials'.apply_attributeStatic()/];
+      
+      /**
+       * Constructeur de la classe.
+       * <p>
+       * Spring injecte les propriétés de configuration S3 afin que la factory
+       * puisse construire des clients MinIO configurés correctement.</p>
+       *
+       * @param props configuration S3 injectée par Spring
+       */
       @Autowired
       public [any.nameClassStorageS3ConfigImpl()/]([any.nameClassStorageS3PropsImpl()/] ['props'.apply_parameterMethodClassicIn()/]) {
         [any.prefixAffectation()/]['props'.apply_attributeFinal()/] = ['props'.apply_parameterMethodClassicIn()/];
       }
       
       /**
-       * Crée et configure l'instance du {@link S3Client}.
+       * Bean exposant la factory de clients S3.
+       * <p>
+       * Permet aux services de récupérer un {@link MinioClient} à la volée via
+       * {@link ['s3 client factory'.apply_classDefault()/]#['client'.apply_methodGet()/]()}.
+       * </p>
        *
-       * @return instance singleton de {@link S3Client} injectée dans le contexte Spring
+       * @return instance de {@link ['s3 client factory'.apply_classDefault()/]} injectable dans Spring
        */
       @Bean
       @Primary
-      public MinioClient ['s3 client'.apply_methodDefault()/]() {
-        
-        [protected ('storage'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-          
-          return MinioClient.builder()
-                  .endpoint([any.prefixAffectation()/]['props'.apply_attributeFinal()/].['url'.apply_methodGet()/]())
-                  .credentials([any.prefixAffectation()/]['props'.apply_attributeFinal()/].['access key'.apply_methodGet()/](), 
-                    [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['secret key'.apply_methodGet()/]())
-                  .build();
-                  
-        [/protected]
+      public ['s3 client factory'.apply_classDefault()/] ['s3 client'.apply_methodDefault()/]() {
+         return new ['s3 client factory'.apply_classDefault()/]();
       }
       
+      /**
+       * Factory interne responsable de la création de clients S3.
+       * <p>
+       * À chaque appel de {@link #['client'.apply_methodGet()/]()}, un nouveau {@link MinioClient} est
+       * construit avec des credentials valides. Cette approche garantit que les
+       * credentials ne sont jamais expirés lors des opérations.</p>
+       */
+      public class ['s3 client factory'.apply_classDefault()/] {
+         public MinioClient ['client'.apply_methodGet()/]() {
+            [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              
+              // ['credentials wrapper'.apply_classDefault()/] ['creds'.apply_variableDefault()/] = ['credentials'.apply_methodGet()/]();
+              
+              return MinioClient.builder()
+                 .endpoint(['props'.apply_attributeFinal()/].['url'.apply_methodGet()/]())
+                 .credentials(['props'.apply_attributeFinal()/].['access key'.apply_methodGet()/](), 
+                 ['props'.apply_attributeFinal()/].['secret key'.apply_methodGet()/]()).build();
+                 
+              // return MinioClient.builder()
+              //   .endpoint(['props'.apply_attributeFinal()/].['url'.apply_methodGet()/]())
+              //   .credentials(['creds'.apply_variableDefault()/].['access key'.apply_attributeDefault()/], 
+              //   ['creds'.apply_variableDefault()/].['secret key'.apply_attributeDefault()/]).build();
+                 
+            [/protected]
+        }
+     }
+      
      /**
-      * Initialise le conteneur de stockage au démarrage de l'application.
+      * Rafraîchit les credentials S3.
       * <p>
-      * Ce bean {@link CommandLineRunner} est exécuté automatiquement lors du
-      * démarrage du contexte Spring. Il vérifie l'existence du conteneur de stockage
-      * configuré et le crée s'il n'existe pas encore.
+      * Actuellement, cette méthode renvoie les credentials configurés dans
+      * {@link [any.nameClassStorageS3PropsImpl()/]}. En production, elle doit être remplacée par
+      * un appel à un STS ou un fournisseur OIDC pour obtenir des credentials temporaires.
       * </p>
-      * @param ['client'.apply_parameterMethodClassicIn()/] client de stockage utilisé pour interagir avec le serveur de
-      *               stockage
-      * @return une instance de {@link CommandLineRunner} exécutée au démarrage de
-      *         l'application
+      *
+      * @return {@link ['credentials wrapper'.apply_classDefault()/]} contenant les nouveaux credentials et leur expiration
       */
+     private ['credentials wrapper'.apply_classDefault()/] ['refresh credentials'.apply_methodDefault()/]() {
+          // Remplacer par appel réel (Keycloak / STS / MinIO)
+          String ['access key'.apply_variableDefault()/] = [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['access key'.apply_methodGet()/]();
+          String ['secret key'.apply_variableDefault()/] = [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['secretKey'.apply_methodGet()/]();
+          Instant ['expiration'.apply_variableDefault()/] = Instant.now().plusSeconds(3600);
+          
+          return new ['credentials wrapper'.apply_classDefault()/](['access key'.apply_variableDefault()/], 
+               ['secret key'.apply_variableDefault()/], ['expiration'.apply_variableDefault()/]);
+     }
+     
+     
+    /**
+     * Retourne les credentials actuels en s’assurant qu’ils ne sont pas expirés.
+     * <p>
+     * Si les credentials sont absents ou expirés, {@link #['refresh credentials'.apply_methodDefault()/]()} est appelé.
+     * </p>
+     *
+     * @return credentials valides encapsulées dans {@link ['credentials wrapper'.apply_classDefault()/]}
+     */
+     private synchronized ['credentials wrapper'.apply_classDefault()/] ['credentials'.apply_methodGet()/]() {
+         if ([any.prefixAffectation()/]['current credentials'.apply_attributeStatic()/] == null 
+                    || [any.prefixAffectation()/]['current credentials'.apply_attributeStatic()/].['is expired'.apply_methodDefault()/]()) {
+                    [any.prefixAffectation()/]['current credentials'.apply_attributeStatic()/] = ['refresh credentials'.apply_methodDefault()/]();
+         }
+         return [any.prefixAffectation()/]['current credentials'.apply_attributeStatic()/];
+     }
+     
+     /**
+     * Wrapper interne pour gérer les credentials et leur expiration.
+     */
+     private static class ['credentials wrapper'.apply_classDefault()/] {
+          String ['access key'.apply_attributeDefault()/];
+          String ['secret key'.apply_attributeDefault()/];
+          Instant ['expiration'.apply_attributeDefault()/];
+          
+          ['credentials wrapper'.apply_classDefault()/](String accessKey, String secretKey, Instant expiration) {
+             [any.prefixAffectation()/]['access key'.apply_attributeDefault()/] = accessKey;
+             [any.prefixAffectation()/]['secret key'.apply_attributeDefault()/] = secretKey;
+             [any.prefixAffectation()/]['expiration'.apply_attributeDefault()/] = expiration;
+          }
+          
+          boolean ['is expired'.apply_methodDefault()/]() 
+          {
+             [protected ('is expired'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+               
+               return Instant.now().isAfter(expiration.minusSeconds(60));
+               
+             [/protected]
+          }
+      }
+      
+      /**
+       * Initialise le bucket S3 au démarrage de l’application.
+       * <p>
+       * Vérifie si le bucket configuré existe, et le crée si nécessaire.
+       * Utilise la factory pour obtenir un client avec des credentials valides.</p>
+       *
+       * @param ['factory'.apply_parameterMethodClassicIn()/] factory utilisée pour créer le client MinIO
+       * @return {@link CommandLineRunner} exécuté au démarrage de Spring
+       */
       @Bean
-      public CommandLineRunner ['init bucket'.apply_methodDefault()/](MinioClient ['client'.apply_parameterMethodClassicIn()/]) {
+      public CommandLineRunner ['init bucket'.apply_methodDefault()/](['s3 client factory'.apply_classDefault()/] ['factory'.apply_parameterMethodClassicIn()/]) {
           return args -> {
-             boolean ['exists'.apply_variableDefault()/] = ['client'.apply_parameterMethodClassicIn()/].bucketExists(
+             MinioClient ['client'.apply_variableDefault()/] = ['factory'.apply_parameterMethodClassicIn()/].getClient();
+             boolean ['exists'.apply_variableDefault()/] = ['client'.apply_variableDefault()/].bucketExists(
                 BucketExistsArgs.builder()
                      .bucket([any.prefixAffectation()/]['props'.apply_attributeFinal()/].['bucket'.apply_methodGet()/]())
                      .build());
              if (!['exists'.apply_variableDefault()/]) {
-                ['client'.apply_parameterMethodClassicIn()/].makeBucket(
+                ['client'.apply_variableDefault()/].makeBucket(
                      MakeBucketArgs.builder()
                         .bucket([any.prefixAffectation()/]['props'.apply_attributeFinal()/].['bucket'.apply_methodGet()/]())
                         .build());

@@ -134,6 +134,10 @@
       [comment pas de service avec une liste de streams en entrée./]
       [if (o.input->exists(o1 | 'InputStream'.equalsIgnoreCase(o1.type.type()) 
          and o1.isMultiple()))][o.add(o.err32())/][/if]
+         
+      [comment pas de service avec des paramètres S3 si le service n'est pas S3./]
+      [if (s.isJpaService() and o.input->exists(o1 | o1.type.name.index('S3') <> -1))]
+        [s.add(s.err34())/][/if]
            
       [comment impossible d'avoir un service S3 si opération n'est pas GET|POST|DELETE/]
       [if (s.isRsService() and s.operations()->exists(o1 | o1.verb <> soa::Verb::GET 
@@ -295,3 +299,7 @@
 [comment impossible d'avoir un service S3 si opération n'est pas GET|POST|DELETE/]
 [query private err33 (s : soa::Service) : String = 'RG_33@' + s.nameObject() + '@Un service S3 ne peut avoir que des opérations GET|POST|DELETE' 
   + '@Modifiez le verbe des opérations du service'/]
+  
+[comment impossible d'avoir des paramètres de type S3 si le service n'est pas un service S3/]
+[query private err34 (s : soa::Service) : String = 'RG_34@' + s.nameObject() + '@Impossible d\'avoir des paramètres S3 si le service n\'est pas S3' 
+  + '@Modifiez le service ou les paramètres'/]

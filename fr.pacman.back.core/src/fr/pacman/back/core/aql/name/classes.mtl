@@ -245,7 +245,7 @@
 [query public nameClassRsClientLogTestHelper(any : ecore::EObject) : String = (any.get_projectName() + ' web client log helper').apply_classDefault()/]
 
 [comment retourne le nom pour la classe de configuration du client storage S3./]
-[query public nameClassStorageS3ConfigImpl(any : ecore::EObject) : String = (any.get_projectName() + ' s3 config').apply_classDefault()/] 
+[query public nameClassStorageS3ConfigImpl(any : ecore::EObject) : String = (any.get_projectName() + ' s3 factory').apply_classDefault()/] 
 
 [comment retourne le nom pour la classe de réupération de propriétés du client storage S3./]
 [query public nameClassStorageS3PropsImpl(any : ecore::EObject) : String = (any.get_projectName() + ' s3 properties').apply_classDefault()/] 
