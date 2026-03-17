@@ -9,6 +9,7 @@
 - 24/11/2025 : Ajouts : Création d'un projet client React, Génération d'un projet client React.
 - 05/12/2025 : Ajouts : Relation (0,\*)/(1,\*) et objets métier.
 - 12/01/2026 : Ajouts : Authentification avec la librairie SSO du ministère.
+- 16/03/2026 : Ajouts : Mise en place du stockage S3.
 ---
 
 ## 🚀 Introduction
@@ -526,6 +527,16 @@ De même, si les fichiers de propriétés sont créés à la base pour des proje
 
 ## 📝 Fichiers de configuration
 ---
+
+❗ En environnement de production, il est recommandé de ne pas stocker directement les informations sensibles (comme les clés d'accès, mots de passe ou tokens) dans le fichier application.properties. Il est préférable d'utiliser des variables d'environnement ou un mécanisme de configuration externe afin de sécuriser ces données et de faciliter leur gestion selon les environnements (dev, test, production). Spring Boot permet d'injecter facilement ces valeurs via la syntaxe ${...}. 
+
+Par exemple :
+
+```properties
+s3.access-key=${S3\_ACCESS\_KEY}
+s2.secret-key=${S3\_SECRET\_KEY}
+```
+
 ### 📁 Cas projet fournisseur
 
 #### application.properties
@@ -740,6 +751,28 @@ La propriété essentielle pour la couche de persistance ! **Pacman** est un ens
 spring.populate.faker.enabled=false
 ``` 
 Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services rest.
+
+#### Stockage S3
+
+Le stockage S3 désigne un modèle de stockage d'objets accessible via une API standard largement utilisée dans les environnements cloud. Dans ce modèle, les données sont stockées sous forme d'objets dans des conteneurs appelés buckets. Chaque objet est composé du fichier lui-même, de métadonnées et d'un identifiant unique permettant son accès via une requête HTTP. Ce type de stockage est conçu pour être hautement scalable, durable et accessible à distance, ce qui le rend particulièrement adapté pour l'archivage de fichiers, la sauvegarde de données, l'hébergement de contenus statiques ou le stockage de données applicatives. 
+
+De nombreux systèmes de stockage proposent aujourd'hui une compatibilité avec l'API S3, permettant aux applications d'interagir avec différents fournisseurs ou infrastructures en utilisant les mêmes mécanismes d'accès.
+
+Un paragraphe supplementaire est donc disponible dans le fichier de configuration avec les paramètres suivants (par défaut l'implémentation choisie par ***Pacman*** est la librairie **minio**) : 
+
+```properties
+# URL du serveur de stockage (par défaut : localhost:9000).
+s3.url=http://localhost:9000
+# Identifiant de connexion.
+s3.access-key=minioadmin
+# Mot de passe pour la connexion.
+s3.secret-key=minioadmin
+# Conteneur logique (comme un dossier racine).
+s3.bucket=documents
+```
+On peut voir ici que les paramètres sont très simples, il s'agit de l'url pour le serveur de stockage, du répertoire de stockage dédié à l'application (racine des répertoires pour les différents fichiers de l'application) et enfin, des paramètres de connexion pour accéder au serveur de stockage (quelle que soit la stratégie de sécurité utilisée pour l'accès au serveur).
+
+
 
 #### Librairie SSO du ministère
 
@@ -2693,7 +2726,7 @@ Le backend envoie alors au navigateur un cookie de session (ex. JSESSIONID) qui 
 
 Cette approche présente plusieurs avantages par rapport à une gestion OAuth2 dite « classique » côté client (SPA avec JWT par exemple). Elle est beaucoup plus sécurisée, car aucun jeton n'est exposé au navigateur, ce qui élimine les risques de vol par XSS ou par inspection du stockage local. Elle simplifie également le code frontend, qui n'a pas à gérer le cycle de vie des jetons (stockage, rafraîchissement, expiration). Enfin, elle s'intègre naturellement aux mécanismes de sécurité des SI sensibles (comme ceux des environnements ministériels), en centralisant toute la logique d'authentification et de contrôle d'accès côté backend, avec une maîtrise complète des sessions, des invalidations et des règles de sécurité.
 
-➡️ Dans cette architecture, le frontend n’a strictement rien à implémenter en matière d’authentification OAuth2. Il ne gère ni jeton, ni rafraîchissement, ni stockage de "*credentials*". Toute la mécanique d'authentification est prise en charge automatiquement par le backend via Spring Security et la librairie du ministère des armées. Le navigateur renvoie ensuite ce cookie à chaque requête sans intervention du front, qui peut consommer les APIs sécurisées comme des endpoints HTTP classiques.
+➡️ Dans cette architecture, le frontend n'a strictement rien à implémenter en matière d'authentification OAuth2. Il ne gère ni jeton, ni rafraîchissement, ni stockage de "*credentials*". Toute la mécanique d'authentification est prise en charge automatiquement par le backend via Spring Security et la librairie du ministère des armées. Le navigateur renvoie ensuite ce cookie à chaque requête sans intervention du front, qui peut consommer les APIs sécurisées comme des endpoints HTTP classiques.
 
 Par ailleurs, bien que ces trois classes soient générées automatiquement lors de la création du projet, elles sont toutefois présentées au niveau de ce chapitre car elles sont spécifiques à l'utilisation de la librairie SSO interne. Ces classes permettent d'introduire un comportement applicatif spécifique lors de l'authentification de l'utilisateur. Elles offrent au développeur un point d'extension pour implémenter les différentes règles métier et les traitements fonctionnels nécessaires à la validation de l'accès à l'application. 
 
@@ -3960,6 +3993,319 @@ public class GestionAppelsExternesExternalProviderImpl implements GestionAppelsE
 ```
 Le paramètrage du nombre de tentatives d'appel, du délai entre chaque appel, etc.. est disponible au niveau du fichier de configuration de l'application : "***application.properties***".
 
+#### Mise en place du stockage S3
+
+Lors de la création du projet, deux classes de haut niveau sont automatiquement générées au niveau du package racine "***[package racine].app***" pour le projet "***[Nom de l'application]-server***". Il s'agit de la classe de récupération des paramètres dans le fichier "*application.properties*" pour le stockage S3 ainsi que la classe "***[Nom de l'application]S3Factory***" qui est une fabrique pour la construction et la mise à disposition de l'api permettant de communiquer avec le serveur de stockage.
+
+❗ La manipulation de documents étant un sujet potentiellement sensible il est fortement conseillé de sécuriser les appels aux différents services S3. Cette sécurisation peut être effectuée de deux manières différentes qui sont de plus, cumulables : 
+
+- En modifiant la fabrique S3 afin de mieux sécuriser spécifiquement l'accès au serveur S3 par le passage d'un jeton temporaire au lieu d'utiliser des crédentials de type login/password. Il est alors possible de retirer les informations à partir d'un serveur sso, etc....
+
+- En positionnant une sécurité sur le(s) service(s) (ou l'ensemble des opération) comme n'importe quel autre service que l'on désire sécuriser.
+
+Par défaut le code d'obtention du client S3 au niveau de la fabrique est le suivant : 
+
+```java
+public class S3ClientFactory {
+   public MinioClient getClient() {
+      // Start of user code 736b91750e516139acc13c5eb6564f92
+      
+      // CredentialsWrapper creds = getCredentials();
+      
+      return MinioClient.builder().endpoint(props.getUrl())
+         .credentials(props.getAccessKey(), props.getSecretKey()).build();
+         
+      // return MinioClient.builder()
+      // .endpoint(props.getUrl())
+      // .credentials(creds.accessKey,
+      // creds.secretKey).build();
+      
+      // End of user code
+   }
+}
+```
+
+Ce code permet pour le développement de récupérer simplement les credentials (couple login/password) et d'assurer la sécurité de l'accès au serveur S3 par simple transmission de ces données. Au passage en production, il est toutefois conseillé d'augmenter le niveau de sécurité en passant par la transmission d'un jeton temporaire. Pour ce faire commenter le code actuel et au contraire décommenter les lignes commentées par défaut.
+
+Cette solution repose donc sur une fabrique (pattern factory) de client S3 plutôt que sur un bean singleton classique afin de gérer correctement des identifiants potentiellement temporaires. En effet, le client MinIO (implémentation par défaut) ne supporte pas le rafraîchissement automatique des credentials, et un bean Spring étant instancié une seule fois au démarrage, il deviendrait invalide dès l'expiration des clés. Pour éviter cela, les identifiants sont récupérés dynamiquement via un mécanisme de cache avec expiration, puis un nouveau client est construit à chaque utilisation. Cette approche permet d'assurer que chaque appel utilise des credentials valides, tout en restant compatible avec des systèmes de sécurité modernes (STS, OIDC). 
+
+Le choix d'implémenter une factory et un rafraîchissement lazy garantit ainsi une sécurité renforcée, une meilleure robustesse en production et une indépendance vis-à-vis du cycle de vie des beans Spring.
+
+Le code complet de la fabrique est donné ici à titre informatif (pour des raisons de lisibilité, le code est expurgé de l'ensemble des balises "*user code*" et des commentaires): 
+
+```java
+@Configuration
+@SuppressWarnings("unused")
+public class ProjectS3Factory {
+
+    private final ProjectS3Properties props;
+    private volatile CredentialsWrapper currentCredentials;
+
+    @Autowired
+    public ProjectS3Factory(ProjectS3Properties props) {
+        this.props = props;
+    }
+
+    @Bean
+    @Primary
+    public S3ClientFactory s3Client() {
+        return new S3ClientFactory();
+    }
+
+    public class S3ClientFactory {
+        public MinioClient getClient() {
+            // CredentialsWrapper creds = getCredentials();
+
+            return MinioClient.builder().endpoint(props.getUrl())
+                .credentials(props.getAccessKey(), props.getSecretKey()).build();
+
+            // return MinioClient.builder()
+            // .endpoint(props.getUrl())
+            // .credentials(creds.accessKey,
+            // creds.secretKey).build();
+        }
+    }
+
+    private CredentialsWrapper refreshCredentials() {
+        // Remplacer par appel réel (Keycloak / STS / MinIO)
+        String accessKey = this.props.getAccessKey();
+        String secretKey = this.props.getSecretKey();
+        Instant expiration = Instant.now().plusSeconds(3600);
+
+        return new CredentialsWrapper(accessKey, secretKey, expiration);
+    }
+	
+    private synchronized CredentialsWrapper getCredentials() {
+        if (this.currentCredentials == null || this.currentCredentials.isExpired()) {
+            this.currentCredentials = refreshCredentials();
+        }
+        return this.currentCredentials;
+    }
+	
+    private static class CredentialsWrapper {
+        String accessKey;
+        String secretKey;
+        Instant expiration;
+
+        CredentialsWrapper(String accessKey, String secretKey, Instant expiration) {
+	        this.accessKey = accessKey;
+	        this.secretKey = secretKey;
+            this.expiration = expiration;
+        }
+
+        boolean isExpired() {
+            return Instant.now().isAfter(expiration.minusSeconds(60));
+        }
+    }
+
+    @Bean
+    public CommandLineRunner initBucket(S3ClientFactory factory) {
+        return args -> {
+            MinioClient client = factory.getClient();
+            boolean exists = client.bucketExists(BucketExistsArgs.builder()
+                .bucket(this.props.getBucket()).build());
+            if (!exists) {
+                client.makeBucket(MakeBucketArgs.builder().bucket(this.props.getBucket()).build());
+            }
+        };
+    }
+}
+```
+
+La classe "***[Nom de l'application]S3Factory***" est donc une configuration Spring responsable de la création et de la gestion des clients S3 (MinIO) utilisés par l’application. Elle utilise un pattern factory via la classe interne "***S3ClientFactory***" pour créer des instances de MinioClient à la volée, ce qui permet de toujours utiliser des credentials valides et à jour. Les credentials sont stockés temporairement dans "***CredentialsWrapper***" et sont rafraîchis automatiquement lorsqu’ils sont expirés, via la méthode "*refreshCredentials()*". Cette méthode peut être adaptée pour interroger un STS ou un fournisseur OIDC (Keycloak, MinIO STS, etc.) afin d’obtenir des credentials temporaires en production. La factory garantit ainsi que toutes les opérations S3 réalisées par les services utilisent des identifiants sécurisés, évitant ainsi les problèmes liés aux clés statiques ou expirées.
+
+Pour modéliser 'envoi, la récupération ou la suppression d'un fichier dans un espace de stockage de type "**S3**", il suffit de modéliser uniquement un service au niveau de la couche soa. En effet, un fichier ne représentant pas une entité en tant que telle, il n'est pas nécessaire de modéliser la couche de persistance (fichier de modélisation '.entity') et son objet métier (DTO).
+
+Le service est toujours un service de type "*provided*" et une modélisation complète peut ressembler à ceci : 
+
+<img src="images/pcm-model-adv-entity-9.png" alt="Storage S3">
+
+Cette modélisation appelle les explications suivantes :
+
+- Un service de type S3 doit obligatoirement avoir la métadonnée "*S3_STORAGE*" de positionnée au niveau du service.
+
+- Au niveau d'une opération, un document à charger ou à récupérer doit obligatoirement être un paramètre avec pour type : "*S3Document*". Le document doit toujours être passé dans le corps de la requête (body).
+
+- Si le service est amené à charger des documents avec différents formats (bien que dans le cadre de cet exemple, on ait nommé le service "*fichierPdf*"), il peut être nécessaire de préciser en paramètre le type de document qui va être chargé. Dans le cas de cet exemple il s'agit du paramètre "*documentType*" avec pour type : "*S3DocumentType*".
+
+- Si le service est amené à charger des métadonnées supplémentaires qui vont être associées au document, il est alors nécessaire de rajouter un paramètre avec le type "*S3Metadata*" pour son opération d'upload. Le métadonnées doivent toujours être passées dans le corps de la requête (body).
+❗ Au niveau de la couche de persistance (couche qui, dans le cas d'un service S3, effectue l'appel à l'Api externe de stockage des fichiers), le code nécessaire à l'ensemble des opérations peut être généré automatiquement par "**Pacman**" à la seule condition que la modélisation respecte les conditions suivantes au niveau des paramètres en entrée : 
+
+- Pour une lecture (*GET*), l'opération ne peut avoir qu'un seul paramètre : le nom du fichier à rechercher. 
+
+- Pour un enregistrement (*POST*) l'opération ne peut avoir (au maximum) que quatre paramètres qui sont respectivement (l'ordre est sans importance), le nom du fichier à enregistrer, le fichier (body), les métadonnées pour le fichier (body), le type de fichier à enregistrer. 
+
+- Pour une opération de suppression (*DELETE*), ici encore, seul un paramètre est nécessaire, comme pour la lecture, il s'agit cette fois du nom du fichier à supprimer.
+
+Pour le paramètre de sortie toute opération  doit obligatoirement avoir un paramètre, comme n'importe autre opération "*Rest*".
+
+❗ Il est toujours possible de rajouter autant de paramètres que nécessaires afin de remplir les différentes obligations utiles pour le bon fonctionnement de l'application, mais dans ce cas, ce sera alors au développeur de coder manuellement l'api pour effectuer les manipulations au niveau de serveur de stockage (toujours à l'interieur des balises de type "*user code*").
+
+❗ Il est à noter que le service n'est pas ici un service de persistance vers une base de données, il sera donc automatiquement appelé : ***[Nom de l'application]S3ProviderImpl***. 
+
+Le code généré au niveau de l'implémentation du service d'infrastructure est le suivant :
+
+Au lieu de l'api de persistance c'est donc le client S3 (cf. "***[Nom de l'application]S3Config***") qui est automatiquement injecté (sous le nom "clientStorage") au niveau du service de persistance.
+
+Pour une opération GET (contrôleur puis service) : 
+
+```java
+@GetMapping(value = "/s3/{name}", produces = "application/octet-stream")
+@Operation(operationId = "recupereFichier", description = "DESCRIPTION A IMPLEMENTER"
+        , tags = { "fichierPdf" }, parameters = {
+		@Parameter(name = "name", description = "DESCRIPTION A IMPLEMENTER"
+		, required = true, in = ParameterIn.PATH, example = "") })
+
+@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "OK", 
+        content = @Content(mediaType = "application/octet-stream", 
+        schema = @Schema(type = "string", format = "binary"))) })
+
+public ResponseEntity<InputStreamResource> recupereFichier(
+		@PathVariable(name = "name", required = true) String nomDocument) throws IOException {
+	ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(200);
+
+	// Start of user code a7d8e6975200b8ab414b8a4f8bb7ccac
+	responseBuilder.header("Content-Disposition", "attachment; filename=" + nomDocument + "");
+	// End of user code
+
+	return responseBuilder.body(new InputStreamResource(this.fichierPdf.recupereFichier(nomDocument)));
+}
+```
+On peut voir au niveau du service rest qu'une ligne suppémentaire a été automatiquement générée entre les balises de type "*user code*". Cette ligne spécifie le type du document en lecture et permet une meilleure gestion dans la récupération du fichier. Par ailleurs, le service retourne un "*InputStreamResource*" mieux géré par le framework Spring mais dans l'ensemble de la chaine hexagonale, on peut voir que c'est bien un simple "*InputStream*" qui est utilisé pour le passage du document, ce qui évite d'avoir une ingérance du framework au niveau du domaine. 
+
+```java
+public InputStream recupereFichier(final String nomDocument) {
+	// Start of user code a7d8e6975200b8ab414b8a4f8bb7ccac
+	try {
+		return clientStorage
+		    .getClient()
+			.getObject(GetObjectArgs.builder()
+			.bucket(propsStorage.getBucket())
+			.object(nomDocument).build());
+	} catch (Exception exception) {
+		throw new RuntimeException(
+			"Erreur dans l'execution de l'opération 'recupereFichier' : " 
+			+ exception.getMessage());
+	}
+	// End of user code
+}
+```
+
+Pour une opération POST (contrôleur puis service) : 
+
+```java
+@PostMapping(value = "/s3/{name}", produces = "application/json", consumes = "multipart/form-data")
+
+@Operation(operationId = "ajouteFichier", description = "DESCRIPTION A IMPLEMENTER", tags = {
+	"fichierPdf" }, parameters = {
+		@Parameter(name = "name", description = "DESCRIPTION A IMPLEMENTER", required = true, 
+		in = ParameterIn.PATH, example = ""),
+		@Parameter(name = "contentType", description = "DESCRIPTION A IMPLEMENTER", 
+		required = true, in = ParameterIn.QUERY, example = "") })
+
+@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType =
+		"application/json", schema = @Schema(implementation = String.class))) })
+
+public ResponseEntity<String> ajouteFichier(@PathVariable(name = "name", required = true) String nomDocument,
+		@RequestPart(name = "file", required = true) MultipartFile document,
+		@RequestParam(name = "contentType", required = true) String documentType,
+		@RequestPart(name = "metadata", required = true) String documentMeta) throws IOException {
+
+	ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(200);
+
+	return responseBuilder.body(
+			this.fichierPdf.ajouteFichier(nomDocument, 
+			    document.getInputStream(), documentType, documentMeta));
+}
+```
+
+Il n'y a pas d'annotation @RequestBody car celle-ci est utilisée pour lire un seul corps de requête JSON ou XML. Dans le cas d'un envoi multipart, la requête est composée de plusieurs parties indépendantes (fichier, métadonnées, champs simples). Chaque partie doit donc être récupérée séparément avec @RequestPart (pour les parties du multipart comme le fichier ou un JSON) ou @RequestParam (pour les champs simples). Ainsi, le fichier et les métadonnées ne sont pas dans un objet unique mais dans différentes parties de la requête multipart.
+
+Les métadonnées sont passées sous forme de chaîne JSON (String) car l'API S3 n'accepte que des paires clé/valeur de chaînes (Map<String, String>). Ces métadonnées sont passées sous forme de chaîne JSON car l'API Swagger/OpenAPI ne permet pas de transmettre directement une Map<String, String> dans une requête multipart. Côté serveur, cette chaîne est ensuite convertie en Map pour être attachée au fichier lors de l'upload vers S3.
+
+La ligne stream(document, -1, 10 * 1024 * 1024) sert à envoyer le contenu du fichier vers le stockage S3 sous forme de flux (InputStream). Le -1 indique que la taille du fichier n'est pas connue à l'avance, ce qui permet de traiter des fichiers de n'importe quelle taille sans pour autant les charger entièrement en mémoire. Le troisième paramètre (10 * 1024 * 1024) définit la taille du buffer utilisé pour le streaming (ici 10 Mo), optimisant la lecture et l'écriture par blocs pour améliorer les performances et réduire l'usage mémoire. Cette approche est essentielle pour gérer efficacement les gros fichiers.
+
+❗ Le code "*return null;*" présent dans la méthode est simplement un placeholder généré automatiquement. Comme le code est généré par un outil, le générateur ne sait pas ce que le développeur souhaite réellement renvoyer après l'upload du fichier. Il sert donc de valeur par défaut, à remplacer éventuellement par une réponse plus pertinente (par exemple l'URL du fichier, un identifiant, ou un message de succès) selon les besoins de l’application.
+
+```java
+public String ajouteFichier(final String nomDocument, final InputStream document, 
+    final String documentType, final String documentMeta) {
+
+	// Start of user code acccf885e0e2a6ffd526ce98edbf7089
+	try {
+		Map<String, String> metaDataMap = new ObjectMapper().readValue(documentMeta,
+				new TypeReference<Map<String, String>>() {
+				});
+		clientStorage.getClient().putObject(PutObjectArgs.builder()
+		        .bucket(propsStorage.getBucket()).object(nomDocument)
+				.stream(document, -1, 10 * 1024 * 1024).contentType(documentType).userMetadata(metaDataMap)
+				.build());
+		return null;
+
+	} catch (Exception exception) {
+		throw new RuntimeException(
+				"Erreur dans l'execution de l'opération 'ajouteFichier' : " + exception.getMessage());
+	}
+	// End of user code
+}
+```
+
+Pour une opération DELETE (contrôleur puis service) : 
+
+```java
+@DeleteMapping(value = "/s3/{name}", produces = "application/json")
+
+@Operation(operationId = "supprimeFichier", description = "DESCRIPTION A IMPLEMENTER", 
+   tags = { "fichierPdf" }, parameters = {
+		@Parameter(name = "name", description = "DESCRIPTION A IMPLEMENTER", 
+		required = true, in = ParameterIn.PATH, example = "") })
+
+@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "OK", content = 
+		@Content(mediaType = "application/json", schema = @Schema(implementation = String.class))) })
+
+public ResponseEntity<String> supprimeFichier(@PathVariable(name = "name", required = true) 
+    String nomDocument) throws IOException {
+
+	ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(200);
+	return responseBuilder.body(this.fichierPdf.supprimeFichier(nomDocument));
+}
+```
+❗ Le code "*return null;*" présent dans la méthode est simplement un placeholder généré automatiquement.
+
+```java
+public String supprimeFichier(final String nomDocument) {
+
+	// Start of user code 05710062a92d01c62c56dc8838a2e405
+	try {
+		clientStorage.getClient().removeObject(
+			RemoveObjectArgs.builder().bucket(propsStorage.getBucket())
+			.object(nomDocument).build());
+			return null;
+	} catch (Exception exception) {
+			throw new RuntimeException(
+				"Erreur dans l'execution de l'opération 'supprimeFichier' : " 
+				+ exception.getMessage());
+	}
+	// End of user code
+}
+```
+
+❗  Encore une fois, pour rappel, l'ensemble du code pour les services de persistance n'est pas généré dès que la signature de l'opération ne correspond pas à celle attendue par les générateurs ***Pacman***. La génération sera alors du type : 
+
+```java
+public String supprimeFichier(final String nomDocument) {
+
+	// Start of user code 05710062a92d01c62c56dc8838a2e405
+
+    throw new Demo_storageNotImplementedException(
+        "La méthode 'supprimeFichier' n'a pas été implémentée");
+        
+	// End of user code
+}
+```
+
 #### Exemple de modélisation avancée
 
 Voici à titre d'exemple, une modélisation pour la couche de persistance qui permet de visualiser rapidement l'ensemble des possibilités disponibles, on ne s'interesse ici qu'a l'entité principale afin principalement de montrer les différentes relations générées. 
@@ -4292,6 +4638,10 @@ public boolean equals(Object obj) {
 ### ✔️ Validation de la modélisation
 ---
 Bien que vu précédemment, un chapitre est toutefois consacré exclusivement à ce "générateur". Comme précité, la validation de la modélisation est automatiquement lancée avant chaque demande de génération pour la couche de persistance, la couche de service ou encore la création des scripts SQL.
+
+❗ La validation d'un modèle n'est pas exhaustive. Il ne fait pas partie des objectifs des générateurs de guider le développeur dans les moindres détails de sa modélisation. Une telle démarche serait en effet extrêmement chronophage pour le développeur des générateurs, compte tenu de la diversité des cas possibles. Toutefois, un certain nombre de contrôles sont mis en place afin d'éviter des erreurs élémentaires et de limiter les pertes de temps liées à l'analyse de générations incomplètes ou incorrectes.
+
+Par conséquent, le fait qu'un modèle passe la phase de validation ne signifie pas nécessairement qu'il est valide à 100 %. 
 
 • Si aucune erreur n'est détectée, le générateur est alors activé et la génération est effectuée.
 • En cas d'erreur, une fenêtre est affichée et la poursuite de la génération est stoppée.
