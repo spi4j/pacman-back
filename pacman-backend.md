@@ -4112,7 +4112,25 @@ public class ProjectS3Factory {
 }
 ```
 
-La classe "***[Nom de l'application]S3Factory***" est donc une configuration Spring responsable de la création et de la gestion des clients S3 (MinIO) utilisés par l’application. Elle utilise un pattern factory via la classe interne "***S3ClientFactory***" pour créer des instances de MinioClient à la volée, ce qui permet de toujours utiliser des credentials valides et à jour. Les credentials sont stockés temporairement dans "***CredentialsWrapper***" et sont rafraîchis automatiquement lorsqu’ils sont expirés, via la méthode "*refreshCredentials()*". Cette méthode peut être adaptée pour interroger un STS ou un fournisseur OIDC (Keycloak, MinIO STS, etc.) afin d’obtenir des credentials temporaires en production. La factory garantit ainsi que toutes les opérations S3 réalisées par les services utilisent des identifiants sécurisés, évitant ainsi les problèmes liés aux clés statiques ou expirées.
+La classe "***[Nom de l'application]S3Factory***" est donc une configuration Spring responsable de la création et de la gestion des clients S3 (MinIO) utilisés par l'application. Elle utilise un pattern factory via la classe interne "***S3ClientFactory***" pour créer des instances de MinioClient à la volée, ce qui permet de toujours utiliser des credentials valides et à jour. Les credentials sont stockés temporairement dans "***CredentialsWrapper***" et sont rafraîchis automatiquement lorsqu'ils sont expirés, via la méthode "*refreshCredentials()*". Cette méthode peut être adaptée pour interroger un STS ou un fournisseur OIDC (Keycloak, MinIO STS, etc.) afin d'obtenir des credentials temporaires en production. La factory garantit ainsi que toutes les opérations S3 réalisées par les services utilisent des identifiants sécurisés, évitant ainsi les problèmes liés aux clés statiques ou expirées.
+
+❗ Le serveur S3 ne remplace pas un serveur d'authentification comme Keycloak, il ne gère pas le login utilisateur ni la génération de jetons JWT. En revanche, il peut jouer le rôle d'un STS (Security Token Service) : après qu'un utilisateur ou une application se soit authentifié auprès d'un fournisseur OIDC/SSO (ex. Keycloak), le serveur S3 valide le jeton et génère des credentials S3 temporaires (accessKey, secretKey et expiration). Ces credentials permettent à l'application d'accéder au stockage de manière sécurisée et limitée dans le temps, garantissant que les clés statiques ne sont jamais exposées. Ainsi, Keycloak (par exemple) gère l'identité, tandis que MinIO (par exemple) gère l'accès sécurisé aux ressources.
+
+Le fonctionnement du mécanisme SSO + STS avec le serveur S3 se déroule en plusieurs étapes :
+
+- Chaque utilisateur se voit attribuer des rôles ou groupes : par exemple lecture uniquement ou lecture/écriture.
+
+- Authentification auprès du SSO : l'utilisateur ou l'application se connecte et reçoit un jeton JWT prouvant son identité.
+
+- Appel du STS MinIO : le jeton JWT est envoyé au serveur S3 via l'API STS, qui le valide auprès du serveur SSO.
+
+- Génération de credentials temporaires : le serveur S3 renvoie un accessKey, un secretKey et une date d'expiration. Ces credentials sont limités dans le temps et sécurisés.
+
+- Utilisation des credentials temporaires : l'application crée le client S3 à la volée avec ces credentials pour effectuer toutes les opérations sur le stockage.
+
+- Rafraîchissement automatique : lorsque les credentials expirent, la factory appelle à nouveau le STS pour obtenir de nouveaux credentials valides.
+
+❗❗ La classe "***[Nom de l'application]S3Factory***" fournit donc une fabrique prête à l'emploi pour créer des clients S3 avec des credentials. Par défaut,  elle utilise les credentials statiques définis dans "*application.properties*", assurant un fonctionnement immédiat pour tous les services utilisant le stockage. Pour les environnements nécessitant une sécurité plus sophistiquée, le développeur peut modifier la méthode "*refreshCredentials()*" afin d'intégrer un mécanisme OIDC ou STS (Secure Token Service) et générer des credentials temporaires plus spécifiques. Cette approche garantit à la fois simplicité pour l'usage standard et extensibilité pour la production sécurisée.
 
 Pour modéliser 'envoi, la récupération ou la suppression d'un fichier dans un espace de stockage de type "**S3**", il suffit de modéliser uniquement un service au niveau de la couche soa. En effet, un fichier ne représentant pas une entité en tant que telle, il n'est pas nécessaire de modéliser la couche de persistance (fichier de modélisation '.entity') et son objet métier (DTO).
 
@@ -4226,7 +4244,7 @@ Les métadonnées sont passées sous forme de chaîne JSON (String) car l'API S3
 
 La ligne stream(document, -1, 10 * 1024 * 1024) sert à envoyer le contenu du fichier vers le stockage S3 sous forme de flux (InputStream). Le -1 indique que la taille du fichier n'est pas connue à l'avance, ce qui permet de traiter des fichiers de n'importe quelle taille sans pour autant les charger entièrement en mémoire. Le troisième paramètre (10 * 1024 * 1024) définit la taille du buffer utilisé pour le streaming (ici 10 Mo), optimisant la lecture et l'écriture par blocs pour améliorer les performances et réduire l'usage mémoire. Cette approche est essentielle pour gérer efficacement les gros fichiers.
 
-❗ Le code "*return null;*" présent dans la méthode est simplement un placeholder généré automatiquement. Comme le code est généré par un outil, le générateur ne sait pas ce que le développeur souhaite réellement renvoyer après l'upload du fichier. Il sert donc de valeur par défaut, à remplacer éventuellement par une réponse plus pertinente (par exemple l'URL du fichier, un identifiant, ou un message de succès) selon les besoins de l’application.
+❗ Le code "*return null;*" présent dans la méthode est simplement un placeholder généré automatiquement. Comme le code est généré par un outil, le générateur ne sait pas ce que le développeur souhaite réellement renvoyer après l'upload du fichier. Il sert donc de valeur par défaut, à remplacer éventuellement par une réponse plus pertinente (par exemple l'URL du fichier, un identifiant, ou un message de succès) selon les besoins de l'application.
 
 ```java
 public String ajouteFichier(final String nomDocument, final InputStream document, 
