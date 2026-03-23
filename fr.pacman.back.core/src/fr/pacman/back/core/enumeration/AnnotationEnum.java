@@ -62,7 +62,7 @@ public enum AnnotationEnum {
 
 	ENTITY_MANAGER("ENTITY_MANAGER", ModelEnum.DSL_ENTITY, false),
 
-	S3_STORAGE("S3_STORAGE", ModelEnum.DSL_SOA_SERVICE, false);
+	S3_STORAGE("STORAGE", ModelEnum.DSL_SOA_SERVICE, false);
 
 	/** Le nom de l'annotation */
 	private String _annotationName;

@@ -28,8 +28,6 @@
   [r.fileRequirementItf()/]
   [comment écriture de l'implémentation pour la classe d'exception concernant les exigences./]
   [r.fileRequirementExceptionImpl()/]
-  [comment écriture de l'interface pour l'accès au storage S3./]
-  [r.fileStorageItf()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]

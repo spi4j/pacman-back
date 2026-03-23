@@ -104,6 +104,9 @@
   
 [comment retourne le package pour les classes génériques concernant les services rest./]
 [query public namePackageApplicationBase(any : ecore::EObject) : String = 'app'/]
+  
+[comment retourne le package pour les classes génériques concernant les services s3./]
+[query public namePackageS3Base(any : ecore::EObject) : String = 'app.storage.s3'/]
 
 [comment retourne le package pour le stockage de toutes les exceptions du projet./]
 [query public namePackageException(any : ecore::EObject) : String = 'app.exceptions'/]

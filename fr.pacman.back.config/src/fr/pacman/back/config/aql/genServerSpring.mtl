@@ -45,6 +45,10 @@
   [r.fileStorageS3ConfigImpl()/]
   [comment écriture de l'implémentation des propriétés pour storage S3./]
   [r.fileStorageS3PropsImpl()/]
+  [comment écriture de l'interface pour l'accès au storage S3./]
+  [r.fileStorageS3Itf()/]
+  [comment écriture de la classe pour l'ensemble des paramètres pour storage S3./]
+  [r.fileStorageS3DocRequestImpl()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
   

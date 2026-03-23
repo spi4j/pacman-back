@@ -14,9 +14,6 @@
 
 [comment retourne le nom pour les interfaces des classes de mapping./]
 [comment query public nameClassEntityMapperItf(e : entity::Entity) : String = (e.name() + e.suffixMapper()).apply_classInterface()/]
-
-[comment retourne le nom de l'interface pour l'interface du storage S3./]
-[query public nameClassStorageS3Itf (any : ecore::EObject) : String = ' storage service'.apply_classInterface()/]
   
 [comment retourne le nom de l'implémentation pour la classe de configuration du client rest./]
 [query public nameClassDatabasePopulateImpl (any : ecore::EObject) : String = (any.nameProject() + ' db populate').apply_classImplem()/]
@@ -249,6 +246,12 @@
 
 [comment retourne le nom pour la classe de réupération de propriétés du client storage S3./]
 [query public nameClassStorageS3PropsImpl(any : ecore::EObject) : String = (any.get_projectName() + ' s3 properties').apply_classDefault()/] 
+
+[comment retourne le nom de l'implémentation pour "l'object request" du storage S3./]
+[query public nameClassStorageS3DocRequestImpl (any : ecore::EObject) : String = (any.nameProject() +' s3 content request').apply_classDefault()/]
+  
+[comment retourne le nom de l'interface pour l'interface du storage S3./]
+[query public nameClassStorageS3Itf (any : ecore::EObject) : String =  (any.nameProject() + ' s3 service').apply_classInterface()/]
 
 [comment retourne le nom pour la classe d'implémentation du DAO dans le cadre des test./]
 [comment query public nameClassDaoJdbcTest(e : entity::Entity) : String = (e.name() + e.suffixDaoTest()).apply_classTest()/]

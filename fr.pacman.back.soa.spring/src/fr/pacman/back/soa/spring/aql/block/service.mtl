@@ -340,12 +340,14 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
-
-    import io.minio.MinioClient;
+    
     import com.fasterxml.jackson.core.type.TypeReference;
     import com.fasterxml.jackson.databind.ObjectMapper;
     import org.springframework.beans.factory.annotation.Autowired;
     
+    import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassStorageS3DocRequestImpl()/];
+    import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassStorageS3ConfigImpl()/];
+    import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassStorageS3PropsImpl()/];
     import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassStorageS3PropsImpl()/];
     import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassStorageS3ConfigImpl()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
@@ -771,29 +773,35 @@
 [query private canWriteS3Operation(o : soa::Operation) : Boolean = o.canWriteS3Delete() or o.canWriteS3Get() or o.canWriteS3Post()/]
   
 [comment écriture de l'opération de download pour un document avec stockage S3./]
-[query private writeS3Get(o : soa::Operation) : String = 'return ' + 'client storage'.apply_attributeFinal() + '.' + 'client'.apply_methodGet() 
-  + '().getObject(GetObjectArgs.builder()' + '.bucket(' + 'props storage'.apply_attributeFinal() + '.getBucket()).object(' 
-  + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn()  + ').build());'/]
+[query private writeS3Get(o : soa::Operation) : String =  o.nameClassStorageS3DocRequestImpl() 
+  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3DocRequestImpl() + '.builder().' + 'with key'.apply_methodDefault() 
+  + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' 
+  + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '()).build();' 
+  + o.lineSeparator() + 'return ' + 'client storage'.apply_attributeFinal() + '.' + 'download'.apply_methodDefault() 
+  + '(' + 'request content'.apply_variableDefault() + ');'/]
   
 [comment 	écriture de l'opération d'upload pour un document avec stockage S3. Ici on teste la présence des paramètres mais il ne suffit pas 
 			que le paramètre existe il faut qu'il y ait qu'une et une seule occurence du paramètre pour pouvoir prendre en charge la génération 
 			automatique, sinon on laisse le développeur écrire son propre code./]
-[query private writeS3Post(o : soa::Operation) : String =    + if (o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))->size() = 1 ) 
+[query private writeS3Post(o : soa::Operation) : String = let m = o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))->size() = 1 in if (m ) 
   then 'Map<String, String> ' + ' meta data map'.apply_variableDefault() + ' = new ObjectMapper().readValue(' + o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))
-  ->first().name().apply_parameterMethodClassicIn() + ', new TypeReference<Map<String, String>>() {});' + o.lineSeparator() else '' endif + 'client storage'.apply_attributeFinal() 
-  + '.' + 'client'.apply_methodGet()+ '().putObject(PutObjectArgs.builder()' + '.bucket(' + 'props storage'.apply_attributeFinal() + '.getBucket()).object(' 
-  + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').stream(' 
-  + o.input->select(p | 'S3Document'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ', -1, 10 * 1024 * 1024).contentType(' 
-  + if (o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->size() = 1) then o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))
-  ->first().name().apply_parameterMethodClassicIn()  else '"application/octet-stream"' endif + ')' + if (o.input->select(p | 'S3Metadata'
-  .equalsIgnoreCase(p.type.name))->size() = 1) then '.userMetadata(' + ' meta data map'.apply_variableDefault() + ')' else '' endif + '.build());' 
-  + o.lineSeparator() + 'return null;'/]
+  ->first().name().apply_parameterMethodClassicIn() + ', new TypeReference<Map<String, String>>() {});' + o.lineSeparator() else '' endif + o.nameClassStorageS3DocRequestImpl() 
+  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3DocRequestImpl() + '.builder().' + 'with key'.apply_methodDefault() 
+  + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' + 'with bucket'.apply_methodDefault() 
+  + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '())' + if (m) then '.' + 'with metadata'.apply_methodDefault() 
+  + '(' + ' meta data map'.apply_variableDefault() +')' else '' endif + if (o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->size() = 1) then
+  '.' + 'with content type'.apply_methodDefault() + '(' + o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
+  + ')' else '' endif + '.' + 'with content'.apply_methodDefault() + '(' + o.input->select(p | 'S3Document'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn()  + ').build();' + o.lineSeparator() + 'client storage'.apply_attributeFinal() 
+  + '.' + 'upload'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() + ');' + o.lineSeparator() + 'return null;'/]
   
 [comment écriture de l'opération de delete pour un document avec stockage S3./]
-[query private writeS3Delete(o : soa::Operation) : String = 'client storage'.apply_attributeFinal() + '.' + 'client'.apply_methodGet() 
-  + '().removeObject(RemoveObjectArgs.builder()'+ '.bucket(' + 'props storage'.apply_attributeFinal() + '.getBucket()).object(' 
-  + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() +').build());' 
-  + o.lineSeparator()  + 'return null;' /]
+[query private writeS3Delete(o : soa::Operation) : String = o.nameClassStorageS3DocRequestImpl() 
+  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3DocRequestImpl() + '.builder().' + 'with key'.apply_methodDefault() 
+  + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' 
+  + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '()).build();' 
+  + o.lineSeparator() + 'client storage'.apply_attributeFinal() + '.' + 'delete'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() 
+  + ');' + o.lineSeparator()  + 'return null;' /]
 
   [comment query private writeRsSwaggerAnnotation(o : soa::Operation, ss : soa::SecurityScheme) : String = '@Operation(operationId = "' + o.name() + '", description = "' 
   + o.writeDescriptionSingleLine() + '", tags = {"' + o.eContainer(soa::Service).name() + '"}' + if (o.isRsSecured()) then ', security = ' + if (ss.type = soa::SecuritySchemeType::OAUTH2 

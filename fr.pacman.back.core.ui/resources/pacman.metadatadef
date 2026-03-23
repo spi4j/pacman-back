@@ -142,7 +142,7 @@
      body="REST : Ne prend pas en compte les paramètres nuls ou vides dans les requêtes." 
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_vnrOMBjBEfGiFZ_syMSqfQ" 
-     title="S3_STORAGE"
+     title="STORAGE"
      body="DOCUMENT : Opération de stockage pour un document (implémentation S3 par défaut)." 
      condition="aql:Sequence{'service'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_ig-wcIiEEfC8-K9GNeeGuw"

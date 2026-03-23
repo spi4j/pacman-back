@@ -1723,8 +1723,8 @@
   /**
    * Implémentation par défaut du service {@link [any.nameClassRsSSOUserServiceItf()/]}.
    * <p>
-   * Cette classe fournit une implémentation minimale permettant l’intégration
-   * avec le mécanisme d’authentification SSO Keycloak et le câblage automatique 
+   * Cette classe fournit une implémentation minimale permettant l'intégration
+   * avec le mécanisme d'authentification SSO Keycloak et le câblage automatique 
    * par Spring.
    */
   @Service
@@ -1898,9 +1898,350 @@
   }
 [/template]
 
+[comment écriture de l'interface pour le storage S3./]
+[template public storageServiceItf(any : ecore::EObject)]
+  [any.classHeader(any.namePackageS3Base())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [any.defaultImports()/]
+    import java.io.InputStream;
+    
+  [/protected]
+  
+  /**
+  * Interface définissant les opérations de base pour interagir avec un système
+  * de stockage compatible S3.
+  *  <p>
+  * Cette interface abstrait les mécanismes d'accès au stockage (MinIO, AWS S3,
+  * etc.) afin de fournir un point d'entrée unique pour la gestion des objets.
+  * Elle permet de découpler les services applicatifs de l'implémentation
+  * technique sous-jacente.
+  * </p>
+  * <p>
+  * Les opérations s'appuient sur l'objet {@link [any.nameClassStorageS3DocRequestImpl()/]} 
+  * qui encapsule l'ensemble des paramètres nécessaires (bucket, clé, contenu,
+  * métadonnées, etc.).
+  * </p>
+  * <p>
+  * Les implémentations de cette interface sont responsables de :
+  * <ul>
+  * <li>La gestion de la connexion au système S3</li>
+  * <li>L'utilisation de credentials valides (statiques ou temporaires)</li>
+  * <li>La gestion des erreurs techniques liées au stockage</li>
+  * </ul>
+  * </p>
+  * @Author [any.nameAuthor()/]
+  */
+  public interface [any.nameClassStorageS3Itf()/] {
+      
+     /**
+      * Upload un document dans le stockage S3.
+      * <p>
+      * Le document est identifié par la clé fournie dans les paramètres et est
+      * stocké dans le bucket cible. Les métadonnées et le type MIME peuvent être
+      * fournis en option.
+      * </p>
+      *
+      * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
+      * @throws Exception en cas d'erreur lors de l'upload
+      */
+      void ['upload'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+           ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
+      
+     /**
+      * Télécharge un document depuis le stockage S3.
+      * <p>
+      * Retourne le contenu du document sous forme de flux. L'appelant est
+      * responsable de la fermeture du flux après utilisation.
+      * </p>
+      *
+      * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
+      * @return flux du contenu du document
+      * @throws Exception en cas d'erreur lors du téléchargement
+      */
+      InputStream ['download'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+           ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
+      
+     /**
+      * Supprime un document du stockage S3.
+      * <p>
+      * Le document est identifié par sa clé et supprimé du bucket cible.
+      * </p>
+      *
+      * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
+      * @throws Exception en cas d'erreur lors de la suppression
+      */
+      void ['delete'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+           ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
+      
+      [protected ('storage'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
+  }
+[/template]
+
+
+[comment écriture de la classe d'implémentation pour la récupération des paramètres pour storage S3./]
+[template public s3DocRequestImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageS3Base())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Représente une requête de manipulation d'un document dans un stockage S3.
+   * <p>
+   * Cette classe encapsule l'ensemble des paramètres nécessaires pour effectuer
+   * une opération sur un objet S3 (upload, stockage, etc.), tels que le bucket
+   * cible, la clé de l'objet, le contenu binaire, le type MIME et les métadonnées
+   * associées.
+   * </p>
+   * <p>
+   * Elle utilise le pattern {@link Builder} afin de faciliter la construction
+   * d'instances de manière fluide et sécurisée, tout en permettant de gérer
+   * des paramètres optionnels.
+   * </p>
+   * <p>
+   * Le champ {@code key} est obligatoire pour garantir
+   * l'identification unique de l'objet dans le stockage S3.
+   * </p>
+   * <p>
+   * Cette classe est indépendante de toute implémentation S3 (MinIO, AWS, etc.)
+   * et peut être utilisée comme modèle générique dans les services de stockage.
+   * </p>
+   * @Author [any.nameAuthor()/]
+   */
+  public class [any.nameClassStorageS3DocRequestImpl()/] {
+  
+    [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+    
+    /**
+     * Nom du bucket cible dans lequel l'objet sera stocké.
+     */
+    private String  ['bucket'.apply_attributeDefault()/];
+    
+    /**
+     * Clé de l'objet (identifiant unique dans le bucket).
+     */
+    private String ['key'.apply_attributeDefault()/];
+    
+    /**
+     * Contenu binaire du document sous forme de flux.
+     */
+    private InputStream ['content'.apply_attributeDefault()/];
+    
+    /**
+     * Type MIME du document (ex : application/pdf, image/png).
+     */
+    private String ['content type'.apply_attributeDefault()/];
+    
+    /**
+     * Métadonnées associées à l'objet S3.
+     */
+    private Map<String, String> ['metadata'.apply_attributeDefault()/];
+    
+    /**
+     * Taille du contenu en octets (optionnelle).
+     */
+    private Long ['size'.apply_attributeDefault()/];
+    
+    /**
+     * Constructeur privé pour forcer l'utilisation du {@link Builder}.
+     */
+    private [any.nameClassStorageS3DocRequestImpl()/] () {
+       // RAS.
+    }
+    
+    [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+    
+    /**
+     * Retourne le nom du bucket cible.
+     *
+     * @return le bucket
+     */
+    public String ['bucket'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['bucket'.apply_attributeDefault()/];
+    }
+    
+    /**
+     * Retourne la clé de l'objet.
+     *
+     * @return la clé
+     */
+    public String ['key'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['key'.apply_attributeDefault()/];
+    }
+    
+    /**
+     * Retourne le contenu du document.
+     *
+     * @return le flux du contenu
+     */
+    public InputStream ['content'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['content'.apply_attributeDefault()/];
+    }
+    
+    /**
+     * Retourne le type MIME du document.
+     *
+     * @return le content type
+     */
+    public String ['content type'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['content type'.apply_attributeDefault()/];
+    }
+    
+    /**
+     * Retourne les métadonnées associées.
+     *
+     * @return la map de métadonnées
+     */
+    public Map<String, String> ['metadata'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['metadata'.apply_attributeDefault()/];
+    }
+    
+   /**
+     * Retourne la taille du document.
+     *
+     * @return la taille en octets
+     */
+    public Long ['size'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['size'.apply_attributeDefault()/];
+    }
+    
+    /**
+     * Crée un builder permettant de construire une instance de
+     * {@link [any.nameClassStorageS3DocRequestImpl()/]}.
+     *
+     * @return une instance de {@link Builder}
+     */
+    public static Builder ['builder'.apply_methodDefault()/]() {
+       return new Builder();
+    }
+    
+    /**
+     * Builder permettant de construire une instance de
+     * {@link [any.nameClassStorageS3DocRequestImpl()/]}.
+     * <p>
+     * Permet une initialisation fluide et lisible des paramètres, tout en
+     * validant les champs obligatoires lors de l'appel à {@link #build()}.
+     * </p>
+     */
+    public static class Builder {
+      
+       /**
+       * Instance en cours de construction.
+       */
+       private final [any.nameClassStorageS3DocRequestImpl()/] ['request'.apply_attributeFinal()/];
+       
+       /**
+       * Constructeur privé du builder.
+       */
+        private Builder() {
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/] = new [any.nameClassStorageS3DocRequestImpl()/]();
+        }
+        
+        /**
+         * Définit le bucket cible.
+         *
+         * @param bucket nom du bucket
+         * @return le builder courant
+         */
+        public Builder ['with bucket'.apply_methodDefault()/](final String ['request'.apply_parameterMethodClassicIn()/]) {
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['bucket'.apply_attributeDefault()/] 
+           = ['request'.apply_parameterMethodClassicIn()/];
+           return this;
+        }
+        
+        /**
+         * Définit la clé de l'objet.
+         *
+         * @param key clé unique de l'objet
+         * @return le builder courant
+         */
+        public Builder ['with key'.apply_methodDefault()/](final String ['key'.apply_parameterMethodClassicIn()/]) {
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/] 
+           = ['key'.apply_parameterMethodClassicIn()/];
+           return this;
+        }
+        
+        /**
+         * Définit le contenu du document.
+         *
+         * @param content flux du contenu
+         * @return le builder courant
+         */
+        public Builder ['with content'.apply_methodDefault()/](final InputStream ['content'.apply_parameterMethodClassicIn()/]) {
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['content'.apply_attributeDefault()/] 
+           = ['content'.apply_parameterMethodClassicIn()/];
+           return this;
+        }
+        
+        /**
+         * Définit le type MIME du document.
+         *
+         * @param contentType type MIME
+         * @return le builder courant
+         */
+        public Builder ['with contentType'.apply_methodDefault()/](final String ['content type'.apply_parameterMethodClassicIn()/]) {
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['content type'.apply_attributeDefault()/] 
+           = ['content type'.apply_parameterMethodClassicIn()/];
+           return this;
+        }
+        
+        /**
+         * Définit les métadonnées associées à l'objet.
+         *
+         * @param metadata map de métadonnées
+         * @return le builder courant
+         */
+        public Builder ['with metadata'.apply_methodDefault()/](final Map<String, String> ['metadata'.apply_parameterMethodClassicIn()/]) {
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['metadata'.apply_attributeDefault()/] 
+           = ['metadata'.apply_parameterMethodClassicIn()/];
+           return this;
+        }
+        
+        /**
+         * Définit la taille du document.
+         *
+         * @param size taille en octets
+         * @return le builder courant
+         */
+        public Builder ['with size'.apply_methodDefault()/](final Long ['size'.apply_parameterMethodClassicIn()/]) {
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['size'.apply_attributeDefault()/] 
+           = ['size'.apply_parameterMethodClassicIn()/];
+           return this;
+        }
+        
+        [protected ('build methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+        
+        /**
+         * Construit une instance de {@link [any.nameClassStorageS3DocRequestImpl()/]}.
+         * <p>
+         * Vérifie la présence du champ obligatoire 
+         * {@code key} avant de retourner l'objet.
+         * </p>
+         *
+         * @return une instance valide de {@link [any.nameClassStorageS3DocRequestImpl()/]}
+         * @throws IllegalStateException si un champ obligatoire est manquant
+         */
+        public [any.nameClassStorageS3DocRequestImpl()/] ['build'.apply_methodDefault()/]() {
+           if ([any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/] == null 
+               || [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/].isEmpty()) {
+               throw new IllegalStateException("La clé est obligatoire pour manipuler un document S3");
+           }
+           
+           [protected ('build validation'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           [/protected]
+           
+           return [any.prefixAffectation()/]['request'.apply_attributeFinal()/];
+        }
+     }
+  }
+[/template]
+
 [comment écriture de la classe d'implémentation pour la récupération des propriétés pour storage S3./]
 [template public s3PropsImpl(any : ecore::EObject)]
-    [any.classHeader(any.namePackageApplicationBase())/]
+    [any.classHeader(any.namePackageS3Base())/]
     
     import org.springframework.boot.context.properties.ConfigurationProperties;
     import org.springframework.stereotype.Component;
@@ -2020,7 +2361,7 @@
 
 [comment écriture de la classe d'implémentation pour la configuration storage S3./]
 [template public s3ConfigImpl(any : ecore::EObject)]
-  [any.classHeader(any.namePackageApplicationBase())/]
+  [any.classHeader(any.namePackageS3Base())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [any.defaultImports()/]
@@ -2030,19 +2371,24 @@
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
     
+    import io.minio.RemoveObjectArgs;
+    import io.minio.GetObjectArgs;
+    import io.minio.PutObjectArgs;
     import io.minio.BucketExistsArgs;
     import io.minio.MakeBucketArgs;
     import io.minio.MinioClient;
+    import io.minio.PutObjectArgs.Builder;
+    import io.minio.PutObjectArgs.Builder;
     
   [/protected]
   
   /**
    * Configuration Spring responsable de la création et de la gestion des clients
-   * S3 pour l’application.
+   * S3 pour l'application.
    * <p>
    * Cette classe utilise un **pattern factory** pour créer des instances de
    * {@link MinioClient} à la volée, afin de gérer correctement des **credentials
-   * temporaires**. Un client S3 singleton n’étant pas adapté à des credentials
+   * temporaires**. Un client S3 singleton n'étant pas adapté à des credentials
    * qui expirent, la factory permet de reconstruire le client à chaque appel avec
    * des identifiants toujours valides.
    * </p>
@@ -2055,7 +2401,7 @@
    * </p>
    * <p>
    * La classe inclut également un {@link CommandLineRunner} pour initialiser
-   * automatiquement le bucket configuré au démarrage de l’application, en
+   * automatiquement le bucket configuré au démarrage de l'application, en
    * vérifiant son existence et en le créant si nécessaire.
    * </p>
    * <p>
@@ -2079,17 +2425,17 @@
       /**
        * Propriétés de configuration pour accéder au stockage S3.
        * <p>
-       * Cette instance contient l’URL du serveur, le bucket, la clé d’accès et la
+       * Cette instance contient l'URL du serveur, le bucket, la clé d'accès et la
        * clé secrète. Elle est injectée via Spring pour permettre la configuration
        * dynamique du client S3.</p>
        */
       private final [any.nameClassStorageS3PropsImpl()/] ['props'.apply_attributeFinal()/];
       
       /**
-       * Cache des credentials actuels avec gestion de l’expiration.
+       * Cache des credentials actuels avec gestion de l'expiration.
        * <p>
        * Permet de stocker temporairement les identifiants utilisés pour construire
-       * les clients MinIO. Les credentials sont rafraîchis automatiquement si
+       * les clients S3. Les credentials sont rafraîchis automatiquement si
        * expirés.</p>
        */
       private volatile ['credentials wrapper'.apply_classDefault()/] ['current credentials'.apply_attributeStatic()/];
@@ -2098,7 +2444,7 @@
        * Constructeur de la classe.
        * <p>
        * Spring injecte les propriétés de configuration S3 afin que la factory
-       * puisse construire des clients MinIO configurés correctement.</p>
+       * puisse construire des clients S3 configurés correctement.</p>
        *
        * @param props configuration S3 injectée par Spring
        */
@@ -2129,9 +2475,9 @@
        * construit avec des credentials valides. Cette approche garantit que les
        * credentials ne sont jamais expirés lors des opérations.</p>
        */
-      public class ['s3 client factory'.apply_classDefault()/] {
-         public MinioClient ['client'.apply_methodGet()/]() {
-            [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      public class ['s3 client factory'.apply_classDefault()/] implements [any.nameClassStorageS3Itf()/] {
+          MinioClient ['client'.apply_methodGet()/]() {
+            [protected ('s3 factory'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
               
               // ['credentials wrapper'.apply_classDefault()/] ['creds'.apply_variableDefault()/] = ['credentials'.apply_methodGet()/]();
               
@@ -2147,6 +2493,91 @@
                  
             [/protected]
         }
+        
+        /**
+         * Upload un document dans le stockage S3.
+         * <p>
+         * Le document est identifié par la clé fournie dans les paramètres et est
+         * stocké dans le bucket cible. Les métadonnées et le type MIME peuvent être
+         * fournis en option.
+         * </p>
+         *
+         * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
+         * @throws Exception en cas d'erreur lors de l'upload
+         */
+        @Override
+        public void ['upload'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+            ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
+            
+            PutObjectArgs.Builder ['builder'.apply_variableDefault()/] = PutObjectArgs
+               .builder()
+               .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
+               .object(['params'.apply_parameterMethodClassicIn()/].['key'.apply_methodGet()/]())
+               .stream(['params'.apply_parameterMethodClassicIn()/].['content'.apply_methodGet()/](), 
+               ['params'.apply_parameterMethodClassicIn()/].['size'.apply_methodGet()/]() != null ? 
+               ['params'.apply_parameterMethodClassicIn()/].['size'.apply_methodGet()/]() : -1, 10 * 1024 * 1024);
+               
+            ['builder'.apply_variableDefault()/].contentType(['params'.apply_parameterMethodClassicIn()/]
+                .['content type'.apply_methodGet()/]() != null && !['params'.apply_parameterMethodClassicIn()/]
+                .['content type'.apply_methodGet()/]().isBlank()? ['params'.apply_parameterMethodClassicIn()/]
+                .['content type'.apply_methodGet()/]() : "application/octet-stream");
+             
+            ['builder'.apply_variableDefault()/].userMetadata(['params'.apply_parameterMethodClassicIn()/]
+                .['metadata'.apply_methodGet()/]() != null ? ['params'.apply_parameterMethodClassicIn()/]
+                .['metadata'.apply_methodGet()/]() : java.util.Collections.emptyMap());
+             
+             [protected ('upload'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             [/protected]
+            
+            ['client'.apply_methodGet()/]().putObject(['builder'.apply_variableDefault()/].build());
+        }
+        
+        /**
+         * Télécharge un document depuis le stockage S3.
+         * <p>
+         * Retourne le contenu du document sous forme de flux. L'appelant est
+         * responsable de la fermeture du flux après utilisation.
+         * </p>
+         *
+         * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant le bucket et la clé
+         * @return flux du contenu du document
+         * @throws Exception en cas d'erreur lors du téléchargement
+         */
+        @Override
+        public InputStream ['download'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+            ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
+            
+            GetObjectArgs.Builder ['builder'.apply_variableDefault()/] = GetObjectArgs
+                .builder()
+                .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
+                .object(['params'.apply_parameterMethodClassicIn()/].['key'.apply_methodGet()/]());
+            
+            [protected ('download'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]
+            
+            return ['client'.apply_methodGet()/]().getObject(['builder'.apply_variableDefault()/].build());
+        }
+        
+        /**
+         * Supprime un document du stockage S3.
+         * <p>
+         * Le document est identifié par sa clé et supprimé du bucket cible.
+         * </p>
+         *
+         * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant le bucket et la clé
+         * @throws Exception en cas d'erreur lors de la suppression
+         */
+        @Override
+        public void ['delete'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+            ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
+            ['client'.apply_methodGet()/]().removeObject(RemoveObjectArgs.builder()
+                  .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
+                  .object(['params'.apply_parameterMethodClassicIn()/].['key'.apply_methodGet()/]())
+                  .build());
+        }
+        
+        [protected ('client storage'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [/protected]
      }
       
      /**
@@ -2160,10 +2591,15 @@
       * @return {@link ['credentials wrapper'.apply_classDefault()/]} contenant les nouveaux credentials et leur expiration
       */
      private ['credentials wrapper'.apply_classDefault()/] ['refresh credentials'.apply_methodDefault()/]() {
+          
           // Remplacer par appel réel (Keycloak / STS / MinIO)
-          String ['access key'.apply_variableDefault()/] = [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['access key'.apply_methodGet()/]();
-          String ['secret key'.apply_variableDefault()/] = [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['secretKey'.apply_methodGet()/]();
-          Instant ['expiration'.apply_variableDefault()/] = Instant.now().plusSeconds(3600);
+          [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+            String ['access key'.apply_variableDefault()/] = [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['access key'.apply_methodGet()/]();
+            String ['secret key'.apply_variableDefault()/] = [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['secretKey'.apply_methodGet()/]();
+            Instant ['expiration'.apply_variableDefault()/] = Instant.now().plusSeconds(3600);
+          
+          [/protected]
           
           return new ['credentials wrapper'.apply_classDefault()/](['access key'.apply_variableDefault()/], 
                ['secret key'.apply_variableDefault()/], ['expiration'.apply_variableDefault()/]);
@@ -2171,7 +2607,7 @@
      
      
     /**
-     * Retourne les credentials actuels en s’assurant qu’ils ne sont pas expirés.
+     * Retourne les credentials actuels en s'assurant qu'ils ne sont pas expirés.
      * <p>
      * Si les credentials sont absents ou expirés, {@link #['refresh credentials'.apply_methodDefault()/]()} est appelé.
      * </p>
@@ -2211,7 +2647,7 @@
       }
       
       /**
-       * Initialise le bucket S3 au démarrage de l’application.
+       * Initialise le bucket S3 au démarrage de l'application.
        * <p>
        * Vérifie si le bucket configuré existe, et le crée si nécessaire.
        * Utilise la factory pour obtenir un client avec des credentials valides.</p>

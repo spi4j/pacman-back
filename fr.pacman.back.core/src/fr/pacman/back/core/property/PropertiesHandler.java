@@ -161,7 +161,7 @@ public class PropertiesHandler {
 	}
 
 	/**
-	 * Crée le référentiel des {@link PropertiesCategory} utilisées par l’outil.
+	 * Crée le référentiel des {@link PropertiesCategory} utilisées par l'outil.
 	 * <p>
 	 * Les catégories de base (règles de nommage, propriétés projet, etc.) sont
 	 * systématiquement ajoutées. Les propriétés spécifiques à SPI4J sont ajoutées
@@ -176,7 +176,7 @@ public class PropertiesHandler {
 	 * @param p_addSpi4Props indique si les propriétés spécifiques SPI4J doivent
 	 *                       être ajoutées
 	 *
-	 * @return un tableau contenant l’ensemble des catégories de propriétés
+	 * @return un tableau contenant l'ensemble des catégories de propriétés
 	 */
 	protected static PropertiesCategory[] createReferential(final boolean p_addSpi4Props) {
 		List<PropertiesCategory> categories = new ArrayList<>();

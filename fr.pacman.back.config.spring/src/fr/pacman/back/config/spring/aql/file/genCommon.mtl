@@ -13,13 +13,6 @@
   [/file]
 [/template]
 
-[comment écriture de l'interface pour le storage S3./]
-[template public fileStorageItf(any : ecore::EObject)]
-  [file (any.nameClassStorageS3Itf().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
-    [any.storageServiceItf()/]
-  [/file]
-[/template]
-
 [comment écriture de la classe d'annotation pour l'injection du service domain./]
 [template public fileAnnotationIn(any : ecore::EObject)]
   [file (any.nameClassAnnotationIn().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]

@@ -171,19 +171,31 @@
 
 [comment écriture de la configuration pour le client storage S3./]
 [template public fileStorageS3ConfigImpl(any : ecore::EObject)]
-  [file (any.nameClassStorageS3ConfigImpl().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassStorageS3ConfigImpl().toFileJava(any.namePackageS3Base()), overwrite, any.defaultFileEncoding())]
     [any.s3ConfigImpl()/]
   [/file]
 [/template]
 
 [comment écriture de la classe de récupération des propriétés pour le client storage S3./]
 [template public fileStorageS3PropsImpl(any : ecore::EObject)]
-  [file (any.nameClassStorageS3PropsImpl().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
+  [file (any.nameClassStorageS3PropsImpl().toFileJava(any.namePackageS3Base()), overwrite, any.defaultFileEncoding())]
     [any.s3PropsImpl()/]
   [/file]
 [/template]
 
+[comment écriture de l'interface pour le storage S3./]
+[template public fileStorageS3Itf(any : ecore::EObject)]
+  [file (any.nameClassStorageS3Itf().toFileJava(any.namePackageS3Base()), overwrite, any.defaultFileEncoding())]
+    [any.storageServiceItf()/]
+  [/file]
+[/template]
 
-nameClassStorageS3PropsImpl
+[comment écriture de l'implémentation du passage de paramètres pour le storage S3./]
+[template public fileStorageS3DocRequestImpl(any : ecore::EObject)]
+  [file (any.nameClassStorageS3DocRequestImpl().toFileJava(any.namePackageS3Base()), overwrite, any.defaultFileEncoding())]
+    [any.s3DocRequestImpl()/]
+  [/file]
+[/template]
+
 
 
