@@ -3,7 +3,7 @@
 📅 Historique des mises à jour
 
 - 20/05/2025 : Initialisation du document.
-- 04/06/2025 : Ajouts : Coffre fort, Héritage, Relations, Règles de gestion, Transactions.
+- 04/06/2025 : Ajouts : Coffre-fort, Héritage, Relations, Règles de gestion, Transactions.
 - 01/09/2025 : Modifications : Validation, Installation, Introduction, Structure générale du sommaire.
 - 01/09/2025 : Ajouts : Création d'un projet client, Génération d'un projet client.
 - 24/11/2025 : Ajouts : Création d'un projet client React, Génération d'un projet client React.
@@ -220,7 +220,7 @@ Naviguer dans l'arborescence jusqu'au répertoire "*IS Designer*" et sélectionn
 
 Trois onglets sont disponibles : 
 
-➤ **Projet** : Saisir le nom désiré pour le projet, ainsi que l'auteur ou l'organisme, par défaut le package racine est automatiquement créé en fonction du nom préalabalement saisi. Il est toutefois possible de le modifier manuellement en le saisissant directement dans le champ prévu à cet effet. Au niveau des options la version actuelle de **Pacman** ne permet de créer que des projets de services REST avec le framework SpringBoot. Le champ Framework" ne contient pour l'instant qu'une seule valeur, à l'heure de l'écriture de ce document. Enfin sélectionner la (ou les) bases de données à l'aide des deux listes déroulantes et des deux boutons pour faire passer la sélection de l'une à l'autre des listes.
+➤ **Projet** : Saisir le nom désiré pour le projet, ainsi que l'auteur ou l'organisme, par défaut le package racine est automatiquement créé en fonction du nom prélablement saisi. Il est toutefois possible de le modifier manuellement en le saisissant directement dans le champ prévu à cet effet. Au niveau des options la version actuelle de **Pacman** ne permet de créer que des projets de services REST avec le framework SpringBoot. Le champ Framework" ne contient pour l'instant qu'une seule valeur, à l'heure de l'écriture de ce document. Enfin sélectionner la (ou les) bases de données à l'aide des deux listes déroulantes et des deux boutons pour faire passer la sélection de l'une à l'autre des listes.
 
 ❗ La base H2 est toujours embarquée par défaut, ne serait-ce que pour les tests unitaires.
 
@@ -248,11 +248,11 @@ Exemple avec les trois champs prédéfinis (pour annuler une sélection, sélect
   <img src="images/pcm-new-project-3-b.png" alt="Nouveau projet pacman" width="500">
 </div>
 
-❗ Ces champs sont uniquement destinés à la couche de persistance, ils sont donc remontés uniquement au niveau des objets métier pour des éventuels traitements associés à la valeur des ces attributs, mais ne passent jamais la couche métier et ne sont donc jamais transmis au niveau des services REST. Un seul champ fait exception à cette règle, le champ *Xuuid*.
+❗ Ces champs sont uniquement destinés à la couche de persistance, ils sont donc remontés uniquement au niveau des objets métier pour des éventuels traitements associés à la valeur de ces attributs, mais ne passent jamais la couche métier et ne sont donc jamais transmis au niveau des services REST. Un seul champ fait exception à cette règle, le champ *Xuuid*.
 
 ➤ **Autre** : 
 
-Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Au niveau de la version actuelle de **Pacman** et comme vu précédemment, une grande partie de la sous-rubrique "*Autre*" est désactivée car ces options ne concernent pas le framework SpringBoot. Il reste cependant la possibilité de cocher la rubrique "*Utilisation librairie SSO ministère*" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées . La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*")
+Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Au niveau de la version actuelle de **Pacman** et comme vu précédemment, une grande partie de la sous-rubrique "*Autre*" est désactivée car ces options ne concernent pas le framework SpringBoot. Il reste cependant la possibilité de cocher la rubrique "*Utilisation librairie SSO ministère*" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées. La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*")
 
 ❗ Attention, la librairie de connexion pour le ministère des armées n'est pas disponible dans le cas de l'utilisation des générateur **Pacman** hors du réseau interne du ministère. Il est donc inutile de cocher cette case dans le cadre d'une utilisation open source.
 
@@ -277,7 +277,7 @@ Il s'agit des vues suivantes :
 
 ### Cas projet fournisseur
 
-Rien de particulier à ajouter pour ce chapître, il s'agit de la configuration par défaut pour le wizard de création.
+Rien de particulier à ajouter pour ce chapitre, il s'agit de la configuration par défaut pour le wizard de création.
 
 ### Cas projet client (SpringBoot) 
 
@@ -292,7 +292,7 @@ Pour une demande de projet de type "**appel de services externes**" (création d
 
 ### Cas projet client (React)
 
-Pour une demande de projet de type "**appel de services externes**" (création d'une librairie React pour appeler un fournisseur services externes à partir d'une modélisation ), sélectionner la valeur "*Appel de services externes de type Rest*" au niveau de la rubrique "*Type*" sur le premier panneau du wizard de création. 
+Pour une demande de projet de type "**appel de services externes**" (création d'une librairie React pour appeler un fournisseur services externes à partir d'une modélisation), sélectionner la valeur "*Appel de services externes de type Rest*" au niveau de la rubrique "*Type*" sur le premier panneau du wizard de création. 
 
 Puis sélectionner la valeur "*React*" au niveau de la rubrique "*Framework*" sur le premier panneau du wizard de création. 
 
@@ -306,7 +306,7 @@ Puis sélectionner la valeur "*React*" au niveau de la rubrique "*Framework*" su
   <img src="images/pcm-new-project-7.png" alt="Nouveau projet pacman" width="500">
 </div>
 
-❗ Il faut bien distinguer ici la différence entre la création d'un client React et celle d'un client SpringBoot (en dehors de la question du language). Le client SpringBoot est pour l'instant créé afin d'appeler une librairie d'un fournisseur externe, on part donc un fichier Swagger pour obtenir la modalisation. Le client React quant à lui est utilisé pour appeler une librairie interne (au sens ou le backend a été précédemment créé avec **Pacman**). 
+❗ Il faut bien distinguer ici la différence entre la création d'un client React et celle d'un client SpringBoot (en dehors de la question du langage). Le client SpringBoot est pour l'instant créé afin d'appeler une librairie d'un fournisseur externe, on part donc un fichier Swagger pour obtenir la modalisation. Le client React quant à lui est utilisé pour appeler une librairie interne (au sens ou le backend a été précédemment créé avec **Pacman**). 
 
 En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n'est pas possible de s'appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s'appuyer directement sur le fichier de modélisation. C'est ce modèle qui constitue la source de vérité et qui permet d'identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.
 
@@ -330,7 +330,7 @@ Par la suite dans ce document le projet d'exemple sera appelé simplement "demo"
 ```
 Ces balises ont été positionnées à des endroits considérés comme stratégiques par le développeur du générateur, elles permettent par la suite de positionner du code personnalisé par le développeur de l'application cible sans que celui-ci soit par la suite, écrasé lors des prochaines demandes de génération. 
 
-❗ Toutes les classes de haut niveau sont générées avec le nom de l'application en préfixe, cela permet de mieux les distinguer des autres classes issues de la modélisation utilisateur.
+❗ Toutes les classes de haut niveau sont générées avec le nom de l'application en préfixe, cela permet de mieux les distinguer des autres classes issues de la modélisation utilisateur. Par ailleurs, toutes les options ne sont pas paramétrables au niveau du formulaire de création du projet, de nombreuses classes sont donc créées par défaut (stockage S3, gestion de la sécurité, etc...), libre au développeur de les supprimer s'il ne désire pas les utiliser. Ces classes ne sont, par la suite, pas régénérées lors des différentes générations des couches de persistance, service, etc.... 
 
 ### 📁 Cas projet fournisseur 
 
@@ -367,7 +367,7 @@ Il s'agit :
     - ***StubService*** :  identifie auprès de Spring les classes qui servent de bouchon pour les tests unitaires.
     - ***Transactionnal*** : identifie auprès de Spring les méthodes (ou classes) qui doivent être jouées en mode transactionnel pour la couche de persistance.
 
-Au niveau du fichier "*pom.xml*" il est encore une fois à rappeler que la couche métier ne doit contenir aucune dépendance avec toute couche technique, ce qui s'applique aux classes générées s'applique par conséquent aussi au dépendances présentes au niveau de ce fichier. Avec le plugin "*maven enforcer*", il est possible de définir les dépendances authorisées et celles qui seront exclues afin d'éviter qu'un développeur ajoute (et utilise) une dépendance qui a une adhérance à une quelconque couche technique.  Certes cette solution n'exclue pas que le développeur paramètre différement le plugin (puisqu'il a lui aussi accès en modification au fichier maven), mais elle protège toutefois des erreurs d'inadvertance.
+Au niveau du fichier "*pom.xml*" il est encore une fois à rappeler que la couche métier ne doit contenir aucune dépendance avec toute couche technique, ce qui s'applique aux classes générées s'applique par conséquent aussi au dépendances présentes au niveau de ce fichier. Avec le plugin "*maven enforcer*", il est possible de définir les dépendances authorisées et celles qui seront exclues afin d'éviter qu'un développeur ajoute (et utilise) une dépendance qui a une adhérance à une quelconque couche technique.  Certes cette solution n'exclue pas que le développeur paramètre différemment le plugin (puisqu'il a lui aussi accès en modification au fichier maven), mais elle protège toutefois des erreurs d'inadvertance.
     
 Ce plugin est paramétré par défaut avec le code suivant : 
     
@@ -391,7 +391,7 @@ Ce plugin est paramétré par défaut avec le code suivant :
 </configuration>
 ```
   
-On va donc inclure toutes les librairies de test et de log pour l 'instant (attention sl4j est une surcouche donc elle ne présuppose pas de l'implémentation technique qui est derrière), tous le reste est exclu. Pour les librairies de test, pareillement, le fait d'utiliser JUnit ne permet pas de connaitre quel est le framework utilisé par la suite pour le développement de l'application.  On retrouve donc uniquement les dépendances suivantes : 
+On va donc inclure toutes les librairies de test et de log pour l'instant (attention sl4j est une surcouche donc elle ne présuppose pas de l'implémentation technique qui est derrière), tous le reste est exclu. Pour les librairies de test, pareillement, le fait d'utiliser JUnit ne permet pas de connaitre quel est le framework utilisé par la suite pour le développement de l'application.  On retrouve donc uniquement les dépendances suivantes : 
   
 ```xml
 <dependency>
@@ -444,6 +444,8 @@ Un fichier ***[nom de l'application]-validation.log*** vide est créé par défa
 
 • ***[package racine].app.exceptions*** : contient les exceptions de la couche applicative. Si besoin d'exceptions supplémentaires, les positionner à ce niveau.
 
+• ***[package racine].app.storage.s3*** : contient l'ensemble des classes de haut niveau permettant la gestion des services de stockage pour des documents (contenu binaire, etc...) sous la norme S3.
+
 • ***[package racine].app.adapters.controllers*** : package racine pour l'ensemble des service REST, contient par défaut le service pour l'api de santé de l'application.
 
 • ***[package racine].infra*** : package racine pour la couche de persistance, contient par défaut les classes de haut niveau pour la gestion du transactionnel au niveau de la couche de persistance.
@@ -485,11 +487,11 @@ La structure créée est la suivante :
 
 ➤ Le projet "***demo-domain***" qui porte l'ensemble des objets de transfert (DTO) métier ne contient aucune classe par défaut puisque l'ensemble des objets métier sont créés uniquement via les générateurs à partir du fichier de modélisation SOA. 
 
-➤ Le projet "***demo-model***" qui contient la couche de modélisation avec cette fois ,uniquement un fichier  ***[nom du projet].soa***, en l'occurence le fichier de modélisation pour l'ensemble des services.
+➤ Le projet "***demo-model***" qui contient la couche de modélisation avec cette fois, uniquement un fichier  ***[nom du projet].soa***, en l'occurence le fichier de modélisation pour l'ensemble des services.
   
 Au niveau du répertoire ***/pacman-properties*** les deux fichiers de paramètrage sont toujours présents. 
 
-➤ Le projet "***demo-server***" qui contient l'ensemble des classes de haut niveau qui sont nécessaires pour l'écriture, le fonctionnement et les test des différents services client. Par défaut un seul package est généré : 
+➤ Le projet "***demo-server***" qui contient l'ensemble des classes de haut niveau qui sont nécessaires pour l'écriture, le fonctionnement et les tests des différents services client. Par défaut un seul package est généré : 
 
 •️ ***[package racine].app*** : package racine pour la couche applicative, contient par défaut les classes de haut niveau pour le bon fonctionnement des appels REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité. Ces classes étant peu nombreuses il est ici possible de les lister : 
 
@@ -521,7 +523,7 @@ Au niveau du répertoire ***/pacman-properties*** les deux fichiers de paramètr
 
 ❗ Il est très important ici de noter que l'ensemble des projets générés sont des projets de type Maven. Cela est du à la structure même des générateurs **Pacman** qui à la base, sont des générateurs pour des projets de type Java. Cependant, à l'inverse des précédents projets vu précédemment, il est à préciser que les projets ici créés ne sont pas des projets avec la nature Java. 
 
-De même, si les fichiers de propriétés sont créés à la base pour des projets Java, il est encore une fois à préciser que seules, ici, quelques propriétés sont utilisés pour la génération des projets. Il ne faut donc pas s'étonner de la présence de certaines propriétés liées exclusivement à Java. Ces fichiers doivent obligatoirement être conservés pour le bon fonctionnement des générateurs.
+De même, si les fichiers de propriétés sont créés à la base pour des projets Java, il est encore une fois à préciser que seules, ici, quelques propriétés sont utilisées pour la génération des projets. Il ne faut donc pas s'étonner de la présence de certaines propriétés liées exclusivement à Java. Ces fichiers doivent obligatoirement être conservés pour le bon fonctionnement des générateurs.
 
 ➤ Le projet "***demo-server***" dans lequel par défaut, un seul répertoire est créé, il s'agit du répertoire avec le nom du projet (équivalent du "*/src/main/java*"). Ce répertoire sert de base (racine) pour l'ensemble de la génération, il va contenir l'ensemble des fichiers de configuration générés à la création du projet ainsi que l'ensemble des sources pour les objets métier et les différents services.
 
@@ -548,7 +550,7 @@ Le fichier permet de configurer le framework SpringBoot. Il contient un ensemble
 - Le paramétrage de la sécurité pour la liste des URIs à ne pas sécuriser.
 - Le paramétrage du serveur HTTP.
 - Le paramétrage de la couche de log.
-- La paramétrage pour le coffre fort.
+- La paramétrage pour le coffre-fort.
 - Le paramétrage des profils Spring.
 - Le paramétrage du cache pour Spring.
 - Le paramétrage du framework pour le circuit-breaker.
@@ -592,7 +594,7 @@ Cette affichage est rendu par la classe spécifique de l'application ***[nom de 
 Pareillement, pour ajouter des informations au niveau de l'URL "***/info***" compléter cette fois le fichier de configuration au niveau de la rubrique (rubrique Configuration du point de terminaison /info et si besoin, se reporter à la documentation générale de l'actuator pour plus de précisions) : 
 
 ```properties
-# Configuration du point  de terminaison /info, definir ici les informations necessaires.
+# Configuration du point de terminaison /info, definir ici les informations necessaires.
 management.info.env.enabled=true
 app.cusomInfo=Une information de type custom...
 info.app.cusomInfo=${app.cusomInfo}
@@ -622,7 +624,7 @@ springdoc.swagger-ui.tags-sorter=alpha
 ```
 #### URIs
 
-❗ Il est particulièrement important en fonction des diverses modifications apportées au niveau des différentes rubriques, de modifier aussi la liste des URIs qui ne sont pas à sécuriser. Par défaut la sécurité au niveau de l'accès des services REST est automatiquement enclanchée (il n'y a pas de possibilité de l'activer ou de la désactiver à l'aide d'un paramètre, elle est enclanchée dès que SpringBoot détecte qu'elle est chargée et disponible au niveau des dépendance Maven). Cette liste est récupérée par le gestionnaire de sécurité généré par **pacman** et permet de sortir ces URIs de la zone de sécurité. Dans le cas contraire on aura un *HTTP:401* sur les URIs suivantes : 
+❗ Il est particulièrement important en fonction des diverses modifications apportées au niveau des différentes rubriques, de modifier aussi la liste des URIs qui ne sont pas à sécuriser. Par défaut la sécurité au niveau de l'accès des services REST est automatiquement enclenchée (il n'y a pas de possibilité de l'activer ou de la désactiver à l'aide d'un paramètre, elle est enclanchée dès que SpringBoot détecte qu'elle est chargée et disponible au niveau des dépendance Maven). Cette liste est récupérée par le gestionnaire de sécurité généré par **pacman** et permet de sortir ces URIs de la zone de sécurité. Dans le cas contraire on aura un *HTTP:401* sur les URIs suivantes : 
 
 - ***http://localhost:8080/actuator/health***
 - ***http://localhost:8080/actuator/info***
@@ -640,7 +642,7 @@ security.whitelist.paths=/swagger-ui/**,/api-docs/**,/actuator/**
 # Un exemple de cle symetrique (pour le developpement uniquement).
 security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
 ``` 
-❗ Cette propriété n'est présente que si la librairie SSO du ministère sur le gestion de la sécurité n'est pas utilisée (confère la case à cocher sur la rubrique "*Utilisation librairie SSO ministère*" au niveau des écrans de création d'un projet).
+❗ Cette propriété n'est présente que si la librairie SSO du ministère sur la gestion de la sécurité n'est pas utilisée (confère la case à cocher sur la rubrique "*Utilisation librairie SSO ministère*" au niveau des écrans de création d'un projet).
 
 Outre la définition du port et du contexte, une clé symétrique est automatiquement mise à disposition pour la classe de gestion de la sécurité des services REST lors du développement (à supprimer en production). 
 
@@ -675,7 +677,7 @@ L'utilisation de ce profil permet nottament dans le cadre des tests unitaires po
 
 #### Cache
 
-Cette propriété agit sur l'implémentation du cache utilisée par Spring Boot lorsqu'on utilise l'annotation @Cacheable, @CachePut, @CacheEvict, etc. Par défaut, elle utilise un cache en mémoire très basique (ConcurrentHashMap). 
+Cette propriété agit sur l'implémentation du cache utilisé par Spring Boot lorsqu'on utilise l'annotation @Cacheable, @CachePut, @CacheEvict, etc. Par défaut, elle utilise un cache en mémoire très basique (ConcurrentHashMap). 
 
 Dans la configuration actuelle, bon pour des tests ou des petits projets.
 
@@ -694,14 +696,14 @@ resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.waitDuration
 resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.permittedNumberOfCallsInHalfOpenState=3
 resilience4j.circuitbreaker.instances.externalServiceCircuitBreaker.slidingWindowSize=10
 ``` 
-#### Coffre fort
+#### Coffre-fort
 
 Un coffre-fort est un système sécurisé permettant de stocker et de protéger des informations sensibles, telles que des mots de passe, des clés d'API, des certificats ou des secrets d'application. Contrairement à un simple fichier chiffré, un coffre-fort offre généralement des fonctionnalités avancées comme le contrôle d'accès, l'audit des accès, le versionnement des secrets et le chiffrement automatique des données au repos et en transit. Dans le cas de **Pacman** c'est la solution "*spring-cloud-vault*" qui a été choisie.
 
 ❗ Par défaut le coffre-fort est désactivé.
 
 ```properties
-# Activation ou désactivation du coffre fort.
+# Activation ou désactivation du coffre-fort.
 spring.cloud.vault.enabled=false
 # L'application échoue au démarrage si Vault est inaccessible.
 spring.cloud.vault.fail-fast=false	
@@ -730,7 +732,7 @@ spring.datasource.username=sa
 spring.datasource.password=
 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
 ``` 
-Par ailleurs, on peut voir ici, la présence de la ligne "***INIT=CREATE SCHEMA IF NOT EXISTS SCH;***" Ceci est lié au fait qu'une demande de création de schéma a été effectuée lors de la création du projet "*demo*" (pour rappel le schéma "*SCH*"). En fait, même si la demande de création de schéma est effectué au niveau des scripts SQL qui sont générés à partir de la modélisation, il reste des problématiques au niveau des tests unitaires et/ou lors de la demande de création hors script (voir par la suite). Cette ligne permet donc de s'assurer dans tous les cas que le schéma est bien créé avant la demande de création et d'interrogation des tables.
+Par ailleurs, on peut voir ici, la présence de la ligne "***INIT=CREATE SCHEMA IF NOT EXISTS SCH;***" Ceci est lié au fait qu'une demande de création de schéma a été effectuée lors de la création du projet "*demo*" (pour rappel le schéma "*SCH*"). En fait, même si la demande de création de schéma est effectuée au niveau des scripts SQL qui sont générés à partir de la modélisation, il reste des problématiques au niveau des tests unitaires et/ou lors de la demande de création hors script (voir par la suite). Cette ligne permet donc de s'assurer dans tous les cas que le schéma est bien créé avant la demande de création et d'interrogation des tables.
 
 ```properties
 # En production placer a 'none'. valeurs possibles : <create | create-drop | update | validate | none>
@@ -758,7 +760,7 @@ Le stockage S3 désigne un modèle de stockage d'objets accessible via une API s
 
 De nombreux systèmes de stockage proposent aujourd'hui une compatibilité avec l'API S3, permettant aux applications d'interagir avec différents fournisseurs ou infrastructures en utilisant les mêmes mécanismes d'accès.
 
-Un paragraphe supplementaire est donc disponible dans le fichier de configuration avec les paramètres suivants (par défaut l'implémentation choisie par ***Pacman*** est la librairie **minio**) : 
+Un paragraphe supplémentaire est donc disponible dans le fichier de configuration avec les paramètres suivants (par défaut l'implémentation choisie par ***Pacman*** est la librairie **minio**) : 
 
 ```properties
 # URL du serveur de stockage (par défaut : localhost:9000).
@@ -890,7 +892,7 @@ Dans le cas du fichier "*application-sso*", ce dernier va contenir l'ensemble de
 spring.config.import=classpath:application-sso.properties
 ```
 
-Le contenu de ce fichier est le suivant (il s'agit ici d'un exemple puisque une partie de son contenu est généré dynamiquement en fonction de la modélisation utilisateur, par ailleurs sont aussi affichées les lignes de commentaire) : 
+Le contenu de ce fichier est le suivant (il s'agit ici d'un exemple puisqu'une partie de son contenu est généré dynamiquement en fonction de la modélisation utilisateur, par ailleurs sont aussi affichées les lignes de commentaire) : 
 
 ```properties 
 # ----------------------------------------------------------------------------------------------
@@ -921,7 +923,7 @@ myco.sso.permit-all[9]=/v1/service2
 
 On peut toutefois constater que certaines URL de l'application sont accessibles sans authentification afin de permettre le bon fonctionnement des outils de supervision, de documentation et des endpoints publics. Cela inclut par exemple les points d'accès pour les métriques et l'actuator, la documentation Swagger, les pages de login et logout, la vérification de l'authentification et le profil utilisateur, ainsi que le point de retour OAuth2 après authentification. Ces chemins sont explicitement autorisés pour garantir l'accessibilité des fonctionnalités essentielles sans bloquer l'utilisateur.
 
-... Par contre dans cet exemple, il est possible de constater quen en complément des endpoints publics standard, certaines URL issues directement de la modélisation de l'application sont également accessibles sans authentification. Cela permet à des services spécifiques, comme "*/v1/service1*" et "*/v1/service2*", d'être appelés librement pour faciliter l'intégration et les tests, tout en maintenant la sécurité sur les autres endpoints.
+... Par contre dans cet exemple, il est possible de constater qu'en complément des endpoints publics standard, certaines URL issues directement de la modélisation de l'application sont également accessibles sans authentification. Cela permet à des services spécifiques, comme "*/v1/service1*" et "*/v1/service2*", d'être appelés librement pour faciliter l'intégration et les tests, tout en maintenant la sécurité sur les autres endpoints.
 
 ❗ L'URI de base d'un service REST est généralement construite à partir de plusieurs éléments, par exemple :
 "*/api*" + la version + le nom du service, ce qui donne typiquement une URI de la forme : "*/api/v1/mon-service*".
@@ -936,7 +938,7 @@ Il peut donc être nécessaire de modifier manuellement le fichier "*application
 
 #### tests.properties
 
-Ce fichier permet de configurer le framework SpringBoot pour le déroulement des tests d'intégration pour l'ensemble de la couche  d'infrastructure. A ce niveau, il s'agit juste de configurer une datasource, le paramétrage n'implique à priori pas de commentaire particulier hormis le fait que le paramètre "***spring.jpa.defer-datasource-initialization***" est commenté puisque la demande de création de la base de données n'est plus gérée par le cycle de vie de Spring mais est expressement demandée par programmation. Le paramètre est toutefois conservé pour mémoire.
+Ce fichier permet de configurer le framework SpringBoot pour le déroulement des tests d'intégration pour l'ensemble de la couche  d'infrastructure. A ce niveau, il s'agit juste de configurer une datasource, le paramétrage n'implique à priori pas de commentaire particulier hormis le fait que le paramètre "***spring.jpa.defer-datasource-initialization***" est commenté puisque la demande de création de la base de données n'est plus gérée par le cycle de vie de Spring mais est expressément demandée par programmation. Le paramètre est toutefois conservé pour mémoire.
 
 ```properties
 ## Base H2 embarquee par defaut.
@@ -965,7 +967,7 @@ spring.populate.faker.enabled=false
 
 Dans le cas des tests, il est nécessaire de toujours laisser désactivé le peuplement automatique de la base SQL avec des données issues de la librairie DataFaker. En effet, cela viendrait perturber l'initialisation de la base de données de plus bas niveau avec le lancement des scripts SQL d'initialisation. Il faut en effet, bien différencier : 
 
-• Les tests Junit avec un script d'initialisation qui est la uniquement pour mettre des données anonymisées.
+• Les tests Junit avec un script d'initialisation qui est là uniquement pour mettre des données anonymisées.
 
 • Le peuplement de la base avec DataFaker qui se situe cette fois au niveau Java pour mettre des données utilisateur lisibles et compréhensibles pour le développeur.
 
@@ -1123,7 +1125,7 @@ La politique de **Pacman**  concernant les imports est la suivante :
 
 - Bien que la gestion des imports soit activée en fin de génération il est toujours préférable d'essayer d'écrire l'ensemble des imports afin d'éviter tout message indiquant un potentiel conflit qui doit être réglé manuellement par le développeur. C'est pour cette raison que la génération essaye d'écrire le maximum des imports en fonction de ce qui a été modélisé.
 
-- Au niveau des générateurs, la gestion de imports est un sujet plus complexe qu'il n'y parait. La solution qui a été finalement adoptée (ratio : utilité / nombre de lignes de code) est de générer en 'brute force' un maximum d'imports utilisés ou non par la classe, quite ensuite à faire supprimer tous les imports inutiles par le système d'organisation automatique des imports de l'IDE.
+- Au niveau des générateurs, la gestion de imports est un sujet plus complexe qu'il n'y parait. La solution qui a été finalement adoptée (ratio : utilité / nombre de lignes de code) est de générer en 'brute force' un maximum d'imports utilisés ou non par la classe, quitte ensuite à faire supprimer tous les imports inutiles par le système d'organisation automatique des imports de l'IDE.
 
 - Ceci implique (si le booléen de debbugage est positionné à '**true**') que de nombreux imports inutiles sont visibles dans la zone et que pareillement, des imports de classes génériques potentiellement inexistantes sont en erreur. Enfin de nombreux imports peuvent êtres en doublons (ou plus) selon la modélisation. Il est à noter que ceci est le comportement "normal" de **Pacman**. 
 
@@ -1161,15 +1163,15 @@ Le paramétrage pour l'attribut âge :
 
 #### Génération
 
-Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des entités ***[nom de l'application].entity*** et par un clique droit, faire apparaitre le menu de génération **Pacman**. Sont présentés (à l'inverse des versions précedentes) uniquement les générateurs associés au type du fichier sur lequel le développeur s'est positionné. 
+Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des entités ***[nom de l'application].entity*** et par un clic droit, faire apparaitre le menu de génération **Pacman**. Sont présentés (à l'inverse des versions précédentes) uniquement les générateurs associés au type du fichier sur lequel le développeur s'est positionné. 
 
 <div align="center">
   <img src="images/pcm-gen-entity-1.png" alt="Génération entité" width=600>
 </div>
 
-❗ Il est à noter que, avec la version 5 de **Pacman**,  les menus contextuels affichés dépendent maintenant  directement de la nature du fichier source. Ainsi , le fichier '.entity' n'aura que les générateurs qui concernent directement cette ressource.
+❗ Il est à noter que, avec la version 5 de **Pacman**,  les menus contextuels affichés dépendent maintenant  directement de la nature du fichier source. Ainsi, le fichier '.entity' n'aura que les générateurs qui concernent directement cette ressource.
 
-On peut remarquer la présence d'un  "***Validation du diagramme de modélisation***". Quelle que soit la couche à générer, il est toujours possible de lancer directement le générateur désiré et celui-ci va automatiquement activer la validation du diagramme avant de se lancer. Si des erreurs sont detectées, il est alors possible d'aller voir le résultat de la validation au niveau de la vue dédiée à la validation (Rapport de validation). 
+On peut remarquer la présence d'un  "***Validation du diagramme de modélisation***". Quelle que soit la couche à générer, il est toujours possible de lancer directement le générateur désiré et celui-ci va automatiquement activer la validation du diagramme avant de se lancer. Si des erreurs sont détectées, il est alors possible d'aller voir le résultat de la validation au niveau de la vue dédiée à la validation (Rapport de validation). 
 
 Par ailleurs il est aussi possible de lancer spécifiquement la validation du modèle afin de vérifier par avance si tout est correct. Si la validation est lancée en "standalone", et que le diagramme est valide, alors un message spécifique est affiché au développeur : 
 
@@ -1199,7 +1201,7 @@ Plusieurs remarques à ce stade :
 
 • Le script de création H2 est aussi présent au niveau du répertoire  ***/scr/test/resources*** car très légèrement différent de celui utilisé pour la production (déclaration des contraintes pour les tests unitaires qui passent au niveau de l'initialisation des données).
  
-• On peux voir dans les scripts la présence des champs supplémentaires qui ont été demandés dans le cadre du projet "demo".
+• On peut voir dans les scripts la présence des champs supplémentaires qui ont été demandés dans le cadre du projet "demo".
   
 ```sql
 /******************************************************************/
@@ -1248,7 +1250,7 @@ insert into SCH.TBL_PERSONNE (TBL_PERSONNE_ID,NOM,PRENOM,AGE,XTOPSUP,XDMAJ,XUUID
   
 Au niveau des classes générées : 
 
-➤ ***[package racine].infra*** : présence d'une nouvelle classe ***[Nom de l'application]EntityAbs***, cette classe est regénérée à chaque fois (possibilité de changement des données au niveau du fichier de configuration de **Pacman**). Elle contient et gère le cycle de vie des différents champs supplémentaires qui sont communs à l'ensemble des tables. Dans le cadre du projet "demo" comme il a été demandé de rajouter les champs "Xtopsup, Xdmaj et Xuuid" on les retrouve donc à ce niveau : 
+➤ ***[package racine].infra*** : présence d'une nouvelle classe ***[Nom de l'application]EntityAbs***, cette classe est régénérée à chaque fois (possibilité de changement des données au niveau du fichier de configuration de **Pacman**). Elle contient et gère le cycle de vie des différents champs supplémentaires qui sont communs à l'ensemble des tables. Dans le cadre du projet "demo" comme il a été demandé de rajouter les champs "Xtopsup, Xdmaj et Xuuid" on les retrouve donc à ce niveau : 
 
 
 ```java
@@ -1265,7 +1267,7 @@ protected Instant xdmaj;
 protected UUID xuuid;
 ```
     
-❗ Il est à noter que cette classe est toujours générée, même en l'absence de champ supplémentaire. Par ailleurs, il est vrai que dans le cadre de **Pacman** on utilise l'héritage afin de factoriser les champs automatiques au niveau des entités (et dtos, xtos) ce qui dans une vision puriste de la programmation orientée objet n'est pas une bonne pratique. Il aurait pu être préférable de passer par de la composition, mais il ne faut pas oublier qu'il s'agit ici d'un générateur et que les entités générées n'auront jamais leur signature modifiable par le développeur lui même (il n'y aura jamais la possibilité de rajouter une notion d'héritage ou d'implémentation). Ainsi la notion d'héritage a été préférée, car plus lisible au premier abord.
+❗ Il est à noter que cette classe est toujours générée, même en l'absence de champ supplémentaire. Par ailleurs, il est vrai que dans le cadre de **Pacman** on utilise l'héritage afin de factoriser les champs automatiques au niveau des entités (et dtos, xtos) ce qui dans une vision puriste de la programmation orientée objet n'est pas une bonne pratique. Il aurait pu être préférable de passer par de la composition, mais il ne faut pas oublier qu'il s'agit ici d'un générateur et que les entités générées n'auront jamais leur signature modifiable par le développeur lui-même (il n'y aura jamais la possibilité de rajouter une notion d'héritage ou d'implémentation). Ainsi la notion d'héritage a été préférée, car plus lisible au premier abord.
   
 ➤ ***[package racine].infra.entities.[nom du namespace]*** : implémentation de la ou des entités, dans le cas du projet "demo", il s'agit de l'entité "*PersonneEntityImpl*". Ici le générateur se contente de rajouter l'ensemble des annotations de persistance, encore une fois comme un indicateur de suppression logique a été demandé (*Xtopsup*) il est géré automatiquement par Spring Data. 
   
@@ -1331,9 +1333,9 @@ public interface PersonneRepository extends JpaRepository<PersonneEntityImpl, Lo
 ```
 #### Tests
 
-➤ ***[package racine].infra.adapters.[nom du namespace]*** : Des tests unitaires JUnit sont générés par défaut au niveau du package de test, avec pour chaque entité, une classe ***[nom de l'entité]RepositoryTestImpl***, dans le cadre de l'application "demo", il s"agit de la classe *PersonneRepositoryTestImpl*. Ces tests de base auto générés permettent de vérifier le bon fonctionnement des opérations CRUD pour la base de  données. 
+➤ ***[package racine].infra.adapters.[nom du namespace]*** : Des tests unitaires JUnit sont générés par défaut au niveau du package de test, avec pour chaque entité, une classe ***[nom de l'entité]RepositoryTestImpl***, dans le cadre de l'application "demo", il s'agit de la classe *PersonneRepositoryTestImpl*. Ces tests de base auto générés permettent de vérifier le bon fonctionnement des opérations CRUD pour la base de  données. 
 
-Chaque classe de test récupère le "Repository" par le biais d'une injection par constucteur, on active le profil Spring pour les tests et on demande expressement la configuration issue de "***test.properties***" au lieu de celle de production "***application.properties***". Enfin on demande l'initialisation de la base de donnée avec la ligne "***initSql(dataSource);***" :
+Chaque classe de test récupère le "Repository" par le biais d'une injection par constucteur, on active le profil Spring pour les tests et on demande expressément la configuration issue de "***test.properties***" au lieu de celle de production "***application.properties***". Enfin on demande l'initialisation de la base de donnée avec la ligne "***initSql(dataSource);***" :
 
 ```java
 @SpringBootTest
@@ -1387,11 +1389,11 @@ Voici un exemple de test unitaire pour la persistance :
 }
 ```
 
-❗ Avant de lancer les tests, ne pas oublier de demander (si cela n'a pas déjà été effectué au préalable) la génération des scripts SQL. Pour ce faire, se positionner au niveau du fichier de modélisation de la couche de persistance ***[nom de l'application].entity*** et par clique droit, demander la génération : 
+❗ Avant de lancer les tests, ne pas oublier de demander (si cela n'a pas déjà été effectué au préalable) la génération des scripts SQL. Pour ce faire, se positionner au niveau du fichier de modélisation de la couche de persistance ***[nom de l'application].entity*** et par clic droit, demander la génération : 
 
 <img src="images/pcm-gen-entity-3.png" alt="Génération scripts SQL" width="600">
 
-Un clique droit "***Run As/Junit Test***" sur la classe doit renvoyer le résultat suivant : 
+Un clic droit "***Run As/Junit Test***" sur la classe doit renvoyer le résultat suivant : 
 
 <div align="center">
   <img src="images/pcm-test-entity-1.png" alt="Tests unitaires" width="300">
@@ -1401,7 +1403,7 @@ Un clique droit "***Run As/Junit Test***" sur la classe doit renvoyer le résult
 ---
 Il est possible de modéliser un ensemble de règles de gestion afin de générer des méthodes dont le corps doit par la suite être implémenté par les développeurs. Ces règles peuvent être fonctionnelles ou techniques, elles peuvent être hiérarchisées en catégories et sous-catégories, elles sont versionnées, etc... 
 
-Les règles de gestion sont toutes centralisées au niveau du domaine (couche métier) puisqu'il s'agit par excellence d'une partie du code métier. Ces règles seront par la suite appelées au niveau de l'implémentation du service métier qui a été modélisé dans le diagrame SOA.
+Les règles de gestion sont toutes centralisées au niveau du domaine (couche métier) puisqu'il s'agit par excellence d'une partie du code métier. Ces règles seront par la suite appelées au niveau de l'implémentation du service métier qui a été modélisé dans le diagramme SOA.
 
 ❗ Ne pas confondre règles de gestion et règles de calcul métier, ici les règles devraient êtres considérées comme des règles ou le seul retour possible est un booléen, ou ce que l'on teste est valide ou n'est pas valide.
 
@@ -1425,7 +1427,7 @@ Une fois que la règle de gestion a été attachée à une opération, une clé 
 
 #### Génération
 
-Pour lancer la génération des règles de gestions, utiliser en premier le générateur disponible au niveau du fichier de modélisation pour les "Requirements", en l'occurence le fichier ***[nom de l'application].requirements*** 
+Pour lancer la génération des règles de gestions, utiliser en premier le générateur disponible au niveau du fichier de modélisation pour les "Requirements", en l'occurrence le fichier ***[nom de l'application].requirements*** 
 
 <div align="center">
   <img src="images/pcm-model-req-4.png" alt="Règle de gestion">
@@ -1454,13 +1456,13 @@ Dans le cas de l'application "demo", le diagramme (encore une fois très simple)
 
 <img src="images/pcm-model-dto-1.png" alt="Tests unitaires" width="200">
 
-Pareillement, deux opérations de type CRUD sont modélisées, une pour retourner une personne en fonction de l'identifiant et une pour retourner l'ensemble des personnes présentes dans la base de données. Encore une fois il s'agit pour l'instant, de se focaliser sur la manière dont **Pacman** génère les différentes classes et les articule en fonction de l'architecture hexagonale, plutôt que de faire de suite un exemple plus complexe. Il n'est pas non plus dans l'objectif de ce chapître de détailler toutes les possibilités de modélisation.
+Pareillement, deux opérations de type CRUD sont modélisées, une pour retourner une personne en fonction de l'identifiant et une pour retourner l'ensemble des personnes présentes dans la base de données. Encore une fois il s'agit pour l'instant, de se focaliser sur la manière dont **Pacman** génère les différentes classes et les articule en fonction de l'architecture hexagonale, plutôt que de faire de suite un exemple plus complexe. Il n'est pas non plus dans l'objectif de ce chapitre de détailler toutes les possibilités de modélisation.
 
 <img src="images/pcm-model-soa-1.png" alt="Tests unitaires" width="200">
 
 Dans cet exemple : 
 
-- La version de l'application est laissé à la version par défaut soit 0.0.1
+- La version de l'application est laissée à la version par défaut soit 0.0.1
 - L'uri racine est positionnée sur "*/api*".
 - L'uri pour le service est "*/personnes*".
 - L'uri pour la recherche par identifiant est "*/{id}*"
@@ -1469,7 +1471,7 @@ Dans cet exemple :
 
 #### Génération 
 
-Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des entités ***[nom de l'application].soa*** et par un clique droit, faire apparaitre le menu de génération **Pacman** (Générateurs Cali). 
+Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des entités ***[nom de l'application].soa*** et par un clic droit, faire apparaitre le menu de génération **Pacman** (Générateurs Cali). 
 
 <div align="center">
   <img src="images/pcm-gen-soa-1.png" alt="Génération soa" width=600>
@@ -1542,7 +1544,7 @@ public String toString() {
 
 • ***[package racine].domain.port.adapters.[nom du namespace]*** : Contient les interfaces (ports) pour les services d'infrastructure (couche de persistance), avec pour chaque service modélisé une interface d'accès à l'implémentation (adapter). Il s'agit donc de l'accès au "*inbounds*", toutes les interfaces sont de type ***[nom du DTO]Provider***. 
 
-❗ On parle ici de "Provider" car on considère que, pour la couche métier, l'accès à la couche de persistance est un service fourni. Par ailleurs à ce niveau le domaine n'a pas à savoir si la donnée provient d'une base de données, d'un fournisseur de mail, d'un fournisseur de services REST, etc... Cet accès est transparent à ce niveau, le métier sait uniquement qu'il peut récupérer des informations concernant l'entité qu'il est censé gérer, peut importe comment ces informations sont récupérées. 
+❗ On parle ici de "Provider" car on considère que, pour la couche métier, l'accès à la couche de persistance est un service fourni. Par ailleurs à ce niveau le domaine n'a pas à savoir si la donnée provient d'une base de données, d'un fournisseur de mail, d'un fournisseur de services REST, etc... Cet accès est transparent à ce niveau, le métier sait uniquement qu'il peut récupérer des informations concernant l'entité qu'il est censé gérer, peu importe comment ces informations sont récupérées. 
  
 On reprend ici l'ensemble des opérations modélisées au niveau du diagramme SOA.
     
@@ -1671,7 +1673,7 @@ Par ailleurs, une classe ***[nom du service]RequirementsImpl*** est aussi automa
 public class GestionPersonnesRequirementImpl {
 
 	/**
-	 * La personne doit être majeure .
+	 * La personne doit être majeure.
 	 */
 	@Requirement(RequirementsEnum.REQ_PERSONNE_AGE)
 	// Start of user code 1b38da379e5345c55bdffa8f819e2607
@@ -1801,7 +1803,7 @@ public class GestionPersonnesServiceTestImpl {
 
 **Au niveau du projet du serveur (couche infrastructure)** : 
 
-C'est au niveau du projet infrastructure que se situe la plus grande partie du code généré. Vont être générés, les services REST, les services de persistance (pour la majorité un accès à la base de données) et les différentes couches techniques qui permettent la communication et le partage des objets métier entre les différentes couches (surplus de code inhérent à l'architecture hexagonale). Comme vu précédemment, il a été décidé pour plus de lisibilié, de séparer la couche "globale" infrastructure en deux : infrastructure et application.
+C'est au niveau du projet infrastructure que se situe la plus grande partie du code généré. Vont être générés, les services REST, les services de persistance (pour la majorité un accès à la base de données) et les différentes couches techniques qui permettent la communication et le partage des objets métier entre les différentes couches (surplus de code inhérent à l'architecture hexagonale). Comme vu précédemment, il a été décidé pour plus de lisibilité, de séparer la couche "globale" infrastructure en deux : infrastructure et application.
 
 • ***[package racine].infra.adapters.[nom du namespace]*** : Contient l'ensemble des classes pour l'implémentation des services de persistance. Chaque service métier bénéficie de son service de persistance ***[nom du service]JpaProviderImpl*** qui lui permet de coder ses accès à la base de données, grâce au "Repository" qui a été généré au niveau de la demande de génération de la couche de persistance (voir plus haut) et qui est automatiquement injectée dans le service. La classe est annotée "***@AdapterService***" pour être prise en compte par Spring.
   
@@ -1924,7 +1926,7 @@ private List<PersonneEntityImpl> retourneTous_invoke() {
 }
 ```
 
-• ***[package racine].infra.entities.mappers.[nom du namespace]*** : Au niveau de l'implémentation de la couche de persistance ***[nom du service]JpaProviderImpl*** il a été possible de voir que la classe faisait appel à une méthode de mappeur (en locurence "*PersonneMapper.toDto(o)*"). Ce package contient l'ensemble des mappeurs qui permettent pour chaque entité, la recopie des données vers un objet métier et celle de l'objet métier vers l'entité. Ceci est effectué à l'aide des deux méthodes implémentées : "***toDto(..)***" et "***toEntity()***". 
+• ***[package racine].infra.entities.mappers.[nom du namespace]*** : Au niveau de l'implémentation de la couche de persistance ***[nom du service]JpaProviderImpl*** il a été possible de voir que la classe faisait appel à une méthode de mappeur (en locurrence "*PersonneMapper.toDto(o)*"). Ce package contient l'ensemble des mappeurs qui permettent pour chaque entité, la recopie des données vers un objet métier et celle de l'objet métier vers l'entité. Ceci est effectué à l'aide des deux méthodes implémentées : "***toDto(..)***" et "***toEntity()***". 
  
 Chaque mappeur contient un code très simple qui permet cette copie, voici par exemple le code pour la création de l'objet métier, il s'agit du code le plus complet car la seule méthode à effectuer consiste à la recopie des champs automatiques (pour rappel, les champs automatiques ne redescendent pas et ne montent pas plus haut que la couche métier) : 
   
@@ -2010,7 +2012,7 @@ class GestionPersonnesControllerImpl {
   
 Le code est ici standard et ne mérite pas d'explication particulière. L'URI est ici branchée sur "*/v0/api/personnes*" selon les différents éléments de modélisation (pour la version on prend toujours uniquement le numéro majeur précédé de la lettre "v"). Au niveau des opérations modélisées, le générateur passe toujours par un monteur pour la réponse, ce qui permet à la fois d'avoir l'ensemble du code d'appel entièrement généré et de laisser la possibilité au développeur de rajouter des informations supplémentaires au niveau des balises de type "*user code*". La description Open Api est, elle aussi, automatiquement générée.
 
-Pour la première opération de recherche par identifiant, comme il est possible de ne pas avoir d'enregistrement et que une "*fault*" a été modélisée, cela permet d'avoir un message personnalisé en cas d'erreur fonctionnelle. 
+Pour la première opération de recherche par identifiant, comme il est possible de ne pas avoir d'enregistrement et qu'une "*fault*" a été modélisée, cela permet d'avoir un message personnalisé en cas d'erreur fonctionnelle. 
   
 ❗ La documentation Open Api a été volontairement retirée du code généré afin de limiter le nombre de lignes et, dans un premier temps, se focaliser uniquement sur l'appel des différents services.
    
@@ -2062,9 +2064,9 @@ public ResponseEntity<List<PersonneXtoImpl>> retourneTous() {
    
 ❗ Il est à remarquer que les objets métier ne sont jamais envoyés au client, il sont avant recopiés dans des objets sérialisés de type ***[nom du dto]XtoImpl***.
 
-• ***[package racine].app.entities.mappers.[nom du namespace]*** : Contient les mappeurs pour effectuer les conversions entre les objets métier et les objets serialisés. Le code est similaire à celui des mappeurs de la couche d'infrastructure.
+• ***[package racine].app.entities.mappers.[nom du namespace]*** : Contient les mappeurs pour effectuer les conversions entre les objets métier et les objets sérialisés. Le code est similaire à celui des mappeurs de la couche d'infrastructure.
 
-• ***[package racine].app.entities.[nom du namespace]*** : Contient la liste des objets serialisés qui seront envoyés vers ou en provenance du client. A noter simplement qu'il est possible à ce niveau de positionner des annotations spécifiques JSON afin de masquer des champs, spécifier un nom particulier pour l'attribut, etc...
+• ***[package racine].app.entities.[nom du namespace]*** : Contient la liste des objets sérialisés qui seront envoyés vers ou en provenance du client. A noter simplement qu'il est possible à ce niveau de positionner des annotations spécifiques JSON afin de masquer des champs, spécifier un nom particulier pour l'attribut, etc...
   
 ```java
 /** Le nom de la personne. Cette donnée est obligatoire. */
@@ -2096,11 +2098,11 @@ excludeFilters = {
 ```
 Si le développeur souhaite basculer sur le (ou les) bouchon(s), il suffit alors de modifier la liste et de remplacer la classe bouchon par son homologue, la classe de gestion de la persistance JPA.
 
-❗ A noter que cette classe est recréé à chaque demande de génération pour la couche soa, pour l'instant il n'a pas été considéré comme justifié de positionner des balises de type 'user code'. A voir dans le futur si ce besoin s'avère nécessaire.
+❗ A noter que cette classe est recréée à chaque demande de génération pour la couche soa, pour l'instant il n'a pas été considéré comme justifié de positionner des balises de type 'user code'. A voir dans le futur si ce besoin s'avère nécessaire.
 
 #### Tests
 
-• ***[package racine].app.adapters.[nom du namespace]*** : Contient la liste des classes de test d'intégration pour chaque service REST. Chaque classe ***[nom du service]ServiceTestImpl*** permet de lancer le serveur et d'effectuer un appel REST avec des informations par défaut. Suite à la génération, on vérifie si le code de retour du service est bien celui attendu et le test est alors validé. Le développeur, à l'aide des balises de type "*user code*" peut toujours ajouter à sa guise autant d'éléménts que nécessaires pour complexifier ses propres cas de test. 
+• ***[package racine].app.adapters.[nom du namespace]*** : Contient la liste des classes de test d'intégration pour chaque service REST. Chaque classe ***[nom du service]ServiceTestImpl*** permet de lancer le serveur et d'effectuer un appel REST avec des informations par défaut. Suite à la génération, on vérifie si le code de retour du service est bien celui attendu et le test est alors validé. Le développeur, à l'aide des balises de type "*user code*" peut toujours ajouter à sa guise autant d'éléments que nécessaires pour complexifier ses propres cas de test. 
 
 A l'aide de l'annotation "***@TestPropertySource***" on demande à Spring de prendre le fichier de configuration "***test.properties***" au lieu de la configuration de production "***application.properties***", on demande le chargement et l'initialisation de la base de données. Toujours de la même manière, les différentes ressources sont injectées par le biais du constructeur.
   
@@ -2152,7 +2154,7 @@ A partir du moment ou la génération de la couche de service a été effectuée
 
 <img src="images/pcm-test-soa-1.png" alt="Tests d'intégration">
 
-Cela est du à la présence par défaut de l'annotation "***@Disabled("En attente de l'implémentation de la couche de persistance")***" positionnée par défaut sur chaque test. Ne pas oublier d'enlever cette annotation une fois que les tests sont implémentés. A voir si cette annotation sera conservée dans le future, mais cela évite d'être en erreur sur un serveur d'intégration continue alors qu'en fait, la chaine est valide (sur 90% du code que l'on désire tester) hormis une simple problématique de récupération des donnnées non encore implémentée (ce qui en soit n'est pas considéré comme une erreur). 
+Cela est du à la présence par défaut de l'annotation "***@Disabled("En attente de l'implémentation de la couche de persistance")***" positionnée par défaut sur chaque test. Ne pas oublier d'enlever cette annotation une fois que les tests sont implémentés. A voir si cette annotation sera conservée dans le future, mais cela évite d'être en erreur sur un serveur d'intégration continue alors qu'en fait, la chaine est valide (sur 90% du code que l'on désire tester) hormis une simple problématique de récupération des données non encore implémentée (ce qui en soit n'est pas considéré comme une erreur). 
 
 Cela est donc laissé au choix des développeurs qui peuvent, suite à la première génération, supprimer de suite cette annotation s'ils désirent que les tests soient en erreur.
 
@@ -2197,7 +2199,7 @@ Dans la cas d'un projet fournisseur de services, il est possible de peupler auto
 
 #### Génération
 
-Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des entités ***[nom de l'application].entity*** et par un clique droit, faire apparaitre le menu de génération **Pacman** (Générateurs Cali). 
+Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des entités ***[nom de l'application].entity*** et par un clic droit, faire apparaitre le menu de génération **Pacman** (Générateurs Cali). 
 
 <div align="center">
   <img src="images/pcm-gen-entity-4.png" alt="Génération population entity" width=600>
@@ -2286,7 +2288,7 @@ DemarcheEntityImpl demarchePopulateWithFakeData(final personneEntityImpl personn
    return demarche;
 }
 ```
-Enfin, paramétrer le nombre d'occurences à insérer dans la base de données en modifiant le code suivant :
+Enfin, paramétrer le nombre d'occurrences à insérer dans la base de données en modifiant le code suivant :
 
 ```java
 // Start of user code ccd1066343c95877b75b79d47c36bebe
@@ -2296,7 +2298,7 @@ private final int nbRelations = 5;
 // End of user code
 ```
 
-La variable "**nbEntities**" indique le nombre d'occurences à enregistrer pour chaque entité et la variable "**nbRelations**" permet de définir le nombre d'occurences à enregistrer pour chaque entité qui est en relation avec une autre entité. Ainsi avec l'exemple précédent, 10 *personnes* sont enregistrées avec pur chaque personne 5 "*démarches*". Ceci donne le code suivant au niveau de la méthode *populate()* : 
+La variable "**nbEntities**" indique le nombre d'occurrences à enregistrer pour chaque entité et la variable "**nbRelations**" permet de définir le nombre d'occurrences à enregistrer pour chaque entité qui est en relation avec une autre entité. Ainsi avec l'exemple précédent, 10 *personnes* sont enregistrées avec pur chaque personne 5 "*démarches*". Ceci donne le code suivant au niveau de la méthode *populate()* : 
 
 ```java
 IntStream.range(0, nbEntities).forEach(i -> {
@@ -2445,11 +2447,11 @@ class DemoSecurityConfig {
 
 Pour l'instant on peut constater que toutes les URIs sont en accès libre ce qui semble contredire la précédente affirmation mais la sécurité est quant à elle bien enclanchée, même si dans le cadre de la modélisation les développeurs ne veulent sécuriser aucun service ! 
 
-❗ Avec les options prises pour **Pacman** quelle que soit la sécurité modélisée  (*Http*, *ApiKey*, etc...) le service va attendre un jeton de type JWT. Si cela fait partie intégrante de la norme pour *Oauth2*, c'est une décision qui a été prise dans le cadre de l'utilisation d'une sécurité de type *Http* ou *Apikey*. Dans ces deux derniers cas, un service d'obtiention du jeton est automatiquement généré sur le point de terminaison : "***/token***".
+❗ Avec les options prises pour **Pacman** quelle que soit la sécurité modélisée  (*Http*, *ApiKey*, etc...) le service va attendre un jeton de type JWT. Si cela fait partie intégrante de la norme pour *Oauth2*, c'est une décision qui a été prise dans le cadre de l'utilisation d'une sécurité de type *Http* ou *Apikey*. Dans ces deux derniers cas, un service d'obtention du jeton est automatiquement généré sur le point de terminaison : "***/token***".
 
 #### Modélisation
 
-Dans le cadre de l'application "demo" l'exemple ici donné va être la modélisation d'une sécurité de type Open Id Connect (sécurité de tpe *Oauth2* la plus courante pour les applications importantes). La sécurité se modélise toujours au niveau du composant dans le diagramme de modélisation SOA. Ceci s'effectue au niveau de l'onglet "*Security Schemes*" dans les propriétés du composant. 
+Dans le cadre de l'application "demo" l'exemple ici donné va être la modélisation d'une sécurité de type Open Id Connect (sécurité de type *Oauth2* la plus courante pour les applications importantes). La sécurité se modélise toujours au niveau du composant dans le diagramme de modélisation SOA. Ceci s'effectue au niveau de l'onglet "*Security Schemes*" dans les propriétés du composant. 
 
 ❗ Il est à noter que, dans la version actuelle de **Pacman** il est pour l'instant impossible de modéliser plusieurs sécurités au niveau du composant. 
 
@@ -2457,13 +2459,13 @@ Dans le cadre de l'application "demo" l'exemple ici donné va être la modélisa
   <img src="images/pcm-model-security-1.png" alt="Gestion de la sécurité">
 </div>
 
-Une fois la première étape de saisie effectuée, effectuer une double-clique sur la ligne de définition de la nouvelle sécurité qui est apparue et dans la nouvelle fenêtre, simplement renseigner l'URI pour le serveur d'authentification  (il est à noter que dans le cadre d'une sécurité de type OIDC, le flow est authomatiquement vérouillé à "*AUTHORIZATION CODE*"). Le nom de la sécurité est, quant à lui, totalement libre afin d'être explicite pour les développeurs.
+Une fois la première étape de saisie effectuée, effectuer une double-clic sur la ligne de définition de la nouvelle sécurité qui est apparue et dans la nouvelle fenêtre, simplement renseigner l'URI pour le serveur d'authentification  (il est à noter que dans le cadre d'une sécurité de type OIDC, le flow est automatiquement vérouillé à "*AUTHORIZATION CODE*"). Le nom de la sécurité est, quant à lui, totalement libre afin d'être explicite pour les développeurs.
 
 <div align="center">
   <img src="images/pcm-model-security-2.png" alt="Gestion de la sécurité" width="400">
 </div>
 
-Enfin, il est possible de renseigner si besoin les "*Scopes*" nécessaires en effectant un double-clique sur le "*Flow*" et en renseignant pour chaque "*Scope*" les rubriques "*Name*" et "*Description*".
+Enfin, il est possible de renseigner si besoin les "*Scopes*" nécessaires en effectuant un double-clic sur le "*Flow*" et en renseignant pour chaque "*Scope*" les rubriques "*Name*" et "*Description*".
 
 <div align="center">
   <img src="images/pcm-model-security-3.png" alt="Gestion de la sécurité" width="800">
@@ -2527,13 +2529,13 @@ return http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
 
 Ce nouveau code appelle quelques explications : 
 
-• La ligne d'autorisation a été modifiée et prend maintenant une variable nommée "***whiteListPaths***". cette variable est injectée un peu plus haut dans le code à l'aide des lignes suivantes : 
+• La ligne d'autorisation a été modifiée et prend maintenant une variable nommée "***whiteListPaths***". Cette variable est injectée un peu plus haut dans le code à l'aide des lignes suivantes : 
 
 ```java
 @Value("${security.whitelist.paths}")
 private String[] whiteListPaths;
 ``` 
-Grâce à cette injection, la variable va prendre automatiquement le contenu du paramétre "***security.whitelist.paths***" présent dans le fichier de configuration de l'application "***application.properties***". Par rappel (et par défaut) la valeur de ce paramètre est le suivant : 
+Grâce à cette injection, la variable va prendre automatiquement le contenu du paramètre "***security.whitelist.paths***" présent dans le fichier de configuration de l'application "***application.properties***". Par rappel (et par défaut) la valeur de ce paramètre est le suivant : 
 
 ```properties
 # ----------------------------------------------------------------------------------------------
@@ -2554,9 +2556,9 @@ Il s'agit d'une ligne du type :
 .requestMatchers("/v0/personnes/xxx").permitAll()
 ```
 
-❗ Il est donc particulièrement important de bien réfléchir à la hiérarchie de ses URIs afin déviter d'avoir des trous de sécurité et d'ouvrir une URI qui serait en amont d'une URI qui, elle, est sécurisée. 
+❗ Il est donc particulièrement important de bien réfléchir à la hiérarchie de ses URIs afin d'éviter d'avoir des trous de sécurité et d'ouvrir une URI qui serait en amont d'une URI qui, elle, est sécurisée. 
   
-• Si des métadonnées de permission avaient été positionnées (comme l'option avait été vue précedemment au niveau de la modélisation), sous la rubrique "Liste des uris sécurisées avec un rôle spécifique" des lignes supplémentaires auraient été ajoutées, ligne de type :  
+• Si des métadonnées de permission avaient été positionnées (comme l'option avait été vue précédemment au niveau de la modélisation), sous la rubrique "Liste des uris sécurisées avec un rôle spécifique" des lignes supplémentaires auraient été ajoutées, ligne de type :  
 
 ```java
 /** Liste des uris sécurisées avec un rôle spécifique. */
@@ -2627,7 +2629,7 @@ public JwtDecoder jwtDecoder() {
 
 • Au niveau de la couche d'infrastructure, si les développeurs veulent accéder aux différentes informations contenues dans le jeton, une classe utilitaire ***[nom de l'application]CurrentJwtTokenHelper*** est aussi disponible et appelable directement au niveau de n'importe quelle partie de code.
 
-• Quelle que soit le type de sécurité, au niveau des applications générées par **Pacman**, cela se soldera toujours pas le décodage d'un jeton de type JWT. 
+• Quelle que soit le type de sécurité, au niveau des applications générées par **Pacman**, cela se soldera toujours par le décodage d'un jeton de type JWT. 
 
 Si la sécurité est de type "*ApiKey*" ou "*Http*", quelques ajouts de code sont alors effectués au niveau de la classe de gestion de la sécurité, comme par exemple, la mise à disposition de l'encodeur JWT qui va se baser sur une clé symétrique contenue dans le fichier "***application.properties***", la mise en place automatique d'une URI "***/token***" pour l'obtention du jeton, etc... 
 
@@ -2789,7 +2791,7 @@ http://localhost:8081/oauth2/authorization/keycloak
 
 - Ici, "*localhost:8081*" est bien évidemment un exemple à modidier selon le nommage du serveur avec le port associé. 
 
-- Pour rappel et comme vu plus haut, en Spring Security, on peux donner n'importe quel nom à "*registrationId*" dans l'URL : "*http://localhost:8081/oauth2/authorization/\{**registrationId**\}*". Ce nom sert uniquement à identifier la configuration côté Spring. Par convention, on met généralement le même nom que Keycloak (si on utilise un serveur Keycloack). A modifier éventuellement selon le besoin.
+- Pour rappel et comme vu plus haut, en Spring Security, on peut donner n'importe quel nom à "*registrationId*" dans l'URL : "*http://localhost:8081/oauth2/authorization/\{**registrationId**\}*". Ce nom sert uniquement à identifier la configuration côté Spring. Par convention, on met généralement le même nom que Keycloak (si on utilise un serveur Keycloack). A modifier éventuellement selon le besoin.
 
 Il est aussi possible de saisir l'URL d'un service sécurisé quelconque, par exemple : 
 
@@ -3886,7 +3888,7 @@ Enfin, attribuer les deux paramètres à la notion de pagination en saisissant l
   <img src="images/pcm-model-adv-pagination-12.png" alt="Pagination">
 </div>
 
-❗ Selon la "norme" en vigueur, il est conseillé de nommer les paramètres "***page***" et "***size***". Il est possible avec la modélisation d'appeler différement les paramètres (en interne) et de laisser "***page***" et "***size***" uniquement au niveau du paramètre de passage, par exemple : 
+❗ Selon la "norme" en vigueur, il est conseillé de nommer les paramètres "***page***" et "***size***". Il est possible avec la modélisation d'appeler différemment les paramètres (en interne) et de laisser "***page***" et "***size***" uniquement au niveau du paramètre de passage, par exemple : 
 
 <div align="center">
   <img src="images/pcm-model-adv-pagination-14.png" alt="Pagination">
@@ -4006,8 +4008,8 @@ Lors de la création du projet, deux classes de haut niveau sont automatiquement
 Par défaut le code d'obtention du client S3 au niveau de la fabrique est le suivant : 
 
 ```java
-public class S3ClientFactory {
-   public MinioClient getClient() {
+public class S3ClientFactory implements DemoS3Service {
+   MinioClient getClient() {
       // Start of user code 736b91750e516139acc13c5eb6564f92
       
       // CredentialsWrapper creds = getCredentials();
@@ -4022,6 +4024,7 @@ public class S3ClientFactory {
       
       // End of user code
    }
+   ...
 }
 ```
 
@@ -4031,18 +4034,18 @@ Cette solution repose donc sur une fabrique (pattern factory) de client S3 plut�
 
 Le choix d'implémenter une factory et un rafraîchissement lazy garantit ainsi une sécurité renforcée, une meilleure robustesse en production et une indépendance vis-à-vis du cycle de vie des beans Spring.
 
-Le code complet de la fabrique est donné ici à titre informatif (pour des raisons de lisibilité, le code est expurgé de l'ensemble des balises "*user code*" et des commentaires): 
+Pour rappel le nom du projet d'exemple dans le cadre de ce document est simplement "*Demo*". Le code de la fabrique est donné ici à titre informatif (pour des raisons de lisibilité, le code est expurgé de l'ensemble des balises "*user code*" et des commentaires, par ailleurs afin d'évite un listing trop long, ce code est découpé en deux parties ): 
 
 ```java
 @Configuration
 @SuppressWarnings("unused")
-public class ProjectS3Factory {
+public class DemoS3Factory {
 
-    private final ProjectS3Properties props;
+    private final DemoS3Properties props;
     private volatile CredentialsWrapper currentCredentials;
 
     @Autowired
-    public ProjectS3Factory(ProjectS3Properties props) {
+    public DemoS3Factory(DemoS3Properties props) {
         this.props = props;
     }
 
@@ -4052,7 +4055,7 @@ public class ProjectS3Factory {
         return new S3ClientFactory();
     }
 
-    public class S3ClientFactory {
+    class S3ClientFactory implements DemoS3Service{
         public MinioClient getClient() {
             // CredentialsWrapper creds = getCredentials();
 
@@ -4064,6 +4067,7 @@ public class ProjectS3Factory {
             // .credentials(creds.accessKey,
             // creds.secretKey).build();
         }
+        ......
     }
 
     private CredentialsWrapper refreshCredentials() {
@@ -4112,9 +4116,9 @@ public class ProjectS3Factory {
 }
 ```
 
-La classe "***[Nom de l'application]S3Factory***" est donc une configuration Spring responsable de la création et de la gestion des clients S3 (MinIO) utilisés par l'application. Elle utilise un pattern factory via la classe interne "***S3ClientFactory***" pour créer des instances de MinioClient à la volée, ce qui permet de toujours utiliser des credentials valides et à jour. Les credentials sont stockés temporairement dans "***CredentialsWrapper***" et sont rafraîchis automatiquement lorsqu'ils sont expirés, via la méthode "*refreshCredentials()*". Cette méthode peut être adaptée pour interroger un STS ou un fournisseur OIDC (Keycloak, MinIO STS, etc.) afin d'obtenir des credentials temporaires en production. La factory garantit ainsi que toutes les opérations S3 réalisées par les services utilisent des identifiants sécurisés, évitant ainsi les problèmes liés aux clés statiques ou expirées.
+La classe "***[Nom de l'application]S3Factory***" est donc une configuration Spring responsable de la création et de la gestion des clients S3  utilisés par l'application. Elle utilise un pattern factory via la classe interne "***S3ClientFactory***" pour créer des instances de client S3 à la volée, ce qui permet de toujours utiliser des credentials valides et à jour. Les credentials sont stockés temporairement dans "***CredentialsWrapper***" et sont rafraîchis automatiquement lorsqu'ils sont expirés, via la méthode "*refreshCredentials()*". Cette méthode peut être adaptée pour interroger un STS ou un fournisseur OIDC (Keycloak, Serveur S3, STS, etc.) afin d'obtenir des credentials temporaires en production. La factory garantit ainsi que toutes les opérations S3 réalisées par les services utilisent des identifiants sécurisés, évitant ainsi les problèmes liés aux clés statiques ou expirées.
 
-❗ Le serveur S3 ne remplace pas un serveur d'authentification comme Keycloak, il ne gère pas le login utilisateur ni la génération de jetons JWT. En revanche, il peut jouer le rôle d'un STS (Security Token Service) : après qu'un utilisateur ou une application se soit authentifié auprès d'un fournisseur OIDC/SSO (ex. Keycloak), le serveur S3 valide le jeton et génère des credentials S3 temporaires (accessKey, secretKey et expiration). Ces credentials permettent à l'application d'accéder au stockage de manière sécurisée et limitée dans le temps, garantissant que les clés statiques ne sont jamais exposées. Ainsi, Keycloak (par exemple) gère l'identité, tandis que MinIO (par exemple) gère l'accès sécurisé aux ressources.
+❗ Le serveur S3 ne remplace pas un serveur d'authentification comme Keycloak, il ne gère pas le login utilisateur ni la génération de jetons JWT. En revanche, il peut jouer le rôle d'un STS (Security Token Service) : après qu'un utilisateur ou une application se soit authentifié auprès d'un fournisseur OIDC/SSO (ex. Keycloak), le serveur S3 valide le jeton et génère des credentials S3 temporaires (accessKey, secretKey et expiration). Ces credentials permettent à l'application d'accéder au stockage de manière sécurisée et limitée dans le temps, garantissant que les clés statiques ne sont jamais exposées. Ainsi, Keycloak (par exemple) gère l'identité, tandis que le serveur S3 (par exemple) gère l'accès sécurisé aux ressources.
 
 Le fonctionnement du mécanisme SSO + STS avec le serveur S3 se déroule en plusieurs étapes :
 
@@ -4122,7 +4126,7 @@ Le fonctionnement du mécanisme SSO + STS avec le serveur S3 se déroule en plus
 
 - Authentification auprès du SSO : l'utilisateur ou l'application se connecte et reçoit un jeton JWT prouvant son identité.
 
-- Appel du STS MinIO : le jeton JWT est envoyé au serveur S3 via l'API STS, qui le valide auprès du serveur SSO.
+- Appel du STS du serveur S3 : le jeton JWT est envoyé au serveur S3 via l'API STS, qui le valide auprès du serveur SSO.
 
 - Génération de credentials temporaires : le serveur S3 renvoie un accessKey, un secretKey et une date d'expiration. Ces credentials sont limités dans le temps et sécurisés.
 
@@ -4130,23 +4134,71 @@ Le fonctionnement du mécanisme SSO + STS avec le serveur S3 se déroule en plus
 
 - Rafraîchissement automatique : lorsque les credentials expirent, la factory appelle à nouveau le STS pour obtenir de nouveaux credentials valides.
 
-❗❗ La classe "***[Nom de l'application]S3Factory***" fournit donc une fabrique prête à l'emploi pour créer des clients S3 avec des credentials. Par défaut,  elle utilise les credentials statiques définis dans "*application.properties*", assurant un fonctionnement immédiat pour tous les services utilisant le stockage. Pour les environnements nécessitant une sécurité plus sophistiquée, le développeur peut modifier la méthode "*refreshCredentials()*" afin d'intégrer un mécanisme OIDC ou STS (Secure Token Service) et générer des credentials temporaires plus spécifiques. Cette approche garantit à la fois simplicité pour l'usage standard et extensibilité pour la production sécurisée.
+❗❗ Cette classe "***[Nom de l'application]S3Factory***" fournit donc une fabrique prête à l'emploi pour créer des clients S3 avec des credentials. Par défaut,  elle utilise les credentials statiques définis dans "*application.properties*", assurant un fonctionnement immédiat pour tous les services utilisant le stockage. Pour les environnements nécessitant une sécurité plus sophistiquée, le développeur peut modifier la méthode "*refreshCredentials()*" afin d'intégrer un mécanisme OIDC ou STS (Secure Token Service) et générer des credentials temporaires plus spécifiques. Cette approche garantit à la fois simplicité pour l'usage standard et extensibilité pour la production sécurisée.
 
-Pour modéliser 'envoi, la récupération ou la suppression d'un fichier dans un espace de stockage de type "**S3**", il suffit de modéliser uniquement un service au niveau de la couche soa. En effet, un fichier ne représentant pas une entité en tant que telle, il n'est pas nécessaire de modéliser la couche de persistance (fichier de modélisation '.entity') et son objet métier (DTO).
+Tout a été fait afin d'essayer de rendre le code le plus générique possible afin de le découpler de toute implémentation spécifique. Ainsi les différents services S3 récupèrent un client "***[Nom de l'application]S3Service***". Par défaut ce client est une implémentation *Minio*, mais les services ne sont pas censés la connaitre puiqu'ils utilisent uniquement l'interface précitée par le biais des trois méthodes "*upload([..]), download([...]) et delete([...])*". L'implémentation spécifique des méthodes est alors située au niveau de la fabrique avec le code suivant : 
+
+```java
+public class S3ClientFactory implements DemoS3Service {
+  ...
+  @Override
+  public void upload(final DemoS3ContentRequest params) throws Exception {
+
+      PutObjectArgs.Builder builder = PutObjectArgs.builder()
+          .bucket(params.getBucket())
+          .object(params.getKey())
+          .stream(params.getContent(), params.getSize() != null ? params.getSize() : -1, 10 * 1024 * 1024);
+          
+      builder.contentType(
+		  params.getContentType() != null && !params.getContentType()
+		  .isBlank() ? params.getContentType() : "application/octet-stream");
+		  
+      builder.userMetadata(
+	      params.getMetadata() != null ? params.getMetadata() : java.util.Collections.emptyMap());
+
+      getClient().putObject(builder.build());
+  }
+
+  @Override
+  public InputStream download(final DemoS3ContentRequest params) throws Exception {
+      GetObjectArgs.Builder builder = GetObjectArgs.builder().bucket(params.getBucket()).object(params.getKey());
+      return getClient().getObject(builder.build());
+  }
+
+  @Override
+  public void delete(final DemoS3ContentRequest params) throws Exception {
+      getClient().removeObject(RemoveObjectArgs.builder()
+         .bucket(params.getBucket()).object(params.getKey()).build());
+  }
+}
+```
+
+La ligne stream(document, -1, 10 * 1024 * 1024) sert à envoyer le contenu du fichier vers le stockage S3 sous forme de flux (InputStream). Le -1 indique que la taille du fichier n'est pas connue à l'avance, ce qui permet de traiter des fichiers de n'importe quelle taille sans pour autant les charger entièrement en mémoire. Le troisième paramètre (10 * 1024 * 1024) définit la taille du buffer utilisé pour le streaming (ici 10 Mo), optimisant la lecture et l'écriture par blocs pour améliorer les performances et réduire l'usage mémoire. Cette approche est essentielle pour gérer efficacement les gros fichiers.
+
+Pour modéliser l'envoi, la récupération ou la suppression d'un fichier dans un espace de stockage de type "**S3**", il suffit de modéliser uniquement un service au niveau de la couche soa. En effet, un fichier ne représentant pas une entité en tant que telle, il n'est pas nécessaire de modéliser la couche de persistance (fichier de modélisation '.entity') et son objet métier (DTO).
 
 Le service est toujours un service de type "*provided*" et une modélisation complète peut ressembler à ceci : 
 
 <img src="images/pcm-model-adv-entity-9.png" alt="Storage S3">
 
+Puusieurs types de données spécifiques au stockage S3 sont disponibles afin de pouvoir correctement modéliser les services, ces types sont les suivants : 
+
+- ***S3Document*** : Le document à charger, à récupérer ou à supprimer.
+- ***S3ContentType*** : Le type de document (si besoin).
+- ***S3Metadata*** :  Les données supplémentaires (si besoin).
+- ***S3Bucket*** : Le bucket (répertoire(s)) supplémentaire (si besoin).
+
 Cette modélisation appelle les explications suivantes :
 
-- Un service de type S3 doit obligatoirement avoir la métadonnée "*S3_STORAGE*" de positionnée au niveau du service.
+- Un service de type S3 doit obligatoirement avoir la métadonnée "*STORAGE*" de positionnée au niveau du service.
 
 - Au niveau d'une opération, un document à charger ou à récupérer doit obligatoirement être un paramètre avec pour type : "*S3Document*". Le document doit toujours être passé dans le corps de la requête (body).
 
 - Si le service est amené à charger des documents avec différents formats (bien que dans le cadre de cet exemple, on ait nommé le service "*fichierPdf*"), il peut être nécessaire de préciser en paramètre le type de document qui va être chargé. Dans le cas de cet exemple il s'agit du paramètre "*documentType*" avec pour type : "*S3DocumentType*".
 
-- Si le service est amené à charger des métadonnées supplémentaires qui vont être associées au document, il est alors nécessaire de rajouter un paramètre avec le type "*S3Metadata*" pour son opération d'upload. Le métadonnées doivent toujours être passées dans le corps de la requête (body).
+- Si le document soit se positionner au au niveau d'un sous-répertoire et non directement au niveau du répertoire racine por l'application, alors il est nécessaire de le préciser avec un paramètre supplémentaire de type "*S3Bucket*". 
+
+- Si le service est amené à charger des métadonnées supplémentaires qui vont être associées au document, il est alors nécessaire de rajouter un paramètre avec le type "*S3Metadata*" pour son opération d'upload. Les métadonnées doivent toujours être passées dans le corps de la requête (body).
 ❗ Au niveau de la couche de persistance (couche qui, dans le cas d'un service S3, effectue l'appel à l'Api externe de stockage des fichiers), le code nécessaire à l'ensemble des opérations peut être généré automatiquement par "**Pacman**" à la seule condition que la modélisation respecte les conditions suivantes au niveau des paramètres en entrée : 
 
 - Pour une lecture (*GET*), l'opération ne peut avoir qu'un seul paramètre : le nom du fichier à rechercher. 
@@ -4189,25 +4241,33 @@ public ResponseEntity<InputStreamResource> recupereFichier(
 	return responseBuilder.body(new InputStreamResource(this.fichierPdf.recupereFichier(nomDocument)));
 }
 ```
-On peut voir au niveau du service rest qu'une ligne suppémentaire a été automatiquement générée entre les balises de type "*user code*". Cette ligne spécifie le type du document en lecture et permet une meilleure gestion dans la récupération du fichier. Par ailleurs, le service retourne un "*InputStreamResource*" mieux géré par le framework Spring mais dans l'ensemble de la chaine hexagonale, on peut voir que c'est bien un simple "*InputStream*" qui est utilisé pour le passage du document, ce qui évite d'avoir une ingérance du framework au niveau du domaine. 
+On peut voir au niveau du service rest qu'une ligne supplémentaire a été automatiquement générée entre les balises de type "*user code*". Cette ligne spécifie le type du document en lecture et permet une meilleure gestion dans la récupération du fichier. Par ailleurs, le service retourne un "*InputStreamResource*" mieux géré par le framework Spring mais dans l'ensemble de la chaine hexagonale, on peut voir que c'est bien un simple "*InputStream*" qui est utilisé pour le passage du document, ce qui évite d'avoir une ingérence du framework au niveau du domaine. 
 
 ```java
 public InputStream recupereFichier(final String nomDocument) {
-	// Start of user code a7d8e6975200b8ab414b8a4f8bb7ccac
-	try {
-		return clientStorage
-		    .getClient()
-			.getObject(GetObjectArgs.builder()
-			.bucket(propsStorage.getBucket())
-			.object(nomDocument).build());
-	} catch (Exception exception) {
-		throw new RuntimeException(
-			"Erreur dans l'execution de l'opération 'recupereFichier' : " 
-			+ exception.getMessage());
-	}
-	// End of user code
+    // Start of user code a7d8e6975200b8ab414b8a4f8bb7ccac
+    try {
+         DemoS3ContentRequest requestContent = DemoS3ContentRequest.builder()
+             .withKey(nomDocument)
+             .withBucket(propsStorage.getBucket())
+             .build();
+         return clientStorage.download(requestContent);
+    } catch (Exception exception) {
+         throw new RuntimeException("Erreur dans l'execution de l'opération 'recupereFichier' : " 
+             + exception.getMessage());
+    }
+    // End of user code
 }
 ```
+
+Toujours dans l'objectif de découplage, on peut remarquer que l'ensemble des paramètres sont passé par le biais de la classe "****DemoS3ContentRequest***" qui met à disposition un "*builder*" permettant d'ajouter à la volée l'ensemble des paramètres nécessaires selon le besoin. Par défaut les méthodes disponibles sont : 
+
+- ***withBucket(final String request)*** : Spécification du sous répertoire si le document n'est pas directement stocké au niveau de la racine S3 pour l'application.
+- ***withKey(final String key)*** : Spécification de la clé pour le document (le nom du document).
+- ***withContent(final InputStream content)*** : Spécification du document.
+- ***withContentType(final String contentType)*** : Spécification du type pour le document.
+- ***withMetadata(final Map<String, String> metadata)*** : Spécification des métadonnées additionnelles pour le document. 
+- ***withSize(final Long size)*** : Spécification de la taille du document.
 
 Pour une opération POST (contrôleur puis service) : 
 
@@ -4242,30 +4302,32 @@ Il n'y a pas d'annotation @RequestBody car celle-ci est utilisée pour lire un s
 
 Les métadonnées sont passées sous forme de chaîne JSON (String) car l'API S3 n'accepte que des paires clé/valeur de chaînes (Map<String, String>). Ces métadonnées sont passées sous forme de chaîne JSON car l'API Swagger/OpenAPI ne permet pas de transmettre directement une Map<String, String> dans une requête multipart. Côté serveur, cette chaîne est ensuite convertie en Map pour être attachée au fichier lors de l'upload vers S3.
 
-La ligne stream(document, -1, 10 * 1024 * 1024) sert à envoyer le contenu du fichier vers le stockage S3 sous forme de flux (InputStream). Le -1 indique que la taille du fichier n'est pas connue à l'avance, ce qui permet de traiter des fichiers de n'importe quelle taille sans pour autant les charger entièrement en mémoire. Le troisième paramètre (10 * 1024 * 1024) définit la taille du buffer utilisé pour le streaming (ici 10 Mo), optimisant la lecture et l'écriture par blocs pour améliorer les performances et réduire l'usage mémoire. Cette approche est essentielle pour gérer efficacement les gros fichiers.
-
 ❗ Le code "*return null;*" présent dans la méthode est simplement un placeholder généré automatiquement. Comme le code est généré par un outil, le générateur ne sait pas ce que le développeur souhaite réellement renvoyer après l'upload du fichier. Il sert donc de valeur par défaut, à remplacer éventuellement par une réponse plus pertinente (par exemple l'URL du fichier, un identifiant, ou un message de succès) selon les besoins de l'application.
 
 ```java
 public String ajouteFichier(final String nomDocument, final InputStream document, 
     final String documentType, final String documentMeta) {
 
-	// Start of user code acccf885e0e2a6ffd526ce98edbf7089
-	try {
-		Map<String, String> metaDataMap = new ObjectMapper().readValue(documentMeta,
-				new TypeReference<Map<String, String>>() {
-				});
-		clientStorage.getClient().putObject(PutObjectArgs.builder()
-		        .bucket(propsStorage.getBucket()).object(nomDocument)
-				.stream(document, -1, 10 * 1024 * 1024).contentType(documentType).userMetadata(metaDataMap)
-				.build());
-		return null;
-
-	} catch (Exception exception) {
-		throw new RuntimeException(
-				"Erreur dans l'execution de l'opération 'ajouteFichier' : " + exception.getMessage());
-	}
-	// End of user code
+    // Start of user code acccf885e0e2a6ffd526ce98edbf7089
+    try {
+        Map<String, String> metaDataMap = new ObjectMapper().readValue(documentMeta, 
+            new TypeReference<Map<String, String>>() {});
+            
+        DemoS3ContentRequest requestContent = DemoS3ContentRequest.builder()
+             .withKey(nomDocument)
+             .withBucket(propsStorage.getBucket())
+             .withMetadata(metaDataMap)
+             .withContentType(documentType)
+             .withContent(document)
+             .build();
+             
+         clientStorage.upload(requestContent);
+         return null;
+    } catch (Exception exception) {
+         throw new RuntimeException( "Erreur dans l'execution de l'opération 'ajouteFichier' : " 
+            + exception.getMessage());
+    }
+    // End of user code
 }
 ```
 
@@ -4295,18 +4357,21 @@ public ResponseEntity<String> supprimeFichier(@PathVariable(name = "name", requi
 ```java
 public String supprimeFichier(final String nomDocument) {
 
-	// Start of user code 05710062a92d01c62c56dc8838a2e405
-	try {
-		clientStorage.getClient().removeObject(
-			RemoveObjectArgs.builder().bucket(propsStorage.getBucket())
-			.object(nomDocument).build());
-			return null;
-	} catch (Exception exception) {
-			throw new RuntimeException(
-				"Erreur dans l'execution de l'opération 'supprimeFichier' : " 
-				+ exception.getMessage());
-	}
-	// End of user code
+    // Start of user code 05710062a92d01c62c56dc8838a2e405
+    try {
+       
+       DemoS3ContentRequest requestContent = DemoS3ContentRequest.builder()
+            .withKey(nomDocument)
+            .withBucket(propsStorage.getBucket())
+            .build();
+			
+	   clientStorage.delete(requestContent);
+	   return null;
+    } catch (Exception exception) {
+       throw new RuntimeException( "Erreur dans l'execution de l'opération 'supprimeFichier' : " 
+          + exception.getMessage());
+    }
+    // End of user code
 }
 ```
 
@@ -4315,18 +4380,25 @@ public String supprimeFichier(final String nomDocument) {
 ```java
 public String supprimeFichier(final String nomDocument) {
 
-	// Start of user code 05710062a92d01c62c56dc8838a2e405
-
-    throw new Demo_storageNotImplementedException(
-        "La méthode 'supprimeFichier' n'a pas été implémentée");
-        
-	// End of user code
+   // Start of user code 05710062a92d01c62c56dc8838a2e405
+   
+   throw new DemoNotImplementedException( "La méthode 'supprimeFichier' n'a pas été implémentée");
+   
+   // End of user code
 }
 ```
 
+Encore une fois, on peut remarquer qu'au niveau des différents services pour la couche de persistance, l'appel à l'implémentation "*Minio*" utilisée par défaut n'est pas visible. Les services se contentent très simplement de faire appel au client par le biais des méthodes "*upload([..]), download([...]) et delete([...])*" de l'interface en envoyant simplement comme paramètre un design-pattern "*builder*". Si besoin, le développeur dispose de zones avec de balises "*user-code*" afin de compléter les paramètres ainsi que l'implémentation au niveau de la fabrique.
+
+Un bref shéma récapitulatif explique le fonctionnement de cette implémentation S3 : 
+
+<div align="center">
+  <img src="images/pcm-soa-s3-impl.png" alt="Architecture S3" width="500">
+</div>
+
 #### Exemple de modélisation avancée
 
-Voici à titre d'exemple, une modélisation pour la couche de persistance qui permet de visualiser rapidement l'ensemble des possibilités disponibles, on ne s'interesse ici qu'a l'entité principale afin principalement de montrer les différentes relations générées. 
+Voici à titre d'exemple, une modélisation pour la couche de persistance qui permet de visualiser rapidement l'ensemble des possibilités disponibles, on ne s'intéresse ici qu'a l'entité principale afin principalement de montrer les différentes relations générées. 
 
 <div align="center">
   <img src="images/pcm-model-adv-entity-8.png" alt="Entity manager">
@@ -4444,7 +4516,7 @@ public class PersonneDetailEntityImpl extends DemoEntityAbs {
 }
 ```
 
-Au niveau du script de création pour la base de données, comme il y a une notion d'héritage qui a été modélisée (uniquement pour pouvoir renvoyer des objets *personneEntityIml* et *personneDetailEntityImpl*, une seule table est crée, la table *TBL_PERSONNE_DETAIL*. 
+Au niveau du script de création pour la base de données, comme il y a une notion d'héritage qui a été modélisée (uniquement pour pouvoir renvoyer des objets *personneEntityIml* et *personneDetailEntityImpl*, une seule table est créée, la table *TBL_PERSONNE_DETAIL*. 
 
 ```sql
 /******************************************************************/
@@ -4612,7 +4684,7 @@ alter table PERSONNEDETAIL_APOURSOEUR add constraint PERSONNEDETAILAPOURSOEUR_FK
 
 ```
 
-Au niveau de la couche domaine avec les objets métier on retouve le DTO, comme plusieurs champs ont été marqués comme obligatoires, la méthode de validation est la suivante : 
+Au niveau de la couche domaine avec les objets métier on retrouve le DTO, comme plusieurs champs ont été marqués comme obligatoires, la méthode de validation est la suivante : 
 ```java
 public PersonneDetailDtoImpl validate() throws DemoValidationException {
 
@@ -4731,7 +4803,7 @@ Une fois le processus de compilation effectué, l'utilisateur doit alors avoir u
 [INFO] ------------------------------------------------------------------------
 ```
 
-Il est alors possible de récupérer l'executable au niveau du répertoire "*/target*" du sous-projet "*[nom de l'application]-server*". Dans le cas de notre application example, le fichier est appelé : **demo-server-0.0.1-SNAPSHOT.jar**. 
+Il est alors possible de récupérer l'exécutable au niveau du répertoire "*/target*" du sous-projet "*[nom de l'application]-server*". Dans le cas de notre application exemple, le fichier est appelé : **demo-server-0.0.1-SNAPSHOT.jar**. 
 
 Renommer le fichier si besoin, le positionner sur la machine de production et lancer l'application simplement avec la ligne de commande suivante (ne pas oublier que par défaut, le serveur est lancé sur le port 80, par ailleurs dans le cadre de ce document le profil est toujours sous "**dev**") : 
 
@@ -4776,7 +4848,7 @@ WebApplicationContext
 
 Deux possibilités de création de client sont offertes par **Pacman**. La création d'un client en SpringBoot et la création d'un client en React. Il faut bien distinguer la différence de positionnement entre ces deux frameworks car le processus de génération est complètement différent entre les deux languages.
 
-- Le client SpringBoot est à utiliser pour créer un client à partir d'une librairie externe (fournisseur externe avec fichier Swagger), c'est à dire d'une api non préalablement générée par la modélisation de **Pacman**. La librairie générée peux alors être utilisée, soit directement au niveau de l'api modélisée (service appelant un service), soit au niveau d'un front Java.
+- Le client SpringBoot est à utiliser pour créer un client à partir d'une librairie externe (fournisseur externe avec fichier Swagger), c'est à dire d'une api non préalablement générée par la modélisation de **Pacman**. La librairie générée peut alors être utilisée, soit directement au niveau de l'api modélisée (service appelant un service), soit au niveau d'un front Java.
 
 - Le client React, quant à lui, est à utiliser pour créer un client à partir d'une modélisation de type  "*serveur*" par **Pacman** (un fichier de modélisation de type "**.soa"**). Il est à intégrer dans un front qui a été lui  même été modélisé par le générateur **Pacman** (voir le générateur pacman-front).
 
@@ -4796,7 +4868,7 @@ Le fichier Swagger est à récupérer auprès du fournisseur externe de service,
 
 ### Modélisation
 
-Pour modéliser l'ensemble des services, dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des services ***[nom de l'application].soa***, développer l'arborescence du fichier et se positionner dans l'arbre au niveau de l'élément *Components*. Par un clique droit, faire apparaitre le menu de génération *Is Designer/Import Swagger*.
+Pour modéliser l'ensemble des services, dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation des services ***[nom de l'application].soa***, développer l'arborescence du fichier et se positionner dans l'arbre au niveau de l'élément *Components*. Par un clic droit, faire apparaitre le menu de génération *Is Designer/Import Swagger*.
 
 <div align="center">
   <img src="images/pcm-gen-soa-3.png" alt="Génération soa client" width=600>
@@ -4810,7 +4882,7 @@ A l'aide de la fenêtre de recherche, retrouver le fichier et valider avec le bo
 
 A ce stade le fichier de modélisation "***.soa***" contient maintenant l'ensemble des objets métier (les objets dto) ainsi que les différents services. Il est maintenant nécessaire (si besoin) d'affiner la modélisation en apposant quelques métadonnées.
 
-• Si un ou plusieurs services sont soumis à une authentification préalable (demande de jeton), lire le fichier de modélisation afin de retrouver l'opération liée à l'obtention dudit jeton. Dans le cas de l'api "TheTVDV", il s'agit du service "*Login*". Se positionner au niveau de l'opération et ajouter la métadonnée *@AUTH_TOKEN*. Le corps de l'annotation n'est pas utile ici, dans le cadre de cette fonctionnalité car le générateur se contente simplement de vérifier la présence de l'annotation. Le developpeur peut le laisser sans modification ou le supprimer. 
+• Si un ou plusieurs services sont soumis à une authentification préalable (demande de jeton), lire le fichier de modélisation afin de retrouver l'opération liée à l'obtention dudit jeton. Dans le cas de l'api "TheTVDV", il s'agit du service "*Login*". Se positionner au niveau de l'opération et ajouter la métadonnée *@AUTH_TOKEN*. Le corps de l'annotation n'est pas utile ici, dans le cadre de cette fonctionnalité car le générateur se contente simplement de vérifier la présence de l'annotation. Le développeur peut le laisser sans modification ou le supprimer. 
  
 ❗ Bien vérifier la présence de cette annotation (si elle est nécessaire) car en son absence, toutes les classes de test seront en erreur.
 
@@ -4818,23 +4890,23 @@ A ce stade le fichier de modélisation "***.soa***" contient maintenant l'ensemb
   <img src="images/pmc-model-soaclient-1.png" alt="Génération soa client" width=600>
 </div>
 
-• **Pacman** ne peut connaitre toutes les intentions du fournisseur de services externes. Il est possible que ce dernier ait par exemple, décidé que pour son api, seuls les paramètres renseignés devaient être envoyés. C'est le cas notamment pour le service de recherche de l'api utilisée dans le cadre de ce document. Afin de pallier à cette problématique, il est possible de positionner une métadonnée ***@SKIP_EMPTY_VALUES*** au niveau de l'opération concernée. Le générateur, lors de l'éxécution de la requête va alors vérifier à la volée quels sont les paramètres effectivement renseignés.       
+• **Pacman** ne peut connaitre toutes les intentions du fournisseur de services externes. Il est possible que ce dernier ait par exemple, décidé que pour son api, seuls les paramètres renseignés devaient être envoyés. C'est le cas notamment pour le service de recherche de l'api utilisée dans le cadre de ce document. Afin de pallier à cette problématique, il est possible de positionner une métadonnée ***@SKIP_EMPTY_VALUES*** au niveau de l'opération concernée. Le générateur, lors de l'exécution de la requête va alors vérifier à la volée quels sont les paramètres effectivement renseignés.       
 
 <div align="center">
   <img src="images/pmc-model-soaclient-2.png" alt="Génération soa client" width=600>
 </div>
 
-• Il est possible que le fournisseur externe de services ait utilisé un ou plusieurs mots-clé Java dans la définition des attributs ou références de son api (c'est la cas notamment dans le cadre "TheTVDB"). Il est alors nécessaire de modifier la modélisation sous peine de ne pas pouvoir compiler et de modifier le nom de l'élément incriminé. Cependant, une modification du nom de l'élement entrainera invariablement un disfonctionnement de l'api. 
+• Il est possible que le fournisseur externe de services ait utilisé un ou plusieurs mots-clés Java dans la définition des attributs ou références de son api (c'est la cas notamment dans le cadre "TheTVDB"). Il est alors nécessaire de modifier la modélisation sous peine de ne pas pouvoir compiler et de modifier le nom de l'élément incriminé. Cependant, une modification du nom de l'élément entrainera invariablement un disfonctionnement de l'api. 
 
 Par défaut, l'ensemble des attributs et références sont automatiquement annotés avec ***@JsonPropery*** qui permet de spécifier un nom différent pour la sérialisation. Il est ainsi toujours possible de modifier ce nom manuellement. 
 
-Cependant une métadonnée ***@JSON_NAME*** permet aussi d'indiquer au générateur la demande expresse de modification de nom (positionner la métadnnée et saisir dans le corps de la métadonnée le nolm désiré pour la référence ou l'attribut). 
+Cependant une métadonnée ***@JSON_NAME*** permet aussi d'indiquer au générateur la demande expresse de modification de nom (positionner la métadonnée et saisir dans le corps de la métadonnée le nom désiré pour la référence ou l'attribut). 
 
 Si la problématique se situe au niveau des paramètres en entrée du service, il suffit alors simplement de modifier la modélisation puisque la modification ne sera prise en compte qu'au niveau local pour la compilation.
 
 ### Génération
 
-Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation du métier ***[nom de l'application].soa*** et par un clique droit, faire apparaitre le menu de génération **Pacman** (*Générateurs Cali/Génération du client pour les services*). 
+Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[nom de l'application]-model***, se positionner sur le fichier de modélisation du métier ***[nom de l'application].soa*** et par un clic droit, faire apparaitre le menu de génération **Pacman** (*Générateurs Cali/Génération du client pour les services*). 
 
 <div align="center">
   <img src="images/pcm-gen-soaclient-1.png" alt="Génération soa client" width=600>
@@ -4927,7 +4999,7 @@ public class DemoTokenTestsHelper {
 }
 ```
 
-Une fois la génération effectué, il est alors nécessaire pour le développeur de compléter ce code (à l'aide des zones de type "*user code*") afin d'envoyer les données d'authentification et de récupérer le jeton en retour. Dans le cadre de ce document et de l'api "TheTVDB", le code serait alors le suivant (les données d'authentification sont factices) : 
+Une fois la génération effectuée, il est alors nécessaire pour le développeur de compléter ce code (à l'aide des zones de type "*user code*") afin d'envoyer les données d'authentification et de récupérer le jeton en retour. Dans le cadre de ce document et de l'api "TheTVDB", le code serait alors le suivant (les données d'authentification sont factices) : 
   
 ```java
 // Initialisation des données en entrée.
@@ -4940,7 +5012,7 @@ body.setPin("24GHG7LMN");
 // End of user code
 ```
   
-La manière dont l'utilisateur désire récupérer les données d'authentification sont laissées à son libre arbitre, il peut les mettre "en dur", dans un coffre fort électronique, dans le fichier **application.properties** externalisé, etc....
+La manière dont l'utilisateur désire récupérer les données d'authentification sont laissées à son libre arbitre, il peut les mettre "en dur", dans un coffre-fort électronique, dans le fichier **application.properties** externalisé, etc....
   
 Et en retour : 
   
@@ -4955,7 +5027,7 @@ this.token = output200.getPostOutput200Data_data().getToken();
   
 •  ***[package racine].app.client.[nom du namespace]*** (TESTS) : Ces packages contiennent l'ensemble des classes de test "**Junit**" qui permettent d'effectuer les appels de chaque opération (requête) vue précedemment. Comme il n'est à ce stade, plus possible de récupérer le code du statut de retour pour la requête (de manière automatique), le test se contente  de vérifier la présence de la réponse pour la requête.  
 
-Voici par exemple le test pour la requête de recherche vue précedemment : 
+Voici par exemple le test pour la requête de recherche vue précédemment : 
 
 ```java
 @Test
@@ -5042,7 +5114,7 @@ Body (JSON sous forme de table):
 
 Comme la requête est soumise à authentification préalable, et qu'aucun jeton n'a encore été stocké, la requête de demande d'authentification est alors envoyée et le jeton est retourné. Une fois le jeton récupéré, il est alors possible d'effectuer la requête de recherche et d'obtenir en retour le résultat demandé.
 
-❗ Noter que même si le tests ***JUnit*** est en erreur, dans tous les cas la trace complète est affichée sur la console puisque la lecture et le log des informations sont effectués avant le peuplement de l'objet de retour. Il pourrait ainsi être possible d'avoir l'ensemble de la trace mais d'avoir un problème technique lors du peuplement de l'objet métier. Pour cette simple raison, toujours se reporter au niveau du résulat pour le test ***JUnit** et non simplement aux logs.
+❗ Noter que même si le tests ***JUnit*** est en erreur, dans tous les cas la trace complète est affichée sur la console puisque la lecture et le log des informations sont effectués avant le peuplement de l'objet de retour. Il pourrait ainsi être possible d'avoir l'ensemble de la trace mais d'avoir un problème technique lors du peuplement de l'objet métier. Pour cette simple raison, toujours se reporter au niveau du résultat pour le test ***JUnit** et non simplement aux logs.
 
 ```properties
 [ 10:00:25] [main] INFO  fr.demo.app.DemoWebClientConfigImpl - WebClient >> GET https://api4.thetvdb.com/v4/search?query=stargate
@@ -5145,12 +5217,12 @@ Après avoir cliqué sur le bouton "*Next*" sélectionner le projet de modélisa
   <img src="images/pcm-react-model-export-2.png" alt="Export de projet de modélisation en librairie" width="500">
 </div>
 
-Enfin, toujours après avoir cliqué sur le bouton "*Next*" renseigner le numéro de version pour la librairie et ajouter ou modifier les informations présentes sur la fenêtre si nécessaire. Enfin cliquer sur le bouton "*Finish*" pour enclancher la procédure d'export.
+Enfin, toujours après avoir cliqué sur le bouton "*Next*" renseigner le numéro de version pour la librairie et ajouter ou modifier les informations présentes sur la fenêtre si nécessaire. Enfin cliquer sur le bouton "*Finish*" pour enclencher la procédure d'export.
 <div align="center">
   <img src="images/pcm-react-model-export-3.png" alt="Export de projet de modélisation en librairie" width="500">
 </div>
 
-Récupérer le fichier "*.mar*" en se positionnant au niveau du projet de modélisation client (***[Nom de l'application]-model***) et par click droit, sélectionner le menu "*Import*". De même, dans la nouvelle fenêtre qui apparait, sélectionner le wizard "*Export modeling project as library*", rechercher le fichier d'export au format "*.mar*" et l'importer dans le projet de modélisation client. Les différents fichiers de modélisation seront alors positionnés au niveau du répertoire "***[Nom du fichier '.mar']***", lui même situé dans un répertoire générique "***libraries***" automatiquement créé au niveau du projet de modélisation client. 
+Récupérer le fichier "*.mar*" en se positionnant au niveau du projet de modélisation client (***[Nom de l'application]-model***) et par click droit, sélectionner le menu "*Import*". De même, dans la nouvelle fenêtre qui apparait, sélectionner le wizard "*Export modeling project as library*", rechercher le fichier d'export au format "*.mar*" et l'importer dans le projet de modélisation client. Les différents fichiers de modélisation seront alors positionnés au niveau du répertoire "***[Nom du fichier '.mar']***", lui-même situé dans un répertoire générique "***libraries***" automatiquement créé au niveau du projet de modélisation client. 
 
 Il est alors possible de lancer la génération du client.
 
@@ -5309,7 +5381,7 @@ Par exemple :
 
 • Se positionner à la racine du projet frontend, au niveau du répertoire ***[Nom de l'application]-server/[Nom de l'application]***
 
-• Lancer un éditeur de commandes et tapper la commande : 
+• Lancer un éditeur de commandes et saisir la commande : 
 ```bash
 npm install ./[Nom de la librairie].tgz
 ```
@@ -5353,7 +5425,7 @@ L'unique solution pour l'instant consiste donc à lancer une organisation automa
   
 Il peut arriver que, suite à une demande de génération (pour une raison encore non expliquée), les tâches de fin de traitement ne soient pas lancées. L'organisation automatique des imports n'est alors pas activée et comme **Pacman** dans sa politique de gestion des imports génère plus d'imports que nécessaires, ceux-ci ne sont alors pas supprimés. Il suffit simplement de relancer une génération pour résoudre le problème.
 
-• **Suite à l'utilisation de la librairie SSO j'ai un : ERR_TO_MANY_REDIRECT** : Cette erreur avec le serveur d'authentification Keycloack peut avoir de nombreuses cause. Hormis le fait de vérifier dans le fichier "*application.properties*" que les URLs soient les bonnes, bien vérifier l'ensemble des paramètres qui sont par défaut à remplir par le développeur "*[...]*". Cette erreur peut par exemple provenir d'un oubli de suppression des crochets sur la propriété :  "*spring.security.oauth2.client.registration.keycloak.scope=[openid,profile,email]*". Ne pas oublier de supprimer ledits crochets : "***spring.security.oauth2.client.registration.keycloak.scope=openid,profile,email***"
+• **Suite à l'utilisation de la librairie SSO j'ai un : ERR_TO_MANY_REDIRECT** : Cette erreur avec le serveur d'authentification Keycloack peut avoir de nombreuses cause. Hormis le fait de vérifier dans le fichier "*application.properties*" que les URLs soient les bonnes, bien vérifier l'ensemble des paramètres qui sont par défaut à remplir par le développeur "*[...]*". Cette erreur peut par exemple provenir d'un oubli de suppression des crochets sur la propriété :  "*spring.security.oauth2.client.registration.keycloak.scope=[openid,profile,email]*". Ne pas oublier de supprimer crochets : "***spring.security.oauth2.client.registration.keycloak.scope=openid,profile,email***"
 
 • **Pour une génération client, il me manque la classe de gestion du jeton** : La demande de génération de la classe utilitaire pour la récupération du jeton d'authentification n'est pas basée uniquement sur le fait que l'api soit sécurisée, mais aussi sur la présence de l'annotation ***@AUTH_TOKEN*** au niveau de l'opération de gestion de jeton. Bien vérifier le positionnement de cette annotation au niveau de la modélisation des services.
 
@@ -5389,7 +5461,7 @@ Voici la liste des causes possibles et comment les éliminer une par une.
 
 ###  Métadonnées disponibles
 
-Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que **Pacman** est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclu).
+Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que **Pacman** est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclus).
 
   Ces métadonnées sont pour l'instant toujours listées mais avec une icône 🚫. 
 
@@ -5424,6 +5496,7 @@ Liste des métadonnées disponibles (certaines métadonnées sont présentes mai
 | CASCADE_TYPE | OUI | Gestion des relations entre dépendances | REFERENCE |
 | FETCH_LAZY | NON | Demande de chargement paresseux | REFERENCE |
 | ENTITY_MANAGER | NON | Demande d'utilisation de l'entity manager | ENTITY |
+| STORAGE | NON | Assigne le service pour le stockage de documents | SERVICE |
 
 ### Règles de validation
 
@@ -5461,6 +5534,11 @@ Liste des règles de validation dans les différents diagrammes.
 |Pas de multiples sécurités définies au niveau du 'component'|SOA|
 |Pas de sécurité Oauth2/OIDC sans URL(s) définie(s)|SOA|
 |Pas d'annotation sans corps (si besoin de corps)|ENTITY/SOA|
+|Pas de service avec stream hors body |SOA|
+|Pas de service avec liste de stream en sortie|SOA|
+|Pas de service avec liste de stream en entrée |SOA|
+|Pas de paramètre S3 si service non S3|SOA|
+|Pas de service S3 sans opération GET/POST/DELETE |SOA|
 
 ### Métadonnées SSO 
 
