@@ -4134,7 +4134,7 @@ Le fonctionnement du mécanisme SSO + STS avec le serveur S3 se déroule en plus
 
 - Rafraîchissement automatique : lorsque les credentials expirent, la factory appelle à nouveau le STS pour obtenir de nouveaux credentials valides.
 
-❗❗ Cette classe "***[Nom de l'application]S3Factory***" fournit donc une fabrique prête à l'emploi pour créer des clients S3 avec des credentials. Par défaut,  elle utilise les credentials statiques définis dans "*application.properties*", assurant un fonctionnement immédiat pour tous les services utilisant le stockage. Pour les environnements nécessitant une sécurité plus sophistiquée, le développeur peut modifier la méthode "*refreshCredentials()*" afin d'intégrer un mécanisme OIDC ou STS (Secure Token Service) et générer des credentials temporaires plus spécifiques. Cette approche garantit à la fois simplicité pour l'usage standard et extensibilité pour la production sécurisée.
+❗ Cette classe "***[Nom de l'application]S3Factory***" fournit donc une fabrique prête à l'emploi pour créer des clients S3 avec des credentials. Par défaut,  elle utilise les credentials statiques définis dans "*application.properties*", assurant un fonctionnement immédiat pour tous les services utilisant le stockage. Pour les environnements nécessitant une sécurité plus sophistiquée, le développeur peut modifier la méthode "*refreshCredentials()*" afin d'intégrer un mécanisme OIDC ou STS (Secure Token Service) et générer des credentials temporaires plus spécifiques. Cette approche garantit à la fois simplicité pour l'usage standard et extensibilité pour la production sécurisée.
 
 Tout a été fait afin d'essayer de rendre le code le plus générique possible afin de le découpler de toute implémentation spécifique. Ainsi les différents services S3 récupèrent un client "***[Nom de l'application]S3Service***". Par défaut ce client est une implémentation *Minio*, mais les services ne sont pas censés la connaitre puiqu'ils utilisent uniquement l'interface précitée par le biais des trois méthodes "*upload([..]), download([...]) et delete([...])*". L'implémentation spécifique des méthodes est alors située au niveau de la fabrique avec le code suivant : 
 
@@ -4260,7 +4260,7 @@ public InputStream recupereFichier(final String nomDocument) {
 }
 ```
 
-Toujours dans l'objectif de découplage, on peut remarquer que l'ensemble des paramètres sont passé par le biais de la classe "****DemoS3ContentRequest***" qui met à disposition un "*builder*" permettant d'ajouter à la volée l'ensemble des paramètres nécessaires selon le besoin. Par défaut les méthodes disponibles sont : 
+Toujours dans l'objectif de découplage, on peut remarquer que l'ensemble des paramètres sont passé par le biais de la classe "***DemoS3ContentRequest***" qui met à disposition un "*builder*" permettant d'ajouter à la volée l'ensemble des paramètres nécessaires selon le besoin. Par défaut les méthodes disponibles sont : 
 
 - ***withBucket(final String request)*** : Spécification du sous répertoire si le document n'est pas directement stocké au niveau de la racine S3 pour l'application.
 - ***withKey(final String key)*** : Spécification de la clé pour le document (le nom du document).
@@ -4302,7 +4302,7 @@ Il n'y a pas d'annotation @RequestBody car celle-ci est utilisée pour lire un s
 
 Les métadonnées sont passées sous forme de chaîne JSON (String) car l'API S3 n'accepte que des paires clé/valeur de chaînes (Map<String, String>). Ces métadonnées sont passées sous forme de chaîne JSON car l'API Swagger/OpenAPI ne permet pas de transmettre directement une Map<String, String> dans une requête multipart. Côté serveur, cette chaîne est ensuite convertie en Map pour être attachée au fichier lors de l'upload vers S3.
 
-❗ Le code "*return null;*" présent dans la méthode est simplement un placeholder généré automatiquement. Comme le code est généré par un outil, le générateur ne sait pas ce que le développeur souhaite réellement renvoyer après l'upload du fichier. Il sert donc de valeur par défaut, à remplacer éventuellement par une réponse plus pertinente (par exemple l'URL du fichier, un identifiant, ou un message de succès) selon les besoins de l'application.
+❗ Le code "*return null;*" présent dans la méthode est simplement un placeholder généré automatiquement. Comme le code est généré par un outil, le générateur ne sait pas ce que le développeur souhaite réellement renvoyer après l'upload du fichier. Il sert donc de valeur par défaut, à remplacer par une réponse plus pertinente (par exemple l'URL du fichier, un identifiant, ou un message de succès) selon les besoins de l'application.
 
 ```java
 public String ajouteFichier(final String nomDocument, final InputStream document, 
@@ -4388,7 +4388,7 @@ public String supprimeFichier(final String nomDocument) {
 }
 ```
 
-Encore une fois, on peut remarquer qu'au niveau des différents services pour la couche de persistance, l'appel à l'implémentation "*Minio*" utilisée par défaut n'est pas visible. Les services se contentent très simplement de faire appel au client par le biais des méthodes "*upload([..]), download([...]) et delete([...])*" de l'interface en envoyant simplement comme paramètre un design-pattern "*builder*". Si besoin, le développeur dispose de zones avec de balises "*user-code*" afin de compléter les paramètres ainsi que l'implémentation au niveau de la fabrique.
+Pareillement, on peut encore remarquer qu'au niveau des différents services pour la couche de persistance, l'appel à l'implémentation "*Minio*" utilisée par défaut n'est pas visible. Les services se contentent, très simplement, de faire appel au client par le biais des méthodes "*upload([..]), download([...]) et delete([...])*" de l'interface en envoyant simplement comme paramètre un design-pattern "*builder*". Si besoin, le développeur dispose de zones avec des balises "*user-code*" afin de compléter les paramètres ainsi que l'implémentation au niveau de la fabrique.
 
 Un bref shéma récapitulatif explique le fonctionnement de cette implémentation S3 : 
 
