@@ -3997,7 +3997,12 @@ Le paramètrage du nombre de tentatives d'appel, du délai entre chaque appel, e
 
 #### Mise en place du stockage S3
 
-Lors de la création du projet, deux classes de haut niveau sont automatiquement générées au niveau du package racine "***[package racine].app***" pour le projet "***[Nom de l'application]-server***". Il s'agit de la classe de récupération des paramètres dans le fichier "*application.properties*" pour le stockage S3 ainsi que la classe "***[Nom de l'application]S3Factory***" qui est une fabrique pour la construction et la mise à disposition de l'api permettant de communiquer avec le serveur de stockage.
+Lors de la création du projet, plusieurs classes de haut niveau sont automatiquement générées au niveau du package "***[package racine].app.storage.s3***" pour le projet "***[Nom de l'application]-server***". Il s'agit : 
+
+- de la classe "***[Nom de l'application]S3Properties***" de récupération des paramètres dans le fichier "*application.properties*" pour le stockage S3. 
+- de la classe "***[Nom de l'application]S3Factory***" qui est une fabrique pour la construction et la mise à disposition de l'api (client S3) permettant de communiquer avec le serveur de stockage.
+- de la classe "***[Nom de l'application]S3DocRequest***" qui est un pattern "*builder*" pour la récupération et l'envoi des différents paramètres au client S3 fourni par la fabrique.
+- de la classe "***[Nom de l'application]S3Service***" qui est l'interface du client S3 fourni par la fabrique.
 
 ❗ La manipulation de documents étant un sujet potentiellement sensible il est fortement conseillé de sécuriser les appels aux différents services S3. Cette sécurisation peut être effectuée de deux manières différentes qui sont de plus, cumulables : 
 
