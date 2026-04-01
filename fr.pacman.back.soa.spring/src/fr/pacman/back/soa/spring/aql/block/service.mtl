@@ -33,10 +33,10 @@
 			de stockage de type S3 on va utiliser un InputStreamResource. Cependant c'est bien un InputStream qui 
 			sera utilisé pour le reste de la chaine. Ceci est lié au principe de l'architecture hexagonale ou aucune 
 			classe ne doit permettre de deviner le type de framewok utilisé au niveau du domaine. Ajoute une complexité
-			supplémentaire mais toutefois obligatoire. Dans le cas d'un S3Document toujours passer un MediaType 
+			supplémentaire mais toutefois obligatoire. Dans le cas d'un S3DocumentIn toujours passer un MediaType 
 			'multipart/form-data' en upload et 'application/octet-stream' en sortie. 
 			
-			Dans les différents traitements on compare parfois avec 'S3Document' et parfois avec 'InputStream', 
+			Dans les différents traitements on compare parfois avec 'S3DocumentXX' et parfois avec 'InputStream', 
 			selon le niveau de contrainte appliqué au typage. Dans un cas il faudra alors comparer simplement 
 			avec 'type.name' et dans l'autre avec 'type.type()'. Il en est de même pour 'S3ContentType' 
 			et 'S3Metadata'/]
@@ -133,7 +133,6 @@
              [o.writeCheckSizeParam()/]
              [o.writeSortByParam()/]
              [o.writeRsHeadOptionOperation(s)/]
-             [o.writeRsDocumentAttachment(s)/]
              
            [/protected]
            
@@ -340,12 +339,7 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
-    
-    import com.fasterxml.jackson.core.type.TypeReference;
-    import com.fasterxml.jackson.databind.ObjectMapper;
     import org.springframework.beans.factory.annotation.Autowired;
-    
-    import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassStorageS3DocRequestImpl()/];
     import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassStorageS3ConfigImpl()/];
     import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassStorageS3PropsImpl()/];
     import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassStorageS3PropsImpl()/];
@@ -625,13 +619,6 @@
   + '.add(' + if (o.verb = soa::Verb::OPTIONS) then '"Allow", "<GET|POST|DELETE|OPTIONS|ETC...>");' else '"X-", "<VOTRE PARAMETRE>");' endif
   + o.lineSeparator() +  'return ResponseEntity.ok().headers(' + 'headers'.apply_variableDefault() + ').build();' else '' endif/]
 
-[comment écriture particulièer pour le download d'un document S3 (ou autre), il faut spécifier le type et le nom du document./]
-[query private writeRsDocumentAttachment(o : soa::Operation, s : soa::Service) : String = if (o.hasOutput() and s.isS3Service()) 
-  and o.verb = soa::Verb::GET then  if (o.canWriteS3Get()) then 'response builder'.apply_variableDefault() + '.header("Content-Disposition", ' 
-  + '"attachment; filename=" + ' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
-  + ' + "");' else '// ' + 'response builder'.apply_variableDefault() + '.header("Content-Disposition", ' + '"attachment; filename=" + ' 
-  + '[PARAMETRE AVEC LE NOM DU FICHIER]' + ' + "");' endif else '' endif/]
-
 [comment écriture du builder pour l'objet de réponse du service rest./]
 [query private writeRsResponseBuilder(o : soa::Operation) : String = if (o.mustHaveRsOutput()) then 'ResponseEntity.BodyBuilder ' 
   + 'response builder'.apply_variableDefault() + ' = ResponseEntity.status(' + o.writeRsStatus() + ');' else '' endif/]
@@ -653,13 +640,13 @@
   + if (o.hasRsNotFoundFault()) then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
   + ', "' endif + '"))' 
   
-  else let stream = o.hasRsOutputStream() in 'Optional<'+ if (stream) then o.outputRsType() else 'String' endif + '>' 
-  + 'value'.apply_variableDefault() + '= ' + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService()  
-  + ');' + 'if (' + 'value'.apply_variableDefault() + '.isPresent()) { return ' + 'response builder'.apply_variableDefault() + '.body(' 
-  + if (stream) then 'new ' + o.outputRsType().convertRsStreamToResource() + '(' else '' endif + 'value'.apply_variableDefault() 
-  + '.get()' + if (stream) then ')' else '' endif +');} else throw new ' + o.nameClassRsDataNotFoundExceptionImpl() + '(' 
-  + if (o.hasRsNotFoundFault()) then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
-  + ', "' endif + '")' endif/]
+  else let stream = o.hasRsOutputStream() in 'Optional<'+ o.outputRsType() + '>' + 'value'.apply_variableDefault() + '= ' 
+  + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService()  
+  + ');' + 'if (' + 'value'.apply_variableDefault() + '.isPresent()) { return ' + 'response builder'.apply_variableDefault() + '.body(' + if (stream) then 'new ' 
+  + s.nameClassStorageS3HttpAdapterImpl() + '(' else '' endif + 'value'.apply_variableDefault() + '.get()' + if (o.hasRsOutputS3()) then ', ' 
+  + 'response builder'.apply_variableDefault() + ', ' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
+  else '' endif + if (stream) then ')' else '' endif +');} else throw new ' + o.nameClassRsDataNotFoundExceptionImpl() + '(' + if (o.hasRsNotFoundFault()) 
+  then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() + ', "' endif + '")' endif/]
 
 [comment écriture pour un résultat optionnel sur une liste d'enregistrements (pour l'instant 200 avec liste vide)./]
 [query private writeRsOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + 'response builder'.apply_variableDefault() + '.body(' +
@@ -673,8 +660,10 @@
   + 'response builder'.apply_variableDefault() + '.body(' + if (o.output->first().type.oclIsKindOf(environment::DTO)) 
   then o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' + 'to xto'.apply_methodDefault() + '(' + o.prefixAffectation() 
   + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ')))' else if(stream) then 'new ' 
-  + o.outputRsType().convertRsStreamToResource() + '(' else '' endif + o.prefixAffectation() + s.name().apply_attributeFinal() 
-  + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif + if (stream) then ')' else '' endif/]
+  + s.nameClassStorageS3HttpAdapterImpl() + '(' else '' endif + o.prefixAffectation() + s.name().apply_attributeFinal() 
+  + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ')' + if (o.hasRsOutputS3()) then ', ' + 'response builder'.apply_variableDefault() 
+  + ', ' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() else '' endif + ')' endif 
+  + if (stream) then ')' else '' endif/]
 
 [comment écriture pour un résultat obligatoire sur un liste d'enregistrements./]
 [query private writeRsNonOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + 'response builder'.apply_variableDefault() + '.body(' +
@@ -757,12 +746,12 @@
   
 [comment vérifie si on peut écrire automatiquement le download d'un document S3./]
 [query private canWriteS3Get(o : soa::Operation) : Boolean = o.verb = soa::Verb::GET and o.hasOutput() and o.hasInputs() 
-  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1 and 'S3Document'.equalsIgnoreCase(o.output
+  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1 and 'S3DocumentOut'.equalsIgnoreCase(o.output
   ->first().type.name)/]
 
 [comment vérifie si on peut écrire automatiquement l'upload d'un document S3./]
 [query private canWriteS3Post(o : soa::Operation) : Boolean = o.verb = soa::Verb::POST and o.hasOutput() and o.hasInputs() 
-  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1 and o.input->select(p | 'S3Document'
+  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1 and o.input->select(p | 'S3DocumentIn'
   .equalsIgnoreCase(p.type.name))->size() = 1/]
 
 [comment vérifie si on peut écrire automatiquement le delete d'un document S3./]
@@ -773,31 +762,30 @@
 [query private canWriteS3Operation(o : soa::Operation) : Boolean = o.canWriteS3Delete() or o.canWriteS3Get() or o.canWriteS3Post()/]
   
 [comment écriture de l'opération de download pour un document avec stockage S3./]
-[query private writeS3Get(o : soa::Operation) : String =  o.nameClassStorageS3DocRequestImpl() 
-  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3DocRequestImpl() + '.builder().' + 'with key'.apply_methodDefault() 
+[query private writeS3Get(o : soa::Operation) : String = let opt = o.output->first().isOptional() in o.nameClassStorageS3InputParamsImpl() 
+  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3InputParamsImpl() + '.builder().' + 'with key'.apply_methodDefault() 
   + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' 
   + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '()).build();' 
-  + o.lineSeparator() + 'return ' + 'client storage'.apply_attributeFinal() + '.' + 'download'.apply_methodDefault() 
-  + '(' + 'request content'.apply_variableDefault() + ');'/]
+  + o.lineSeparator() + 'return ' + if (opt) then 'Optional.of(' else '' endif + 'client storage'.apply_attributeFinal() + '.' 
+  + 'download'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() + if (opt) then ')' else '' endif + ');'/]
   
 [comment 	écriture de l'opération d'upload pour un document avec stockage S3. Ici on teste la présence des paramètres mais il ne suffit pas 
 			que le paramètre existe il faut qu'il y ait qu'une et une seule occurence du paramètre pour pouvoir prendre en charge la génération 
 			automatique, sinon on laisse le développeur écrire son propre code./]
-[query private writeS3Post(o : soa::Operation) : String = let m = o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))->size() = 1 in if (m ) 
-  then 'Map<String, String> ' + ' meta data map'.apply_variableDefault() + ' = new ObjectMapper().readValue(' + o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))
-  ->first().name().apply_parameterMethodClassicIn() + ', new TypeReference<Map<String, String>>() {});' + o.lineSeparator() else '' endif + o.nameClassStorageS3DocRequestImpl() 
-  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3DocRequestImpl() + '.builder().' + 'with key'.apply_methodDefault() 
-  + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' + 'with bucket'.apply_methodDefault() 
-  + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '())' + if (m) then '.' + 'with metadata'.apply_methodDefault() 
-  + '(' + ' meta data map'.apply_variableDefault() +')' else '' endif + if (o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->size() = 1) then
-  '.' + 'with content type'.apply_methodDefault() + '(' + o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
-  + ')' else '' endif + '.' + 'with content'.apply_methodDefault() + '(' + o.input->select(p | 'S3Document'.equalsIgnoreCase(p.type.name))
+[query private writeS3Post(o : soa::Operation) : String = let m = o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))->size() = 1 in 
+  o.nameClassStorageS3InputParamsImpl() + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3InputParamsImpl() + '.builder().' 
+  + 'with key'.apply_methodDefault() + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
+  + ').' + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '())' 
+  + if (m) then '.' + 'with metadata'.apply_methodDefault() + '(' + 'document meta'.apply_parameterMethodClassicIn() +')' else '' endif 
+  + if (o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->size() = 1) then '.' + 'with content type'.apply_methodDefault() 
+  + '(' + o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
+  + ')' else '' endif + '.' + 'with content'.apply_methodDefault() + '(' + o.input->select(p | 'S3DocumentIn'.equalsIgnoreCase(p.type.name))
   ->first().name().apply_parameterMethodClassicIn()  + ').build();' + o.lineSeparator() + 'client storage'.apply_attributeFinal() 
   + '.' + 'upload'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() + ');' + o.lineSeparator() + 'return null;'/]
   
 [comment écriture de l'opération de delete pour un document avec stockage S3./]
-[query private writeS3Delete(o : soa::Operation) : String = o.nameClassStorageS3DocRequestImpl() 
-  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3DocRequestImpl() + '.builder().' + 'with key'.apply_methodDefault() 
+[query private writeS3Delete(o : soa::Operation) : String = o.nameClassStorageS3InputParamsImpl() 
+  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3InputParamsImpl() + '.builder().' + 'with key'.apply_methodDefault() 
   + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' 
   + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '()).build();' 
   + o.lineSeparator() + 'client storage'.apply_attributeFinal() + '.' + 'delete'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() 

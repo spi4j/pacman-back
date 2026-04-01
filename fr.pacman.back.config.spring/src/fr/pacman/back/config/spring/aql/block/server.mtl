@@ -17,6 +17,15 @@
 [import fr::pacman::back::core::aql::rule::method/]
 
 [import fr::pacman::back::core::property::project::ProjectProperties/]
+ 
+[comment  	Dans le cas des services S3, le contrôleur REST peux pas retourner directement l'objet métier (DocumentWrapper)
+			mais doit le transformer en ResponseEntity afin de produire une véritable réponse HTTP (ce qui complique la génération).
+			En effet, un fichier doit être retourné sous forme de flux binaire (InputStreamResource) accompagné de headers HTTP 
+			(Content-Type, Content-Disposition, etc.). Retourner un objet sérialisé (JSON) contenant le fichier entraînerait une 
+			augmentation de la taille (encodage base64) ainsi qu'une perte des comportements HTTP (téléchargement, affichage navigateur), 
+			et l'absence de streaming (chargement complet en mémoire). Cette transformation est conforme à l’architecture hexagonale : 
+			le domaine manipule un objet métier générique (flux + métadonnées), l’adapter REST est responsable de l’exposition 
+			HTTP (ResponseEntity)./] 
 
 [comment écriture du fichier de configuration Maven pour le sous-projet serveur (infrastructure)./]
 [template public pom (any : ecore::EObject)]
@@ -1918,7 +1927,7 @@
   * technique sous-jacente.
   * </p>
   * <p>
-  * Les opérations s'appuient sur l'objet {@link [any.nameClassStorageS3DocRequestImpl()/]} 
+  * Les opérations s'appuient sur l'objet {@link [any.nameClassStorageS3InputParamsImpl()/]} 
   * qui encapsule l'ensemble des paramètres nécessaires (bucket, clé, contenu,
   * métadonnées, etc.).
   * </p>
@@ -1945,7 +1954,7 @@
       * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
       * @throws Exception en cas d'erreur lors de l'upload
       */
-      void ['upload'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+      void ['upload'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
            ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
       
      /**
@@ -1956,10 +1965,10 @@
       * </p>
       *
       * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
-      * @return flux du contenu du document
+      * @return flux du contenu du document (avec les en-têtes pour les métadonnées)
       * @throws Exception en cas d'erreur lors du téléchargement
       */
-      InputStream ['download'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+      [any.nameClassStorageS3OutputParamImpl()/] ['download'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
            ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
       
      /**
@@ -1971,7 +1980,7 @@
       * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
       * @throws Exception en cas d'erreur lors de la suppression
       */
-      void ['delete'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+      void ['delete'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
            ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
       
       [protected ('storage'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -1979,11 +1988,92 @@
   }
 [/template]
 
-
-[comment écriture de la classe d'implémentation pour la récupération des paramètres pour storage S3./]
-[template public s3DocRequestImpl(any : ecore::EObject)]
+[comment écriture de la classe d'implémentation pour l'adapter http du stockage S3 (output)./]
+[template public s3DocHttpAdapterImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageS3Base())/]
   [any.defaultImports()/]
+  
+  import java.net.URLEncoder;  
+  import java.nio.charset.StandardCharsets;
+  import org.springframework.core.io.InputStreamResource;
+  import org.springframework.http.ResponseEntity.BodyBuilder;
+  import [any.namePackageApplicationBase()/].[any.namePackageCommonBase()/].[any.nameClassStorageS3OutputParamImpl()/];
+  
+  /**
+  * Adapter HTTP permettant de transformer un objet domaine
+  * {@link DocumentContent} en ressource exploitable par Spring pour une réponse
+  * REST.
+  * <p>
+  * Cette classe étend {@link InputStreamResource} afin de fournir le flux
+  * binaire du document au client HTTP tout en injectant les métadonnées
+  * associées dans les en-têtes de la réponse via le {@link BodyBuilder}.
+  * </p>
+  * <p>
+  * Les métadonnées issues du domaine sont converties en en-têtes HTTP standards
+  * ou personnalisés (ex : Content-Type, Content-Length, x-amz-meta-*),
+  * permettant ainsi de préserver les informations du stockage lors de
+  * l'exposition REST.
+  * </p>
+  * <p>
+  * Si l'en-tête "Content-Disposition" n'est pas déjà présent dans le document,
+  * il est automatiquement généré pour forcer le téléchargement du fichier, avec
+  * gestion des caractères spéciaux et espaces via encodage UTF-8 :
+  * </p>
+  * <p>
+  * Cette classe joue le rôle d'adapter dans une architecture hexagonale :
+  * <ul>
+  * <li>le domaine reste indépendant de toute notion HTTP</li>
+  * <li>cet adapter est responsable de la transformation vers le modèle HTTP
+  * Spring</li>
+  * </ul>
+  * </p>
+  *
+  * @author [any.nameAuthor()/]
+  */
+  public class [any.nameClassStorageS3HttpAdapterImpl()/] extends InputStreamResource {
+    
+     /**
+      * Construit une ressource HTTP à partir d'un document domaine, injecte les
+      * métadonnées dans les en-têtes de la réponse et gère automatiquement le
+      * Content-Disposition si nécessaire.
+      *
+      * @param ['document'.apply_parameterMethodClassicIn()/]     objet domaine contenant le flux et les métadonnées
+      * @param ['response'.apply_parameterMethodClassicIn()/]     builder de réponse HTTP Spring utilisé pour définir les
+      *                     headers
+      * @param ['document name'.apply_parameterMethodClassicIn()/] nom du document utilisé pour le Content-Disposition
+      */
+      public [any.nameClassStorageS3HttpAdapterImpl()/]([any.nameClassStorageS3OutputParamImpl()/] ['document'.apply_parameterMethodClassicIn()/], 
+          BodyBuilder ['response'.apply_parameterMethodClassicIn()/], String ['document name'.apply_parameterMethodClassicIn()/]) {
+          super(['document'.apply_parameterMethodClassicIn()/].['body'.apply_methodGet()/]());
+          ['document'.apply_parameterMethodClassicIn()/].['headers'.apply_methodGet()/]()
+          .forEach((['key'.apply_variableDefault()/], ['values'.apply_variableDefault()/]) -> {
+            if (['values'.apply_variableDefault()/] != null) {
+                ['values'.apply_variableDefault()/] .forEach(['value'.apply_variableDefault()/] 
+                -> ['response'.apply_parameterMethodClassicIn()/].header(['key'.apply_variableDefault()/], 
+                ['value'.apply_variableDefault()/]));
+            }
+        });
+        
+        if (['document'.apply_parameterMethodClassicIn()/].['headers'.apply_methodGet()/]().get("Content-Disposition") == null) {
+            String ['encoded file name'.apply_variableDefault()/] = URLEncoder.encode(['document name'.apply_parameterMethodClassicIn()/], 
+            StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+            String ['content disposition'.apply_variableDefault()/] = "attachment; filename=\"" + ['document name'.apply_parameterMethodClassicIn()/] 
+            + "\"; filename*=UTF-8''" + ['encoded file name'.apply_variableDefault()/];
+            response.header("Content-Disposition", ['content disposition'.apply_variableDefault()/]);
+        }
+      }
+  }
+[/template]
+
+[comment écriture de la classe d'implémentation pour la récupération des paramètres pour storage S3 (input)./]
+[template public s3DocInputParamsImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageS3Base())/]
+  [any.defaultImports()/]
+  
+  import com.fasterxml.jackson.core.type.TypeReference;
+  import com.fasterxml.jackson.databind.ObjectMapper;
+  import com.fasterxml.jackson.databind.JsonMappingException;
+  import com.fasterxml.jackson.core.JsonProcessingException;
   
   /**
    * Représente une requête de manipulation d'un document dans un stockage S3.
@@ -2008,7 +2098,7 @@
    * </p>
    * @Author [any.nameAuthor()/]
    */
-  public class [any.nameClassStorageS3DocRequestImpl()/] {
+  public class [any.nameClassStorageS3InputParamsImpl()/] {
   
     [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     [/protected]
@@ -2046,7 +2136,7 @@
     /**
      * Constructeur privé pour forcer l'utilisation du {@link Builder}.
      */
-    private [any.nameClassStorageS3DocRequestImpl()/] () {
+    private [any.nameClassStorageS3InputParamsImpl()/] () {
        // RAS.
     }
     
@@ -2109,7 +2199,7 @@
     
     /**
      * Crée un builder permettant de construire une instance de
-     * {@link [any.nameClassStorageS3DocRequestImpl()/]}.
+     * {@link [any.nameClassStorageS3InputParamsImpl()/]}.
      *
      * @return une instance de {@link Builder}
      */
@@ -2119,7 +2209,7 @@
     
     /**
      * Builder permettant de construire une instance de
-     * {@link [any.nameClassStorageS3DocRequestImpl()/]}.
+     * {@link [any.nameClassStorageS3InputParamsImpl()/]}.
      * <p>
      * Permet une initialisation fluide et lisible des paramètres, tout en
      * validant les champs obligatoires lors de l'appel à {@link #build()}.
@@ -2130,13 +2220,13 @@
        /**
        * Instance en cours de construction.
        */
-       private final [any.nameClassStorageS3DocRequestImpl()/] ['request'.apply_attributeFinal()/];
+       private final [any.nameClassStorageS3InputParamsImpl()/] ['request'.apply_attributeFinal()/];
        
        /**
        * Constructeur privé du builder.
        */
         private Builder() {
-           [any.prefixAffectation()/]['request'.apply_attributeFinal()/] = new [any.nameClassStorageS3DocRequestImpl()/]();
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/] = new [any.nameClassStorageS3InputParamsImpl()/]();
         }
         
         /**
@@ -2192,10 +2282,16 @@
          *
          * @param metadata map de métadonnées
          * @return le builder courant
+         * @throws JsonProcessingException 
+         * @throws JsonMappingException 
          */
-        public Builder ['with metadata'.apply_methodDefault()/](final Map<String, String> ['metadata'.apply_parameterMethodClassicIn()/]) {
+        public Builder ['with metadata'.apply_methodDefault()/](final String ['metadata'.apply_parameterMethodClassicIn()/]) 
+           throws JsonMappingException, JsonProcessingException {
+            Map<String, String> ['meta data map'.apply_variableDefault()/] = new ObjectMapper()
+                   .readValue( (['metadata'.apply_parameterMethodClassicIn()/] == null || ['metadata'.apply_parameterMethodClassicIn()/].isBlank()) 
+                   ? "{}" : ['metadata'.apply_parameterMethodClassicIn()/], new TypeReference<Map<String, String>>() {});
            [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['metadata'.apply_attributeDefault()/] 
-           = ['metadata'.apply_parameterMethodClassicIn()/];
+           = ['meta data map'.apply_variableDefault()/];
            return this;
         }
         
@@ -2215,16 +2311,16 @@
           [/protected]
         
         /**
-         * Construit une instance de {@link [any.nameClassStorageS3DocRequestImpl()/]}.
+         * Construit une instance de {@link [any.nameClassStorageS3InputParamsImpl()/]}.
          * <p>
          * Vérifie la présence du champ obligatoire 
          * {@code key} avant de retourner l'objet.
          * </p>
          *
-         * @return une instance valide de {@link [any.nameClassStorageS3DocRequestImpl()/]}
+         * @return une instance valide de {@link [any.nameClassStorageS3InputParamsImpl()/]}
          * @throws IllegalStateException si un champ obligatoire est manquant
          */
-        public [any.nameClassStorageS3DocRequestImpl()/] ['build'.apply_methodDefault()/]() {
+        public [any.nameClassStorageS3InputParamsImpl()/] ['build'.apply_methodDefault()/]() {
            if ([any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/] == null 
                || [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/].isEmpty()) {
                throw new IllegalStateException("La clé est obligatoire pour manipuler un document S3");
@@ -2365,20 +2461,23 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [any.defaultImports()/]
+    
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.boot.CommandLineRunner;
     import org.springframework.context.annotation.Primary;
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
+    import org.springframework.http.HttpHeaders;
     
-    import io.minio.RemoveObjectArgs;
-    import io.minio.GetObjectArgs;
-    import io.minio.PutObjectArgs;
     import io.minio.BucketExistsArgs;
+    import io.minio.GetObjectArgs;
+    import io.minio.GetObjectResponse;
     import io.minio.MakeBucketArgs;
     import io.minio.MinioClient;
-    import io.minio.PutObjectArgs.Builder;
-    import io.minio.PutObjectArgs.Builder;
+    import io.minio.PutObjectArgs; 
+    import io.minio.RemoveObjectArgs;
+    import io.minio.StatObjectArgs;
+    import io.minio.StatObjectResponse;
     
   [/protected]
   
@@ -2506,7 +2605,7 @@
          * @throws Exception en cas d'erreur lors de l'upload
          */
         @Override
-        public void ['upload'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+        public void ['upload'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
             ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
             
             PutObjectArgs.Builder ['builder'.apply_variableDefault()/] = PutObjectArgs
@@ -2532,30 +2631,75 @@
             ['client'.apply_methodGet()/]().putObject(['builder'.apply_variableDefault()/].build());
         }
         
-        /**
-         * Télécharge un document depuis le stockage S3.
-         * <p>
-         * Retourne le contenu du document sous forme de flux. L'appelant est
-         * responsable de la fermeture du flux après utilisation.
-         * </p>
-         *
-         * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant le bucket et la clé
-         * @return flux du contenu du document
-         * @throws Exception en cas d'erreur lors du téléchargement
-         */
+      /**
+       * Télécharge un objet depuis un stockage compatible S3 et retourne son contenu
+       * ainsi que ses métadonnées.
+       * <p>
+       * Cette méthode utilise le client MinIO pour :
+       * <ul>
+       *   <li>récupérer le contenu binaire de l'objet via {@code getObject}</li>
+       *   <li>récupérer les métadonnées associées via {@code statObject}</li>
+       * </ul>
+       * </p>
+       * <p>
+       * Les métadonnées sont ensuite converties en {@link HttpHeaders} afin de faciliter
+       * leur propagation dans une réponse HTTP (ex : contrôleur REST). Cela inclut :
+       * <ul>
+       *   <li>les en-têtes standards (Content-Type, Content-Length)</li>
+       *   <li>les métadonnées personnalisées (préfixées en {@code x-amz-meta-*})</li>
+       *   <li>l'ETag de l'objet si disponible</li>
+       * </ul>
+       * </p>
+       * <p>
+       * Le contenu etant retourné sous forme de {@link InputStream}, il est de la
+       * responsabilité de l'appelant de fermer ce flux après utilisation afin
+       * d'éviter toute fuite de ressources.
+       * </p>
+       *
+       * @param ['params'.apply_parameterMethodClassicIn()/] paramètres d'entrée contenant le nom du bucket et la clé de l'objet
+       * @return un {@link [any.nameClassStorageS3OutputParamImpl()/]} contenant le flux du fichier et les en-têtes associés
+       * @throws Exception en cas d'erreur lors de l'accès au stockage S3
+       */
         @Override
-        public InputStream ['download'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+        public [any.nameClassStorageS3OutputParamImpl()/] ['download'.apply_methodDefault()/]
+            (final [any.nameClassStorageS3InputParamsImpl()/] 
             ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
             
-            GetObjectArgs.Builder ['builder'.apply_variableDefault()/] = GetObjectArgs
-                .builder()
-                .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
-                .object(['params'.apply_parameterMethodClassicIn()/].['key'.apply_methodGet()/]());
+            GetObjectResponse ['object'.apply_variableDefault()/] = ['client'.apply_methodGet()/]().getObject(
+                GetObjectArgs.builder()
+                    .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
+                    .object(['params'.apply_parameterMethodClassicIn()/].['key'.apply_methodGet()/]()).build());
+                    
+            StatObjectResponse ['stat'.apply_variableDefault()/] = ['client'.apply_methodGet()/]().statObject(
+                StatObjectArgs.builder()
+                    .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
+                    .object(['params'.apply_parameterMethodClassicIn()/].['key'.apply_methodGet()/]()).build());
+            
+            Map<String, List<String>> ['headers'.apply_variableDefault()/] = new HashMap<>();
+            if (['stat'.apply_variableDefault()/].contentType() != null) {
+              ['headers'.apply_variableDefault()/].put("Content-Type", 
+              List.of(['stat'.apply_variableDefault()/].contentType()));
+            }
+            
+            ['headers'.apply_variableDefault()/].put("Content-Length", 
+            List.of(String.valueOf(['stat'.apply_variableDefault()/].size())));
+            
+            [protected ('headers'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              ['stat'.apply_variableDefault()/].userMetadata().forEach((['key'.apply_variableDefault()/], 
+              ['value'.apply_variableDefault()/]) -> ['headers'.apply_variableDefault()/].put("x-amz-meta-" 
+              + ['key'.apply_variableDefault()/], List.of(['value'.apply_variableDefault()/])));
+            [/protected]
+            
+            if (['stat'.apply_variableDefault()/].etag() != null) {
+              ['headers'.apply_variableDefault()/].put("ETag", 
+              List.of(['stat'.apply_variableDefault()/].etag()));
+            }
             
             [protected ('download'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
             [/protected]
             
-            return ['client'.apply_methodGet()/]().getObject(['builder'.apply_variableDefault()/].build());
+            return new [any.nameClassStorageS3OutputParamImpl()/](['object'.apply_variableDefault()/], 
+                ['headers'.apply_variableDefault()/]);
         }
         
         /**
@@ -2568,7 +2712,7 @@
          * @throws Exception en cas d'erreur lors de la suppression
          */
         @Override
-        public void ['delete'.apply_methodDefault()/](final [any.nameClassStorageS3DocRequestImpl()/] 
+        public void ['delete'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
             ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
             ['client'.apply_methodGet()/]().removeObject(RemoveObjectArgs.builder()
                   .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
@@ -2593,7 +2737,7 @@
      private ['credentials wrapper'.apply_classDefault()/] ['refresh credentials'.apply_methodDefault()/]() {
           
           // Remplacer par appel réel (Keycloak / STS / MinIO)
-          [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [protected ('sso'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           
             String ['access key'.apply_variableDefault()/] = [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['access key'.apply_methodGet()/]();
             String ['secret key'.apply_variableDefault()/] = [any.prefixAffectation()/]['props'.apply_attributeFinal()/].['secretKey'.apply_methodGet()/]();

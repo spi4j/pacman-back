@@ -46,8 +46,11 @@
   import java.util.HashMap;
   import org.slf4j.Logger;
   import org.slf4j.LoggerFactory;
+  
   import [any.namePackageProject()/].[any.namePackageException()/].[any.nameClassMapperExceptionImpl()/];
+  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassStorageS3OutputParamImpl()/];
   import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassNotImplementedExceptionImpl()/];
+  import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassRsDataNotFoundExceptionImpl()/];
 [/template]
 
 [comment 	écriture des imports spécifiques pour la classe, on essaye de trouver le maximum des imports 

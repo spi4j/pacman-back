@@ -502,3 +502,71 @@
     }
   }
 [/template]
+
+[comment écriture de la classe d'implémentation pour la récupération des paramètres pour storage S3 (output)./]
+[template public s3DocOutputParamImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageCommonBase())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Représente la réponse d'une opération de lecture pour un document (format binaire).
+   * <p>
+   * Cette classe encapsule les données retournées lors de la récupération d'un
+   * document depuis un espace de stockage. Elle contient à la fois le contenu binaire 
+   * de l'objet sous forme de flux ({@link InputStream}) ainsi que les métadonnées 
+   * associées sous forme de tableau associatif ({@link Map<String, List<String>>}).
+   * </p>
+   * <p>
+   * Les en-têtes peuvent inclure :
+   * <ul>
+   * <li>des métadonnées standard (ex : Content-Type, Content-Length)</li>
+   * <li>des métadonnées personnalisées (ex : x-amz-meta-*)</li>
+   * </ul>
+   * </p>
+   * <p>
+   * Cette classe est indépendante de toute implémentation spécifique et peut être
+   * utilisée comme modèle générique de réponse dans les services de stockage.
+   * </p>
+   *
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassStorageS3OutputParamImpl()/] {
+     
+     ['Contenu binaire de l\'objet sous forme de flux'.commentSingleLine()/]
+     private final InputStream ['body'.apply_attributeFinal()/];
+     
+     ['Métadonnées / en-têtes de l\'objet, sous forme clé -> liste de valeurs.'.commentSingleLine()/]
+     private final Map<String, List<String>> ['headers'.apply_attributeFinal()/];
+     
+     /**
+      * Construit une instance de {@link [any.nameClassStorageS3OutputParamImpl()/]}.
+      *
+      * @param body flux du contenu de l'objet
+      * @param headers map des métadonnées / en-têtes
+      */
+     public [any.nameClassStorageS3OutputParamImpl()/](final InputStream ['body'.apply_parameterMethodClassicIn()/], 
+       final Map<String, List<String>> ['headers'.apply_parameterMethodClassicIn()/]) {
+       [any.prefixAffectation()/]['body'.apply_attributeFinal()/] = ['body'.apply_parameterMethodClassicIn()/];
+       [any.prefixAffectation()/]['headers'.apply_attributeFinal()/] = ['headers'.apply_parameterMethodClassicIn()/] != null 
+       ? Map.copyOf(['headers'.apply_parameterMethodClassicIn()/]) : Collections.emptyMap();
+     }
+     
+     /**
+      * Retourne le contenu binaire de l'objet.
+      *
+      * @return le flux du contenu
+      */
+     public InputStream ['body'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['body'.apply_attributeFinal()/];
+     }
+     
+     /**
+      * Retourne les en-têtes / métadonnées associées.
+      *
+      * @return map clé -> liste de valeurs
+      */
+     public Map<String, List<String>> ['headers'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['headers'.apply_attributeFinal()/];
+     }
+  }
+[/template]

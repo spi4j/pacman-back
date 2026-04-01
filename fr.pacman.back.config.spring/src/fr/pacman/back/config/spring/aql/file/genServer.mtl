@@ -190,10 +190,17 @@
   [/file]
 [/template]
 
-[comment écriture de l'implémentation du passage de paramètres pour le storage S3./]
-[template public fileStorageS3DocRequestImpl(any : ecore::EObject)]
-  [file (any.nameClassStorageS3DocRequestImpl().toFileJava(any.namePackageS3Base()), overwrite, any.defaultFileEncoding())]
-    [any.s3DocRequestImpl()/]
+[comment écriture de l'implémentation du passage de paramètres pour le storage S3 (input)./]
+[template public fileStorageS3InputParamsRequestImpl(any : ecore::EObject)]
+  [file (any.nameClassStorageS3InputParamsImpl().toFileJava(any.namePackageS3Base()), overwrite, any.defaultFileEncoding())]
+    [any.s3DocInputParamsImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de l'implémentation du http adapter de paramètres pour le storage S3 (output)./]
+[template public fileStorageS3HttpAdapterImpl(any : ecore::EObject)]
+  [file (any.nameClassStorageS3HttpAdapterImpl().toFileJava(any.namePackageS3Base()), overwrite, any.defaultFileEncoding())]
+    [any.s3DocHttpAdapterImpl()/]
   [/file]
 [/template]
 

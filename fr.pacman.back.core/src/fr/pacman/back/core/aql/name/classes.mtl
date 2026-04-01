@@ -247,8 +247,14 @@
 [comment retourne le nom pour la classe de réupération de propriétés du client storage S3./]
 [query public nameClassStorageS3PropsImpl(any : ecore::EObject) : String = (any.get_projectName() + ' s3 properties').apply_classDefault()/] 
 
-[comment retourne le nom de l'implémentation pour "l'object request" du storage S3./]
-[query public nameClassStorageS3DocRequestImpl (any : ecore::EObject) : String = (any.nameProject() +' s3 content request').apply_classDefault()/]
+[comment retourne le nom de l'implémentation pour "l'object request input" du storage S3./]
+[query public nameClassStorageS3InputParamsImpl (any : ecore::EObject) : String = (any.nameProject() +' s3 in params').apply_classDefault()/]
+  
+[comment retourne le nom de l'implémentation pour "l'object request output" du storage S3./]
+[query public nameClassStorageS3OutputParamImpl (any : ecore::EObject) : String = 'document content'.apply_classDefault()/]
+  
+[comment retourne le nom de l'implémentation pour adpater l'object request output" du storage S3 pour un service rest./]
+[query public nameClassStorageS3HttpAdapterImpl (any : ecore::EObject) : String = (any.nameProject() + ' s3 http adapter').apply_classDefault()/]
   
 [comment retourne le nom de l'interface pour l'interface du storage S3./]
 [query public nameClassStorageS3Itf (any : ecore::EObject) : String =  (any.nameProject() + ' s3 service').apply_classInterface()/]

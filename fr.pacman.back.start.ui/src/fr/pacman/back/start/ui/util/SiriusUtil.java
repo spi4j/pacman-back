@@ -241,11 +241,16 @@ public class SiriusUtil {
 						Environment env = EnvironmentFactory.eINSTANCE.createEnvironment();
 						env.setName(p_applicationName);
 
-						// Type représentant un document stocké dans S3
-						PrimitiveType s3Document = EnvironmentFactory.eINSTANCE.createPrimitiveType();
-						s3Document.setName("S3Document");
-						resource.getContents().add(s3Document);
-
+						// Type représentant un document stocké dans S3 (entrée)
+						PrimitiveType s3DocumentIn = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+						s3DocumentIn.setName("S3DocumentIn");
+						resource.getContents().add(s3DocumentIn);
+						
+						// Type représentant un document stocké dans S3 (sortie)
+						PrimitiveType s3DocumentOut = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+						s3DocumentOut.setName("S3DocumentOut");
+						resource.getContents().add(s3DocumentOut);
+						
 						// Type représentant les métadonnées associées
 						PrimitiveType s3Metadata = EnvironmentFactory.eINSTANCE.createPrimitiveType();
 						s3Metadata.setName("S3Metadata");
