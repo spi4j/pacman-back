@@ -679,7 +679,7 @@ Il s'agit des vues suivantes : </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Active la poulation automatique de la base avec des données faker.</span>
 <span class="na">spring.populate.faker.enabled</span><span class="o">=</span><span class="s">false</span>
 </code></pre></div>
-<p>Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services rest.</p>
+<p>Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services REST.</p>
 <h4 id="stockage-s3">Stockage S3</h4>
 <p>Le stockage S3 désigne un modèle de stockage d'objets accessible via une API standard largement utilisée dans les environnements cloud. Dans ce modèle, les données sont stockées sous forme d'objets dans des conteneurs appelés buckets. Chaque objet est composé du fichier lui-même, de métadonnées et d'un identifiant unique permettant son accès via une requête HTTP. Ce type de stockage est conçu pour être hautement scalable, durable et accessible à distance, ce qui le rend particulièrement adapté pour l'archivage de fichiers, la sauvegarde de données, l'hébergement de contenus statiques ou le stockage de données applicatives. </p>
 <p>De nombreux systèmes de stockage proposent aujourd'hui une compatibilité avec l'API S3, permettant aux applications d'interagir avec différents fournisseurs ou infrastructures en utilisant les mêmes mécanismes d'accès.</p>
@@ -3399,9 +3399,15 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <ul>
 <li>de la classe "<strong><em>[Nom de l'application]S3Properties</em></strong>" de récupération des paramètres dans le fichier "<em>application.properties</em>" pour le stockage S3. </li>
 <li>de la classe "<strong><em>[Nom de l'application]S3Factory</em></strong>" qui est une fabrique pour la construction et la mise à disposition de l'api (client S3) permettant de communiquer avec le serveur de stockage.</li>
-<li>de la classe "<strong><em>[Nom de l'application]S3DocRequest</em></strong>" qui est un pattern "<em>builder</em>" pour la récupération et l'envoi des différents paramètres au client S3 fourni par la fabrique.</li>
+<li>de la classe "<strong><em>[Nom de l'application]S3InParams</em></strong>" qui est un pattern "<em>builder</em>" pour l'envoi des différents paramètres au client S3 fourni par la fabrique.</li>
 <li>de la classe "<strong><em>[Nom de l'application]S3Service</em></strong>" qui est l'interface du client S3 fourni par la fabrique.</li>
+<li>de la classe "<strong><em>[Nom de l'application]HttpAdapter</em></strong>" qui permet d'effectuer la conversion de format entre les services internes S3 et le service REST. Cet adaptateur a été créé pour des raisons de simplification au niveau des générateurs de code mais les traitements effectués par cet adaptateur auraient pu être positionnés directement au niveau du service REST.</li>
 </ul>
+<p>Au niveau du domaine une classe S3 a aussi été créée par défaut au niveau du package "<strong><em>[package racine].domain</em></strong>", il s'agit : </p>
+<ul>
+<li>de la classe "<strong><em>DocumentContent</em></strong>" qui joue le rôle de DTO et permet de retrourner plus d'un paramètre lors de la récupération d'un document. En effet, toute requête GET à un serveur S3 retourne non seulement le fichier désiré mais aussi ses métadonnées qui sont, par la suite, à positionner au niveau des en-têtes dans la réponse.</li>
+</ul>
+<p>❗ Il est à noter que dans le cas des services S3, le contrôleur REST peux pas retourner directement l'objet métier "<strong><em>DocumentContent</em></strong> comme n'importe quel autre DTO, mais doit de préférence le transformer en ResponseEntity afin de produire une véritable réponse HTTP (ce qui complique la génération). En effet, un fichier doit être retourné sous forme de flux binaire (InputStreamResource) accompagné de headers HTTP (Content-Type, Content-Disposition, etc.). Retourner un objet sérialisé (JSON) contenant le fichier entraînerait une augmentation de la taille (encodage base64) ainsi qu'une perte des comportements HTTP (téléchargement, affichage navigateur), et l'absence de streaming (chargement complet en mémoire) ce qui serait particulièrement préjudiciable pour les gros fichiers.</p>
 <p>❗ La manipulation de documents étant un sujet potentiellement sensible il est fortement conseillé de sécuriser les appels aux différents services S3. Cette sécurisation peut être effectuée de deux manières différentes qui sont de plus, cumulables : </p>
 <ul>
 <li>
@@ -3537,7 +3543,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 </li>
 </ul>
 <p>❗ Cette classe "<strong><em>[Nom de l'application]S3Factory</em></strong>" fournit donc une fabrique prête à l'emploi pour créer des clients S3 avec des credentials. Par défaut,  elle utilise les credentials statiques définis dans "<em>application.properties</em>", assurant un fonctionnement immédiat pour tous les services utilisant le stockage. Pour les environnements nécessitant une sécurité plus sophistiquée, le développeur peut modifier la méthode "<em>refreshCredentials()</em>" afin d'intégrer un mécanisme OIDC ou STS (Secure Token Service) et générer des credentials temporaires plus spécifiques. Cette approche garantit à la fois simplicité pour l'usage standard et extensibilité pour la production sécurisée.</p>
-<p>Tout a été fait afin d'essayer de rendre le code le plus générique possible afin de le découpler de toute implémentation spécifique. Ainsi les différents services S3 récupèrent un client "<strong><em>[Nom de l'application]S3Service</em></strong>". Par défaut ce client est une implémentation <em>Minio</em>, mais les services ne sont pas censés la connaitre puiqu'ils utilisent uniquement l'interface précitée par le biais des trois méthodes "<em>upload([..]), download([...]) et delete([...])</em>". L'implémentation spécifique des méthodes est alors située au niveau de la fabrique avec le code suivant : </p>
+<p>Tout a été fait afin d'essayer de rendre le code le plus générique possible afin de le découpler de toute implémentation spécifique. Ainsi les différents services S3 récupèrent un client "<strong><em>[Nom de l'application]S3Service</em></strong>". Par défaut ce client est une implémentation <em>Minio</em>, mais les services ne sont pas censés la connaitre puisqu'ils utilisent uniquement l'interface précitée par le biais des trois méthodes "<em>upload([..]), download([...]) et delete([...])</em>". L'implémentation spécifique des méthodes est alors située au niveau de la fabrique avec le code suivant : </p>
 <div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">S3ClientFactory</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">DemoS3Service</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="p">...</span>
 <span class="w">  </span><span class="nd">@Override</span>
@@ -3560,8 +3566,24 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 
 <span class="w">  </span><span class="nd">@Override</span>
 <span class="w">  </span><span class="kd">public</span><span class="w"> </span><span class="n">InputStream</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">DemoS3ContentRequest</span><span class="w"> </span><span class="n">params</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="n">GetObjectArgs</span><span class="p">.</span><span class="na">Builder</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetObjectArgs</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">bucket</span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">getBucket</span><span class="p">()).</span><span class="na">object</span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">getKey</span><span class="p">());</span>
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">getClient</span><span class="p">().</span><span class="na">getObject</span><span class="p">(</span><span class="n">builder</span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
+<span class="w">      </span><span class="n">GetObjectResponse</span><span class="w"> </span><span class="n">object</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getClient</span><span class="p">().</span><span class="na">getObject</span><span class="p">(</span><span class="n">GetObjectArgs</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">bucket</span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">getBucket</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">object</span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">getKey</span><span class="p">()).</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">      </span><span class="n">StatObjectResponse</span><span class="w"> </span><span class="n">stat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getClient</span><span class="p">().</span><span class="na">statObject</span><span class="p">(</span><span class="n">StatObjectArgs</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">bucket</span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">getBucket</span><span class="p">())</span>
+<span class="w">        </span><span class="p">.</span><span class="na">object</span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">getKey</span><span class="p">()).</span><span class="na">build</span><span class="p">());</span>
+
+<span class="w">      </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">headers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stat</span><span class="p">.</span><span class="na">contentType</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="n">headers</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"Content-Type"</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">stat</span><span class="p">.</span><span class="na">contentType</span><span class="p">()));</span>
+<span class="w">      </span><span class="p">}</span>
+
+<span class="w">      </span><span class="n">headers</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"Content-Length"</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">String</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">stat</span><span class="p">.</span><span class="na">size</span><span class="p">())));</span>
+<span class="w">      </span><span class="n">stat</span><span class="p">.</span><span class="na">userMetadata</span><span class="p">().</span><span class="na">forEach</span><span class="p">((</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">headers</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"x-amz-meta-"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">value</span><span class="p">)));</span>
+
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stat</span><span class="p">.</span><span class="na">etag</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">headers</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"ETag"</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">(</span><span class="n">stat</span><span class="p">.</span><span class="na">etag</span><span class="p">()));</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DocumentContent</span><span class="p">(</span><span class="n">object</span><span class="p">,</span><span class="w"> </span><span class="n">headers</span><span class="p">);</span>
 <span class="w">  </span><span class="p">}</span>
 
 <span class="w">  </span><span class="nd">@Override</span>
@@ -3571,17 +3593,22 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="w">  </span><span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>La ligne stream(document, -1, 10 * 1024 * 1024) sert à envoyer le contenu du fichier vers le stockage S3 sous forme de flux (InputStream). Le -1 indique que la taille du fichier n'est pas connue à l'avance, ce qui permet de traiter des fichiers de n'importe quelle taille sans pour autant les charger entièrement en mémoire. Le troisième paramètre (10 * 1024 * 1024) définit la taille du buffer utilisé pour le streaming (ici 10 Mo), optimisant la lecture et l'écriture par blocs pour améliorer les performances et réduire l'usage mémoire. Cette approche est essentielle pour gérer efficacement les gros fichiers.</p>
+<p>La ligne stream(document, -1, 10 * 1024 * 1024) sert à envoyer le contenu du fichier vers le stockage S3 sous forme de flux (InputStream). Le -1 indique que la taille du fichier n'est pas connue à l'avance, ce qui permet de traiter des fichiers de n'importe quelle taille sans pour autant les charger entièrement en mémoire. Le troisième paramètre (10 * 1024 * 1024) définit la taille du buffer utilisé pour le streaming (ici 10 Mo), optimisant la lecture et l'écriture par bl
+ocs pour améliorer les performances et réduire l'usage mémoire. Cette approche est essentielle pour gérer efficacement les gros fichiers.
+Au niveau de l'implémentation pour la récupération du document, on peut remarquer l'encapsulation dans "<strong><em>DocumentContent</em></strong>" qui retourne à la fois le flux contenant le document (fichier) et la liste des métadonnées (si elles existent) à positionner dans les en-têtes de la réponse HTTP. Par défaut ces métadonnées sont suffixées par "<em>x-amz-meta-</em>" qui est la norme AWS S3 mais cette partie de code étant entre balises "<em>user code</em>", il est possible de modifier ce choix.</p>
 <p>Pour modéliser l'envoi, la récupération ou la suppression d'un fichier dans un espace de stockage de type "<strong>S3</strong>", il suffit de modéliser uniquement un service au niveau de la couche soa. En effet, un fichier ne représentant pas une entité en tant que telle, il n'est pas nécessaire de modéliser la couche de persistance (fichier de modélisation '.entity') et son objet métier (DTO).</p>
 <p>Le service est toujours un service de type "<em>provided</em>" et une modélisation complète peut ressembler à ceci : </p>
 <p><img alt="Storage S3" src="images/pcm-model-adv-entity-9.png"/></p>
 <p>Puusieurs types de données spécifiques au stockage S3 sont disponibles afin de pouvoir correctement modéliser les services, ces types sont les suivants : </p>
 <ul>
-<li><strong><em>S3Document</em></strong> : Le document à charger, à récupérer ou à supprimer.</li>
+<li><strong><em>S3DocumentIn</em></strong> : Le document à charger.</li>
+<li><strong><em>S3DocumentOut</em></strong> : Le document à récupérer.</li>
 <li><strong><em>S3ContentType</em></strong> : Le type de document (si besoin).</li>
 <li><strong><em>S3Metadata</em></strong> :  Les données supplémentaires (si besoin).</li>
 <li><strong><em>S3Bucket</em></strong> : Le bucket (répertoire(s)) supplémentaire (si besoin).</li>
+<li><strong><em>S3DocumentName</em></strong> : Le nom du document.</li>
 </ul>
+<p>❗ Bien faire attention lors de la modélisation à ne pas confondre et mélanger "<em>S3DocumentIn</em>" (entrée) et "<em>S3DocumentOut</em>" (sortie) , dans tous les cas, une erreur de modélisation entrainerait l'abscence de génération automatique au niveau de la couche de persistance ce qui obligerait le développeur à écrire cette partie manuellement. </p>
 <p>Cette modélisation appelle les explications suivantes :</p>
 <ul>
 <li>
@@ -3597,22 +3624,93 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <p>Si le document soit se positionner au au niveau d'un sous-répertoire et non directement au niveau du répertoire racine por l'application, alors il est nécessaire de le préciser avec un paramètre supplémentaire de type "<em>S3Bucket</em>". </p>
 </li>
 <li>
-<p>Si le service est amené à charger des métadonnées supplémentaires qui vont être associées au document, il est alors nécessaire de rajouter un paramètre avec le type "<em>S3Metadata</em>" pour son opération d'upload. Les métadonnées doivent toujours être passées dans le corps de la requête (body).
-❗ Au niveau de la couche de persistance (couche qui, dans le cas d'un service S3, effectue l'appel à l'Api externe de stockage des fichiers), le code nécessaire à l'ensemble des opérations peut être généré automatiquement par "<strong>Pacman</strong>" à la seule condition que la modélisation respecte les conditions suivantes au niveau des paramètres en entrée : </p>
-</li>
-<li>
-<p>Pour une lecture (<em>GET</em>), l'opération ne peut avoir qu'un seul paramètre : le nom du fichier à rechercher. </p>
-</li>
-<li>
-<p>Pour un enregistrement (<em>POST</em>) l'opération ne peut avoir (au maximum) que quatre paramètres qui sont respectivement (l'ordre est sans importance), le nom du fichier à enregistrer, le fichier (body), les métadonnées pour le fichier (body), le type de fichier à enregistrer. </p>
-</li>
-<li>
-<p>Pour une opération de suppression (<em>DELETE</em>), ici encore, seul un paramètre est nécessaire, comme pour la lecture, il s'agit cette fois du nom du fichier à supprimer.</p>
+<p>Si le service est amené à charger des métadonnées supplémentaires qui vont être associées au document, il est alors nécessaire de rajouter un paramètre avec le type "<em>S3Metadata</em>" pour son opération d'upload. Les métadonnées doivent toujours être passées dans le corps de la requête (body).</p>
 </li>
 </ul>
-<p>Pour le paramètre de sortie toute opération  doit obligatoirement avoir un paramètre, comme n'importe autre opération "<em>Rest</em>".</p>
-<p>❗ Il est toujours possible de rajouter autant de paramètres que nécessaires afin de remplir les différentes obligations utiles pour le bon fonctionnement de l'application, mais dans ce cas, ce sera alors au développeur de coder manuellement l'api pour effectuer les manipulations au niveau de serveur de stockage (toujours à l'interieur des balises de type "<em>user code</em>").</p>
-<p>❗ Il est à noter que le service n'est pas ici un service de persistance vers une base de données, il sera donc automatiquement appelé : <strong><em>[Nom de l'application]S3ProviderImpl</em></strong>. </p>
+<p>❗ Au niveau de la couche de persistance (couche qui, dans le cas d'un service S3, effectue l'appel à l'Api externe de stockage des fichiers), le code nécessaire à l'ensemble des opérations peut être généré automatiquement par "<strong>Pacman</strong>" à la seule condition que la modélisation respecte les conditions suivantes au niveau des paramètres en entrée : </p>
+<ul>
+<li>
+<p>Pour une lecture (<em>GET</em>), l'opération doit au minimum avoir le nom du fichier à rechercher ("<em>S3DocumentName</em>") et doit retourner obligatoirement le fichier ("<em>S3DocumentOut</em>"). </p>
+</li>
+<li>
+<p>Pour un enregistrement (<em>POST</em>) l'opération peut avoir (l'ordre est sans importance), le nom du fichier à enregistrer ("<em>S3DocumentName</em>"), le fichier ("<em>S3DocumentIn</em>"), les métadonnées pour le fichier ("<em>S3Metadata</em>"), le type de fichier à enregistrer ("<em>S3ContentType</em>"). </p>
+</li>
+<li>
+<p>Pour une opération de suppression (<em>DELETE</em>), ici encore, seul un paramètre est nécessaire, comme pour la lecture, il s'agit cette fois du nom du fichier à supprimer ("<em>S3DocumentName</em>").</p>
+</li>
+<li>
+<p>De manière générale, toute opération doit obligatoirement avoir un paramètre de sortie, comme n'importe autre opération REST.</p>
+</li>
+<li>
+<p>La paramètre "<em>S3Bucket</em>" (répertoire) peut être ajouté dans n'importe qu'elle requête si le document sur lequel le développeur désire agir ne se situe pas directement à la racine (pour l'application) du serveur S3.</p>
+</li>
+<li>
+<p>"<em>S3DocumentIn</em>" et "<em>S3Metadata</em>" doivent obligatoirement être passés dans le BODY de la requête.</p>
+</li>
+<li>
+<p>L'ordre des paramètres est sans importance.</p>
+</li>
+</ul>
+<p>❗ Il est à noter que le service n'est pas ici directement un service de persistance vers une base de données, il sera donc automatiquement appelé : "<strong><em>[Nom de l'application]S3ProviderImpl</em></strong>". </p>
+<p>❗ Cependant, il est toujours possible de rajouter autant de paramètres que nécessaires afin de remplir les différentes obligations utiles pour le bon fonctionnement de l'application. Par défaut lors de la génération de l'implémentation du service de persistance S3, un service de persistance JPA est automatiquement mis à disposition si le développeur désire aussi effectuer simultanément des opérations en base de données. Au niveau des balises de type "<em>user code</em>", il peut alors écrire toutes les opérations de persistance JPA dont il a besoin, tout en les reportant aussi au niveau de l'interface (et du stub pour les tests). </p>
+<div class="codehilite"><pre><span></span><code><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Demo_storageS3Factory</span><span class="p">.</span><span class="na">S3ClientFactory</span><span class="w"> </span><span class="n">clientStorage</span><span class="p">;</span>
+
+<span class="cm">/** Propriétés pour interagir avec le mécanisme de stockage s3 externe. */</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">Demo_storageS3Properties</span><span class="w"> </span><span class="n">propsStorage</span><span class="p">;</span>
+
+<span class="cm">/** Gestionnaire de persistance jpa. */</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">EntityManager</span><span class="w"> </span><span class="n">entityManager</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Constructeur permettant l'injection du client technique responsable des</span>
+<span class="cm"> * opérations de communication avec le système de stockage de document.</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param clientStorage client utilisé pour accéder au système de stockage.</span>
+<span class="cm"> * @param propsStorage  propriétés utilisées pour accéder au système de</span>
+<span class="cm"> *                      stockage.</span>
+<span class="cm"> * @param entityManager gestionnaire de persistance jpa.</span>
+<span class="cm"> */</span>
+<span class="nd">@Autowired</span>
+<span class="kd">public</span><span class="w"> </span><span class="nf">FichierPdfS3ProviderImpl</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Demo_storageS3Factory</span><span class="p">.</span><span class="na">S3ClientFactory</span><span class="w"> </span><span class="n">clientStorage</span><span class="p">,</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">Demo_storageS3Properties</span><span class="w"> </span><span class="n">propsStorage</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">EntityManager</span><span class="w"> </span><span class="n">entityManager</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">clientStorage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clientStorage</span><span class="p">;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">propsStorage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">propsStorage</span><span class="p">;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">entityManager</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">entityManager</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Si le développeur à besoin des opérations jpa il peut alors y accéder au niveau du service situé dans le domaine en référencant les opérations spécifiques écrites précédemment au niveau du gestionnaire de persistance S3. </p>
+<p>Par exemple (évidemment les paramètres peuvent aussi provenir directement de la modélisation) : </p>
+<div class="codehilite"><pre><span></span><code><span class="p">...</span>
+<span class="cm">/** Interface de persistance. */</span>
+<span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">FichierPdfProvider</span><span class="w"> </span><span class="n">fichierPdfProvider</span><span class="p">;</span>
+<span class="p">...</span>
+
+<span class="nd">@Override</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">DocumentContent</span><span class="w"> </span><span class="nf">recupereFichier</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">nomDocument</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// Start of user code b7aea9f19f9db89764966db8aaa9283d</span>
+
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">additionnalParam_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"xxxxxxxxxxxxxxxxxxxx"</span><span class="p">;</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">additionnalParam_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"yyyyyyyyyyyyyyyyyyyy"</span><span class="p">;</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">fichierPdfProvider</span><span class="p">.</span><span class="na">operationJpa</span><span class="p">(</span><span class="n">nomDocument</span><span class="p">,</span><span class="w"> </span><span class="n">additionnalParam_1</span><span class="p">,</span><span class="w"> </span><span class="n">additionnalParam_2</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Placer ici tout le code fonctionnel nécessaire...</span>
+
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="n">DocumentContent</span><span class="w"> </span><span class="n">document</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">fichierPdfProvider</span><span class="p">.</span><span class="na">recupereFichier</span><span class="p">(</span><span class="n">nomDocument</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">document</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>❗ Ne pas oublier d'ajouter l'annotation d'atomicité au niveau de l'opération si cela est nécessaire : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code 8fab803f18a91fc9f3955b79143abac8</span>
+<span class="nd">@Transactionnal</span>
+<span class="c1">// End of user code</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">DocumentContent</span><span class="w"> </span><span class="nf">recupereFichier</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">nomDocument</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div>
 <p>Le code généré au niveau de l'implémentation du service d'infrastructure est le suivant :</p>
 <p>Au lieu de l'api de persistance c'est donc le client S3 (cf. "<strong><em>[Nom de l'application]S3Config</em></strong>") qui est automatiquement injecté (sous le nom "clientStorage") au niveau du service de persistance.</p>
 <p>Pour une opération GET (contrôleur puis service) : </p>
@@ -3634,10 +3732,11 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="w">    </span><span class="n">responseBuilder</span><span class="p">.</span><span class="na">header</span><span class="p">(</span><span class="s">"Content-Disposition"</span><span class="p">,</span><span class="w"> </span><span class="s">"attachment; filename="</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nomDocument</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">""</span><span class="p">);</span>
 <span class="w">    </span><span class="c1">// End of user code</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">responseBuilder</span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">InputStreamResource</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">fichierPdf</span><span class="p">.</span><span class="na">recupereFichier</span><span class="p">(</span><span class="n">nomDocument</span><span class="p">)));</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">responseBuilder</span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">DemoS3HttpAdapter</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">fichierPdf</span><span class="p">.</span><span class="na">recupereFichier</span><span class="p">(</span><span class="n">nomDocument</span><span class="p">),</span><span class="w"> </span>
+<span class="w">       </span><span class="n">responseBuilder</span><span class="p">,</span><span class="w"> </span><span class="n">nomDocument</span><span class="p">));</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>On peut voir au niveau du service rest qu'une ligne supplémentaire a été automatiquement générée entre les balises de type "<em>user code</em>". Cette ligne spécifie le type du document en lecture et permet une meilleure gestion dans la récupération du fichier. Par ailleurs, le service retourne un "<em>InputStreamResource</em>" mieux géré par le framework Spring mais dans l'ensemble de la chaine hexagonale, on peut voir que c'est bien un simple "<em>InputStream</em>" qui est utilisé pour le passage du document, ce qui évite d'avoir une ingérence du framework au niveau du domaine. </p>
+<p>On peut voir que le service retourne un "<em>InputStreamResource</em>" mieux géré par le framework Spring mais dans l'ensemble de la chaine hexagonale, c'est bien un simple "<em>DocumentContent</em>" qui est utilisé pour le passage du document, ce qui évite d'avoir une ingérence du framework au niveau du domaine. L'adaptateur "<em>DemoS3HttpAdapter</em>" permet de transformer le "<em>DocumentContent</em>" en "<em>InputStreamResource</em>" et de positionner les métadonnées du document au niveau des en-têtes HTTP.</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">InputStream</span><span class="w"> </span><span class="nf">recupereFichier</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">nomDocument</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// Start of user code a7d8e6975200b8ab414b8a4f8bb7ccac</span>
 <span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
@@ -3653,7 +3752,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="w">    </span><span class="c1">// End of user code</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>Toujours dans l'objectif de découplage, on peut remarquer que l'ensemble des paramètres sont passé par le biais de la classe "<strong><em>DemoS3ContentRequest</em></strong>" qui met à disposition un "<em>builder</em>" permettant d'ajouter à la volée l'ensemble des paramètres nécessaires selon le besoin. Par défaut les méthodes disponibles sont : </p>
+<p>Toujours dans l'objectif de découplage, on peut remarquer que l'ensemble des paramètres sont passé par le biais de la classe "<strong><em>DemoS3InParams</em></strong>" qui met à disposition un "<em>builder</em>" permettant d'ajouter à la volée l'ensemble des paramètres nécessaires selon le besoin. Par défaut les méthodes disponibles sont : </p>
 <ul>
 <li><strong><em>withBucket(final String request)</em></strong> : Spécification du sous répertoire si le document n'est pas directement stocké au niveau de la racine S3 pour l'application.</li>
 <li><strong><em>withKey(final String key)</em></strong> : Spécification de la clé pour le document (le nom du document).</li>
@@ -3662,6 +3761,10 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <li><strong><em>withMetadata(final Map<string, string=""> metadata)</string,></em></strong> : Spécification des métadonnées additionnelles pour le document. </li>
 <li><strong><em>withSize(final Long size)</em></strong> : Spécification de la taille du document.</li>
 </ul>
+<p>Ainsi une requête de récupération d'un document peut ressembler à ceci (noter les métadonnées "<em>x-amz-meta-</em>") : </p>
+<div align="center">
+<img alt="Architecture S3" src="images/pcm-soa-s3-headers.png"/>
+</div>
 <p>Pour une opération POST (contrôleur puis service) : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@PostMapping</span><span class="p">(</span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"/s3/{name}"</span><span class="p">,</span><span class="w"> </span><span class="n">produces</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"application/json"</span><span class="p">,</span><span class="w"> </span><span class="n">consumes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"multipart/form-data"</span><span class="p">)</span>
 

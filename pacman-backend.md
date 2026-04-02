@@ -752,7 +752,7 @@ La propriété essentielle pour la couche de persistance ! **Pacman** est un ens
 # Active la poulation automatique de la base avec des données faker.
 spring.populate.faker.enabled=false
 ``` 
-Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services rest.
+Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services REST.
 
 #### Stockage S3
 
@@ -4001,8 +4001,15 @@ Lors de la création du projet, plusieurs classes de haut niveau sont automatiqu
 
 - de la classe "***[Nom de l'application]S3Properties***" de récupération des paramètres dans le fichier "*application.properties*" pour le stockage S3. 
 - de la classe "***[Nom de l'application]S3Factory***" qui est une fabrique pour la construction et la mise à disposition de l'api (client S3) permettant de communiquer avec le serveur de stockage.
-- de la classe "***[Nom de l'application]S3DocRequest***" qui est un pattern "*builder*" pour la récupération et l'envoi des différents paramètres au client S3 fourni par la fabrique.
+- de la classe "***[Nom de l'application]S3InParams***" qui est un pattern "*builder*" pour l'envoi des différents paramètres au client S3 fourni par la fabrique.
 - de la classe "***[Nom de l'application]S3Service***" qui est l'interface du client S3 fourni par la fabrique.
+- de la classe "***[Nom de l'application]HttpAdapter***" qui permet d'effectuer la conversion de format entre les services internes S3 et le service REST. Cet adaptateur a été créé pour des raisons de simplification au niveau des générateurs de code mais les traitements effectués par cet adaptateur auraient pu être positionnés directement au niveau du service REST.
+
+Au niveau du domaine une classe S3 a aussi été créée par défaut au niveau du package "***[package racine].domain***", il s'agit : 
+
+- de la classe "***DocumentContent***" qui joue le rôle de DTO et permet de retrourner plus d'un paramètre lors de la récupération d'un document. En effet, toute requête GET à un serveur S3 retourne non seulement le fichier désiré mais aussi ses métadonnées qui sont, par la suite, à positionner au niveau des en-têtes dans la réponse.
+
+❗ Il est à noter que dans le cas des services S3, le contrôleur REST peux pas retourner directement l'objet métier "***DocumentContent*** comme n'importe quel autre DTO, mais doit de préférence le transformer en ResponseEntity afin de produire une véritable réponse HTTP (ce qui complique la génération). En effet, un fichier doit être retourné sous forme de flux binaire (InputStreamResource) accompagné de headers HTTP (Content-Type, Content-Disposition, etc.). Retourner un objet sérialisé (JSON) contenant le fichier entraînerait une augmentation de la taille (encodage base64) ainsi qu'une perte des comportements HTTP (téléchargement, affichage navigateur), et l'absence de streaming (chargement complet en mémoire) ce qui serait particulièrement préjudiciable pour les gros fichiers.
 
 ❗ La manipulation de documents étant un sujet potentiellement sensible il est fortement conseillé de sécuriser les appels aux différents services S3. Cette sécurisation peut être effectuée de deux manières différentes qui sont de plus, cumulables : 
 
@@ -4141,7 +4148,7 @@ Le fonctionnement du mécanisme SSO + STS avec le serveur S3 se déroule en plus
 
 ❗ Cette classe "***[Nom de l'application]S3Factory***" fournit donc une fabrique prête à l'emploi pour créer des clients S3 avec des credentials. Par défaut,  elle utilise les credentials statiques définis dans "*application.properties*", assurant un fonctionnement immédiat pour tous les services utilisant le stockage. Pour les environnements nécessitant une sécurité plus sophistiquée, le développeur peut modifier la méthode "*refreshCredentials()*" afin d'intégrer un mécanisme OIDC ou STS (Secure Token Service) et générer des credentials temporaires plus spécifiques. Cette approche garantit à la fois simplicité pour l'usage standard et extensibilité pour la production sécurisée.
 
-Tout a été fait afin d'essayer de rendre le code le plus générique possible afin de le découpler de toute implémentation spécifique. Ainsi les différents services S3 récupèrent un client "***[Nom de l'application]S3Service***". Par défaut ce client est une implémentation *Minio*, mais les services ne sont pas censés la connaitre puiqu'ils utilisent uniquement l'interface précitée par le biais des trois méthodes "*upload([..]), download([...]) et delete([...])*". L'implémentation spécifique des méthodes est alors située au niveau de la fabrique avec le code suivant : 
+Tout a été fait afin d'essayer de rendre le code le plus générique possible afin de le découpler de toute implémentation spécifique. Ainsi les différents services S3 récupèrent un client "***[Nom de l'application]S3Service***". Par défaut ce client est une implémentation *Minio*, mais les services ne sont pas censés la connaitre puisqu'ils utilisent uniquement l'interface précitée par le biais des trois méthodes "*upload([..]), download([...]) et delete([...])*". L'implémentation spécifique des méthodes est alors située au niveau de la fabrique avec le code suivant : 
 
 ```java
 public class S3ClientFactory implements DemoS3Service {
@@ -4166,8 +4173,24 @@ public class S3ClientFactory implements DemoS3Service {
 
   @Override
   public InputStream download(final DemoS3ContentRequest params) throws Exception {
-      GetObjectArgs.Builder builder = GetObjectArgs.builder().bucket(params.getBucket()).object(params.getKey());
-      return getClient().getObject(builder.build());
+      GetObjectResponse object = getClient().getObject(GetObjectArgs.builder().bucket(params.getBucket())
+        .object(params.getKey()).build());
+        
+      StatObjectResponse stat = getClient().statObject(StatObjectArgs.builder().bucket(params.getBucket())
+        .object(params.getKey()).build());
+
+      Map<String, List<String>> headers = new HashMap<>();
+      if (stat.contentType() != null) {
+         headers.put("Content-Type", List.of(stat.contentType()));
+      }
+
+      headers.put("Content-Length", List.of(String.valueOf(stat.size())));
+	  stat.userMetadata().forEach((key, value) -> headers.put("x-amz-meta-" + key, List.of(value)));
+	  
+	  if (stat.etag() != null) {
+	      headers.put("ETag", List.of(stat.etag()));
+	  }
+	  return new DocumentContent(object, headers);
   }
 
   @Override
@@ -4178,7 +4201,9 @@ public class S3ClientFactory implements DemoS3Service {
 }
 ```
 
-La ligne stream(document, -1, 10 * 1024 * 1024) sert à envoyer le contenu du fichier vers le stockage S3 sous forme de flux (InputStream). Le -1 indique que la taille du fichier n'est pas connue à l'avance, ce qui permet de traiter des fichiers de n'importe quelle taille sans pour autant les charger entièrement en mémoire. Le troisième paramètre (10 * 1024 * 1024) définit la taille du buffer utilisé pour le streaming (ici 10 Mo), optimisant la lecture et l'écriture par blocs pour améliorer les performances et réduire l'usage mémoire. Cette approche est essentielle pour gérer efficacement les gros fichiers.
+La ligne stream(document, -1, 10 * 1024 * 1024) sert à envoyer le contenu du fichier vers le stockage S3 sous forme de flux (InputStream). Le -1 indique que la taille du fichier n'est pas connue à l'avance, ce qui permet de traiter des fichiers de n'importe quelle taille sans pour autant les charger entièrement en mémoire. Le troisième paramètre (10 * 1024 * 1024) définit la taille du buffer utilisé pour le streaming (ici 10 Mo), optimisant la lecture et l'écriture par bl
+ocs pour améliorer les performances et réduire l'usage mémoire. Cette approche est essentielle pour gérer efficacement les gros fichiers.
+Au niveau de l'implémentation pour la récupération du document, on peut remarquer l'encapsulation dans "***DocumentContent***" qui retourne à la fois le flux contenant le document (fichier) et la liste des métadonnées (si elles existent) à positionner dans les en-têtes de la réponse HTTP. Par défaut ces métadonnées sont suffixées par "*x-amz-meta-*" qui est la norme AWS S3 mais cette partie de code étant entre balises "*user code*", il est possible de modifier ce choix.
 
 Pour modéliser l'envoi, la récupération ou la suppression d'un fichier dans un espace de stockage de type "**S3**", il suffit de modéliser uniquement un service au niveau de la couche soa. En effet, un fichier ne représentant pas une entité en tant que telle, il n'est pas nécessaire de modéliser la couche de persistance (fichier de modélisation '.entity') et son objet métier (DTO).
 
@@ -4188,10 +4213,14 @@ Le service est toujours un service de type "*provided*" et une modélisation com
 
 Puusieurs types de données spécifiques au stockage S3 sont disponibles afin de pouvoir correctement modéliser les services, ces types sont les suivants : 
 
-- ***S3Document*** : Le document à charger, à récupérer ou à supprimer.
+- ***S3DocumentIn*** : Le document à charger.
+- ***S3DocumentOut*** : Le document à récupérer.
 - ***S3ContentType*** : Le type de document (si besoin).
 - ***S3Metadata*** :  Les données supplémentaires (si besoin).
 - ***S3Bucket*** : Le bucket (répertoire(s)) supplémentaire (si besoin).
+- ***S3DocumentName*** : Le nom du document.
+
+❗ Bien faire attention lors de la modélisation à ne pas confondre et mélanger "*S3DocumentIn*" (entrée) et "*S3DocumentOut*" (sortie) , dans tous les cas, une erreur de modélisation entrainerait l'abscence de génération automatique au niveau de la couche de persistance ce qui obligerait le développeur à écrire cette partie manuellement. 
 
 Cette modélisation appelle les explications suivantes :
 
@@ -4204,19 +4233,94 @@ Cette modélisation appelle les explications suivantes :
 - Si le document soit se positionner au au niveau d'un sous-répertoire et non directement au niveau du répertoire racine por l'application, alors il est nécessaire de le préciser avec un paramètre supplémentaire de type "*S3Bucket*". 
 
 - Si le service est amené à charger des métadonnées supplémentaires qui vont être associées au document, il est alors nécessaire de rajouter un paramètre avec le type "*S3Metadata*" pour son opération d'upload. Les métadonnées doivent toujours être passées dans le corps de la requête (body).
+
 ❗ Au niveau de la couche de persistance (couche qui, dans le cas d'un service S3, effectue l'appel à l'Api externe de stockage des fichiers), le code nécessaire à l'ensemble des opérations peut être généré automatiquement par "**Pacman**" à la seule condition que la modélisation respecte les conditions suivantes au niveau des paramètres en entrée : 
 
-- Pour une lecture (*GET*), l'opération ne peut avoir qu'un seul paramètre : le nom du fichier à rechercher. 
+- Pour une lecture (*GET*), l'opération doit au minimum avoir le nom du fichier à rechercher ("*S3DocumentName*") et doit retourner obligatoirement le fichier ("*S3DocumentOut*"). 
 
-- Pour un enregistrement (*POST*) l'opération ne peut avoir (au maximum) que quatre paramètres qui sont respectivement (l'ordre est sans importance), le nom du fichier à enregistrer, le fichier (body), les métadonnées pour le fichier (body), le type de fichier à enregistrer. 
+- Pour un enregistrement (*POST*) l'opération peut avoir (l'ordre est sans importance), le nom du fichier à enregistrer ("*S3DocumentName*"), le fichier ("*S3DocumentIn*"), les métadonnées pour le fichier ("*S3Metadata*"), le type de fichier à enregistrer ("*S3ContentType*"). 
 
-- Pour une opération de suppression (*DELETE*), ici encore, seul un paramètre est nécessaire, comme pour la lecture, il s'agit cette fois du nom du fichier à supprimer.
+- Pour une opération de suppression (*DELETE*), ici encore, seul un paramètre est nécessaire, comme pour la lecture, il s'agit cette fois du nom du fichier à supprimer ("*S3DocumentName*").
 
-Pour le paramètre de sortie toute opération  doit obligatoirement avoir un paramètre, comme n'importe autre opération "*Rest*".
+- De manière générale, toute opération doit obligatoirement avoir un paramètre de sortie, comme n'importe autre opération REST.
 
-❗ Il est toujours possible de rajouter autant de paramètres que nécessaires afin de remplir les différentes obligations utiles pour le bon fonctionnement de l'application, mais dans ce cas, ce sera alors au développeur de coder manuellement l'api pour effectuer les manipulations au niveau de serveur de stockage (toujours à l'interieur des balises de type "*user code*").
+- La paramètre "*S3Bucket*" (répertoire) peut être ajouté dans n'importe qu'elle requête si le document sur lequel le développeur désire agir ne se situe pas directement à la racine (pour l'application) du serveur S3.
 
-❗ Il est à noter que le service n'est pas ici un service de persistance vers une base de données, il sera donc automatiquement appelé : ***[Nom de l'application]S3ProviderImpl***. 
+- "*S3DocumentIn*" et "*S3Metadata*" doivent obligatoirement être passés dans le BODY de la requête.
+
+- L'ordre des paramètres est sans importance.
+
+❗ Il est à noter que le service n'est pas ici directement un service de persistance vers une base de données, il sera donc automatiquement appelé : "***[Nom de l'application]S3ProviderImpl***". 
+
+❗ Cependant, il est toujours possible de rajouter autant de paramètres que nécessaires afin de remplir les différentes obligations utiles pour le bon fonctionnement de l'application. Par défaut lors de la génération de l'implémentation du service de persistance S3, un service de persistance JPA est automatiquement mis à disposition si le développeur désire aussi effectuer simultanément des opérations en base de données. Au niveau des balises de type "*user code*", il peut alors écrire toutes les opérations de persistance JPA dont il a besoin, tout en les reportant aussi au niveau de l'interface (et du stub pour les tests). 
+
+```java
+private final Demo_storageS3Factory.S3ClientFactory clientStorage;
+
+/** Propriétés pour interagir avec le mécanisme de stockage s3 externe. */
+private final Demo_storageS3Properties propsStorage;
+
+/** Gestionnaire de persistance jpa. */
+private final EntityManager entityManager;
+
+/**
+ * Constructeur permettant l'injection du client technique responsable des
+ * opérations de communication avec le système de stockage de document.
+ *
+ * @param clientStorage client utilisé pour accéder au système de stockage.
+ * @param propsStorage  propriétés utilisées pour accéder au système de
+ *                      stockage.
+ * @param entityManager gestionnaire de persistance jpa.
+ */
+@Autowired
+public FichierPdfS3ProviderImpl(final Demo_storageS3Factory.S3ClientFactory clientStorage,
+		final Demo_storageS3Properties propsStorage, final EntityManager entityManager) {
+	this.clientStorage = clientStorage;
+	this.propsStorage = propsStorage;
+	this.entityManager = entityManager;
+}
+```
+
+Si le développeur à besoin des opérations jpa il peut alors y accéder au niveau du service situé dans le domaine en référencant les opérations spécifiques écrites précédemment au niveau du gestionnaire de persistance S3. 
+
+Par exemple (évidemment les paramètres peuvent aussi provenir directement de la modélisation) : 
+
+```java
+...
+/** Interface de persistance. */
+private final FichierPdfProvider fichierPdfProvider;
+...
+
+@Override
+public DocumentContent recupereFichier(final String nomDocument) {
+
+    // Start of user code b7aea9f19f9db89764966db8aaa9283d
+    
+    String additionnalParam_1 = "xxxxxxxxxxxxxxxxxxxx";
+    String additionnalParam_2 = "yyyyyyyyyyyyyyyyyyyy";
+    this.fichierPdfProvider.operationJpa(nomDocument, additionnalParam_1, additionnalParam_2);
+    
+    // Placer ici tout le code fonctionnel nécessaire...
+
+    // End of user code
+
+    DocumentContent document = this.fichierPdfProvider.recupereFichier(nomDocument);
+    return document;
+}
+```
+
+❗ Ne pas oublier d'ajouter l'annotation d'atomicité au niveau de l'opération si cela est nécessaire : 
+
+```java
+// Start of user code 8fab803f18a91fc9f3955b79143abac8
+@Transactionnal
+// End of user code
+@Override
+public DocumentContent recupereFichier(final String nomDocument) {
+  ...
+}
+```
+
 
 Le code généré au niveau de l'implémentation du service d'infrastructure est le suivant :
 
@@ -4243,10 +4347,11 @@ public ResponseEntity<InputStreamResource> recupereFichier(
 	responseBuilder.header("Content-Disposition", "attachment; filename=" + nomDocument + "");
 	// End of user code
 
-	return responseBuilder.body(new InputStreamResource(this.fichierPdf.recupereFichier(nomDocument)));
+	return responseBuilder.body(new DemoS3HttpAdapter(this.fichierPdf.recupereFichier(nomDocument), 
+	   responseBuilder, nomDocument));
 }
 ```
-On peut voir au niveau du service rest qu'une ligne supplémentaire a été automatiquement générée entre les balises de type "*user code*". Cette ligne spécifie le type du document en lecture et permet une meilleure gestion dans la récupération du fichier. Par ailleurs, le service retourne un "*InputStreamResource*" mieux géré par le framework Spring mais dans l'ensemble de la chaine hexagonale, on peut voir que c'est bien un simple "*InputStream*" qui est utilisé pour le passage du document, ce qui évite d'avoir une ingérence du framework au niveau du domaine. 
+On peut voir que le service retourne un "*InputStreamResource*" mieux géré par le framework Spring mais dans l'ensemble de la chaine hexagonale, c'est bien un simple "*DocumentContent*" qui est utilisé pour le passage du document, ce qui évite d'avoir une ingérence du framework au niveau du domaine. L'adaptateur "*DemoS3HttpAdapter*" permet de transformer le "*DocumentContent*" en "*InputStreamResource*" et de positionner les métadonnées du document au niveau des en-têtes HTTP.
 
 ```java
 public InputStream recupereFichier(final String nomDocument) {
@@ -4265,7 +4370,7 @@ public InputStream recupereFichier(final String nomDocument) {
 }
 ```
 
-Toujours dans l'objectif de découplage, on peut remarquer que l'ensemble des paramètres sont passé par le biais de la classe "***DemoS3ContentRequest***" qui met à disposition un "*builder*" permettant d'ajouter à la volée l'ensemble des paramètres nécessaires selon le besoin. Par défaut les méthodes disponibles sont : 
+Toujours dans l'objectif de découplage, on peut remarquer que l'ensemble des paramètres sont passé par le biais de la classe "***DemoS3InParams***" qui met à disposition un "*builder*" permettant d'ajouter à la volée l'ensemble des paramètres nécessaires selon le besoin. Par défaut les méthodes disponibles sont : 
 
 - ***withBucket(final String request)*** : Spécification du sous répertoire si le document n'est pas directement stocké au niveau de la racine S3 pour l'application.
 - ***withKey(final String key)*** : Spécification de la clé pour le document (le nom du document).
@@ -4273,6 +4378,12 @@ Toujours dans l'objectif de découplage, on peut remarquer que l'ensemble des pa
 - ***withContentType(final String contentType)*** : Spécification du type pour le document.
 - ***withMetadata(final Map<String, String> metadata)*** : Spécification des métadonnées additionnelles pour le document. 
 - ***withSize(final Long size)*** : Spécification de la taille du document.
+
+Ainsi une requête de récupération d'un document peut ressembler à ceci (noter les métadonnées "*x-amz-meta-*") : 
+
+<div align="center">
+  <img src="images/pcm-soa-s3-headers.png" alt="Architecture S3" >
+</div>
 
 Pour une opération POST (contrôleur puis service) : 
 
