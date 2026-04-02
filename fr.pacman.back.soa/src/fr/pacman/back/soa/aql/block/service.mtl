@@ -137,6 +137,7 @@
   }
 [/template]
 
+
 [comment écriture de l'interface d'un service (domain -> infrastructure)./]
 [template public outItf (s : soa::Service)]
   [s.classHeader(s.namePackageOutItf())/]
@@ -149,7 +150,10 @@
   [s.commentInterface()/]
   public interface [s.nameClassServiceOutItf()/]
   {
-	  [s.writeInterface()/]
+      [s.writeInterface()/]
+        
+      [protected ('custom operations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
   }
 [/template]
 

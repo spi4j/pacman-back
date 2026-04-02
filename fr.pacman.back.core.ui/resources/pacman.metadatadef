@@ -143,7 +143,7 @@
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_vnrOMBjBEfGiFZ_syMSqfQ" 
      title="STORAGE"
-     body="DOCUMENT : Opération de stockage pour un document (implémentation S3 par défaut)." 
+     body="DOCUMENT : Service de stockage pour un document (S3 par défaut)" 
      condition="aql:Sequence{'service'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_ig-wcIiEEfC8-K9GNeeGuw"
     title="JSON_NAME"

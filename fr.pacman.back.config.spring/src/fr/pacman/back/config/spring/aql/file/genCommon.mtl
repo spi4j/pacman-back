@@ -70,8 +70,8 @@
 [/template]
 
 [comment écriture de l'implémentation du passage de paramètres pour le storage S3 (output)./]
-[template public fileStorageS3OutputParamRequestImpl(any : ecore::EObject)]
-  [file (any.nameClassStorageS3OutputParamImpl().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
+[template public fileS3OutputParamRequestImpl(any : ecore::EObject)]
+  [file (any.nameClassS3OutputParamImpl().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
     [any.s3DocOutputParamImpl()/]
   [/file]
 [/template]

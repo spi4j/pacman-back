@@ -265,6 +265,11 @@ public class SiriusUtil {
 						PrimitiveType s3Bucket = EnvironmentFactory.eINSTANCE.createPrimitiveType();
 						s3Bucket.setName("S3Bucket");
 						resource.getContents().add(s3Bucket);
+						
+						// Type représentant le bucket pour le document
+						PrimitiveType s3DocumentName= EnvironmentFactory.eINSTANCE.createPrimitiveType();
+						s3DocumentName.setName("s3DocumentName");
+						resource.getContents().add(s3DocumentName);
 
 						resource.getContents().add(env);
 						session.addSemanticResource(uri, p_monitor);

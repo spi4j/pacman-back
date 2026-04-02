@@ -1908,7 +1908,7 @@
 [/template]
 
 [comment écriture de l'interface pour le storage S3./]
-[template public storageServiceItf(any : ecore::EObject)]
+[template public s3ServiceItf(any : ecore::EObject)]
   [any.classHeader(any.namePackageS3Base())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -1927,7 +1927,7 @@
   * technique sous-jacente.
   * </p>
   * <p>
-  * Les opérations s'appuient sur l'objet {@link [any.nameClassStorageS3InputParamsImpl()/]} 
+  * Les opérations s'appuient sur l'objet {@link [any.nameClassS3InputParamsImpl()/]} 
   * qui encapsule l'ensemble des paramètres nécessaires (bucket, clé, contenu,
   * métadonnées, etc.).
   * </p>
@@ -1941,7 +1941,7 @@
   * </p>
   * @Author [any.nameAuthor()/]
   */
-  public interface [any.nameClassStorageS3Itf()/] {
+  public interface [any.nameClassS3Itf()/] {
       
      /**
       * Upload un document dans le stockage S3.
@@ -1954,7 +1954,7 @@
       * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
       * @throws Exception en cas d'erreur lors de l'upload
       */
-      void ['upload'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
+      void ['upload'.apply_methodDefault()/](final [any.nameClassS3InputParamsImpl()/] 
            ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
       
      /**
@@ -1968,7 +1968,7 @@
       * @return flux du contenu du document (avec les en-têtes pour les métadonnées)
       * @throws Exception en cas d'erreur lors du téléchargement
       */
-      [any.nameClassStorageS3OutputParamImpl()/] ['download'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
+      [any.nameClassS3OutputParamImpl()/] ['download'.apply_methodDefault()/](final [any.nameClassS3InputParamsImpl()/] 
            ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
       
      /**
@@ -1980,7 +1980,7 @@
       * @param ['params'.apply_parameterMethodClassicIn()/] paramètres de la requête contenant les informations du document
       * @throws Exception en cas d'erreur lors de la suppression
       */
-      void ['delete'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
+      void ['delete'.apply_methodDefault()/](final [any.nameClassS3InputParamsImpl()/] 
            ['params'.apply_parameterMethodClassicIn()/]) throws Exception;
       
       [protected ('storage'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -1997,7 +1997,7 @@
   import java.nio.charset.StandardCharsets;
   import org.springframework.core.io.InputStreamResource;
   import org.springframework.http.ResponseEntity.BodyBuilder;
-  import [any.namePackageApplicationBase()/].[any.namePackageCommonBase()/].[any.nameClassStorageS3OutputParamImpl()/];
+  import [any.namePackageApplicationBase()/].[any.namePackageCommonBase()/].[any.nameClassS3OutputParamImpl()/];
   
   /**
   * Adapter HTTP permettant de transformer un objet domaine
@@ -2030,7 +2030,7 @@
   *
   * @author [any.nameAuthor()/]
   */
-  public class [any.nameClassStorageS3HttpAdapterImpl()/] extends InputStreamResource {
+  public class [any.nameClassS3HttpAdapterImpl()/] extends InputStreamResource {
     
      /**
       * Construit une ressource HTTP à partir d'un document domaine, injecte les
@@ -2042,7 +2042,7 @@
       *                     headers
       * @param ['document name'.apply_parameterMethodClassicIn()/] nom du document utilisé pour le Content-Disposition
       */
-      public [any.nameClassStorageS3HttpAdapterImpl()/]([any.nameClassStorageS3OutputParamImpl()/] ['document'.apply_parameterMethodClassicIn()/], 
+      public [any.nameClassS3HttpAdapterImpl()/]([any.nameClassS3OutputParamImpl()/] ['document'.apply_parameterMethodClassicIn()/], 
           BodyBuilder ['response'.apply_parameterMethodClassicIn()/], String ['document name'.apply_parameterMethodClassicIn()/]) {
           super(['document'.apply_parameterMethodClassicIn()/].['body'.apply_methodGet()/]());
           ['document'.apply_parameterMethodClassicIn()/].['headers'.apply_methodGet()/]()
@@ -2098,7 +2098,7 @@
    * </p>
    * @Author [any.nameAuthor()/]
    */
-  public class [any.nameClassStorageS3InputParamsImpl()/] {
+  public class [any.nameClassS3InputParamsImpl()/] {
   
     [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     [/protected]
@@ -2136,7 +2136,7 @@
     /**
      * Constructeur privé pour forcer l'utilisation du {@link Builder}.
      */
-    private [any.nameClassStorageS3InputParamsImpl()/] () {
+    private [any.nameClassS3InputParamsImpl()/] () {
        // RAS.
     }
     
@@ -2199,7 +2199,7 @@
     
     /**
      * Crée un builder permettant de construire une instance de
-     * {@link [any.nameClassStorageS3InputParamsImpl()/]}.
+     * {@link [any.nameClassS3InputParamsImpl()/]}.
      *
      * @return une instance de {@link Builder}
      */
@@ -2209,7 +2209,7 @@
     
     /**
      * Builder permettant de construire une instance de
-     * {@link [any.nameClassStorageS3InputParamsImpl()/]}.
+     * {@link [any.nameClassS3InputParamsImpl()/]}.
      * <p>
      * Permet une initialisation fluide et lisible des paramètres, tout en
      * validant les champs obligatoires lors de l'appel à {@link #build()}.
@@ -2220,13 +2220,13 @@
        /**
        * Instance en cours de construction.
        */
-       private final [any.nameClassStorageS3InputParamsImpl()/] ['request'.apply_attributeFinal()/];
+       private final [any.nameClassS3InputParamsImpl()/] ['request'.apply_attributeFinal()/];
        
        /**
        * Constructeur privé du builder.
        */
         private Builder() {
-           [any.prefixAffectation()/]['request'.apply_attributeFinal()/] = new [any.nameClassStorageS3InputParamsImpl()/]();
+           [any.prefixAffectation()/]['request'.apply_attributeFinal()/] = new [any.nameClassS3InputParamsImpl()/]();
         }
         
         /**
@@ -2311,16 +2311,16 @@
           [/protected]
         
         /**
-         * Construit une instance de {@link [any.nameClassStorageS3InputParamsImpl()/]}.
+         * Construit une instance de {@link [any.nameClassS3InputParamsImpl()/]}.
          * <p>
          * Vérifie la présence du champ obligatoire 
          * {@code key} avant de retourner l'objet.
          * </p>
          *
-         * @return une instance valide de {@link [any.nameClassStorageS3InputParamsImpl()/]}
+         * @return une instance valide de {@link [any.nameClassS3InputParamsImpl()/]}
          * @throws IllegalStateException si un champ obligatoire est manquant
          */
-        public [any.nameClassStorageS3InputParamsImpl()/] ['build'.apply_methodDefault()/]() {
+        public [any.nameClassS3InputParamsImpl()/] ['build'.apply_methodDefault()/]() {
            if ([any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/] == null 
                || [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/].isEmpty()) {
                throw new IllegalStateException("La clé est obligatoire pour manipuler un document S3");
@@ -2366,7 +2366,7 @@
      */
     @Component
     @ConfigurationProperties(prefix = "s3")
-    public class [any.nameClassStorageS3PropsImpl()/] {
+    public class [any.nameClassS3PropsImpl()/] {
       
       [comment ici ne surtout pas mettre les conventions de nommage sur les noms des attributs./]
       ['URL du serveur S3 (ex: http://localhost:9000)'.commentSingleLine()/]
@@ -2516,7 +2516,7 @@
    */
   @Configuration
   @SuppressWarnings("unused")
-  public class [any.nameClassStorageS3ConfigImpl()/] {
+  public class [any.nameClassS3ConfigImpl()/] {
   
       [protected ('attributes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
       [/protected]
@@ -2528,7 +2528,7 @@
        * clé secrète. Elle est injectée via Spring pour permettre la configuration
        * dynamique du client S3.</p>
        */
-      private final [any.nameClassStorageS3PropsImpl()/] ['props'.apply_attributeFinal()/];
+      private final [any.nameClassS3PropsImpl()/] ['props'.apply_attributeFinal()/];
       
       /**
        * Cache des credentials actuels avec gestion de l'expiration.
@@ -2548,7 +2548,7 @@
        * @param props configuration S3 injectée par Spring
        */
       @Autowired
-      public [any.nameClassStorageS3ConfigImpl()/]([any.nameClassStorageS3PropsImpl()/] ['props'.apply_parameterMethodClassicIn()/]) {
+      public [any.nameClassS3ConfigImpl()/]([any.nameClassS3PropsImpl()/] ['props'.apply_parameterMethodClassicIn()/]) {
         [any.prefixAffectation()/]['props'.apply_attributeFinal()/] = ['props'.apply_parameterMethodClassicIn()/];
       }
       
@@ -2574,7 +2574,7 @@
        * construit avec des credentials valides. Cette approche garantit que les
        * credentials ne sont jamais expirés lors des opérations.</p>
        */
-      public class ['s3 client factory'.apply_classDefault()/] implements [any.nameClassStorageS3Itf()/] {
+      public class ['s3 client factory'.apply_classDefault()/] implements [any.nameClassS3Itf()/] {
           MinioClient ['client'.apply_methodGet()/]() {
             [protected ('s3 factory'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
               
@@ -2605,7 +2605,7 @@
          * @throws Exception en cas d'erreur lors de l'upload
          */
         @Override
-        public void ['upload'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
+        public void ['upload'.apply_methodDefault()/](final [any.nameClassS3InputParamsImpl()/] 
             ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
             
             PutObjectArgs.Builder ['builder'.apply_variableDefault()/] = PutObjectArgs
@@ -2657,12 +2657,12 @@
        * </p>
        *
        * @param ['params'.apply_parameterMethodClassicIn()/] paramètres d'entrée contenant le nom du bucket et la clé de l'objet
-       * @return un {@link [any.nameClassStorageS3OutputParamImpl()/]} contenant le flux du fichier et les en-têtes associés
+       * @return un {@link [any.nameClassS3OutputParamImpl()/]} contenant le flux du fichier et les en-têtes associés
        * @throws Exception en cas d'erreur lors de l'accès au stockage S3
        */
         @Override
-        public [any.nameClassStorageS3OutputParamImpl()/] ['download'.apply_methodDefault()/]
-            (final [any.nameClassStorageS3InputParamsImpl()/] 
+        public [any.nameClassS3OutputParamImpl()/] ['download'.apply_methodDefault()/]
+            (final [any.nameClassS3InputParamsImpl()/] 
             ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
             
             GetObjectResponse ['object'.apply_variableDefault()/] = ['client'.apply_methodGet()/]().getObject(
@@ -2698,7 +2698,7 @@
             [protected ('download'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
             [/protected]
             
-            return new [any.nameClassStorageS3OutputParamImpl()/](['object'.apply_variableDefault()/], 
+            return new [any.nameClassS3OutputParamImpl()/](['object'.apply_variableDefault()/], 
                 ['headers'.apply_variableDefault()/]);
         }
         
@@ -2712,7 +2712,7 @@
          * @throws Exception en cas d'erreur lors de la suppression
          */
         @Override
-        public void ['delete'.apply_methodDefault()/](final [any.nameClassStorageS3InputParamsImpl()/] 
+        public void ['delete'.apply_methodDefault()/](final [any.nameClassS3InputParamsImpl()/] 
             ['params'.apply_parameterMethodClassicIn()/]) throws Exception {
             ['client'.apply_methodGet()/]().removeObject(RemoveObjectArgs.builder()
                   .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
@@ -2728,7 +2728,7 @@
       * Rafraîchit les credentials S3.
       * <p>
       * Actuellement, cette méthode renvoie les credentials configurés dans
-      * {@link [any.nameClassStorageS3PropsImpl()/]}. En production, elle doit être remplacée par
+      * {@link [any.nameClassS3PropsImpl()/]}. En production, elle doit être remplacée par
       * un appel à un STS ou un fournisseur OIDC pour obtenir des credentials temporaires.
       * </p>
       *

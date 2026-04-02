@@ -29,7 +29,7 @@
   [comment écriture de l'implémentation pour la classe d'exception concernant les exigences./]
   [r.fileRequirementExceptionImpl()/]
   [comment écriture de la classe pour l'ensemble des paramètres pour storage S3 (output)./]
-  [r.fileStorageS3OutputParamRequestImpl()/]
+  [r.fileS3OutputParamRequestImpl()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]

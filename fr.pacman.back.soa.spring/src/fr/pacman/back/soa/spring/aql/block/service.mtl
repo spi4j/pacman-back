@@ -339,11 +339,12 @@
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
     [s.defaultImports()/]
+    import jakarta.persistence.EntityManager;
     import org.springframework.beans.factory.annotation.Autowired;
-    import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassStorageS3ConfigImpl()/];
-    import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassStorageS3PropsImpl()/];
-    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassStorageS3PropsImpl()/];
-    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassStorageS3ConfigImpl()/];
+    import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassS3ConfigImpl()/];
+    import [s.namePackageProject()/].[s.namePackageS3Base()/].[s.nameClassS3PropsImpl()/];
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassS3PropsImpl()/];
+    import [s.namePackageProject()/].[s.namePackageApplicationBase()/].[s.nameClassS3ConfigImpl()/];
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
     import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];  
@@ -352,14 +353,20 @@
   
   [s.commentInterface()/]
   @[s.nameClassAnnotationOut()/]
+  [protected ('class annotations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    @SuppressWarnings("unused")
+  [/protected]
   public class [s.nameClassServiceOutImpl('s3')/] implements [s.nameClassServiceOutItf()/]
   {
       
       ['Client technique utilisé pour interagir avec le mécanisme de stockage s3 externe'.commentSingleLine()/]
-      private final [s.nameClassStorageS3ConfigImpl()/].['s3 client factory'.apply_classDefault()/] ['client storage'.apply_attributeFinal()/];
+      private final [s.nameClassS3ConfigImpl()/].['s3 client factory'.apply_classDefault()/] ['client storage'.apply_attributeFinal()/];
       
       ['Propriétés pour interagir avec le mécanisme de stockage s3 externe'.commentSingleLine()/]
-      private final [s.nameClassStorageS3PropsImpl()/] ['props storage'.apply_attributeFinal()/];
+      private final [s.nameClassS3PropsImpl()/] ['props storage'.apply_attributeFinal()/];
+      
+      ['Gestionnaire de persistance jpa'.commentSingleLine()/]
+      private final EntityManager ['entity manager'.apply_attributeFinal()/];
       
       /**
        * Constructeur permettant l'injection du client technique responsable
@@ -369,13 +376,16 @@
        *     au système de stockage.
        * @param ['props storage'.apply_parameterMethodClassicIn()/] propriétés utilisées pour accéder 
        *     au système de stockage.
+       * @param ['entity manager'.apply_parameterMethodClassicIn()/] gestionnaire de persistance jpa.
        */
       @Autowired
-      public [s.nameClassServiceOutImpl('s3')/](final [s.nameClassStorageS3ConfigImpl()/].['s3 client factory'.apply_classDefault()/] 
-        ['client storage'.apply_parameterMethodClassicIn()/], final [s.nameClassStorageS3PropsImpl()/] ['props storage'.apply_parameterMethodClassicIn()/])
+      public [s.nameClassServiceOutImpl('s3')/](final [s.nameClassS3ConfigImpl()/].['s3 client factory'.apply_classDefault()/] 
+        ['client storage'.apply_parameterMethodClassicIn()/], final [s.nameClassS3PropsImpl()/] ['props storage'.apply_parameterMethodClassicIn()/], 
+        final EntityManager ['entity manager'.apply_parameterMethodClassicIn()/])
       {
          [s.prefixAffectation()/]['client storage'.apply_attributeFinal()/] = ['client storage'.apply_parameterMethodClassicIn()/];
          [s.prefixAffectation()/]['props storage'.apply_attributeFinal()/] = ['props storage'.apply_parameterMethodClassicIn()/];
+         [s.prefixAffectation()/]['entity manager'.apply_attributeFinal()/] = ['entity manager'.apply_parameterMethodClassicIn()/];
       }
 
       [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
@@ -408,6 +418,9 @@
           }
         [/if]
       [/for]
+      
+      [protected ('custom jpa operations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
   }
 [/template]
 
@@ -643,10 +656,11 @@
   else let stream = o.hasRsOutputStream() in 'Optional<'+ o.outputRsType() + '>' + 'value'.apply_variableDefault() + '= ' 
   + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService()  
   + ');' + 'if (' + 'value'.apply_variableDefault() + '.isPresent()) { return ' + 'response builder'.apply_variableDefault() + '.body(' + if (stream) then 'new ' 
-  + s.nameClassStorageS3HttpAdapterImpl() + '(' else '' endif + 'value'.apply_variableDefault() + '.get()' + if (o.hasRsOutputS3()) then ', ' 
-  + 'response builder'.apply_variableDefault() + ', ' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
-  else '' endif + if (stream) then ')' else '' endif +');} else throw new ' + o.nameClassRsDataNotFoundExceptionImpl() + '(' + if (o.hasRsNotFoundFault()) 
-  then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() + ', "' endif + '")' endif/]
+  + s.nameClassS3HttpAdapterImpl() + '(' else '' endif + 'value'.apply_variableDefault() + '.get()' + if (o.hasRsOutputS3()) then ', ' 
+  + 'response builder'.apply_variableDefault() + ', ' + o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->first().name()
+  .apply_parameterMethodClassicIn() else '' endif + if (stream) then ')' else '' endif +');} else throw new ' + o.nameClassRsDataNotFoundExceptionImpl() 
+  + '(' + if (o.hasRsNotFoundFault()) then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
+  + ', "' endif + '")' endif/]
 
 [comment écriture pour un résultat optionnel sur une liste d'enregistrements (pour l'instant 200 avec liste vide)./]
 [query private writeRsOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + 'response builder'.apply_variableDefault() + '.body(' +
@@ -660,9 +674,9 @@
   + 'response builder'.apply_variableDefault() + '.body(' + if (o.output->first().type.oclIsKindOf(environment::DTO)) 
   then o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' + 'to xto'.apply_methodDefault() + '(' + o.prefixAffectation() 
   + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ')))' else if(stream) then 'new ' 
-  + s.nameClassStorageS3HttpAdapterImpl() + '(' else '' endif + o.prefixAffectation() + s.name().apply_attributeFinal() 
+  + s.nameClassS3HttpAdapterImpl() + '(' else '' endif + o.prefixAffectation() + s.name().apply_attributeFinal() 
   + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ')' + if (o.hasRsOutputS3()) then ', ' + 'response builder'.apply_variableDefault() 
-  + ', ' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() else '' endif + ')' endif 
+  + ', ' + o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() else '' endif + ')' endif 
   + if (stream) then ')' else '' endif/]
 
 [comment écriture pour un résultat obligatoire sur un liste d'enregistrements./]
@@ -746,25 +760,25 @@
   
 [comment vérifie si on peut écrire automatiquement le download d'un document S3./]
 [query private canWriteS3Get(o : soa::Operation) : Boolean = o.verb = soa::Verb::GET and o.hasOutput() and o.hasInputs() 
-  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1 and 'S3DocumentOut'.equalsIgnoreCase(o.output
+  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1 and 'S3DocumentOut'.equalsIgnoreCase(o.output
   ->first().type.name)/]
 
 [comment vérifie si on peut écrire automatiquement l'upload d'un document S3./]
 [query private canWriteS3Post(o : soa::Operation) : Boolean = o.verb = soa::Verb::POST and o.hasOutput() and o.hasInputs() 
-  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1 and o.input->select(p | 'S3DocumentIn'
+  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1 and o.input->select(p | 'S3DocumentIn'
   .equalsIgnoreCase(p.type.name))->size() = 1/]
 
 [comment vérifie si on peut écrire automatiquement le delete d'un document S3./]
 [query private canWriteS3Delete(o : soa::Operation) : Boolean = o.verb = soa::Verb::DELETE and o.hasOutput() and o.hasInputs() 
-  and o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->size() = 1/]
+  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1/]
 
 [comment vérifie si il est possible d'écrire automatiquement l'opération S3./]
 [query private canWriteS3Operation(o : soa::Operation) : Boolean = o.canWriteS3Delete() or o.canWriteS3Get() or o.canWriteS3Post()/]
   
 [comment écriture de l'opération de download pour un document avec stockage S3./]
-[query private writeS3Get(o : soa::Operation) : String = let opt = o.output->first().isOptional() in o.nameClassStorageS3InputParamsImpl() 
-  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3InputParamsImpl() + '.builder().' + 'with key'.apply_methodDefault() 
-  + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' 
+[query private writeS3Get(o : soa::Operation) : String = let opt = o.output->first().isOptional() in o.nameClassS3InputParamsImpl() 
+  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassS3InputParamsImpl() + '.builder().' + 'with key'.apply_methodDefault() 
+  + '(' + o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' 
   + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '()).build();' 
   + o.lineSeparator() + 'return ' + if (opt) then 'Optional.of(' else '' endif + 'client storage'.apply_attributeFinal() + '.' 
   + 'download'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() + if (opt) then ')' else '' endif + ');'/]
@@ -773,8 +787,8 @@
 			que le paramètre existe il faut qu'il y ait qu'une et une seule occurence du paramètre pour pouvoir prendre en charge la génération 
 			automatique, sinon on laisse le développeur écrire son propre code./]
 [query private writeS3Post(o : soa::Operation) : String = let m = o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))->size() = 1 in 
-  o.nameClassStorageS3InputParamsImpl() + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3InputParamsImpl() + '.builder().' 
-  + 'with key'.apply_methodDefault() + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
+  o.nameClassS3InputParamsImpl() + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassS3InputParamsImpl() + '.builder().' 
+  + 'with key'.apply_methodDefault() + '(' + o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
   + ').' + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '())' 
   + if (m) then '.' + 'with metadata'.apply_methodDefault() + '(' + 'document meta'.apply_parameterMethodClassicIn() +')' else '' endif 
   + if (o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->size() = 1) then '.' + 'with content type'.apply_methodDefault() 
@@ -784,9 +798,9 @@
   + '.' + 'upload'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() + ');' + o.lineSeparator() + 'return null;'/]
   
 [comment écriture de l'opération de delete pour un document avec stockage S3./]
-[query private writeS3Delete(o : soa::Operation) : String = o.nameClassStorageS3InputParamsImpl() 
-  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassStorageS3InputParamsImpl() + '.builder().' + 'with key'.apply_methodDefault() 
-  + '(' + o.input->select(p | 'String'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' 
+[query private writeS3Delete(o : soa::Operation) : String = o.nameClassS3InputParamsImpl() 
+  + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassS3InputParamsImpl() + '.builder().' + 'with key'.apply_methodDefault() 
+  + '(' + o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() + ').' 
   + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '()).build();' 
   + o.lineSeparator() + 'client storage'.apply_attributeFinal() + '.' + 'delete'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() 
   + ');' + o.lineSeparator()  + 'return null;' /]

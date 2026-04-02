@@ -57,6 +57,9 @@
       }
          
       [/for]
+      
+      [protected ('custom operations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
   }
   
 [/template]

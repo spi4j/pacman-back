@@ -48,7 +48,7 @@
   import org.slf4j.LoggerFactory;
   
   import [any.namePackageProject()/].[any.namePackageException()/].[any.nameClassMapperExceptionImpl()/];
-  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassStorageS3OutputParamImpl()/];
+  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassS3OutputParamImpl()/];
   import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassNotImplementedExceptionImpl()/];
   import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassRsDataNotFoundExceptionImpl()/];
 [/template]

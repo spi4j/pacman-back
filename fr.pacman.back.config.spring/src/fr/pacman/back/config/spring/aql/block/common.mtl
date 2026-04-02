@@ -530,7 +530,7 @@
    *
    * @author [any.nameAuthor()/]
    */
-  public class [any.nameClassStorageS3OutputParamImpl()/] {
+  public class [any.nameClassS3OutputParamImpl()/] {
      
      ['Contenu binaire de l\'objet sous forme de flux'.commentSingleLine()/]
      private final InputStream ['body'.apply_attributeFinal()/];
@@ -539,12 +539,12 @@
      private final Map<String, List<String>> ['headers'.apply_attributeFinal()/];
      
      /**
-      * Construit une instance de {@link [any.nameClassStorageS3OutputParamImpl()/]}.
+      * Construit une instance de {@link [any.nameClassS3OutputParamImpl()/]}.
       *
       * @param body flux du contenu de l'objet
       * @param headers map des métadonnées / en-têtes
       */
-     public [any.nameClassStorageS3OutputParamImpl()/](final InputStream ['body'.apply_parameterMethodClassicIn()/], 
+     public [any.nameClassS3OutputParamImpl()/](final InputStream ['body'.apply_parameterMethodClassicIn()/], 
        final Map<String, List<String>> ['headers'.apply_parameterMethodClassicIn()/]) {
        [any.prefixAffectation()/]['body'.apply_attributeFinal()/] = ['body'.apply_parameterMethodClassicIn()/];
        [any.prefixAffectation()/]['headers'.apply_attributeFinal()/] = ['headers'.apply_parameterMethodClassicIn()/] != null 
