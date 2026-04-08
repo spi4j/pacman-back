@@ -10,6 +10,7 @@
 - 05/12/2025 : Ajouts : Relation (0,\*)/(1,\*) et objets métier.
 - 12/01/2026 : Ajouts : Authentification avec la librairie SSO du ministère.
 - 16/03/2026 : Ajouts : Mise en place du stockage S3.
+- 07/04/2026 : Ajouts : Sécurisation de la configuration.
 ---
 
 ## 🚀 Introduction
@@ -1111,6 +1112,164 @@ On indique donc la cible JavaScript à générer (ES2020), le système de module
   "include": ["src"]
 }
 
+```
+
+### 🔑 Sécurisation de la configuration
+
+La sécurisation des données dans le fichier "*application.properties*" est essentielle car ce fichier contient souvent des informations sensibles comme des mots de passe, des clés d'API ou des identifiants de bases de données. Lorsqu'elles sont stockées en clair et embarquées dans l'application, ces données deviennent facilement accessibles en cas de fuite du code, d'accès non autorisé au serveur ou même simplement en décompressant le JAR. Cela expose le système à des risques majeurs tels que l'intrusion, la compromission de données ou l''usurpation de services. En externalisant et en protégeant ces informations (via des variables d'environnement, des fichiers sécurisés ou des solutions dédiées), on réduit fortement la surface d'attaque et on respecte les bonnes pratiques de sécurité, notamment le principe du moindre privilège et la séparation entre code et configuration sensible.    
+
+Il est possible de sécuriser les données sensibles selon plusieurs méthodes (toujours avec pour exemple notre application "demo") : 
+
+#### Les variables d'environnement
+
+Le plus simple est, dans un premier temps, d'utiliser des variables d'environnement afin d'externaliser les données particulièrement sensibles de l'application. Pour ce faire, utiliser un ***PLACEHOLDER*** au niveau du fichier de configuration. Par exemple : 
+
+```properties
+# URL du serveur de stockage (par défaut : localhost:9000).
+s3.url=${S3_URL}
+# Identifiant de connexion.
+s3.access-key=${S3_KEY}
+# Mot de passe pour la connexion.
+s3.secret-key=${S3_SECRET}
+```
+
+... puis, utiliser un script de lancement pour l'application (ligne de commande) : 
+
+```bash
+export S3_URL=http://localhost:9001
+export S3_KEY=supersecret
+export S3_SECRET=supersecret
+
+java -jar demo.jar
+```
+
+Par ailleurs, il est possible, dans le cadre du développement, de spécifier la valeur par défaut si cette dernière n'est pas trouvée au niveau des variables d'environnement : 
+
+```properties
+# URL du serveur de stockage (par défaut : localhost:9000).
+s3.url=${S3_URL:http://localhost:9001}
+# Identifiant de connexion.
+s3.access-key=${S3_KEY:supersecret}
+# Mot de passe pour la connexion.
+s3.secret-key=${S3_SECRET:supersecret}
+```
+
+#### Externaliser la configuration
+
+Il est aussi nativement possible de sortir complètement la configuration de l'exécutable (ligne de commande) en spécifiant le chemin du fichier de configuration. Par exemple : 
+
+```bash
+java -jar demo.jar --spring.config.location=file:/etc/demo/config/
+```
+
+... avec cette fois dans dans le fichier "*application.properties*" : 
+
+```properties
+# URL du serveur de stockage (par défaut : localhost:9000).
+s3.url=http://localhost:9001
+# Identifiant de connexion.
+s3.access-key=supersecret
+# Mot de passe pour la connexion.
+s3.secret-key=supersecret
+```
+
+#### Utiliser un coffre-fort
+
+L'utilisation d'un coffre-fort comme HashiCorp Vault renforce considérablement la sécurité des données sensibles par rapport à un simple fichier "*application.properties*". Plutôt que de stocker des mots de passe ou des clés en clair (même externalisés), l'application récupère alors ces informations de manière sécurisée au moment de l'exécution, via des mécanismes d'authentification plus robustes et contrôlés. Des solutions comme Vault offrent des fonctionnalités avancées telles que la rotation automatique des secrets et la génération de credentials temporaires, ce qui limite fortement l'impact d'une éventuelle compromission. 
+
+Pour rappel les applications générées par **Pacman** utilisent déjà la solution Vault. Il suffit alors d'activer son utilisation à l'aide du paramétrage suivant dans le fichier de configuration (on suppose que Vault est déjà installé au niveau du serveur... ne pas confondre la dépendance dans l'application pour communiquer avec le coffre-fort et l'installation du coffre-fort en lui même qui est hors périmètre de ce document) : 
+
+```properties
+# Activation ou désactivation du coffre-fort.
+spring.cloud.vault.enabled=true
+...
+spring.cloud.vault.authentication=TOKEN
+spring.cloud.vault.token=${VAULT_TOKEN}
+```
+Spring Boot var lire la variable d'environnement "*VAULT_TOKEN*", se connecter à Vault, appliquer les "policies" (ensemble de règles qui définissent qui peut accéder à quoi, et de quelle manière) liées au jeton.  Il faut alors configurer les informations nécessaires dans Vault (ligne de commande) : 
+
+```bash
+vault kv put secret/my-app/s3 \
+  s3.url=http://localhost:9001 \
+  s3.access.key=supersecret \
+  s3.secret.key=supersecret
+```
+
+... et par la suite compléter le fichier de configuration en ajoutant les nouvelles données créés dans le coffre-fort  : 
+
+```properties
+s3.url=${s3.url}
+s3.access-key=${s3.access.key}
+s3.secret-key=${s3.secret.key}
+```
+
+Lancer l'application avec Vault (ligne de commande) :
+
+```bash
+export VAULT_TOKEN=root
+java -jar demo.jar
+```
+
+❗ Cette solution est certes plus sécurisée mais toutefois fortement non recommandée car, si elle utilise un jeton qui peut être révoqué en cas de compromission, on ne fait encore que reporter la problématique, il sécurise les secrets principaux, mais il doit lui aussi être protégé. Par ailleurs, en production, il est strictement non recommandé d'utiliser le jeton"*root*" de Vault. Le jeton "*root*" donne tous les droits sur l'ensemble des secrets, des policies et des configurations de Vault, ce qui représente un risque majeur en cas de fuite ou de compromission. Même si l'on peut l'utiliser temporairement en développement pour tester ou configurer Vault, son utilisation en production expose l'intégralité des données et annihile tout contrôle de sécurité.
+
+Il est donc plus prudent de passer sur un jeton dynamique, l'application fournit juste un "*role-id* et un "*secret-id*" (ou identité Kubernetes, ou IAM) et Vault génère un jeton temporaire à la volée, valable quelques minutes ou heures. 
+
+La démarche à suivre est donc la suivante (serveur Vault actif) : 
+
+Activer "*AppRole*" pour Vault (ligne de commande) :
+
+```bash
+vault auth enable approle
+```
+
+... créer une 'policy' pour Vault spécifique à l'application (ex : fichier demo-app-policy.hcl), ici cette règle indique le chemin autorisé : "*secret/data/demo-app/s3*" et interdit tous les autres chemins à la lecture. Le jeton ne peut faire que ce que la "*policy*" autorise :
+
+```bash
+path "secret/data/demo-app/s3" {
+  capabilities = ["read"]
+}
+```
+
+... créer un rôle "*AppRole*" et associer le rôle à la "*policy*", ici, le jeton est valide une heure, et même si il est renouvelé, sa durée de vie ne peut exceder quatre heures (ligne de commande) : 
+
+```bash
+vault write auth/approle/role/demo-app-role \
+    token_policies="demo-app-policy" \
+    token_ttl=1h \
+    token_max_ttl=4h
+```
+
+... récupérer role-id et secret-id (ligne de commande) : 
+
+```bash
+vault read auth/approle/role/demo-app-role/role-id
+vault write -f auth/approle/role/demo-app-role/secret-id
+```
+... stocker les secrets S3 dans Vault (ligne de commande) : 
+
+```bash
+vault kv put secret/my-app/s3 \
+  s3.url=http://localhost:9001 \
+  s3.access-key=supersecret \
+  s3.secret-key=supersecret
+```
+... si "*role-id*" est stable et peut être distribué sans problème, "*secret-id*" est sensible et doit être stocké de façon sécurisée. La manière de le stocker dépend ici de l'environnement de production utilisé, il est possible d'utiliser des secrets Docker et les monter dans le conteneur, de définir un secret Kubernetes, de le stocker dans un fichier chiffré sur le serveur, etc... 
+
+<div align="center">
+  <img src="images/pcm-security-vault.png" alt="Vault" width="500">
+</div>
+
+Enfin, modifier la configuration Spring Boot ("*application.properties*"). Il faut alors ajouter les deux lignes "*spring.cloud.vault.app-role.role-id*" et "*spring.cloud.vault.app-role.secret-id*" qui ne sont pas générées par défaut.
+
+```properties
+spring.cloud.vault.authentication=APPROLE
+# role-id + secret-id fournis à l'appli via variables d'env ou secrets
+spring.cloud.vault.app-role.role-id=${VAULT_ROLE_ID}
+spring.cloud.vault.app-role.secret-id=${VAULT_SECRET_ID}
+
+s3.url=${s3.url}
+s3.access-key=${s3.access-key}
+s3.secret-key=${s3.secret-key}
 ```
 
 ## 📦 Gestion des imports 
@@ -4211,7 +4370,7 @@ Le service est toujours un service de type "*provided*" et une modélisation com
 
 <img src="images/pcm-model-adv-entity-9.png" alt="Storage S3">
 
-Puusieurs types de données spécifiques au stockage S3 sont disponibles afin de pouvoir correctement modéliser les services, ces types sont les suivants : 
+Plusieurs types de données spécifiques au stockage S3 sont disponibles afin de pouvoir correctement modéliser les services, ces types sont les suivants : 
 
 - ***S3DocumentIn*** : Le document à charger.
 - ***S3DocumentOut*** : Le document à récupérer.
