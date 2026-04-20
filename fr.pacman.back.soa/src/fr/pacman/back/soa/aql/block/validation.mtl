@@ -156,10 +156,13 @@
     
   [if (m.eAllContents(soa::SecurityScheme)->size() > 0)]
     [let s = m.eAllContents(soa::SecurityScheme)->first()]
-      [comment pas de sécurité oauth2/oidc avec URL non définies./]
-      [if (s.type = soa::SecuritySchemeType::OAUTH2 
-        or s.type = soa::SecuritySchemeType::OPEN_ID_CONNECT)]
+      [comment pas de sécurité oidc avec URL non définie./]
+      [if (s.type = soa::SecuritySchemeType::OPEN_ID_CONNECT)]
         [if (not s.connectURL.exists())][s.add(s.err26())/][/if]
+      [/if]
+      [comment pas de sécurité oauth2 sans flow de défini./]
+      [if (s.type = soa::SecuritySchemeType::OAUTH2)]
+        [if (s.flows->size() <> 1)][s.add(s.err35())/][/if]
       [/if]
       [comment pas librairie sso si pas oidc./]
       [if (m.isRsSSOAuthEnabled() 
@@ -268,11 +271,11 @@
 [query private err25 (m : soa::System) : String = 'RG_25@' + m.nameObject() + '@Application modélisée avec plusieurs sécurités@Cette version de pacman ' 
   + ' n\'authorise pour l\'instant qu\'une seule sécurité'/]
   
-[comment impossible de modéliser une sécurité oauth2 sans URL(s)./]
+[comment impossible de modéliser une sécurité oidc sans URL./]
 [query private err26 (s : soa::SecurityScheme) : String = 'RG_26@' + s.nameObject() + '@Sécurité modélisée sans URL définie'
   + '@Complétez la définition de la sécurité.'/]
   
-[comment impossible de modéliser une sécurité oauth2 sans URL(s)./]
+[comment impossible de modéliser une sécurité oauth2 avec librairie sso./]
 [query private err27 (s : soa::SecurityScheme) : String = 'RG_27@' + s.nameObject() + '@Sécurité non compatible avec la librairie'
   + '@Repositionnez la sécurité sur OIDC'/]
   
@@ -303,3 +306,7 @@
 [comment impossible d'avoir des paramètres de type S3 si le service n'est pas un service S3/]
 [query private err34 (s : soa::Service) : String = 'RG_34@' + s.nameObject() + '@Impossible d\'avoir des paramètres S3 si le service n\'est pas S3' 
   + '@Modifiez le service ou les paramètres'/]
+  
+[comment impossible de modéliser une sécurité oauth2 sans flow (? à voir si on conserve)./]
+[query private err35(s : soa::SecurityScheme) : String = 'RG_27@' + s.nameObject() + '@Sécurité oauth2 sans flow'
+  + '@Ajoutez un flow à la sécurité'/]

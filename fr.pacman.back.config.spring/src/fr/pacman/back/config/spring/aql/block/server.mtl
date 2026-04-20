@@ -18,7 +18,7 @@
 
 [import fr::pacman::back::core::property::project::ProjectProperties/]
  
-[comment  	Dans le cas des services S3, le contrôleur REST peux pas retourner directement l'objet métier (DocumentWrapper)
+[comment  	Dans le cas des services S3, le contrôleur REST peux pas retourner directement l'objet métier (DocumentContent)
 			mais doit le transformer en ResponseEntity afin de produire une véritable réponse HTTP (ce qui complique la génération).
 			En effet, un fichier doit être retourné sous forme de flux binaire (InputStreamResource) accompagné de headers HTTP 
 			(Content-Type, Content-Disposition, etc.). Retourner un objet sérialisé (JSON) contenant le fichier entraînerait une 
@@ -1136,14 +1136,26 @@
   springdoc.swagger-ui.operations-sorter=method
   # Definition de l'ordre d'affichage des tags <alpha|fonction de tri JS personnalisee>
   springdoc.swagger-ui.tags-sorter=alpha
+  # A définir si utilisation de la sécurité oauth2/oidc
+  springdoc.swagger-ui.oauth.client-id=['['/]identifiant application[']'/]
+  # A définir si utilisation de la sécurité oauth2/oicd
+  springdoc.swagger-ui.oauth.use-pkce=true
   
-  [comment si pas SSO alors c'est ici que l'on traite les points d'accès publiques)./]
+  [comment si pas librairie BFF SSO alors c'est ici que l'on traite les points d'accès publiques./]
   [if (not any.isRsSSOAuthEnabled())]
     # ----------------------------------------------------------------------------------------------
     # LISTE DES URIS NON SECURISEES
     # ----------------------------------------------------------------------------------------------
     # Ne pas oublier de reporter les modifications issues des rubriques precedentes 
     security.whitelist.paths=/swagger-ui/**,/api-docs/**,/actuator/**
+  [/if]
+  
+  [comment si pas librairie BFF SSO alors c'est ici que l'on traite la récupération des sercrets./]
+  [if (not any.isRsSSOAuthEnabled())]
+    # ----------------------------------------------------------------------------------------------
+    # SERVEUR AUTHENTIFICATION (SSO)
+    # ----------------------------------------------------------------------------------------------
+    security.jwt.issuer-uri=['['/]url avec realm de l'application[']'/]
   [/if]
   
   # ----------------------------------------------------------------------------------------------

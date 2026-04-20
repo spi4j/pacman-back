@@ -17,6 +17,7 @@
 [import fr::pacman::back::core::aql::query::parameter/]
 [import fr::pacman::back::core::aql::query::application/]
 [import fr::pacman::back::core::aql::query::property/]
+[import fr::pacman::back::core::aql::query::storage/]
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::core::aql::query::dto/]
 [import fr::pacman::back::core::aql::rule::attribute/]
@@ -758,23 +759,6 @@
   else if (f.flowType = soa::FlowType::PASSWORD) then 'password' 
   else f.cNoModelisation() endif endif endif endif/]
   
-[comment vérifie si on peut écrire automatiquement le download d'un document S3./]
-[query private canWriteS3Get(o : soa::Operation) : Boolean = o.verb = soa::Verb::GET and o.hasOutput() and o.hasInputs() 
-  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1 and 'S3DocumentOut'.equalsIgnoreCase(o.output
-  ->first().type.name)/]
-
-[comment vérifie si on peut écrire automatiquement l'upload d'un document S3./]
-[query private canWriteS3Post(o : soa::Operation) : Boolean = o.verb = soa::Verb::POST and o.hasOutput() and o.hasInputs() 
-  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1 and o.input->select(p | 'S3DocumentIn'
-  .equalsIgnoreCase(p.type.name))->size() = 1/]
-
-[comment vérifie si on peut écrire automatiquement le delete d'un document S3./]
-[query private canWriteS3Delete(o : soa::Operation) : Boolean = o.verb = soa::Verb::DELETE and o.hasOutput() and o.hasInputs() 
-  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1/]
-
-[comment vérifie si il est possible d'écrire automatiquement l'opération S3./]
-[query private canWriteS3Operation(o : soa::Operation) : Boolean = o.canWriteS3Delete() or o.canWriteS3Get() or o.canWriteS3Post()/]
-  
 [comment écriture de l'opération de download pour un document avec stockage S3./]
 [query private writeS3Get(o : soa::Operation) : String = let opt = o.output->first().isOptional() in o.nameClassS3InputParamsImpl() 
   + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassS3InputParamsImpl() + '.builder().' + 'with key'.apply_methodDefault() 
@@ -790,12 +774,13 @@
   o.nameClassS3InputParamsImpl() + ' ' + 'request content'.apply_variableDefault() + ' = ' + o.nameClassS3InputParamsImpl() + '.builder().' 
   + 'with key'.apply_methodDefault() + '(' + o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
   + ').' + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '())' 
-  + if (m) then '.' + 'with metadata'.apply_methodDefault() + '(' + 'document meta'.apply_parameterMethodClassicIn() +')' else '' endif 
-  + if (o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->size() = 1) then '.' + 'with content type'.apply_methodDefault() 
-  + '(' + o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
-  + ')' else '' endif + '.' + 'with content'.apply_methodDefault() + '(' + o.input->select(p | 'S3DocumentIn'.equalsIgnoreCase(p.type.name))
-  ->first().name().apply_parameterMethodClassicIn()  + ').build();' + o.lineSeparator() + 'client storage'.apply_attributeFinal() 
-  + '.' + 'upload'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() + ');' + o.lineSeparator() + 'return null;'/]
+  + if (m) then '.' + 'with metadata'.apply_methodDefault() + '(' + o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))->first()
+  .name().apply_parameterMethodClassicIn() +')' else '' endif + if (o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->size() = 1) 
+  then '.' + 'with content type'.apply_methodDefault() + '(' + o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn() + ')' else '' endif + '.' + 'with content'.apply_methodDefault() 
+  + '(' + o.input->select(p | 'S3DocumentIn'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
+  + ').build();' + o.lineSeparator() + 'client storage'.apply_attributeFinal() + '.' + 'upload'.apply_methodDefault() 
+  + '(' + 'request content'.apply_variableDefault() + ');' + o.lineSeparator() + 'return null;'/]
   
 [comment écriture de l'opération de delete pour un document avec stockage S3./]
 [query private writeS3Delete(o : soa::Operation) : String = o.nameClassS3InputParamsImpl() 

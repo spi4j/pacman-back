@@ -5,42 +5,53 @@
 [import fr::pacman::back::core::aql::name::classes/]
 [import fr::pacman::back::core::aql::output::comments/]
 [import fr::pacman::back::core::aql::output::resources/]
+[import fr::pacman::back::core::aql::output::streams/]
 [import fr::pacman::back::core::aql::name::javascript/]
 [import fr::pacman::back::core::aql::name::directories/]
 [import fr::pacman::back::core::aql::query::operation/]
 [import fr::pacman::back::core::aql::query::parameter/]
+[import fr::pacman::back::core::aql::query::service/]
+[import fr::pacman::back::core::aql::query::storage/]
 [import fr::pacman::back::core::aql::name::eobjects/]
 [import fr::pacman::back::core::aql::rule::method/]
 [import fr::pacman::back::core::aql::rule::parameter/]
 [import fr::pacman::back::core::aql::rule::variable/]
 
-[comment écriture d'un service rest./]
+[comment écriture d'un service rest (ici on écrit le ts)./]
 [template public serviceImpl(s : soa::Service)]
   [s.commentClass()/]
   import type { AxiosInstance } from "axios";
-  import { apiClient } from "[s.nameDirConfigForService()/]/apiClient";
   [s.writeImports()/]
+  
+  // fallback global (IMPORTANT)
+  import { apiClient as defaultApiClient } from "[s.nameDirConfigForService()/]/apiClient";
   
   export class [s.nameClassServiceImpl()/] {
     
+    private apiClient: AxiosInstance;
+    
     // Permet la surchage du client.
-    constructor(private apiClient: AxiosInstance = apiClient) {}
+    constructor(apiClient: AxiosInstance = defaultApiClient) {
+       this.apiClient = apiClient;
+    }
     
     [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
       [if (o.isRsOperation())]
          [o.commentOperation().toJSComment()/]
          async [o.name().apply_methodDefault()/]([o.writeRsInputsRequest()/]) : Promise<[o.writeRsOutput()/]> {
             [o.writePathParamsMapping()/]
-            const response = await apiClient.[o.writeOperationUri(s)/]
+            [if (s.isS3Service() and o.canWriteS3Post())]
+              [o.writeS3FileUpload()/]
+              const response = await this.apiClient.[o.writeS3FileUploadUri(s)/]
+            [else]
+              const response = await this.apiClient.[o.writeOperationUri(s)/]
+            [/if]
             return response.data;
          }
       [/if]
       
     [/for]
   }
-  
-  // On exporte une instance pour simplifier l'usage.
-  export const [s.name().apply_variableDefault()/] = new [s.nameClassServiceImpl()/](apiClient);
 [/template]
 
 [comment écriture du fichier de référencement pour l'ensemble des services 
@@ -77,39 +88,69 @@
   });
 [/template]
 
+[comment 	écriture spécifique des upload de fichier (partie 1)./]
+[query private writeS3FileUpload(o : soa::Operation) : String = 'const formData = new FormData();' 
+  + o.lineSeparator() + 'formData.append("file", ' + o.input->select(p | 'S3DocumentIn'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn() + ');' + if (o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))->size() = 1) 
+  then  o.lineSeparator() + 'formData.append("metadata", ' + o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))
+  ->first().name().apply_parameterMethodClassicIn() + ');' else '' endif/]
+
+[comment écriture spécifique des upload de fichier (partie 2) On laisse axio gérer le contentType - important./]
+[query public writeS3FileUploadUri( o : soa::Operation, s : soa::Service) : String = let queryParams : Sequence(soa::Parameter) 
+  = o.input->select(p | p.isRsQueryParam()) in o.verb.toString().toLower() + '(`' +  ( + if (s.eContainer().oclAsType(soa::Component)
+  .apiVersion.exists()) then '/' + 'v' + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif
+  + '/' + s.URI + '/' + o.URI.toJSUri()).toUri() + '`' + ', formData, ' + if (not queryParams->isEmpty()) then 
+  '{ params: {' + queryParams->collect(qp | qp.restData.restId + ': ' + qp.name().apply_parameterMethodClassicIn())
+  ->sep(',') + '}' + ', headers: { "Content-Type": undefined }' + ' }' else '' endif + ');' /]
+
 [comment écriture du mapping pour les paramètres passés dans le path./]
 [query private writePathParamsMapping(o : soa::Operation) : String = '' + o.input->select(p | p.isRsPathParam() and 
  not p.name.equalsIgnoreCase(p.restData.restId))->collect(p1 | 'const ' + p1.restData.restId  
  + ' = ' + p1.name.apply_parameterMethodClassicIn() + ';')->sep(o.lineSeparator())/]
 
 [comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
-[query private writeRsInputsUri(o : soa::Operation) : String = if (o.hasInputs()) then
+[query private writeRsInputsUri(o : soa::Operation, s : soa::Service) : String = if (o.hasInputs()) then
   let queryParams : Sequence(soa::Parameter) = o.input->select(p | p.isRsQueryParam()) in
   let bodyParams  : Sequence(soa::Parameter) = o.input->select(p | p.isRsBodyParam()) in
-  if(not queryParams->isEmpty()) then ', { params: {a terminer}}' else
-  if(not bodyParams->isEmpty()) then ', ' + bodyParams->first().name.apply_parameterMethodClassicIn() else
-  '' endif  endif else '' endif/]
+  if (not queryParams->isEmpty()) then ', { params: {' + queryParams->collect(qp | qp.restData.restId 
+  + ': ' + qp.name().apply_parameterMethodClassicIn())->sep(',') + ' }}' else '' endif + if (not s.isS3Service() 
+  and not bodyParams->isEmpty()) then ', ' + bodyParams->first().name.apply_parameterMethodClassicIn() 
+  else '' endif else '' endif /]
   
-[comment écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest./]
+[comment 	écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest. 
+			Pour l'instant permière version on le jeton n'est pas passé en paramètre, il doit être mis au 
+			niveau de l'intercepteur. Dans une seconde version proposer le mode de passage pour le jeton (
+			paramètre de méthode avec dans ce cas pour chaque méthode le positionner dans l'en-tête ou pas 
+			de passage en paramètre et doit être positionné de manière globale au niveau de l'intercepteur.)/]
 [query private writeRsInputsRequest(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
+  ->collect(o1 : soa::Parameter | o1.name().apply_parameterMethodClassicIn() + ': ' + o1.inputRsType().toJSType())
+  ->sep(', ')->toString().convertRsStreamToBlob() else '' endif/]
+  
+[comment query private writeRsInputsRequest(o : soa::Operation) : String = if (o.hasInputs()) then o.input->asOrderedSet()
   ->collect(o1 : soa::Parameter | o1.name().apply_parameterMethodClassicIn() + ': ' + o1.inputRsType().toJSType())
   ->sep(', ')->toString() else '' endif + if (o.isRsSecured()) then if(o.hasInputs()) then ', ' else '' endif 
   + 'token'.apply_parameterMethodClassicIn() + ': string' else '' endif /]
   
-[comment écriture du paramètre de sortie pour une opération de type rest./]
-[query private writeRsOutput(o : soa::Operation) : String =  if (not o.mustHaveRsOutput()) then '' 
-  else o.outputRsType().toJSList() endif/]
+[comment 	écriture du paramètre de sortie pour une opération de type rest. Pour l'instant on fait au plus simple, 
+			si on détecte "DocumentContent" on remplace automatiquement par "Blob", à isoler dans un méthode convertXX ?/]
+[query private writeRsOutput(o : soa::Operation) : String =  if (o.mustHaveRsOutput()) then o.outputRsType().toJSList()
+  .replace('DocumentContent','Blob') else '' endif/]
   
-[comment retourne l'uri (complète) pour un service rest./]
+[comment 	retourne l'uri (complète) pour un service rest. A compléter pour l'instant le GET sur une opération S3 est faux 
+			car il renvoit un Blob uniquement. Dans le cas des services Java, on a un adapteur (généré) qui permet de faire 
+			la désencapsulation des données et placer les métadonnées au niveau de l'en-tête. A faire aussi dans le cas du 
+			client React. Pour les paramètres passés dans le path ils sont traités différement avec o.URI.toJSUri()).toUri(), 
+			ensuite on traite les autres types de passage avec o.writeRsInputsUri/]
 [query public writeOperationUri( o : soa::Operation, s : soa::Service) : String =  o.verb.toString().toLower() 
   + '(`' +  ( + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then '/' 
   + 'v' + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif
-  + '/' + s.URI + '/' + o.URI.toJSUri()).toUri() + '`' + o.writeRsInputsUri() + ');'/]
+  + '/' + s.URI + '/' + o.URI.toJSUri()).toUri() + '`' + o.writeRsInputsUri(s) + if (s.isS3Service()) then 
+  if (o.verb = soa::Verb::GET) then ', { responseType: \'blob\' }' else '' endif else '' endif + ');'/]
 
 [comment écriture des imports pour l'ensemble des dtos utilisés par le service. Ici on peut avoir l'impression de 
          "tourner en rond" car o2.type.name permet de récupérer le nom voulu, mais on préfère rentrer dans le giron 
          commun cad récupérer le dto, lui donner son nom en java et faire la conversion en javascript./]
 [query private writeImports(s : soa::Service) : String = '' + s.eAllContents(soa::Parameter)->select(o | o.type.oclIsKindOf(environment::DTO))
-    ->asSet()->collect(o2 | 'import { ' + o2.type.oclAsType(environment::DTO).nameClassXtoImpl() + ' } from "' + s.nameDirModelsForService() 
+    ->asSet()->collect(o2 | 'import type { ' + o2.type.oclAsType(environment::DTO).nameClassXtoImpl() + ' } from "' + s.nameDirModelsForService() 
     + '/' + o2.type.oclAsType(environment::DTO).nameClassXtoImpl()
     +'";')->sep(';' + s.lineSeparator())/]

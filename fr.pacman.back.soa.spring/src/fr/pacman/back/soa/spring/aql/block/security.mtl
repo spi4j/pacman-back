@@ -60,7 +60,9 @@
     import org.springframework.security.provisioning.InMemoryUserDetailsManager;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
     import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+    import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
     import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+    import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
     import org.springframework.security.authentication.AbstractAuthenticationToken;
     import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
     
@@ -115,6 +117,21 @@
           */
           @Value("${security.jwt.secret}")
           private String ['jwt key'.apply_attributeDefault()/];
+          
+          /**
+           * URI de l'émetteur (issuer) des jetons JWT. Cette propriété correspond à l'URL
+           * du fournisseur d'identité (Identity Provider) utilisée pour valider les
+           * jetons JWT entrants. Elle permet à Spring Security de récupérer
+           * automatiquement les métadonnées de configuration (notamment les clés
+           * publiques de signature) via le endpoint OpenID Connect standard.
+           * 
+           * Typiquement, cette URL pointe vers un serveur d'authentification tel que
+           * Keycloak, incluant le realm concerné.
+           * 
+           * Exemple : {@code http://localhost:8085/realms/pacman-demo-realm}
+           */
+          @Value("${security.jwt.issuer-uri}")
+          private String ['issuer uri'.apply_attributeDefault()/];
           
         [/protected]
         
@@ -212,19 +229,65 @@
            .httpBasic(basic -> basic.authenticationEntryPoint(['auth entry point'.apply_attributeDefault()/]))
            .build();
         }
-     
-       /**
-        * Bean pour la décodification des JWT à l'aide de la clé secrète. Cette méthode
-        * définit la manière dont les JWT seront décodés à l'aide d'une clé secrète
-        * symétrique ou asymétrique. Ne pas oublier de faire toujours précéder le jeton
-        * obtenu avec 'Bearer + jeton' et préférer le standard, à savoir, le passage du
-        * jeton dans l'en-tête avec comme clé de propriété 'authorization'.
-        * 
-        * Ajouter ici toutes les vérifications nécessaires pour la validation du jeton
-        * JWT.
-        * 
-        * @return un objet JwtDecoder utilisé pour décoder les jetons JWT entrants.
-        */
+      
+      /**
+       * Bean responsable du décodage et de la validation des jetons JWT.
+       *
+       * Cette méthode définit la manière dont les jetons JWT sont interprétés et
+       * validés par l'application. Elle constitue le point central de la chaîne de
+       * sécurité OAuth2 Resource Server pour tout ce qui concerne la vérification du
+       * jeton.
+       *
+       * <h3>Fonctionnement</h3>
+       * <ul>
+       * <li>Le JWT est extrait de l'en-tête HTTP {@code Authorization} sous la forme
+       * {@code Bearer <token>}.</li>
+       * <li>Le {@link JwtDecoder} est ensuite responsable de la validation complète
+       * du jeton.</li>
+       * <li>Cette validation peut inclure : signature, expiration, issuer, audience,
+       * claims personnalisés, etc.</li>
+       * </ul>
+       *
+       * <h3>Point d'extension critique</h3>
+       * <p>
+       * Ce bean est <b>le point d'extension principal</b> pour influencer le
+       * comportement de sécurité JWT. Contrairement aux filtres Spring Security ou
+       * aux {@link org.springframework.security.web.SecurityFilterChain}, toute
+       * logique de validation du jeton passe obligatoirement par ce composant.
+       *
+       * Il est donc possible d'y implémenter des comportements avancés tels que :
+       *
+       * <ul>
+       * <li>Accepter des jetons de démonstration (ex: {@code fake.token}) sans
+       * validation externe.</li>
+       * <li>Implémenter des règles conditionnelles de validation selon le contenu du
+       * jeton.</li>
+       * <li>Basculer entre différents modes de validation (démo, test,
+       * production).</li>
+       * <li>Ajouter des vérifications métiers sur les claims (roles, issuer,
+       * audience, etc.).</li>
+       * </ul>
+       *
+       * <h3>Important</h3>
+       * Toute décision d'authentification basée sur JWT dans une application Spring
+       * Security OAuth2 Resource Server doit être réalisée ici ou via un délégué de
+       * {@link JwtDecoder}. Les filtres ou chaînes de sécurité ne permettent pas de
+       * contourner ou d'intercepter proprement la validation du jeton une fois ce
+       * mécanisme activé.
+       *
+       * <h3>Bonnes pratiques</h3>
+       * <ul>
+       * <li>Toujours transmettre le jeton via l'en-tête HTTP
+       * {@code Authorization}.</li>
+       * <li>Utiliser le standard {@code Bearer <token>}.</li>
+       * <li>Centraliser la logique de validation dans ce bean.</li>
+       * <li>Éviter toute logique de contournement dans les filtres ou
+       * SecurityFilterChain.</li>
+       * </ul>
+       *
+       * @return un objet {@link JwtDecoder} utilisé pour décoder et valider les
+       *         jetons JWT entrants.
+       */
        @Bean
        public JwtDecoder jwtDecoder() {
          
@@ -260,9 +323,12 @@
                
             ['decoder'.apply_variableDefault()/].setJwtValidator(['validator'.apply_variableDefault()/]);
             
+            // Remplacer le code précédent par cette ligne si utilisation d'un serveur SSO.
+            //JwtDecoder ['decoder'.apply_variableDefault()/] = JwtDecoders.fromIssuerLocation(['issuer uri'.apply_attributeDefault()/]);
+            
+            return ['decoder'.apply_variableDefault()/];
+            
           [/protected]
-          
-          return ['decoder'.apply_variableDefault()/];
        }
        
       /**
@@ -330,50 +396,43 @@
             }
          };
        }
-         
-       /**
-        * Crée un bean {@link Converter} qui convertit un {@link Jwt} en une instance
-        * d'{@link AbstractAuthenticationToken}.
-        * 
-        * Ce convertisseur est utilisé par Spring Security pour extraire les autorités
-        * (rôles) contenues dans le token JWT et les transformer en objets
-        * {@link GrantedAuthority} reconnus par le système de sécurité.
-        *
-        * La configuration applique les paramètres suivants :
-        * <ul>
-        * <li>Les rôles sont extraits à partir de la claim nommée
-        * <strong>"roles"</strong>.</li>
-        * <li>Chaque rôle est automatiquement préfixé avec
-        * <strong>"ROLE_"</strong>.</li>
-        * <li>Une hiérarchie simple est simulée : si le token contient le rôle
-        * {@code ROLE_USER}, alors une autorité supplémentaire
-        * {@code ROLE_permission:read} est ajoutée.</li>
-        * </ul>
-        *
-        * Cette méthode remplace l'utilisation du bean
-        * {@link org.springframework.security.access.hierarchicalroles.RoleHierarchy},
-        * dont la classe d'implémentation {@code RoleHierarchyImpl} est obsolète à
-        * partir de Spring Security 6.
-        *
-        * @return un convertisseur JWT vers {@link AbstractAuthenticationToken},
-        *         enrichi d'une hiérarchie de rôles simulée.
-        */
+       
+      /**
+       * Configure un convertisseur chargé de transformer un {@link Jwt} en
+       * {@link org.springframework.security.authentication.AbstractAuthenticationToken}.
+       *
+       * <p>
+       * Ce convertisseur est utilisé par Spring Security pour extraire les rôles
+       * (authorities) contenus dans le JWT et les convertir en objets
+       * {@link org.springframework.security.core.GrantedAuthority} exploitables par
+       * le système de sécurité.
+       * </p>
+       * <p>
+       * La configuration appliquée est la suivante :
+       * </p>
+       * <ul>
+       * <li>Les rôles sont extraits depuis la claim JWT <b>"roles"</b>.</li>
+       * <li>Chaque rôle est préfixé automatiquement par <b>"ROLE_"</b>.</li>
+       * <li>Les autorités sont ensuite injectées dans un
+       * {@link org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken}.</li>
+       * </ul>
+       * <p>
+       * Ce bean est utilisé dans la configuration OAuth2 Resource Server afin de
+       * personnaliser la manière dont les claims JWT sont traduits en autorités
+       * Spring Security.
+       * </p>
+       *
+       * @return un {@link JwtAuthenticationConverter} configuré pour transformer un
+       *         JWT en authentification Spring Security
+       */
        @Bean
-       public Converter<Jwt, AbstractAuthenticationToken> ['jwt authentication converter'.apply_methodDefault()/]() {
-          return jwt -> {
-            JwtGrantedAuthoritiesConverter ['delegate'.apply_variableDefault()/] = new JwtGrantedAuthoritiesConverter();
-            ['delegate'.apply_variableDefault()/].setAuthoritiesClaimName("roles");
-            ['delegate'.apply_variableDefault()/].setAuthorityPrefix("ROLE_");
-            Collection<GrantedAuthority> ['authorities'.apply_variableDefault()/] = new ArrayList<>(['delegate'.apply_variableDefault()/].convert(jwt));
-            
-            [protected ('authorities'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-              // --- Simule une hiérarchie simple ---
-              if (['authorities'.apply_variableDefault()/].stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_USER"))) {
-                 ['authorities'.apply_variableDefault()/].add(new SimpleGrantedAuthority("ROLE_permission:read"));
-              }
-            [/protected]
-            return new JwtAuthenticationToken(jwt, ['authorities'.apply_variableDefault()/]);
-          };
+       public JwtAuthenticationConverter ['jwt authentication converter'.apply_methodDefault()/]() {
+           JwtGrantedAuthoritiesConverter ['delegate'.apply_variableDefault()/] = new JwtGrantedAuthoritiesConverter();
+           ['delegate'.apply_variableDefault()/].setAuthoritiesClaimName("roles");
+           ['delegate'.apply_variableDefault()/].setAuthorityPrefix("ROLE_");
+           JwtAuthenticationConverter ['converter'.apply_variableDefault()/] = new JwtAuthenticationConverter();
+           ['converter'.apply_variableDefault()/].setJwtGrantedAuthoritiesConverter(['delegate'.apply_variableDefault()/]);
+           return ['converter'.apply_variableDefault()/];
        }
        
        /**
@@ -415,6 +474,9 @@
        }
     [/let]
     [/let]
+    
+    [protected ('security config custom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
   }
 [/template]
 

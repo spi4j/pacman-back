@@ -1,0 +1,22 @@
+[module storage(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+				    'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::query::operation/]
+
+[comment vérifie si on peut écrire automatiquement le download d'un document S3./]
+[query public canWriteS3Get(o : soa::Operation) : Boolean = o.verb = soa::Verb::GET and o.hasOutput() and o.hasInputs() 
+  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1 and 'S3DocumentOut'.equalsIgnoreCase(o.output
+  ->first().type.name)/]
+
+[comment vérifie si on peut écrire automatiquement l'upload d'un document S3./]
+[query public canWriteS3Post(o : soa::Operation) : Boolean = o.verb = soa::Verb::POST and o.hasOutput() and o.hasInputs() 
+  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1 and o.input->select(p | 'S3DocumentIn'
+  .equalsIgnoreCase(p.type.name))->size() = 1/]
+
+[comment vérifie si on peut écrire automatiquement le delete d'un document S3./]
+[query public canWriteS3Delete(o : soa::Operation) : Boolean = o.verb = soa::Verb::DELETE and o.hasOutput() and o.hasInputs() 
+  and o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->size() = 1/]
+
+[comment vérifie si il est possible d'écrire automatiquement l'opération S3./]
+[query public canWriteS3Operation(o : soa::Operation) : Boolean = o.canWriteS3Delete() or o.canWriteS3Get() or o.canWriteS3Post()/]
