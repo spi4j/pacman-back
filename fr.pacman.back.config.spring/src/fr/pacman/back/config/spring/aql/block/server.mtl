@@ -1074,6 +1074,8 @@
   # En production, externaliser le fichier : 
   # java -jar mon-app.jar --spring.config.location=file:/chemin/externe/application.properties
   
+  spring.application.name=[any.nameProject()/]
+  
   # ----------------------------------------------------------------------------------------------
   # API DE SANTE
   # ----------------------------------------------------------------------------------------------
@@ -1227,6 +1229,8 @@
   # ----------------------------------------------------------------------------------------------
   # COFFRE FORT (VAULT)
   # ----------------------------------------------------------------------------------------------
+  # Active Vault comme source de configuration (si disponible)
+  spring.config.import=optional:vault://
   # Activation ou désactivation du coffre fort.
   spring.cloud.vault.enabled=false
   # L'application échoue au démarrage si Vault est inaccessible.
