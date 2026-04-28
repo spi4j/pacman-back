@@ -85,14 +85,14 @@ Pour Pacman lors de l'initialisation d'un projet, le générateur va toujours cr
 ## 🛠️ Installation
 ---
 ### Prérequis
-- Version Information System Designer  :  5.1.1+
+- Version Information System Designer  :  5.1.1+  (https://www.isdesigner.org et https://github.com/ObeoNetwork/InformationSystem/releases)
 - JDK : 17+
 
 ### Plugins externes
 
 1 - Vérification de la version pour l'IDE
 
-Avant de commencer l'installation ou l'utilisation du plugin, il est indispensable de vérifier que l'IDE Eclipse utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez Eclipse puis accédez au menu "*Help/About Eclipse IDE*". Dans la fenêtre d'information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d'éviter tout comportement inattendu ou erreur d'exécution liée à une version non conforme de l'environnement Eclipse.
+Avant de commencer l'installation ou l'utilisation du plugin, il est indispensable de vérifier que l'IDE Information System Designer (ISD) utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez ISD puis accédez au menu "*Help/About Information System Designer*". Dans la fenêtre d'information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d'éviter tout comportement inattendu ou erreur d'exécution liée à une version non conforme de l'environnement d'ISD.
 
 <div align="center">
   <img src="images/pcm-ecr-about-version.png" alt="Installation" width="500">
@@ -622,6 +622,10 @@ springdoc.swagger-ui.path=/swagger-ui
 springdoc.swagger-ui.operations-sorter=method
 # Definition de l'ordre d'affichage des tags <alpha|fonction de tri JS personnalisee>
 springdoc.swagger-ui.tags-sorter=alpha
+# A définir si utilisation de la sécurité oauth2/oidc
+springdoc.swagger-ui.oauth.client-id=[identifiant application]
+# A définir si utilisation de la sécurité oauth2/oidc
+springdoc.swagger-ui.oauth.use-pkce=true
 ```
 #### URIs
 
@@ -636,6 +640,25 @@ springdoc.swagger-ui.tags-sorter=alpha
 # Ne pas oublier de reporter les modifications issues des rubriques precedentes 
 security.whitelist.paths=/swagger-ui/**,/api-docs/**,/actuator/**
 ```
+
+#### Serveur SSO
+
+```properties
+# ----------------------------------------------------------------------------------------------
+# SERVEUR AUTHENTIFICATION (SSO)
+# ----------------------------------------------------------------------------------------------
+security.jwt.issuer-uri=[url pour les serveur d'authentification (avec realm pour l'application)]
+```
+
+Par exemple : 
+
+```properties
+security.jwt.issuer-uri=http://localhost:8085/realms/pacman-demo-realm
+```
+
+Si l'application utilise un serveur SSO pour l'authentification des utilisateurs, la propriété "*security.jwt.issuer-uri*" permet de configurer l'URL de l'émetteur (issuer) des jetons JWT utilisés pour sécuriser l'application. Elle indique à Spring Security où récupérer automatiquement les informations de configuration du fournisseur d'identité (notamment les clés publiques et les endpoints OAuth2/OpenID Connect), généralement exposées via un endpoint standard. 
+
+Dans ce cas précis, il s'agit d'un serveur Keycloak exécuté en local, avec le realm "*pacman-demo-realm*". Cela permet à l'application de valider les jetons JWT entrants sans avoir à gérer manuellement les clés de signature.
 
 #### Serveur HTTP
 
@@ -704,6 +727,8 @@ Un coffre-fort est un système sécurisé permettant de stocker et de protéger 
 ❗ Par défaut le coffre-fort est désactivé.
 
 ```properties
+# Active Vault comme source de configuration (si disponible)
+spring.config.import=optional:vault://
 # Activation ou désactivation du coffre-fort.
 spring.cloud.vault.enabled=false
 # L'application échoue au démarrage si Vault est inaccessible.
@@ -5497,7 +5522,7 @@ Enfin, toujours après avoir cliqué sur le bouton "*Next*" renseigner le numér
   <img src="images/pcm-react-model-export-3.png" alt="Export de projet de modélisation en librairie" width="500">
 </div>
 
-Récupérer le fichier "*.mar*" en se positionnant au niveau du projet de modélisation client (***[Nom de l'application]-model***) et par click droit, sélectionner le menu "*Import*". De même, dans la nouvelle fenêtre qui apparait, sélectionner le wizard "*Export modeling project as library*", rechercher le fichier d'export au format "*.mar*" et l'importer dans le projet de modélisation client. Les différents fichiers de modélisation seront alors positionnés au niveau du répertoire "***[Nom du fichier '.mar']***", lui-même situé dans un répertoire générique "***libraries***" automatiquement créé au niveau du projet de modélisation client. 
+Récupérer le fichier "*.mar*" en se positionnant au niveau du projet de modélisation client (***[Nom de l'application]-model***) et par click droit, sélectionner le menu "*Import*". De même, dans la nouvelle fenêtre qui apparait, sélectionner le wizard "*Import library into modeling project*", rechercher le fichier d'export au format "*.mar*" et l'importer dans le projet de modélisation client. Les différents fichiers de modélisation seront alors positionnés au niveau du répertoire "***[Nom du fichier '.mar']***", lui-même situé dans un répertoire générique "***libraries***" automatiquement créé au niveau du projet de modélisation client. 
 
 Il est alors possible de lancer la génération du client.
 
@@ -5505,7 +5530,7 @@ Il est alors possible de lancer la génération du client.
 
 Se positionner au niveau du projet de modélisation ***[Nom de l'application]-model*** et sélectionner le fichier de modélisation "***.soa***" au niveau du répertoire "*/libraries/[Nom du fichier '.mar']*". 
 
-Enfin toujours par click droit, lancer la génération du client à l'aide du menu vu précédemment (comme pour la création d'un client SpringBoot) : "*Générateur Cali / Génération du client pour les services*".
+Enfin toujours par click droit, lancer la génération du client à l'aide du menu vu précédemment (comme pour la création d'un client SpringBoot) : "*Générateur Cali / Génération du client pour les services*". Les différents fichiers sont alors générés au niveau du projet : "**[Nom de l'application]-server**".
 
 • ***[Nom de l'application]/src/api*** : Ce répertoire contient le fichier *apiClient.ts* qui sert de point central pour gérer toutes les communications HTTP entre l'application et les services REST. Il encapsule l'utilisation d'axios, en configurant l'URL de base, les en-têtes communs (comme l'authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L'objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l'application n'ait pas à se soucier des détails d'implémentation d'axios. 
 
@@ -5661,7 +5686,7 @@ Par exemple :
 npm install ./[Nom de la librairie].tgz
 ```
 
-En retour (hormis les problématiques de vulnérabilité qui sont indépendantes de la génération **Pacman**) le développeur doit avoir les messages suivants : 
+En retour (hormis les éventuelles problématiques de vulnérabilité qui sont indépendantes de la génération **Pacman**) le développeur doit avoir les messages suivants : 
 
 ```bash
 up to date, audited 227 packages in 1s
