@@ -92,23 +92,28 @@
         </dependency>
         <!-- coffre fort -->
         <dependency>
-          <groupId>org.springframework.cloud</groupId>
-          <artifactId>spring-cloud-starter-vault-config</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-vault-config</artifactId>
+        </dependency>
+        <!-- tests type cucumber -->
+        <dependency>
+            <groupId>com.intuit.karate</groupId>
+            <artifactId>karate-junit5</artifactId>
         </dependency>
         <!-- Stockage S3 -->
         <dependency>
-          <groupId>io.minio</groupId>
-          <artifactId>minio</artifactId>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
         </dependency>
         <dependency>
-          <groupId>com.squareup.okhttp3</groupId>
-          <artifactId>okhttp</artifactId>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
         </dependency>
         <!-- projet métier (domaine). -->
         <dependency>
-           <groupId>[any.namePackageProject()/]</groupId>
-           <artifactId>[any.nameProjectCommon()/]</artifactId>
-           <version>0.0.1-SNAPSHOT</version>
+            <groupId>[any.namePackageProject()/]</groupId>
+            <artifactId>[any.nameProjectCommon()/]</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -116,44 +121,44 @@
         </dependency>
         <!-- Base H2 embarquée pour les tests. -->
         <dependency>
-           <groupId>com.h2database</groupId>
+            <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
         [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
           <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
+             <groupId>org.postgresql</groupId>
+             <artifactId>postgresql</artifactId>
           </dependency>
     	[/if]
     	[if (any.get_dataBasesNames().toLower().index('mysql') != -1)]
     	  <dependency>
-    	    <groupId>mysql</groupId>
-    	    <artifactId>mysql-connector-java</artifactId>
+    	     <groupId>mysql</groupId>
+    	     <artifactId>mysql-connector-java</artifactId>
     	  </dependency>
     	[/if]
     	[if (any.get_dataBasesNames().toLower().index('mariadb') != -1)]
     	  <dependency>
-    	    <groupId>org.mariadb.jdbc</groupId>
-    	    <artifactId>mariadb-java-client</artifactId>
+    	     <groupId>org.mariadb.jdbc</groupId>
+    	     <artifactId>mariadb-java-client</artifactId>
     	  </dependency>
     	[/if]
     	[if (any.get_dataBasesNames().toLower().index('oracle-') != -1)]
     	  <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc7</artifactId>
+             <groupId>com.oracle</groupId>
+             <artifactId>ojdbc7</artifactId>
     	  </dependency>
     	[/if]
     	[if (any.get_dataBasesNames().toLower().index('oracle+') != -1)]
     	  <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+             <groupId>com.oracle.database.jdbc</groupId>
+             <artifactId>ojdbc8</artifactId>
     	  </dependency>
     	[/if]
     	[if (any.isRsSSOAuthEnabled())]
     	  <!-- Utilisation librairie SSO pour Authentification -->
     	  <dependency>
-    	    <groupId>fr.dga</groupId>
-    	    <artifactId>dga-sso-mindefconnect-spring-boot-starter</artifactId>
+    	     <groupId>fr.dga</groupId>
+    	     <artifactId>dga-sso-mindefconnect-spring-boot-starter</artifactId>
     	  </dependency>
     	[/if]
     	<!-- Peuplement des mocks -->
@@ -1472,8 +1477,68 @@
   spring.populate.faker.enabled=false
 [/template]
 
+[comment écriture de la classe utilitaire pour les tests d'intégration de type karaté./]
+[template public integrationApiTestRunnerImpl(any : ecore::EObject)]
+  [any.classHeader(null)/]
+  import com.intuit.karate.Runner;
+  import com.intuit.karate.junit5.Karate.Test;
+  import org.springframework.boot.test.context.SpringBootTest;
+  import org.springframework.boot.test.web.server.LocalServerPort;
+  import org.springframework.test.context.ActiveProfiles;
+  
+  /**
+   * Runner principal des tests fonctionnels d'API.
+   *
+   * Cette classe démarre l'application Spring Boot sur un port HTTP aléatoire
+   * puis exécute les scénarios Karate configurés dans le runner.
+   *
+   * Le port HTTP démarré par Spring est exposé aux scénarios Karate via la
+   * propriété système {@code baseUrl}.
+   *
+   * Les tests sont exécutés avec le profil Spring {@code test}.
+   */
+  @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+  @ActiveProfiles("test")
+  class [any.nameClassIntegrationApiTestRunner()/] {
+      
+      ['Port HTTP aléatoire utilisé par l\'application Spring Boot durant les tests'.commentMultiLines()/]
+      @LocalServerPort
+      int ['port'.apply_attributeDefault()/];
+      
+      /**
+       * Exécute l'ensemble des scénarios du projet.
+       *
+       * Cette méthode :
+       * <ul>
+       * <li>configure l'URL de base utilisée par les scénarios;</li>
+       * <li>lance tous les fichiers {@code .feature} présents dans
+       * {@code classpath:features} ;</li>
+       * <li>génère les rapports au format Cucumber JSON.</li>
+       * </ul>
+       */
+      @Test
+      void ['run all tests'.apply_methodDefault()/]() {
+        System.setProperty("baseUrl", "http://localhost:" + port);
+        
+        Runner.path("classpath:features")
+              .outputCucumberJson(true)
+              .parallel(1);
+      }
+  }
+[/template]
+
+[comment écriture d'un scénario par défaut pour les tests d'intégration du runner (juste un ping)./]
+[template public integrationApiTestRunnerDefaultGherkin(any : ecore::EObject)]
+  Feature: Disponibilité de l'application
+  Scenario: L'application est accessible
+    
+    Given url baseUrl
+    When method get
+    Then status 404
+[/template]
+
 [comment écriture de la classe utilitaire pour les tests d'intégration./]
-[template public integrationTestUtils(any : ecore::EObject)]
+[template public integrationTestUtilsImpl(any : ecore::EObject)]
   [any.classHeader(null)/]
   
   [any.defaultImports()/]
@@ -2013,7 +2078,7 @@
   import java.nio.charset.StandardCharsets;
   import org.springframework.core.io.InputStreamResource;
   import org.springframework.http.ResponseEntity.BodyBuilder;
-  import [any.namePackageApplicationBase()/].[any.namePackageCommonBase()/].[any.nameClassS3OutputParamImpl()/];
+  import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassS3OutputParamImpl()/];
   
   /**
   * Adapter HTTP permettant de transformer un objet domaine

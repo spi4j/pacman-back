@@ -114,19 +114,19 @@
           </dependency>
           <!-- block swagger-ui -->
           <dependency>
-             <groupId>org.springdoc</groupId>
-             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-             <version>[any.versionOpenApiSwagger()/]</version>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>[any.versionOpenApiSwagger()/]</version>
           </dependency>
           <dependency>
-              <groupId>org.hibernate.validator</groupId>
-              <artifactId>hibernate-validator</artifactId>
-              <version>[any.versionHibernateValidator()/]</version>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>[any.versionHibernateValidator()/]</version>
           </dependency>
           <dependency>
-              <groupId>jakarta.el</groupId>
-              <artifactId>jakarta.el-api</artifactId>
-              <version>[any.versionJakartaEl()/]</version>
+            <groupId>jakarta.el</groupId>
+            <artifactId>jakarta.el-api</artifactId>
+            <version>[any.versionJakartaEl()/]</version>
           </dependency>
           <!-- circuit-breaker -->
           <dependency>
@@ -136,9 +136,16 @@
           </dependency>
           <!-- coffre fort -->
           <dependency>
-              <groupId>org.springframework.cloud</groupId>
-              <artifactId>spring-cloud-starter-vault-config</artifactId>
-              <version>[any.versionVault()/]</version>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-vault-config</artifactId>
+            <version>[any.versionVault()/]</version>
+          </dependency>
+          <!-- tests type cucumber -->
+          <dependency>
+             <groupId>com.intuit.karate</groupId>
+             <artifactId>karate-junit5</artifactId>
+             <version>[any.versionKarate()/]</version>
+             <scope>test</scope>
           </dependency>
           <!-- bases de données -->
           [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
@@ -259,6 +266,16 @@
               <groupId>org.springframework.boot</groupId>
               <artifactId>spring-boot-maven-plugin</artifactId>
               <version>[any.versionSpringBoot()/]</version>
+          </plugin>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-plugin</artifactId>
+              <version>[any.versionMavenSurefirePlugin()/]</version>
+              <configuration>
+                  <includes>
+                     <include>**/*KTest.java</include>
+                  </includes>
+              </configuration>
           </plugin>
           <!-- Compilation de l'application -->
           <plugin>

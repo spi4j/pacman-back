@@ -3,6 +3,7 @@
 [query public versionMavenResourcesPlugin(any : ecore::EObject) : String = '3.3.1'/]
 [query public versionMavenCompilerPlugin(any : ecore::EObject) : String = '3.10.1'/]
 [query public versionMavenEnforcerPlugin(any : ecore::EObject) : String = '3.0.0-M2'/]
+[query public versionMavenSurefirePlugin(any : ecore::EObject) : String = '3.2.5'/] 
 [query public versionMavenExecPlugin(any : ecore::EObject) : String = '3.6.2'/]
 [query public versionMaven(any : ecore::EObject) : String = '3.6.3'/]
 [query public versionSpringBoot(any : ecore::EObject) : String = '3.4.1'/]
@@ -30,6 +31,7 @@
 [query public versionSSOMinarm(any : ecore::EObject) : String = '1.1.0'/]
 [query public versionS3(any : ecore::EObject) : String = '8.6.0'/]
 [query public versionOkhttp3(any : ecore::EObject) : String = '4.12.0'/]
+[query public versionKarate(any : ecore::EObject) : String = '1.4.1'/]
    
 [comment query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
 [comment query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]

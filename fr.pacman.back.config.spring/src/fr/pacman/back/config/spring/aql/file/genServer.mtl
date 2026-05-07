@@ -158,7 +158,21 @@
 [comment écriture de la classe utilitaire pour les tests d'intégration (infra / app)./]
 [template public fileIntegrationTestUtilsImpl(any : ecore::EObject)]
   [file (any.nameClassIntegrationTestUtils().toFileJavaTest(null), overwrite, any.defaultFileEncoding())]
-    [any.integrationTestUtils()/]
+    [any.integrationTestUtilsImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe utilitaire pour les tests d'intégration runner (infra / app)./]
+[template public fileIntegrationApiTestRunnerImpl(any : ecore::EObject)]
+  [file (any.nameClassIntegrationApiTestRunner().toFileJavaTest(null), overwrite, any.defaultFileEncoding())]
+    [any.integrationApiTestRunnerImpl()/]
+  [/file]
+[/template]
+
+[comment écriture d'un scénario par défaut pour les tests d'intégration runner (juste un ping) (infra / app)./]
+[template public fileIntegrationApiTestRunnerDefaultGherkin(any : ecore::EObject)]
+  [file ('ping'.toFile(any.namePackageTestResources() + '/features','.feature'), overwrite, any.defaultFileEncoding())]
+    [any.integrationApiTestRunnerDefaultGherkin()/]
   [/file]
 [/template]
 
