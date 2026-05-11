@@ -88,7 +88,7 @@
         <!-- circuit breaker -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-spring-boot2</artifactId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
         </dependency>
         <!-- coffre fort -->
         <dependency>
@@ -1222,6 +1222,8 @@
   # ----------------------------------------------------------------------------------------------
   # STORAGE S3 (MINIO)
   # ----------------------------------------------------------------------------------------------
+  # Activation pour l'utilisation d'un serveur S3.
+  s3.init.enabled=false
   # URL du serveur de stockage (par défaut : localhost:9000).
   s3.url=http://localhost:9000
   # Identifiant de connexion.
@@ -1481,7 +1483,7 @@
 [template public integrationApiTestRunnerImpl(any : ecore::EObject)]
   [any.classHeader(null)/]
   import com.intuit.karate.Runner;
-  import com.intuit.karate.junit5.Karate.Test;
+  import org.junit.jupiter.api.Test;
   import org.springframework.boot.test.context.SpringBootTest;
   import org.springframework.boot.test.web.server.LocalServerPort;
   import org.springframework.test.context.ActiveProfiles;
@@ -1520,9 +1522,13 @@
       void ['run all tests'.apply_methodDefault()/]() {
         System.setProperty("baseUrl", "http://localhost:" + port);
         
-        Runner.path("classpath:features")
+        [protected ('mycoLoginSuccessHandlerExtra'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          Runner.path("classpath:features")
               .outputCucumberJson(true)
               .parallel(1);
+              
+        [/protected]
       }
   }
 [/template]
@@ -1532,6 +1538,7 @@
   Feature: Disponibilité de l'application
   Scenario: L'application est accessible
     
+    * def baseUrl = karate.properties['['/]'baseUrl'[']'/]
     Given url baseUrl
     When method get
     Then status 404
@@ -2544,6 +2551,7 @@
     [any.defaultImports()/]
     
     import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
     import org.springframework.boot.CommandLineRunner;
     import org.springframework.context.annotation.Primary;
     import org.springframework.context.annotation.Bean;
@@ -2881,6 +2889,11 @@
        * @return {@link CommandLineRunner} exécuté au démarrage de Spring
        */
       @Bean
+      @ConditionalOnProperty(
+          name = "s3.init.enabled",
+          havingValue = "true",
+          matchIfMissing = false
+      )
       public CommandLineRunner ['init bucket'.apply_methodDefault()/](['s3 client factory'.apply_classDefault()/] ['factory'.apply_parameterMethodClassicIn()/]) {
           return args -> {
              MinioClient ['client'.apply_variableDefault()/] = ['factory'.apply_parameterMethodClassicIn()/].getClient();

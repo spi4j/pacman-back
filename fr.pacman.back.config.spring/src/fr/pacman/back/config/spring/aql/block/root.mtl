@@ -2,6 +2,7 @@
 
 [import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::core::aql::versions/]
+[import fr::pacman::back::core::aql::name::classes/]
 [import fr::pacman::back::core::aql::output::resources/]	
 [import fr::pacman::back::core::property::project::ProjectProperties/]
 
@@ -131,7 +132,7 @@
           <!-- circuit-breaker -->
           <dependency>
             <groupId>io.github.resilience4j</groupId>
-            <artifactId>resilience4j-spring-boot2</artifactId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
             <version>[any.versionResilience4j()/]</version>
           </dependency>
           <!-- coffre fort -->
@@ -146,6 +147,16 @@
              <artifactId>karate-junit5</artifactId>
              <version>[any.versionKarate()/]</version>
              <scope>test</scope>
+             <exclusions>
+               <exclusion>
+                  <groupId>ch.qos.logback</groupId>
+                  <artifactId>logback-classic</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>ch.qos.logback</groupId>
+                  <artifactId>logback-core</artifactId>
+               </exclusion>
+             </exclusions>
           </dependency>
           <!-- bases de données -->
           [if (any.get_dataBasesNames().toLower().index('postgresql') != -1)]
@@ -267,16 +278,18 @@
               <artifactId>spring-boot-maven-plugin</artifactId>
               <version>[any.versionSpringBoot()/]</version>
           </plugin>
+          <!--
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-surefire-plugin</artifactId>
               <version>[any.versionMavenSurefirePlugin()/]</version>
               <configuration>
                   <includes>
-                     <include>**/*KTest.java</include>
+                     <include>**/[any.nameClassIntegrationApiTestRunner()/]*</include>
                   </includes>
               </configuration>
           </plugin>
+          -->
           <!-- Compilation de l'application -->
           <plugin>
               <artifactId>maven-compiler-plugin</artifactId>
