@@ -11,6 +11,7 @@
 - 12/01/2026 : Ajouts : Authentification avec la librairie SSO du ministère.
 - 16/03/2026 : Ajouts : Mise en place du stockage S3.
 - 07/04/2026 : Ajouts : Sécurisation de la configuration.
+- 11/05/2026 : Ajouts : Génération des tests fonctionnels d'API.
 ---
 
 ## 🚀 Introduction
@@ -3012,6 +3013,139 @@ Une fois la mire d'authentification passée, l'utilisateur doit alors être auto
 project.frontend.uri=[URL complète du service backend]
 ```
 
+### 🥋 Génération des tests fonctionnels d'API
+
+Dans une architecture moderne exposant des API, les tests unitaires ne suffisent généralement pas à garantir le bon fonctionnement global du système. Même si chaque composant pris isolément peut fonctionner correctement, les erreurs apparaissent souvent au niveau des différentes interactions entre plusieurs services. C'est pour répondre à ce besoin que les tests fonctionnels et d'intégration plus poussés d'API deviennent essentiels. Ils permettent de valider un comportement réel de bout en bout, en simulant des appels HTTP proches de ceux effectués par des clients ou d'autres services, et en vérifiant non seulement les réponses, mais aussi les effets produits sur le système.
+
+Dans ce contexte, Karate a été adopté comme framework de test. Karate est basé sur une approche hybride combinant le langage Gherkin (Given / When / Then) et un moteur d’exécution directement intégré au runtime Java via la JVM. Karate s'inscrit dans la même famille d'outils que Cucumber, à savoir les frameworks BDD (Behavior Driven Development), mais il s'en distingue fortement dans son approche technique et son positionnement. Là où Cucumber repose sur une séparation stricte entre la spécification écrite en Gherkin et le code d’exécution en Java (les "step definitions"), Karate adopte une philosophie beaucoup plus intégrée : les scénarios Gherkin sont directement exécutables sans avoir à écrire de "glue code". 
+
+Cette différence réduit considérablement la complexité de mise en œuvre et de maintenance des tests. De plus, alors que Cucumber est un framework générique pouvant s'adapter à tout type de test mais nécessitant une implémentation manuelle de la logique, Karate est spécialisé dans les tests d'API HTTP et fournit nativement des fonctionnalités avancées pour les appels REST, les assertions JSON, la gestion des données et l'exécution parallèle. En comparaison, Cucumber est plus flexible mais plus verbeux et moins orienté “API testing out-of-the-box”, tandis que Karate privilégie la productivité et la simplicité pour les tests d'intégration et fonctionnels de services web.
+
+Une seule classe (par défaut très simple) est généré au niveau du squelette pour le projet. Elle permet d'activer le framework Karate et de lancer les différents tests sur un port aléatoire (plus simple si présence de tests concurrents).
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+class DemoApiTestRunner {
+
+    @LocalServerPort
+    int port;
+    
+    @Test
+    void runAllTests() {
+       System.setProperty("baseUrl", "http://localhost:" + port);
+ 
+	   // Start of user code f6f504bb0d9f3d7a8554b1bf4cb1dc7c
+	   Runner.path("classpath:features").outputCucumberJson(true).parallel(1);
+	   // End of user code
+    }
+}
+```
+
+Tous les tests sont donc à positionner au niveau du projet "***[Nom de l'application]-server***" dans le répertoire "*/src/test/resources/features*". Chaque test doit être écrit en "*Gherkin*" et chaque fichier de test doit avoir l'extension "*.feature*". Par défaut un simple test de ping est généré à la création du projet, ce test se présente sous la forme suivante : 
+
+```gherkin
+Feature: Disponibilité de l'application
+Scenario: L'application est accessible
+  
+  * def baseUrl = karate.properties['baseUrl']
+  Given url baseUrl
+  When method get
+  Then status 404
+```
+
+Ce test est à lancer comme un simple test JUnit et doit retourner les logs suivants (ici on attend un 404 puisque les tests sont lancés alors que rien n'a encore été modélisé): 
+
+```bash
+2026-05-11 11:08:43 - o.s.web.servlet.DispatcherServlet - Completed 404 NOT_FOUND
+---------------------------------------------------------
+feature: classpath:features/ping.feature
+scenarios:  1 | passed:  1 | failed:  0 | time: 0,3894
+---------------------------------------------------------
+
+2026-05-11 11:08:43 - com.intuit.karate.Suite - <<pass>> feature 1 of 1 (0 remaining) classpath:features/ping.feature
+Karate version: 1.4.1
+======================================================
+elapsed:   2,60 | threads:    1 | thread time: 0,39 
+features:     1 | skipped:    0 | efficiency: 0,15
+scenarios:    1 | passed:     1 | failed: 0
+======================================================
+```
+
+Voici, à titre purement indicatif, un exemple de test plus poussé : 
+
+```gherkin
+Feature: Gestion d'un document dans le système
+Scenario: Création, récupération et suppression d'un document
+
+  # URL de base
+  * def baseUrl = karate.properties['baseUrl']
+
+  # =========================
+  # 1. Création du document
+  # =========================
+  Given url baseUrl + '/documents'
+  And request
+    """
+    {
+      "name": "rapport-test.pdf",
+      "type": "PDF",
+      "size": 1024
+    }
+    """
+  When method post
+  Then status 201
+  And match response.id != null
+  * def documentId = response.id
+
+  # =========================
+  # 2. Vérification de création
+  # =========================
+  Given url baseUrl + '/documents/' + documentId
+  When method get
+  Then status 200
+  And match response.name == "rapport-test.pdf"
+  And match response.type == "PDF"
+
+  # =========================
+  # 3. Mise à jour du document
+  # =========================
+  Given url baseUrl + '/documents/' + documentId
+  And request
+    """
+    {
+      "name": "rapport-test-v2.pdf",
+      "type": "PDF",
+      "size": 2048
+    }
+    """
+  When method put
+  Then status 200
+  And match response.name == "rapport-test-v2.pdf"
+
+  # =========================
+  # 4. Vérification après update
+  # =========================
+  Given url baseUrl + '/documents/' + documentId
+  When method get
+  Then status 200
+  And match response.size == 2048
+
+  # =========================
+  # 5. Suppression du document
+  # =========================
+  Given url baseUrl + '/documents/' + documentId
+  When method delete
+  Then status 204
+
+  # =========================
+  # 6. Vérification suppression
+  # =========================
+  Given url baseUrl + '/documents/' + documentId
+  When method get
+  Then status 404
+```
+
 ### 🧩 Génération des relations
 
 Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple, bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. 
@@ -5120,7 +5254,7 @@ Une fois le processus de compilation effectué, l'utilisateur doit alors avoir u
 [INFO] ------------------------------------------------------------------------
 ```
 
-Il est alors possible de récupérer l'exécutable au niveau du répertoire "*/target*" du sous-projet "*[nom de l'application]-server*". Dans le cas de notre application exemple, le fichier est appelé : **demo-server-0.0.1-SNAPSHOT.jar**. 
+Il est alors possible de récupérer l'exécutable au niveau du répertoire "*/target*" du sous-projet "***[nom de l'application]-server***". Dans le cas de notre application exemple, le fichier est appelé : **demo-server-0.0.1-SNAPSHOT.jar**. 
 
 Renommer le fichier si besoin, le positionner sur la machine de production et lancer l'application simplement avec la ligne de commande suivante (ne pas oublier que par défaut, le serveur est lancé sur le port 80, par ailleurs dans le cadre de ce document le profil est toujours sous "**dev**") : 
 
@@ -5547,7 +5681,7 @@ Il est alors possible de lancer la génération du client.
 
 Se positionner au niveau du projet de modélisation ***[Nom de l'application]-model*** et sélectionner le fichier de modélisation "***.soa***" au niveau du répertoire "*/libraries/[Nom du fichier '.mar']*". 
 
-Enfin toujours par click droit, lancer la génération du client à l'aide du menu vu précédemment (comme pour la création d'un client SpringBoot) : "*Générateur Cali / Génération du client pour les services*". Les différents fichiers sont alors générés au niveau du projet : "**[Nom de l'application]-server**".
+Enfin toujours par click droit, lancer la génération du client à l'aide du menu vu précédemment (comme pour la création d'un client SpringBoot) : "*Générateur Cali / Génération du client pour les services*". Les différents fichiers sont alors générés au niveau du projet : "***[Nom de l'application]-server***".
 
 • ***[Nom de l'application]/src/api*** : Ce répertoire contient le fichier *apiClient.ts* qui sert de point central pour gérer toutes les communications HTTP entre l'application et les services REST. Il encapsule l'utilisation d'axios, en configurant l'URL de base, les en-têtes communs (comme l'authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L'objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l'application n'ait pas à se soucier des détails d'implémentation d'axios. 
 
@@ -5639,7 +5773,7 @@ export * from "./api/apiClient";
 
 Même dans le cadre d'un projet React, le processus de déploiement passe par Maven afin de conserver une cohérence avec l'ensemble des projets gérés par **Pacman**. La différence principale réside dans l'artifact produit : au lieu de générer un *.jar* comme pour un projet Java backend, Maven exécute les scripts Node/NPM définis dans le projet pour construire et empaqueter l'application front-end. Cela permet d'intégrer le workflow front-end dans le pipeline Maven existant, de gérer les dépendances et la configuration de manière centralisée, tout en produisant un package NPM prêt à être déployé ou distribué.
 
-Quelques explications complémentaires au niveau du fichier *pom.xml" pour la partie ***[Nom de l'application]-server***
+Quelques explications complémentaires au niveau du fichier *pom.xml" pour la partie *[Nom de l'application]-server*
 ```xml
 <!-- npm run build -->
 <execution>
