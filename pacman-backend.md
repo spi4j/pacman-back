@@ -554,6 +554,7 @@ Le fichier permet de configurer le framework SpringBoot. Il contient un ensemble
 - La paramétrage pour le coffre-fort.
 - Le paramétrage des profils Spring.
 - Le paramétrage du cache pour Spring.
+- La paramétrage d'un serveur de stockage S3.
 - Le paramétrage du framework pour le circuit-breaker.
 - Le paramétrage de la couche SSO (si librairie du ministère activée).
 - Le paramétrage de la (ou des) datasource(s).
@@ -789,6 +790,8 @@ De nombreux systèmes de stockage proposent aujourd'hui une compatibilité avec 
 Un paragraphe supplémentaire est donc disponible dans le fichier de configuration avec les paramètres suivants (par défaut l'implémentation choisie par ***Pacman*** est la librairie **minio**) : 
 
 ```properties
+# Activation pour l'utilisation d'un serveur S3.
+s3.init.enabled=false
 # URL du serveur de stockage (par défaut : localhost:9000).
 s3.url=http://localhost:9000
 # Identifiant de connexion.
@@ -800,7 +803,21 @@ s3.bucket=documents
 ```
 On peut voir ici que les paramètres sont très simples, il s'agit de l'url pour le serveur de stockage, du répertoire de stockage dédié à l'application (racine des répertoires pour les différents fichiers de l'application) et enfin, des paramètres de connexion pour accéder au serveur de stockage (quelle que soit la stratégie de sécurité utilisée pour l'accès au serveur).
 
+❗ Bien faire attention au premier paramètre qui active / désactive l'utilisation d'un serveur S3 au niveau de l'application. Si ce paramètre est actif (valeur '*true*') alors un serveur S3 doit être disponible et en écoute sur le bon port avant tout démarrage de l'application (y compris pour les phases de test). Dans le cas contraire, le démarrage de l'application va échouer. Ceci est lié au code de création du bucket qui va s'enclancher automatiquement au démarrage de l'application, au niveau de la fabrique qui permet l'utilisation du client S3 : 
 
+```java
+@Bean
+@ConditionalOnProperty(name = "s3.init.enabled", havingValue = "true", matchIfMissing = false)
+public CommandLineRunner initBucket(S3ClientFactory factory) {
+   return args -> {
+      MinioClient client = factory.getClient();
+      boolean exists = client.bucketExists(BucketExistsArgs.builder().bucket(this.props.getBucket()).build());
+      if (!exists) {
+        client.makeBucket(MakeBucketArgs.builder().bucket(this.props.getBucket()).build());
+      }
+   };
+}
+```
 
 #### Librairie SSO du ministère
 
