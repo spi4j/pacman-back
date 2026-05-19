@@ -3044,7 +3044,7 @@ class DemoApiTestRunner {
 }
 ```
 
-#### Création des tests fonctionnels
+#### Création des tests
 
 Tous les tests sont donc à positionner au niveau du projet "***[Nom de l'application]-server***" dans le répertoire "*/src/test/resources/features*". Chaque test doit être écrit en "*Gherkin*" et chaque fichier de test doit avoir l'extension "*.feature*". Par défaut un simple test de ping est généré à la création du projet, ce test se présente sous la forme suivante : 
 
@@ -3058,9 +3058,79 @@ Scenario: L'application est accessible
   Then status 404
 ```
 
-#### Reporting 
+#### Initialisation des données
 
-Ce test est à lancer comme un simple test JUnit et doit retourner les logs suivants (ici on attend un 404 puisque les tests sont lancés alors que rien n'a encore été modélisé): 
+L'annotation "*@Sql*" permet d'exécuter automatiquement un ou plusieurs scripts SQL avant le lancement des tests. Dans cet exemple, le fichier "*initialisation.sql*" est exécuté avant la méthode "*runAllTests()*", ce qui permet d'initialiser la base de données avec un jeu de données connu et reproductible. Cette approche est particulièrement adaptée aux tests fonctionnels nécessitant un état de base maîtrisé (création de données de référence, nettoyage des tables, insertion d’objets métier, etc.). 
+
+Si besoin positionner cette ligne d'initialisation entre les balises de type "*user code*" prévues à cet effet. Comme au niveau JUnit, la méthode "*runAllTests*" est considérée comme la seule et unique méthode de test, le script est exécuté une seule fois, indépendamment du nombre de fichiers "*.feature*".
+
+Les scripts SQL sont généralement placés dans le répertoire "*src/test/resources/datasets*".
+
+```java
+@Sql("/datasets/initialisation.sql")
+@Test
+void runAllTests() {
+   ...    
+}
+```
+
+#### Centralisation de tests communs
+
+Dans un projet de tests fonctionnels, certaines opérations ou configurations sont souvent communes à plusieurs scénarios. Afin d’éviter la duplication de code dans les différents fichiers "*.feature*", il est recommandé de centraliser ces traitements dans des scénarios Karate réutilisables. Cette approche améliore la lisibilité des tests, facilite leur maintenance et garantit un comportement cohérent sur l'ensemble de la suite de tests fonctionnels.
+
+Par exemple, dans de nombreux projets, les API exposées par l'application sont protégées par un mécanisme d'authentification (JWT, OAuth2, session, API key, etc.). Les tests fonctionnels doivent donc envoyer automatiquement les informations d'authentification nécessaires à chaque requête HTTP. Afin d'éviter la duplication du code d'authentification dans tous les fichiers "*.feature*", il est recommandé de centraliser cette logique dans un scénario Karate partagé. Cette approche permet de mutualiser la récupération du jeton, de simplifier la maintenance des tests et de garantir un comportement homogène sur l'ensemble des scénarios fonctionnels.
+
+- Créer un scénario dédié à l'authentification :
+
+```gherkin
+Feature: Authentification
+Scenario: Récupération du jeton JWT
+
+  Given url baseUrl
+  And path 'auth/login'
+  And request
+  """
+  {
+    "login": "admin",
+    "password": "admin"
+  }
+  """
+  When method POST
+  Then status 200
+  * def authToken = response.token
+```
+
+- Créer un scénario commun à l'ensemble des tests (par exemple "*common.feature*") : 
+
+```gherkin
+Feature: Configuration commune
+Scenario:
+
+  * def auth = callonce read('classpath:features/auth.feature')
+  * header Authorization = 'Bearer ' + auth.authToken
+```
+
+- Intégrer le scénario commun dans l'ensemble des autres scénarios : 
+
+```gherkin
+Feature: API Personnes - Liste des personnes
+Background:
+
+    * def baseUrl = karate.properties['baseUrl']
+    * call read('classpath:features/common.feature')
+
+    Given url baseUrl
+
+Scenario: Vérifier que la liste contient 200 personnes
+    Given path 'v0/personnes'
+    When method GET
+    Then status 200
+    And match response == #[200]
+```
+
+#### Résultat des tests (reporting)
+
+Les tests sont à lancer comme des simples tests JUnit et doivent retourner des logs de ce type (dans le cas du test généré par défaut, on attend un 404 puisque les tests sont lancés alors que rien n'a encore été modélisé): 
 
 ```bash
 2026-05-11 11:08:43 - o.s.web.servlet.DispatcherServlet - Completed 404 NOT_FOUND
@@ -3078,11 +3148,11 @@ scenarios:    1 | passed:     1 | failed: 0
 ======================================================
 ```
 
-Par ailleurs un reporting au format "*.html*" est aussi disponible au niveau du projet "***[Nom de l'application]-server***" dans le répertoire "*/target/karate-reports/karate-summary.html*" :
+Par ailleurs un reporting au format "*.html*" est aussi disponible au niveau du projet "***[Nom de l'application]-server***" dans le répertoire "*/target/karate-reports/karate-summary.html*". Si les tests sont lancés plusieurs fois, un nouveau répertoire est alors créé à chaque fois, avec comme suffixe la date et l'heure d'exécution des tests :
 
 <img src="images/pcm-test-soa-4.png" alt="Reporting Karate">
 
-#### Exemple de scénario
+#### Exemple de scénario complexe
 
 Voici, à titre purement indicatif, un exemple de test plus poussé : 
 
@@ -4142,6 +4212,335 @@ Si on effectue une modélisation inverse avec un outil de modélisation à parti
   <img src="images/pcm-model-heritage-2.png" alt="Modélisation héritage" >
 </div>
 
+#### Exemple de modélisation avancée
+
+Voici à titre d'exemple, une modélisation pour la couche de persistance qui permet de visualiser rapidement l'ensemble des possibilités disponibles, on ne s'intéresse ici qu'a l'entité principale afin principalement de montrer les différentes relations générées. 
+
+<div align="center">
+  <img src="images/pcm-model-adv-entity-8.png" alt="Entity manager">
+</div>
+
+Et le code des relations associées pour l'entité principale *PersonneDetailEntityImpl* : 
+
+```java
+@Entity
+@Table(name = "TBL_PERSONNE_DETAIL", schema = "SCH")
+@SequenceGenerator(name = "PERSONNEDETAIL_SEQUENCE", sequenceName = "SCH.TBL_PERSONNE_DETAIL_SEQ", allocationSize = 1)
+@SQLDelete(sql = "UPDATE SCH.TBL_PERSONNE SET xtopsup = true WHERE TBL_PERSONNE_DETAIL_ID = ?")
+@SQLRestriction("xtopsup = false")
+public class PersonneDetailEntityImpl extends DemoEntityAbs {
+
+   // CONSTANTES ET ATTRIBUTS
+   // Start of user code d7bbcbe6a7acc56177d5556a145d9bb1
+
+   // End of user code
+
+   /** Id. */
+   @Id
+   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERSONNEDETAIL_SEQUENCE")
+   @Column(name = "TBL_PERSONNE_DETAIL_ID", nullable = false)
+   private Long personneDetail_id;
+
+   /** Le numéro de sécurité sociale pour la personne. */
+   // Start of user code 2fc90baa97ca768b902d1318a899060e
+   // End of user code
+   @Column(name = "NUMSECU", nullable = false)
+   private String numSecu;
+
+   /** L'âge de la personne. */
+   // Start of user code 7d637d275668ed6d41a9b97e6ad3a556
+   // End of user code
+   @Column(name = "AGE", nullable = true)
+   private Integer age;
+
+   /** Le genre de la personne. */
+   // Start of user code 7f80095aea4d66af1121f1fbe916066d
+   // End of user code
+   @Column(name = "GENRE", nullable = false)
+   private String genre;
+
+   /** La date de naissance pour la personne. */
+   // Start of user code 204e5968d93f74819a495317664f9a8a
+   // End of user code
+   @Column(name = "DATENAISSANCE", nullable = true, columnDefinition = "DATE")
+   private LocalDate dateNaissance;
+
+   /** Le nom pour la personne (hérité). */
+   // Start of user code aee37c30f5d091a495526f636a3527bb
+   // End of user code
+   @Column(name = "NOM", nullable = false)
+   private String nom;
+
+   /** Le prénom pour la personne (hérité). */
+   // Start of user code 209f4226d4ca0e91af3607674c06a9bc
+   // End of user code
+   @Column(name = "PRENOM", nullable = false)
+   private String prenom;
+
+   /** La liste des adresses pour la personne. */
+   // Start of user code d6d3f83da68f8d7a4af10f3792bc571a
+   // End of user code
+   @OneToMany(fetch = FetchType.EAGER, mappedBy = "personneDetail")
+   private List<AdresseEntityImpl> aPourAdresse;
+
+   /** La mère pour la personne. */
+   // Start of user code 4f8b5bff6538bc508d8cc45e8a1ec6dd
+   // End of user code
+   @ManyToOne(fetch = FetchType.EAGER)
+   @JoinColumn(name = "APOURMERE_ID", referencedColumnName = "TBL_PERSONNEDETAIL_ID", nullable = false)
+   private PersonneDetailEntityImpl aPourMere;
+
+   /** Le père pour la personne. */
+   // Start of user code 88bb032457e70f1191a3c6542f38fce4
+   // End of user code
+   @ManyToOne(fetch = FetchType.EAGER)
+   @JoinColumn(name = "APOURPERE_ID", referencedColumnName = "TBL_PERSONNEDETAIL_ID", nullable = false)
+   private PersonneDetailEntityImpl aPourPere;
+
+   /** La voiture principale pour la personne. */
+   // Start of user code 08432f639b4515c84e5338822fea6baf
+   // End of user code
+   @ManyToOne(fetch = FetchType.EAGER)
+   @JoinColumn(name = "TBL_VOITURE_ID", referencedColumnName = "TBL_VOITURE_ID", nullable = true)
+   private VoitureEntityImpl voiture;
+
+   /** La liste des frères pour la personne. */
+   // Start of user code d06fd39424c52878b6c1b055a2469523
+   // End of user code
+   @ManyToMany(fetch = FetchType.EAGER, targetEntity = PersonneDetailEntityImpl.class)
+   @JoinTable(name = "TBL_PERSONNEDETAILAPOURFRERE", schema = "SCH", joinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_ID")
+   , inverseJoinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_1_ID"))
+   private List<PersonneDetailEntityImpl> aPourFrere;
+
+   /** La liste des loisirs pour la personne. */
+   // Start of user code 373fdd8ab6e4368cee4c045b1594d983
+   // End of user code
+   @ManyToMany(fetch = FetchType.EAGER, targetEntity = LoisirEntityImpl.class)
+   @JoinTable(name = "TBL_PERSONNEDETAILAPOURLOISIR", schema = "SCH", joinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_ID")
+   , inverseJoinColumns = @JoinColumn(name = "TBL_LOISIR_ID"))
+   private Set<LoisirEntityImpl> aPourLoisir;
+
+   /** La liste des soeurs pour la personne. */
+   // Start of user code aa719428a3d8ea0dc0813733b65145c3
+   // End of user code
+   @ManyToMany(fetch = FetchType.EAGER, targetEntity = PersonneDetailEntityImpl.class)
+   @JoinTable(name = "TBL_PERSONNEDETAILAPOURSOEUR", schema = "SCH", joinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_ID")
+   , inverseJoinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_1_ID"))
+   private List<PersonneDetailEntityImpl> aPourSoeur;
+   
+   etc...
+}
+```
+
+Au niveau du script de création pour la base de données, comme il y a une notion d'héritage qui a été modélisée (uniquement pour pouvoir renvoyer des objets *personneEntityIml* et *personneDetailEntityImpl*, une seule table est créée, la table *TBL_PERSONNE_DETAIL*. 
+
+```sql
+/******************************************************************/
+/* Base de donnees:      h2                                       */
+/* Application:          demo                                     */
+/* Date de creation:     13/05/2025 10:55:16                      */
+/******************************************************************/
+
+/******************************************************************/
+/* Sequences                                                      */
+/******************************************************************/
+create sequence PERSONNE_DETAIL_SEQ start with 1;
+create sequence LOISIR_SEQ start with 1;
+create sequence ADRESSE_SEQ start with 1;
+create sequence VOITURE_SEQ start with 1;
+
+/******************************************************************/
+/* TABLE : PERSONNE                                               */
+/******************************************************************/
+create table PERSONNE_DETAIL
+(
+  /* PK de la table PERSONNE */
+  PERSONNE_DETAIL_ID NUMBER(19) not null,
+  NUMSECU VARCHAR(100) not null,
+  AGE NUMBER(10),
+  GENRE VARCHAR(100) not null,
+  DATENAISSANCE TIMESTAMP,
+  NOM VARCHAR(100) not null,
+  PRENOM VARCHAR(100) not null,
+  XTOPSUP BOOLEAN not null DEFAULT 'false',
+  XDMAJ TIMESTAMP not null,
+  XUUID VARCHAR(36) not null,
+  APOURMERE_ID NUMBER(19) not null,
+  APOURPERE_ID NUMBER(19) not null,
+  VOITURE_ID NUMBER(19),
+  constraint PERSONNE_PK1_1 primary key (PERSONNE_ID)
+);
+create index PERSONNEDETAIL_IDX1_1 on PERSONNE(APOURMERE_ID);
+create index PERSONNEDETAIL_IDX1_2 on PERSONNE(APOURPERE_ID);
+create index PERSONNEDETAIL_IDX1_3 on PERSONNE(PERSONNE_ID);
+
+comment on column PERSONNE.PERSONNE_ID is 'Clé primaire pour la table PERSONNE';
+comment on column PERSONNE.NUMSECU is 'Le numéro de sécurité sociale pour la personne';
+comment on column PERSONNE.AGE is 'L''âge de la personne';
+comment on column PERSONNE.GENRE is 'Le genre de la personne';
+comment on column PERSONNE.DATENAISSANCE is 'La date de naissance pour la personne';
+comment on column PERSONNE.NOM is 'Le nom de la personne';
+comment on column PERSONNE.PRENOM is 'Le prénom de la personne';
+comment on column PERSONNE.APOURMERE_ID is 'La mère pour la personne';
+comment on column PERSONNE.APOURPERE_ID is 'Le père pour la personne';
+comment on column PERSONNE.VOITURE_ID is 'La personne peut avoir une voiture principale';
+
+/******************************************************************/
+/* TABLE : LOISIR                                                 */
+/******************************************************************/
+create table LOISIR
+(
+  /* PK de la table LOISIR */
+  LOISIR_ID NUMBER(19) not null,
+  TYPE VARCHAR(100) not null,
+  XTOPSUP BOOLEAN not null DEFAULT 'false',
+  XDMAJ TIMESTAMP not null,
+  XUUID VARCHAR(36) not null,
+  constraint LOISIR_PK1_1 primary key (LOISIR_ID)
+);
+
+comment on table LOISIR is 'Les loisirs pratiqués par des personnes';
+comment on column LOISIR.LOISIR_ID is 'Clé primaire pour la table LOISIR';
+comment on column LOISIR.TYPE is 'Le type pour le loisir';
+
+/******************************************************************/
+/* TABLE : ADRESSE                                                */
+/******************************************************************/
+create table ADRESSE
+(
+  /* PK de la table ADRESSE */
+  ADRESSE_ID NUMBER(19) not null,
+  RUE VARCHAR(100) not null,
+  CODEPOSTAL VARCHAR(100) not null,
+  VILLE VARCHAR(100) not null,
+  XTOPSUP BOOLEAN not null DEFAULT 'false',
+  XDMAJ TIMESTAMP not null,
+  XUUID VARCHAR(36) not null,
+  PERSONNE_ID NUMBER(19) not null,
+  constraint ADRESSE_PK1_1 primary key (ADRESSE_ID)
+);
+create index ADRESSE_IDX1_1 on ADRESSE(PERSONNE_ID);
+
+comment on table ADRESSE is 'La liste des adresses pour les personnes';
+comment on column ADRESSE.ADRESSE_ID is 'Clé primaire pour la table ADRESSE';
+comment on column ADRESSE.RUE is 'La rue pour l''adresse';
+comment on column ADRESSE.CODEPOSTAL is 'Le code postal pour l''adresse';
+comment on column ADRESSE.VILLE is 'La ville pour l''adresse';
+comment on column ADRESSE.PERSONNE_ID is 'Une personne peut avoir de une à plusieurs adresses';
+
+/******************************************************************/
+/* TABLE : VOITURE                                                */
+/******************************************************************/
+create table VOITURE
+(
+  /* PK de la table VOITURE */
+  VOITURE_ID NUMBER(19) not null,
+  MARQUE VARCHAR(100) not null,
+  PUISSANCEFISCALE NUMBER(10),
+  XTOPSUP BOOLEAN not null DEFAULT 'false',
+  XDMAJ TIMESTAMP not null,
+  XUUID VARCHAR(36) not null,
+  constraint VOITURE_PK1_1 primary key (VOITURE_ID)
+);
+
+comment on table VOITURE is 'La liste des voitures principales pour les personnes';
+comment on column VOITURE.VOITURE_ID is 'Clé primaire pour la table VOITURE';
+comment on column VOITURE.MARQUE is 'La marque pour la voiture';
+comment on column VOITURE.PUISSANCEFISCALE is 'La puissance fiscale pour la voiture';
+
+/******************************************************************/
+/* TABLE DE LIAISON : PERSONNEDETAIL_APOURFRERE                   */
+/******************************************************************/
+create table PERSONNEDETAIL_APOURFRERE
+(
+  PERSONNE_DETAIL_ID NUMBER(19) not null,
+  PERSONNE_DETAIL_RECURSIVE_ID NUMBER(19) not null,
+  constraint PERSONNEDETAILAPOURFRERE_PK2_1 primary key (PERSONNE_ID, PERSONNE_1_ID)
+);
+
+comment on table PERSONNEDETAIL_APOURFRERE is 'La liste des frères pour la personne';
+
+/******************************************************************/
+/* TABLE DE LIAISON : PERSONNEDETAIL_APOURLOISIR                  */
+/******************************************************************/
+create table PERSONNEDETAIL_APOURLOISIR
+(
+  PERSONNE_ID NUMBER(19) not null,
+  LOISIR_ID NUMBER(19) not null,
+  constraint PERSONNEDETAILAPOURLOISIR_PK2_1 primary key (PERSONNE_ID, LOISIR_ID)
+);
+
+comment on table PERSONNEDETAILA_POURLOISIR is 'Une personne peut partiquer de 0 à plusieurs loisirs';
+
+/******************************************************************/
+/* TABLE DE LIAISON : PERSONNEDETAIL_APOURSOEUR                    */
+/******************************************************************/
+create table PERSONNEDETAILAPOURSOEUR
+(
+  PERSONNE_ID NUMBER(19) not null,
+  PERSONNE_DETAIL_RECURSIVE_ID NUMBER(19) not null,
+  constraint PERSONNEDETAILAPOURSOEUR_PK2_1 primary key (PERSONNE_ID, PERSONNE_1_ID)
+);
+
+comment on table PERSONNEDETAIL_APOURSOEUR is 'La liste des soeurs pour la personne';
+
+/******************************************************************/
+/* Contraintes                                                    */
+/******************************************************************/
+alter table PERSONNE add constraint PERSONNE_FK1_1 foreign key (APOURMERE_ID) references PERSONNE (PERSONNE_ID);
+alter table PERSONNE add constraint PERSONNE_FK1_2 foreign key (APOURPERE_ID) references PERSONNE (PERSONNE_ID);
+alter table PERSONNE add constraint PERSONNE_FK1_3 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
+alter table ADRESSE add constraint ADRESSE_FK1_1 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
+alter table PERSONNEDETAIL_APOURFRERE add constraint PERSONNEDETAILAPOURFRERE_FK1_1 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
+alter table PERSONNEDETAIL_APOURFRERE add constraint PERSONNEDETAILAPOURFRERE_FK1_2 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
+alter table PERSONNEDETAIL_APOURLOISIR add constraint PERSONNEDETAILAPOURLOISIR_FK1_1 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
+alter table PERSONNEDETAIL_APOURLOISIR add constraint PERSONNEDETAILAPOURLOISIR_FK1_2 foreign key (LOISIR_ID) references LOISIR (LOISIR_ID);
+alter table PERSONNEDETAIL_APOURSOEUR add constraint PERSONNEDETAILAPOURSOEUR_FK1_1 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
+alter table PERSONNEDETAIL_APOURSOEUR add constraint PERSONNEDETAILAPOURSOEUR_FK1_2 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
+
+```
+
+Au niveau de la couche domaine avec les objets métier on retrouve le DTO, comme plusieurs champs ont été marqués comme obligatoires, la méthode de validation est la suivante : 
+```java
+public PersonneDetailDtoImpl validate() throws DemoValidationException {
+
+	List<String> errors = new ArrayList<>();
+	ValidatorUtils.checkMandatory("numSecu", numSecu, errors);
+	ValidatorUtils.checkMandatory("genre", genre, errors);
+	ValidatorUtils.checkMandatory("nom", nom, errors);
+	ValidatorUtils.checkMandatory("prenom", prenom, errors);
+
+	if (!errors.isEmpty()) {
+		throw new DemoValidationException(this, errors.toArray(new String[errors.size()]));
+	}
+	return this;
+}
+```
+
+Enfin les méthodes "***equals(), hashcode() et toString()***" ont été redéfinies, ici par exemple le code de la méthode "***equals()***" : 
+```java
+@Override
+public boolean equals(Object obj) {
+	if (this == obj) {
+		return true;
+	}
+	if (!(obj instanceof PersonneDetailDtoImpl)) {
+		return false;
+	}
+	PersonneDetailDtoImpl personneDetail = (PersonneDetailDtoImpl) obj;
+	return Objects.equals(this.personneDetail_id, personneDetail_id)
+		&& Objects.equals(this.numSecu, personneDetail.numSecu) 
+		&& Objects.equals(this.age, personneDetail.age)
+		&& Objects.equals(this.genre, personneDetail.genre)
+		&& Objects.equals(this.dateNaissance, personneDetail.dateNaissance)
+		&& Objects.equals(this.nom, personneDetail.nom) 
+		&& Objects.equals(this.prenom, personneDetail.prenom)
+		&& Objects.equals(this.xtopsup, personneDetail.xtopsup)
+		&& Objects.equals(this.xdmaj, personneDetail.xdmaj) 
+		&& Objects.equals(this.xuuid, personneDetail.xuuid);
+}
+```
+
 #### Renvoie d'entités partielles
 
 Pour une entité, il est souvent souhaitable de ne pas vouloir renvoyer la totalité des informations au niveau du client. 
@@ -4858,335 +5257,6 @@ Un bref shéma récapitulatif explique le fonctionnement de cette implémentatio
 <div align="center">
   <img src="images/pcm-soa-s3-impl.png" alt="Architecture S3" width="500">
 </div>
-
-#### Exemple de modélisation avancée
-
-Voici à titre d'exemple, une modélisation pour la couche de persistance qui permet de visualiser rapidement l'ensemble des possibilités disponibles, on ne s'intéresse ici qu'a l'entité principale afin principalement de montrer les différentes relations générées. 
-
-<div align="center">
-  <img src="images/pcm-model-adv-entity-8.png" alt="Entity manager">
-</div>
-
-Et le code des relations associées pour l'entité principale *PersonneDetailEntityImpl* : 
-
-```java
-@Entity
-@Table(name = "TBL_PERSONNE_DETAIL", schema = "SCH")
-@SequenceGenerator(name = "PERSONNEDETAIL_SEQUENCE", sequenceName = "SCH.TBL_PERSONNE_DETAIL_SEQ", allocationSize = 1)
-@SQLDelete(sql = "UPDATE SCH.TBL_PERSONNE SET xtopsup = true WHERE TBL_PERSONNE_DETAIL_ID = ?")
-@SQLRestriction("xtopsup = false")
-public class PersonneDetailEntityImpl extends DemoEntityAbs {
-
-   // CONSTANTES ET ATTRIBUTS
-   // Start of user code d7bbcbe6a7acc56177d5556a145d9bb1
-
-   // End of user code
-
-   /** Id. */
-   @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERSONNEDETAIL_SEQUENCE")
-   @Column(name = "TBL_PERSONNE_DETAIL_ID", nullable = false)
-   private Long personneDetail_id;
-
-   /** Le numéro de sécurité sociale pour la personne. */
-   // Start of user code 2fc90baa97ca768b902d1318a899060e
-   // End of user code
-   @Column(name = "NUMSECU", nullable = false)
-   private String numSecu;
-
-   /** L'âge de la personne. */
-   // Start of user code 7d637d275668ed6d41a9b97e6ad3a556
-   // End of user code
-   @Column(name = "AGE", nullable = true)
-   private Integer age;
-
-   /** Le genre de la personne. */
-   // Start of user code 7f80095aea4d66af1121f1fbe916066d
-   // End of user code
-   @Column(name = "GENRE", nullable = false)
-   private String genre;
-
-   /** La date de naissance pour la personne. */
-   // Start of user code 204e5968d93f74819a495317664f9a8a
-   // End of user code
-   @Column(name = "DATENAISSANCE", nullable = true, columnDefinition = "DATE")
-   private LocalDate dateNaissance;
-
-   /** Le nom pour la personne (hérité). */
-   // Start of user code aee37c30f5d091a495526f636a3527bb
-   // End of user code
-   @Column(name = "NOM", nullable = false)
-   private String nom;
-
-   /** Le prénom pour la personne (hérité). */
-   // Start of user code 209f4226d4ca0e91af3607674c06a9bc
-   // End of user code
-   @Column(name = "PRENOM", nullable = false)
-   private String prenom;
-
-   /** La liste des adresses pour la personne. */
-   // Start of user code d6d3f83da68f8d7a4af10f3792bc571a
-   // End of user code
-   @OneToMany(fetch = FetchType.EAGER, mappedBy = "personneDetail")
-   private List<AdresseEntityImpl> aPourAdresse;
-
-   /** La mère pour la personne. */
-   // Start of user code 4f8b5bff6538bc508d8cc45e8a1ec6dd
-   // End of user code
-   @ManyToOne(fetch = FetchType.EAGER)
-   @JoinColumn(name = "APOURMERE_ID", referencedColumnName = "TBL_PERSONNEDETAIL_ID", nullable = false)
-   private PersonneDetailEntityImpl aPourMere;
-
-   /** Le père pour la personne. */
-   // Start of user code 88bb032457e70f1191a3c6542f38fce4
-   // End of user code
-   @ManyToOne(fetch = FetchType.EAGER)
-   @JoinColumn(name = "APOURPERE_ID", referencedColumnName = "TBL_PERSONNEDETAIL_ID", nullable = false)
-   private PersonneDetailEntityImpl aPourPere;
-
-   /** La voiture principale pour la personne. */
-   // Start of user code 08432f639b4515c84e5338822fea6baf
-   // End of user code
-   @ManyToOne(fetch = FetchType.EAGER)
-   @JoinColumn(name = "TBL_VOITURE_ID", referencedColumnName = "TBL_VOITURE_ID", nullable = true)
-   private VoitureEntityImpl voiture;
-
-   /** La liste des frères pour la personne. */
-   // Start of user code d06fd39424c52878b6c1b055a2469523
-   // End of user code
-   @ManyToMany(fetch = FetchType.EAGER, targetEntity = PersonneDetailEntityImpl.class)
-   @JoinTable(name = "TBL_PERSONNEDETAILAPOURFRERE", schema = "SCH", joinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_ID")
-   , inverseJoinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_1_ID"))
-   private List<PersonneDetailEntityImpl> aPourFrere;
-
-   /** La liste des loisirs pour la personne. */
-   // Start of user code 373fdd8ab6e4368cee4c045b1594d983
-   // End of user code
-   @ManyToMany(fetch = FetchType.EAGER, targetEntity = LoisirEntityImpl.class)
-   @JoinTable(name = "TBL_PERSONNEDETAILAPOURLOISIR", schema = "SCH", joinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_ID")
-   , inverseJoinColumns = @JoinColumn(name = "TBL_LOISIR_ID"))
-   private Set<LoisirEntityImpl> aPourLoisir;
-
-   /** La liste des soeurs pour la personne. */
-   // Start of user code aa719428a3d8ea0dc0813733b65145c3
-   // End of user code
-   @ManyToMany(fetch = FetchType.EAGER, targetEntity = PersonneDetailEntityImpl.class)
-   @JoinTable(name = "TBL_PERSONNEDETAILAPOURSOEUR", schema = "SCH", joinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_ID")
-   , inverseJoinColumns = @JoinColumn(name = "TBL_PERSONNEDETAIL_1_ID"))
-   private List<PersonneDetailEntityImpl> aPourSoeur;
-   
-   etc...
-}
-```
-
-Au niveau du script de création pour la base de données, comme il y a une notion d'héritage qui a été modélisée (uniquement pour pouvoir renvoyer des objets *personneEntityIml* et *personneDetailEntityImpl*, une seule table est créée, la table *TBL_PERSONNE_DETAIL*. 
-
-```sql
-/******************************************************************/
-/* Base de donnees:      h2                                       */
-/* Application:          demo                                     */
-/* Date de creation:     13/05/2025 10:55:16                      */
-/******************************************************************/
-
-/******************************************************************/
-/* Sequences                                                      */
-/******************************************************************/
-create sequence PERSONNE_DETAIL_SEQ start with 1;
-create sequence LOISIR_SEQ start with 1;
-create sequence ADRESSE_SEQ start with 1;
-create sequence VOITURE_SEQ start with 1;
-
-/******************************************************************/
-/* TABLE : PERSONNE                                               */
-/******************************************************************/
-create table PERSONNE_DETAIL
-(
-  /* PK de la table PERSONNE */
-  PERSONNE_DETAIL_ID NUMBER(19) not null,
-  NUMSECU VARCHAR(100) not null,
-  AGE NUMBER(10),
-  GENRE VARCHAR(100) not null,
-  DATENAISSANCE TIMESTAMP,
-  NOM VARCHAR(100) not null,
-  PRENOM VARCHAR(100) not null,
-  XTOPSUP BOOLEAN not null DEFAULT 'false',
-  XDMAJ TIMESTAMP not null,
-  XUUID VARCHAR(36) not null,
-  APOURMERE_ID NUMBER(19) not null,
-  APOURPERE_ID NUMBER(19) not null,
-  VOITURE_ID NUMBER(19),
-  constraint PERSONNE_PK1_1 primary key (PERSONNE_ID)
-);
-create index PERSONNEDETAIL_IDX1_1 on PERSONNE(APOURMERE_ID);
-create index PERSONNEDETAIL_IDX1_2 on PERSONNE(APOURPERE_ID);
-create index PERSONNEDETAIL_IDX1_3 on PERSONNE(PERSONNE_ID);
-
-comment on column PERSONNE.PERSONNE_ID is 'Clé primaire pour la table PERSONNE';
-comment on column PERSONNE.NUMSECU is 'Le numéro de sécurité sociale pour la personne';
-comment on column PERSONNE.AGE is 'L''âge de la personne';
-comment on column PERSONNE.GENRE is 'Le genre de la personne';
-comment on column PERSONNE.DATENAISSANCE is 'La date de naissance pour la personne';
-comment on column PERSONNE.NOM is 'Le nom de la personne';
-comment on column PERSONNE.PRENOM is 'Le prénom de la personne';
-comment on column PERSONNE.APOURMERE_ID is 'La mère pour la personne';
-comment on column PERSONNE.APOURPERE_ID is 'Le père pour la personne';
-comment on column PERSONNE.VOITURE_ID is 'La personne peut avoir une voiture principale';
-
-/******************************************************************/
-/* TABLE : LOISIR                                                 */
-/******************************************************************/
-create table LOISIR
-(
-  /* PK de la table LOISIR */
-  LOISIR_ID NUMBER(19) not null,
-  TYPE VARCHAR(100) not null,
-  XTOPSUP BOOLEAN not null DEFAULT 'false',
-  XDMAJ TIMESTAMP not null,
-  XUUID VARCHAR(36) not null,
-  constraint LOISIR_PK1_1 primary key (LOISIR_ID)
-);
-
-comment on table LOISIR is 'Les loisirs pratiqués par des personnes';
-comment on column LOISIR.LOISIR_ID is 'Clé primaire pour la table LOISIR';
-comment on column LOISIR.TYPE is 'Le type pour le loisir';
-
-/******************************************************************/
-/* TABLE : ADRESSE                                                */
-/******************************************************************/
-create table ADRESSE
-(
-  /* PK de la table ADRESSE */
-  ADRESSE_ID NUMBER(19) not null,
-  RUE VARCHAR(100) not null,
-  CODEPOSTAL VARCHAR(100) not null,
-  VILLE VARCHAR(100) not null,
-  XTOPSUP BOOLEAN not null DEFAULT 'false',
-  XDMAJ TIMESTAMP not null,
-  XUUID VARCHAR(36) not null,
-  PERSONNE_ID NUMBER(19) not null,
-  constraint ADRESSE_PK1_1 primary key (ADRESSE_ID)
-);
-create index ADRESSE_IDX1_1 on ADRESSE(PERSONNE_ID);
-
-comment on table ADRESSE is 'La liste des adresses pour les personnes';
-comment on column ADRESSE.ADRESSE_ID is 'Clé primaire pour la table ADRESSE';
-comment on column ADRESSE.RUE is 'La rue pour l''adresse';
-comment on column ADRESSE.CODEPOSTAL is 'Le code postal pour l''adresse';
-comment on column ADRESSE.VILLE is 'La ville pour l''adresse';
-comment on column ADRESSE.PERSONNE_ID is 'Une personne peut avoir de une à plusieurs adresses';
-
-/******************************************************************/
-/* TABLE : VOITURE                                                */
-/******************************************************************/
-create table VOITURE
-(
-  /* PK de la table VOITURE */
-  VOITURE_ID NUMBER(19) not null,
-  MARQUE VARCHAR(100) not null,
-  PUISSANCEFISCALE NUMBER(10),
-  XTOPSUP BOOLEAN not null DEFAULT 'false',
-  XDMAJ TIMESTAMP not null,
-  XUUID VARCHAR(36) not null,
-  constraint VOITURE_PK1_1 primary key (VOITURE_ID)
-);
-
-comment on table VOITURE is 'La liste des voitures principales pour les personnes';
-comment on column VOITURE.VOITURE_ID is 'Clé primaire pour la table VOITURE';
-comment on column VOITURE.MARQUE is 'La marque pour la voiture';
-comment on column VOITURE.PUISSANCEFISCALE is 'La puissance fiscale pour la voiture';
-
-/******************************************************************/
-/* TABLE DE LIAISON : PERSONNEDETAIL_APOURFRERE                   */
-/******************************************************************/
-create table PERSONNEDETAIL_APOURFRERE
-(
-  PERSONNE_DETAIL_ID NUMBER(19) not null,
-  PERSONNE_DETAIL_RECURSIVE_ID NUMBER(19) not null,
-  constraint PERSONNEDETAILAPOURFRERE_PK2_1 primary key (PERSONNE_ID, PERSONNE_1_ID)
-);
-
-comment on table PERSONNEDETAIL_APOURFRERE is 'La liste des frères pour la personne';
-
-/******************************************************************/
-/* TABLE DE LIAISON : PERSONNEDETAIL_APOURLOISIR                  */
-/******************************************************************/
-create table PERSONNEDETAIL_APOURLOISIR
-(
-  PERSONNE_ID NUMBER(19) not null,
-  LOISIR_ID NUMBER(19) not null,
-  constraint PERSONNEDETAILAPOURLOISIR_PK2_1 primary key (PERSONNE_ID, LOISIR_ID)
-);
-
-comment on table PERSONNEDETAILA_POURLOISIR is 'Une personne peut partiquer de 0 à plusieurs loisirs';
-
-/******************************************************************/
-/* TABLE DE LIAISON : PERSONNEDETAIL_APOURSOEUR                    */
-/******************************************************************/
-create table PERSONNEDETAILAPOURSOEUR
-(
-  PERSONNE_ID NUMBER(19) not null,
-  PERSONNE_DETAIL_RECURSIVE_ID NUMBER(19) not null,
-  constraint PERSONNEDETAILAPOURSOEUR_PK2_1 primary key (PERSONNE_ID, PERSONNE_1_ID)
-);
-
-comment on table PERSONNEDETAIL_APOURSOEUR is 'La liste des soeurs pour la personne';
-
-/******************************************************************/
-/* Contraintes                                                    */
-/******************************************************************/
-alter table PERSONNE add constraint PERSONNE_FK1_1 foreign key (APOURMERE_ID) references PERSONNE (PERSONNE_ID);
-alter table PERSONNE add constraint PERSONNE_FK1_2 foreign key (APOURPERE_ID) references PERSONNE (PERSONNE_ID);
-alter table PERSONNE add constraint PERSONNE_FK1_3 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
-alter table ADRESSE add constraint ADRESSE_FK1_1 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
-alter table PERSONNEDETAIL_APOURFRERE add constraint PERSONNEDETAILAPOURFRERE_FK1_1 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
-alter table PERSONNEDETAIL_APOURFRERE add constraint PERSONNEDETAILAPOURFRERE_FK1_2 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
-alter table PERSONNEDETAIL_APOURLOISIR add constraint PERSONNEDETAILAPOURLOISIR_FK1_1 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
-alter table PERSONNEDETAIL_APOURLOISIR add constraint PERSONNEDETAILAPOURLOISIR_FK1_2 foreign key (LOISIR_ID) references LOISIR (LOISIR_ID);
-alter table PERSONNEDETAIL_APOURSOEUR add constraint PERSONNEDETAILAPOURSOEUR_FK1_1 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
-alter table PERSONNEDETAIL_APOURSOEUR add constraint PERSONNEDETAILAPOURSOEUR_FK1_2 foreign key (PERSONNE_ID) references PERSONNE (PERSONNE_ID);
-
-```
-
-Au niveau de la couche domaine avec les objets métier on retrouve le DTO, comme plusieurs champs ont été marqués comme obligatoires, la méthode de validation est la suivante : 
-```java
-public PersonneDetailDtoImpl validate() throws DemoValidationException {
-
-	List<String> errors = new ArrayList<>();
-	ValidatorUtils.checkMandatory("numSecu", numSecu, errors);
-	ValidatorUtils.checkMandatory("genre", genre, errors);
-	ValidatorUtils.checkMandatory("nom", nom, errors);
-	ValidatorUtils.checkMandatory("prenom", prenom, errors);
-
-	if (!errors.isEmpty()) {
-		throw new DemoValidationException(this, errors.toArray(new String[errors.size()]));
-	}
-	return this;
-}
-```
-
-Enfin les méthodes "***equals(), hashcode() et toString()***" ont été redéfinies, ici par exemple le code de la méthode "***equals()***" : 
-```java
-@Override
-public boolean equals(Object obj) {
-	if (this == obj) {
-		return true;
-	}
-	if (!(obj instanceof PersonneDetailDtoImpl)) {
-		return false;
-	}
-	PersonneDetailDtoImpl personneDetail = (PersonneDetailDtoImpl) obj;
-	return Objects.equals(this.personneDetail_id, personneDetail_id)
-		&& Objects.equals(this.numSecu, personneDetail.numSecu) 
-		&& Objects.equals(this.age, personneDetail.age)
-		&& Objects.equals(this.genre, personneDetail.genre)
-		&& Objects.equals(this.dateNaissance, personneDetail.dateNaissance)
-		&& Objects.equals(this.nom, personneDetail.nom) 
-		&& Objects.equals(this.prenom, personneDetail.prenom)
-		&& Objects.equals(this.xtopsup, personneDetail.xtopsup)
-		&& Objects.equals(this.xdmaj, personneDetail.xdmaj) 
-		&& Objects.equals(this.xuuid, personneDetail.xuuid);
-}
-```
 
 ### ✔️ Validation de la modélisation
 ---
