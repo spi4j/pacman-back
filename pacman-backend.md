@@ -3087,7 +3087,7 @@ Feature: Authentification
 Scenario: Récupération du jeton JWT
 
   Given url baseUrl
-  And path 'auth/login'
+  And path 'v0/auth/login'
   And request
   """
   {
