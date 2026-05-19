@@ -3015,6 +3015,8 @@ project.frontend.uri=[URL complète du service backend]
 
 ### 🥋 Génération des tests fonctionnels d'API
 
+#### Le framework Karaté
+
 Dans une architecture moderne exposant des API, les tests unitaires ne suffisent généralement pas à garantir le bon fonctionnement global du système. Même si chaque composant pris isolément peut fonctionner correctement, les erreurs apparaissent souvent au niveau des différentes interactions entre plusieurs services. C'est pour répondre à ce besoin que les tests fonctionnels et d'intégration plus poussés d'API deviennent essentiels. Ils permettent de valider un comportement réel de bout en bout, en simulant des appels HTTP proches de ceux effectués par des clients ou d'autres services, et en vérifiant non seulement les réponses, mais aussi les effets produits sur le système.
 
 Dans ce contexte, Karate a été adopté comme framework de test. Karate est basé sur une approche hybride combinant le langage Gherkin (Given / When / Then) et un moteur d’exécution directement intégré au runtime Java via la JVM. Karate s'inscrit dans la même famille d'outils que Cucumber, à savoir les frameworks BDD (Behavior Driven Development), mais il s'en distingue fortement dans son approche technique et son positionnement. Là où Cucumber repose sur une séparation stricte entre la spécification écrite en Gherkin et le code d’exécution en Java (les "step definitions"), Karate adopte une philosophie beaucoup plus intégrée : les scénarios Gherkin sont directement exécutables sans avoir à écrire de "glue code". 
@@ -3042,6 +3044,8 @@ class DemoApiTestRunner {
 }
 ```
 
+#### Création des tests fonctionnels
+
 Tous les tests sont donc à positionner au niveau du projet "***[Nom de l'application]-server***" dans le répertoire "*/src/test/resources/features*". Chaque test doit être écrit en "*Gherkin*" et chaque fichier de test doit avoir l'extension "*.feature*". Par défaut un simple test de ping est généré à la création du projet, ce test se présente sous la forme suivante : 
 
 ```gherkin
@@ -3053,6 +3057,8 @@ Scenario: L'application est accessible
   When method get
   Then status 404
 ```
+
+#### Reporting 
 
 Ce test est à lancer comme un simple test JUnit et doit retourner les logs suivants (ici on attend un 404 puisque les tests sont lancés alors que rien n'a encore été modélisé): 
 
@@ -3071,6 +3077,12 @@ features:     1 | skipped:    0 | efficiency: 0,15
 scenarios:    1 | passed:     1 | failed: 0
 ======================================================
 ```
+
+Par ailleurs un reporting au format "*.html*" est aussi disponible au niveau du projet "***[Nom de l'application]-server***" dans le répertoire "*/target/karate-reports/karate-summary.html*" :
+
+<img src="images/pcm-test-soa-4.png" alt="Reporting Karate">
+
+#### Exemple de scénario
 
 Voici, à titre purement indicatif, un exemple de test plus poussé : 
 
