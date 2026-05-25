@@ -119,6 +119,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>16/03/2026 : Ajouts : Mise en place du stockage S3.</li>
 <li>07/04/2026 : Ajouts : Sécurisation de la configuration.</li>
 <li>11/05/2026 : Ajouts : Génération des tests fonctionnels d'API.</li>
+<li>24/05/2026 : Ajouts : Complétion du stockage S3 avec versionning/retention/immutabilité.</li>
 </ul>
 <hr/>
 <h2 id="introduction">🚀 Introduction</h2>
@@ -714,8 +715,11 @@ Il s'agit des vues suivantes : </p>
 <span class="na">s3.secret-key</span><span class="o">=</span><span class="s">minioadmin</span>
 <span class="c1"># Conteneur logique (comme un dossier racine).</span>
 <span class="na">s3.bucket</span><span class="o">=</span><span class="s">documents</span>
+<span class="c1"># Active le versionning pour les documents</span>
+<span class="na">s3.version.enabled</span><span class="o">=</span><span class="s">true</span>
 </code></pre></div>
 <p>On peut voir ici que les paramètres sont très simples, il s'agit de l'url pour le serveur de stockage, du répertoire de stockage dédié à l'application (racine des répertoires pour les différents fichiers de l'application) et enfin, des paramètres de connexion pour accéder au serveur de stockage (quelle que soit la stratégie de sécurité utilisée pour l'accès au serveur).</p>
+<p>❗ "<em>s3.version.enabled</em>" permet d'activer le versionning du bucket créé automatiquement par l'application. Lorsque cette option est activée, chaque modification d’un document génère une nouvelle version conservée dans le stockage, permettant ainsi de restaurer un état précédent. Ce paramètre doit impérativement être défini avant le premier démarrage de l'application. En effet, si "<em>s3.init.enabled=true</em>", le bucket est alors automatiquement créé au démarrage avec sa configuration initiale. Or, les propriétés liées au versionning ne peuvent plus être modifiées après la création du bucket. Modifier ultérieurement "<em>s3.version.enabled</em>" (par exemple passer de "<em>true</em>" à "<em>false</em>" ou inversement) nécessitera donc la suppression manuelle du bucket existant puis sa recréation afin que la nouvelle configuration soit correctement appliquée.</p>
 <p>❗ Bien faire attention au premier paramètre qui active / désactive l'utilisation d'un serveur S3 au niveau de l'application. Si ce paramètre est actif (valeur '<em>true</em>') alors un serveur S3 doit être disponible et en écoute sur le bon port avant tout démarrage de l'application (y compris pour les phases de test). Dans le cas contraire, le démarrage de l'application va échouer. Ceci est lié au code de création du bucket qui va s'enclancher automatiquement au démarrage de l'application, au niveau de la fabrique qui permet l'utilisation du client S3 : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Bean</span>
 <span class="nd">@ConditionalOnProperty</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"s3.init.enabled"</span><span class="p">,</span><span class="w"> </span><span class="n">havingValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"true"</span><span class="p">,</span><span class="w"> </span><span class="n">matchIfMissing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
@@ -726,6 +730,7 @@ Il s'agit des vues suivantes : </p>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">exists</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">client</span><span class="p">.</span><span class="na">makeBucket</span><span class="p">(</span><span class="n">MakeBucketArgs</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">bucket</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">props</span><span class="p">.</span><span class="na">getBucket</span><span class="p">()).</span><span class="na">build</span><span class="p">());</span>
 <span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="p">....</span>
 <span class="w">   </span><span class="p">};</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -4054,13 +4059,19 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 </ul>
 <p>Par défaut le code d'obtention du client S3 au niveau de la fabrique est le suivant : </p>
 <div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">S3ClientFactory</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">DemoS3Service</span><span class="w"> </span><span class="p">{</span>
-<span class="w">   </span><span class="n">MinioClient</span><span class="w"> </span><span class="nf">getClient</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">   </span><span class="kd">private</span><span class="w"> </span><span class="kd">volatile</span><span class="w"> </span><span class="n">MinioClient</span><span class="w"> </span><span class="n">currentClient</span><span class="p">;</span>
+
+<span class="w">   </span><span class="kd">private</span><span class="w"> </span><span class="kd">synchronized</span><span class="w"> </span><span class="n">MinioClient</span><span class="w"> </span><span class="nf">getClient</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">      </span><span class="c1">// Start of user code 736b91750e516139acc13c5eb6564f92</span>
 
 <span class="w">      </span><span class="c1">// CredentialsWrapper creds = getCredentials();</span>
 
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">MinioClient</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">endpoint</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">getUrl</span><span class="p">())</span>
-<span class="w">         </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">getAccessKey</span><span class="p">(),</span><span class="w"> </span><span class="n">props</span><span class="p">.</span><span class="na">getSecretKey</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">currentClient</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="k">this</span><span class="p">.</span><span class="na">currentClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MinioClient</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">endpoint</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">getUrl</span><span class="p">())</span>
+<span class="w">            </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">getAccessKey</span><span class="p">(),</span><span class="w"> </span><span class="n">props</span><span class="p">.</span><span class="na">getSecretKey</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">currentClient</span><span class="p">;</span>
 
 <span class="w">      </span><span class="c1">// return MinioClient.builder()</span>
 <span class="w">      </span><span class="c1">// .endpoint(props.getUrl())</span>
@@ -4094,13 +4105,13 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">S3ClientFactory</span><span class="p">();</span>
 <span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kd">class</span> <span class="nc">S3ClientFactory</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">DemoS3Service</span><span class="p">{</span>
+<span class="w">    </span><span class="kd">class</span> <span class="nc">S3ClientFactory</span><span class="w"> </span><span class="kd">implements</span><span class="w"> </span><span class="n">DemoS3Service</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kd">volatile</span><span class="w"> </span><span class="n">MinioClient</span><span class="w"> </span><span class="n">currentClient</span><span class="p">;</span>
+
 <span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">MinioClient</span><span class="w"> </span><span class="nf">getClient</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="c1">// CredentialsWrapper creds = getCredentials();</span>
-
-<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">MinioClient</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">endpoint</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">getUrl</span><span class="p">())</span>
-<span class="w">                </span><span class="p">.</span><span class="na">credentials</span><span class="p">(</span><span class="n">props</span><span class="p">.</span><span class="na">getAccessKey</span><span class="p">(),</span><span class="w"> </span><span class="n">props</span><span class="p">.</span><span class="na">getSecretKey</span><span class="p">()).</span><span class="na">build</span><span class="p">();</span>
-
+<span class="w">            </span><span class="p">......</span>
 <span class="w">            </span><span class="c1">// return MinioClient.builder()</span>
 <span class="w">            </span><span class="c1">// .endpoint(props.getUrl())</span>
 <span class="w">            </span><span class="c1">// .credentials(creds.accessKey,</span>
@@ -4142,6 +4153,7 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="nd">@Bean</span>
+<span class="w">    </span><span class="nd">@ConditionalOnProperty</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"s3.init.enabled"</span><span class="p">,</span><span class="w"> </span><span class="n">havingValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"true"</span><span class="p">,</span><span class="w"> </span><span class="n">matchIfMissing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span><span class="p">)</span>
 <span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">CommandLineRunner</span><span class="w"> </span><span class="nf">initBucket</span><span class="p">(</span><span class="n">S3ClientFactory</span><span class="w"> </span><span class="n">factory</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">args</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">            </span><span class="n">MinioClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="p">.</span><span class="na">getClient</span><span class="p">();</span>
@@ -4149,6 +4161,12 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="w">                </span><span class="p">.</span><span class="na">bucket</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">props</span><span class="p">.</span><span class="na">getBucket</span><span class="p">()).</span><span class="na">build</span><span class="p">());</span>
 <span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">exists</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">                </span><span class="n">client</span><span class="p">.</span><span class="na">makeBucket</span><span class="p">(</span><span class="n">MakeBucketArgs</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">bucket</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">props</span><span class="p">.</span><span class="na">getBucket</span><span class="p">()).</span><span class="na">build</span><span class="p">());</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">props</span><span class="p">.</span><span class="na">isVersionEnabled</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">               </span><span class="n">client</span><span class="p">.</span><span class="na">setBucketVersioning</span><span class="p">(</span><span class="n">SetBucketVersioningArgs</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span>
+<span class="w">                   </span><span class="p">.</span><span class="na">bucket</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">props</span><span class="p">.</span><span class="na">getBucket</span><span class="p">())</span>
+<span class="w">                   </span><span class="p">.</span><span class="na">config</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">VersioningConfiguration</span><span class="p">(</span><span class="n">VersioningConfiguration</span><span class="p">.</span><span class="na">Status</span><span class="p">.</span><span class="na">ENABLED</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">))</span>
+<span class="w">                   </span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">};</span>
 <span class="w">    </span><span class="p">}</span>
@@ -4196,6 +4214,13 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="w">      </span><span class="n">builder</span><span class="p">.</span><span class="na">userMetadata</span><span class="p">(</span>
 <span class="w">          </span><span class="n">params</span><span class="p">.</span><span class="na">getMetadata</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">getMetadata</span><span class="p">()</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">java</span><span class="p">.</span><span class="na">util</span><span class="p">.</span><span class="na">Collections</span><span class="p">.</span><span class="na">emptyMap</span><span class="p">());</span>
 
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">hasRetention</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">RetentionMode</span><span class="w"> </span><span class="n">retentionMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RetentionMode</span><span class="p">.</span><span class="na">valueOf</span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">getRetentionMode</span><span class="p">().</span><span class="na">toUpperCase</span><span class="p">());</span>
+<span class="w">          </span><span class="n">builder</span><span class="p">.</span><span class="na">retention</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Retention</span><span class="p">(</span><span class="n">retentionMode</span><span class="p">,</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">getRetainUntil</span><span class="p">().</span><span class="na">atZone</span><span class="p">(</span><span class="n">ZoneOffset</span><span class="p">.</span><span class="na">UTC</span><span class="p">)));</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">isImmutable</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">exists</span><span class="p">(</span><span class="n">params</span><span class="p">.</span><span class="na">getBucket</span><span class="p">(),</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">getKey</span><span class="p">()))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">TestValidationException</span><span class="p">(</span><span class="s">"Le document est immutable et existe déjà : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">getKey</span><span class="p">());</span>
+<span class="w">      </span><span class="p">}</span>
 <span class="w">      </span><span class="n">getClient</span><span class="p">().</span><span class="na">putObject</span><span class="p">(</span><span class="n">builder</span><span class="p">.</span><span class="na">build</span><span class="p">());</span>
 <span class="w">  </span><span class="p">}</span>
 
@@ -4270,6 +4295,13 @@ Au niveau de l'implémentation pour la récupération du document, on peut remar
 <li>
 <p>Pour un enregistrement (<em>POST</em>) l'opération peut avoir (l'ordre est sans importance), le nom du fichier à enregistrer ("<em>S3DocumentName</em>"), le fichier ("<em>S3DocumentIn</em>"), les métadonnées pour le fichier ("<em>S3Metadata</em>"), le type de fichier à enregistrer ("<em>S3ContentType</em>"). </p>
 </li>
+</ul>
+<p>Par ailleurs il est aussi possible de modéliser une date de rétention au niveau du service (applicable pour l'ensemble des documents qui seront chargés par le biais de ce service). Pour ce faire se positionner au niveau de l'opération et ajouter les deux métadonnées suivantes : "STORAGE_RETENTION" et "<em>STORAGE_RETENTION_DURATION</em>".</p>
+<p>La métadonnée "<em>STORAGE_RETENTION</em>" doit obligatoirement prendre une des deux valeurs suivantes "<em>COMPLIANCE</em>" ou "<em>GOVERNANCE</em>" (se référer au normes de stockage S3 pour la compréhension de ces données). La métadonnée "<em>STORAGE_RETENTION_DURATION</em>" quant à elle prend par défaut un nombre de mois pendant lequel le document ne peut être supprimé de l'espace de stockage. Il est aussi possible de le spécifier en nombre de jours ou en nombre d'années avec par exemple "<em>12M</em>" ou "<em>12J</em>" ou "<em>12A</em>".  Lorsque aucune unité n'est précisée, la durée est automatiquement interprétée en mois. Ainsi, les valeurs "<em>12</em>" et "<em>12M</em>" sont strictement équivalentes. La valeur définie est utilisée pour calculer automatiquement la date de fin de rétention à partir de la date courante lors du dépôt du document dans le stockage S3.</p>
+<p>Enfin il est possible d'empêcher toute modification de document à l'aide de la métadonnée "<em>STORAGE_IMMUTABLE</em>".</p>
+<p><img alt="Storage S3" src="images/pcm-model-adv-storage-s3.png"/></p>
+<p>❗ Pour rappel l'utilisation du versionning pour l'ensemble des documents est à paramétrer au niveau du fichier "<em>application.properties</em>" à l'aide du paramètre global : "<em>s3.version.enabled</em>".</p>
+<ul>
 <li>
 <p>Pour une opération de suppression (<em>DELETE</em>), ici encore, seul un paramètre est nécessaire, comme pour la lecture, il s'agit cette fois du nom du fichier à supprimer ("<em>S3DocumentName</em>").</p>
 </li>

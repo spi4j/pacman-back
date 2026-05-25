@@ -12,6 +12,7 @@
 - 16/03/2026 : Ajouts : Mise en place du stockage S3.
 - 07/04/2026 : Ajouts : Sécurisation de la configuration.
 - 11/05/2026 : Ajouts : Génération des tests fonctionnels d'API.
+- 24/05/2026 : Ajouts : Complétion du stockage S3 avec versionning/retention/immutabilité.
 ---
 
 ## 🚀 Introduction
@@ -801,8 +802,12 @@ s3.access-key=minioadmin
 s3.secret-key=minioadmin
 # Conteneur logique (comme un dossier racine).
 s3.bucket=documents
+# Active le versionning pour les documents
+s3.version.enabled=true
 ```
 On peut voir ici que les paramètres sont très simples, il s'agit de l'url pour le serveur de stockage, du répertoire de stockage dédié à l'application (racine des répertoires pour les différents fichiers de l'application) et enfin, des paramètres de connexion pour accéder au serveur de stockage (quelle que soit la stratégie de sécurité utilisée pour l'accès au serveur).
+
+❗ "*s3.version.enabled*" permet d'activer le versionning du bucket créé automatiquement par l'application. Lorsque cette option est activée, chaque modification d’un document génère une nouvelle version conservée dans le stockage, permettant ainsi de restaurer un état précédent. Ce paramètre doit impérativement être défini avant le premier démarrage de l'application. En effet, si "*s3.init.enabled=true*", le bucket est alors automatiquement créé au démarrage avec sa configuration initiale. Or, les propriétés liées au versionning ne peuvent plus être modifiées après la création du bucket. Modifier ultérieurement "*s3.version.enabled*" (par exemple passer de "*true*" à "*false*" ou inversement) nécessitera donc la suppression manuelle du bucket existant puis sa recréation afin que la nouvelle configuration soit correctement appliquée.
 
 ❗ Bien faire attention au premier paramètre qui active / désactive l'utilisation d'un serveur S3 au niveau de l'application. Si ce paramètre est actif (valeur '*true*') alors un serveur S3 doit être disponible et en écoute sur le bon port avant tout démarrage de l'application (y compris pour les phases de test). Dans le cas contraire, le démarrage de l'application va échouer. Ceci est lié au code de création du bucket qui va s'enclancher automatiquement au démarrage de l'application, au niveau de la fabrique qui permet l'utilisation du client S3 : 
 
@@ -816,6 +821,7 @@ public CommandLineRunner initBucket(S3ClientFactory factory) {
       if (!exists) {
         client.makeBucket(MakeBucketArgs.builder().bucket(this.props.getBucket()).build());
       }
+      ....
    };
 }
 ```
@@ -4767,13 +4773,19 @@ Par défaut le code d'obtention du client S3 au niveau de la fabrique est le sui
 
 ```java
 public class S3ClientFactory implements DemoS3Service {
-   MinioClient getClient() {
+
+   private volatile MinioClient currentClient;
+
+   private synchronized MinioClient getClient() {
       // Start of user code 736b91750e516139acc13c5eb6564f92
       
       // CredentialsWrapper creds = getCredentials();
       
-      return MinioClient.builder().endpoint(props.getUrl())
-         .credentials(props.getAccessKey(), props.getSecretKey()).build();
+      if (this.currentClient == null) {
+         this.currentClient = MinioClient.builder().endpoint(props.getUrl())
+            .credentials(props.getAccessKey(), props.getSecretKey()).build();
+      }
+      return this.currentClient;
          
       // return MinioClient.builder()
       // .endpoint(props.getUrl())
@@ -4813,13 +4825,13 @@ public class DemoS3Factory {
         return new S3ClientFactory();
     }
 
-    class S3ClientFactory implements DemoS3Service{
+    class S3ClientFactory implements DemoS3Service {
+    
+        private volatile MinioClient currentClient;
+         
         public MinioClient getClient() {
             // CredentialsWrapper creds = getCredentials();
-
-            return MinioClient.builder().endpoint(props.getUrl())
-                .credentials(props.getAccessKey(), props.getSecretKey()).build();
-
+            ......
             // return MinioClient.builder()
             // .endpoint(props.getUrl())
             // .credentials(creds.accessKey,
@@ -4861,6 +4873,7 @@ public class DemoS3Factory {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "s3.init.enabled", havingValue = "true", matchIfMissing = false)
     public CommandLineRunner initBucket(S3ClientFactory factory) {
         return args -> {
             MinioClient client = factory.getClient();
@@ -4868,6 +4881,12 @@ public class DemoS3Factory {
                 .bucket(this.props.getBucket()).build());
             if (!exists) {
                 client.makeBucket(MakeBucketArgs.builder().bucket(this.props.getBucket()).build());
+            }
+            if (this.props.isVersionEnabled()) {
+               client.setBucketVersioning(SetBucketVersioningArgs.builder()
+                   .bucket(this.props.getBucket())
+                   .config(new VersioningConfiguration(VersioningConfiguration.Status.ENABLED, false))
+                   .build());
             }
         };
     }
@@ -4913,7 +4932,14 @@ public class S3ClientFactory implements DemoS3Service {
 		  
       builder.userMetadata(
 	      params.getMetadata() != null ? params.getMetadata() : java.util.Collections.emptyMap());
-
+	      
+	  if (params.hasRetention()) {
+	      RetentionMode retentionMode = RetentionMode.valueOf(params.getRetentionMode().toUpperCase());
+	      builder.retention(new Retention(retentionMode, params.getRetainUntil().atZone(ZoneOffset.UTC)));
+	  }
+	  if (params.isImmutable() && exists(params.getBucket(), params.getKey())) {
+	      throw new TestValidationException("Le document est immutable et existe déjà : " + params.getKey());
+	  }
       getClient().putObject(builder.build());
   }
 
@@ -4986,6 +5012,16 @@ Cette modélisation appelle les explications suivantes :
 
 - Pour un enregistrement (*POST*) l'opération peut avoir (l'ordre est sans importance), le nom du fichier à enregistrer ("*S3DocumentName*"), le fichier ("*S3DocumentIn*"), les métadonnées pour le fichier ("*S3Metadata*"), le type de fichier à enregistrer ("*S3ContentType*"). 
 
+  Par ailleurs il est aussi possible de modéliser une date de rétention au niveau du service (applicable pour l'ensemble des documents qui seront chargés par le biais de ce service). Pour ce faire se positionner au niveau de l'opération et ajouter les deux métadonnées suivantes : "STORAGE\_RETENTION" et "*STORAGE\_RETENTION\_DURATION*".
+
+  La métadonnée "*STORAGE\_RETENTION*" doit obligatoirement prendre une des deux valeurs suivantes "*COMPLIANCE*" ou "*GOVERNANCE*" (se référer au normes de stockage S3 pour la compréhension de ces données). La métadonnée "*STORAGE\_RETENTION\_DURATION*" quant à elle prend par défaut un nombre de mois pendant lequel le document ne peut être supprimé de l'espace de stockage. Il est aussi possible de le spécifier en nombre de jours ou en nombre d'années avec par exemple "*12M*" ou "*12J*" ou "*12A*".  Lorsque aucune unité n'est précisée, la durée est automatiquement interprétée en mois. Ainsi, les valeurs "*12*" et "*12M*" sont strictement équivalentes. La valeur définie est utilisée pour calculer automatiquement la date de fin de rétention à partir de la date courante lors du dépôt du document dans le stockage S3.
+  
+  Enfin il est possible d'empêcher toute modification de document à l'aide de la métadonnée "*STORAGE_IMMUTABLE*".
+  
+  <img src="images/pcm-model-adv-storage-s3.png" alt="Storage S3">
+  
+  ❗ Pour rappel l'utilisation du versionning pour l'ensemble des documents est à paramétrer au niveau du fichier "*application.properties*" à l'aide du paramètre global : "*s3.version.enabled*".
+ 
 - Pour une opération de suppression (*DELETE*), ici encore, seul un paramètre est nécessaire, comme pour la lecture, il s'agit cette fois du nom du fichier à supprimer ("*S3DocumentName*").
 
 - De manière générale, toute opération doit obligatoirement avoir un paramètre de sortie, comme n'importe autre opération REST.
