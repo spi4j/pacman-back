@@ -244,6 +244,10 @@ public final class AnnotationUtils {
 	public static boolean has_metaPermission(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS);
 	}
+	
+	public static boolean has_metaS3Retention(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.S3_RETENTION);
+	}
 
 	public static boolean has_metaComputed(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
@@ -255,6 +259,10 @@ public final class AnnotationUtils {
 
 	public static boolean has_metaPermissionAnd(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS_AND);
+	}
+	
+	public static boolean is_metaS3Immutable(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.S3_IMMUTABLE);
 	}
 
 	public static boolean is_metaComputed(final ObeoDSMObject p_object) {
@@ -363,6 +371,14 @@ public final class AnnotationUtils {
 
 	public static String get_metaPageSize(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.PAGE_SIZE);
+	}
+	
+	public static String get_metaS3Retention(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.S3_RETENTION);
+	}
+	
+	public static String get_metaS3RetentionDuration(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.S3_RETENTION_DATE);
 	}
 
 	public static String get_metaAuthToken(final ObeoDSMObject p_object) {

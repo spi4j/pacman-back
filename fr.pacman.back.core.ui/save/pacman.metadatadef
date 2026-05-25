@@ -146,8 +146,19 @@
      body="DOCUMENT : Service de stockage pour un document (S3 par défaut)" 
      condition="aql:Sequence{'service'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_ig-wcIiEEfC8-K9GNeeGuw"
-    title="JSON_NAME"
+     title="JSON_NAME"
      body="REST : Modifie le nom de sérialisation ex : [nouveau nom]." 
      condition="aql:Sequence{'attribute', 'reference', 'parameter'}->includes(self.eClass().name.toLower())"/>
-   />
+   <metaDataDefinitions technicalid="_pAY1wFVJEfGQzuXoBQ-l-Q" 
+     title="STORAGE_RETENTION"
+     body="DOCUMENT : Mode de rétention pour le document [COMPLIANCE|GOVERNANCE]"
+     condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
+   <metaDataDefinitions technicalid="_qhjtkFVJEfGQzuXoBQ-l-Q"
+     title="STORAGE_RETENTION_DURATION"
+     body="DOCUMENT : Durée d'expiration pour la rétention du document [10A|5M|30J]"
+     condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
+   <metaDataDefinitions technicalid="_QFnS4FVMEfGQzuXoBQ-l-Q" 
+     title="STORAGE_IMMUTABLE"
+     body="DOCUMENT : Le document ne peut pas être modifié"
+     condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
 </metadatadef:MetaDataDefinitions>

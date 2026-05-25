@@ -777,7 +777,9 @@
   + if (m) then '.' + 'with metadata'.apply_methodDefault() + '(' + o.input->select(p | 'S3Metadata'.equalsIgnoreCase(p.type.name))->first()
   .name().apply_parameterMethodClassicIn() +')' else '' endif + if (o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))->size() = 1) 
   then '.' + 'with content type'.apply_methodDefault() + '(' + o.input->select(p | 'S3ContentType'.equalsIgnoreCase(p.type.name))
-  ->first().name().apply_parameterMethodClassicIn() + ')' else '' endif + '.' + 'with content'.apply_methodDefault() 
+  ->first().name().apply_parameterMethodClassicIn() + ')' else '' endif + if (o.has_metaS3Retention()) then '.' + 'with retention mode'.apply_methodDefault() 
+  + '("' + o.get_metaS3Retention() + '").' + 'with retain until'.apply_methodDefault() + '("' + o.get_metaS3RetentionDuration() + '")' else '' endif
+  + if (o.is_metaS3Immutable()) then '.' + 'with immutable'.apply_methodDefault() + '(true)' else '' endif + '.' + 'with content'.apply_methodDefault() 
   + '(' + o.input->select(p | 'S3DocumentIn'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() 
   + ').build();' + o.lineSeparator() + 'client storage'.apply_attributeFinal() + '.' + 'upload'.apply_methodDefault() 
   + '(' + 'request content'.apply_variableDefault() + ');' + o.lineSeparator() + 'return null;'/]

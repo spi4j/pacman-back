@@ -32,6 +32,7 @@
   import java.time.LocalDate;
   import java.time.Instant;
   import java.time.LocalTime;
+  import java.time.ZoneOffset;
   import java.time.ZoneId;
   import java.io.InputStream;
   import java.time.temporal.ChronoUnit;
@@ -49,6 +50,7 @@
   
   import [any.namePackageProject()/].[any.namePackageException()/].[any.nameClassMapperExceptionImpl()/];
   import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassS3OutputParamImpl()/];
+  import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassValidationExceptionImpl()/];
   import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassNotImplementedExceptionImpl()/];
   import [any.namePackageProject()/].[any.namePackageCommonException()/].[any.nameClassRsDataNotFoundExceptionImpl()/];
 [/template]

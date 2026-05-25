@@ -1232,6 +1232,8 @@
   s3.secret-key=minioadmin
   # Conteneur logique (comme un dossier racine).
   s3.bucket=documents
+  # Active le versionning pour les documents
+  s3.version.enabled=false
   
   # ----------------------------------------------------------------------------------------------
   # COFFRE FORT (VAULT)
@@ -1484,6 +1486,7 @@
   [any.classHeader(null)/]
   import com.intuit.karate.Runner;
   import org.junit.jupiter.api.Test;
+  import org.junit.jupiter.api.BeforeEach;
   import org.springframework.boot.test.context.SpringBootTest;
   import org.springframework.boot.test.web.server.LocalServerPort;
   import org.springframework.test.context.ActiveProfiles;
@@ -1508,23 +1511,145 @@
       int ['port'.apply_attributeDefault()/];
       
       /**
-       * Exécute l'ensemble des scénarios du projet.
+       * Initialise les données utilisées par les tests fonctionnels.
        *
-       * Cette méthode :
-       * <ul>
-       * <li>configure l'URL de base utilisée par les scénarios;</li>
-       * <li>lance tous les fichiers {@code .feature} présents dans
-       * {@code classpath:features} ;</li>
-       * <li>génère les rapports au format Cucumber JSON.</li>
-       * </ul>
+       * Cette méthode est exécutée avant chaque méthode {@code @Test}.
+       * Elle permet de préparer l'environnement de test avant l'exécution
+       * des scénarios Karate.
        */
+      @BeforeEach
+      void ['before all tests'.apply_methodDefault()/]() {
+         [protected ('beforeAllTests'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         [/protected]
+      }
+      
+      /**
+      * Exécute les scénarios Karate configurés dans le runner.
+      *
+      * Cette méthode :
+      * <ul>
+      * <li>démarre l'application Spring Boot sur un port HTTP aléatoire ;</li>
+      * <li>expose l'URL de base via la propriété système {@code baseUrl} ;</li>
+      * <li>exécute les scénarios Karate sélectionnés ;</li>
+      * <li>génère les rapports de tests au format Cucumber JSON.</li>
+      * </ul>
+      *
+      * <p>
+      * Configuration actuelle :
+      * </p>
+      *
+      * <pre>
+      * Runner.path("classpath:features")
+      *       .outputCucumberJson(true)
+      *       .parallel(1);
+      * </pre>
+      *
+      * <p>
+      * Possibilités de personnalisation :
+      * </p>
+      *
+      * <ul>
+      * <li>
+      * Exécuter tous les scénarios d'un répertoire :
+      *
+      * <pre>
+      * Runner.path("classpath:features")
+      * </pre>
+      * </li>
+      *
+      * <li>
+      * Exécuter un seul fichier {@code .feature} :
+      *
+      * <pre>
+      * Runner.path("classpath:features/personnes/personnes-list.feature")
+      * </pre>
+      * </li>
+      *
+      * <li>
+      * Exécuter plusieurs fichiers ou répertoires :
+      *
+      * <pre>
+      * Runner.path(
+      *     "classpath:features/personnes",
+      *     "classpath:features/adresses")
+      * </pre>
+      * </li>
+      *
+      * <li>
+      * Filtrer les scénarios avec des tags Karate :
+      *
+      * <pre>
+      * Runner.path("classpath:features")
+      *       .tags("@smoke")
+      * </pre>
+      * </li>
+      *
+      * <li>
+      * Combiner plusieurs tags :
+      *
+      * <pre>
+      * .tags("@api", "@personnes")
+      * </pre>
+      * </li>
+      *
+      * <li>
+      * Exclure certains scénarios :
+      *
+      * <pre>
+      * .tags("~@ignore")
+      * </pre>
+      * </li>
+      *
+      * <li>
+      * Activer l'exécution parallèle :
+      *
+      * <pre>
+      * .parallel(4)
+      * </pre>
+      *
+      * Le nombre correspond au nombre de threads utilisés.
+      * {@code parallel(1)} désactive l'exécution parallèle.
+      * </li>
+      *
+      * <li>
+      * Générer un rapport Cucumber JSON :
+      *
+      * <pre>
+      * .outputCucumberJson(true)
+      * </pre>
+      * </li>
+      *
+      * <li>
+      * Générer un rapport HTML Karate :
+      *
+      * <pre>
+      * .outputHtmlReport(true) 
+      * </pre>
+      * </li>
+      * </ul>
+      *
+      * <p>
+      * Exemple complet :
+      * </p>
+      *
+      * <pre>
+      * Runner.path("classpath:features/personnes")
+      *       .tags("@smoke", "~@ignore")
+      *       .outputCucumberJson(true)
+      *       .outputHtmlReport(true)
+      *       .parallel(2);
+      * </pre>
+      */
+      [protected ('annotations'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
       @Test
       void ['run all tests'.apply_methodDefault()/]() {
         System.setProperty("baseUrl", "http://localhost:" + port);
         
-        [protected ('mycoLoginSuccessHandlerExtra'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [protected ('runAllTests'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           
           Runner.path("classpath:features")
+              .outputHtmlReport(true)
               .outputCucumberJson(true)
               .parallel(1);
               
@@ -2156,12 +2281,18 @@
 [comment écriture de la classe d'implémentation pour la récupération des paramètres pour storage S3 (input)./]
 [template public s3DocInputParamsImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageS3Base())/]
-  [any.defaultImports()/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
   
-  import com.fasterxml.jackson.core.type.TypeReference;
-  import com.fasterxml.jackson.databind.ObjectMapper;
-  import com.fasterxml.jackson.databind.JsonMappingException;
-  import com.fasterxml.jackson.core.JsonProcessingException;
+    [any.defaultImports()/]
+    
+    import java.util.regex.Matcher;
+    import java.util.regex.Pattern;
+    import com.fasterxml.jackson.core.type.TypeReference;
+    import com.fasterxml.jackson.databind.ObjectMapper;
+    import com.fasterxml.jackson.databind.JsonMappingException;
+    import com.fasterxml.jackson.core.JsonProcessingException;
+  
+  [/protected]
   
   /**
    * Représente une requête de manipulation d'un document dans un stockage S3.
@@ -2169,7 +2300,7 @@
    * Cette classe encapsule l'ensemble des paramètres nécessaires pour effectuer
    * une opération sur un objet S3 (upload, stockage, etc.), tels que le bucket
    * cible, la clé de l'objet, le contenu binaire, le type MIME et les métadonnées
-   * associées.
+   * associées, la possibilité d'immutabilité, etc...
    * </p>
    * <p>
    * Elle utilise le pattern {@link Builder} afin de faciliter la construction
@@ -2210,6 +2341,31 @@
      * Type MIME du document (ex : application/pdf, image/png).
      */
     private String ['content type'.apply_attributeDefault()/];
+    
+    /**
+     * Rétention appliquée au document.
+     */
+    private boolean ['retention'.apply_attributeDefault()/];
+    
+    /**
+     * Mode de rétention appliqué au document.
+     */
+    private String ['retention mode'.apply_attributeDefault()/];
+    
+    /**
+     * Date de fin de rétention.
+     */
+    private Instant ['retain until'.apply_attributeDefault()/];
+    
+    /**
+     * Interdit toute mise à jour logique du document.
+     */
+    private boolean ['immutable'.apply_attributeDefault()/];
+    
+    /**
+     * Legal hold actif (présent mais pour l'instant non encore utilisé').
+     */
+    private boolean ['legal hold'.apply_attributeDefault()/];
     
     /**
      * Métadonnées associées à l'objet S3.
@@ -2285,6 +2441,51 @@
        return [any.prefixAffectation()/]['size'.apply_attributeDefault()/];
     }
     
+   /**
+    * Indique si la rétention est active.
+    *
+    * @return 'true' si la rétention est active sinon 'false'
+    */
+    public boolean ['has retention'.apply_methodDefault()/]() {
+       return [any.prefixAffectation()/]['retention'.apply_attributeDefault()/];
+    }
+    
+   /**
+    * Retourne le mode de rétention.
+    *
+    * @return le mode de rétention
+    */
+    public String ['retention mode'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['retention mode'.apply_attributeDefault()/];
+    }
+    
+   /**
+    * Retourne la date d'expiration pour la rétention.
+    *
+    * @return la date d'expiration pour la rétention.
+    */
+    public Instant ['retain until'.apply_methodGet()/]() {
+       return [any.prefixAffectation()/]['retain until'.apply_attributeDefault()/];
+    }
+    
+   /**
+    * Indique si le document est immuable.
+    *
+    * @return 'true' si le document est immuable sinon 'false'
+    */
+    public boolean ['is immutable'.apply_methodDefault()/]() {
+       return [any.prefixAffectation()/]['immutable'.apply_attributeDefault()/];
+    }
+    
+   /**
+    * Indique si le legal hold est actif.
+    *
+    * @return le legal hold
+    */
+    public boolean ['is legal hold'.apply_methodDefault()/]() {
+       return [any.prefixAffectation()/]['legal hold'.apply_attributeDefault()/];
+    }
+    
     /**
      * Crée un builder permettant de construire une instance de
      * {@link [any.nameClassS3InputParamsImpl()/]}.
@@ -2304,11 +2505,40 @@
      * </p>
      */
     public static class Builder {
+        
+      /**
+       * Expression régulière utilisée pour valider une durée de rétention.
+       * <p>
+       * Le format attendu est :
+       * <ul>
+       * <li>un nombre entier positif obligatoire</li>
+       * <li>suivi éventuellement d'une unité :
+       * <ul>
+       * <li>{@code J} : jours</li>
+       * <li>{@code M} : mois</li>
+       * <li>{@code A} : années</li>
+       * </ul></li></ul></p>
+       * <p>
+       * Exemples de valeurs valides :
+       * <ul>
+       * <li>{@code 5} → 5 mois (valeur par défaut)</li>
+       * <li>{@code 12J} → 12 jours</li>
+       * <li>{@code 6M} → 6 mois</li>
+       * <li>{@code 3A} → 3 années</li>
+       * </ul>
+       * </p>
+       */
+       private static final Pattern ['retention _pattern'.apply_attributeFinalStatic()/] = Pattern.compile("^(\\d+)(['['/]MJA[']'/]?)$");
       
        /**
        * Instance en cours de construction.
        */
        private final [any.nameClassS3InputParamsImpl()/] ['request'.apply_attributeFinal()/];
+       
+       /**
+       * La date d'expiration pour la rétention.
+       */
+       private String ['retain until'.apply_attributeDefault()/];
        
        /**
        * Constructeur privé du builder.
@@ -2320,19 +2550,19 @@
         /**
          * Définit le bucket cible.
          *
-         * @param bucket nom du bucket
+         * @param ['bucket'.apply_parameterMethodClassicIn()/] nom du bucket
          * @return le builder courant
          */
-        public Builder ['with bucket'.apply_methodDefault()/](final String ['request'.apply_parameterMethodClassicIn()/]) {
+        public Builder ['with bucket'.apply_methodDefault()/](final String ['bucket'.apply_parameterMethodClassicIn()/]) {
            [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['bucket'.apply_attributeDefault()/] 
-           = ['request'.apply_parameterMethodClassicIn()/];
+           = ['bucket'.apply_parameterMethodClassicIn()/];
            return this;
         }
         
         /**
          * Définit la clé de l'objet.
          *
-         * @param key clé unique de l'objet
+         * @param ['key'.apply_parameterMethodClassicIn()/] clé unique de l'objet
          * @return le builder courant
          */
         public Builder ['with key'.apply_methodDefault()/](final String ['key'.apply_parameterMethodClassicIn()/]) {
@@ -2344,7 +2574,7 @@
         /**
          * Définit le contenu du document.
          *
-         * @param content flux du contenu
+         * @param ['content'.apply_parameterMethodClassicIn()/] flux du contenu
          * @return le builder courant
          */
         public Builder ['with content'.apply_methodDefault()/](final InputStream ['content'.apply_parameterMethodClassicIn()/]) {
@@ -2356,13 +2586,61 @@
         /**
          * Définit le type MIME du document.
          *
-         * @param contentType type MIME
+         * @param ['content type'.apply_parameterMethodClassicIn()/] type MIME
          * @return le builder courant
          */
         public Builder ['with contentType'.apply_methodDefault()/](final String ['content type'.apply_parameterMethodClassicIn()/]) {
            [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['content type'.apply_attributeDefault()/] 
            = ['content type'.apply_parameterMethodClassicIn()/];
            return this;
+        }
+        
+        /**
+         * Définit la rétention appliquée au document.
+         *
+         * @param ['retention mode'.apply_parameterMethodClassicIn()/] la rétention appliquée au document
+         * @return le builder courant
+         */
+        public Builder ['with retention mode'.apply_methodDefault()/](final String ['retention mode'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['retention mode'.apply_attributeDefault()/] 
+            = ['retention mode'.apply_parameterMethodClassicIn()/];
+            return this;
+        }
+        
+        /**
+         * Définit la date de fin de rétention.
+         *
+         * @param ['retain until'.apply_parameterMethodClassicIn()/] la date de fin de rétention
+         * @return le builder courant
+         */
+        public Builder ['with retain until'.apply_methodDefault()/](final String ['retain until'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['retain until'.apply_attributeDefault()/] 
+            = ['retain until'.apply_parameterMethodClassicIn()/];
+            return this;
+        }
+        
+        /**
+         * Définit la mise à jour logique du document.
+         *
+         * @param ['immutable'.apply_parameterMethodClassicIn()/] la mise à jour logique du document
+         * @return le builder courant
+         */
+        public Builder ['with immutable'.apply_methodDefault()/](final boolean ['immutable'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['immutable'.apply_attributeDefault()/] 
+            = ['immutable'.apply_parameterMethodClassicIn()/];
+            return this;
+        }
+        
+        /**
+         * Définit le legal hold actif.
+         *
+         * @param ['legal hold'.apply_parameterMethodClassicIn()/] le legal hold actif
+         * @return le builder courant
+         */
+        public Builder ['with legal hold'.apply_methodDefault()/](final boolean ['legal hold'.apply_parameterMethodClassicIn()/]) {
+            [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['legal hold'.apply_attributeDefault()/] 
+            = ['legal hold'.apply_parameterMethodClassicIn()/];
+            return this;
         }
         
         /**
@@ -2396,22 +2674,87 @@
         }
         
         [protected ('build methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-          [/protected]
+        [/protected]
         
         /**
-         * Construit une instance de {@link [any.nameClassS3InputParamsImpl()/]}.
+         * Construit une instance valide de {@link [any.nameClassS3InputParamsImpl()/]}.
          * <p>
-         * Vérifie la présence du champ obligatoire 
-         * {@code key} avant de retourner l'objet.
+         * Cette méthode vérifie la cohérence des paramètres obligatoires et des
+         * paramètres liés à la rétention avant de retourner l'objet construit.
          * </p>
-         *
+         * <p>
+         * Les validations effectuées sont les suivantes :
+         * <ul>
+         * <li>la clé du document doit être renseignée</li>
+         * <li>le mode de rétention doit être {@code COMPLIANCE} ou
+         * {@code GOVERNANCE}</li>
+         * <li>une durée de rétention doit être fournie si un mode de rétention est
+         * défini</li>
+         * <li>la durée de rétention doit respecter le format attendu</li>
+         * </ul>
+         * </p>
+         * <p>
+         * Lorsque la rétention est définie, la date d'expiration est calculée à partir
+         * de la date courante en appliquant l'offset correspondant.
+         * </p>
          * @return une instance valide de {@link [any.nameClassS3InputParamsImpl()/]}
-         * @throws IllegalStateException si un champ obligatoire est manquant
+         * @throws [any.nameClassValidationExceptionImpl()/] si les paramètres sont invalides ou
+         *                                  incohérents
          */
         public [any.nameClassS3InputParamsImpl()/] ['build'.apply_methodDefault()/]() {
            if ([any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/] == null 
                || [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['key'.apply_attributeDefault()/].isEmpty()) {
-               throw new IllegalStateException("La clé est obligatoire pour manipuler un document S3");
+               throw new [any.nameClassValidationExceptionImpl()/]("La clé est obligatoire pour manipuler un document S3");
+           }
+           
+           if ([any.prefixAffectation()/]['request'.apply_attributeFinal()/].['retention mode'.apply_attributeDefault()/] != null 
+                && ![any.prefixAffectation()/]['request'.apply_attributeFinal()/].['retention mode'.apply_attributeDefault()/].isEmpty()
+                && ![any.prefixAffectation()/]['request'.apply_attributeFinal()/].['retention mode'.apply_attributeDefault()/].isBlank()) {
+                
+                if (![any.prefixAffectation()/]['request'.apply_attributeFinal()/].['retention mode'.apply_attributeDefault()/].equals("COMPLIANCE")
+                    && ![any.prefixAffectation()/]['request'.apply_attributeFinal()/].['retention mode'.apply_attributeDefault()/].equals("GOVERNANCE")) {
+                    throw new [any.nameClassValidationExceptionImpl()/]("Le mode de rétention n'est pas défini pour le document.");
+                }
+                
+                if ([any.prefixAffectation()/]['retain until'.apply_attributeDefault()/] == null ) {
+                	throw new [any.nameClassValidationExceptionImpl()/]("La durée de rétention n'est pas définie pour le document.");
+                }
+                
+                Matcher ['matcher'.apply_variableDefault()/] = ['retention _pattern'.apply_attributeFinalStatic()/]
+                   .matcher([any.prefixAffectation()/]['retain until'.apply_attributeDefault()/].trim());
+                if (!['matcher'.apply_variableDefault()/].matches()) {
+                   throw new [any.nameClassValidationExceptionImpl()/](
+                           "La durée de rétention est invalide : " 
+                           + [any.prefixAffectation()/]['retain until'.apply_attributeDefault()/]);
+                }
+                long ['duration'.apply_variableDefault()/] = Long.parseLong(['matcher'.apply_variableDefault()/].group(1));
+                String ['unit'.apply_variableDefault()/] = ['matcher'.apply_variableDefault()/].group(2);
+                if (['unit'.apply_variableDefault()/] == null || ['unit'.apply_variableDefault()/].isBlank()) {
+                   ['unit'.apply_variableDefault()/] = "M";
+                }
+                Instant ['now'.apply_variableDefault()/] = Instant.now();
+                Instant ['retention instant'.apply_variableDefault()/];
+                switch (['unit'.apply_variableDefault()/]) {
+                case "J":
+                   ['retention instant'.apply_variableDefault()/] = ['now'.apply_variableDefault()/]
+                   .plus(['duration'.apply_variableDefault()/], ChronoUnit.DAYS);
+                   break;
+                case "M":
+                   ['retention instant'.apply_variableDefault()/] = ['now'.apply_variableDefault()/]
+                   .plus(['duration'.apply_variableDefault()/], ChronoUnit.MONTHS);
+                   break;
+                case "A":
+                   ['retention instant'.apply_variableDefault()/] = ['now'.apply_variableDefault()/]
+                   .plus(['duration'.apply_variableDefault()/], ChronoUnit.YEARS);
+                   break;
+                default:
+                   throw new [any.nameClassValidationExceptionImpl()/](
+                           "Unité de rétention invalide : " 
+                           + ['unit'.apply_variableDefault()/]);
+                }
+                [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['retain until'.apply_attributeDefault()/] 
+                  = ['retention instant'.apply_variableDefault()/];
+                [any.prefixAffectation()/]['request'.apply_attributeFinal()/].['retention'.apply_attributeDefault()/] = true;
            }
            
            [protected ('build validation'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -2448,6 +2791,7 @@
      *     <li>{@code s3.access-key} : clé d'accès pour l'authentification</li>
      *     <li>{@code s3.secret-key} : clé secrète associée</li>
      *     <li>{@code s3.bucket} : nom du bucket par défaut</li>
+     *     <li>{@code s3.versionEnabled} : active la version pour les documents</li>
      * </ul>
      *
      * @author [any.nameAuthor()/]
@@ -2468,6 +2812,9 @@
       
       ['Nom du bucket utilisé par l\'application'.commentSingleLine()/]
       private String bucket;
+      
+      ['Active le versionning pour les documents'.commentSingleLine()/]
+      private boolean versionEnabled;
       
      /**
       * Retourne l'URL du serveur S3.
@@ -2540,6 +2887,24 @@
       public void ['bucket'.apply_methodSet()/](String ['bucket'.apply_parameterMethodClassicIn()/]) {
         [any.prefixAffectation()/]bucket = ['bucket'.apply_parameterMethodClassicIn()/];
       }
+      
+     /** 
+       * Retourne l'activation du versionning pour stocker les objets.
+       * 
+       * @return l'activation du versionning
+       */
+       public boolean ['is version enabled'.apply_methodDefault()/]() {
+         return [any.prefixAffectation()/]versionEnabled;
+       }
+       
+      /**
+       * Définit l'activation du versionning pour stocker les objets.
+       * 
+       * @param ['version'.apply_parameterMethodClassicIn()/] active ou désactive le versionning.
+       */
+       public void ['version enabled'.apply_methodSet()/](boolean ['versionEnabled'.apply_parameterMethodClassicIn()/]) {
+         [any.prefixAffectation()/]versionEnabled = ['versionEnabled'.apply_parameterMethodClassicIn()/];
+       }
   }
 [/template]
 
@@ -2567,6 +2932,10 @@
     import io.minio.RemoveObjectArgs;
     import io.minio.StatObjectArgs;
     import io.minio.StatObjectResponse;
+    import io.minio.messages.Retention;
+    import io.minio.messages.RetentionMode;
+    import io.minio.errors.ErrorResponseException;
+    import io.minio.messages.VersioningConfiguration;
     
   [/protected]
   
@@ -2657,22 +3026,63 @@
       }
       
       /**
-       * Factory interne responsable de la création de clients S3.
+       * Factory interne responsable de la création  et du cache des clients S3.
        * <p>
-       * À chaque appel de {@link #['client'.apply_methodGet()/]()}, un nouveau {@link MinioClient} est
-       * construit avec des credentials valides. Cette approche garantit que les
-       * credentials ne sont jamais expirés lors des opérations.</p>
+       * Le client {@link MinioClient} est créé à la demande puis réutilisé
+       * afin d'éviter les reconstructions inutiles et de bénéficier du
+       * pooling HTTP interne.
+       * </p>
+       * Infrastructure prévue pour supporter des credentials temporaires
+       * (STS / OIDC / IAM).
+       * <p>
+       * Par défaut, l'implémentation utilise les credentials statiques
+       * configurés dans {@link TestS3Properties}.
+       * </p>
+       * <p>
+       * Les développeurs peuvent activer la logique de rafraîchissement
+       * dynamique en décommentant les sections prévues dans
+       * {@link #getClient()}.
+       * </p>
        */
       public class ['s3 client factory'.apply_classDefault()/] implements [any.nameClassS3Itf()/] {
-          MinioClient ['client'.apply_methodGet()/]() {
+          
+          /**
+          * Instance courante du client S3 mise en cache
+          */
+          private volatile MinioClient currentClient;
+          
+         /**
+         * Retourne une instance valide du client S3.
+         * <p>
+         * Le client {@link MinioClient} est créé à la demande lors du premier
+         * appel puis conservé en cache afin d'éviter les reconstructions
+         * inutiles et de bénéficier du pooling HTTP interne du SDK.
+         * </p>
+         * <p>
+         * Cette méthode est synchronisée afin de garantir la création unique
+         * du client dans un contexte multi-thread.
+         * </p>
+         * <p>
+         * L'architecture prévoit également la possibilité d'utiliser des
+         * credentials temporaires (STS / OIDC) via les sections prévues dans
+         * les blocs de personnalisation utilisateur.
+         * </p>
+         *
+         * @return une instance valide de {@link MinioClient}
+         */
+          private synchronized MinioClient ['client'.apply_methodGet()/]() {
+            
             [protected ('s3 factory'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
               
               // ['credentials wrapper'.apply_classDefault()/] ['creds'.apply_variableDefault()/] = ['credentials'.apply_methodGet()/]();
               
-              return MinioClient.builder()
+              if ([any.prefixAffectation()/]['current client'.apply_attributeStatic()/] == null) {
+              [any.prefixAffectation()/]['current client'.apply_attributeStatic()/] = MinioClient.builder()
                  .endpoint(['props'.apply_attributeFinal()/].['url'.apply_methodGet()/]())
                  .credentials(['props'.apply_attributeFinal()/].['access key'.apply_methodGet()/](), 
                  ['props'.apply_attributeFinal()/].['secret key'.apply_methodGet()/]()).build();
+              }
+              return [any.prefixAffectation()/]['current client'.apply_attributeStatic()/];
                  
               // return MinioClient.builder()
               //   .endpoint(['props'.apply_attributeFinal()/].['url'.apply_methodGet()/]())
@@ -2713,6 +3123,20 @@
             ['builder'.apply_variableDefault()/].userMetadata(['params'.apply_parameterMethodClassicIn()/]
                 .['metadata'.apply_methodGet()/]() != null ? ['params'.apply_parameterMethodClassicIn()/]
                 .['metadata'.apply_methodGet()/]() : java.util.Collections.emptyMap());
+                
+             if (['params'.apply_parameterMethodClassicIn()/].['has retention'.apply_methodDefault()/]()) {
+                 RetentionMode ['retentionMode'.apply_variableDefault()/] = RetentionMode.valueOf(['params'.apply_parameterMethodClassicIn()/]
+                   .['retention mode'.apply_methodGet()/]().toUpperCase());
+                 builder.retention(new Retention(['retentionMode'.apply_variableDefault()/], ['params'.apply_parameterMethodClassicIn()/]
+                   .['retain until'.apply_methodGet()/]().atZone(ZoneOffset.UTC)));
+             }
+             
+             if (['params'.apply_parameterMethodClassicIn()/].['is immutable'.apply_methodDefault()/]()
+                && ['exists'.apply_methodDefault()/](['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/](),
+                ['params'.apply_parameterMethodClassicIn()/].['key'.apply_methodGet()/]())) {
+                    throw new [any.nameClassValidationExceptionImpl()/] (
+                    "Le document est immutable et existe déjà : " + params.getKey());
+             }
              
              [protected ('upload'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
              [/protected]
@@ -2807,6 +3231,39 @@
                   .bucket(['params'.apply_parameterMethodClassicIn()/].['bucket'.apply_methodGet()/]())
                   .object(['params'.apply_parameterMethodClassicIn()/].['key'.apply_methodGet()/]())
                   .build());
+        }
+         
+      /**
+       * Vérifie si un objet existe dans le stockage S3.
+       * <p>
+       * Cette méthode tente de récupérer les métadonnées de l'objet via
+       * {@code statObject}. Si l'objet existe, la méthode retourne {@code true}.
+       * Si une exception est levée (objet absent ou erreur d'accès), la méthode
+       * retourne {@code false}.
+       * </p>
+       * <p>
+       * Cette vérification est notamment utilisée pour implémenter des règles
+       * métier d'immutabilité empêchant l'écrasement d'un document existant.
+       * </p>
+       *
+       * @param ['bucket'.apply_parameterMethodClassicIn()/] nom du bucket contenant l'objet
+       * @param ['key'.apply_parameterMethodClassicIn()/] clé unique de l'objet dans le bucket
+       * @return {@code true} si l'objet existe sinon {@code false}
+       */
+        private boolean ['exists'.apply_methodDefault()/](final String ['bucket'.apply_parameterMethodClassicIn()/], 
+           final String ['key'.apply_parameterMethodClassicIn()/]) throws Exception {
+           try {
+              getClient().statObject(StatObjectArgs.builder()
+                .bucket(['bucket'.apply_parameterMethodClassicIn()/])
+                .object(['key'.apply_parameterMethodClassicIn()/])
+                .build());
+                return true;
+            } catch (ErrorResponseException e) {
+                if ("NoSuchKey".equals(e.errorResponse().code())) {
+                  return false;
+                }
+                throw e;
+            }
         }
         
         [protected ('client storage'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -2905,8 +3362,15 @@
                 ['client'.apply_variableDefault()/].makeBucket(
                      MakeBucketArgs.builder()
                         .bucket([any.prefixAffectation()/]['props'.apply_attributeFinal()/].['bucket'.apply_methodGet()/]())
+                        .objectLock(true)
                         .build());
-               }
+             }
+             if ([any.prefixAffectation()/]['props'.apply_attributeFinal()/].['is version enabled'.apply_methodDefault()/]()) {
+                ['client'.apply_variableDefault()/].setBucketVersioning(SetBucketVersioningArgs.builder()
+                   .bucket([any.prefixAffectation()/]['props'.apply_attributeFinal()/].['bucket'.apply_methodGet()/]())
+                   .config(new VersioningConfiguration(VersioningConfiguration.Status.ENABLED, false))
+                   .build());
+             }
           };
       }
   }
