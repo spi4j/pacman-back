@@ -10,6 +10,7 @@
 [import fr::pacman::back::core::aql::rule::variable/]
 [import fr::pacman::back::core::aql::rule::method/]
 [import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::aql::rule::class/]
 [import fr::pacman::back::core::property::project::ProjectProperties/]
 
 [comment écriture du fichier de configuration Maven pour le sous-projet métier (domain)./]
@@ -530,7 +531,8 @@
    *
    * @author [any.nameAuthor()/]
    */
-  public class [any.nameClassS3OutputParamImpl()/] {
+  @SuppressWarnings("serial")
+  public class [any.nameClassS3OutputParamImpl()/] implements Serializable {
      
      ['Contenu binaire de l\'objet sous forme de flux'.commentSingleLine()/]
      private final InputStream ['body'.apply_attributeFinal()/];
@@ -567,6 +569,160 @@
       */
      public Map<String, List<String>> ['headers'.apply_methodGet()/]() {
        return [any.prefixAffectation()/]['headers'.apply_attributeFinal()/];
+     }
+  }
+[/template]
+
+[comment écriture de la classe d'implémentation pour la récupération des paramètres pour storage S3 (output)./]
+[template public batchOutputParamImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageCommonBase())/]
+  [any.defaultImports()/]
+  
+  /**
+  * Représente une exécution d'une opération métier dans un contexte asynchrone ou différé.
+  *
+  * <p>Cette classe est un contrat générique utilisé par les services exposés par le système
+  * lorsque l'exécution d'une opération ne peut pas être retournée immédiatement (ex : mode batch,
+  * traitement asynchrone, exécution planifiée ou déportée).Cette classe ne représente pas le résultat 
+  * métier d'une opération, mais son suivi d'exécution.</p>
+  *
+  * Elle permet de découpler :
+  * <ul>
+  *   <li>le déclenchement d'une opération</li>
+  *   <li>son exécution réelle</li>
+  *   <li>et la consultation de son état</li>
+  * </ul>
+  *
+  * <p>Cette classe est indépendante de toute technologie d'orchestration (Spring Batch, Quartz, etc.).
+  * Elle constitue un contrat stable utilisé par les adaptateurs générés.</p>
+  */
+  @SuppressWarnings("serial")
+  public class [any.nameClassBatchOutputParamImpl()/] implements Serializable {
+     
+     ['Identifiant unique de l\'exécution'.commentMultiLines()/]
+     private Long ['execution id'.apply_attributeDefault()/];
+     
+     ['Nom logique de l\'opération exécutée'.commentMultiLines()/]
+     private String ['operation name'.apply_attributeDefault()/];
+     
+     ['Statut de l\'exécution'.commentMultiLines()/]
+     private ['execution status'.apply_classEnum()/] ['status'.apply_attributeDefault()/];
+     
+     ['Horodatage de début'.commentMultiLines()/]
+     private Instant ['start time'.apply_attributeDefault()/];
+     
+     ['Instant endTime'.commentMultiLines()/]
+     private Instant ['end time'.apply_attributeDefault()/];
+     
+     ['Message d\'erreur si échec'.commentMultiLines()/]
+     private String ['error message'.apply_attributeDefault()/];
+     
+     ['Code d\'erreur technique'.commentMultiLines()/]
+     private String ['error code'.apply_attributeDefault()/];
+     
+     ['Corrélation entre appel REST et exécution'.commentMultiLines()/]
+     private String ['correlation id'.apply_attributeDefault()/];
+     
+     ['Liste des assesseurs'.commentMultiLines()/]
+     
+     public Long ['execution id'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['execution id'.apply_attributeDefault()/];
+     }
+     
+     public void ['execution id'.apply_methodSet()/](final Long ['execution id'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['execution id'.apply_attributeDefault()/] = ['execution id'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public String ['operation name'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['operation name'.apply_attributeDefault()/];
+     }
+     
+     public void ['operation name'.apply_methodSet()/](final String ['operation name'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['operation name'.apply_attributeDefault()/] = ['operation name'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public ['execution status'.apply_classEnum()/] ['status'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['status'.apply_attributeDefault()/];
+     }
+     
+     public void ['status'.apply_methodSet()/](final ['execution status'.apply_classEnum()/] ['status'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['status'.apply_attributeDefault()/] = ['status'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public Instant ['start time'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['start time'.apply_attributeDefault()/];
+     }
+     
+     public void ['start time'.apply_methodSet()/](final Instant ['start time'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['start time'.apply_attributeDefault()/] = ['start time'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public Instant ['end time'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['end time'.apply_attributeDefault()/];
+     }
+     
+     public void ['end time'.apply_methodSet()/](final Instant ['end time'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['end time'.apply_attributeDefault()/] = ['end time'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public String ['correlation id'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['correlation id'.apply_attributeDefault()/];
+     }
+     
+     public void ['correlation id'.apply_methodSet()/](final String ['correlation id'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['correlation id'.apply_attributeDefault()/] = ['correlation id'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public String ['error message'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['error message'.apply_attributeDefault()/];
+     }
+     
+     public void ['error message'.apply_methodSet()/](final String ['error message'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['error message'.apply_attributeDefault()/] = ['error message'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public String ['error code'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['errorCode'.apply_attributeDefault()/];
+     }
+     
+     public void ['error code'.apply_methodSet()/](final String ['error code'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['errorCode'.apply_attributeDefault()/] = ['error code'.apply_parameterMethodClassicIn()/];
+     }
+      
+    /**
+     * Représente les différents états possibles d'une exécution d'opération métier.
+     *
+     * <p>
+     * Ces statuts décrivent le cycle de vie d'une exécution de traitement asynchrone,
+     * depuis sa création jusqu'à sa terminaison, qu'elle soit normale, en erreur ou
+     * interrompue. Le statut est indépendant de toute technologie d'orchestration.
+     * </p>
+     *
+     * <h2>Cycle de vie standard</h2>
+     *
+     * <pre>
+     * CREATED  →  STARTED  →  COMPLETED
+     *                    ↘
+     *                     FAILED
+     * </pre>
+     *
+     * <h2>Signification des états</h2>
+     *
+     * <ul>
+     * <li><b>CREATED</b> : l'exécution est créée mais pas encore démarrée.</li>
+     * <li><b>STARTED</b> : l'exécution est en cours de traitement.</li>
+     * <li><b>COMPLETED</b> : l'exécution s'est terminée avec succès.</li>
+     * <li><b>FAILED</b> : une erreur est survenue pendant l'exécution.</li>
+     * <li><b>STOPPED</b> : l'exécution a été interrompue volontairement ou par le
+     * système.</li>
+     * </ul>
+     */
+     enum ['execution status'.apply_classEnum()/] {
+        CREATED, 
+        STARTED,
+        COMPLETED,
+        FAILED,
+        STOPPED
      }
   }
 [/template]

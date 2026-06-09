@@ -5,6 +5,7 @@
 [comment toujours placer les 'main' au niveau des modules fils, sinon génération incomplète./]
 [comment enlever ces imports suite a correction bug./]
 [import fr::pacman::back::soa::aql::file::genCommon/]
+[import fr::pacman::back::core::aql::query::service/]
 [comment enlever ces imports suite a correction bug./]
 
 [import fr::pacman::back::soa::spring::aql::file::genCommon/]
@@ -13,7 +14,7 @@
 [comment écriture des classes et fichiers soa pour la partie métier de l'application cible./]
 [template public genCommon(m : soa::System)]
   [m.super:genCommon()/]
-  [for (s : soa::Service | m.eAllContents(soa::Service))]
+  [for (s : soa::Service | m.regularServices())]
     [comment implémentation du resolver junit pour les tests./]
     [s.fileServiceOutResolverImpl()/]
     [comment implémentation des tests métier./]

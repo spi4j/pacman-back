@@ -72,6 +72,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <!-- batchs asynchrones -->
+        <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-batch</artifactId>
+        </dependency>
         <!-- swagger-ui -->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -3373,6 +3378,75 @@
              }
           };
       }
+  }
+[/template]
+
+[comment écriture d'une classe utilitaire pour pouvoir récupérer des bean de traitement asynchrone./]
+[template public outBatchApplicationContextImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageApplicationBase())/]
+  
+  import org.springframework.context.ApplicationContext;
+  import org.springframework.context.ApplicationContextAware;
+  import org.springframework.stereotype.Component;
+  
+  /**
+  * Fournit un accès statique au contexte Spring de l'application.
+  * <p>
+  * Cette classe est initialisée automatiquement par Spring au démarrage via
+  * l'interface {@link ApplicationContextAware}. Elle permet de récupérer des
+  * beans gérés par le conteneur Spring depuis des composants ne bénéficiant pas
+  * de l'injection de dépendances.
+  * </p>
+  * <p>
+  * Son utilisation doit rester exceptionnelle et être réservée aux cas où
+  * l'injection directe d'un bean n'est pas possible ou nécessiterait une
+  * modification importante de l'architecture générée.
+  * </p>
+  *
+  * @author  [any.nameAuthor()/]
+  */
+  @Component
+  public class [any.nameClassOutBatchAppContextImpl()/] implements ApplicationContextAware {
+  
+   /**
+    * Contexte Spring de l'application.
+    * <p>
+    * Cette référence est initialisée automatiquement au démarrage et permet
+    * l'accès statique aux beans gérés par le conteneur Spring.
+    * </p>
+    */
+    private static ApplicationContext ['application context'.apply_attributeStatic()/];
+
+   /**
+   * Enregistre le contexte Spring de l'application.
+   *
+   * @param ['context'.apply_parameterMethodClassicIn()/] contexte Spring initialisé au démarrage de l'application
+   */
+    @Override
+    public void ['application context'.apply_methodSet()/](final ApplicationContext ['context'.apply_parameterMethodClassicIn()/]) {
+       ['application context'.apply_attributeStatic()/] = ['context'.apply_parameterMethodClassicIn()/];
+    }
+   
+    /**
+    * Retourne le bean Spring correspondant au type demandé.
+    *
+    * @param <T>  type du bean recherché
+    * @param ['type'.apply_parameterMethodClassicIn()/] classe du bean recherché
+    * @return instance du bean géré par Spring
+    */
+    public static <T> T ['bean'.apply_methodGet()/](final Class<T> ['type'.apply_parameterMethodClassicIn()/]) {
+        return ['application context'.apply_attributeStatic()/].getBean(['type'.apply_parameterMethodClassicIn()/]);
+    }
+    
+   /**
+    * Retourne le bean Spring correspondant au nom demandé.
+    *
+    * @param name nom du bean recherché
+    * @return instance du bean géré par Spring
+    */
+    public static Object ['bean'.apply_methodGet()/](final String ['name'.apply_parameterMethodClassicIn()/]) {
+        return ['application context'.apply_attributeStatic()/].getBean( ['name'.apply_parameterMethodClassicIn()/]);
+    }
   }
 [/template]
 

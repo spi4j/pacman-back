@@ -252,7 +252,7 @@
 [/template]
 
 [comment écriture de l'implémentation pour le service de persistance jpa (couche infrastructure)./]
-[template public outImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
+[template public outJpaImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageOutImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -288,7 +288,7 @@
         [em.writeJpaEntityManager()/]
         ['Gestionnaires de persistance disponibles'.commentSingleLine()/]
         [for (d | ds->select(o | o.isPersistent()))]
-          final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeFinal()/];
+          private final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeFinal()/];
         [/for]
       
         ['Constructeur'.commentMultiLines()/]
@@ -335,7 +335,7 @@
 [/template]
 
 [comment écriture de l'implémentation pour le service de persistance s3 (couche infrastructure)./]
-[template public outImpl(s : soa::Service)]
+[template public outS3Impl(s : soa::Service)]
   [s.classHeader(s.namePackageOutImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -425,6 +425,371 @@
   }
 [/template]
 
+[comment écriture de l'implémentation pour l'orchestration du service batch (couche infrastructure)./]
+[template public outBatchConfigImpl(s : soa::Service)]
+   [s.classHeader(s.namePackageRsControllerImpl())/]
+   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+     
+     import org.springframework.batch.core.Job;
+     import org.springframework.batch.core.Step;
+     import org.springframework.batch.core.job.builder.JobBuilder;
+     import org.springframework.batch.core.repository.JobRepository;
+     import org.springframework.batch.core.step.builder.StepBuilder;
+     import org.springframework.batch.repeat.RepeatStatus;
+     import org.springframework.context.annotation.Bean;
+     import org.springframework.context.annotation.Configuration;
+     import org.springframework.transaction.PlatformTransactionManager;
+     
+   [/protected]
+   
+   @Configuration
+   class [s.nameClassServiceOutBatchConfigImpl()/]
+   {
+     
+     /**
+      * Nom du job.
+      */
+     private static final String ['job _name'.apply_attributeFinalStatic()/] 
+       = "[(s.name() + ' job').apply_variableDefault()/]";
+     
+     /**
+      * Nom du step technique.
+      */
+     private static final String ['step _name'.apply_attributeFinalStatic()/] 
+       = "[(s.name() + ' step').apply_variableDefault()/]";
+     
+     /**
+      * Déclare le job Spring Batch associé au service asynchrone.
+      *
+      * @param ['job repository'.apply_parameterMethodClassicIn()/] référentiel Spring Batch des jobs
+      * @param [(s.name() + ' step').apply_parameterMethodClassicIn()/] step exécuté par le job
+      * @return le job Spring Batch configuré
+      */
+     @Bean
+     public Job [(s.name() + ' job').apply_methodDefault()/](final JobRepository ['job repository'.apply_parameterMethodClassicIn()/]
+          , final Step [(s.name() + ' step').apply_parameterMethodClassicIn()/]) {
+          
+         [protected ('job'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           
+           return new JobBuilder(['job _name'.apply_attributeFinalStatic()/]
+             , ['job repository'.apply_parameterMethodClassicIn()/])
+             .start([(s.name() + ' step').apply_parameterMethodClassicIn()/])
+             .build();
+           
+         [/protected]
+     }
+     
+     /**
+      * Déclare le step technique du batch.
+      *
+      * <p>
+      * Ce step utilise actuellement un tasklet minimal dont l'unique rôle
+      * est de terminer l'exécution avec succès.
+      * </p>
+      *
+      * @param ['job repository'.apply_parameterMethodClassicIn()/] référentiel Spring Batch des jobs
+      * @param ['transaction manager'.apply_parameterMethodClassicIn()/] gestionnaire de transactions
+      * @return le step configuré
+      */
+     @Bean
+     public Step personneStep(final JobRepository ['job repository'.apply_parameterMethodClassicIn()/],
+          final PlatformTransactionManager ['transaction manager'.apply_parameterMethodClassicIn()/], 
+          final [s.nameClassServiceOutBatchTaskletImpl()/] [(s.name() +' tasklet').apply_parameterMethodClassicIn()/]) {
+          
+         [protected ('step'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           
+           return new StepBuilder(STEP_NAME, ['job repository'.apply_parameterMethodClassicIn()/])
+            .tasklet([(s.name() +' tasklet').apply_parameterMethodClassicIn()/],
+            ['transaction manager'.apply_parameterMethodClassicIn()/])
+            .build();
+            
+         [/protected]
+     }
+   }
+[/template]
+
+
+
+[comment écriture de l'implémentation du tasklet pour le service batch (couche infrastructure)./]
+[template public outBatchTaskletImpl(s : soa::Service)]
+  [s.classHeader(s.namePackageRsControllerImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
+    import org.springframework.batch.core.StepContribution;
+    import org.springframework.context.annotation.PropertySource;
+    import org.springframework.batch.core.scope.context.ChunkContext;
+    import org.springframework.batch.core.step.tasklet.Tasklet;
+    import org.springframework.batch.repeat.RepeatStatus;
+    import org.springframework.stereotype.Component;
+    import [s.namePackageProject()/].[s.namePackageOutImpl()/].[s.nameClassServiceOutImpl('batch')/];
+    
+  [/protected]
+  
+  /**
+  * Tasklet Spring Batch responsable de l'exécution du traitement
+  * associé au batch [s.name()/].
+  * <p>
+  * Cette classe constitue le point d'entrée du traitement métier
+  * à l'intérieur du Step Spring Batch.
+  * </p>
+  * <p>
+  * L'implémentation des opérations est déléguée au Provider généré.
+  * </p>
+  *
+  * @author [s.nameAuthor()/]
+  */
+  @Component
+  class [s.nameClassServiceOutBatchTaskletImpl()/] implements Tasklet {
+     
+     [''.commentMultiLines()/]
+     private final [s.nameClassServiceOutImpl('batch')/] ['provider'.apply_attributeFinal()/];
+    
+    ['Journalisation de la classe'.commentMultiLines()/]
+    private static final Logger ['logger'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger(
+       [s.nameClassServiceOutBatchTaskletImpl()/].class);
+       
+    /**
+     * Initialise le tasklet.
+     *
+     * @param ['provider'.apply_parameterMethodClassicIn()/] provider contenant les opérations du batch
+     */
+    public [s.nameClassServiceOutBatchTaskletImpl()/](
+       final [s.nameClassServiceOutImpl('batch')/] ['provider'.apply_parameterMethodClassicIn()/]) {
+       [s.prefixAffectation()/]['provider'.apply_attributeFinal()/] = ['provider'.apply_parameterMethodClassicIn()/];
+    }
+    
+    /**
+     * Exécute le traitement du batch.
+     * <p>
+     * Les opérations sont générées dans l'ordre de modélisation. 
+     * En l'absence d'un mécanisme de liaison explicite entre les sorties et les entrées des opérations, 
+     * les paramètres d'entrée sont initialisés à null. Le développeur est responsable d'établir 
+     * les correspondances nécessaires dans les zones protégées
+     * </p>
+     * <p>
+     * Compléter les appels générés dans les zones
+     * protégées afin de transmettre les résultats appropriés entre les
+     * opérations. Les modifications effectuées dans ces zones sont
+     * conservées lors des générations ultérieures.
+     * </p>
+     * @param ['contribution'.apply_parameterMethodClassicIn()/] informations relatives à l'exécution du Step
+     * @param ['chunk context'.apply_parameterMethodClassicIn()/] contexte d'exécution du Step
+     * @return l'état d'avancement du traitement
+     * @throws Exception en cas d'erreur durant l'exécution
+     */
+    @Override
+    public RepeatStatus execute(final StepContribution ['contribution'.apply_parameterMethodClassicIn()/],
+        final ChunkContext ['chunk context'.apply_parameterMethodClassicIn()/]) throws Exception {
+        
+        [for (o | s.operations())][o.writeTaskletSignature(oIndex, true)/][/for]
+        
+        [protected ('generated signatures'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          
+          ['logger'.apply_attributeFinalStatic()/].info("Début du traitement du batch [s.name()/]");
+          
+          [for (o | s.operations())][o.writeTaskletSignature(oIndex, false)/][/for]
+          
+          ['logger'.apply_attributeFinalStatic()/].info("Fin du traitement du batch [s.name()/]");
+          
+        [/protected]
+        
+        return RepeatStatus.FINISHED;
+    }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour l'orchestration du service batch (couche infrastructure)./]
+[template public outBatchScheduleImpl(s : soa::Service)]
+  [s.classHeader(s.namePackageRsControllerImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
+    import org.springframework.batch.core.Job;
+    import org.springframework.batch.core.JobExecution;
+    import org.springframework.batch.core.JobParametersBuilder;
+    import org.springframework.batch.core.launch.JobLauncher;
+    import org.springframework.context.annotation.Bean;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.scheduling.annotation.Scheduled;
+    import org.springframework.stereotype.Component;
+    
+  [/protected]
+  
+  /**
+   * Planificateur chargé de déclencher périodiquement l'exécution
+  * du batch {@code [(s.name() + ' job').apply_attributeFinal()/]}.
+  * <p>
+  * La fréquence d'exécution est définie par l'expression CRON
+  * portée par l'annotation {@link Scheduled}.
+  * </p>
+  * <p>
+  * Chaque lancement est effectué avec un paramètre technique
+  * {@code timestamp} afin de garantir l'unicité des paramètres
+  * d'exécution du job Spring Batch.
+  * </p>
+  *
+  * @author [s.nameAuthor()/]
+  */
+  @Component
+  public class [s.nameClassServiceOutBatchSchedulerImpl()/]
+  {
+    
+    ['Composant Spring Batch responsable du lancement des jobs'.commentMultiLines()/]
+    private final JobLauncher ['job launcher'.apply_attributeFinal()/];
+    
+    ['Job Spring Batch associé au service asynchrone'.commentMultiLines()/]
+    private final Job [(s.name() + ' job').apply_attributeFinal()/];
+    
+    ['Journalisation de la classe'.commentMultiLines()/]
+    private static final Logger ['logger'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger(
+       [s.nameClassServiceOutBatchSchedulerImpl()/].class);
+    
+   /**
+    * Initialise le planificateur du batch.
+    *
+    * @param ['job launcher'.apply_parameterMethodClassicIn()/] composant utilisé pour lancer les jobs Spring Batch
+    * @param [(s.name() + ' job').apply_parameterMethodClassicIn()/] job Spring Batch associé au service asynchrone
+    */
+    [s.nameClassServiceOutBatchSchedulerImpl()/] (final JobLauncher ['job launcher'.apply_parameterMethodClassicIn()/],
+       final Job [(s.name() + ' job').apply_parameterMethodClassicIn()/]){
+       [s.prefixAffectation()/]['job launcher'.apply_attributeFinal()/] = ['job launcher'.apply_parameterMethodClassicIn()/];
+       [s.prefixAffectation()/][(s.name() + ' job').apply_attributeFinal()/] = [(s.name() + ' job').apply_parameterMethodClassicIn()/];
+    }
+    
+    /**
+     * Déclenche l'exécution du job Spring Batch.
+     * <p>
+     * Un paramètre technique {@code timestamp} est ajouté afin de
+     * différencier chaque instance d'exécution du job.
+     * </p>
+     * <p>
+     * La propriété {@code batch.personne.cron} peut être définie dans le fichier
+     * {@code application.properties} afin de personnaliser la fréquence
+     * d'exécution du batch. Ce fichier n'étant pas régénéré par l'outil,
+     * cette configuration est préservée lors des générations ultérieures.
+     * </p>
+     * @throws Exception en cas d'erreur lors du lancement du job
+     */
+    [protected ('scheduler annotation'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      @Scheduled(cron = "${batch.[s.name().toLower()/].cron:0 0 * * * *}")
+    [/protected]
+    public void ['execute'.apply_methodDefault()/]() throws Exception {
+      
+      [protected ('scheduler'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        
+        ['logger'.apply_attributeFinalStatic()/].info("Démarrage du batch '{}'", "[(s.name() + ' job').apply_attributeFinal()/]");
+        
+        final JobExecution ['execution'.apply_variableFinal()/] = [s.prefixAffectation()/]['job launcher'.apply_attributeFinal()/]
+          .run([s.prefixAffectation()/][(s.name() + ' job').apply_attributeFinal()/],
+          new JobParametersBuilder()
+            .addLong("timestamp", System.currentTimeMillis())
+            .toJobParameters());
+           
+        ['logger'.apply_attributeFinalStatic()/].info("Batch '{}' lancé avec l'identifiant d'exécution {}"
+          , "[(s.name() + ' job').apply_attributeFinal()/]", ['execution'.apply_variableFinal()/].getId());
+        
+      [/protected]
+    }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour le service batch (couche infrastructure)./]
+[template public outBatchImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
+  [s.classHeader(s.namePackageOutImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import jakarta.persistence.EntityManager;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.data.domain.Page;
+    import org.springframework.data.domain.PageRequest;
+    import org.springframework.data.domain.Sort;
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];  
+  
+    [for (d | ds)]
+      import [s.namePackageProject()/].[d.namePackageMapperOutImpl()/].[d.nameClassMapperImpl()/];
+      [if (d.isPersistent())]
+        import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityImpl()/].[d.associatedEntity().nameClassEntityImpl()/];
+        import [s.namePackageProject()/].[d.associatedEntity().namePackageEntityPersistItf()/].[d.associatedEntity().nameClassEntityPersistItf()/];
+      [/if]
+    [/for]
+    
+  [/protected]
+  
+  [s.commentClass()/]
+  @[s.nameClassAnnotationOut()/]
+  public class [s.nameClassServiceOutImpl('batch')/]
+  {
+      [let em = ds->hasJpaEntityManager()]
+        [comment uniquement si des opérations de BDD sont demandées./]
+        [if (s.operations()->exists(o | o.is_metaBatchRead() or o.is_metaBatchWrite()))]
+          [em.writeJpaEntityManager()/]
+          ['Gestionnaires de persistance disponibles'.commentSingleLine()/]
+          [for (d | ds->select(o | o.isPersistent()))]
+            private final [d.associatedEntity().nameClassEntityPersistItf()/] [d.nameRepository().apply_attributeFinal()/];
+          [/for]
+        
+          ['Constructeur'.commentMultiLines()/]
+          @Autowired
+          public [s.nameClassServiceOutImpl('batch')/] ([ds->writePersistInputs(em)/])
+          {
+             
+             [ds->writePersistAffectation(em)/]
+             
+             [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             [/protected]
+          }
+        [/if]
+      [/let]
+      
+      [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+        [if (o.is_metaBatchWrite() or o.is_metaBatchRead())]
+          [o.commentOperation()/]
+          [o.writePersistSignature()/]
+          {
+            
+            [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            [/protected]
+            
+            [o.writePersistOperation(s)/]
+          }
+          
+          [o.commentOperation()/]
+          [protected ((o.name + 'annotation_invoke').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+          [o.writePersistSignatureInvoke()/]
+          {
+              
+              [protected ((o.name + '_invoke').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+                
+                throw new [s.nameClassNotImplementedExceptionImpl()/] 
+                  ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
+                  
+              [/protected]
+          }
+        [/if]
+        [if (o.is_metaBatchProcess())]
+          [o.commentOperation()/]
+          [o.writePersistSignature()/] {
+            
+            [protected ((o.name + '_process').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+              
+              throw new [s.nameClassNotImplementedExceptionImpl()/] 
+                 ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
+                                        
+            [/protected]
+          }
+        [/if]
+      [/for]
+  }
+[/template]
+
 [comment écriture de l'implémentation pour la classe de définition openapi (swagger)./]
 [template public openApiConfigImpl(m :soa::System)]
    [m.classHeader(m.namePackageApplicationBase())/]
@@ -498,7 +863,11 @@
 [query private writePersistOperation(o : soa::Operation, s : soa::Service) : String = if (o.paged) then o.writePagedNonOptionalOutputStar() 
   else if (o.hasOutput()) then if (o.output->first().isOptional()) then if (o.output->first().isMultiple()) then o.writeOptionalOutputStar(s) 
   else o.writeOptionalOutputOne() endif else if (o.output->first().isMultiple()) then o.writeNonOptionalOutputStar(s) 
-  else o.writeNonOptionalOutputOne() endif endif else '' endif endif/]
+  else o.writeNonOptionalOutputOne() endif endif else o.writeOutputNone() endif endif/]
+  
+[comment écriture d'un appel sans aucune sortie (cas qui peut arriver dans le cadre des services asynchrones (batchs))./]
+[query private writeOutputNone(o : soa::Operation) : String = o.nameOperation() + '_invoke(' + o.input->collect(o1 | o1.name()
+  .apply_parameterMethodClassicIn())->sep(', ') + ');'/]
 
 [comment écriture spécifique pour une opération de liste paginée./]
 [query private writePagedNonOptionalOutputStar(o : soa::Operation) : String = 'Page<' + if (o.output->first().type.oclIsKindOf(environment::DTO)) 
@@ -556,6 +925,12 @@
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writePersistSignatureInvoke(o : soa::Operation) : String = 'private ' + o.outputPersistType() + ' ' + o.nameOperation() + '_invoke' 
   + '(' + if (o.paged) then 'final PageRequest ' + 'page request'.apply_parameterMethodClassicIn() else o.inputSignature() endif  + ')' /]
+  
+[comment écriture de la signature complète d'une opération dans le cadre des service asynchrones (batchs), l'opération est appelée dans le tasklet./]
+[query private writeTaskletSignature(o : soa::Operation, oIndex : Integer, comment : Boolean) : String = let output = o.outputType() in 
+  if (comment) then '// ' else '' endif + if (not 'void'.equalsIgnoreCase(output)) then output + ' ' + (o.outputName() + ' output' 
+  + oIndex).apply_variableDefault() + ' = ' else '' endif + o.prefixAffectation() + 'provider'.apply_attributeFinal() + '.' 
+  + o.name().apply_methodDefault() + '(' + o.input->collect(o1 | 'null') +  ');'/]
   
 [comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeRsSignature(o : soa::Operation, s : soa::Service) : String = 'public ' + o.writeRsOutput() + ' ' + o.name().apply_methodDefault() 

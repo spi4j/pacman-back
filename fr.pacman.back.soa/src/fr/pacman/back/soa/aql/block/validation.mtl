@@ -49,7 +49,7 @@
   [/for]
   
   [let dtss = m.superTypesDtos()]
-  [for (s | m.providedServices())]
+  [for (s | m.regularServices())]
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
       [comment pas de service mappé sur une entité./]
@@ -136,18 +136,34 @@
          and o1.isMultiple()))][o.add(o.err32())/][/if]
          
       [comment pas de service avec des paramètres S3 si le service n'est pas S3./]
-      [if (s.isJpaService() and o.input->exists(o1 | o1.type.name.index('S3') <> -1))]
+      [if (not s.isS3Service() and o.input->exists(o1 | o1.type.name.index('S3') <> -1))]
         [s.add(s.err34())/][/if]
            
       [comment impossible d'avoir un service S3 si opération n'est pas GET|POST|DELETE/]
-      [if (s.isRsService() and s.operations()->exists(o1 | o1.verb <> soa::Verb::GET 
+      [if (s.isS3Service() and s.operations()->exists(o1 | o1.verb <> soa::Verb::GET 
       	and o1.verb <> soa::Verb::POST and o1.verb <> soa::Verb::DELETE ))][s.add(s.err33())/][/if]
+      
       [/for]
     [/if]
   [/for]
-  [/let]
-  [for (s | m.requiredServices())]
+  
+  [for (s | m.externalServices())]
   [/for]
+  
+  [for (s | m.batchServices())]
+    [if (s.ownedInterface <> null)]
+      [for (o | s.ownedInterface.ownedOperations)]
+        
+        [comment impossible d'avoir un batch si opération n'a pas BATCH_READ/WRITE/PROCESS/]
+        [if (s.isBatchService() and (not o.is_metaBatchProcess() and not o.is_metaBatchRead() 
+           and not o.is_metaBatchWrite()))][s.add(o.err37())/][/if]
+           
+      [/for]
+    [/if]
+  [/for]
+  
+  [/let]
+  
   [comment pas de multiples components internes pour l'instant/]
   [if (m.eAllContents(soa::Component)->size() > 1)][m.add(m.err24())/][/if]
     
@@ -308,5 +324,13 @@
   + '@Modifiez le service ou les paramètres'/]
   
 [comment impossible de modéliser une sécurité oauth2 sans flow (? à voir si on conserve)./]
-[query private err35(s : soa::SecurityScheme) : String = 'RG_27@' + s.nameObject() + '@Sécurité oauth2 sans flow'
+[query private err35(s : soa::SecurityScheme) : String = 'RG_35@' + s.nameObject() + '@Sécurité oauth2 sans flow'
   + '@Ajoutez un flow à la sécurité'/]
+  
+[comment impossible de modéliser un batch sans le bon type de retour (objet technique de statut pour le batch)./]
+[query private err36(o : soa::Operation) : String = 'RG_36@' + o.nameObject() + '@Service batch avec mauvais type de retour'
+  + '@Modifiez le type de retour pour le service'/]
+  
+[comment impossible de modéliser une opération batch si cette dernière n'a as la bonne métadonnée (READ|WRITE|PROCESS)./]
+[query private err37(o : soa::Operation) : String = 'RG_37@' + o.nameObject() + '@Opération batch sans métadonnée'
+  + '@Appliquer la métadonnée (BATCH_READ|BATCH_WRITE|BATCH_PROCESS)'/]

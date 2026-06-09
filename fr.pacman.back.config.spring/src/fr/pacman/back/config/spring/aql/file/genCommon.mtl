@@ -76,5 +76,12 @@
   [/file]
 [/template]
 
+[comment écriture de l'implémentation pour le retour des services avec traitements asychrones (output)./]
+[template public fileBatchOutputParamRequestImpl(any : ecore::EObject)]
+  [file (any.nameClassBatchOutputParamImpl().toFileJava(any.namePackageCommonBase()), overwrite, any.defaultFileEncoding())]
+    [any.batchOutputParamImpl()/]
+  [/file]
+[/template]
+
 
 

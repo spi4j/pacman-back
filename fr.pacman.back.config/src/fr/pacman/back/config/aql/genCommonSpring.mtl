@@ -30,6 +30,8 @@
   [r.fileRequirementExceptionImpl()/]
   [comment écriture de la classe pour l'ensemble des paramètres pour storage S3 (output)./]
   [r.fileS3OutputParamRequestImpl()/]
+  [comment écriture de la classe pour l'ensemble des paramètres pour les traitements asynchrones (output)/]
+  [r.fileBatchOutputParamRequestImpl()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]

@@ -38,11 +38,11 @@
     <!-- Repository specifique pour les pilotes Oracle. -->
     <!-- 
     <repositories>
-    	<repository>
-        	<id>hand-china-repo</id>
-        	<name>HandChinaRepo</name>
-        	<url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
-    	</repository>
+        <repository>
+           <id>hand-china-repo</id>
+           <name>HandChinaRepo</name>
+           <url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
+        </repository>
     </repositories>
     -->
     
@@ -78,7 +78,12 @@
           <dependency> 
              <groupId>org.springframework.boot</groupId> 
              <artifactId>spring-boot-starter-security</artifactId>              <version>[any.versionSpringBoot()/]</version>
-          </dependency>          
+          </dependency>        
+          <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-batch</artifactId>
+             <version>[any.versionSpringBoot()/]</version>
+          </dependency>  
           <dependency>
              <groupId>com.h2database</groupId>
              <artifactId>h2</artifactId>
@@ -86,14 +91,14 @@
              <scope>runtime</scope>
           </dependency>
           <dependency>
-          	<groupId>org.springframework.boot</groupId>
-          	<artifactId>spring-boot-starter-oauth2-client</artifactId>
-          	<version>[any.versionSpringBoot()/]</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+            <version>[any.versionSpringBoot()/]</version>
           </dependency>
           <dependency>
-          	<groupId>org.springframework.boot</groupId>
-          	<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-          	<version>[any.versionSpringBoot()/]</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+            <version>[any.versionSpringBoot()/]</version>
           </dependency>
           <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -212,19 +217,18 @@
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
             <version>[any.versionS3()/]</version>
-            <scope>compile</scope>
           </dependency>
           <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>[any.versionOkhttp3()/]</version>
-            <scope>compile</scope>
           </dependency>
           <!-- Peuplement de mocks -->
           <dependency>
              <groupId>net.datafaker</groupId>
              <artifactId>datafaker</artifactId>
-             <version>[any.versionDataFaker()/]</version> 
+             <version>[any.versionDataFaker()/]</version>
+             <scope>test</scope>
           </dependency>
           <!-- (voir si déclaratif ou non...)
           <dependency>

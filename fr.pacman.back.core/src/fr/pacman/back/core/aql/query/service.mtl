@@ -11,13 +11,16 @@
 [import fr::pacman::back::core::property::project::ProjectProperties/]
 [import fr::pacman::back::core::service::AnnotationUtils/]
 
-[comment retourne tous les service 'provided' de l'application./]
-[query public providedServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)
-  ->select(o | o.kind = soa::InterfaceKind::provided)/]
+[comment retourne tous les services 'provided' de l'application (on rajoute le fait qu'il soit un service rest)./]
+[query public regularServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)
+  ->select(o | o.kind = soa::InterfaceKind::provided and o.isRsService())/]
 
-[comment retourne tous les service 'required' de l'application./]
-[query public requiredServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)
-  ->select(o | o.kind = soa::InterfaceKind::required)/]
+[comment retourne tous les services 'required' synchrones de l'application./]
+[query public externalServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)
+  ->select(o | o.kind = soa::InterfaceKind::required and o.synchronization = soa::SynchronizationKind::synchronous)/]
+  
+[comment retourne tous les services 'required' asynchrones de l'application./]
+[query public batchServices(m : soa::System) : Sequence(soa::Service) = m.eAllContents(soa::Service)->select(o | o.isBatchService())/]
 
 [comment retourne toutes les opérations d'un service soa./]
 [query public operations(s : soa::Service) : Sequence(soa::Operation) = s.ownedInterface.ownedOperations/]
@@ -31,7 +34,7 @@
   ->select(o1 | o1.type.oclIsKindOf(environment::DTO))->collect(o2 | o2.type.oclAsType(environment::DTO))->asSet()/]
 
 [comment vérifie si un service contient des opérations de type rest./]
-[query public isRsService(s : soa::Service) : Boolean = s.exists() and not s.ownedInterface.ownedOperations
+[query private isRsService(s : soa::Service) : Boolean = s.exists() and not s.ownedInterface.ownedOperations
   ->select(o | o.exposition = soa::ExpositionKind::REST)->isEmpty() /]
 
 [comment vérifie si le service utilise au moins une opération sécurisée./]
@@ -43,6 +46,10 @@
 
 [comment vérifie si le service est un service de type stockage S3 (documents)./]
 [query public isS3Service(s : soa::Service) : Boolean = s.is_metaS3Storage()/]
+
+[comment vérifie si le service est un service asynchrone (batch)./]
+[query public isBatchService(s : soa::Service) : Boolean = s.kind = soa::InterfaceKind::required 
+  and s.synchronization = soa::SynchronizationKind::asynchronous/]
 
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]  
 [query public rsUri(s : soa::Service) : String = if (s.isRsSSOAuthEnabled()) then s.rsUriMinArm() else s.rsUriStandard() endif /]

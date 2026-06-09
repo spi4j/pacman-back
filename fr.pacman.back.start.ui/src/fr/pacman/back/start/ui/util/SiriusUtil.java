@@ -245,31 +245,36 @@ public class SiriusUtil {
 						PrimitiveType s3DocumentIn = EnvironmentFactory.eINSTANCE.createPrimitiveType();
 						s3DocumentIn.setName("S3DocumentIn");
 						resource.getContents().add(s3DocumentIn);
-						
+
 						// Type représentant un document stocké dans S3 (sortie)
 						PrimitiveType s3DocumentOut = EnvironmentFactory.eINSTANCE.createPrimitiveType();
 						s3DocumentOut.setName("S3DocumentOut");
 						resource.getContents().add(s3DocumentOut);
-						
+
 						// Type représentant les métadonnées associées
 						PrimitiveType s3Metadata = EnvironmentFactory.eINSTANCE.createPrimitiveType();
 						s3Metadata.setName("S3Metadata");
 						resource.getContents().add(s3Metadata);
-						
+
 						// Type représentant le type du document (pdf, word, ect...)
 						PrimitiveType s3ContentType = EnvironmentFactory.eINSTANCE.createPrimitiveType();
 						s3ContentType.setName("S3ContentType");
 						resource.getContents().add(s3ContentType);
-						
+
 						// Type représentant le bucket pour le document
 						PrimitiveType s3Bucket = EnvironmentFactory.eINSTANCE.createPrimitiveType();
 						s3Bucket.setName("S3Bucket");
 						resource.getContents().add(s3Bucket);
-						
+
 						// Type représentant le bucket pour le document
-						PrimitiveType s3DocumentName= EnvironmentFactory.eINSTANCE.createPrimitiveType();
-						s3DocumentName.setName("s3DocumentName");
+						PrimitiveType s3DocumentName = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+						s3DocumentName.setName("S3DocumentName");
 						resource.getContents().add(s3DocumentName);
+
+						// Type représentant le retour pour un traitement asynchrone (batch).
+						PrimitiveType batchExecution = EnvironmentFactory.eINSTANCE.createPrimitiveType();
+						batchExecution.setName("BPExecution");
+						resource.getContents().add(batchExecution);
 
 						resource.getContents().add(env);
 						session.addSemanticResource(uri, p_monitor);

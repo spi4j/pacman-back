@@ -114,7 +114,19 @@
 [comment retourne le nom pour l'interface d'une classe de service soa crud (infra)./]  
 [query public nameClassServiceCrudOutItf(d : environment::DTO) : String = (d.name() + ' crud ' + d.suffixInterfaceOut()).apply_classInterface()/]  
 
-[comment retourne le nom d'implémentation d'une classe pour un service de persistance (t = type de persistance)./]
+[comment retourne le nom pour l'implémentation du tasklet pour les services asynchrones (batchs)./]
+[query public nameClassServiceOutBatchTaskletImpl(s : soa::Service) : String = (s.name() + ' batch tasklet').apply_classDefault()/]
+  
+[comment retourne le nom pour l'implémentation du scheduler pour les services asynchrones (batchs)./]
+[query public nameClassServiceOutBatchConfigImpl(s : soa::Service) : String = (s.name() + ' batch job config').apply_classDefault()/]
+  
+[comment retourne le nom pour l'implémentation du scheduler pour les services asynchrones (batchs)./]
+[query public nameClassServiceOutBatchSchedulerImpl(s : soa::Service) : String = (s.name() + ' batch scheduler').apply_classDefault()/]
+  
+[comment retourne le nom pour l'implémentation de la classe utilitaire de récupération du contexte (batchs)./]
+[query public nameClassOutBatchAppContextImpl(any : ecore::EObject) : String = (any.nameProject() + ' application context').apply_classDefault()/]
+
+[comment retourne le nom d'implémentation d'une classe pour un service (t = type de service))./]
 [query public nameClassServiceOutImpl(s : soa::Service, t : String) : String = (s.name() + ' ' + t + s.suffixInterfaceOut()).apply_classImplem()/]  
 
 [comment retourne le nom d'implémentation d'une classe pour un service avec appel externe./]
@@ -261,6 +273,9 @@
   
 [comment retourne le nom de l'interface pour l'interface du storage S3./]
 [query public nameClassS3Itf (any : ecore::EObject) : String =  (any.nameProject() + ' s3 service').apply_classInterface()/]
+  
+[comment retourne le nom de l'implémentation pour "l'object request output" des traitements asynchrones (batchs)./]
+[query public nameClassBatchOutputParamImpl (any : ecore::EObject) : String = 'batch execution'.apply_classDefault()/]
 
 [comment retourne le nom pour la classe d'implémentation du DAO dans le cadre des test./]
 [comment query public nameClassDaoJdbcTest(e : entity::Entity) : String = (e.name() + e.suffixDaoTest()).apply_classTest()/]

@@ -706,11 +706,11 @@
 [/template]
 
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
-[query public nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
+[query public nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.regularServices().eAllContents(soa::Operation)
   ->select(o | not o.isRsSecured()) /]
   
 [comment retourne l'ensemble des opérations sécurisées (et avec rôle) dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
-[query private securedOperationsWithRole(m : soa::System) : Sequence(soa::Operation) = m.providedServices().eAllContents(soa::Operation)
+[query private securedOperationsWithRole(m : soa::System) : Sequence(soa::Operation) = m.regularServices().eAllContents(soa::Operation)
   ->select(o | not o.securitySchemes->isEmpty() and o.has_metaPermission()) /]
   
 [comment écriture de la chaine de sécurité pour l'ensemble de l'application (à faire évoluer, pas finalisé, ne gère pas le permissionAnd...)./]

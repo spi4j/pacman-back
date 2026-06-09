@@ -152,7 +152,7 @@
   }
 [/template]
 
-[comment écriture de la classe de configuration commune pour le'ensemble des tests./]
+[comment écriture de la classe de configuration commune pour l'ensemble des tests./]
 [template public integrationTestsConfigImpl (m : soa::System)]
    [m.classHeader(null)/]
 
@@ -401,6 +401,6 @@
 	.nameClassXtoImpl() + '()' else p.type.name.get_defaulValueForType() endif endif endif/]
 
 [comment écriture de la liste des services de type stub (bouchons) pour l'exclusion par défaut./]
-[query private writeStubServices(m : soa::System) : String = m.eAllContents(soa::Service)->collect(o | o.nameClassServiceOutStubImpl() 
+[query private writeStubServices(m : soa::System) : String = m.regularServices()->collect(o | o.nameClassServiceOutStubImpl() 
 	+ '.class')->sep(',')->toString()/]
 	

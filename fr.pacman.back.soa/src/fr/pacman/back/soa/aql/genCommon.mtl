@@ -3,6 +3,7 @@
 
 [import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::core::aql::query::dto/]
+[import fr::pacman::back::core::aql::query::service/]
 [import fr::pacman::back::soa::aql::file::genCommon/]
 [import fr::pacman::back::common::aql::file::genEntityAbs/]
 [import fr::pacman::back::core::property::project::ProjectProperties/]
@@ -11,7 +12,7 @@
 [template public genCommon(m : soa::System)]
   [comment implémentation pour les champs automatique de la base de données (dto)./]
   [m.fileEntityAbs(m.cmdDto())/]
-  [for (s : soa::Service | m.eAllContents(soa::Service))]
+  [for (s : soa::Service | m.regularServices())]
     [comment implémentation du service métier./]
   	[s.fileServiceImpl()/]
   	[comment interface pour l'adapteur application./]

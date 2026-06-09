@@ -68,7 +68,13 @@ public enum AnnotationEnum {
 	
 	S3_IMMUTABLE("STORAGE_IMMUTABLE",  ModelEnum.DSL_SOA_SERVICE, false),
 
-	S3_STORAGE("STORAGE", ModelEnum.DSL_SOA_SERVICE, false);
+	S3_STORAGE("STORAGE", ModelEnum.DSL_SOA_SERVICE, false),
+	
+	BATCH_READ("BATCH_READ", ModelEnum.DSL_SOA_SERVICE, false),
+	
+	BATCH_WRITE("BATCH_WRITE", ModelEnum.DSL_SOA_SERVICE, false),
+	
+	BATCH_PROCESS("BATCH_PROCESS", ModelEnum.DSL_SOA_SERVICE, false);
 
 	/** Le nom de l'annotation */
 	private String _annotationName;

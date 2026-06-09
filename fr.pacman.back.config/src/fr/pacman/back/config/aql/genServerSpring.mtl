@@ -45,6 +45,8 @@
   [r.fileIntegrationApiTestRunnerDefaultGherkin()/]
   [comment écriture de l'implémentation de l'api de santé pour l'application./]
   [r.fileRsServiceHealthImpl()/]
+  [comment écriture de la récupération du contexte applicatif (batchs)./]
+  [r.fileBatchApplicationContextImpl()/]
   [comment écriture de l'implémentation de la configuration pour storage S3./]
   [r.fileS3ConfigImpl()/]
   [comment écriture de l'implémentation des propriétés pour storage S3./]
