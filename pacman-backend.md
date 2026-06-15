@@ -13,6 +13,7 @@
 - 07/04/2026 : Ajouts : Sécurisation de la configuration.
 - 11/05/2026 : Ajouts : Génération des tests fonctionnels d'API.
 - 24/05/2026 : Ajouts : Complétion du stockage S3 avec versionning/retention/immutabilité.
+- 09/06/2026 : Ajouts : Mise en place des traitements asynchrones.
 ---
 
 ## 🚀 Introduction
@@ -360,6 +361,7 @@ Il s'agit :
 
   - Des classes d'exception métier au niveau du package *[package racine].domain.exceptions* Si besoin, placer ici toutes les nouvelles exceptions fonctionnelles dont la couche métier a besoin dans le cadre de l'application.
   - Des classes pour le fonctionnement des futures règles de gestion au niveau du package *[package racine].domain.services.requirements*
+  - D'une classe pour la gestion des retours lors la modélisation de traitements asynchrones (services batchs). 
   - Des différentes annotations dont à besoin la couche métier pour pouvoir converser avec l'infrastructure. En effet, ne pas oublier que la couche métier doit être totalement indépendante de toute technique. Il est donc impossible d'utiliser directement des annotations de type Spring au niveau de ce projet sous peine de créer une dépendance avec l'infrastructure. Il est donc nécessaire de créer des annotations spécifiques à l'application générée, ces annotations sont par la suite prises en compte par le framework Spring au niveau de la couche d'infrastructure.
   
     Ces annotations sont les suivantes : 
@@ -443,7 +445,7 @@ Un fichier ***[nom de l'application]-validation.log*** vide est créé par défa
 
 • ***[package racine]*** : contient la classe principale de démarrage pour l'application ***[nom de l'application]Bootsrap.java***
 
-•️ ***[package racine].app*** : package racine pour la couche applicative, contient (principalement) par défaut les classes de haut niveau pour le bon fonctionnement des services REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité.
+•️ ***[package racine].app*** : package racine pour la couche applicative, contient (principalement) par défaut les classes de haut niveau pour le bon fonctionnement des services REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité. Par ailleurs, ce package contient une classe utilitaire pour la récupération du contexte de l'application, cette classe n'est à utiliser que dans le cadre de la modélisation de traitements asynchrones (batchs) appelés par un (ou plusieurs) service(s) REST.
 
 • ***[package racine].app.exceptions*** : contient les exceptions de la couche applicative. Si besoin d'exceptions supplémentaires, les positionner à ce niveau.
 
@@ -4747,6 +4749,239 @@ public class GestionAppelsExternesExternalProviderImpl implements GestionAppelsE
 ```
 Le paramètrage du nombre de tentatives d'appel, du délai entre chaque appel, etc.. est disponible au niveau du fichier de configuration de l'application : "***application.properties***".
 
+#### Mise en place des traitements asynchrones
+
+Le modèle de services asynchrones (batchs) permet de définir une séquence d'opérations de type :
+
+```text
+READ
+PROCESS
+WRITE
+```     
+Chaque opération consomme les données produites par l'opération précédente et transmet son résultat à l'opération suivante. Deux stratégies d'implémentation Spring Batch ont été étudiées : 
+
+- Un "*step*" technique Spring Batch par opération : cette approche présente l'avantage de refléter fidèlement le modèle fonctionnel. Chaque opération métier devient un "*step*" Spring Batch. Cependant, les opérations du modèle manipulent actuellement des collections complètes de données. Avec Spring Batch, le passage de ces données d'un "*step*" à l'autre nécessite alors l'utilisation de mécanismes supplémentaires tels que l'ExecutionContext Spring Batch, des fichiers intermédiaires ou des structures de persistance temporaires. Cette solution augmente la complexité du code généré et introduit des traitements supplémentaires de sérialisation, de désérialisation et de stockage intermédiaire.
+
+- Un "*step*" technique Spring Batch unique : dans cette approche, le "*step*" Spring Batch joue un rôle purement technique d'orchestration. Les opérations métier restent clairement identifiées dans le modèle mais sont exécutées séquentiellement à l'intérieur du même "*step*". Les données sont alors conservées en mémoire et transmises directement entre les opérations sous forme de simples objets Java.
+
+Pour le modèle actuel, basé sur la manipulation de collections complètes, cette dernière solution constitue l'approche la plus performante : 
+
+- Les données restent en mémoire pendant toute l'exécution du batch.
+- Aucune sérialisation intermédiaire n'est nécessaire.
+- Aucune écriture ou lecture supplémentaire n'est effectuée dans les tables de métadonnées Spring Batch.
+- Le coût de traitement est limité aux opérations métier elles-mêmes.
+
+L'architecture actuelle constitue donc un compromis volontaire entre simplicité, performances et facilité de maintenance.
+
+Par ailleurs, Spring Batch permet de mettre en oeuvre un traitement sous différentes formes. La plus connue repose sur les concepts de "*ItemReader*", "*ItemProcessor*" et "*ItemWriter*", adaptés aux traitements volumineux réalisés par lots successifs (chunk processing). Comme cité précédemment, dans le cadre du générateur, les services asynchrones sont actuellement modélisés comme une succession d'opérations manipulant des objets métiers ou des collections complètes de données. Cette représentation se prête naturellement à une exécution séquentielle classique sans nécessiter les mécanismes avancés de traitement par chunk proposés par Spring Batch.
+
+Pour cette raison, le générateur s'appuie dans un premier temps sur la notion de "*tasklet*". Le "*tasklet*" constitue le point d'entrée du traitement métier à l'intérieur d'un "*step*" Spring Batch. Son rôle est d'orchestrer l'exécution des opérations définies dans le modèle en déléguant leur implémentation au "*provider*" généré suite à la modélisation.
+
+Le "*tasklet*" possède plusieurs avantages :
+
+- Séparation claire entre la "plomberie" Spring Batch et le code métier.
+- Limitation du nombre de classes générées.
+- Simplicité d'implémentation.
+- Conservation de bonnes performances grâce à un traitement intégralement réalisé en mémoire.
+- Possibilité d'évolution future vers une implémentation Spring Batch plus avancée sans remise en cause du modèle métier.
+
+Le développeur n'intervient normalement jamais dans le "*tasklet*" généré. L'ensemble du comportement fonctionnel reste alors uniquement concentré dans les opérations du "*provider*".
+
+❗ Cette approche présente toutefois une limite importante : elle repose sur le chargement et la manipulation en mémoire de collections complètes de données. Elle est donc particulièrement adaptée aux traitements de volume faible à moyen, mais peut devenir inadaptée lorsque les volumes traités sont très importants. Il est actuellement recommandé de développer le batch manuellement en dehors du mécanisme de génération proposé par **Pacman**. Le développeur pourra alors tirer pleinement parti des fonctionnalités avancées de Spring Batch, notamment les mécanismes de *chunk processing* basés sur les composants "*ItemReader*", "*ItemProcessor*" et "*ItemWriter*", spécialement conçus pour le traitement de grands volumes de données.
+
+❗ Ce choix constitue une décision assumée de la première version du générateur, qui privilégie la simplicité de modélisation, la lisibilité du code généré et les performances pour les cas d'usage les plus courants. L'évolution du générateur vers d'autres stratégies d'implémentation adaptées aux traitements volumineux pourra être étudiée dans les versions futures de **Pacman** si ce besoin devient récurrent.
+
+Pour modéliser un service asynchrone, il est possible de s'appuyer sur l'ensemble des DTO déjà définis dans l'application, eux-mêmes associés aux entités utilisées pour les accès à la persistance. Il est également possible de créer de nouveaux objets non persistants, dédiés exclusivement aux traitements asynchrones.
+
+Dans le cadre de cette documentation, et afin de conserver un exemple simple, nous réutiliserons la notion de personne. Nous créerons pour cela un nouveau DTO, par exemple "*PersonneBatch*", destiné à transporter des informations spécifiques au traitement asynchrone. Ces données pourront être issues des objets existants, enrichies, transformées ou produites par les différentes étapes du batch.
+
+<div align="center">
+  <img src="images/pcm-model-adv-batch-1.png" alt="Service asynchrone" >
+</div>
+
+Par ailleurs, il est nécessaire d'utiliser un service de type "*required*" et de sélectionner   
+le type "*asynchronous*" pour la rubrique "*Synchronization*" du service.
+
+<div align="center">
+  <img src="images/pcm-model-adv-batch-2.png" alt="Service asynchrone" >
+</div>
+
+Enfin, le développeur doit modéliser une ou plusieurs opérations, chacune définissant éventuellement des données d'entrée et de sortie. Il est recommandé que chaque opération respecte le principe de responsabilité unique et réalise une seule fonction : lecture de données, écriture de données ou traitement métier.
+
+Afin de permettre leur identification et leur prise en charge par le générateur, les opérations doivent obligatoirement être annotées avec l'une des métadonnées suivantes :
+
+- "***BATCH_READ***" : opération de lecture des données.
+- "***BATCH_WRITE***" : opération d'écriture des données.
+- "***BATCH_PROCESS***" : opération de transformation ou de traitement des données.
+
+Ces métadonnées permettent de caractériser le rôle de chaque opération au sein du traitement asynchrone. Ainsi, dans le cadre de cet exemple, les différentes opérations sont annotées de la manière suivante : 
+
+- "***lectureBase***" : BATCH_READ
+- "***ecritureBase***" : BATCH_WRITE
+- "***traitementDonnees***" : BATCH_PROCESS
+- "***ecritureFichier***" : BATCH_PROCESS
+
+<div align="center">
+  <img src="images/pcm-model-adv-batch-3.png" alt="Service asynchrone" >
+</div>
+
+Lors de la génération de la couche SOA, plusieurs classes supplémentaires sont produites dans le package regroupant les contrôleurs REST. Bien qu'elles ne soient pas exposées sous forme de services REST, ces classes sont considérées comme des composants de pilotage du batch et sont donc générées au même niveau que les contrôleurs de l'application.
+
+Pour chaque traitement asynchrone, les classes suivantes sont générées :
+
+"***[NomDuService]BatchScheduler***" : composant chargé de planifier et de déclencher l'exécution du batch selon une expression CRON ;
+"***[NomDuService]BatchJobConfig***" : classe de configuration Spring Batch déclarant le job et les steps associés ;
+"***[NomDuService]BatchTasklet***" : composant technique Spring Batch contenant l'orchestration des différentes opérations du traitement.
+
+Ces classes constituent l'infrastructure nécessaire à l'exécution du batch et sont donc générées automatiquement à partir de la modélisation du service asynchrone.
+
+La méthode principale du *scheduler* est présentée ci-dessous. Elle est responsable du déclenchement automatique du batch en fonction de l'expression CRON configurée.
+
+Il appartient au développeur de définir une valeur par défaut pertinente dans l'annotation lorsque la propriété correspondante n'est pas présente dans le fichier "*application.properties*". Par ailleurs, la propriété associée au traitement asynchrone n'est pas ajoutée automatiquement au fichier de configuration lors de la génération.
+
+Pour chaque traitement asynchrone, le développeur doit donc déclarer manuellement la propriété correspondante dans le fichier "*application.properties*" s'il souhaite personnaliser la fréquence d'exécution du batch.
+
+
+```java
+// Start of user code 3f59e170d8e872a8f029b078ec4a85fc
+@Scheduled(cron = "${batch.personnes.cron:0 0 * * * *}")
+// End of user code
+public void execute() throws Exception {
+   
+   // Start of user code 499f31e79c00c9e8f61bdaadc5e82f45
+   
+   LOGGER.info("Démarrage du batch '{}'", "personnesJob");
+   
+   final JobExecution execution = this.jobLauncher.run(this.personnesJob,
+     new JobParametersBuilder().addLong("timestamp", System.currentTimeMillis())
+     .toJobParameters());
+     
+   LOGGER.info("Batch '{}' lancé avec l'identifiant d'exécution {}", 
+     "personnesJob", execution.getId());
+    
+   // End of user code
+}
+```
+
+Ce planificateur est chargé de lancer la classe de configuration ("*[NomDuService]BatchJobConfig"*), qui définit la structure du traitement Spring Batch. Cette classe déclare notamment le *Job* associé au traitement asynchrone ainsi que les différents *Steps* qui le composent. Comme vu précédemment, un unique *Step* est configuré et associé au *Tasklet* généré ("*[NomDuService]BatchTasklet*"), lequel contient l'orchestration des différentes opérations métier constituant le batch.
+
+```java
+@Bean
+public Step personneStep(final JobRepository jobRepository, 
+    final PlatformTransactionManager transactionManager, final PersonnesBatchTasklet personnesTasklet) {
+
+    // Start of user code 2764ca9d34e90313978d044f27ae433b
+
+    return new StepBuilder(STEP_NAME, jobRepository)
+      .tasklet(personnesTasklet, transactionManager)
+      .build();
+
+    // End of user code
+}
+```
+
+La méthode "*execute*" du *Tasklet* constitue le point d'entrée du traitement métier du batch. Elle contient les appels aux différentes opérations modélisées et générées dans le provider associé.
+
+Par défaut, les opérations sont générées dans l'ordre de leur modélisation. Toutefois, le générateur ne dispose pas d'informations suffisantes pour déduire avec certitude les dépendances fonctionnelles entre les différentes opérations. L'ordre généré doit donc être considéré comme une proposition initiale. Il appartient au développeur de vérifier cet enchaînement et de le modifier si nécessaire afin de respecter la logique métier attendue.
+
+Pour la même raison, les paramètres d'entrée des opérations sont initialisés à "*null*" lors de la génération. Le générateur ne peut pas déterminer automatiquement quelles données produites par une opération doivent être transmises à une autre. Le développeur doit donc compléter manuellement les appels générés et établir les correspondances appropriées entre les entrées et les sorties des différentes opérations.
+
+Lorsque le résultat d'une opération est stocké dans une variable intermédiaire, le nom de cette variable est construit à partir du nom de l'opération suivi du suffixe "*Output*" et d'un compteur ("*traitementDonneesOutput2*", par exemple). Cette convention garantit l'unicité des noms générés, même lorsque plusieurs opérations possèdent des paramètres aux noms identiques ou très proches dans le modèle. Si la réutilisation d'un même nom peut avoir du sens au niveau de la modélisation pour représenter le cheminement des données, elle pourrait en revanche conduire à des collisions lors de la génération du code Java.
+
+```java
+@Override
+public RepeatStatus execute(final StepContribution contribution, final ChunkContext chunkContext) throws Exception {
+
+    // this.provider.lectureBase(null);
+    // List<PersonneBatchDtoImpl> personnesBatchOutput2 = this.provider.traitementDonnees(null);//
+    // this.provider.ecritureBase(null);
+    // this.provider.ecritureFichier(null);
+
+    // Start of user code 368e7c12570bdf119396e1d41d68e7ab
+
+    LOGGER.info("Début du traitement du batch personnes");
+
+    this.provider.lectureBase(null);
+    List<PersonneBatchDtoImpl> personnesBatchOutput2 = this.provider.traitementDonnees(null);
+    this.provider.ecritureBase(null);
+    this.provider.ecritureFichier(null);
+
+    LOGGER.info("Fin du traitement du batch personnes");
+
+    // End of user code
+
+    return RepeatStatus.FINISHED;
+}
+```
+
+Les lignes de code commentées présentes au début de la méthode correspondent exactement au code généré initialement par l'outil. Elles constituent une copie de référence de la génération automatique et permettent au développeur de retrouver facilement la structure d'origine du traitement.
+
+Cette copie peut s'avérer particulièrement utile en cas de suppression accidentelle ou de modification importante du contenu situé dans les zones protégées et délimitées par les balises de type "*user code*". Le développeur dispose ainsi d'un rappel immédiat des appels générés et peut reconstruire plus facilement le traitement sans avoir à relancer une génération ou à consulter le modèle.
+
+Ces lignes commentées n'ont aucun impact sur l'exécution du batch et sont conservées uniquement à titre informatif et documentaire.
+
+Enfin une classe de type "*BactchProvider*" est crée au niveau des packages d'infrastructure, comme n'importe quel service REST "*Jpa*", la seule différence étant que les opération annotées "*BATCH_PROCESS*" ne disposent pas de méthode d'invocation comme pour l'ensemble des autres méthodes d'accès à la couche de persistance. Pour le détail de cette classe, se reporter simplement à la génération d'un service REST. C'est ici que le développeur va coder l'ensemble des opérations de traitement pour le service asynchrone.
+
+Un exemple partiel de la génération (expurgé des commentaires) : 
+
+```java
+public void lectureBase(final List<PersonneDtoImpl> personnes) {
+    lectureBase_invoke(personnes);
+}
+
+private void lectureBase_invoke(final List<PersonneDtoImpl> personnes) {
+    throw new DemoNotImplementedException("La méthode 'lectureBase' n'a pas été implémentée");
+}
+
+public List<PersonneBatchDtoImpl> traitementDonnees(final List<PersonneDtoImpl> personnes) {
+   throw new DemoNotImplementedException("La méthode 'traitementDonnees' n'a pas été implémentée");
+}
+```
+
+Il est aussi possible, si le développeur le désire, de lancer le traitement asynchrone directement à partir d'un service REST. Il doit alors pour cela modéliser un service (comme n'importe autre quel service REST), la seule différence étant que le type du paramètre de retour soit un objet de type : "*BPExecution*". 
+
+<div align="center">
+  <img src="images/pcm-model-adv-batch-4.png" alt="Service asynchrone" >
+</div>
+
+Ici par contre, le développeur doit écrire toute la partie de code nécessaire pour router le "*JpaProvider*" du service REST  vers le traitement asynchrone précédemment modélisé, cela peut être fait à l'aide du code suivant (exemple de squelette) :
+
+```java
+private BatchExecution traitement_invoke() {
+
+    // Start of user code 2ae845ea23edf84d13d2d3860a01ad53
+
+    BatchExecution output = new BatchExecution();
+    JobLauncher jobLauncher = DemoApplicationContext.getBean(JobLauncher.class);
+    Job personneJob = (Job) DemoApplicationContext.getBean("personneJob");
+
+    try {
+      JobExecution execution = jobLauncher.run(personneJob, 
+      new JobParametersBuilder().addLong("timestamp", System.currentTimeMillis())
+         .toJobParameters());
+
+      output.setEndTime(....);
+      output.setExecutionId(execution.getId());
+      output.setOperationName(....);
+      ....
+			
+    } catch (JobExecutionAlreadyRunningException | JobRestartException | 
+         JobInstanceAlreadyCompleteException | JobParametersInvalidException e) {
+    
+       output.setErrorCode(...);
+	   output.setErrorMessage(...);
+	   ....
+    }
+    return output;
+
+    // End of user code
+}
+```
+
+❗ Les providers suffixés par "*JpaProvider*" représentent les adaptateurs d'infrastructure locaux de l'application. Historiquement dans les générateurs, ces composants ont pour rôle principal d'assurer les opérations de persistance via JPA. Toutefois, leur responsabilité ne se limite pas strictement aux accès à la base de données. Cependant, selon les besoins de l'application, il a été décidé qu'un "*JpaProvider*" pouvait également exécuter d'autres traitements techniques associés à l'infrastructure locale, tels que le déclenchement d'un batch, l'émission d'événements techniques ou la coordination de plusieurs   composants de persistance.
+
+Le suffixe "*JpaProvider*" doit donc être interprété comme l'adaptateur principal de persistance de l'application plutôt que comme la garantie que toutes les opérations implémentées utilisent exclusivement JPA. Ce choix permet de conserver une architecture homogène et stable, sans multiplier les types de providers pour des besoins ponctuels ou optionnels tels que l'exécution d'un batch.
+
 #### Mise en place du stockage S3
 
 Lors de la création du projet, plusieurs classes de haut niveau sont automatiquement générées au niveau du package "***[package racine].app.storage.s3***" pour le projet "***[Nom de l'application]-server***". Il s'agit : 
@@ -6066,6 +6301,12 @@ Liste des métadonnées disponibles (certaines métadonnées sont présentes mai
 | FETCH_LAZY | NON | Demande de chargement paresseux | REFERENCE |
 | ENTITY_MANAGER | NON | Demande d'utilisation de l'entity manager | ENTITY |
 | STORAGE | NON | Assigne le service pour le stockage de documents | SERVICE |
+| STORAGE_IMMUTABLE | NON | Le document n'est pas modifiable | SERVICE |
+| STORAGE_RETENTION_DURATION | NON | Assigne la durée de rétention du document | SERVICE |
+| STORAGE_RETENTION | OUI | Assigne le type de rétention du document | SERVICE |
+| BATCH_READ | NON | L'opération lit en base de données | OPERATION |
+| BATCH_WRITE | NON | L'opération écrit en base de données | OPERATION |
+| BATCH_PROCESS | NON | L'opération effectue un traitement hors base | OPERATION |
 
 ### Règles de validation
 
@@ -6108,6 +6349,7 @@ Liste des règles de validation dans les différents diagrammes.
 |Pas de service avec liste de stream en entrée |SOA|
 |Pas de paramètre S3 si service non S3|SOA|
 |Pas de service S3 sans opération GET/POST/DELETE |SOA|
+|Pas de service batch sans opération READ/WRITE/PROCESS |SOA|
 
 ### Métadonnées SSO 
 
