@@ -4829,9 +4829,9 @@ Lors de la génération de la couche SOA, plusieurs classes supplémentaires son
 
 Pour chaque traitement asynchrone, les classes suivantes sont générées :
 
-"***[NomDuService]BatchScheduler***" : composant chargé de planifier et de déclencher l'exécution du batch selon une expression CRON ;
-"***[NomDuService]BatchJobConfig***" : classe de configuration Spring Batch déclarant le job et les steps associés ;
-"***[NomDuService]BatchTasklet***" : composant technique Spring Batch contenant l'orchestration des différentes opérations du traitement.
+- "***[NomDuService]BatchScheduler***" : composant chargé de planifier et de déclencher l'exécution du batch selon une expression CRON.
+- "***[NomDuService]BatchJobConfig***" : classe de configuration Spring Batch déclarant le job et les steps associés.
+- "***[NomDuService]BatchTasklet***" : composant technique Spring Batch contenant l'orchestration des différentes opérations du traitement.
 
 Ces classes constituent l'infrastructure nécessaire à l'exécution du batch et sont donc générées automatiquement à partir de la modélisation du service asynchrone.
 
@@ -4892,7 +4892,7 @@ Lorsque le résultat d'une opération est stocké dans une variable intermédiai
 @Override
 public RepeatStatus execute(final StepContribution contribution, final ChunkContext chunkContext) throws Exception {
 
-    // this.provider.lectureBase(null);
+    // List<PersonneBatchDtoImpl> personnesOutput1 = this.provider.lectureBase();
     // List<PersonneBatchDtoImpl> personnesBatchOutput2 = this.provider.traitementDonnees(null);//
     // this.provider.ecritureBase(null);
     // this.provider.ecritureFichier(null);
@@ -4901,10 +4901,10 @@ public RepeatStatus execute(final StepContribution contribution, final ChunkCont
 
     LOGGER.info("Début du traitement du batch personnes");
 
-    this.provider.lectureBase(null);
-    List<PersonneBatchDtoImpl> personnesBatchOutput2 = this.provider.traitementDonnees(null);
-    this.provider.ecritureBase(null);
-    this.provider.ecritureFichier(null);
+    List<PersonneBatchDtoImpl> personnesOutput1 = this.provider.lectureBase();
+    List<PersonneBatchDtoImpl> personnesBatchOutput2 = this.provider.traitementDonnees(personnesOutput1);
+    this.provider.ecritureBase(personnesBatchOutput2);
+    this.provider.ecritureFichier(personnesBatchOutput2);
 
     LOGGER.info("Fin du traitement du batch personnes");
 
@@ -4920,16 +4920,16 @@ Cette copie peut s'avérer particulièrement utile en cas de suppression acciden
 
 Ces lignes commentées n'ont aucun impact sur l'exécution du batch et sont conservées uniquement à titre informatif et documentaire.
 
-Enfin une classe de type "*BactchProvider*" est crée au niveau des packages d'infrastructure, comme n'importe quel service REST "*Jpa*", la seule différence étant que les opération annotées "*BATCH_PROCESS*" ne disposent pas de méthode d'invocation comme pour l'ensemble des autres méthodes d'accès à la couche de persistance. Pour le détail de cette classe, se reporter simplement à la génération d'un service REST. C'est ici que le développeur va coder l'ensemble des opérations de traitement pour le service asynchrone.
+Enfin une classe de type "*BactchProvider*" est créée au niveau des packages d'infrastructure, comme n'importe quel service REST "*Jpa*", la seule différence étant que les opération annotées "*BATCH_PROCESS*" ne disposent pas de méthode d'invocation comme pour l'ensemble des autres méthodes d'accès à la couche de persistance. Pour le détail de cette classe, se reporter simplement à la génération d'un service REST. C'est ici que le développeur va coder l'ensemble des opérations de traitement pour le service asynchrone.
 
 Un exemple partiel de la génération (expurgé des commentaires) : 
 
 ```java
-public void lectureBase(final List<PersonneDtoImpl> personnes) {
-    lectureBase_invoke(personnes);
+public List<PersonneDtoImpl> personnes lectureBase() {
+    lectureBase_invoke();
 }
 
-private void lectureBase_invoke(final List<PersonneDtoImpl> personnes) {
+private List<PersonneDtoImpl> lectureBase_invoke() {
     throw new DemoNotImplementedException("La méthode 'lectureBase' n'a pas été implémentée");
 }
 
@@ -4981,6 +4981,131 @@ private BatchExecution traitement_invoke() {
 ❗ Les providers suffixés par "*JpaProvider*" représentent les adaptateurs d'infrastructure locaux de l'application. Historiquement dans les générateurs, ces composants ont pour rôle principal d'assurer les opérations de persistance via JPA. Toutefois, leur responsabilité ne se limite pas strictement aux accès à la base de données. Cependant, selon les besoins de l'application, il a été décidé qu'un "*JpaProvider*" pouvait également exécuter d'autres traitements techniques associés à l'infrastructure locale, tels que le déclenchement d'un batch, l'émission d'événements techniques ou la coordination de plusieurs   composants de persistance.
 
 Le suffixe "*JpaProvider*" doit donc être interprété comme l'adaptateur principal de persistance de l'application plutôt que comme la garantie que toutes les opérations implémentées utilisent exclusivement JPA. Ce choix permet de conserver une architecture homogène et stable, sans multiplier les types de providers pour des besoins ponctuels ou optionnels tels que l'exécution d'un batch.
+
+❗ Lorsqu'un traitement asynchrone est déclenché, l'appelant récupère immédiatement un objet de type "*BatchExecution*" décrivant l'exécution créée. Cet objet ne contient pas le résultat métier du traitement mais les informations nécessaires à son suivi : identifiant unique d'exécution, statut courant, dates de début et de fin, éventuels messages d'erreur ainsi que les informations de progression lorsque celles-ci sont disponibles.
+
+Le lancement du traitement et sa consultation sont volontairement découplés. Une fois l'exécution créée, le client peut interroger périodiquement un service dédié afin de connaître l'état courant du batch. Cette approche permet de suivre des traitements potentiellement longs sans immobiliser les ressources côté client ou côté serveur pendant toute la durée de l'exécution.
+
+Dans sa forme la plus simple, le suivi permet de connaître le statut global du traitement (*CREATED, STARTED, COMPLETED, FAILED ou STOPPED*). Lorsque le mécanisme de suivi avancé est activé, des informations complémentaires peuvent également être exposées, telles que le pourcentage d'avancement du traitement ou le nom de l'opération actuellement exécutée. Ces informations sont mises à jour au fur et à mesure de l'exécution du batch et peuvent être consultées à tout moment à l'aide de l'identifiant d'exécution retourné lors du lancement.
+
+❗ Pour activer ce mécanisme de suivi, il est alors nécessaire d'ajouter manuellement diverses portions de code. Ce code n'est pas généré par défaut par ***Pacman*** car le générateur ne présume pas que le développeur souhaite exposer un traitement asynchrone via un service REST ni qu'il souhaite en assurer le suivi à posteriori. 
+
+Pour rappel, le *Tasklet* généré constitue le point d'exécution du traitement Spring Batch. Dans le cadre de l'ajout du mécanisme de suivi d'exécution, le *Tasklet* doit être enrichi afin de mettre à jour dynamiquement l'objet de type "*BatchExecution*" partagé via un registre applicatif. Cet objet est récupéré à partir de l'identifiant d'exécution Spring Batch et permet de suivre l'état du traitement en temps réel.
+
+Avant l'exécution de chaque opération métier, le *Tasklet* met à jour les informations de progression, notamment le statut global du batch, l'opération en cours ainsi que le pourcentage d’avancement estimé. Ces informations sont calculées de manière simple à partir de la séquence des opérations modélisées.
+
+En cas de succès, le traitement est alors marqué comme terminé avec un statut "*COMPLETED*" et un avancement à 100 %. En cas d'erreur, le statut doit alors être positionné à "*FAILED*" et le message d'erreur associé doit être renseigné. 
+
+Si on reprend le code initial du *Tasklet* pour le service : 
+
+```java
+@Override
+public RepeatStatus execute(final StepContribution contribution, 
+   final ChunkContext chunkContext) throws Exception {
+
+    ....
+    // Start of user code 368e7c12570bdf119396e1d41d68e7ab
+    
+    LOGGER.info("Début du traitement du batch personnes");
+    ....
+    LOGGER.info("Fin du traitement du batch personnes");
+    
+    // End of user code
+    
+    return RepeatStatus.FINISHED;
+}
+```
+
+Rajouter le code suivant en début d'exécution pour pouvoir converser avec la registry : 
+
+```java
+
+Long executionId = chunkContext.getStepContext()
+    .getStepExecution()
+    .getJobExecution()
+    .getId();
+    
+DemoBatchExecutionRegistry registry = DemoApplicationContext
+   .getBean(DemoBatchExecutionRegistry.class);
+
+BatchExecution execution = registry.get(executionId);
+
+if (execution != null) {
+    execution.setStatus(ExecutionStatusEnum.STARTED);
+    execution.setProgress(0);
+    execution.setCurrentOperation("START");
+}
+
+```
+
+❗ Le code est ici donné à titre purement indicatif, c'est au développeur de rajouter l'ensemble des informations nécessaires, le générateur n'ayant donné que le squelette initial sur lequel pouvoir ensuite se brancher. Il est possible par exemple d'imaginer une petite méthode utilitaire pour simplifier l'ensemble du code : 
+
+```java
+private void update(BatchExecution execution,
+       String operation,
+       int progress) {
+
+    if (execution == null) {
+        return;
+    }
+
+    execution.setCurrentOperation(operation);
+    execution.setProgress(progress);
+}
+```
+
+... et ensuite de restructurer le code de la manière suivante (par exemple) : 
+
+```java
+// 1. Lecture
+update(execution, "lectureBase", 25);
+List<PersonneDtoImpl> personnesOutput1 = this.provider.lectureBase();
+
+// 2. Traitement
+update(execution, "traitementDonnees", 50);
+List<PersonneBatchDtoImpl> personnesBatchOutput2 = this.provider.traitementDonnees(personnesOutput1);
+
+// 3. Ecriture base
+update(execution, "ecritureBase", 75);
+this.provider.ecritureBase(personnesBatchOutput2);
+
+// 4. Ecriture fichier
+update(execution, "ecritureFichier", 95);
+this.provider.ecritureFichier(personnesBatchOutput2);
+
+// FIN
+if (execution != null) {
+   execution.setProgress(100);
+   execution.setCurrentOperation(null);
+   execution.setStatus(ExecutionStatusEnum.COMPLETED);
+}
+```
+
+En cas d'erreur, compléter le code avec par exemple : 
+
+```java
+if (execution != null) {
+   execution.setStatus(ExecutionStatusEnum.FAILED);
+   execution.setErrorMessage(e.getMessage());
+   execution.setCurrentOperation(null);
+}
+
+throw e;
+```
+
+Enfin, pour interroger l'état d'avancement, il suffit au développeur de modéliser un second service REST avec  l'identifiant du service en entrée et toujours l'objet "*BatchExecution*" en sortie, et de coder simplement l'interrogation du registre au niveau de la méthode d'invocation : 
+
+```java
+
+DemoBatchExecutionRegistry registry = DemoApplicationContext.getBean(DemoBatchExecutionRegistry.class);
+BatchExecution execution = registry.get(traitementIdentifiant);
+return execution;
+
+```
+
+<div align="center">
+  <img src="images/pcm-model-adv-batch-5.png" alt="Service asynchrone" >
+</div>
 
 #### Mise en place du stockage S3
 

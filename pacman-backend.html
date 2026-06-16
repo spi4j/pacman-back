@@ -4101,9 +4101,11 @@ le type "<em>asynchronous</em>" pour la rubrique "<em>Synchronization</em>" du s
 </div>
 <p>Lors de la génération de la couche SOA, plusieurs classes supplémentaires sont produites dans le package regroupant les contrôleurs REST. Bien qu'elles ne soient pas exposées sous forme de services REST, ces classes sont considérées comme des composants de pilotage du batch et sont donc générées au même niveau que les contrôleurs de l'application.</p>
 <p>Pour chaque traitement asynchrone, les classes suivantes sont générées :</p>
-<p>"<strong><em>[NomDuService]BatchScheduler</em></strong>" : composant chargé de planifier et de déclencher l'exécution du batch selon une expression CRON ;
-"<strong><em>[NomDuService]BatchJobConfig</em></strong>" : classe de configuration Spring Batch déclarant le job et les steps associés ;
-"<strong><em>[NomDuService]BatchTasklet</em></strong>" : composant technique Spring Batch contenant l'orchestration des différentes opérations du traitement.</p>
+<ul>
+<li>"<strong><em>[NomDuService]BatchScheduler</em></strong>" : composant chargé de planifier et de déclencher l'exécution du batch selon une expression CRON.</li>
+<li>"<strong><em>[NomDuService]BatchJobConfig</em></strong>" : classe de configuration Spring Batch déclarant le job et les steps associés.</li>
+<li>"<strong><em>[NomDuService]BatchTasklet</em></strong>" : composant technique Spring Batch contenant l'orchestration des différentes opérations du traitement.</li>
+</ul>
 <p>Ces classes constituent l'infrastructure nécessaire à l'exécution du batch et sont donc générées automatiquement à partir de la modélisation du service asynchrone.</p>
 <p>La méthode principale du <em>scheduler</em> est présentée ci-dessous. Elle est responsable du déclenchement automatique du batch en fonction de l'expression CRON configurée.</p>
 <p>Il appartient au développeur de définir une valeur par défaut pertinente dans l'annotation lorsque la propriété correspondante n'est pas présente dans le fichier "<em>application.properties</em>". Par ailleurs, la propriété associée au traitement asynchrone n'est pas ajoutée automatiquement au fichier de configuration lors de la génération.</p>
@@ -4148,7 +4150,7 @@ le type "<em>asynchronous</em>" pour la rubrique "<em>Synchronization</em>" du s
 <div class="codehilite"><pre><span></span><code><span class="nd">@Override</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">RepeatStatus</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">StepContribution</span><span class="w"> </span><span class="n">contribution</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">ChunkContext</span><span class="w"> </span><span class="n">chunkContext</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
 
-<span class="w">    </span><span class="c1">// this.provider.lectureBase(null);</span>
+<span class="w">    </span><span class="c1">// List&lt;PersonneBatchDtoImpl&gt; personnesOutput1 = this.provider.lectureBase();</span>
 <span class="w">    </span><span class="c1">// List&lt;PersonneBatchDtoImpl&gt; personnesBatchOutput2 = this.provider.traitementDonnees(null);//</span>
 <span class="w">    </span><span class="c1">// this.provider.ecritureBase(null);</span>
 <span class="w">    </span><span class="c1">// this.provider.ecritureFichier(null);</span>
@@ -4157,10 +4159,10 @@ le type "<em>asynchronous</em>" pour la rubrique "<em>Synchronization</em>" du s
 
 <span class="w">    </span><span class="n">LOGGER</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Début du traitement du batch personnes"</span><span class="p">);</span>
 
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">lectureBase</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
-<span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneBatchDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnesBatchOutput2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">traitementDonnees</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">ecritureBase</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
-<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">ecritureFichier</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+<span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneBatchDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnesOutput1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">lectureBase</span><span class="p">();</span>
+<span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneBatchDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnesBatchOutput2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">traitementDonnees</span><span class="p">(</span><span class="n">personnesOutput1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">ecritureBase</span><span class="p">(</span><span class="n">personnesBatchOutput2</span><span class="p">);</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">ecritureFichier</span><span class="p">(</span><span class="n">personnesBatchOutput2</span><span class="p">);</span>
 
 <span class="w">    </span><span class="n">LOGGER</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Fin du traitement du batch personnes"</span><span class="p">);</span>
 
@@ -4172,13 +4174,13 @@ le type "<em>asynchronous</em>" pour la rubrique "<em>Synchronization</em>" du s
 <p>Les lignes de code commentées présentes au début de la méthode correspondent exactement au code généré initialement par l'outil. Elles constituent une copie de référence de la génération automatique et permettent au développeur de retrouver facilement la structure d'origine du traitement.</p>
 <p>Cette copie peut s'avérer particulièrement utile en cas de suppression accidentelle ou de modification importante du contenu situé dans les zones protégées et délimitées par les balises de type "<em>user code</em>". Le développeur dispose ainsi d'un rappel immédiat des appels générés et peut reconstruire plus facilement le traitement sans avoir à relancer une génération ou à consulter le modèle.</p>
 <p>Ces lignes commentées n'ont aucun impact sur l'exécution du batch et sont conservées uniquement à titre informatif et documentaire.</p>
-<p>Enfin une classe de type "<em>BactchProvider</em>" est crée au niveau des packages d'infrastructure, comme n'importe quel service REST "<em>Jpa</em>", la seule différence étant que les opération annotées "<em>BATCH_PROCESS</em>" ne disposent pas de méthode d'invocation comme pour l'ensemble des autres méthodes d'accès à la couche de persistance. Pour le détail de cette classe, se reporter simplement à la génération d'un service REST. C'est ici que le développeur va coder l'ensemble des opérations de traitement pour le service asynchrone.</p>
+<p>Enfin une classe de type "<em>BactchProvider</em>" est créée au niveau des packages d'infrastructure, comme n'importe quel service REST "<em>Jpa</em>", la seule différence étant que les opération annotées "<em>BATCH_PROCESS</em>" ne disposent pas de méthode d'invocation comme pour l'ensemble des autres méthodes d'accès à la couche de persistance. Pour le détail de cette classe, se reporter simplement à la génération d'un service REST. C'est ici que le développeur va coder l'ensemble des opérations de traitement pour le service asynchrone.</p>
 <p>Un exemple partiel de la génération (expurgé des commentaires) : </p>
-<div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">lectureBase</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="n">lectureBase_invoke</span><span class="p">(</span><span class="n">personnes</span><span class="p">);</span>
+<div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnes</span><span class="w"> </span><span class="nf">lectureBase</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">lectureBase_invoke</span><span class="p">();</span>
 <span class="p">}</span>
 
-<span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">lectureBase_invoke</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnes</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="kd">private</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">lectureBase_invoke</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DemoNotImplementedException</span><span class="p">(</span><span class="s">"La méthode 'lectureBase' n'a pas été implémentée"</span><span class="p">);</span>
 <span class="p">}</span>
 
@@ -4223,6 +4225,101 @@ le type "<em>asynchronous</em>" pour la rubrique "<em>Synchronization</em>" du s
 </code></pre></div>
 <p>❗ Les providers suffixés par "<em>JpaProvider</em>" représentent les adaptateurs d'infrastructure locaux de l'application. Historiquement dans les générateurs, ces composants ont pour rôle principal d'assurer les opérations de persistance via JPA. Toutefois, leur responsabilité ne se limite pas strictement aux accès à la base de données. Cependant, selon les besoins de l'application, il a été décidé qu'un "<em>JpaProvider</em>" pouvait également exécuter d'autres traitements techniques associés à l'infrastructure locale, tels que le déclenchement d'un batch, l'émission d'événements techniques ou la coordination de plusieurs   composants de persistance.</p>
 <p>Le suffixe "<em>JpaProvider</em>" doit donc être interprété comme l'adaptateur principal de persistance de l'application plutôt que comme la garantie que toutes les opérations implémentées utilisent exclusivement JPA. Ce choix permet de conserver une architecture homogène et stable, sans multiplier les types de providers pour des besoins ponctuels ou optionnels tels que l'exécution d'un batch.</p>
+<p>❗ Lorsqu'un traitement asynchrone est déclenché, l'appelant récupère immédiatement un objet de type "<em>BatchExecution</em>" décrivant l'exécution créée. Cet objet ne contient pas le résultat métier du traitement mais les informations nécessaires à son suivi : identifiant unique d'exécution, statut courant, dates de début et de fin, éventuels messages d'erreur ainsi que les informations de progression lorsque celles-ci sont disponibles.</p>
+<p>Le lancement du traitement et sa consultation sont volontairement découplés. Une fois l'exécution créée, le client peut interroger périodiquement un service dédié afin de connaître l'état courant du batch. Cette approche permet de suivre des traitements potentiellement longs sans immobiliser les ressources côté client ou côté serveur pendant toute la durée de l'exécution.</p>
+<p>Dans sa forme la plus simple, le suivi permet de connaître le statut global du traitement (<em>CREATED, STARTED, COMPLETED, FAILED ou STOPPED</em>). Lorsque le mécanisme de suivi avancé est activé, des informations complémentaires peuvent également être exposées, telles que le pourcentage d'avancement du traitement ou le nom de l'opération actuellement exécutée. Ces informations sont mises à jour au fur et à mesure de l'exécution du batch et peuvent être consultées à tout moment à l'aide de l'identifiant d'exécution retourné lors du lancement.</p>
+<p>❗ Pour activer ce mécanisme de suivi, il est alors nécessaire d'ajouter manuellement diverses portions de code. Ce code n'est pas généré par défaut par <strong><em>Pacman</em></strong> car le générateur ne présume pas que le développeur souhaite exposer un traitement asynchrone via un service REST ni qu'il souhaite en assurer le suivi à posteriori. </p>
+<p>Pour rappel, le <em>Tasklet</em> généré constitue le point d'exécution du traitement Spring Batch. Dans le cadre de l'ajout du mécanisme de suivi d'exécution, le <em>Tasklet</em> doit être enrichi afin de mettre à jour dynamiquement l'objet de type "<em>BatchExecution</em>" partagé via un registre applicatif. Cet objet est récupéré à partir de l'identifiant d'exécution Spring Batch et permet de suivre l'état du traitement en temps réel.</p>
+<p>Avant l'exécution de chaque opération métier, le <em>Tasklet</em> met à jour les informations de progression, notamment le statut global du batch, l'opération en cours ainsi que le pourcentage d’avancement estimé. Ces informations sont calculées de manière simple à partir de la séquence des opérations modélisées.</p>
+<p>En cas de succès, le traitement est alors marqué comme terminé avec un statut "<em>COMPLETED</em>" et un avancement à 100 %. En cas d'erreur, le statut doit alors être positionné à "<em>FAILED</em>" et le message d'erreur associé doit être renseigné. </p>
+<p>Si on reprend le code initial du <em>Tasklet</em> pour le service : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Override</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">RepeatStatus</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">StepContribution</span><span class="w"> </span><span class="n">contribution</span><span class="p">,</span><span class="w"> </span>
+<span class="w">   </span><span class="kd">final</span><span class="w"> </span><span class="n">ChunkContext</span><span class="w"> </span><span class="n">chunkContext</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Exception</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="p">....</span>
+<span class="w">    </span><span class="c1">// Start of user code 368e7c12570bdf119396e1d41d68e7ab</span>
+
+<span class="w">    </span><span class="n">LOGGER</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Début du traitement du batch personnes"</span><span class="p">);</span>
+<span class="w">    </span><span class="p">....</span>
+<span class="w">    </span><span class="n">LOGGER</span><span class="p">.</span><span class="na">info</span><span class="p">(</span><span class="s">"Fin du traitement du batch personnes"</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">RepeatStatus</span><span class="p">.</span><span class="na">FINISHED</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Rajouter le code suivant en début d'exécution pour pouvoir converser avec la registry : </p>
+<div class="codehilite"><pre><span></span><code><span class="n">Long</span><span class="w"> </span><span class="n">executionId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chunkContext</span><span class="p">.</span><span class="na">getStepContext</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">getStepExecution</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">getJobExecution</span><span class="p">()</span>
+<span class="w">    </span><span class="p">.</span><span class="na">getId</span><span class="p">();</span>
+
+<span class="n">DemoBatchExecutionRegistry</span><span class="w"> </span><span class="n">registry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DemoApplicationContext</span>
+<span class="w">   </span><span class="p">.</span><span class="na">getBean</span><span class="p">(</span><span class="n">DemoBatchExecutionRegistry</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+
+<span class="n">BatchExecution</span><span class="w"> </span><span class="n">execution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">registry</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">executionId</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">execution</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">execution</span><span class="p">.</span><span class="na">setStatus</span><span class="p">(</span><span class="n">ExecutionStatusEnum</span><span class="p">.</span><span class="na">STARTED</span><span class="p">);</span>
+<span class="w">    </span><span class="n">execution</span><span class="p">.</span><span class="na">setProgress</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">execution</span><span class="p">.</span><span class="na">setCurrentOperation</span><span class="p">(</span><span class="s">"START"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>❗ Le code est ici donné à titre purement indicatif, c'est au développeur de rajouter l'ensemble des informations nécessaires, le générateur n'ayant donné que le squelette initial sur lequel pouvoir ensuite se brancher. Il est possible par exemple d'imaginer une petite méthode utilitaire pour simplifier l'ensemble du code : </p>
+<div class="codehilite"><pre><span></span><code><span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="n">BatchExecution</span><span class="w"> </span><span class="n">execution</span><span class="p">,</span>
+<span class="w">       </span><span class="n">String</span><span class="w"> </span><span class="n">operation</span><span class="p">,</span>
+<span class="w">       </span><span class="kt">int</span><span class="w"> </span><span class="n">progress</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">execution</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">execution</span><span class="p">.</span><span class="na">setCurrentOperation</span><span class="p">(</span><span class="n">operation</span><span class="p">);</span>
+<span class="w">    </span><span class="n">execution</span><span class="p">.</span><span class="na">setProgress</span><span class="p">(</span><span class="n">progress</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>... et ensuite de restructurer le code de la manière suivante (par exemple) : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 1. Lecture</span>
+<span class="n">update</span><span class="p">(</span><span class="n">execution</span><span class="p">,</span><span class="w"> </span><span class="s">"lectureBase"</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnesOutput1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">lectureBase</span><span class="p">();</span>
+
+<span class="c1">// 2. Traitement</span>
+<span class="n">update</span><span class="p">(</span><span class="n">execution</span><span class="p">,</span><span class="w"> </span><span class="s">"traitementDonnees"</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneBatchDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnesBatchOutput2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">traitementDonnees</span><span class="p">(</span><span class="n">personnesOutput1</span><span class="p">);</span>
+
+<span class="c1">// 3. Ecriture base</span>
+<span class="n">update</span><span class="p">(</span><span class="n">execution</span><span class="p">,</span><span class="w"> </span><span class="s">"ecritureBase"</span><span class="p">,</span><span class="w"> </span><span class="mi">75</span><span class="p">);</span>
+<span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">ecritureBase</span><span class="p">(</span><span class="n">personnesBatchOutput2</span><span class="p">);</span>
+
+<span class="c1">// 4. Ecriture fichier</span>
+<span class="n">update</span><span class="p">(</span><span class="n">execution</span><span class="p">,</span><span class="w"> </span><span class="s">"ecritureFichier"</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">);</span>
+<span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">ecritureFichier</span><span class="p">(</span><span class="n">personnesBatchOutput2</span><span class="p">);</span>
+
+<span class="c1">// FIN</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">execution</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">execution</span><span class="p">.</span><span class="na">setProgress</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="w">   </span><span class="n">execution</span><span class="p">.</span><span class="na">setCurrentOperation</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+<span class="w">   </span><span class="n">execution</span><span class="p">.</span><span class="na">setStatus</span><span class="p">(</span><span class="n">ExecutionStatusEnum</span><span class="p">.</span><span class="na">COMPLETED</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>En cas d'erreur, compléter le code avec par exemple : </p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">execution</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="n">execution</span><span class="p">.</span><span class="na">setStatus</span><span class="p">(</span><span class="n">ExecutionStatusEnum</span><span class="p">.</span><span class="na">FAILED</span><span class="p">);</span>
+<span class="w">   </span><span class="n">execution</span><span class="p">.</span><span class="na">setErrorMessage</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="na">getMessage</span><span class="p">());</span>
+<span class="w">   </span><span class="n">execution</span><span class="p">.</span><span class="na">setCurrentOperation</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">throw</span><span class="w"> </span><span class="n">e</span><span class="p">;</span>
+</code></pre></div>
+<p>Enfin, pour interroger l'état d'avancement, il suffit au développeur de modéliser un second service REST avec  l'identifiant du service en entrée et toujours l'objet "<em>BatchExecution</em>" en sortie, et de coder simplement l'interrogation du registre au niveau de la méthode d'invocation : </p>
+<div class="codehilite"><pre><span></span><code><span class="n">DemoBatchExecutionRegistry</span><span class="w"> </span><span class="n">registry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DemoApplicationContext</span><span class="p">.</span><span class="na">getBean</span><span class="p">(</span><span class="n">DemoBatchExecutionRegistry</span><span class="p">.</span><span class="na">class</span><span class="p">);</span>
+<span class="n">BatchExecution</span><span class="w"> </span><span class="n">execution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">registry</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">traitementIdentifiant</span><span class="p">);</span>
+<span class="k">return</span><span class="w"> </span><span class="n">execution</span><span class="p">;</span>
+</code></pre></div>
+<div align="center">
+<img alt="Service asynchrone" src="images/pcm-model-adv-batch-5.png"/>
+</div>
 <h4 id="mise-en-place-du-stockage-s3">Mise en place du stockage S3</h4>
 <p>Lors de la création du projet, plusieurs classes de haut niveau sont automatiquement générées au niveau du package "<strong><em>[package racine].app.storage.s3</em></strong>" pour le projet "<strong><em>[Nom de l'application]-server</em></strong>". Il s'agit : </p>
 <ul>
