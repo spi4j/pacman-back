@@ -114,6 +114,9 @@
 [comment retourne le nom pour l'interface d'une classe de service soa crud (infra)./]  
 [query public nameClassServiceCrudOutItf(d : environment::DTO) : String = (d.name() + ' crud ' + d.suffixInterfaceOut()).apply_classInterface()/]  
 
+[comment retourne le nom de la classe pour le stockage de l'avancement des traitements asynchrones (batchs)./]
+[query public nameClassOutBachExecutionRegistry(any : ecore::EObject) : String = (any.nameProject() + ' batch execution registry').apply_classDefault()/]
+
 [comment retourne le nom pour l'implémentation du tasklet pour les services asynchrones (batchs)./]
 [query public nameClassServiceOutBatchTaskletImpl(s : soa::Service) : String = (s.name() + ' batch tasklet').apply_classDefault()/]
   

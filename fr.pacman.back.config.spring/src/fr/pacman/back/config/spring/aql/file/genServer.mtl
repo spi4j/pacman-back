@@ -225,3 +225,10 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation classe de stockage de l'avancement des services asynchrones (batchs)  (infra)./]
+[template public fileBatchExecutionRegistryImpl(any : ecore::EObject)]
+  [file (any.nameClassOutBachExecutionRegistry().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
+    [any.outBatchExecutionRegistryImpl()/]
+  [/file]
+[/template]
+

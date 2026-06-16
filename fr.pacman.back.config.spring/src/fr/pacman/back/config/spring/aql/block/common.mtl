@@ -623,6 +623,12 @@
      ['Corrélation entre appel REST et exécution'.commentMultiLines()/]
      private String ['correlation id'.apply_attributeDefault()/];
      
+     ['Pourcentage d\'exécution pour le traitement'.commentMultiLines()/]
+     private Integer ['progress'.apply_attributeDefault()/];
+     
+     ['Nom de l\'opération en cours'.commentMultiLines()/]
+     private String ['current operation'.apply_attributeDefault()/];
+     
      ['Liste des assesseurs'.commentMultiLines()/]
      
      public Long ['execution id'.apply_methodGet()/]() {
@@ -682,11 +688,27 @@
      }
      
      public String ['error code'.apply_methodGet()/]() {
-        return [any.prefixAffectation()/]['errorCode'.apply_attributeDefault()/];
+        return [any.prefixAffectation()/]['error code'.apply_attributeDefault()/];
      }
      
      public void ['error code'.apply_methodSet()/](final String ['error code'.apply_parameterMethodClassicIn()/]) {
-        [any.prefixAffectation()/]['errorCode'.apply_attributeDefault()/] = ['error code'.apply_parameterMethodClassicIn()/];
+        [any.prefixAffectation()/]['error code'.apply_attributeDefault()/] = ['error code'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public Integer ['progress'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['progress'.apply_attributeDefault()/];
+     }
+     
+     public void ['progress'.apply_methodSet()/](final Integer ['progress'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['progress'.apply_attributeDefault()/] = ['progress'.apply_parameterMethodClassicIn()/];
+     }
+     
+     public String ['current operation'.apply_methodGet()/]() {
+        return [any.prefixAffectation()/]['current operation'.apply_attributeDefault()/];
+     }
+     
+     public void ['current operation'.apply_methodSet()/](final String ['current operation'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['current operation'.apply_attributeDefault()/] = ['current operation'.apply_parameterMethodClassicIn()/];
      }
       
     /**
@@ -717,7 +739,7 @@
      * système.</li>
      * </ul>
      */
-     enum ['execution status'.apply_classEnum()/] {
+     public enum ['execution status'.apply_classEnum()/] {
         CREATED, 
         STARTED,
         COMPLETED,

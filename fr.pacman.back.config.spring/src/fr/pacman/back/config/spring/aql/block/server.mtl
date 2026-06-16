@@ -3450,6 +3450,70 @@
   }
 [/template]
 
+[comment écriture du singleton pour le stockage de l'avancement d'un traitement asynchrone (batch)./]
+[template public outBatchExecutionRegistryImpl(any : ecore::EObject)]
+   [any.classHeader(any.namePackageApplicationBase())/]
+   
+   import java.util.Map;
+   import org.springframework.stereotype.Component;
+   import [any.namePackageProject()/].[any.namePackageCommonBase()/].[any.nameClassBatchOutputParamImpl()/];
+  
+  /**
+  * Registre en mémoire des exécutions de traitements asynchrones.
+  * <p>
+  * Ce composant permet de conserver et de consulter les informations de suivi
+  * associées aux objets {@link [any.nameClassBatchOutputParamImpl()/]} pendant leur cycle de vie.
+  * Il est notamment utilisé pour exposer l'état d'avancement d'un traitement
+  * lancé de manière asynchrone via les services de l'application.
+  * </p>
+  * <p>
+  * Les exécutions sont indexées par leur identifiant unique et stockées en
+  * mémoire dans une structure concurrente afin de permettre un accès sûr depuis
+  * plusieurs threads.
+  * </p>
+  * <p>
+  * Ce registre constitue un mécanisme léger de suivi d'exécution. Les
+  * informations qu'il contient sont perdues lors de l'arrêt de l'application.
+  * </p>
+  *
+  * @author [any.nameAuthor()/]
+  */
+  @Component
+  public class [any.nameClassOutBachExecutionRegistry()/] {
+    
+    /**
+    * Exécutions référencées par identifiant.
+    */
+    private final Map<Long, [any.nameClassBatchOutputParamImpl()/]> ['executions'.apply_attributeFinal()/] 
+       = new ConcurrentHashMap<>();
+    
+    /**
+    * Enregistre ou met à jour une exécution.
+    *
+    * @param execution exécution à enregistrer
+    */
+    public void ['put'.apply_methodDefault()/](final [any.nameClassBatchOutputParamImpl()/] 
+      ['execution'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['executions'.apply_attributeFinal()/]
+          .put(['execution'.apply_parameterMethodClassicIn()/].['execution id'.apply_methodGet()/]()
+          , ['execution'.apply_parameterMethodClassicIn()/]);
+    }
+    
+    /**
+    * Retourne l'exécution correspondant à l'identifiant fourni.
+    *
+    * @param executionId identifiant de l'exécution recherchée
+    * @return exécution correspondante ou {@code null} si aucune exécution n'est
+    *         enregistrée pour cet identifiant
+    */
+    public [any.nameClassBatchOutputParamImpl()/] ['get'.apply_methodDefault()/]
+      (final Long ['execution id'.apply_parameterMethodClassicIn()/]) {
+        return [any.prefixAffectation()/]['executions'.apply_attributeFinal()/]
+          .get(['execution id'.apply_parameterMethodClassicIn()/]);
+    }
+  }
+[/template]
+
 [comment retourne la ligne de création du schéma si existe pour forcer la création avec hibernate (cas <create|drop>)./]
 [query private endDatasourceUrl(any : ecore::EObject) : String = ';DB_CLOSE_DELAY=-1;' + if (any.get_SQLTableSchema().exists()) then 
   'INIT=CREATE SCHEMA IF NOT EXISTS ' + any.get_SQLTableSchema().toUpper() + ';' else '' endif/]
