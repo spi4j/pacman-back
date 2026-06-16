@@ -445,7 +445,7 @@ Un fichier ***[nom de l'application]-validation.log*** vide est créé par défa
 
 • ***[package racine]*** : contient la classe principale de démarrage pour l'application ***[nom de l'application]Bootsrap.java***
 
-•️ ***[package racine].app*** : package racine pour la couche applicative, contient (principalement) par défaut les classes de haut niveau pour le bon fonctionnement des services REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité. Par ailleurs, ce package contient une classe utilitaire pour la récupération du contexte de l'application, cette classe n'est à utiliser que dans le cadre de la modélisation de traitements asynchrones (batchs) appelés par un (ou plusieurs) service(s) REST.
+•️ ***[package racine].app*** : package racine pour la couche applicative, contient (principalement) par défaut les classes de haut niveau pour le bon fonctionnement des services REST. Il s'agit des classes pour la gestion centralisée des exceptions et de la configuration de la sécurité. Par ailleurs, ce package contient une classe utilitaire pour la récupération du contexte de l'application, cette classe n'est à utiliser que dans le cadre de la modélisation de traitements asynchrones (batchs) appelés par un (ou plusieurs) service(s) REST. De même une classe spécifique pour le stockage de l'état d'avancement des différents traitements asynchrones est aussi créée par défaut.
 
 • ***[package racine].app.exceptions*** : contient les exceptions de la couche applicative. Si besoin d'exceptions supplémentaires, les positionner à ce niveau.
 
@@ -4938,7 +4938,7 @@ public List<PersonneBatchDtoImpl> traitementDonnees(final List<PersonneDtoImpl> 
 }
 ```
 
-Il est aussi possible, si le développeur le désire, de lancer le traitement asynchrone directement à partir d'un service REST. Il doit alors pour cela modéliser un service (comme n'importe autre quel service REST), la seule différence étant que le type du paramètre de retour soit un objet de type : "*BPExecution*". 
+Il est aussi possible, si le développeur le désire, de lancer le traitement asynchrone directement à partir d'un service REST. Il doit alors pour cela modéliser un service (comme n'importe quel autre service REST), la seule différence étant que le type du paramètre de retour soit un objet de type : "*BPExecution*". 
 
 <div align="center">
   <img src="images/pcm-model-adv-batch-4.png" alt="Service asynchrone" >
