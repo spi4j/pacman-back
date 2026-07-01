@@ -207,9 +207,13 @@
 [comment écriture de l'interface pour une entité (au sens Spring)./]
 [template public persistItf (e : entity::Entity)]
   [e.classHeader(e.namePackageEntityPersistItf())/]
-  [e.defaultImports()/]
-  import org.springframework.data.jpa.repository.JpaRepository;
-  [e.importImpl()/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [e.defaultImports()/]
+    import org.springframework.data.jpa.repository.JpaRepository;
+    [e.importImpl()/]
+    
+  [/protected]
   
   /**
    * Interface de dépôt pour accéder aux entités {@link [e.nameClassEntityImpl()/]}.

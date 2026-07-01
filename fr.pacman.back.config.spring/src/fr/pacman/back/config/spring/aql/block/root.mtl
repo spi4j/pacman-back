@@ -228,7 +228,9 @@
              <groupId>net.datafaker</groupId>
              <artifactId>datafaker</artifactId>
              <version>[any.versionDataFaker()/]</version>
+             <!--
              <scope>test</scope>
+             -->
           </dependency>
           <!-- (voir si déclaratif ou non...)
           <dependency>

@@ -172,8 +172,9 @@
   
 [comment écriture de la signature pour la méthode de population de l'entité (entités référencées)/]
 [query private writePopulateSignature(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = '' 
-  + e.referencesFKSBResolved(es, ess)->collect(o |'final ' + o.referencedEntity(e).nameClassEntityImpl() 
-  + ' '+ o.referencedEntity(e).name().apply_parameterMethodClassicIn())->sep(',')/]
+  + e.referencesFKSBResolved(es, ess)->collect(o |'final ' + if (not o.isInverseReference(e) and o.isMultiple()) then 'List<' else '' endif 
+  + o.referencedEntity(e).nameClassEntityImpl() + if (not o.isInverseReference(e) and o.isMultiple()) then '>' else '' endif + ' ' 
+  + o.referencedEntity(e).name().apply_parameterMethodClassicIn())->sep(',')/]
   
 [comment écriture de la signature pour la méthode de population de l'entité (entités référencées)/]
 [query private writePopulateSignatureWithDefaultNull(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = 
