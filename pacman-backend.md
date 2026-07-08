@@ -14,6 +14,7 @@
 - 11/05/2026 : Ajouts : Génération des tests fonctionnels d'API.
 - 24/05/2026 : Ajouts : Complétion du stockage S3 avec versionning/retention/immutabilité.
 - 09/06/2026 : Ajouts : Mise en place des traitements asynchrones.
+- 07/07/2026 : Ajouts : Protection des accès (IDOR)
 ---
 
 ## 🚀 Introduction
@@ -256,7 +257,7 @@ Exemple avec les trois champs prédéfinis (pour annuler une sélection, sélect
 
 ➤ **Autre** : 
 
-Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Au niveau de la version actuelle de **Pacman** et comme vu précédemment, une grande partie de la sous-rubrique "*Autre*" est désactivée car ces options ne concernent pas le framework SpringBoot. Il reste cependant la possibilité de cocher la rubrique "*Utilisation librairie SSO ministère*" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées. La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*")
+Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Il est possible de cocher la rubrique "*Utilisation librairie SSO ministère*" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées. La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*"). Enfin la rubrique "*Contrôle d'accès aux ressources*" permet, quant à elle, d'activer le contrôle IDOR pour vérifier la cohérence des paramètres pour l'ensemble des services REST et éviter la modification malveillante des URIS.
 
 ❗ Attention, la librairie de connexion pour le ministère des armées n'est pas disponible dans le cas de l'utilisation des générateur **Pacman** hors du réseau interne du ministère. Il est donc inutile de cocher cette case dans le cadre d'une utilisation open source.
 
@@ -1532,7 +1533,7 @@ public interface PersonneRepository extends JpaRepository<PersonneEntityImpl, Lo
    // End of user code
 }
 ```
-Exemple de requete JPQL : 
+Exemple de requête JPQL : 
 
 ```java
 public interface PersonneRepository extends JpaRepository<PersonneEntityImpl, Long> {
@@ -1541,6 +1542,20 @@ public interface PersonneRepository extends JpaRepository<PersonneEntityImpl, Lo
   List<User> findActiveUsersByEmailContaining(@Param("emailPart") String emailPart);
 }
 ```
+
+Un autre exemple de requête (les """  permettent d'écrire une chaîne de caractères sur plusieurs lignes sans avoir à concaténer des chaînes ou à échapper les retours à la ligne) : 
+
+```java
+public interface ContratRepository extends JpaRepository<ContratEntityImpl, Long> {
+    @Query("""
+	    select c
+	    from ContratEntityImpl c
+	    where c.personne_contrats.personne_id = :idPersonne
+    """)
+    List<ContratEntityImpl> findAllByPersonneId(@Param("idPersonne") Long idPersonne);
+}
+```
+
 #### Tests
 
 ➤ ***[package racine].infra.adapters.[nom du namespace]*** : Des tests unitaires JUnit sont générés par défaut au niveau du package de test, avec pour chaque entité, une classe ***[nom de l'entité]RepositoryTestImpl***, dans le cadre de l'application "demo", il s'agit de la classe *PersonneRepositoryTestImpl*. Ces tests de base auto générés permettent de vérifier le bon fonctionnement des opérations CRUD pour la base de  données. 
@@ -1678,6 +1693,14 @@ Dans cet exemple :
 - L'uri pour la recherche par identifiant est "*/{id}*"
 - Le service n'est pas sécurisé (accès libre).
 - Dans le cas ou la personne n'est pas trouvée, une "fault" a été modélisée avec comme code de retour 404 (il est aussi possible de modéliser un 204).
+
+❗ Lors de la définition d'endpoints REST avec Spring MVC, le nom d'un paramètre de chemin "*@PathVariable*" n'est pas pris en compte lors du routage des requêtes. Seule la structure de l'URI est utilisée pour déterminer la méthode à invoquer. 
+
+Par exemple si on complexifie la modélisation pour ajouter des contrats et lier ces contrats à des personnes, et que l'on désire maintenant avoir deux services pour avoir respectivement le détail d'un contrat et la liste des contrats pour une personne donnée : 
+
+Les mappings "*GET /contrats/{idContrat}*" et "*GET /contrats/{idPersonne}*" sont considérés comme strictement identiques, car ils correspondent tous deux au modèle : "*GET /contrats/{variable}*". 
+
+Une requête telle que "*GET /contrats/14*" devient alors ambiguë et Spring lève une exception indiquant que plusieurs méthodes peuvent traiter la même URL (Ambiguous handler methods mapped). Pour éviter cette situation, chaque endpoint doit posséder une structure d'URI unique. Par exemple, la consultation d'un contrat par son identifiant peut être exposée via "*GET /contrats/{idContrat}*", tandis que la liste des contrats d'une personne sera préférablement exposée via GET "*/personnes/{idPersonne}/contrats*" ou, alternativement, via "*GET /contrats?idPersonne={idPersonne}*" ou encore "*/contrats/{idPersonne}/liste*". Cette approche garantit un routage non ambigu tout en respectant les bonnes pratiques de conception des API REST.
 
 #### Génération 
 
@@ -2544,6 +2567,33 @@ personne.setCivilite(faker.name().prefix()); // ex : Mr, Mrs, Mme
 personne.setDateNaissance(randomLocalDate(80)); // personne âgée de max 80 ans
 personne.setMotPasse(faker.internet().password());
 personne.setSecteurPro(faker.company().industry());
+```
+
+❗ Attention, il faut bien comprendre que cette fonctionnalité est juste un "squelette" basique pour faciliter le chargement des données et qu'il ne s'agit absolument pas d'un produit fini qui répond à l'ensemble des cas de modélisation. Il est donc parfois nécessaire pour le développeur de modifier certaines parties et d'en commenter (et/ou en déplacer) d'autres selon les différents cas de figure. Il dispose cependant de l'ensemble des fonctions de base pour ajuster la classe en fonction de ses besoins. 
+
+Voici un exemple tiré d'une autre modélisation : 
+
+```java
+IntStream.range(0, nbEntities).forEach(i -> {
+    // Start of user code e704d2492cceeb15a1dc8a03aa9894d3
+    GradeEntityImpl grade = gradeRepository.save(gradePopulateWithFakeData());
+    IntStream.range(0, nbRelations).forEach(i2 -> {
+        PersonneEntityImpl personne = personneRepository.save(personnePopulateWithFakeData(null, grade));
+    });
+    // End of user code
+
+    // Start of user code d93e54e0f81ff8ee8728385070aa5406
+    //IntStream.range(0, nbRelations).forEach(i2 -> {
+    //   GradeEntityImpl grade = gradeRepository.save(gradePopulateWithFakeData());
+    //});
+    // End of user code
+
+    // Start of user code dba3aec7e9f3d23fe5f2fe65483bd1d2
+    IntStream.range(0, nbRelations).forEach(i2 -> {
+        VilleEntityImpl ville = villeRepository.save(villePopulateWithFakeData());
+    });
+    // End of user code
+});
 ```
 
 #### Tests
@@ -4988,7 +5038,7 @@ Le lancement du traitement et sa consultation sont volontairement découplés. U
 
 Dans sa forme la plus simple, le suivi permet de connaître le statut global du traitement (*CREATED, STARTED, COMPLETED, FAILED ou STOPPED*). Lorsque le mécanisme de suivi avancé est activé, des informations complémentaires peuvent également être exposées, telles que le pourcentage d'avancement du traitement ou le nom de l'opération actuellement exécutée. Ces informations sont mises à jour au fur et à mesure de l'exécution du batch et peuvent être consultées à tout moment à l'aide de l'identifiant d'exécution retourné lors du lancement.
 
-❗ Pour activer ce mécanisme de suivi, il est alors nécessaire d'ajouter manuellement diverses portions de code. Ce code n'est pas généré par défaut par ***Pacman*** car le générateur ne présume pas que le développeur souhaite exposer un traitement asynchrone via un service REST ni qu'il souhaite en assurer le suivi à posteriori. 
+❗ Pour activer ce mécanisme de suivi, il est alors nécessaire d'ajouter manuellement diverses portions de code. Ce code n'est pas généré par défaut par **Pacman** car le générateur ne présume pas que le développeur souhaite exposer un traitement asynchrone via un service REST ni qu'il souhaite en assurer le suivi à posteriori. 
 
 Pour rappel, le *Tasklet* généré constitue le point d'exécution du traitement Spring Batch. Dans le cadre de l'ajout du mécanisme de suivi d'exécution, le *Tasklet* doit être enrichi afin de mettre à jour dynamiquement l'objet de type "*BatchExecution*" partagé via un registre applicatif. Cet objet est récupéré à partir de l'identifiant d'exécution Spring Batch et permet de suivre l'état du traitement en temps réel.
 
@@ -5633,7 +5683,7 @@ public String supprimeFichier(final String nomDocument) {
 }
 ```
 
-❗  Encore une fois, pour rappel, l'ensemble du code pour les services de persistance n'est pas généré dès que la signature de l'opération ne correspond pas à celle attendue par les générateurs ***Pacman***. La génération sera alors du type : 
+❗  Encore une fois, pour rappel, l'ensemble du code pour les services de persistance n'est pas généré dès que la signature de l'opération ne correspond pas à celle attendue par les générateurs **Pacman**. La génération sera alors du type : 
 
 ```java
 public String supprimeFichier(final String nomDocument) {
@@ -5654,11 +5704,173 @@ Un bref shéma récapitulatif explique le fonctionnement de cette implémentatio
   <img src="images/pcm-soa-s3-impl.png" alt="Architecture S3" width="500">
 </div>
 
+
+#### Protection des accès (IDOR)
+
+Une vulnérabilité fréquente des applications Web consiste à faire confiance aux identifiants transmis par le client (URI, paramètres de requête ou corps de requête) sans vérifier que la ressource demandée appartient bien au périmètre de données de l'utilisateur connecté. Ce type de faille est connu sous le nom d'IDOR (Insecure Direct Object Reference) ou plus généralement BOLA (Broken Object Level Authorization) pour les API REST. 
+
+Un scénario typique est le suivant : un utilisateur authentifié consulte la liste de ses contrats et ouvre le contrat n°2358478 via l'URL "*/contracts/2358478*". S'il modifie manuellement cette URL en "*/contracts/2358479*" et que le serveur se contente d'effectuer une recherche par identifiant ("*findById(2358479)*"), il peut, avec un peu de chance, accéder au contrat d'un autre utilisateur. Il ne s'agit pas d'un problème de droits fonctionnels (l'utilisateur est correctement authentifié et possède bien le droit de consulter ses contrats) mais d'un défaut de cloisonnement des données qui permet de sortir du périmètre qui lui est normalement associé.
+
+Dans **Pacman**, trois solutions sont proposées afin de pallier à cette problématique : 
+
+• Utiliser des identifiants de type UUID (Universally Unique Identifier) en lieu et place d'identifiants numériques séquentiels. Contrairement à un identifiant auto-incrémenté, un UUID est pratiquement impossible à deviner ou à énumérer, ce qui réduit considérablement les risques d'accès opportuniste par simple modification d'une URI. Ainsi, une requête du type "*/contrats/2358478*" est beaucoup plus facilement falsifiable qu'une requête utilisant un identifiant tel que "*/contrats/550e8400-e29b-41d4-a716-446655440000*". 
+
+L'utilisation d'UUID constitue donc une première ligne de défense efficace contre les attaques d'énumération d'identifiants (ID Guessing). Toutefois, cette technique ne doit pas être considérée comme un mécanisme de contrôle d'accès. Si un UUID est divulgué ou intercepté, un utilisateur malveillant pourrait toujours tenter de l'utiliser pour accéder à une ressource qui ne lui appartient pas. Les vérifications de cohérence entre la ressource demandée et le périmètre de l'utilisateur demeurent donc indispensables. 
+
+En conséquence, l'utilisation d'UUID doit être envisagée comme une mesure de durcissement complémentaire, venant réduire la surface d'attaque, mais ne se substituant jamais aux mécanismes d'isolation des données et aux contrôles d'autorisation mis en œuvre par l'application.
+
+• Une autre approche consiste à ne plus utiliser directement les méthodes génériques proposées par les repositories Spring Data JPA, telles que "*findById()*", "*findAll()*" ou "*findAllById()*", mais à réécrire systématiquement les requêtes afin d'y intégrer les critères d'isolation des données. Chaque accès à une ressource est alors effectué au moyen d'une requête spécifique incluant les contraintes de sécurité nécessaires, par exemple en ajoutant un filtre sur l'utilisateur connecté, le locataire (tenant), l'organisation ou tout autre critère définissant le périmètre des données accessibles. 
+
+Cette approche offre un niveau de sécurité très élevé, puisqu'il devient impossible de récupérer une ressource sans appliquer explicitement les règles d'isolation. En contrepartie, elle augmente significativement la quantité de code à produire et à maintenir. 
+
+Les méthodes génériques des repositories ne peuvent plus être utilisées, ce qui conduit à réécrire un grand nombre de requêtes, parfois très proches les unes des autres. Cette solution est particulièrement adaptée aux applications manipulant des données sensibles ou exposées sur Internet, mais elle nécessite une discipline de développement rigoureuse pour imposer systématiquement ces règles d'accès.
+
+• **Pacman** propose une option de génération permettant de renforcer automatiquement ce cloisonnement des données. Lorsqu'elle est activée, le générateur ne considère plus l'identifiant reçu comme une information suffisante pour accéder à une ressource. Toutes les opérations d'accès aux données (consultation, modification, suppression, etc.) sont générées de manière à vérifier que l'objet recherché appartient bien au contexte de l'utilisateur connecté. 
+
+Lorsque cette relation de rattachement peut être déduite du modèle (par exemple un contrat rattaché à un client, lui-même associé à l'utilisateur), les requêtes générées sont automatiquement filtrées afin que seules les données appartenant au périmètre de l'utilisateur puissent être retournées. Ainsi, une tentative de modification d'identifiant dans une URI ne permet plus d'accéder à une ressource étrangère, même si son identifiant est connu ou deviné.
+
+Cette protection est volontairement distincte de la gestion des autorisations métier. Les rôles, profils, habilitations ou permissions définissent ce qu'un utilisateur est autorisé à faire (consulter, créer, modifier ou supprimer un type de ressource). L'isolation des données, quant à elle, garantit que les ressources manipulées appartiennent bien au périmètre de cet utilisateur. Ces deux mécanismes sont complémentaires : une application peut parfaitement vérifier les rôles tout en restant vulnérable aux attaques par modification d'identifiant si elle ne contrôle pas également la cohérence des données accédées.
+
+❗ Pour activer cette option il est nécessaire de cocher la case "*Contrôle d'accès aux ressource*" au niveau de l'onglet "*Autre*" du formulaire de création du projet. Cette option peut aussi être retrouvée au niveau du fichier de configuration **Pacman** (*Project.properties*) :  
+
+```properties
+# Flag indiquant si le projet ajoute un contrôle sur les paramètres rest
+project.params.control.enabled = true
+```
+
+Lorsque cette option est activée, l'application maintient un **contexte d'isolation** propre à chaque session utilisateur. Ce contexte contient les informations nécessaires au contrôle de cohérence des accès (ressources autorisées, périmètres métier ou tout autre élément défini par le développeur). Avant l'exécution d'un service REST sensible, une politique d'isolation est systématiquement invoquée afin de vérifier que la ressource demandée appartient bien au contexte courant. Si aucune politique n'est définie, ou si le contrôle échoue, l'accès est refusé par défaut. **Pacman** applique ainsi le principe de sécurité **"Default Deny"** : aucune ressource ne peut être accessible par omission d'une règle de contrôle.
+
+Le contenu exact du contexte n'est volontairement pas imposé par le générateur. Chaque application possède en effet sa propre notion de périmètre : utilisateur connecté, organisation, établissement, société, tenant, dossier, mandat ou toute autre information métier. Pacman ne cherche donc pas à déduire ces règles à partir de la modélisation. Il fournit uniquement l'infrastructure nécessaire et impose qu'une politique d'isolation soit systématiquement consultée avant tout accès aux données.
+
+Le développeur reste libre de définir la stratégie de remplissage et de mise à jour du contexte d'isolation, ainsi que les règles permettant de déterminer si une ressource appartient ou non au périmètre courant. **Pacman** ne cherche pas à implémenter ces règles métier, mais garantit qu'elles ne pourront jamais être oubliées lors de l'implémentation des services REST.
+
+❗ Ce mécanisme introduit toutefois une caractéristique importante : le backend n'est plus **stateless**. Un état est conservé entre les requêtes afin de mémoriser le contexte d'isolation. Ce choix est assumé, car il permet de centraliser les contrôles de cohérence, d'éviter leur duplication dans chaque service REST et d'offrir un point unique de vérification généré automatiquement. Cette approche est particulièrement adaptée aux applications professionnelles, aux intranets et aux systèmes d'information d'entreprise, où le nombre d'utilisateurs simultanés reste maîtrisé et où les bénéfices en matière de sécurité et de maintenabilité l'emportent largement sur les contraintes liées à la gestion de la session. 
+
+Par exemple, si on ajoute une notion de contrat au niveau de la modalisation : 
+
+<div align="center">
+  <img src="images/pcm-model-adv-idor-1.png" alt="Validation" width="400">
+</div>
+
+... et que l'on modélise les services suivants : 
+
+<div align="center">
+  <img src="images/pcm-model-adv-idor-2.png" alt="Validation" width="500">
+</div>
+
+Pour créer le contexte d'isolation, le développeur se positionne alors sur la (ou les) opération(s) qui retourne(nt) les objets pouvant servir à la constitution de ce contexte. Dans cet exemple, il pourrait avoir besoin de l'utilisteur et de la liste des contrats. Ainsi il est possible de vérifier que la liste des contrats appartient bien à l'utilisteur et qu'un contrat spécifique appartient bien à la liste des contrats pour cet utilisateur. 
+
+Il suffit alors au développeur de marquer les opérations "*detailPersonne*" et "*listeContrats*" avec la métadonnée "*DATA_ISOLATION_CONTEXT*".
+
+A la génération de la couche SOA, pour chaque opération (service) faisant partie du contexte d'isolation, une méthode supplémentaire est créée permettant de mettre à jour ce contexte : 
+
+```java
+private ResponseEntity<PersonneXtoImpl> detailPersonneApplyDataIsolation(
+    ResponseEntity<PersonneXtoImpl> response) {
+    DemoDataIsolationContextHolder.getContext().setPersonneIdFromXto(response.getBody());
+    return response;
+}
+...
+private ResponseEntity<List<ContratXtoImpl>> listeContratsApplyDataIsolation(
+    ResponseEntity<List<ContratXtoImpl>> response) {
+    DemoDataIsolationContextHolder.getContext().setContratsIdFromXto(response.getBody());
+    return response;
+}
+```
+
+Une classe "*[Nom de l'application]DataIsolationContext*" est créée au niveau du package racine pour les différents contrôleurs REST ("*[Package racine].app.adapters.controllers*"). Cette classe prend en paramètres les différents objets XTO (ou primitives) en sortie des contrôleurs et stocke uniquement les identifiants. Dans le cadre de cet exemple, le code de la classe est le suivant :
+
+```java
+public class OWASPDataIsolationContext {
+
+   private Long personneId;
+   private List<Long> contratsId;
+
+   public Long getPersonneIdFromXto() {
+      return this.personneId;
+   }
+   
+   public void setPersonneIdFromXto(final PersonneXtoImpl personne) {
+      this.personneId = personne.getPersonne_id(); 
+   }
+   
+   public List<Long> getContratsIdFromXto() {
+      return this.contratsId;
+   }
+   
+   public void setContratsIdFromXto(final List<ContratXtoImpl> contrats) {
+      this.contratsId = contrats.stream().map(ContratXtoImpl::getContrat_id).toList();
+   }
+}
+```
+
+Au même niveau une classe "*[Nom de l'application]DataIsolationContextHolder*" est aussi créée, classe permettant de gérer la mise en session et la récupération du contexte à partir de la session. C'est cette classe qui est manipulée par le code vu précédemment au niveau des contrôleurs. Si on revient sur ces contrôleurs, la méthode pour le service a été légèrement modifiée et le corps de l'appel est encapsulé dans les méthodes "*..ApplyDataIsolation([...]*)" : 
+
+```java
+public ResponseEntity<PersonneXtoImpl> detailPersonne(@PathVariable(name = "id"
+    , required = true) Long idPersonne) {
+    ...
+    return detailPersonneApplyDataIsolation(
+        this.personnes.detailPersonne(idPersonne)
+            .map(o -> responseBuilder.body(PersonneMapper.toXto(o)))
+            .orElseThrow(() -> new OWASPNotFoundException(404, "Personne non trouvée")));
+}
+...
+public ResponseEntity<List<ContratXtoImpl>> listeContrats(@PathVariable(name = "idPersonne"
+    , required = true) Long idPersonne) {
+    ...
+    return listeContratsApplyDataIsolation(
+        responseBuilder.body(this.contrats.listeContrats(idPersonne).stream()
+		.map(o -> ContratMapper.toXto(o)).collect(Collectors.toList())));
+}
+```
+Ainsi, juste avant de retourner le résultat de l'opération, ce dernier est stocké (les identifiants uniquement) au niveau du contexte d'isolation.
+
+❗ Bien faire attention à la mise à jour du contexte et à sa réinitialisation. Par exemple si un nouveau contrat est enregistré, il est alors nécessaire de récupérer la nouvelle liste des contrats et de l'insérer dans le contexte d'isolation. Pareillement, au changement d'utilisateur, il est nécessaire de vider entièrement le contexte. Ceci se fait simplement au niveau des balises de type "*user code*" au niveau des contrôleurs, en appelant le holder du contexte d'isolation : "*DemoDataIsolationContextHolder.getContext()...*". Dans le cas de la réinitialisation par exemple, le code est simplement le suivant : "*DemoDataIsolationContextHolder.getContext().clearContext()*"
+
+Enfin, pour chaque opération concernée, **Pacman** génère par défaut un code de contrôle au niveau des balises de type "*user code*". Tant que ce code n'a pas été supprimé ou remplacé par une implémentation spécifique, une exception de type "*[Nom de l'application]DataAccessViolationException*" est systématiquement levée. Ce mécanisme garantit qu'aucun accès aux données ne peut être mis en œuvre sans qu'une règle explicite d'isolation ou de contrôle de cohérence n'ait été définie par le développeur. Encore une fois, **Pacman** ne cherche pas à imposer la règle de sécurité à appliquer, mais garantit qu'aucun accès ne peut être oublié lors du développement.
+
+Ainsi, si on reprend le code du contrôleur pour l'obtention de la liste des contrats (ici le code complet avec les balises "*user code*") : 
+
+```java
+public ResponseEntity<List<ContratXtoImpl>> listeContrats( @PathVariable(name = "idPersonne", required = true) Long idPersonne) {
+
+    ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(200);
+
+    // Start of user code 4acdc1580f6a74b08172b198e0e11aba
+
+    DemoDataIsolationUserCode.required();
+
+    // End of user code
+
+    return listeContratsApplyDataIsolation(responseBuilder.body(this.contrats.listeContrats(idPersonne)
+   .stream().map(o -> ContratMapper.toXto(o)).collect(Collectors.toList())));
+}
+```
+
+❗ L'appel à la classe utilitaire "*OWASPDataIsolationUserCode.required()*" est juste un palliatif qui permet de lever l'exception sans avoir d'erreur de compilation au niveau de l'IDE (code non atteignable).
+
+Lorsqu'une ressource demandée ne fait pas partie du périmètre de données autorisé pour le contexte courant, l'application doit donc lever une exception de violation d'isolation des données. Cette exception ne traduit ni un problème d'authentification, ni un défaut d'autorisation métier, mais la détection d'une tentative d'accès à une ressource extérieure au périmètre autorisé. Par défaut, **Pacman** retourne le code HTTP 404 (Not Found) afin de ne pas révéler l'existence de la ressource sollicitée. Cette stratégie limite les attaques par énumération d'identifiants en empêchant un utilisateur malveillant de distinguer une ressource inexistante d'une ressource existante mais inaccessible. 
+
+Cependant, les informations détaillées relatives à la violation (identité de l'utilisateur, ressource demandée, identifiant sollicité, etc.) devraient, en revanche, être consignées dans les journaux techniques de l'application afin de faciliter les opérations d'audit et d'investigation.
+
+Toujours en reprenant le même code de récupération de la liste des contrats, le développeur peut alors remplacer le code par défaut par son propre code de vérification des données, comme par exemple :  
+
+```java
+// Start of user code 4acdc1580f6a74b08172b198e0e11aba
+
+if (OWASPDataIsolationContextHolder.getContext().getPersonneIdFromXto() != idPersonne) {
+    throw new OWASPDataAccessViolationException(404, "Impossible d'atteindre la ressource");
+}
+
+// End of user code
+```
+
 ### ✔️ Validation de la modélisation
 ---
 Bien que vu précédemment, un chapitre est toutefois consacré exclusivement à ce "générateur". Comme précité, la validation de la modélisation est automatiquement lancée avant chaque demande de génération pour la couche de persistance, la couche de service ou encore la création des scripts SQL.
 
-❗ La validation d'un modèle n'est pas exhaustive. Il ne fait pas partie des objectifs des générateurs de guider le développeur dans les moindres détails de sa modélisation. Une telle démarche serait en effet extrêmement chronophage pour le développeur des générateurs, compte tenu de la diversité des cas possibles. Toutefois, un certain nombre de contrôles sont mis en place afin d'éviter des erreurs élémentaires et de limiter les pertes de temps liées à l'analyse de générations incomplètes ou incorrectes.
+❗ La validation d'un modèle n'est pas exhaustive. Il ne fait pas partie des objectifs des générateurs de guider le développeur dans les moindres détails de sa modélisation. Une telle démarche serait en effet extrêmement chronophage pour le développeur des générateurs, compte tenu de la diversité des cas possibles. Toutefois, un certain nombre de contrôles sont mis en place afin d'éviter des erreurs élémentaires et de limiter les pertes de t     emps liées à l'analyse de générations incomplètes ou incorrectes.
 
 Par conséquent, le fait qu'un modèle passe la phase de validation ne signifie pas nécessairement qu'il est valide à 100 %. 
 
@@ -5819,7 +6031,7 @@ A ce stade le fichier de modélisation "***.soa***" contient maintenant l'ensemb
   <img src="images/pmc-model-soaclient-1.png" alt="Génération soa client" width=600>
 </div>
 
-• **Pacman** ne peut connaitre toutes les intentions du fournisseur de services externes. Il est possible que ce dernier ait par exemple, décidé que pour son api, seuls les paramètres renseignés devaient être envoyés. C'est le cas notamment pour le service de recherche de l'api utilisée dans le cadre de ce document. Afin de pallier à cette problématique, il est possible de positionner une métadonnée ***@SKIP_EMPTY_VALUES*** au niveau de l'opération concernée. Le générateur, lors de l'exécution de la requête va alors vérifier à la volée quels sont les paramètres effectivement renseignés.       
+• **Pacman** ne peut connaitre toutes les intentions du fournisseur de services externes. Il est possible que ce dernier ait par exemple, décidé que pour son api, seuls les paramètres renseignés devaient être envoyés. C'est le cas notamment pour le service de recherche de l'api utilisée dans le cadre de ce document. Afin de pallier à cette problématique, il est possible de positionner une métadonnée "*@SKIP_EMPTY_VALUES*" au niveau de l'opération concernée. Le générateur, lors de l'exécution de la requête va alors vérifier à la volée quels sont les paramètres effectivement renseignés.       
 
 <div align="center">
   <img src="images/pmc-model-soaclient-2.png" alt="Génération soa client" width=600>
@@ -5829,7 +6041,7 @@ A ce stade le fichier de modélisation "***.soa***" contient maintenant l'ensemb
 
 Par défaut, l'ensemble des attributs et références sont automatiquement annotés avec ***@JsonPropery*** qui permet de spécifier un nom différent pour la sérialisation. Il est ainsi toujours possible de modifier ce nom manuellement. 
 
-Cependant une métadonnée ***@JSON_NAME*** permet aussi d'indiquer au générateur la demande expresse de modification de nom (positionner la métadonnée et saisir dans le corps de la métadonnée le nom désiré pour la référence ou l'attribut). 
+Cependant une métadonnée "*@JSON_NAME*" permet aussi d'indiquer au générateur la demande expresse de modification de nom (positionner la métadonnée et saisir dans le corps de la métadonnée le nom désiré pour la référence ou l'attribut). 
 
 Si la problématique se situe au niveau des paramètres en entrée du service, il suffit alors simplement de modifier la modélisation puisque la modification ne sera prise en compte qu'au niveau local pour la compilation.
 
@@ -6163,7 +6375,7 @@ Enfin toujours par click droit, lancer la génération du client à l'aide du me
 
 • ***[Nom de l'application]/src/api*** : Ce répertoire contient le fichier *apiClient.ts* qui sert de point central pour gérer toutes les communications HTTP entre l'application et les services REST. Il encapsule l'utilisation d'axios, en configurant l'URL de base, les en-têtes communs (comme l'authentification ou le type de contenu), et éventuellement les intercepteurs pour gérer globalement les erreurs ou transformer les données. L'objectif est de fournir une interface unique et réutilisable pour toutes les requêtes réseau, afin que le reste de l'application n'ait pas à se soucier des détails d'implémentation d'axios. 
 
-Dans le cadre des générateurs Pacman, ce fichier est généré automatiquement pour chaque projet, prêt à l'emploi, garantissant une cohérence et une simplification du code métier.
+Dans le cadre des générateurs **Pacman**, ce fichier est généré automatiquement pour chaque projet, prêt à l'emploi, garantissant une cohérence et une simplification du code métier.
 
 Ce fichier contient par défaut le code suivant (exemple ici en fonction des paramètres modélisés): 
 ```typescript
@@ -6295,7 +6507,7 @@ mvn clean package
 
 Au niveau du répertoire "*/target*" pour le projet ***[Nom de l'application]-server***, il est maintenant possible de récupérer un fichier au format compressé. Ce fichier est sous la forme ***[Nom de l'application]-[Version].tgz*** et est exploitable directement avec les commandes NMP pour effectuer l'importation de la librairie dans un projet React frontend.
 
-Lorsque Pacman génère un package NPM sous forme de fichier ***[Nom de l'application]-[Version].tgz***, ce fichier peut être installé sans être publié sur le registry NPM. Cela permet de tester ou distribuer la librairie en local ou dans un environnement maîtrisé. 
+Lorsque **Pacman** génère un package NPM sous forme de fichier ***[Nom de l'application]-[Version].tgz***, ce fichier peut être installé sans être publié sur le registry NPM. Cela permet de tester ou distribuer la librairie en local ou dans un environnement maîtrisé. 
 
 Il suffit de se positionner en ligne de commande à la racine du projet frontend (c'est-à-dire là où se trouve son package.json.) et de lancer la commande suivante : 
 ```bash
