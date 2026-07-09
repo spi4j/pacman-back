@@ -14,7 +14,7 @@
 - 11/05/2026 : Ajouts : Génération des tests fonctionnels d'API.
 - 24/05/2026 : Ajouts : Complétion du stockage S3 avec versionning/retention/immutabilité.
 - 09/06/2026 : Ajouts : Mise en place des traitements asynchrones.
-- 07/07/2026 : Ajouts : Protection des accès (IDOR)
+- 07/07/2026 : Ajouts : Protection des paramètres (IDOR)
 ---
 
 ## 🚀 Introduction
@@ -5705,13 +5705,13 @@ Un bref shéma récapitulatif explique le fonctionnement de cette implémentatio
 </div>
 
 
-#### Protection des accès (IDOR)
+#### Contrôle d'isolation des données
 
 Une vulnérabilité fréquente des applications Web consiste à faire confiance aux identifiants transmis par le client (URI, paramètres de requête ou corps de requête) sans vérifier que la ressource demandée appartient bien au périmètre de données de l'utilisateur connecté. Ce type de faille est connu sous le nom d'IDOR (Insecure Direct Object Reference) ou plus généralement BOLA (Broken Object Level Authorization) pour les API REST. 
 
 Un scénario typique est le suivant : un utilisateur authentifié consulte la liste de ses contrats et ouvre le contrat n°2358478 via l'URL "*/contracts/2358478*". S'il modifie manuellement cette URL en "*/contracts/2358479*" et que le serveur se contente d'effectuer une recherche par identifiant ("*findById(2358479)*"), il peut, avec un peu de chance, accéder au contrat d'un autre utilisateur. Il ne s'agit pas d'un problème de droits fonctionnels (l'utilisateur est correctement authentifié et possède bien le droit de consulter ses contrats) mais d'un défaut de cloisonnement des données qui permet de sortir du périmètre qui lui est normalement associé.
 
-Dans **Pacman**, trois solutions sont proposées afin de pallier à cette problématique : 
+Dans **Pacman**, quatre solutions sont proposées afin de pallier à cette problématique : 
 
 • Utiliser des identifiants de type UUID (Universally Unique Identifier) en lieu et place d'identifiants numériques séquentiels. Contrairement à un identifiant auto-incrémenté, un UUID est pratiquement impossible à deviner ou à énumérer, ce qui réduit considérablement les risques d'accès opportuniste par simple modification d'une URI. Ainsi, une requête du type "*/contrats/2358478*" est beaucoup plus facilement falsifiable qu'une requête utilisant un identifiant tel que "*/contrats/550e8400-e29b-41d4-a716-446655440000*". 
 
@@ -5725,13 +5725,19 @@ Cette approche offre un niveau de sécurité très élevé, puisqu'il devient im
 
 Les méthodes génériques des repositories ne peuvent plus être utilisées, ce qui conduit à réécrire un grand nombre de requêtes, parfois très proches les unes des autres. Cette solution est particulièrement adaptée aux applications manipulant des données sensibles ou exposées sur Internet, mais elle nécessite une discipline de développement rigoureuse pour imposer systématiquement ces règles d'accès.
 
+❗ Attention cependant, dans une architecture REST stateless, il est tentant d'utiliser directement les informations contenues dans le mécanisme d'authentification (JWT, jeton OAuth2, SSO, etc.) pour appliquer les règles d'isolation des données. Cette approche présente toutefois une limite importante : les informations portées par le jeton ne correspondent généralement pas aux identifiants métier utilisés par l'application.
+
+Avant de pouvoir filtrer les données, il est donc souvent nécessaire d'établir une correspondance entre l'identité authentifiée et le périmètre métier réellement autorisé. Cette opération peut nécessiter une ou plusieurs consultations de la base de données ou d'un service externe afin de déterminer les informations d'isolation pertinentes, ce qui est particulièrement coûteux.
+
+• Une solution permettant de conserver une architecture REST stateless tout en simplifiant les contrôles d'isolation consiste à introduire un jeton interne dédié exclusivement à l'isolation des données. Après authentification de l'utilisateur (SSO, OAuth2, OpenID Connect, etc.), l'application détermine une seule fois le périmètre de données autorisé (identifiants internes, tenant, organisation, établissements, ou tout autre élément nécessaire aux contrôles de cohérence) puis génère un jeton interne signé contenant ces informations. Ce jeton est ensuite transmis par le client à chaque appel REST, en complément ou indépendamment du jeton d'authentification. Chaque requête dispose ainsi immédiatement des informations nécessaires à l'application des règles d'isolation, sans nécessiter de consultation systématique de la base de données pour reconstruire le contexte. Cette approche permet de conserver les bénéfices d'une architecture stateless tout en découplant les mécanismes d'authentification des mécanismes d'isolation des données. Elle impose en revanche de garantir l'intégrité, l'authenticité et, si nécessaire, la durée de validité de ce jeton interne afin d'éviter toute falsification ou utilisation au-delà de son périmètre temporel.
+
 • **Pacman** propose une option de génération permettant de renforcer automatiquement ce cloisonnement des données. Lorsqu'elle est activée, le générateur ne considère plus l'identifiant reçu comme une information suffisante pour accéder à une ressource. Toutes les opérations d'accès aux données (consultation, modification, suppression, etc.) sont générées de manière à vérifier que l'objet recherché appartient bien au contexte de l'utilisateur connecté. 
 
 Lorsque cette relation de rattachement peut être déduite du modèle (par exemple un contrat rattaché à un client, lui-même associé à l'utilisateur), les requêtes générées sont automatiquement filtrées afin que seules les données appartenant au périmètre de l'utilisateur puissent être retournées. Ainsi, une tentative de modification d'identifiant dans une URI ne permet plus d'accéder à une ressource étrangère, même si son identifiant est connu ou deviné.
 
 Cette protection est volontairement distincte de la gestion des autorisations métier. Les rôles, profils, habilitations ou permissions définissent ce qu'un utilisateur est autorisé à faire (consulter, créer, modifier ou supprimer un type de ressource). L'isolation des données, quant à elle, garantit que les ressources manipulées appartiennent bien au périmètre de cet utilisateur. Ces deux mécanismes sont complémentaires : une application peut parfaitement vérifier les rôles tout en restant vulnérable aux attaques par modification d'identifiant si elle ne contrôle pas également la cohérence des données accédées.
 
-❗ Pour activer cette option il est nécessaire de cocher la case "*Contrôle d'accès aux ressource*" au niveau de l'onglet "*Autre*" du formulaire de création du projet. Cette option peut aussi être retrouvée au niveau du fichier de configuration **Pacman** (*Project.properties*) :  
+❗ Pour activer cette option il est nécessaire de cocher la case "*Contrôle d'isolation des données*" au niveau de l'onglet "*Autre*" du formulaire de création du projet. Cette option peut aussi être retrouvée au niveau du fichier de configuration **Pacman** (*Project.properties*) :  
 
 ```properties
 # Flag indiquant si le projet ajoute un contrôle sur les paramètres rest
