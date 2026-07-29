@@ -14,7 +14,8 @@
 - 11/05/2026 : Ajouts : Génération des tests fonctionnels d'API.
 - 24/05/2026 : Ajouts : Complétion du stockage S3 avec versionning/retention/immutabilité.
 - 09/06/2026 : Ajouts : Mise en place des traitements asynchrones.
-- 07/07/2026 : Ajouts : Protection des paramètres (IDOR)
+- 09/07/2026 : Ajouts : Contrôle d'isolation des données.
+- 29/07/2026 : Modifications : Contrôle d'isolation des données.
 ---
 
 ## 🚀 Introduction
@@ -257,7 +258,15 @@ Exemple avec les trois champs prédéfinis (pour annuler une sélection, sélect
 
 ➤ **Autre** : 
 
-Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Il est possible de cocher la rubrique "*Utilisation librairie SSO ministère*" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées. La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*"). Enfin la rubrique "*Contrôle d'accès aux ressources*" permet, quant à elle, d'activer le contrôle IDOR pour vérifier la cohérence des paramètres pour l'ensemble des services REST et éviter la modification malveillante des URIS.
+Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Il est possible de cocher la rubrique "*Utilisation librairie SSO ministère*" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées. La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*"). 
+
+Enfin la rubrique "*Contrôle d'accès aux ressources*" permet, quant à elle, d'activer le contrôle IDOR pour vérifier la cohérence des paramètres pour l'ensemble des services REST et éviter la modification malveillante des URIS. 
+
+❗ Il est à noter que deux options (dont une seule doit être sélectionnée) sont disponibles car **Pacman** permet deux systèmes pour le contrôle de cohérence des différents paramètres pour les services : 
+
+- "*Contrôle d'isolation des données (ctx)*" : le contrôle est géré par un contexte de session au niveau du backend, le frontend n'a aucun rôle à jouer, aucune donnée à transmettre, mais cela signique que les services sont de type "*statefull*", ce qui peut être une contrainte.
+
+- "*Contrôle d'isolation des données (jwt)*" : le contrôle est géré par un jeton jwt qui est transmi à chaque appel de service. Le frontend doit alors créer et modifier le jeton en fonction des différents éléments liés au contrôle. Ceci est plus contraignant mais permet de conserver des services de type "*stateless*". Par contre, le frontend doit être exécuté au niveau du serveur et on pas au niveau du client (react, angular, etc...) car, dans ce dernier cas, le client ne peut être considéré comme "de confiance" par le backend pour le décodage du jeton.
 
 ❗ Attention, la librairie de connexion pour le ministère des armées n'est pas disponible dans le cas de l'utilisation des générateur **Pacman** hors du réseau interne du ministère. Il est donc inutile de cocher cette case dans le cadre d'une utilisation open source.
 
@@ -292,7 +301,7 @@ Pour une demande de projet de type "**appel de services externes**" (création d
   <img src="images/pcm-new-project-5.png" alt="Nouveau projet pacman" width="500">
 </div>
 
-❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "**Base de données**" et "**Autres**". En effet ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  
+❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "**Base de données**" et "**Autre**". En effet ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  
 
 
 ### Cas projet client (React)
@@ -305,7 +314,7 @@ Puis sélectionner la valeur "*React*" au niveau de la rubrique "*Framework*" su
   <img src="images/pcm-new-project-5.png" alt="Nouveau projet pacman" width="500">
 </div>
 
-❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "**Base de données**", "**Autres**" et de plus, la boîte de sélection de la version Java est aussi désactivée puisqu'il ne s'agit pas ici d'un projet Java. Comme vu précédemment, ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  
+❗ La sélection de cette valeur entraine la désactivation automatique de la rubrique concernant le choix des bases de données ainsi que des deux onglets "**Base de données**", "**Autre**" et de plus, la boîte de sélection de la version Java est aussi désactivée puisqu'il ne s'agit pas ici d'un projet Java. Comme vu précédemment, ce type de projet va juste créer l'ensemble des objets et des services qui permettent d'interroger le fournisseur, son rôle n'est en aucun cas de communiquer avec une quelconque base de données.  
 
 <div align="center">
   <img src="images/pcm-new-project-7.png" alt="Nouveau projet pacman" width="500">
@@ -988,6 +997,24 @@ Toutefois, dans le cadre de l'utilisation de la librairie développée par le mi
 En revanche, l'autre partie de la configuration, liée à la librairie développée spécifiquement pour le ministère, est dynamique. Dans ce contexte, il faut être particulièrement vigilant quant à la cohérence des informations entre les deux fichiers.
 
 Il peut donc être nécessaire de modifier manuellement le fichier "*application.properties*" afin d'aligner certaines propriétés avec les informations issues de la modélisation, lesquelles sont définies dans le fichier "*application-sso.properties*".
+
+#### Contexte d'isolation 
+
+Si la case a été coché au niveau du formulaire de création du projet (onglet "**Autre**"), le contexte d'isolation des données permet de transporter les informations nécessaires aux contrôles d'accès métier entre les différents composants applicatifs. Ce contexte peut contenir, par exemple, l'identifiant de la personne courante, du contrat sélectionné, du dossier manipulé ou tout autre élément permettant de déterminer le périmètre de données accessible lors du traitement d'une requête.
+
+Afin de garantir l'intégrité de ces informations lors de leur transport, le contexte peut être encapsulé dans un jeton signé. La signature permet au composant destinataire de vérifier que le contenu du contexte n'a pas été modifié depuis son émission et qu'il provient bien d'un composant de confiance disposant de la clé de signature.
+
+La clé configurée par la propriété `data.isolation.context.key` est utilisée pour signer et vérifier ce jeton de contexte. Elle ne doit être connue que par les composants applicatifs autorisés à produire ou valider des contextes d'isolation. Cette clé ne doit jamais être exposée à un utilisateur final ou embarquée dans une application exécutée dans un environnement non maîtrisé.
+
+❗ Ce mécanisme ne constitue pas un mécanisme d'authentification. Il complète les contrôles d'autorisation métier en fournissant un contexte fiable permettant aux composants applicatifs d'appliquer les règles d'isolation des données.
+
+```properties
+# ----------------------------------------------------------------------------------------------
+# CONTEXTE D'ISOLATION DES DONNEES.
+# ----------------------------------------------------------------------------------------------
+# Un exemple de cle symetrique (pour le developpement uniquement).
+data-isolation.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+```
 
 #### tests.properties
 
@@ -5729,28 +5756,42 @@ Les méthodes génériques des repositories ne peuvent plus être utilisées, ce
 
 Avant de pouvoir filtrer les données, il est donc souvent nécessaire d'établir une correspondance entre l'identité authentifiée et le périmètre métier réellement autorisé. Cette opération peut nécessiter une ou plusieurs consultations de la base de données ou d'un service externe afin de déterminer les informations d'isolation pertinentes, ce qui est particulièrement coûteux.
 
-• Une solution permettant de conserver une architecture REST stateless tout en simplifiant les contrôles d'isolation consiste à introduire un jeton interne dédié exclusivement à l'isolation des données. Après authentification de l'utilisateur (SSO, OAuth2, OpenID Connect, etc.), l'application détermine une seule fois le périmètre de données autorisé (identifiants internes, tenant, organisation, établissements, ou tout autre élément nécessaire aux contrôles de cohérence) puis génère un jeton interne signé contenant ces informations. Ce jeton est ensuite transmis par le client à chaque appel REST, en complément ou indépendamment du jeton d'authentification. Chaque requête dispose ainsi immédiatement des informations nécessaires à l'application des règles d'isolation, sans nécessiter de consultation systématique de la base de données pour reconstruire le contexte. Cette approche permet de conserver les bénéfices d'une architecture stateless tout en découplant les mécanismes d'authentification des mécanismes d'isolation des données. Elle impose en revanche de garantir l'intégrité, l'authenticité et, si nécessaire, la durée de validité de ce jeton interne afin d'éviter toute falsification ou utilisation au-delà de son périmètre temporel.
+• Une solution permettant de conserver une architecture REST stateless tout en simplifiant les contrôles d'isolation consiste à introduire un jeton interne dédié exclusivement à l'isolation des données. Après authentification de l'utilisateur (SSO, OAuth2, OpenID Connect, etc.), l'application détermine une seule fois le périmètre de données autorisé (identifiants internes, tenant, organisation, établissements, ou tout autre élément nécessaire aux contrôles de cohérence) puis génère un jeton interne signé contenant ces informations. Ce jeton est ensuite transmis par le client à chaque appel REST, en complément ou indépendamment du jeton d'authentification. 
 
-• **Pacman** propose une option de génération permettant de renforcer automatiquement ce cloisonnement des données. Lorsqu'elle est activée, le générateur ne considère plus l'identifiant reçu comme une information suffisante pour accéder à une ressource. Toutes les opérations d'accès aux données (consultation, modification, suppression, etc.) sont générées de manière à vérifier que l'objet recherché appartient bien au contexte de l'utilisateur connecté. 
+Chaque requête dispose ainsi immédiatement des informations nécessaires à l'application des règles d'isolation, sans nécessiter de consultation systématique de la base de données pour reconstruire le contexte. Cette approche permet de conserver les bénéfices d'une architecture stateless tout en découplant les mécanismes d'authentification des mécanismes d'isolation des données. Elle impose en revanche de garantir l'intégrité, l'authenticité et, si nécessaire, la durée de validité de ce jeton interne afin d'éviter toute falsification ou utilisation au-delà de son périmètre temporel.
+
+**Pacman** propose ce type de solution si la rubrique "*API-REST : Contrôle d'isolation des données (jwt)*" est cochée. Son fonctionnement est expliqué dans le paragraphe suivant (car fortement lié avec la seconde solution proposée aussi par **Pacman**).
+
+• **Pacman** propose donc deux solutions de génération permettant de renforcer automatiquement ce cloisonnement des données. Lorsqu'elle est activée (une des deux options), le générateur ne considère plus l'identifiant reçu comme une information suffisante pour accéder à une ressource. Toutes les opérations d'accès aux données (consultation, modification, suppression, etc.) sont générées de manière à vérifier que l'objet recherché appartient bien au contexte de l'utilisateur connecté. 
 
 Lorsque cette relation de rattachement peut être déduite du modèle (par exemple un contrat rattaché à un client, lui-même associé à l'utilisateur), les requêtes générées sont automatiquement filtrées afin que seules les données appartenant au périmètre de l'utilisateur puissent être retournées. Ainsi, une tentative de modification d'identifiant dans une URI ne permet plus d'accéder à une ressource étrangère, même si son identifiant est connu ou deviné.
 
 Cette protection est volontairement distincte de la gestion des autorisations métier. Les rôles, profils, habilitations ou permissions définissent ce qu'un utilisateur est autorisé à faire (consulter, créer, modifier ou supprimer un type de ressource). L'isolation des données, quant à elle, garantit que les ressources manipulées appartiennent bien au périmètre de cet utilisateur. Ces deux mécanismes sont complémentaires : une application peut parfaitement vérifier les rôles tout en restant vulnérable aux attaques par modification d'identifiant si elle ne contrôle pas également la cohérence des données accédées.
 
-❗ Pour activer cette option il est nécessaire de cocher la case "*Contrôle d'isolation des données*" au niveau de l'onglet "*Autre*" du formulaire de création du projet. Cette option peut aussi être retrouvée au niveau du fichier de configuration **Pacman** (*Project.properties*) :  
+Pour activer cette option il est nécessaire de cocher la case "*Contrôle d'isolation des données (ctx)*" ou "*Contrôle d'isolation des données (jwt)*" au niveau de l'onglet "**Autre**" du formulaire de création du projet. Cette option peut aussi être retrouvée au niveau du fichier de configuration **Pacman** (*Project.properties*) :  
 
 ```properties
 # Flag indiquant si le projet ajoute un contrôle sur les paramètres rest
-project.params.control.enabled = true
+project.params.control.enabled = none
 ```
 
-Lorsque cette option est activée, l'application maintient un **contexte d'isolation** propre à chaque session utilisateur. Ce contexte contient les informations nécessaires au contrôle de cohérence des accès (ressources autorisées, périmètres métier ou tout autre élément défini par le développeur). Avant l'exécution d'un service REST sensible, une politique d'isolation est systématiquement invoquée afin de vérifier que la ressource demandée appartient bien au contexte courant. Si aucune politique n'est définie, ou si le contrôle échoue, l'accès est refusé par défaut. **Pacman** applique ainsi le principe de sécurité **"Default Deny"** : aucune ressource ne peut être accessible par omission d'une règle de contrôle.
+Par défaut, la valeur de cette propriété est positionnée sur "*none*". Si la case "*Contrôle d'isolation des données (ctx)*" a été cochée, la valeur est alors positionnée sur "*sfull*" et sur "*sless*" dans le cas ou la case "*Contrôle d'isolation des données (jwt)*" a été cochée. En effet, "*Contrôle d'isolation des données (jwt)*" permet de gérer le contrôle avec des services de type "*StateFull*" et "*Contrôle d'isolation des données (ctx)*" fonctionnera avec des services de type "*StateLess*". Si à première vue, il semble nettement préférable de partir sur la solution "*StateLess*", bien lire l'ensemble des paragraphes suivants, préfixés par un point d'exclamation : 
+
+❗ Attention : Le mécanisme de jeton de contexte d'isolation repose sur la génération d'un jeton signé garantissant l'intégrité des informations de contexte transportées entre le frontend et le backend. Pour cette raison, il nécessite que le composant émetteur du jeton soit un **composant de confiance** disposant des éléments cryptographiques permettant sa signature.
+
+❗ Ce mécanisme est donc adapté aux architectures dans lesquelles le frontend s'exécute dans un environnement maîtrisé par l'organisation, par exemple une application serveur Java (Spring MVC, JSF, Thymeleaf...) ou un composant intermédiaire de type BFF (Backend For Frontend). Dans ces architectures, le frontend peut construire ou faire évoluer le contexte d'isolation, signer le jeton correspondant, puis le transmettre au backend qui vérifie son intégrité et reconstruit le contexte associé.
+
+❗ En revanche, ce mécanisme ne peut pas être utilisé directement par une application frontend exécutée dans le navigateur de l'utilisateur (SPA JavaScript telle que React, Angular ou Vue). Dans une architecture reposant sur OAuth2, OpenID Connect ou un SSO, le jeton d'authentification est créé et signé par un serveur d'authentification (Identity Provider) disposant de la clé privée ou de la clé secrète nécessaire à sa signature. L'application React ne fait que transporter ce jeton entre le navigateur et le backend. Elle ne le crée pas, ne le modifie pas et ne le signe jamais.
+
+❗ Ici, le mécanisme de contexte d'isolation repose, au contraire, sur un jeton dont le contenu est amené à évoluer au fil de la navigation de l'utilisateur. Chaque modification du contexte nécessite donc la génération d'un nouveau jeton signé. Pour garantir l'intégrité de ce nouveau jeton, son émetteur doit impérativement disposer de la clé de signature. Dans ce type d'architecture, les éléments nécessaires à la signature du jeton ne peuvent pas être protégés côté client. Une application exécutée dans le navigateur ne constitue donc pas une autorité de confiance capable de garantir l'intégrité d'un contexte signé. Il est alors préférable de passer par la seconde solution proposée par **Pacman**.
+
+Lorsque une des deux options est activée, l'application maintient un "**contexte d'isolation**" propre à chaque utilisateur. Ce contexte contient les informations nécessaires au contrôle de cohérence des accès (ressources autorisées, périmètres métier ou tout autre élément défini par le développeur). Avant l'exécution d'un service REST sensible, une politique d'isolation est systématiquement invoquée afin de vérifier que la ressource demandée appartient bien au contexte courant. Si aucune politique n'est définie, ou si le contrôle échoue, l'accès est refusé par défaut. **Pacman** applique ainsi le principe de sécurité **"Default Deny"** : aucune ressource ne peut être accessible par omission d'une règle de contrôle.
 
 Le contenu exact du contexte n'est volontairement pas imposé par le générateur. Chaque application possède en effet sa propre notion de périmètre : utilisateur connecté, organisation, établissement, société, tenant, dossier, mandat ou toute autre information métier. Pacman ne cherche donc pas à déduire ces règles à partir de la modélisation. Il fournit uniquement l'infrastructure nécessaire et impose qu'une politique d'isolation soit systématiquement consultée avant tout accès aux données.
 
 Le développeur reste libre de définir la stratégie de remplissage et de mise à jour du contexte d'isolation, ainsi que les règles permettant de déterminer si une ressource appartient ou non au périmètre courant. **Pacman** ne cherche pas à implémenter ces règles métier, mais garantit qu'elles ne pourront jamais être oubliées lors de l'implémentation des services REST.
 
-❗ Ce mécanisme introduit toutefois une caractéristique importante : le backend n'est plus **stateless**. Un état est conservé entre les requêtes afin de mémoriser le contexte d'isolation. Ce choix est assumé, car il permet de centraliser les contrôles de cohérence, d'éviter leur duplication dans chaque service REST et d'offrir un point unique de vérification généré automatiquement. Cette approche est particulièrement adaptée aux applications professionnelles, aux intranets et aux systèmes d'information d'entreprise, où le nombre d'utilisateurs simultanés reste maîtrisé et où les bénéfices en matière de sécurité et de maintenabilité l'emportent largement sur les contraintes liées à la gestion de la session. 
+❗ Encore une fois pour rappel, si l'option cochée est "*Contrôle d'isolation des données (ctx)*", ce mécanisme introduit toutefois une caractéristique importante : le backend n'est plus **stateless**. Un état est conservé entre les requêtes afin de mémoriser le contexte d'isolation. Ce choix est assumé, car il permet de centraliser les contrôles de cohérence, d'éviter leur duplication dans chaque service REST et d'offrir un point unique de vérification généré automatiquement. Cette approche est particulièrement adaptée aux applications professionnelles, aux intranets et aux systèmes d'information d'entreprise, où le nombre d'utilisateurs simultanés reste maîtrisé et où les bénéfices en matière de sécurité et de maintenabilité l'emportent largement sur les contraintes liées à la gestion de la session. 
 
 Par exemple, si on ajoute une notion de contrat au niveau de la modalisation : 
 
@@ -5768,7 +5809,7 @@ Pour créer le contexte d'isolation, le développeur se positionne alors sur la 
 
 Il suffit alors au développeur de marquer les opérations "*detailPersonne*" et "*listeContrats*" avec la métadonnée "*DATA_ISOLATION_CONTEXT*".
 
-A la génération de la couche SOA, pour chaque opération (service) faisant partie du contexte d'isolation, une méthode supplémentaire est créée permettant de mettre à jour ce contexte : 
+Si c'est l'option "*Contrôle d'isolation des données (ctx)*" qui a été cochée, à la génération de la couche SOA, pour chaque opération (service) faisant partie du contexte d'isolation, une méthode supplémentaire est alors créée, permettant de mettre à jour ce contexte : 
 
 ```java
 private ResponseEntity<PersonneXtoImpl> detailPersonneApplyDataIsolation(
@@ -5784,10 +5825,10 @@ private ResponseEntity<List<ContratXtoImpl>> listeContratsApplyDataIsolation(
 }
 ```
 
-Une classe "*[Nom de l'application]DataIsolationContext*" est créée au niveau du package racine pour les différents contrôleurs REST ("*[Package racine].app.adapters.controllers*"). Cette classe prend en paramètres les différents objets XTO (ou primitives) en sortie des contrôleurs et stocke uniquement les identifiants. Dans le cadre de cet exemple, le code de la classe est le suivant :
+Quelle que soit l'option cochée, une classe "***[Nom de l'application]DataIsolationContext***" est créée au niveau du package racine pour les différents contrôleurs REST ("*[Package racine].app.adapters.controllers*"). Cette classe prend en paramètres les différents objets XTO (ou primitives) en sortie des contrôleurs et stocke uniquement les identifiants. Dans le cadre de cet exemple, le code de la classe est le suivant :
 
 ```java
-public class OWASPDataIsolationContext {
+public class DemoDataIsolationContext {
 
    private Long personneId;
    private List<Long> contratsId;
@@ -5810,7 +5851,9 @@ public class OWASPDataIsolationContext {
 }
 ```
 
-Au même niveau une classe "*[Nom de l'application]DataIsolationContextHolder*" est aussi créée, classe permettant de gérer la mise en session et la récupération du contexte à partir de la session. C'est cette classe qui est manipulée par le code vu précédemment au niveau des contrôleurs. Si on revient sur ces contrôleurs, la méthode pour le service a été légèrement modifiée et le corps de l'appel est encapsulé dans les méthodes "*..ApplyDataIsolation([...]*)" : 
+Au même niveau une classe "***[Nom de l'application]DataIsolationContextHolder***" est aussi créée, classe permettant de gérer la mise en session et la récupération du contexte à partir de la session. Si l'option "*Contrôle d'isolation des données (jwt)*" a été cochée, cette classe est alors mise en relation avec une classe de filtre ("***[Nom de l'application]FilterIsolationContext***") qui permet de décoder et mettre à disposition le jeton jwt pour le "*holder*". **Dans tous les cas**, c'est cette classe qui est manipulée par le code vu précédemment au niveau des contrôleurs. 
+
+Si "*Contrôle d'isolation des données (ctx)*" a été cochée et que l'on revient sur ces contrôleurs, on peut voir que la méthode pour le service a été légèrement modifiée et le corps de l'appel est maintenant encapsulé dans des méthodes de type : "*..ApplyDataIsolation([...]*)" : 
 
 ```java
 public ResponseEntity<PersonneXtoImpl> detailPersonne(@PathVariable(name = "id"
@@ -5819,7 +5862,7 @@ public ResponseEntity<PersonneXtoImpl> detailPersonne(@PathVariable(name = "id"
     return detailPersonneApplyDataIsolation(
         this.personnes.detailPersonne(idPersonne)
             .map(o -> responseBuilder.body(PersonneMapper.toXto(o)))
-            .orElseThrow(() -> new OWASPNotFoundException(404, "Personne non trouvée")));
+            .orElseThrow(() -> new DemoNotFoundException(404, "Personne non trouvée")));
 }
 ...
 public ResponseEntity<List<ContratXtoImpl>> listeContrats(@PathVariable(name = "idPersonne"
@@ -5830,11 +5873,11 @@ public ResponseEntity<List<ContratXtoImpl>> listeContrats(@PathVariable(name = "
 		.map(o -> ContratMapper.toXto(o)).collect(Collectors.toList())));
 }
 ```
-Ainsi, juste avant de retourner le résultat de l'opération, ce dernier est stocké (les identifiants uniquement) au niveau du contexte d'isolation.
+Ainsi, juste avant de retourner le résultat de l'opération, ce dernier est stocké (les identifiants uniquement) au niveau du contexte d'isolation. Dans le cas ou c'est l'option "*Contrôle d'isolation des données (jwt)*" qui a été choisie, il n'y a pas de code supplémentaire à ce niveau.
 
 ❗ Bien faire attention à la mise à jour du contexte et à sa réinitialisation. Par exemple si un nouveau contrat est enregistré, il est alors nécessaire de récupérer la nouvelle liste des contrats et de l'insérer dans le contexte d'isolation. Pareillement, au changement d'utilisateur, il est nécessaire de vider entièrement le contexte. Ceci se fait simplement au niveau des balises de type "*user code*" au niveau des contrôleurs, en appelant le holder du contexte d'isolation : "*DemoDataIsolationContextHolder.getContext()...*". Dans le cas de la réinitialisation par exemple, le code est simplement le suivant : "*DemoDataIsolationContextHolder.getContext().clearContext()*"
 
-Enfin, pour chaque opération concernée, **Pacman** génère par défaut un code de contrôle au niveau des balises de type "*user code*". Tant que ce code n'a pas été supprimé ou remplacé par une implémentation spécifique, une exception de type "*[Nom de l'application]DataAccessViolationException*" est systématiquement levée. Ce mécanisme garantit qu'aucun accès aux données ne peut être mis en œuvre sans qu'une règle explicite d'isolation ou de contrôle de cohérence n'ait été définie par le développeur. Encore une fois, **Pacman** ne cherche pas à imposer la règle de sécurité à appliquer, mais garantit qu'aucun accès ne peut être oublié lors du développement.
+Enfin, pour chaque opération concernée, **Pacman** génère par défaut un code de contrôle au niveau des balises de type "*user code*". Tant que ce code n'a pas été supprimé ou remplacé par une implémentation spécifique, une exception de type "***[Nom de l'application]DataAccessViolationException***" est systématiquement levée. Ce mécanisme garantit qu'aucun accès aux données ne peut être mis en œuvre sans qu'une règle explicite d'isolation ou de contrôle de cohérence n'ait été définie par le développeur. Encore une fois, **Pacman** ne cherche pas à imposer la règle de sécurité à appliquer, mais garantit qu'aucun accès ne peut être oublié lors du développement.
 
 Ainsi, si on reprend le code du contrôleur pour l'obtention de la liste des contrats (ici le code complet avec les balises "*user code*") : 
 
@@ -5854,7 +5897,7 @@ public ResponseEntity<List<ContratXtoImpl>> listeContrats( @PathVariable(name = 
 }
 ```
 
-❗ L'appel à la classe utilitaire "*OWASPDataIsolationUserCode.required()*" est juste un palliatif qui permet de lever l'exception sans avoir d'erreur de compilation au niveau de l'IDE (code non atteignable).
+❗ L'appel à la classe utilitaire "*DemoDataIsolationUserCode.required()*" est juste un palliatif qui permet de lever l'exception sans avoir d'erreur de compilation au niveau de l'IDE (code non atteignable).
 
 Lorsqu'une ressource demandée ne fait pas partie du périmètre de données autorisé pour le contexte courant, l'application doit donc lever une exception de violation d'isolation des données. Cette exception ne traduit ni un problème d'authentification, ni un défaut d'autorisation métier, mais la détection d'une tentative d'accès à une ressource extérieure au périmètre autorisé. Par défaut, **Pacman** retourne le code HTTP 404 (Not Found) afin de ne pas révéler l'existence de la ressource sollicitée. Cette stratégie limite les attaques par énumération d'identifiants en empêchant un utilisateur malveillant de distinguer une ressource inexistante d'une ressource existante mais inaccessible. 
 
@@ -5865,12 +5908,14 @@ Toujours en reprenant le même code de récupération de la liste des contrats, 
 ```java
 // Start of user code 4acdc1580f6a74b08172b198e0e11aba
 
-if (OWASPDataIsolationContextHolder.getContext().getPersonneIdFromXto() != idPersonne) {
-    throw new OWASPDataAccessViolationException(404, "Impossible d'atteindre la ressource");
+if (DemoDataIsolationContextHolder.getContext().getPersonneIdFromXto() != idPersonne) {
+    throw new DemoDataAccessViolationException(404, "Impossible d'atteindre la ressource");
 }
 
 // End of user code
 ```
+
+❗ Ce code est le même, quelle que soit l'option choisie pour le contrôle des données.
 
 ### ✔️ Validation de la modélisation
 ---
@@ -6650,6 +6695,7 @@ Liste des métadonnées disponibles (certaines métadonnées sont présentes mai
 | BATCH_READ | NON | L'opération lit en base de données | OPERATION |
 | BATCH_WRITE | NON | L'opération écrit en base de données | OPERATION |
 | BATCH_PROCESS | NON | L'opération effectue un traitement hors base | OPERATION |
+| DATA_ISOLATION_CONTEXTE | NON | Le retour de l'opération sert pour le contexte d'isolation | OPERATION |
 
 ### Règles de validation
 
