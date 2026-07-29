@@ -29,6 +29,34 @@
   [/file]
 [/template]
 
+[comment écriture de la classe pour le contexte concernant le contrôle de la violation de données (idor)./]
+[template public fileRsDataIsolationContextImpl(any : ecore::EObject)]
+  [file (any.nameClassRsDataIsolationContextImpl().toFileJava(any.namePackageRsControllerBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsDataIsolationContextImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe pour le holder servant à la récupération du contexte (idor)./]
+[template public fileRsDataIsolationContextHolderImpl(any : ecore::EObject)]
+  [file (any.nameClassRsDataIsolationContextHolderImpl().toFileJava(any.namePackageRsControllerBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsDataIsolationContextHolderImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe pour obliger le développeur à renseigner les balises user code dans le cadre du controle de la violation de données (idor)./]
+[template public fileRsDataIsolationUserCodeImpl(any : ecore::EObject)]
+  [file (any.nameClassRsDataIsolationUserCodeImpl().toFileJava(any.namePackageRsControllerBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsDataIsolationUserCodeImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe du filtre pour le décodage du jeton jwt (idor)./]
+[template public fileRsFilterIsolationContextImpl(any : ecore::EObject)]
+  [file (any.nameClassRsFilterIsolationContextImpl().toFileJava(any.namePackageRsControllerBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsFilterIsolationContextImpl()/]
+  [/file]
+[/template]
+
 [comment écriture de la classe pour la gestion globale des exceptions rest./]
 [template public fileRsExceptionHandlerImpl(any : ecore::EObject)]
   [file (any.nameClassRsExceptionHandlerImpl().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
@@ -47,6 +75,13 @@
 [template public fileRsAuthenticationExceptionImpl(any : ecore::EObject)]
   [file (any.nameClassRsAuthenticationExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
     [any.rsAuthenticationExceptionImpl()/]
+  [/file]
+[/template]
+
+[comment écriture de la classe d'exception pour la violation de données (idor)./]
+[template public fileRsDataIsolationExceptionImpl(any : ecore::EObject)]
+  [file (any.nameClassRsDataIsolationExceptionImpl().toFileJava(any.namePackageException()), overwrite, any.defaultFileEncoding())]
+    [any.rsDataIsolationExceptionImpl()/]
   [/file]
 [/template]
 

@@ -7,6 +7,7 @@
 [import fr::pacman::back::core::aql::name::databases/]
 [import fr::pacman::back::core::aql::name::resources/]
 [import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::aql::query::application/]
 [import fr::pacman::back::core::aql::output::headers/]
 [import fr::pacman::back::core::aql::output::comments/]
 [import fr::pacman::back::core::aql::output::resources/]
@@ -178,7 +179,21 @@
     	   <scope>provided</scope>
     	</dependency>
     	-->
-    	
+    	[if (any.isRsIdorLessCtrlEnabled())]
+    	  <!-- Utilisé pour idor jwt (décodage du jeton) --> 
+    	  <dependency>
+    	    <groupId>io.jsonwebtoken</groupId>
+    	    <artifactId>jjwt-api</artifactId>
+    	   </dependency>
+    	  <dependency>
+    	    <groupId>io.jsonwebtoken</groupId>
+    	    <artifactId>jjwt-impl</artifactId>
+    	  </dependency>
+    	  <dependency>
+    	    <groupId>io.jsonwebtoken</groupId>
+    	    <artifactId>jjwt-jackson</artifactId>
+    	  </dependency>
+    	[/if]
     	<!--
     	[protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           -->
@@ -460,6 +475,330 @@
       }
   }  
 [/template]
+
+[comment écriture de la classe pour le contexte de contrôle des éventuelles violations de données (idor)./]
+[template public rsDataIsolationContextImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  [any.defaultImports()/]
+  
+  public class [any.nameClassRsDataIsolationContextImpl()/] { 
+  }
+[/template]
+
+[comment écriture de la classe pour le contexte de contrôle des éventuelles violations de données (idor)./]
+[template public rsDataIsolationUserCodeImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  [any.defaultImports()/]
+  
+  import [any.namePackageProject()/].[any.namePackageRsControllerBase()/].[any.nameClassRsDataIsolationExceptionImpl()/];
+  
+  public class [any.nameClassRsDataIsolationUserCodeImpl()/] { 
+  
+     private [any.nameClassRsDataIsolationUserCodeImpl()/]() {
+     }
+     
+     public static <T> T required() {
+         throw new [any.nameClassRsDataIsolationExceptionImpl()/](
+             404, "Ressource demandée introuvable.");
+     }
+  }
+[/template]
+
+[comment écriture de la classe pour le filtre de décodage du jeton jwt pour les éventuelles violations de données (idor)./]
+[template public rsFilterIsolationContextImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  [any.defaultImports()/]
+  
+  import java.io.IOException;
+  import jakarta.servlet.FilterChain;
+  import jakarta.servlet.ServletException;
+  import jakarta.servlet.http.HttpServletRequest;
+  import jakarta.servlet.http.HttpServletResponse;
+  import org.springframework.stereotype.Component;
+  import org.springframework.web.filter.OncePerRequestFilter;
+  import java.nio.charset.StandardCharsets;
+  import javax.crypto.SecretKey;
+  import org.springframework.beans.factory.annotation.Value;
+  import com.fasterxml.jackson.databind.ObjectMapper;
+  import io.jsonwebtoken.Claims;
+  import io.jsonwebtoken.JwtException;
+  import io.jsonwebtoken.Jwts;
+  import io.jsonwebtoken.security.Keys;
+  import jakarta.servlet.FilterChain;
+  import jakarta.servlet.ServletException;
+  import jakarta.servlet.http.HttpServletRequest;
+  import jakarta.servlet.http.HttpServletResponse;
+  
+  /** 
+  * Filtre chargé de récupérer le jeton de contexte d'isolation transmis dans 
+  * l'en-tête HTTP {@code X-Isolation-Context}. 
+  * <p> 
+  * Lorsqu'il est présent, le jeton est décodé afin de reconstruire un 
+  * {@link [any.nameClassRsDataIsolationContextImpl()/]}. Ce contexte est ensuite associé à la 
+  * requête HTTP courante afin d'être accessible par les contrôleurs REST et les 
+  * services applicatifs pendant toute la durée du traitement de la requête. 
+  * </p> 
+  * <p> 
+  * Ce jeton ne participe pas au mécanisme d'authentification ou 
+  * d'autorisation. Il transporte uniquement des informations techniques 
+  * nécessaires à l'isolation des données de l'application. 
+  * </p> 
+  */
+  @Component
+  public class [any.nameClassRsFilterIsolationContextImpl()/] extends OncePerRequestFilter {
+    
+    /**
+    * Nom de l'en-tête HTTP transportant le jeton.
+    */
+    public static final String ['header _name'.apply_attributeFinalStatic()/] = "X-Isolation-Context";
+    
+    /**
+     * Clé utilisée pour vérifier la signature du JWT.
+     */
+    private final SecretKey ['secret key'.apply_attributeFinal()/];
+    
+    /**
+     * Convertisseur JSON.
+     */
+    private final ObjectMapper ['object mapper'.apply_attributeFinal()/];
+    
+    /**
+     * Constructeur.
+     *
+     * @param ['secret'.apply_parameterMethodClassicIn()/] clé secrète permettant de vérifier la signature du jeton
+     */
+    public [any.nameClassRsFilterIsolationContextImpl()/](@Value("${data-isolation.jwt.secret}") 
+       String ['secret'.apply_parameterMethodClassicIn()/]) {
+       [any.prefixAffectation()/]['secret key'.apply_attributeFinal()/] = Keys.hmacShaKeyFor(
+       ['secret'.apply_parameterMethodClassicIn()/].getBytes(StandardCharsets.UTF_8));
+       [any.prefixAffectation()/]['object mapper'.apply_attributeFinal()/] = new ObjectMapper();
+    }
+    
+    /** 
+    * Récupère le jeton de contexte d'isolation, le décode et associe le 
+    * contexte obtenu à la requête HTTP avant de poursuivre la chaîne de 
+    * filtres. 
+    *
+    * @param ['request'.apply_parameterMethodClassicIn()/] la requête HTTP courante 
+    * @param ['response'.apply_parameterMethodClassicIn()/] la réponse HTTP courante 
+    * @param ['chain'.apply_parameterMethodClassicIn()/] la chaîne de filtres 
+    * @throws ServletException en cas d'erreur lors du traitement du filtre 
+    * @throws IOException en cas d'erreur d'entrée/sortie 
+    */
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest ['request'.apply_parameterMethodClassicIn()/],
+            HttpServletResponse ['response'.apply_parameterMethodClassicIn()/],
+            FilterChain ['chain'.apply_parameterMethodClassicIn()/])
+            throws ServletException, IOException {
+            
+        try {
+           String ['token'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/]
+             .getHeader(['header _name'.apply_attributeFinalStatic()/]);
+           if (['token'.apply_variableDefault()/] != null && !['token'.apply_variableDefault()/].isBlank()) {
+               [any.nameClassRsDataIsolationContextImpl()/] ['context'.apply_variableDefault()/] = ['decode'.apply_methodDefault()/]
+                 (['token'.apply_variableDefault()/]);
+               [any.nameClassRsDataIsolationContextHolderImpl()/].['context'.apply_methodSet()/](['context'.apply_variableDefault()/]);
+           }
+           ['chain'.apply_parameterMethodClassicIn()/].doFilter(['request'.apply_parameterMethodClassicIn()/]
+              , ['response'.apply_parameterMethodClassicIn()/]);
+        } finally {
+           [any.nameClassRsDataIsolationContextHolderImpl()/].['clear'.apply_methodDefault()/]();
+        }
+    }
+    
+    /** 
+    * Décode le jeton de contexte et reconstruit le contexte d'isolation 
+    * associé. 
+    * 
+    * @param ['token'.apply_parameterMethodClassicIn()/] le jeton de contexte reçu dans l'en-tête HTTP 
+    * @return le contexte d'isolation reconstruit 
+    */
+    private [any.nameClassRsDataIsolationContextImpl()/] ['decode'.apply_methodDefault()/]
+       (String ['token'.apply_parameterMethodClassicIn()/]) {
+      try {
+          Claims ['claims'.apply_variableDefault()/] = Jwts.parser()
+             .verifyWith(['secret key'.apply_attributeFinal()/]).build()
+             .parseSignedClaims(['token'.apply_parameterMethodClassicIn()/])
+             .getPayload();
+          return objectMapper.convertValue(
+             ['claims'.apply_variableDefault()/].get("context"),
+             [any.nameClassRsDataIsolationContextImpl()/].class);
+       } catch (JwtException e) {
+          throw new [any.nameClassRsDataIsolationExceptionImpl()/](
+             401, "Jeton de contexte d'isolation invalide");
+       }
+    }
+  }
+[/template]
+
+[comment écriture de la classe pour le holder permettant de récupérer le contexte de contrôle des éventuelles violations de données (idor)./]
+[template public rsDataIsolationContextHolderImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  [any.defaultImports()/]
+  
+  import jakarta.servlet.http.HttpServletRequest;
+  import jakarta.servlet.http.HttpSession;
+  import org.springframework.web.context.request.RequestContextHolder;
+  import org.springframework.web.context.request.ServletRequestAttributes;
+  
+  /**
+   * Fournit un accès au contexte d'isolation des données de la requête courante.
+   *
+   * @Author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRsDataIsolationContextHolderImpl()/] { 
+    
+    [comment cas option numéro 1 ou le contexte est géré en statefull du coté backend./]
+    [if (any.isRsIdorFullCtrlEnabled())]
+      ['Nom de l\'attribut de session'.commentMultiLines()/]
+      private static final String ['SESSION _ATTRIBUTE'.apply_attributeFinalStatic()/] 
+         = [any.nameClassRsDataIsolationContextImpl()/].class.getName();
+      
+      ['Constructeur privé'.commentMultiLines()/]
+      private [any.nameClassRsDataIsolationContextHolderImpl()/]() {
+      }
+      
+      /**
+       * Retourne le contexte courant.
+       *
+       * Si aucun contexte n'existe dans la session, il est créé automatiquement.
+       *
+       * @return le contexte courant.
+       */
+      public static [any.nameClassRsDataIsolationContextImpl()/] ['context'.apply_methodGet()/]() {
+        HttpSession ['session'.apply_variableDefault()/] = ['session'.apply_methodGet()/]();
+        [any.nameClassRsDataIsolationContextImpl()/] ['context'.apply_variableDefault()/] =
+                ([any.nameClassRsDataIsolationContextImpl()/]) ['session'.apply_variableDefault()/]
+                .getAttribute(['SESSION _ATTRIBUTE'.apply_attributeFinalStatic()/]);
+        if (['context'.apply_variableDefault()/] == null) {
+          ['context'.apply_variableDefault()/] = new [any.nameClassRsDataIsolationContextImpl()/]();
+          ['session'.apply_variableDefault()/].setAttribute(['SESSION _ATTRIBUTE'.apply_attributeFinalStatic()/], context);
+        }
+        return ['context'.apply_variableDefault()/];
+      }
+      
+      /**
+      * Remplace le contexte courant.
+      *
+      * @param context nouveau contexte.
+      */
+      public static void ['context'.apply_methodSet()/](final [any.nameClassRsDataIsolationContextImpl()/] 
+        ['context'.apply_parameterMethodClassicIn()/]) {
+        ['session'.apply_methodGet()/]().setAttribute(['SESSION _ATTRIBUTE'.apply_attributeFinalStatic()/]
+         , ['context'.apply_parameterMethodClassicIn()/]);
+      }
+      
+      /**
+      * Réinitialise le contexte courant.
+      */
+      public static void ['clear context'.apply_methodDefault()/]() {
+        ['session'.apply_methodGet()/]().removeAttribute(['SESSION _ATTRIBUTE'.apply_attributeFinalStatic()/]);
+      }
+      
+      /**
+       * Retourne la session HTTP courante.
+       *
+       * @return la session HTTP.
+       */
+      private static HttpSession ['session'.apply_methodGet()/]() {
+        ServletRequestAttributes ['attributes'.apply_variableDefault()/] =
+           (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        HttpServletRequest ['request'.apply_variableDefault()/] = ['attributes'.apply_variableDefault()/].getRequest();
+        return ['request'.apply_variableDefault()/].getSession(true);
+      }
+    [/if]
+    
+    [comment cas option numéro 2 ou le contexte est géré en stateless avec un jeton jwt./]
+    [if (any.isRsIdorLessCtrlEnabled())]
+      /**
+      * Contexte associé au thread courant.
+      */
+      private static final ThreadLocal<[any.nameClassRsDataIsolationContextImpl()/]> ['contexte'.apply_attributeFinalStatic()/] 
+         = ThreadLocal.withInitial(() -> null);
+      
+      /**
+      * Constructeur privé.
+      */
+      private [any.nameClassRsDataIsolationContextHolderImpl()/]() {
+      }
+      
+      /**
+      * Retourne le contexte d'isolation associé à la requête courante.
+      *
+      * @return le contexte d'isolation
+      * @throws IllegalStateException si aucun contexte n'est disponible
+      */
+      public static [any.nameClassRsDataIsolationContextImpl()/] ['context'.apply_methodGet()/]() {
+        [any.nameClassRsDataIsolationContextImpl()/] ['context'.apply_variableDefault()/] = ['contexte'.apply_attributeFinalStatic()/].get();
+        if (['context'.apply_variableDefault()/] == null) {
+           throw new IllegalStateException( "Le contexte d'isolation n'a pas été initialisé.");
+        }
+        return ['context'.apply_variableDefault()/];
+      }
+      
+      /**
+      * Initialise le contexte d'isolation.
+      *
+      * @param ['context'.apply_parameterMethodClassicIn()/] le contexte à associer au thread courant
+      */
+      static void ['context'.apply_methodSet()/]([any.nameClassRsDataIsolationContextImpl()/] ['context'.apply_parameterMethodClassicIn()/]) {
+         ['contexte'.apply_attributeFinalStatic()/] .set(['context'.apply_parameterMethodClassicIn()/]);
+      }
+      
+      /**
+      * Supprime le contexte courant.
+      */
+      static void ['clear'.apply_methodDefault()/]() {
+        ['contexte'.apply_attributeFinalStatic()/] .remove();
+      }
+    [/if]
+  }
+[/template]
+
+[comment écriture de la classe d'exception pour les erreurs d'intégrité des données rest (idor)./]
+[template public rsDataIsolationExceptionImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageException())/]
+  [any.defaultImports()/]
+  
+  /**
+   * Services REST: Classe minimaliste (à titre d'exemple) pour une exception de
+   * type technique. Elle est automatiquement renvoyée par les générateurs si
+   * dans le cadre des services rest sécurisés l'appelant a modifié les URIs.
+   * 
+   * Cette classe fonctionne en relation avec les classes {@link [any.nameClassRsErrorBodyResponseImpl()/]} 
+   * et {@link [any.nameClassRsExceptionHandlerImpl()/]}
+   * 
+   * Si besoin, créer des exceptions supplémentaires et les positionner au niveau
+   * de ce package.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+  public class [any.nameClassRsDataIsolationExceptionImpl()/] extends RuntimeException {
+      
+      private static final long serialVersionUID = 3708878571796774828L;
+      
+      ['Code pour le statut HTTP'.commentMultiLines()/]
+      private int ['status code'.apply_attributeDefault()/];
+      
+      ['Constructeur'.commentMultiLines()/]
+      public [any.nameClassRsDataIsolationExceptionImpl()/](final int ['status code'.apply_parameterMethodClassicIn()/], 
+          final String ['msg'.apply_parameterMethodClassicIn()/]) {
+          super(['msg'.apply_parameterMethodClassicIn()/]);
+          [any.prefixAffectation()/]['status code'.apply_attributeDefault()/] = ['status code'.apply_parameterMethodClassicIn()/];
+      }
+      
+      /**
+       * Retourne le code de statut HTTP.
+       * 
+       * @return le code de statut HTTP.
+       */
+      public int ['status code'.apply_methodGet()/]() {
+          return ['status code'.apply_attributeDefault()/];
+      }
+  }  
+[/template]
+
 [comment écriture de la classe de gestion globale des erreurs pour les api rest./]
 [template public rsExceptionhandlerImpl(any : ecore::EObject)]
   [any.classHeader(any.namePackageApplicationBase())/]
@@ -1239,6 +1578,14 @@
   s3.bucket=documents
   # Active le versionning pour les documents
   s3.version.enabled=false
+  
+  [if (any.isRsIdorLessCtrlEnabled())]
+    # ----------------------------------------------------------------------------------------------
+    # CONTEXTE D'ISOLATION DES DONNEES.
+    # ----------------------------------------------------------------------------------------------
+    # Un exemple de cle symetrique (pour le developpement uniquement).
+    data-isolation.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+  [/if]
   
   # ----------------------------------------------------------------------------------------------
   # COFFRE FORT (VAULT)

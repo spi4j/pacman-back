@@ -1,6 +1,8 @@
 [module application(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
 				    	'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
 				    	
+[import fr::pacman::back::core::property::project::ProjectProperties/]
+
 [comment récupération du schéma de sécurité./]
 [comment (pour l'instant impossible d'avoir plusieurs types de sécurité) on travaille donc avec System./]
 [query public securityRsScheme (m : soa::System) : soa::SecurityScheme = if (m.isRsSecured()) 
@@ -8,3 +10,12 @@
 
 [comment vérifie si l'application est sécurisée par un schéma de sécurité./]
 [query public isRsSecured(m : soa::System) : Boolean = not m.eAllContents(soa::SecurityScheme)->isEmpty()/]
+
+[comment vérifie si l'application est sécurisée par un controle IDOR des paramètres (mode statefull)/]
+[query public isRsIdorLessCtrlEnabled(any : ecore::EObject) : Boolean = 'sless'.equalsIgnoreCase(any.get_rsIDORControl())/]
+
+[comment vérifie si l'application est sécurisée par uu contrôle IDOR de paramètres (mode stateless)./]
+[query public isRsIdorFullCtrlEnabled(any : ecore::EObject) : Boolean = 'sfull'.equalsIgnoreCase( any.get_rsIDORControl())/]
+
+[comment vérifie si l'application est sécurisée par un controle IDOR des paramètres/]
+[query public isRsIdorCtrlEnabled(any : ecore::EObject) : Boolean = any.isRsIdorFullCtrlEnabled() or any.isRsIdorLessCtrlEnabled()/]

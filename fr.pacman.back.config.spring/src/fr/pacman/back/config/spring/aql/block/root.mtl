@@ -3,6 +3,7 @@
 [import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::core::aql::versions/]
 [import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::query::application/]
 [import fr::pacman::back::core::aql::output::resources/]	
 [import fr::pacman::back::core::property::project::ProjectProperties/]
 
@@ -241,6 +242,26 @@
             <scope>import</scope>
           </dependency>
           -->
+          [if (any.isRsIdorLessCtrlEnabled())]
+            <!-- Utilisé pour idor jwt (décodage du jeton) --> 
+            <dependency>
+              <groupId>io.jsonwebtoken</groupId>
+              <artifactId>jjwt-api</artifactId>
+              <version>[any.versionJwt()/]</version>
+             </dependency>
+            <dependency>
+              <groupId>io.jsonwebtoken</groupId>
+              <artifactId>jjwt-impl</artifactId>
+              <version>[any.versionJwt()/]</version>
+              <scope>runtime</scope>
+            </dependency>
+            <dependency>
+              <groupId>io.jsonwebtoken</groupId>
+              <artifactId>jjwt-jackson</artifactId>
+              <version>[any.versionJwt()/]</version>
+              <scope>runtime</scope>
+            </dependency>
+          [/if]
           <!--
           [protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
             -->

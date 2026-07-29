@@ -6,6 +6,7 @@
 [import fr::pacman::back::config::aql::file::genServer/]
 [comment enlever ces imports suite a correction bug./]
 
+[import fr::pacman::back::core::aql::query::application/]
 [import fr::pacman::back::config::spring::aql::file::genServer/]
 [import fr::pacman::back::core::property::project::ProjectProperties/]
 
@@ -61,6 +62,22 @@
   [r.fileS3HttpAdapterImpl()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
+  
+  [comment écriture de la couche de gestion pour le contrôle des violations de données sur les paramètres./]
+  [if (r.isRsIdorCtrlEnabled())]
+    [comment écriture de l'exception à renvoyer si violation./]
+    [r.fileRsDataIsolationExceptionImpl()/]
+    [comment écriture de la classe pour le contexte de controle des violations (vide par défaut)./]
+    [r.fileRsDataIsolationContextImpl()/]
+    [comment écriture du holder pour la récupération du contexte./]
+    [r.fileRsDataIsolationContextHolderImpl()/]
+    [comment écriture de la classe pour obliger la saisie des balises user code./]
+    [r.fileRsDataIsolationUserCodeImpl()/]
+    [if (r.isRsIdorLessCtrlEnabled())]
+      [comment écriture du filtre pour le décodage du jeton applicatif jwt./]
+      [r.fileRsFilterIsolationContextImpl()/]
+    [/if]
+  [/if]
   
   [comment écriture de la couche de sécurite (si librairie sso non cochée)./]
   [if (not r.isRsSSOAuthEnabled())]

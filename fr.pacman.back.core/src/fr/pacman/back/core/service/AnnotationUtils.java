@@ -70,7 +70,7 @@ public final class AnnotationUtils {
 		return isAnnotationExists(p_obj, p_annotation.get_annotationName(), false);
 	}
 
-	/**
+	/**	
 	 * Retourne la valeur d'une annotation, en remontant récursivement dans le
 	 * modèle à partir d'un objet p_obj.
 	 * 
@@ -269,6 +269,10 @@ public final class AnnotationUtils {
 		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
 	}
 
+	public static boolean is_metaIdorContext(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.IDOR_CONTEXT);
+	}
+
 	public static boolean is_metaFetchLazy(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.FETCH_LAZY);
 	}
@@ -276,15 +280,15 @@ public final class AnnotationUtils {
 	public static boolean is_metaS3Storage(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.S3_STORAGE);
 	}
-	
+
 	public static boolean is_metaBatchRead(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.BATCH_READ);
 	}
-	
+
 	public static boolean is_metaBatchWrite(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.BATCH_WRITE);
 	}
-	
+
 	public static boolean is_metaBatchProcess(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.BATCH_PROCESS);
 	}

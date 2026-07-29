@@ -64,6 +64,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _projectCrud = "";
 	private String _databases = "";
 	private String _rsSSOAuth = "";
+	private String _rsIDORControl = "";
 
 	// Pas en String car ne vas pas dans les propriétés.
 	private boolean _displayReadme;
@@ -137,11 +138,13 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		registerWidget("cb_reqInitVerion", addComboReqInitVersion(options1));
 		registerWidget("ck_jerseyCdi", addCheckBoxCdi(options2));
 		registerWidget("ck_ssoMinarm", addCheckBoxSSOAuth(options2));
-		registerWidget("ck_fileConfig", addCheckBoxSpi4jConfig(options2));
-		registerWidget("ck_fetchStrategy", addCheckBoxFetchStrategy(options2));
-		registerWidget("ck_security", addCheckBoxSecurity(options2));
-		registerWidget("ck_crud", addCheckBoxCrud(options2));
-		registerWidget("ck_batch", addCheckBoxBatch(options2));
+		registerWidget("ck_idorCtrl1", addCheckBoxIDORControl1(options2));
+		registerWidget("ck_idorCtrl2", addCheckBoxIDORControl2(options2));
+		// registerWidget("ck_fileConfig", addCheckBoxSpi4jConfig(options2));
+		// registerWidget("ck_fetchStrategy", addCheckBoxFetchStrategy(options2));
+		// registerWidget("ck_security", addCheckBoxSecurity(options2));
+		// registerWidget("ck_crud", addCheckBoxCrud(options2));
+		// registerWidget("ck_batch", addCheckBoxBatch(options2));
 		registerWidget("grp_project1", project1);
 		registerWidget("grp_project2", project2);
 		registerWidget("grp_database2", database2);
@@ -170,17 +173,18 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		_typeFramework = "springboot";
 		_spi4jRsCdi = "false";
 		_rsSSOAuth = "false";
+		_rsIDORControl = "none";
 		_spi4jfetchingStrategy = "false";
 		_spi4jSecurity = "false";
 		_projectCrud = "false";
 		_displayReadme = true;
 
 		getWidget("ck_jerseyCdi").setEnabled(false);
-		getWidget("ck_fileConfig").setEnabled(false);
-		getWidget("ck_fetchStrategy").setEnabled(false);
-		getWidget("ck_security").setEnabled(false);
-		getWidget("ck_crud").setEnabled(false);
-		getWidget("ck_batch").setEnabled(false);
+		// getWidget("ck_fileConfig").setEnabled(false);
+		// getWidget("ck_fetchStrategy").setEnabled(false);
+		// getWidget("ck_security").setEnabled(false);
+		// getWidget("ck_crud").setEnabled(false);
+		// getWidget("ck_batch").setEnabled(false);
 	}
 
 	/**
@@ -323,7 +327,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(final SelectionEvent p_e) {
-				//_javaVersion = String.valueOf(cbx.getSelectionIndex());
+				// _javaVersion = String.valueOf(cbx.getSelectionIndex());
 				if (cbx.getSelectionIndex() == 0)
 					_javaVersion = "17";
 				if (cbx.getSelectionIndex() == 1)
@@ -573,6 +577,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private Button addCheckBoxSpi4jConfig(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Fichiers de configuration gérés par SPI4J", "");
 		return cbx;
@@ -583,6 +588,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private Button addCheckBoxFetchStrategy(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Fetching Strategy", "");
 		return cbx;
@@ -593,6 +599,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private Button addCheckBoxSecurity(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Implémentation de la sécurité",
 				"Activation de la sécurité (permissions) utilisateur pour l'utilisation"
@@ -605,6 +612,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private Button addCheckBoxCrud(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Implémentation du CRUD",
 				"Activation de la génération automatique des services de type CRUD.");
@@ -636,8 +644,65 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
 	 * @return
 	 */
+	@SuppressWarnings("unused")
 	private Button addCheckBoxBatch(final Composite p_parent) {
 		Button cbx = addCheckBox(p_parent, "Implémentation des batchs", "Activation d...");
+		return cbx;
+	}
+
+	/**
+	 * Vérifie que la ressource ciblée par l'URI appartient à l'utilisateur connecté
+	 * avant de poursuivre le traitement". Cette solution part sur un notion de
+	 * contexte (statefull).
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
+	private Button addCheckBoxIDORControl1(final Composite p_parent) {
+		Button cbx = addCheckBox(p_parent, "Api REST - Contrôle d'isolation des données (ctx)",
+				"Vérifie que la ressource ciblée par l'URI appartient à "
+						+ "l'utilisateur connecté avant de poursuivre le traitement."
+						+ "\nSolution basée sur l'utilisation d'un contexte au niveau des services rest"
+						+ " (les services sont statefull).");
+		cbx.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent p_e) {
+				boolean v_selected = ((Button) p_e.getSource()).getSelection();
+				if (v_selected) {
+					_rsIDORControl = "sfull";
+					enable(getWidget("ck_idorCtrl2")); // hack pour décocher la case.
+				} else {
+					_rsIDORControl = "none";
+				}
+			}
+		});
+		return cbx;
+	}
+
+	/**
+	 * Vérifie que la ressource ciblée par l'URI appartient à l'utilisateur connecté
+	 * avant de poursuivre le traitement". Cette solution part sur l'utilisation
+	 * d'un jeton de type jwt (stateless).
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
+	private Button addCheckBoxIDORControl2(final Composite p_parent) {
+		Button cbx = addCheckBox(p_parent, "Api REST - Contrôle d'isolation des données (jwt)",
+				"Vérifie que la ressource ciblée par l'URI appartient à "
+						+ "l'utilisateur connecté avant de poursuivre le traitement."
+						+ "\nSolution basée sur l'utilisation d'un jeton jwt fourni aux services rests"
+						+ " (les services sont stateless).");
+		cbx.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent p_e) {
+				boolean v_selected = ((Button) p_e.getSource()).getSelection();
+				if (v_selected) {
+					_rsIDORControl = "sless";
+					enable(getWidget("ck_idorCtrl1")); // hack pour décocher la case.
+				} else {
+					_rsIDORControl = "none";
+				}
+			}
+		});
 		return cbx;
 	}
 
@@ -859,26 +924,30 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		enable(getWidget("cb_javaVersion"));
 		enable(getWidget("ck_ssoMinarm"));
 		enable(getWidget("cb_javaVersion"));
+		enable(getWidget("ck_idorCtrl1"));
+		enable(getWidget("ck_idorCtrl2"));
 
 		disable(getWidget("ck_jerseyCdi"));
-		disable(getWidget("ck_fileConfig"));
-		disable(getWidget("ck_fetchStrategy"));
-		disable(getWidget("ck_security"));
-		disable(getWidget("ck_crud"));
-		disable(getWidget("ck_batch"));
+		// disable(getWidget("ck_fileConfig"));
+		// disable(getWidget("ck_fetchStrategy"));
+		// disable(getWidget("ck_security"));
+		// disable(getWidget("ck_crud"));
+		// disable(getWidget("ck_batch"));
 
 		if ("spi4j".equalsIgnoreCase(_typeFramework)) {
 			disable(getWidget("ck_ssoMinarm"));
 			enable(getWidget("ck_jerseyCdi"));
-			enable(getWidget("ck_fileConfig"));
-			enable(getWidget("ck_fetchStrategy"));
-			enable(getWidget("ck_security"));
-			enable(getWidget("ck_crud"));
-			enable(getWidget("ck_batch"));
+			// enable(getWidget("ck_fileConfig"));
+			// enable(getWidget("ck_fetchStrategy"));
+			// enable(getWidget("ck_security"));
+			// enable(getWidget("ck_crud"));
+			// enable(getWidget("ck_batch"));
 		}
 		if ("react".equalsIgnoreCase(_typeFramework)) {
 			disable(getWidget("ck_ssoMinarm"));
 			disable(getWidget("cb_javaVersion"));
+			disable(getWidget("ck_idorCtrl1"));
+			disable(getWidget("ck_idorCtrl2"));
 		}
 		if ("client".equalsIgnoreCase(_typeProject)) {
 			disable(getWidget("grp_database2"));
@@ -886,6 +955,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			disable(getWidget("grp_options1"));
 			disable(getWidget("cb_databases"));
 			disable(getWidget("ck_ssoMinarm"));
+			disable(getWidget("ck_idorCtrl1"));
+			disable(getWidget("ck_idorCtrl2"));
 		}
 	}
 
@@ -1065,6 +1136,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getRsSSOAuth() {
 		return _rsSSOAuth;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRsIDORControl() {
+		return _rsIDORControl;
 	}
 
 	/**

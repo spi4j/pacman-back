@@ -1,14 +1,18 @@
 [module security(	'http://www.obeonetwork.org/dsl/soa/4.0.0', 
 					'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
 					'http://www.eclipse.org/emf/2002/Ecore')/]
 
 [import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::core::aql::name::classes/]
 [import fr::pacman::back::core::aql::name::packages/]
+[import fr::pacman::back::core::aql::name::eobjects/]
 [import fr::pacman::back::core::aql::query::eobject/]
 [import fr::pacman::back::core::aql::query::service/]
 [import fr::pacman::back::core::aql::query::operation/]
 [import fr::pacman::back::core::aql::query::application/]
+[import fr::pacman::back::core::aql::query::parameter/]
+[import fr::pacman::back::core::aql::query::dto/]
 [import fr::pacman::back::core::aql::output::headers/]
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::core::aql::output::comments/]
@@ -705,6 +709,38 @@
   }
 [/template]
 
+[comment écriture de la clasese pour le contexte de contrôle des éventuelles violations de données (idor)./]
+[template public securityRsDataIsolationContextImpl(m : soa::System)]
+  [m.classHeader(m.namePackageRsControllerBase())/]
+  [m.defaultImports()/]
+  
+  public class [m.nameClassRsDataIsolationContextImpl()/] { 
+    
+    [let ops =  m.regularServices().operations()->select(o1 | o1.is_metaIdorContext())]
+      [for (o | ops)]
+        [o.commentOperation()/]
+        [comment Il est possible qu'il y ait des collisions de nom à ce stade.
+                 c'est au développeur de faire les modifications, pas de terme générique 
+                 type output, etc.../]
+        private [o.outputRsType().replaceByPkType()/] [(o.outputName() + ' id').apply_attributeDefault()/];
+        
+      [/for]
+      
+      ['Liste des assesseurs'.commentMultiLines()/]
+      [for (o | ops)]
+        public [o.outputRsType().replaceByPkType()/] [(o.outputName() + ' id from xto').apply_methodGet()/] () {
+           return [o.prefixAffectation()/][(o.outputName() + ' id').apply_attributeDefault()/];
+        }
+        
+        public void [(o.outputName() + ' id from xto').apply_methodSet()/] (final [o.outputRsType()/] [o.outputName().apply_parameterMethodClassicIn()/]) {
+          [o.prefixAffectation()/][(o.outputName() + ' id').apply_attributeDefault()/] = 
+             [o.outputName().apply_parameterMethodClassicIn()/].[o.writePKForOutput()/];
+        }
+      [/for]
+    [/let]
+  }
+[/template]
+
 [comment retourne l'ensemble des opérations non sécurisées dans le cadre des services rest (pour l'instant on considère que tous les services sont rest)./]
 [query public nonSecuredOperations(m : soa::System) : Sequence(soa::Operation) = m.regularServices().eAllContents(soa::Operation)
   ->select(o | not o.isRsSecured()) /]
@@ -718,3 +754,14 @@
   + (o.eContainer(soa::Service).rsUri() + '/' + o.URI).toUri() + '")' + if (role) then if( not o.has_metaPermissionOr() and not o.has_metaPermissionAnd()) 
   then   '.hasRole("' + o.prefixRole() + o.get_metaPermission() + '")'  else '.hasAnyRole("' + o.prefixRole() + o.get_metaPermission() + '", "' 
   + o.prefixRole() + o.get_metaPermissionOr() + '")' endif else '.permitAll()' endif)->toString()/]
+  
+[comment remplace le type quel qu'il soit par le type par défaut sous pacman pour les clés primaires./]
+[query private replaceByPkType(s : String) : String = if (s.matches('[A-Za-z0-9_]+<[^>]+>')) then s.replaceAll('(<)[^>]+(>)', '$1' + s.defaultTypePk() 
+  + '$2') else s.defaultTypePk() endif/]
+  
+[comment retourne l'attribut représentant l'id du paramètre de sortie pour l'opération./]
+[query private writePKForOutput(o : soa::Operation) : String = if (o.hasOutput()) then let p = o.output->first() in 
+  if (p.type.oclIsKindOf(environment::DTO)) then  if (p.isMultiple()) then 'stream().map(' + p.type.oclAsType(environment::DTO).nameClassXtoImpl() 
+  + '::' + p.type.oclAsType(environment::DTO).associatedEntity().nameSimplePropertyID().apply_methodGet() + ').toList()' else p.type.oclAsType(environment::DTO)
+  .associatedEntity().nameSimplePropertyID().apply_methodGet() + '()' endif else 'prim' endif else o.cNoModelisation() endif/]
+  

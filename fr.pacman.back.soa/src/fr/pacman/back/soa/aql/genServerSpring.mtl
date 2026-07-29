@@ -39,6 +39,12 @@
       [m.fileApplicationSSOProperties()/]
     [/if]
     
+    [comment écriture de la couche de gestion pour le contrôle des violations de données./]
+    [if (m.isRsIdorFullCtrlEnabled())]
+      [comment écriture de la classe pour le contexte de controle des violations./]
+      [m.fileRsDataIsolationContextImpl()/]
+    [/if]
+    
     [comment écriture d'un filtre pour la gestion générique des en-têtes./]
     [m.fileRsHeaderFilterImpl()/]
     

@@ -203,6 +203,18 @@
 [comment retourne le nom pour la classe d'implémentation de la persistance./]
 [query public nameClassEntityPersistImpl(e : entity::Entity) : String = (e.name() + e.suffixEntityDao()).apply_classImplem()/]
   
+[comment retourne le nom pour l'implémentation du contexte applicatif pour le controle de violation des données./]
+[query public nameClassRsDataIsolationContextImpl(any : ecore::EObject) : String = (any.get_projectName() + ' data isolation context').apply_classDefault()/]
+  
+[comment retourne le nom pour l'implémentation du holder pour le contexte applicatif pour le controle de violation des données./]
+[query public nameClassRsDataIsolationContextHolderImpl(any : ecore::EObject) : String = (any.get_projectName() + ' data isolation context holder').apply_classDefault()/]
+
+[comment retourne le nom de la classe pour obliger le développeur à renseigner les balises user code dans le cadre du controle de la violation de données (idor)./]
+[query public nameClassRsDataIsolationUserCodeImpl(any : ecore::EObject) : String = (any.get_projectName() + ' data isolation user code').apply_classDefault()/]
+
+[comment retourne le nom pour l'implémentation du filtre de décdage du jeton jwt pour le controle de violation des données./]
+[query public nameClassRsFilterIsolationContextImpl(any : ecore::EObject) : String = (any.get_projectName() + ' filter isolation context').apply_classDefault()/]
+  
 [comment retourne le nom de la classe pour l'implémentation de la gestion globale des erreurs rest./]
 [query public nameClassRsExceptionHandlerImpl(any : ecore::EObject) : String = (any.get_projectName() + any.suffixRsExceptionHandler()).apply_classDefault()/]
 
@@ -211,6 +223,9 @@
   
 [comment retourne le nom de la classe d'exception dans le cas d'une erreur d'authentification (http - apikey)./]
 [query public nameClassRsAuthenticationExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' authentication exception').apply_classDefault()/]
+
+[comment retourne le nom de la classe d'exception dans le cas d'une erreur de violation des données (http)./]
+[query public nameClassRsDataIsolationExceptionImpl(any : ecore::EObject) : String = (any.get_projectName() + ' data access violation exception').apply_classDefault()/]
 
 [comment retourne le nom de la classe de service pour la création d'un jeton jwt./]
 [query public nameClassRsTokenServiceImpl(any : ecore::EObject) : String = (any.get_projectName() + ' jwt token' + any.suffixService()).apply_classDefault()/]

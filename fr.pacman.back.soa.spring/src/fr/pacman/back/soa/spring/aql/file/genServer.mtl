@@ -121,3 +121,10 @@
     [m.openApiConfigImpl()/]
   [/file]
 [/template]
+
+[comment écriture de la classe pour le contexte concernant le controle de la violation de données (idor)./]
+[template public fileRsDataIsolationContextImpl(m : soa::System)]
+  [file (m.nameClassRsDataIsolationContextImpl().toFileJava(m.namePackageRsControllerBase()), overwrite, m.defaultFileEncoding())]
+    [m.securityRsDataIsolationContextImpl()/]
+  [/file]
+[/template]

@@ -14,6 +14,7 @@
 [import fr::pacman::back::core::aql::rule::common/]
 [import fr::pacman::back::core::aql::rule::class/]
 [import fr::pacman::back::core::service::AnnotationUtils/]
+[import fr::pacman::back::core::property::project::ProjectProperties/]
 
 [comment vérifie si l'opération a un paramètre en sortie (entité, dto, type primitif) (transverse)./]
 [query public hasOutput(o : soa::Operation) : Boolean = o.output <> null and o.output->size() > 0 /]

@@ -90,6 +90,9 @@
     import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
     import [s.namePackageProject()/].[s.namePackageInItf()/].[s.nameClassServiceInItf()/];
     import [s.namePackageProject()/].[s.namePackageException()/].[s.nameClassRsDataNotFoundExceptionImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRsControllerBase()/].[s.nameClassRsDataIsolationContextImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRsControllerBase()/].[s.nameClassRsDataIsolationContextHolderImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRsControllerBase()/].[s.nameClassRsDataIsolationUserCodeImpl()/];
     
     [for (d | ds)]
       import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];
@@ -134,14 +137,37 @@
              [o.writeCheckSizeParam()/]
              [o.writeSortByParam()/]
              [o.writeRsHeadOptionOperation(s)/]
+             [o.writeDefaultCodeForDataIsolation()/]
              
            [/protected]
            
            [o.writeRsOperation(s)/] 
         }
       [/if]
+      
+      [if (o.isRsIdorFullCtrlEnabled() and o.is_metaIdorContext())]
+        [o.writeDataIsolationContext()/]
+      [/if]
     [/for]
   }
+[/template]
+
+[comment écriture de la javadoc (juste séparé pour éviter de polluer le template principal)./]
+[template private writeDataIsolationContextJavadoc(o :soa::Operation)]
+  /**
+   * Enrichit le contexte d'isolation des données avec la ressource
+   * retournée, puis retourne la réponse HTTP inchangée.
+   *
+   * <p>
+   * Cette méthode permet de garantir que le contexte de session reflète
+   * systématiquement les données effectivement renvoyées par le backend, afin
+   * d'assurer la cohérence des contrôles d'accès basés sur ce contexte d'isolation.
+   * </p>
+   *
+   * @param response la réponse HTTP contenant le DTO {@link [o.outputRsType()/]}
+   *                 retourné par le service métier
+   * @return la même réponse HTTP, inchangée
+   */
 [/template]
 
 [comment écriture de l'implémentation pour le service de persistance crud (couche infrastructure)./]
@@ -847,6 +873,10 @@
 [comment écriture de l'éventuel paramètre de pagination./]
 [query private writeSortByParam(o : soa::Operation) : String = if (o.paged) then 'final String ' + 'sort by'.apply_variableDefault() + '= "' 
 	+ '";' else '' endif/]
+	
+[comment écriture du code par défaut pour la partie utilisateur si le contrôle de la violation des données est actif ./]
+[query private writeDefaultCodeForDataIsolation(o : soa::Operation) : String = o.nameClassRsDataIsolationUserCodeImpl() 
+  + '.required();'/]
   
 [comment écriture de la vérification et de l'affectation des éventuels paramètres de pagination./]
 [query private writeCheckPageParam(o : soa::Operation) : String = if (o.paged) then o.input
@@ -1019,15 +1049,17 @@
 [comment écriture de la requête pour le service rest, sert d'aiguillage pour les autres queries en fonction du type de sortie./]
 [query private writeRsOperation(o : soa::Operation, s : soa::Service) : String =  if (o.mustHaveRsOutput()) then 
  if (o.output->first().isRsOptional()) then if(o.output->first().isMultiple()) then o.writeRsOptionalOutputStar(s) else o.writeRsOptionalOutputOne(s) endif 
- else if(o.output->first().isMultiple()) then o.writeRsNonOptionalOutputStar(s) else o.writeRsNonOptionalOutputOne(s) endif endif + ';' else '' endif/]
+ else if(o.output->first().isMultiple()) then o.writeRsNonOptionalOutputStar(s) else o.writeRsNonOptionalOutputOne(s) endif endif + ';' 
+ else o.cNoModelisation() endif/]
  
 [comment écriture pour un résultat optionnel sur un enregistrement (deux réponses complétement différentes si dto ou primitif/InputStream en sortie)./]
 [query private writeRsOptionalOutputOne(o : soa::Operation, s : soa::Service) : String =  if (o.output->first().type.oclIsKindOf(environment::DTO)) 
-  then 'return ' + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() 
+  then 'return ' + if (o.isRsIdorFullCtrlEnabled() and o.is_metaIdorContext()) then (o.name() + ' apply data isolation').apply_methodDefault() 
+  + '(' else '' endif + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() 
   + ').map(o -> ' + 'response builder'.apply_variableDefault() + '.body(' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
-  + '.' + ('to ' + o.suffixXto()).apply_methodDefault() + '(o))).orElseThrow(() -> new ' + o.nameClassRsDataNotFoundExceptionImpl() + '(' 
-  + if (o.hasRsNotFoundFault()) then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
-  + ', "' endif + '"))' 
+  + '.' + ('to ' + o.suffixXto()).apply_methodDefault() + '(o))).orElseThrow(() -> new ' + o.nameClassRsDataNotFoundExceptionImpl() 
+  + '(' + if (o.hasRsNotFoundFault()) then o.notRsFoundFault().statusCode + ', "' + o.notRsFoundFault().statusMessage else o.defaultRsNotFoundStatusCode1() 
+  + ', "' endif + '"))' + if (o.isRsIdorFullCtrlEnabled() and o.is_metaIdorContext()) then ')' else '' endif
   
   else let stream = o.hasRsOutputStream() in 'Optional<'+ o.outputRsType() + '>' + 'value'.apply_variableDefault() + '= ' 
   + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService()  
@@ -1039,28 +1071,30 @@
   + ', "' endif + '")' endif/]
 
 [comment écriture pour un résultat optionnel sur une liste d'enregistrements (pour l'instant 200 avec liste vide)./]
-[query private writeRsOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + 'response builder'.apply_variableDefault() + '.body(' +
-  if (o.output->first().type.oclIsKindOf(environment::DTO)) then o.prefixAffectation() + s.name().apply_attributeFinal() 
-  + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').stream().map(o -> ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
-  + '.' + ('to ' + o.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
-  + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif/]
+[query private writeRsOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + if (o.isRsIdorFullCtrlEnabled() and o.is_metaIdorContext()) 
+  then (o.name() + ' apply data isolation').apply_methodDefault() + '(' else '' endif + 'response builder'.apply_variableDefault() + '.body(' 
+  + if (o.output->first().type.oclIsKindOf(environment::DTO)) then o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() 
+  + '(' + o.writeRsInputsForService() + ').stream().map(o -> ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' 
+  + ('to ' + o.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() 
+  + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif + if (o.isRsIdorFullCtrlEnabled() and o.is_metaIdorContext()) then ')' else '' endif/]
 
 [comment écriture pour un résultat obligatoire sur un enregistrement (cas ou on peut traiter un inpustream en sortie)./]
 [query private writeRsNonOptionalOutputOne(o : soa::Operation, s : soa::Service) : String = let stream = o.hasRsOutputStream() in 'return ' 
   + 'response builder'.apply_variableDefault() + '.body(' + if (o.output->first().type.oclIsKindOf(environment::DTO)) 
   then o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() + '.' + 'to xto'.apply_methodDefault() + '(' + o.prefixAffectation() 
   + s.name().apply_attributeFinal() + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ')))' else if(stream) then 'new ' 
-  + s.nameClassS3HttpAdapterImpl() + '(' else '' endif + o.prefixAffectation() + s.name().apply_attributeFinal() 
-  + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ')' + if (o.hasRsOutputS3()) then ', ' + 'response builder'.apply_variableDefault() 
-  + ', ' + o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() else '' endif + ')' endif 
+  + s.nameClassS3HttpAdapterImpl() + '(' else '' endif + o.prefixAffectation() + s.name().apply_attributeFinal() + '.' + o.nameOperation() 
+  + '(' + o.writeRsInputsForService() + ')' + if (o.hasRsOutputS3()) then ', ' + 'response builder'.apply_variableDefault() + ', ' 
+  + o.input->select(p | 'S3DocumentName'.equalsIgnoreCase(p.type.name))->first().name().apply_parameterMethodClassicIn() else '' endif + ')' endif 
   + if (stream) then ')' else '' endif/]
 
 [comment écriture pour un résultat obligatoire sur un liste d'enregistrements./]
-[query private writeRsNonOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + 'response builder'.apply_variableDefault() + '.body(' +
-   if (o.output->first().type.oclIsKindOf(environment::DTO)) then  o.prefixAffectation() + s.name().apply_attributeFinal() 
-   + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').stream().map(o -> ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
-   + '.' + ('to ' + o.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
-   + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif/]
+[query private writeRsNonOptionalOutputStar(o : soa::Operation, s : soa::Service) : String = 'return ' + if (o.isRsIdorFullCtrlEnabled() and o.is_metaIdorContext()) 
+  then (o.name() + ' apply data isolation').apply_methodDefault() + '('  else '' endif + 'response builder'.apply_variableDefault() + '.body(' +
+  if (o.output->first().type.oclIsKindOf(environment::DTO)) then  o.prefixAffectation() + s.name().apply_attributeFinal() 
+  + '.' + o.nameOperation() + '(' + o.writeRsInputsForService() + ').stream().map(o -> ' + o.output->first().type.oclAsType(environment::DTO).nameClassMapperImpl() 
+  + '.' + ('to ' + o.suffixXto()).apply_methodDefault() + '(o)).collect(Collectors.toList()))' else o.prefixAffectation() + s.name().apply_attributeFinal() + '.' 
+  + o.nameOperation() + '(' + o.writeRsInputsForService() + '))' endif + if (o.isRsIdorFullCtrlEnabled() and o.is_metaIdorContext()) then ')' else '' endif/]
 
 [comment écriture de la chaine complète (avec mapper) pour les paramètres en entrée du service domaine./]
 [query private writeRsInputForService(p : soa::Parameter) : String = if (p.type.oclIsKindOf(environment::DTO)) 
@@ -1166,6 +1200,13 @@
   + 'with bucket'.apply_methodDefault() + '(' + 'props storage'.apply_attributeFinal() + '.' + 'bucket'.apply_methodGet() + '()).build();' 
   + o.lineSeparator() + 'client storage'.apply_attributeFinal() + '.' + 'delete'.apply_methodDefault() + '(' + 'request content'.apply_variableDefault() 
   + ');' + o.lineSeparator()  + 'return null;' /]
+  
+[comment écriture de l'opération pour la mise à jour du contexte d'isolation dans le controlleur./]
+[query private writeDataIsolationContext(o : soa::Operation) : String = o.writeDataIsolationContextJavadoc() 
+  + 'private ResponseEntity<' + o.outputRsType() + '>' + (o.name() + ' apply data isolation').apply_methodDefault() + '(ResponseEntity<' + o.outputRsType() +'>' 
+  + 'response'.apply_parameterMethodClassicIn() +') {' + o.nameClassRsDataIsolationContextHolderImpl() + '.' + 'context'.apply_methodGet() + '().'
+  + (o.outputName() + ' id from xto').apply_methodSet() + '(' + 'response'.apply_parameterMethodClassicIn() + '.getBody());' + 'return ' 
+  + 'response'.apply_parameterMethodClassicIn() + ';}'/]
 
   [comment query private writeRsSwaggerAnnotation(o : soa::Operation, ss : soa::SecurityScheme) : String = '@Operation(operationId = "' + o.name() + '", description = "' 
   + o.writeDescriptionSingleLine() + '", tags = {"' + o.eContainer(soa::Service).name() + '"}' + if (o.isRsSecured()) then ', security = ' + if (ss.type = soa::SecuritySchemeType::OAUTH2 

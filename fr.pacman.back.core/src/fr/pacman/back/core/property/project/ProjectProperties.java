@@ -39,6 +39,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_project_databases = "project.databases";
 	public static final String c_project_security = "project.security.enabled";
 	public static final String c_project_sso_auth = "project.sso.auth.enabled";
+	public static final String c_project_idor_control = "project.params.control.enabled";
 	public static final String c_project_crud = "project.crud.enabled";
 	public static final String c_project_testsCrud = "project.tests.crud.enabled";
 	public static final String c_project_fetchingStrategy = "project.fetchingstrategy.enabled";
@@ -133,7 +134,7 @@ public final class ProjectProperties extends PropertiesCategory {
 				PacmanProperty.newRequired(c_project_name, c_noDefaultValue,
 						"Le nom de l'application (sert de prefixe pour l'ensemble des projets)"),
 
-				PacmanProperty.newRequired(c_project_java_version, "17",
+				PacmanProperty.newRequired(c_project_java_version, "21",
 						"La version du language Java pour la compilation du projet"),
 
 				PacmanProperty.newRequired(c_project_author, System.getProperty("user.name", "MINARM"),
@@ -202,6 +203,9 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newConditional(c_project_sso_auth, "false",
 						"Flag indiquant si le projet utilise la librairie sso pour authentification"),
+				
+				PacmanProperty.newConditional(c_project_idor_control, "none",
+						"Flag indiquant si le projet ajoute un contrôle sur la cohérence des paramètres rest"),
 
 				PacmanProperty.newConditional(c_project_library_rs, "false",
 						"Flag indiquant si le projet va servir comme librairie avec un import swagger",
@@ -358,6 +362,7 @@ public final class ProjectProperties extends PropertiesCategory {
 		protected void doStrategy(Map<String, PacmanProperty> p_pacmanProperties) {
 			if (getRefValue().indexOf("spring") != -1) {
 				updateProperty(p_pacmanProperties.get(c_project_sso_auth));
+				updateProperty(p_pacmanProperties.get(c_project_idor_control));
 			}
 		}
 	}
@@ -717,6 +722,10 @@ public final class ProjectProperties extends PropertiesCategory {
 
 	public static boolean isRsSSOAuthEnabled(final Object p_object) {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_sso_auth));
+	}
+	
+	public static String get_rsIDORControl(final Object p_object) {
+		return PropertiesHandler.getProperty(c_project_idor_control);
 	}
 
 	public static String get_XtoSupKey(final Object p_object) {
