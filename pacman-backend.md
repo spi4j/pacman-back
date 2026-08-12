@@ -16,6 +16,7 @@
 - 09/06/2026 : Ajouts : Mise en place des traitements asynchrones.
 - 09/07/2026 : Ajouts : Contrôle d'isolation des données.
 - 29/07/2026 : Modifications : Contrôle d'isolation des données.
+- 12/08/2026 : Ajouts : Migration Spring Boot 4.
 ---
 
 ## 🚀 Introduction
@@ -323,6 +324,22 @@ Puis sélectionner la valeur "*React*" au niveau de la rubrique "*Framework*" su
 ❗ Il faut bien distinguer ici la différence entre la création d'un client React et celle d'un client SpringBoot (en dehors de la question du langage). Le client SpringBoot est pour l'instant créé afin d'appeler une librairie d'un fournisseur externe, on part donc un fichier Swagger pour obtenir la modalisation. Le client React quant à lui est utilisé pour appeler une librairie interne (au sens ou le backend a été précédemment créé avec **Pacman**). 
 
 En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n'est pas possible de s'appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s'appuyer directement sur le fichier de modélisation. C'est ce modèle qui constitue la source de vérité et qui permet d'identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.
+
+## ❗ Migration Spring Boot 4
+
+Le générateur **Pacman**, initialement basé sur Spring Boot 3, a été adapté pour prendre en charge Spring Boot 4.
+
+### Problématique
+
+Le passage de Spring Boot 3 à Spring Boot 4 a nécessité notamment une adaptation de la gestion de la librairie Jackson, Spring Boot en version 4 utilisant désormais Jackson 3 par défaut. En effet, plusieurs bibliothèques utilisée dans l'application générée reposent encore sur Jackson 2. Une migration immédiate vers Jackson 3 aurait alors provoqué des incompatibilités avec ces bibliothèques qui attendent encore les classes et les packages de Jackson 2 (*com.fasterxml.jackson*), sachant qu'il n'y a pas de compatibilité ascendante. Une bibliothèque prévue pour Jackson 2 ne fonctionnerait donc pas nécessairement avec Jackson 3.
+
+### Solution (temporaire)
+
+Afin d'éviter une coexistence de deux générations de Jackson dans l'application ce qui engendrait de multiples conflits, le choix a donc été de maintenir temporairement l'écosystème Jackson 2 en utilisant (forçant) spring-boot-jackson2 à l'aide de l'artéfact "*spring-boot-jackson2*", tout en maîtrisant explicitement sa version. Le Jackson BOM en version 2.22.0 complète donc cette configuration : il permet d'aligner tous les modules Jackson 2 utilisés par l'application ("*jackson-core, jackson-databind, jackson-annotations, jackson-datatype-xxx, etc.*) sur une version unique et cohérente. 
+
+Cette solution permet ainsi de conserver la compatibilité avec les bibliothèques existantes tout en utilisant Spring Boot 4, sans imposer immédiatement une migration de l'ensemble de l'application vers Jackson 3. Le passage à Jackson 3 pourra être réalisé ultérieurement, lorsque les différentes bibliothèques utilisées par l'application seront toutes compatibles avec cette nouvelle génération. 
+
+❗ Ce point est donc à surveiller pour les futurs développeurs de **Pacman**.
 
 ## 📝 Fichiers Générés
 
