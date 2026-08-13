@@ -3992,6 +3992,7 @@
   *
   * @author [any.nameAuthor()/]
   */
+  @Component
   public class [any.nameClassRsAuditFilterImpl()/] extends OncePerRequestFilter {    
     /**
      * Logger dédié à la traçabilité des appels des API REST.
