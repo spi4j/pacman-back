@@ -64,7 +64,9 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _projectCrud = "";
 	private String _databases = "";
 	private String _rsSSOAuth = "";
-	private String _rsIDORControl = "";
+	private String _rsIDORCtrl = "";
+	private String _rsApiLog = "";
+	private String _rsAuthLog = "";
 
 	// Pas en String car ne vas pas dans les propriétés.
 	private boolean _displayReadme;
@@ -140,6 +142,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		registerWidget("ck_ssoMinarm", addCheckBoxSSOAuth(options2));
 		registerWidget("ck_idorCtrl1", addCheckBoxIDORControl1(options2));
 		registerWidget("ck_idorCtrl2", addCheckBoxIDORControl2(options2));
+		registerWidget("ck_rsApiLog", addCheckBoxApiLog(options2));
+		registerWidget("ck_rsAuthLog", addCheckBoxAuthLog(options2));
 		// registerWidget("ck_fileConfig", addCheckBoxSpi4jConfig(options2));
 		// registerWidget("ck_fetchStrategy", addCheckBoxFetchStrategy(options2));
 		// registerWidget("ck_security", addCheckBoxSecurity(options2));
@@ -173,7 +177,9 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		_typeFramework = "springboot";
 		_spi4jRsCdi = "false";
 		_rsSSOAuth = "false";
-		_rsIDORControl = "none";
+		_rsIDORCtrl = "none";
+		_rsApiLog = "false";
+		_rsAuthLog = "false";
 		_spi4jfetchingStrategy = "false";
 		_spi4jSecurity = "false";
 		_projectCrud = "false";
@@ -668,10 +674,10 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			public void widgetSelected(final SelectionEvent p_e) {
 				boolean v_selected = ((Button) p_e.getSource()).getSelection();
 				if (v_selected) {
-					_rsIDORControl = "sfull";
+					_rsIDORCtrl = "sfull";
 					enable(getWidget("ck_idorCtrl2")); // hack pour décocher la case.
 				} else {
-					_rsIDORControl = "none";
+					_rsIDORCtrl = "none";
 				}
 			}
 		});
@@ -696,10 +702,55 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			public void widgetSelected(final SelectionEvent p_e) {
 				boolean v_selected = ((Button) p_e.getSource()).getSelection();
 				if (v_selected) {
-					_rsIDORControl = "sless";
+					_rsIDORCtrl = "sless";
 					enable(getWidget("ck_idorCtrl1")); // hack pour décocher la case.
 				} else {
-					_rsIDORControl = "none";
+					_rsIDORCtrl = "none";
+				}
+			}
+		});
+		return cbx;
+	}
+
+	/**
+	 * Demande l'activation des logs pour l'ensemble des appels rest.
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
+	private Button addCheckBoxApiLog(final Composite p_parent) {
+		Button cbx = addCheckBox(p_parent, "Api REST - Activation des logs sur appel service",
+				"Demande l'activation des logs pour l'ensemble des appels sur les services rest.");
+		cbx.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent p_e) {
+				boolean v_selected = ((Button) p_e.getSource()).getSelection();
+				if (v_selected) {
+					_rsApiLog = "true";
+				} else {
+					_rsApiLog = "false";
+				}
+			}
+		});
+		return cbx;
+	}
+
+	/**
+	 * Demande l'activation des logs pour l'ensemble des procédures
+	 * d'authentification par appel rest.
+	 * 
+	 * @param p_parent le composite parent sur lequel accrocher le composant.
+	 * @return
+	 */
+	private Button addCheckBoxAuthLog(final Composite p_parent) {
+		Button cbx = addCheckBox(p_parent, "Api REST - Activation des logs sur authentification",
+				"Demande l'activation des logs pour l'ensemble des authentifications sur les services rest.");
+		cbx.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent p_e) {
+				boolean v_selected = ((Button) p_e.getSource()).getSelection();
+				if (v_selected) {
+					_rsAuthLog = "true";
+				} else {
+					_rsAuthLog = "false";
 				}
 			}
 		});
@@ -926,7 +977,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		enable(getWidget("cb_javaVersion"));
 		enable(getWidget("ck_idorCtrl1"));
 		enable(getWidget("ck_idorCtrl2"));
-
+		enable(getWidget("ck_rsApiLog"));
+		enable(getWidget("ck_rsAuthLog"));
 		disable(getWidget("ck_jerseyCdi"));
 		// disable(getWidget("ck_fileConfig"));
 		// disable(getWidget("ck_fetchStrategy"));
@@ -948,6 +1000,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			disable(getWidget("cb_javaVersion"));
 			disable(getWidget("ck_idorCtrl1"));
 			disable(getWidget("ck_idorCtrl2"));
+			disable(getWidget("ck_rsApiLog"));
+			disable(getWidget("ck_rsAuthLog"));
 		}
 		if ("client".equalsIgnoreCase(_typeProject)) {
 			disable(getWidget("grp_database2"));
@@ -957,6 +1011,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			disable(getWidget("ck_ssoMinarm"));
 			disable(getWidget("ck_idorCtrl1"));
 			disable(getWidget("ck_idorCtrl2"));
+			disable(getWidget("ck_rsApiLog"));
+			disable(getWidget("ck_rsAuthLog"));
 		}
 	}
 
@@ -1142,8 +1198,8 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * 
 	 * @return
 	 */
-	public String getRsIDORControl() {
-		return _rsIDORControl;
+	public String getRsIDORCtrl() {
+		return _rsIDORCtrl;
 	}
 
 	/**
@@ -1152,6 +1208,22 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getSpi4jfetchingStrategy() {
 		return _spi4jfetchingStrategy;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRsApiLog() {
+		return _rsApiLog;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRsAuthLog() {
+		return _rsAuthLog;
 	}
 
 	/**

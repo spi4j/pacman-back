@@ -49,6 +49,8 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_project_profiler = "project.profiler.enabled";
 	public static final String c_project_framework = "project.framework.type";
 	public static final String c_project_type = "project.type";
+	public static final String c_project_rs_log = "project.rs.log.enabled";
+	public static final String c_project_rs_auth_log = "project.rs.auth.log.enabled";
 
 	// public static final String c_sql_idsuffix = "sql.id.suffix.enabled";
 	public static final String c_sql_fields = "sql.table.fields";
@@ -203,13 +205,19 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newConditional(c_project_sso_auth, "false",
 						"Flag indiquant si le projet utilise la librairie sso pour authentification"),
-				
+
 				PacmanProperty.newConditional(c_project_idor_control, "none",
 						"Flag indiquant si le projet ajoute un contrôle sur la cohérence des paramètres rest"),
 
 				PacmanProperty.newConditional(c_project_library_rs, "false",
 						"Flag indiquant si le projet va servir comme librairie avec un import swagger",
 						new WSLibraryStrategy()),
+
+				PacmanProperty.newRequired(c_project_rs_log, "false",
+						"Flag indiquant si on doit logger l'ensemble des appels rest"),
+
+				PacmanProperty.newRequired(c_project_rs_auth_log, "false",
+						"Flag indiquant si on doit logger l'ensemble des authentifications par appels rest"),
 
 				PacmanProperty.newRequired(c_rootfiles_generate_enabled, "false",
 						"Flag indiquant si on permet la regeneration des fichiers pom.xml, web.xml et log4j2.xml (non par defaut)"
@@ -548,6 +556,14 @@ public final class ProjectProperties extends PropertiesCategory {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_library_rs));
 	}
 
+	public static boolean get_useRsLog(final Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_rs_log));
+	}
+
+	public static boolean get_useRsAuthLog(final Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_rs_auth_log));
+	}
+
 	public static boolean is_generateRootFiles() {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_rootfiles_generate_enabled));
 	}
@@ -723,7 +739,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static boolean isRsSSOAuthEnabled(final Object p_object) {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_sso_auth));
 	}
-	
+
 	public static String get_rsIDORControl(final Object p_object) {
 		return PropertiesHandler.getProperty(c_project_idor_control);
 	}

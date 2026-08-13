@@ -155,6 +155,13 @@
   [/file]
 [/template]
 
+[comment écriture du fichier de propriété supplémentaire pour la configuration des logs (si besoin)./]
+[template public fileApplicationLog4J2Properties(any : ecore::EObject)]
+  [file (any.nameLog4j2Resources().toFile(any.namePackageResources(), '.properties'), overwrite, 'ISO-8859-1')]
+    [any.log4J2Properties()/]
+  [/file]
+[/template]
+
 [comment écriture de la classe de gestion des transactions jpa./]
 [template public fileJpaTransactionExecutorImpl(any : ecore::EObject)]
   [file (any.nameClassJpaTransactionExecutorImpl().toFileJava(any.namePackageInfrastructureBase()), overwrite, any.defaultFileEncoding())]
@@ -264,6 +271,13 @@
 [template public fileBatchExecutionRegistryImpl(any : ecore::EObject)]
   [file (any.nameClassOutBachExecutionRegistry().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
     [any.outBatchExecutionRegistryImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation classe d'audit (log) pour l'ensemble des appels rest./]
+[template public fileRsAuditFilterImpl(any : ecore::EObject)]
+  [file (any.nameClassRsAuditFilterImpl().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsAuditFilterImpl()/]
   [/file]
 [/template]
 

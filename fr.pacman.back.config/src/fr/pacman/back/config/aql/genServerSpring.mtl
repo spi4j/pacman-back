@@ -36,6 +36,8 @@
   [r.fileApplicationProperties()/]
   [comment écriture de la configuration pour l'intégration (test)./]
   [r.fileIntegrationTestProperties()/]
+  [comment écriture du fichier supplémentaire pour la gestion des fichiers de log./]
+  [r.fileApplicationLog4J2Properties()/]
   [comment écriture de la classe abstraite pour l'intégration (test)./]
   [r.fileIntegrationTestAbstract()/]
   [comment écriture de la classe utilitaire pour l'intégration (test)./]
@@ -99,6 +101,12 @@
     [r.fileRsSSOLoginHandlerImpl()/]
     [comment écriture de la partie dynamique pour configuration sso (keycloack)./]
     [r.fileApplicationSSOProperties()/]
+  [/if]
+  
+  [comment gestion multilogs si besoin (audit des appels rest et des authentifications)./]
+  [if (r.get_useRsLog())]
+    [comment écriture du filtre d'audit pour logger l'ensemble des appels rest./]
+    [r.fileRsAuditFilterImpl()/]
   [/if]
 [/template]
 

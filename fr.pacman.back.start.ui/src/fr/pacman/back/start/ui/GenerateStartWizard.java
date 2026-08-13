@@ -175,10 +175,12 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 			properties.put(ProjectProperties.c_project_crud, _pageOne.getProjectCrud());
 			properties.put(ProjectProperties.c_project_fetchingStrategy, _pageOne.getSpi4jfetchingStrategy());
 			properties.put(ProjectProperties.c_project_security, _pageOne.getSpi4jSecurity());
-			properties.put(ProjectProperties.c_project_idor_control, _pageOne.getRsIDORControl());
+			properties.put(ProjectProperties.c_project_idor_control, _pageOne.getRsIDORCtrl());
 			properties.put(ProjectProperties.c_project_sso_auth, _pageOne.getRsSSOAuth());
 			properties.put(ProjectProperties.c_project_databases, _pageOne.getDatabases());
 			properties.put(ProjectProperties.c_project_type, _pageOne.getTypeProject());
+			properties.put(ProjectProperties.c_project_rs_log, _pageOne.getRsApiLog());
+			properties.put(ProjectProperties.c_project_rs_auth_log, _pageOne.getRsAuthLog());
 			properties.putAll(_pageOne.getsqlAutoFields());
 		}
 

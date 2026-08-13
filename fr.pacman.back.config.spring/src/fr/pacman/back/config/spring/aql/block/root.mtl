@@ -68,6 +68,12 @@
             <artifactId>slf4j-api</artifactId>
             <version>[any.versionSl4j()/]</version>
           </dependency>
+          <!-- On passe par log4j et non par logBack --> 
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+            <version>[any.versionSpringBoot()/]</version>
+          </dependency>
           <dependency>
              <groupId>org.junit.jupiter</groupId>
              <artifactId>junit-jupiter</artifactId>
@@ -125,6 +131,12 @@
           <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>[any.versionSpringBoot()/]</version>
+            <scope>test</scope>
+          </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
             <version>[any.versionSpringBoot()/]</version>
             <scope>test</scope>
           </dependency>

@@ -875,8 +875,8 @@
 	+ '";' else '' endif/]
 	
 [comment écriture du code par défaut pour la partie utilisateur si le contrôle de la violation des données est actif ./]
-[query private writeDefaultCodeForDataIsolation(o : soa::Operation) : String = o.nameClassRsDataIsolationUserCodeImpl() 
-  + '.required();'/]
+[query private writeDefaultCodeForDataIsolation(o : soa::Operation) : String = if (o.isRsIdorCtrlEnabled()) then o.nameClassRsDataIsolationUserCodeImpl() 
+  + '.required();' else '' endif/]
   
 [comment écriture de la vérification et de l'affectation des éventuels paramètres de pagination./]
 [query private writeCheckPageParam(o : soa::Operation) : String = if (o.paged) then o.input

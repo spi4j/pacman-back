@@ -19,3 +19,6 @@
 
 [comment vérifie si l'application est sécurisée par un controle IDOR des paramètres/]
 [query public isRsIdorCtrlEnabled(any : ecore::EObject) : Boolean = any.isRsIdorFullCtrlEnabled() or any.isRsIdorLessCtrlEnabled()/]
+
+[comment vérifie si l'application doit auditer les appels rest et/ou les authentifications rest./]
+[query public isRsLogEnabled(any : ecore::EObject) : Boolean = any.get_useRsLog() or any.get_useRsAuthLog()/]

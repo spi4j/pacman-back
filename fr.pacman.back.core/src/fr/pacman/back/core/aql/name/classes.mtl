@@ -83,6 +83,9 @@
   
 [comment retourne le nom pour l'implémentation utilisateur pour le service sso keycloack./]
 [query public nameClassRsSSOUserServiceImpl (any : ecore::EObject) : String = (any.nameProject() + ' sso user' + any.suffixService()).apply_classImplem()/]
+
+[comment retourne le nom pour l'implémentation du filtre d'audit pour l'ensemble des appels rest./]  
+[query public nameClassRsAuditFilterImpl(any : ecore::EObject) : String = (any.nameProject() + '  api log filter').apply_classDefault()/]
   
 [comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
 [query public nameClassRsServiceImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]

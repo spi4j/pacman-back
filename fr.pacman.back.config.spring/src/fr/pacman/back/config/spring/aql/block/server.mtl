@@ -48,6 +48,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <exclusions>
+               <exclusion>
+                 <groupId>org.springframework.boot</groupId>
+                 <artifactId>spring-boot-starter-logging</artifactId>
+               </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -71,7 +77,16 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- On passe par log4j et non par logBack --> 
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
         <!-- batchs asynchrones -->
         <dependency>
@@ -1533,15 +1548,26 @@
   # ----------------------------------------------------------------------------------------------
   # LOGGING
   # ----------------------------------------------------------------------------------------------
+  # Niveau global
   logging.level.root=INFO
+  # Logs Spring Web
   logging.level.org.springframework.web=DEBUG
+  # Logs de l'application
   logging.level.com.example=DEBUG
-  # Format du log
-  logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
-  # Fichier de log
-  logging.file.name=logs/[any.nameProject()/].log
-  logging.file.max-size=10MB
-  logging.file.total-size-cap=100MB
+  [if (any.get_useRsLog())]
+    # Logs d'audit des apis rest
+    logging.level.API_AUDIT=INFO
+    # Logs d'audit des apis rest actif (oui/non)
+    logging.api.audit.enabled=true
+  [/if]
+  [if (any.get_useRsAuthLog())]
+    # Logs d'audit des authentifications
+    logging.level.AUTH_AUDIT=INFO
+    # Logs d'audit des authentifications actif (oui/non)
+    logging.auth.audit.enabled=true
+  [/if]
+  # Routage vers configuration Log4j2
+  logging.config=classpath:log4j2.properties
   
   # ----------------------------------------------------------------------------------------------
   # SPRING PROFILES
@@ -1809,6 +1835,64 @@
     #spring.datasource.username=<nom utilisateur>
     #spring.datasource.password=<mot de passe utilisateur>
     #spring.jpa.database-platform=org.hibernate.dialect.Oracle12cDialect
+  [/if]
+[/template]
+
+[comment écriture des configurations pour les fichiers de log (si besoin audits supplementaires)./]
+[template public log4J2Properties(any : ecore::EObject)]
+  # ============================================================
+  # CONSOLE
+  # ============================================================
+  appender.console.type = Console
+  appender.console.name = Console
+  appender.console.layout.type = PatternLayout
+  appender.console.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
+  
+  # ============================================================
+  # FICHIER APPLICATIF
+  # ============================================================
+  appender.file.type = RollingFile
+  appender.file.name = [any.nameProject()/]File
+  appender.file.fileName = logs/[any.nameProject().toLower()/].log
+  appender.file.filePattern = logs/[any.nameProject().toLower()/]-%i.log.gz
+  appender.file.layout.type = PatternLayout
+  appender.file.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
+  appender.file.policies.type = Policies
+  appender.file.policies.size.type = SizeBasedTriggeringPolicy
+  appender.file.policies.size.size = 10MB
+  appender.file.strategy.type = DefaultRolloverStrategy
+  appender.file.strategy.max = 10
+  
+  # ============================================================
+  # ROOT LOGGER
+  # ============================================================
+  rootLogger.level = INFO
+  rootLogger.appenderRef.console.ref = Console
+  rootLogger.appenderRef.file.ref = [any.nameProject()/]File
+  
+  [if (any.get_useRsLog())]
+    # ============================================================
+    # FICHIER AUDIT
+    # ============================================================
+    appender.audit.type = RollingFile
+    appender.audit.name = AuditApiFile
+    appender.audit.fileName = logs/audit_api.log
+    appender.audit.filePattern = logs/audit_api-%i.log.gz
+    appender.audit.layout.type = PatternLayout
+    appender.audit.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} - %msg%n
+    appender.audit.policies.type = Policies
+    appender.audit.policies.size.type = SizeBasedTriggeringPolicy
+    appender.audit.policies.size.size = 10MB
+    appender.audit.strategy.type = DefaultRolloverStrategy
+    appender.audit.strategy.max = 10
+    
+    # ============================================================
+    # LOGGER AUDIT API REST
+    # ============================================================
+    logger.apiAudit.name = API_AUDIT
+    logger.apiAudit.level = INFO
+    logger.apiAudit.additivity = false
+    logger.apiAudit.appenderRef.audit.ref = AuditApiFile
   [/if]
 [/template]
 
@@ -3863,6 +3947,145 @@
         return [any.prefixAffectation()/]['executions'.apply_attributeFinal()/]
           .get(['execution id'.apply_parameterMethodClassicIn()/]);
     }
+  }
+[/template]
+
+[comment écriture filtre pour logger l'ensemble des appels aux différents services rest./]
+[template public rsAuditFilterImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageApplicationBase())/]
+  [any.defaultImports()/]
+  
+  import org.slf4j.Logger;
+  import org.slf4j.LoggerFactory;
+  import java.io.IOException;
+  import jakarta.servlet.FilterChain;
+  import jakarta.servlet.ServletException;
+  import jakarta.servlet.http.HttpServletRequest;
+  import jakarta.servlet.http.HttpServletResponse;
+  import org.springframework.stereotype.Component;
+  import org.springframework.beans.factory.annotation.Value;
+  import org.springframework.security.core.Authentication;
+  import org.springframework.security.core.context.SecurityContextHolder;
+  import org.springframework.web.filter.OncePerRequestFilter;
+  
+  /**
+  * Filtre HTTP dédié à la journalisation des appels aux API REST.
+  * <p>
+  * Ce filtre intercepte chaque requête HTTP et journalise, après son traitement,
+  * les informations permettant d'assurer la traçabilité de l'appel :
+  * <ul>
+  * <li>la méthode HTTP ;</li>
+  * <li>l'URI appelée ;</li>
+  * <li>l'identité de l'appelant lorsqu'elle est disponible ;</li>
+  * <li>le code HTTP retourné ;</li>
+  * <li>le résultat de l'appel ({@code OK} ou {@code NOK}) ;</li>
+  * <li>la durée d'exécution de la requête.</li>
+  * </ul>
+  * <p>
+  * L'identité de l'appelant est récupérée à partir du contexte de sécurité
+  * Spring ({@link SecurityContextHolder}). Lorsqu'aucune authentification n'est
+  * disponible, l'appelant est identifié comme {@code ANONYMOUS}.
+  * <p>
+  * La journalisation est effectuée au moyen d'un logger Log4j2 dédié
+  * ({@code API_AUDIT}) afin de permettre une séparation entre les traces d'audit
+  * des API REST et les logs techniques de l'application.
+  *
+  * @author [any.nameAuthor()/]
+  */
+  public class [any.nameClassRsAuditFilterImpl()/] extends OncePerRequestFilter {    
+    /**
+     * Logger dédié à la traçabilité des appels des API REST.
+     */
+    private static final Logger ['logger'.apply_attributeFinalStatic()/] = LoggerFactory	.getLogger("API_AUDIT");
+    
+    /**
+     * Indique si la journalisation d'audit des appels aux API REST est activée.
+     * <p>
+     * Lorsque cette propriété est à {@code true}, le filtre journalise les appels
+     * REST dans le fichier d'audit dédié. Lorsqu'elle est à {@code false}, aucun
+     * log d'audit n'est généré.
+     * </p>
+     *
+     * <p>
+     * La valeur est définie par la propriété {@code logging.api.audit.enabled} de
+     * la configuration de l'application.
+     * </p>
+     */
+    @Value("${logging.api.audit.enabled:false}")
+    private boolean ['audit enabled'.apply_attributeDefault()/];
+    
+    /**
+     * Intercepte une requête HTTP, laisse la chaîne de filtres poursuivre son
+     * traitement puis journalise le résultat de l'appel REST.
+     * <p>
+     * La journalisation est effectuée dans un bloc {@code finally} afin que les
+     * informations d'audit soient produites même lorsque le traitement de la
+     * requête provoque une exception.
+     *
+     * @param ['request'.apply_parameterMethodClassicIn()/]     requête HTTP reçue
+     * @param ['response'.apply_parameterMethodClassicIn()/]    réponse HTTP produite par l'application
+     * @param ['filter chain'.apply_parameterMethodClassicIn()/] chaîne de filtres à poursuivre
+     * @throws ServletException en cas d'erreur lors du traitement de la requête
+     * @throws IOException      en cas d'erreur d'entrée/sortie
+     */
+    @Override
+    protected void doFilterInternal(
+            HttpServletRequest ['request'.apply_parameterMethodClassicIn()/],
+            HttpServletResponse ['response'.apply_parameterMethodClassicIn()/],
+            FilterChain ['filter chain'.apply_parameterMethodClassicIn()/]) throws ServletException, IOException {
+            
+        long ['start'.apply_variableDefault()/] = System.currentTimeMillis();
+        
+        try {
+           
+           ['filter chain'.apply_parameterMethodClassicIn()/].doFilter(['request'.apply_parameterMethodClassicIn()/]
+             , ['response'.apply_parameterMethodClassicIn()/]);
+             
+        } finally {
+           
+           if (!['audit enabled'.apply_attributeDefault()/]) return;
+            
+           long ['duration'.apply_variableDefault()/] = System.currentTimeMillis() - ['start'.apply_variableDefault()/];
+           String ['method'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getMethod();
+           String ['uri'.apply_variableDefault()/] = ['request'.apply_parameterMethodClassicIn()/].getRequestURI();
+           int ['status'.apply_variableDefault()/] = ['response'.apply_parameterMethodClassicIn()/].getStatus();
+           String ['login'.apply_variableDefault()/] = ['login'.apply_methodGet()/]();
+           
+           String ['result'.apply_variableDefault()/] = ['status'.apply_variableDefault()/] >= 200 
+               && ['status'.apply_variableDefault()/] < 400
+                  ? "OK"
+                  : "NOK";
+                  
+           ['logger'.apply_attributeFinalStatic()/].info(
+                   "{} | {} | {} | {} | {} | {} ms",
+                   ['method'.apply_variableDefault()/],
+                   ['uri'.apply_variableDefault()/],
+                   ['login'.apply_variableDefault()/],
+                   ['status'.apply_variableDefault()/],
+                   ['result'.apply_variableDefault()/],
+                   ['duration'.apply_variableDefault()/]
+           );
+        }
+     }
+     
+     /**
+      * Récupère l'identifiant du compte actuellement authentifié.
+      *
+      * <p>Lorsque le contexte de sécurité ne contient aucune authentification
+      * valide, la valeur {@code ANONYMOUS} est retournée.</p>
+      *
+      * @return le login de l'utilisateur authentifié, ou {@code ANONYMOUS}
+      *         lorsqu'aucun utilisateur n'est authentifié
+      */
+     private String ['login'.apply_methodGet()/]() {
+             Authentication ['authentication'.apply_variableDefault()/] =
+                  SecurityContextHolder.getContext().getAuthentication();
+             if (['authentication'.apply_variableDefault()/] == null
+                  || !['authentication'.apply_variableDefault()/].isAuthenticated()) {
+              return "ANONYMOUS";
+          }
+          return ['authentication'.apply_variableDefault()/].getName();
+      }
   }
 [/template]
 
