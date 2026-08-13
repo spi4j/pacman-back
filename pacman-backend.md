@@ -17,6 +17,7 @@
 - 09/07/2026 : Ajouts : Contrôle d'isolation des données.
 - 29/07/2026 : Modifications : Contrôle d'isolation des données.
 - 12/08/2026 : Ajouts : Migration Spring Boot 4.
+- 13/08/2026 : Modifications : Logging
 ---
 
 ## 🚀 Introduction
@@ -261,7 +262,7 @@ Exemple avec les trois champs prédéfinis (pour annuler une sélection, sélect
 
 Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Il est possible de cocher la rubrique "*Utilisation librairie SSO ministère*" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées. La rubrique "*Règles de gestion*" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "*REQ\_XXXXXXX*" ou "*REGLE\_GES\_XXXXX*"). 
 
-Enfin la rubrique "*Contrôle d'accès aux ressources*" permet, quant à elle, d'activer le contrôle IDOR pour vérifier la cohérence des paramètres pour l'ensemble des services REST et éviter la modification malveillante des URIS. 
+Les rubriques "*Contrôle d'isolation des données*" permettent, quant à elles, d'activer le contrôle IDOR pour vérifier la cohérence des paramètres pour l'ensemble des services REST et éviter la modification malveillante des URIS. 
 
 ❗ Il est à noter que deux options (dont une seule doit être sélectionnée) sont disponibles car **Pacman** permet deux systèmes pour le contrôle de cohérence des différents paramètres pour les services : 
 
@@ -274,6 +275,8 @@ Enfin la rubrique "*Contrôle d'accès aux ressources*" permet, quant à elle, d
 <div align="center">
   <img src="images/pcm-new-project-4.png" alt="Nouveau projet pacman" width="500">
 </div>
+
+Enfin, il est possible de demander un audit (logs) de l'ensemble des appels pour les différents services rest ainsi que pour les opérations d'authentification. Pour cela se réferer respectivement aux rubriques "*Activation des logs sur appel service*" et "*Activation des logs sur authentification*".
 
 ❗ Bien noter que le contrôle de la saisie est effectué en temps réel et que le bouton "*Finish*" ne sera pas activé tant que la saisie utilisateur n'aura pas passé l'ensemble des contrôles de cohérence. Il est donc important de toujours vérifier le message informatif en haut du formulaire afin de vérifier ce qui manque ou n'est pas conforme au niveau de la saisie.
 
@@ -706,20 +709,130 @@ Elle est utilisée dans le cadre de la modélisation et de la génération autom
 
 #### Logging
 
-La configuration pour les fichiers de log :
+❗ L'application utilise Log4j2 comme système de journalisation et n'utilise donc pas Logback. Par défaut, Spring Boot s'appuie sur Logback via "*spring-boot-starter-logging*". Dans le cadre de la génération de l'application, ce mécanisme est volontairement remplacé par Log4j2, afin de disposer d'une configuration permettant notamment de gérer séparément les journaux applicatifs et les journaux d'audit.
+
+La configuration repose exclusivement sur des fichiers au format "*.properties*" :
+
+- **application.properties** contient les paramètres de journalisation exposés par Spring Boot, notamment les niveaux de log.
+
+- **log4j2.properties** contient la configuration technique de Log4j2 : appenders, fichiers de sortie, formats, rotation et routage des messages.
+
+Par défaut, la configuration pour les fichiers de log dans le fichier "*application.properties*" est donc la suivante :
 
 ```properties
+# Niveau global
 logging.level.root=INFO
+# Logs Spring Web
 logging.level.org.springframework.web=DEBUG
+# Logs de l'application
 logging.level.com.example=DEBUG
+# Routage vers configuration Log4j2
+logging.config=classpath:log4j2.properties
+```
 
-# Format du log
-logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
+Si lors de la création du projet les rubriques concernant les audits pour l'ensemble des appels de service et les authentifications ont été cochées, quatre lignes supplémentaires sont alors présentes : 
 
-# Fichier de log
-logging.file.name=logs/demo.log
-logging.file.max-size=10MB
-logging.file.total-size-cap=100MB
+
+```properties
+# Logs d'audit des apis rest
+logging.level.API_AUDIT=INFO
+# Logs d'audit des apis rest actif (oui/non)
+logging.api.audit.enabled=true
+# Logs d'audit des authentifications
+logging.level.AUTH_AUDIT=INFO
+# Logs d'audit des authentifications actif (oui/non)
+logging.auth.audit.enabled=true
+```
+
+On peut ici constater la présence de deux interrupteurs ("*logging.api.audit.enabled*" et "*logging.auth.audit.enabled*") qui permettent d'activer ou non la journalisation des données sur redémarrage du serveur.
+
+Dans tous les cas, un second fichier est toujours crée afin de compléter la configuration des logs applicatifs puisque cette tâche a été déléguée à log4J2. Il s'agit du fichier "*log4j2.properties*", présent dans le même répertoire. Si toutes les options d'audit ont été cochées, ce fichier se présente alors sous la forme suivante :  
+
+```properties
+# ============================================================
+# CONSOLE
+# ============================================================
+appender.console.type = Console
+appender.console.name = Console
+appender.console.layout.type = PatternLayout
+appender.console.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
+
+# ============================================================
+# FICHIER APPLICATIF
+# ============================================================
+appender.file.type = RollingFile
+appender.file.name = TestFile
+appender.file.fileName = logs/test.log
+appender.file.filePattern = logs/test-%i.log.gz
+appender.file.layout.type = PatternLayout
+appender.file.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n
+appender.file.policies.type = Policies
+appender.file.policies.size.type = SizeBasedTriggeringPolicy
+appender.file.policies.size.size = 10MB
+appender.file.strategy.type = DefaultRolloverStrategy
+appender.file.strategy.max = 10
+
+# ============================================================
+# ROOT LOGGER
+# ============================================================
+rootLogger.level = INFO
+rootLogger.appenderRef.console.ref = Console
+rootLogger.appenderRef.file.ref = TestFile
+
+# ============================================================
+# FICHIER AUDIT
+# ============================================================
+appender.audit.type = RollingFile
+appender.audit.name = ApiAuditFile
+appender.audit.fileName = logs/audit_api.log
+appender.audit.filePattern = logs/audit_api-%i.log.gz
+appender.audit.layout.type = PatternLayout
+appender.audit.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} - %msg%n
+appender.audit.policies.type = Policies
+appender.audit.policies.size.type = SizeBasedTriggeringPolicy
+appender.audit.policies.size.size = 10MB
+appender.audit.strategy.type = DefaultRolloverStrategy
+appender.audit.strategy.max = 10
+
+# ============================================================
+# LOGGER AUDIT API REST
+# ============================================================
+logger.apiAudit.name = API_AUDIT
+logger.apiAudit.level = INFO
+logger.apiAudit.additivity = false
+logger.apiAudit.appenderRef.audit.ref = ApiAuditFile
+```
+
+❗ La journalisation des appels aux API REST est centralisée au sein d'un filtre HTTP unique, appliqué à l'ensemble des requêtes entrantes. Cette approche permet d'éviter d'ajouter du code de journalisation dans chaque contrôleur ou service et garantit une traçabilité homogène de l'ensemble des API. Le filtre récupère automatiquement les informations nécessaires à l'audit, notamment l'URI appelée, la méthode HTTP, l'identité de l'appelant, le code de réponse, le résultat de l'appel et sa durée d'exécution. 
+
+Ainsi, les développeurs n'ont aucune action particulière à effectuer dans leurs contrôleurs pour bénéficier de cette journalisation. Ce filtre "**[Nom de l'application]ApiLogFilter**" est généré au niveau du package de base pour l'ensemble des contrôleurs rest.
+
+A titre indicatif, voici un exemple d'audit pour le service de récupération des personnes (ici très simple car le service n'est pas soumis à authentification) : 
+
+```properties
+2026-08-13 20:23:32 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 212 ms
+2026-08-13 20:23:33 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 9 ms
+2026-08-13 20:23:33 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 15 ms
+2026-08-13 20:23:34 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms
+2026-08-13 20:23:35 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms
+2026-08-13 20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms
+2026-08-13 20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 13 ms
+2026-08-13 20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms
+2026-08-13 20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 13 ms
+2026-08-13 20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms
+2026-08-13 20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms
+2026-08-13 20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms
+2026-08-13 20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms
+2026-08-13 20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 13 ms
+2026-08-13 20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms
+2026-08-13 20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 16 ms
+2026-08-13 20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms
+2026-08-13 20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 15 ms
+2026-08-13 20:23:51 - GET | /api/v1/personnes | anonymousUser | 501 | NOK | 7 ms
+2026-08-13 20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms
+2026-08-13 20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 7 ms
+2026-08-13 20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms
+2026-08-13 20:23:52 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms
 ```
 
 #### Les profils

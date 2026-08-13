@@ -124,6 +124,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>09/07/2026 : Ajouts : Contrôle d'isolation des données.</li>
 <li>29/07/2026 : Modifications : Contrôle d'isolation des données.</li>
 <li>12/08/2026 : Ajouts : Migration Spring Boot 4.</li>
+<li>13/08/2026 : Modifications : Logging</li>
 </ul>
 <hr/>
 <h2 id="introduction">🚀 Introduction</h2>
@@ -328,7 +329,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>❗ Ces champs sont uniquement destinés à la couche de persistance, ils sont donc remontés uniquement au niveau des objets métier pour des éventuels traitements associés à la valeur de ces attributs, mais ne passent jamais la couche métier et ne sont donc jamais transmis au niveau des services REST. Un seul champ fait exception à cette règle, le champ <em>Xuuid</em>.</p>
 <p>➤ <strong>Autre</strong> : </p>
 <p>Il s'agit ici de l'ensemble des autres options qui permettent de prendre les décisions structurantes pour la création du squelette de l'application. Il est possible de cocher la rubrique "<em>Utilisation librairie SSO ministère</em>" qui permet d'ajouter la librairie intermédiaire pour une connexion facilitée avec le réseau du ministère des armées. La rubrique "<em>Règles de gestion</em>" quant à elle, permet de saisir (si besoin) un préfixe pour le nom de l'ensemble des règles qui vont être modélisées (par exemple "<em>REQ_XXXXXXX</em>" ou "<em>REGLE_GES_XXXXX</em>"). </p>
-<p>Enfin la rubrique "<em>Contrôle d'accès aux ressources</em>" permet, quant à elle, d'activer le contrôle IDOR pour vérifier la cohérence des paramètres pour l'ensemble des services REST et éviter la modification malveillante des URIS. </p>
+<p>Les rubriques "<em>Contrôle d'isolation des données</em>" permettent, quant à elles, d'activer le contrôle IDOR pour vérifier la cohérence des paramètres pour l'ensemble des services REST et éviter la modification malveillante des URIS. </p>
 <p>❗ Il est à noter que deux options (dont une seule doit être sélectionnée) sont disponibles car <strong>Pacman</strong> permet deux systèmes pour le contrôle de cohérence des différents paramètres pour les services : </p>
 <ul>
 <li>
@@ -342,6 +343,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <div align="center">
 <img alt="Nouveau projet pacman" src="images/pcm-new-project-4.png" width="500"/>
 </div>
+<p>Enfin, il est possible de demander un audit (logs) de l'ensemble des appels pour les différents services rest ainsi que pour les opérations d'authentification. Pour cela se réferer respectivement aux rubriques "<em>Activation des logs sur appel service</em>" et "<em>Activation des logs sur authentification</em>".</p>
 <p>❗ Bien noter que le contrôle de la saisie est effectué en temps réel et que le bouton "<em>Finish</em>" ne sera pas activé tant que la saisie utilisateur n'aura pas passé l'ensemble des contrôles de cohérence. Il est donc important de toujours vérifier le message informatif en haut du formulaire afin de vérifier ce qui manque ou n'est pas conforme au niveau de la saisie.</p>
 <p>Une fois la validation du formulaire effectuée en cliquant sur le bouton "<em>Finish</em>",  des vues vont être automatiquement activées (si certaines ne le sont pas déjà) au niveau de l'IDE. 
 Il s'agit des vues suivantes : </p>
@@ -649,18 +651,117 @@ Il s'agit des vues suivantes : </p>
 <p>Outre la définition du port et du contexte, une clé symétrique est automatiquement mise à disposition pour la classe de gestion de la sécurité des services REST lors du développement (à supprimer en production). </p>
 <p>Elle est utilisée dans le cadre de la modélisation et de la génération automatique d'une sécurité de type <em>Http</em> ou <em>ApiKey</em>. Grâce à la mise à disposition de cette clé, il n'y a rien à faire (hormis le paramétrage du jeton JWT attendu) pour la mise en place de ce type de sécurité.</p>
 <h4 id="logging">Logging</h4>
-<p>La configuration pour les fichiers de log :</p>
-<div class="codehilite"><pre><span></span><code><span class="na">logging.level.root</span><span class="o">=</span><span class="s">INFO</span>
+<p>❗ L'application utilise Log4j2 comme système de journalisation et n'utilise donc pas Logback. Par défaut, Spring Boot s'appuie sur Logback via "<em>spring-boot-starter-logging</em>". Dans le cadre de la génération de l'application, ce mécanisme est volontairement remplacé par Log4j2, afin de disposer d'une configuration permettant notamment de gérer séparément les journaux applicatifs et les journaux d'audit.</p>
+<p>La configuration repose exclusivement sur des fichiers au format "<em>.properties</em>" :</p>
+<ul>
+<li>
+<p><strong>application.properties</strong> contient les paramètres de journalisation exposés par Spring Boot, notamment les niveaux de log.</p>
+</li>
+<li>
+<p><strong>log4j2.properties</strong> contient la configuration technique de Log4j2 : appenders, fichiers de sortie, formats, rotation et routage des messages.</p>
+</li>
+</ul>
+<p>Par défaut, la configuration pour les fichiers de log dans le fichier "<em>application.properties</em>" est donc la suivante :</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Niveau global</span>
+<span class="na">logging.level.root</span><span class="o">=</span><span class="s">INFO</span>
+<span class="c1"># Logs Spring Web</span>
 <span class="na">logging.level.org.springframework.web</span><span class="o">=</span><span class="s">DEBUG</span>
+<span class="c1"># Logs de l'application</span>
 <span class="na">logging.level.com.example</span><span class="o">=</span><span class="s">DEBUG</span>
+<span class="c1"># Routage vers configuration Log4j2</span>
+<span class="na">logging.config</span><span class="o">=</span><span class="s">classpath:log4j2.properties</span>
+</code></pre></div>
+<p>Si lors de la création du projet les rubriques concernant les audits pour l'ensemble des appels de service et les authentifications ont été cochées, quatre lignes supplémentaires sont alors présentes : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Logs d'audit des apis rest</span>
+<span class="na">logging.level.API_AUDIT</span><span class="o">=</span><span class="s">INFO</span>
+<span class="c1"># Logs d'audit des apis rest actif (oui/non)</span>
+<span class="na">logging.api.audit.enabled</span><span class="o">=</span><span class="s">true</span>
+<span class="c1"># Logs d'audit des authentifications</span>
+<span class="na">logging.level.AUTH_AUDIT</span><span class="o">=</span><span class="s">INFO</span>
+<span class="c1"># Logs d'audit des authentifications actif (oui/non)</span>
+<span class="na">logging.auth.audit.enabled</span><span class="o">=</span><span class="s">true</span>
+</code></pre></div>
+<p>On peut ici constater la présence de deux interrupteurs ("<em>logging.api.audit.enabled</em>" et "<em>logging.auth.audit.enabled</em>") qui permettent d'activer ou non la journalisation des données sur redémarrage du serveur.</p>
+<p>Dans tous les cas, un second fichier est toujours crée afin de compléter la configuration des logs applicatifs puisque cette tâche a été déléguée à log4J2. Il s'agit du fichier "<em>log4j2.properties</em>", présent dans le même répertoire. Si toutes les options d'audit ont été cochées, ce fichier se présente alors sous la forme suivante :  </p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ============================================================</span>
+<span class="c1"># CONSOLE</span>
+<span class="c1"># ============================================================</span>
+<span class="na">appender.console.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Console</span>
+<span class="na">appender.console.name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Console</span>
+<span class="na">appender.console.layout.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">PatternLayout</span>
+<span class="na">appender.console.layout.pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n</span>
 
-<span class="c1"># Format du log</span>
-<span class="na">logging.pattern.console</span><span class="o">=</span><span class="s">%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># FICHIER APPLICATIF</span>
+<span class="c1"># ============================================================</span>
+<span class="na">appender.file.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RollingFile</span>
+<span class="na">appender.file.name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">TestFile</span>
+<span class="na">appender.file.fileName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">logs/test.log</span>
+<span class="na">appender.file.filePattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">logs/test-%i.log.gz</span>
+<span class="na">appender.file.layout.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">PatternLayout</span>
+<span class="na">appender.file.layout.pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n</span>
+<span class="na">appender.file.policies.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Policies</span>
+<span class="na">appender.file.policies.size.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">SizeBasedTriggeringPolicy</span>
+<span class="na">appender.file.policies.size.size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10MB</span>
+<span class="na">appender.file.strategy.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">DefaultRolloverStrategy</span>
+<span class="na">appender.file.strategy.max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
 
-<span class="c1"># Fichier de log</span>
-<span class="na">logging.file.name</span><span class="o">=</span><span class="s">logs/demo.log</span>
-<span class="na">logging.file.max-size</span><span class="o">=</span><span class="s">10MB</span>
-<span class="na">logging.file.total-size-cap</span><span class="o">=</span><span class="s">100MB</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># ROOT LOGGER</span>
+<span class="c1"># ============================================================</span>
+<span class="na">rootLogger.level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">INFO</span>
+<span class="na">rootLogger.appenderRef.console.ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Console</span>
+<span class="na">rootLogger.appenderRef.file.ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">TestFile</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># FICHIER AUDIT</span>
+<span class="c1"># ============================================================</span>
+<span class="na">appender.audit.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">RollingFile</span>
+<span class="na">appender.audit.name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ApiAuditFile</span>
+<span class="na">appender.audit.fileName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">logs/audit_api.log</span>
+<span class="na">appender.audit.filePattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">logs/audit_api-%i.log.gz</span>
+<span class="na">appender.audit.layout.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">PatternLayout</span>
+<span class="na">appender.audit.layout.pattern</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">%d{yyyy-MM-dd HH:mm:ss} - %msg%n</span>
+<span class="na">appender.audit.policies.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">Policies</span>
+<span class="na">appender.audit.policies.size.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">SizeBasedTriggeringPolicy</span>
+<span class="na">appender.audit.policies.size.size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10MB</span>
+<span class="na">appender.audit.strategy.type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">DefaultRolloverStrategy</span>
+<span class="na">appender.audit.strategy.max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">10</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># LOGGER AUDIT API REST</span>
+<span class="c1"># ============================================================</span>
+<span class="na">logger.apiAudit.name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">API_AUDIT</span>
+<span class="na">logger.apiAudit.level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">INFO</span>
+<span class="na">logger.apiAudit.additivity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+<span class="na">logger.apiAudit.appenderRef.audit.ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ApiAuditFile</span>
+</code></pre></div>
+<p>❗ La journalisation des appels aux API REST est centralisée au sein d'un filtre HTTP unique, appliqué à l'ensemble des requêtes entrantes. Cette approche permet d'éviter d'ajouter du code de journalisation dans chaque contrôleur ou service et garantit une traçabilité homogène de l'ensemble des API. Le filtre récupère automatiquement les informations nécessaires à l'audit, notamment l'URI appelée, la méthode HTTP, l'identité de l'appelant, le code de réponse, le résultat de l'appel et sa durée d'exécution. </p>
+<p>Ainsi, les développeurs n'ont aucune action particulière à effectuer dans leurs contrôleurs pour bénéficier de cette journalisation. Ce filtre "<strong>[Nom de l'application]ApiLogFilter</strong>" est généré au niveau du package de base pour l'ensemble des contrôleurs rest.</p>
+<p>A titre indicatif, voici un exemple d'audit pour le service de récupération des personnes (ici très simple car le service n'est pas soumis à authentification) : </p>
+<div class="codehilite"><pre><span></span><code><span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:32 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 212 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:33 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 9 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:33 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 15 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:34 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:35 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 13 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 13 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:49 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 13 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:50 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 16 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 15 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:51 - GET | /api/v1/personnes | anonymousUser | 501 | NOK | 7 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 12 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 7 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:51 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms</span>
+<span class="na">2026-08-13</span><span class="w"> </span><span class="s">20:23:52 - GET | /api/v1/personnes | anonymousUser | 200 | OK | 11 ms</span>
 </code></pre></div>
 <h4 id="les-profils">Les profils</h4>
 <p>Par défaut c'est le profil de développement qui est activé pour Spring :  </p>
