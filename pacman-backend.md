@@ -801,11 +801,34 @@ logger.apiAudit.name = API_AUDIT
 logger.apiAudit.level = INFO
 logger.apiAudit.additivity = false
 logger.apiAudit.appenderRef.audit.ref = ApiAuditFile
+
+# ============================================================
+# FICHIER AUDIT AUTHENTIFICATION
+# ============================================================
+appender.authAudit.type = RollingFile
+appender.authAudit.name = AuditAuthFile
+appender.authAudit.fileName = logs/audit_auth.log
+appender.authAudit.filePattern = logs/audit_auth-%i.log.gz
+appender.authAudit.layout.type = PatternLayout
+appender.authAudit.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} - %msg%n
+appender.authAudit.policies.type = Policies
+appender.authAudit.policies.size.type = SizeBasedTriggeringPolicy
+appender.authAudit.policies.size.size = 10MB
+appender.authAudit.strategy.type = DefaultRolloverStrategy
+appender.authAudit.strategy.max = 10
+    
+# ============================================================
+# LOGGER AUDIT AUTHENTIFICATION
+# ============================================================
+logger.authAudit.name = AUTH_AUDIT
+logger.authAudit.level = INFO
+logger.authAudit.additivity = false
+logger.authAudit.appenderRef.authAudit.ref = AuditAuthFile
 ```
 
-❗ La journalisation des appels aux API REST est centralisée au sein d'un filtre HTTP unique, appliqué à l'ensemble des requêtes entrantes. Cette approche permet d'éviter d'ajouter du code de journalisation dans chaque contrôleur ou service et garantit une traçabilité homogène de l'ensemble des API. Le filtre récupère automatiquement les informations nécessaires à l'audit, notamment l'URI appelée, la méthode HTTP, l'identité de l'appelant, le code de réponse, le résultat de l'appel et sa durée d'exécution. 
+❗ La journalisation des appels aux API REST est centralisée au sein de filtres HTTP, appliqués à l'ensemble des requêtes entrantes. Cette approche permet d'éviter d'ajouter du code de journalisation dans chaque contrôleur ou service et garantit une traçabilité homogène de l'ensemble des API. Les filtres récupèrent automatiquement les informations nécessaires à l'audit, par exemple : l'URI appelée, la méthode HTTP, l'identité de l'appelant, le code de réponse, le résultat de l'appel et sa durée d'exécution. 
 
-Ainsi, les développeurs n'ont aucune action particulière à effectuer dans leurs contrôleurs pour bénéficier de cette journalisation. Ce filtre "**[Nom de l'application]ApiLogFilter**" est généré au niveau du package de base pour l'ensemble des contrôleurs rest.
+Ainsi, les développeurs n'ont aucune action particulière à effectuer dans leurs contrôleurs pour bénéficier de cette journalisation. Ces filtres, respectivement "***[Nom de l'application]ApiServiceFilter***" et "***[Nom de l'application]ApiAuthFilter***" sont générés au niveau du package de base pour l'ensemble des contrôleurs rest.
 
 A titre indicatif, voici un exemple d'audit pour le service de récupération des personnes (ici très simple car le service n'est pas soumis à authentification) : 
 
@@ -6046,6 +6069,89 @@ if (DemoDataIsolationContextHolder.getContext().getPersonneIdFromXto() != idPers
 ```
 
 ❗ Ce code est le même, quelle que soit l'option choisie pour le contrôle des données.
+
+#### Audit des services et de l'authentification
+
+Afin d'assurer la traçabilité des appels aux différents services REST, un mécanisme d'audit transversal est mis en place au niveau de l'application (si les options ont été cochées au niveau de l'onglet "**Autre**" du formulaire de création pour le projet). 
+
+Comme expliqué précédemment au niveau du paragraphe concernant les fichiers de configuration, la journalisation est centralisée dans un filtre HTTP unique, appliqué à l'ensemble des API REST, ceci afin d'éviter de disperser du code d'audit dans chaque contrôleur ou service.
+
+Par défaut, la journalisation d'audit utilise un logger dédié "*API_AUDIT*", séparé des logs techniques de l'application, et est écrite dans un fichier "*audit_api.log*". Son activation est contrôlée par la propriété "*logging.api.audit.enabled*" (fichier "*application.properties*"), permettant d'activer ou de désactiver globalement cette fonctionnalité sans modifier le code des services.
+
+A titre indicatif la partie de code principale de ce filtre est la suivante : 
+
+```java
+@Override
+protected void doFilterInternal(HttpServletRequest request
+        , HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+    long start = System.currentTimeMillis();
+
+    try {
+
+        filterChain.doFilter(request, response);
+
+    } finally {
+
+        if (!auditEnabled) 
+           return;
+
+        long duration = System.currentTimeMillis() - start;
+        String method = request.getMethod();
+        String uri = request.getRequestURI();
+        int status = response.getStatus();
+        String login = getLogin();
+        String result = status >= 200 && status < 400 ? "OK" : "NOK";
+
+        LOGGER.info("{} | {} | {} | {} | {} | {} ms", 
+           method, uri, login, status, result, duration);
+    }
+}
+```
+
+Pour chaque requête, ce filtre enregistre notamment la méthode HTTP, l'URI appelée, l'identité de l'appelant, le code de réponse, le résultat de l'appel (OK ou NOK) ainsi que sa durée d'exécution. L'identité de l'appelant est récupérée directement depuis le SecurityContext de Spring Security : lorsque l'API est protégée par JWT, Spring Security valide automatiquement le jeton et renseigne l'Authentication utilisée par le filtre, sans que celui-ci ait à décoder le JWT lui-même. Le code de récupération de l'identité appelante est le suivant : 
+
+```java
+private String getLogin() {
+   Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+   if (authentication == null || !authentication.isAuthenticated()) {
+      return "ANONYMOUS";
+   }
+   return authentication.getName();
+}
+```
+
+❗ L'application reste stateless, il faut bien comprendre que le jeton JWT n'est pas stocké dans une session côté serveur. À chaque requête, Spring Security extrait automatiquement le jeton Bearer de l'en-tête "*Authorization*", le valide via le "*JwtDecoder*", puis construit l'objet Authentication correspondant et le place temporairement dans le "*SecurityContext*" pour la durée du traitement de la requête. Le filtre d'audit peut ainsi récupérer l'identité de l'appelant via "*"SecurityContextHolder*", sans avoir à décoder ou gérer lui-même le JWT.
+
+Si la demande d'audit pour les authentifications a également été demandée lors de la création du projet, un second filtre est alors généré. Ce filtre d'audit est positionné au niveau du mécanisme d'authentification afin de tracer le résultat de chaque tentative de connexion. Il s'appuie sur les événements générés par Spring Security pour distinguer automatiquement une authentification réussie d'une authentification échouée : 
+- lorsqu'une authentification aboutit, l'événement de succès déclenche l'enregistrement dans le fichier de log du login utilisé ainsi que de la date et de l'heure de connexion.
+
+- lorsqu'elle échoue, l'événement d’échec permet d'enregistrer le login fourni, la date et l'heure ainsi que le motif ou le type d’erreur rencontré. 
+ 
+Le filtre n'a donc pas à déterminer lui-même si le mot de passe est correct : il intervient après le traitement de l'authentification et exploite le résultat communiqué par Spring Security pour produire la trace d'audit correspondante. 
+
+```java
+@EventListener
+public void onAuthenticationSuccess(AuthenticationSuccessEvent event) {
+
+   if (!auditEnabled)
+      return;
+
+   String login = event.getAuthentication().getName();
+   LOGGER.info("OK | login={} ", login);
+}
+
+@EventListener
+public void onAuthenticationFailure(AbstractAuthenticationFailureEvent event) {
+
+   if (!auditEnabled)
+      return;
+
+   String login = event.getAuthentication().getName();
+   String error = event.getException().getClass().getSimpleName();
+   LOGGER.info("NOK | login={} | erreur={}", login, error);
+}
+```
 
 ### ✔️ Validation de la modélisation
 ---
