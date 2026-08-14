@@ -1894,6 +1894,30 @@
     logger.apiAudit.additivity = false
     logger.apiAudit.appenderRef.audit.ref = AuditApiFile
   [/if]
+  
+  [if (any.get_useRsAuthLog())]
+    # ============================================================
+    # FICHIER AUDIT AUTHENTIFICATION
+    # ============================================================
+    appender.authAudit.type = RollingFile
+    appender.authAudit.name = AuditAuthFile
+    appender.authAudit.fileName = logs/audit_auth.log
+    appender.authAudit.filePattern = logs/audit_auth-%i.log.gz
+    appender.authAudit.layout.type = PatternLayout
+    appender.authAudit.layout.pattern = %d{yyyy-MM-dd HH:mm:ss} - %msg%n
+    appender.authAudit.policies.type = Policies
+    appender.authAudit.policies.size.type = SizeBasedTriggeringPolicy
+    appender.authAudit.policies.size.size = 10MB
+    appender.authAudit.strategy.type = DefaultRolloverStrategy
+    appender.authAudit.strategy.max = 10    
+    # ============================================================
+    # LOGGER AUDIT AUTHENTIFICATION
+    # ============================================================
+    logger.authAudit.name = AUTH_AUDIT
+    logger.authAudit.level = INFO
+    logger.authAudit.additivity = false
+    logger.authAudit.appenderRef.authAudit.ref = AuditAuthFile
+  [/if]
 [/template]
 
 [comment écriture de l'ensemble des informations de configuration pour les tests d'intégration./]
@@ -3997,7 +4021,7 @@
     /**
      * Logger dédié à la traçabilité des appels des API REST.
      */
-    private static final Logger ['logger'.apply_attributeFinalStatic()/] = LoggerFactory	.getLogger("API_AUDIT");
+    private static final Logger ['logger'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger("API_AUDIT");
     
     /**
      * Indique si la journalisation d'audit des appels aux API REST est activée.
@@ -4011,6 +4035,8 @@
      * La valeur est définie par la propriété {@code logging.api.audit.enabled} de
      * la configuration de l'application.
      * </p>
+     *
+     * @author [any.nameAuthor()/]
      */
     @Value("${logging.api.audit.enabled:false}")
     private boolean ['audit enabled'.apply_attributeDefault()/];
@@ -4087,6 +4113,81 @@
           }
           return ['authentication'.apply_variableDefault()/].getName();
       }
+  }
+[/template]
+
+[comment écriture filtre pour logger l'ensemble des authentifications rest./]
+[template public rsAuditAuthFilterImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageApplicationBase())/]
+  [any.defaultImports()/]
+  
+  import org.slf4j.Logger;
+  import org.slf4j.LoggerFactory;
+  import org.springframework.beans.factory.annotation.Value;
+  import org.springframework.context.event.EventListener;
+  import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
+  import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+  import org.springframework.stereotype.Component;
+
+  /**
+   * Écoute les événements d'authentification générés par Spring Security afin
+   * d'assurer la traçabilité des tentatives de connexion.
+   * <p>
+   * Les authentifications réussies et échouées sont journalisées dans un logger
+   * dédié {@code AUTH_AUDIT}, indépendant des logs techniques de l'application.
+   * </p>
+   * <p>
+   * La journalisation peut être activée ou désactivée globalement au moyen de la
+   * propriété {@code logging.auth.audit.enabled}.
+   * </p>
+   */
+  @Component
+  public class [any.nameClassRsAuditAuthFilterImpl()/] {
+  
+    /**
+    * Logger dédié à l'audit des authentifications.
+    */
+    private static final Logger ['logger'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger("AUTH_AUDIT");
+    
+    /**
+    * Indique si l'audit des authentifications est activé.
+    */
+    @Value("${logging.auth.audit.enabled:false}")
+    private boolean ['audit enabled'.apply_attributeDefault()/];
+    
+    /**
+    * Journalise une authentification réussie.
+    *
+    * @param ['event'.apply_parameterMethodClassicIn()/] événement d'authentification réussie
+    */
+    @EventListener
+    public void ['on authentication success'.apply_methodDefault()/]
+       (AuthenticationSuccessEvent ['event'.apply_parameterMethodClassicIn()/]) {
+      
+      if (!['audit enabled'.apply_attributeDefault()/])
+         return;
+         
+       String ['login'.apply_variableDefault()/] = ['event'.apply_parameterMethodClassicIn()/].getAuthentication().getName();
+       ['logger'.apply_attributeFinalStatic()/].info("OK | login={} ", ['login'.apply_variableDefault()/]);
+    }
+    
+    /**
+    * Journalise une authentification échouée.
+    *
+    * @param ['event'.apply_parameterMethodClassicIn()/] événement d'échec d'authentification
+    */
+    @EventListener
+    public void ['on authentication failure'.apply_methodDefault()/]
+       (AbstractAuthenticationFailureEvent ['event'.apply_parameterMethodClassicIn()/]) {
+       
+       if (!['audit enabled'.apply_attributeDefault()/]) 
+          return;
+          
+       String ['login'.apply_variableDefault()/] = ['event'.apply_parameterMethodClassicIn()/].getAuthentication().getName();
+       String ['error'.apply_variableDefault()/] = ['event'.apply_parameterMethodClassicIn()/].getException().getClass().getSimpleName();
+       ['logger'.apply_attributeFinalStatic()/].info("NOK | login={} | erreur={}", ['login'.apply_variableDefault()/]
+         , ['error'.apply_variableDefault()/]);
+    }
   }
 [/template]
 

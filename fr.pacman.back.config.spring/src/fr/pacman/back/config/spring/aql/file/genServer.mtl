@@ -281,3 +281,10 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation classe d'audit (log) pour l'ensemble des authentifications rest./]
+[template public fileRsAuditFilterAuthImpl(any : ecore::EObject)]
+  [file (any.nameClassRsAuditAuthFilterImpl().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsAuditAuthFilterImpl()/]
+  [/file]
+[/template]
+

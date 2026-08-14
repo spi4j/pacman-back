@@ -104,9 +104,15 @@
   [/if]
   
   [comment gestion multilogs si besoin (audit des appels rest et des authentifications)./]
-  [if (r.get_useRsLog())]
-    [comment écriture du filtre d'audit pour logger l'ensemble des appels rest./]
-    [r.fileRsAuditFilterImpl()/]
+  [if (r.isRsLogEnabled())]
+    [if (r.get_useRsLog())]
+      [comment écriture du filtre d'audit pour logger l'ensemble des appels rest./]
+      [r.fileRsAuditFilterImpl()/]
+    [/if]
+    [if (r.get_useRsAuthLog())]
+      [comment écriture du filtre d'audit pour logger l'ensemble des authentifications rest./]
+      [r.fileRsAuditFilterAuthImpl()/]
+    [/if]
   [/if]
 [/template]
 
