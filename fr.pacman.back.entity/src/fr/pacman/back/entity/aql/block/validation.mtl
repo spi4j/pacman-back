@@ -7,12 +7,18 @@
 [import fr::pacman::back::core::aql::query::reference/]
 [import fr::pacman::back::core::aql::query::entity/]
 [import fr::pacman::back::core::aql::validation::common/]
+[import fr::pacman::back::core::aql::validation::validate/]
 [import fr::pacman::back::core::validation::PacmanValidatorsReport/]
+
 [import fr::pacman::back::core::service::AnnotationUtils/]
 				
 [comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
 [comment ATTENTION pour l'instant recopier la totalité au niveau de la validation pour sql./]
 [template public validation (r : entity::Root)]
+  
+  [comment on fait déjà une passe pour les mots-clés java./]
+  [r.validateJKW()/]
+  
   [let es = r.subTypesEntities()]
     [for (e | es)]
       [comment pas d'entité vide./]

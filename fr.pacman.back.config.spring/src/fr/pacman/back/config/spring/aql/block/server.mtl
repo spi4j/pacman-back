@@ -180,7 +180,7 @@
              <artifactId>ojdbc8</artifactId>
     	  </dependency>
     	[/if]
-    	[if (any.isRsSSOAuthEnabled())]
+    	[if (any.is_rsSSOAuthEnabled())]
     	  <!-- Utilisation librairie SSO pour Authentification -->
     	  <dependency>
     	     <groupId>fr.dga</groupId>
@@ -1513,7 +1513,7 @@
   springdoc.swagger-ui.oauth.use-pkce=true
   
   [comment si pas librairie BFF SSO alors c'est ici que l'on traite les points d'accès publiques./]
-  [if (not any.isRsSSOAuthEnabled())]
+  [if (not any.is_rsSSOAuthEnabled())]
     # ----------------------------------------------------------------------------------------------
     # LISTE DES URIS NON SECURISEES
     # ----------------------------------------------------------------------------------------------
@@ -1522,7 +1522,7 @@
   [/if]
   
   [comment si pas librairie BFF SSO alors c'est ici que l'on traite la récupération des sercrets./]
-  [if (not any.isRsSSOAuthEnabled())]
+  [if (not any.is_rsSSOAuthEnabled())]
     # ----------------------------------------------------------------------------------------------
     # SERVEUR AUTHENTIFICATION (SSO)
     # ----------------------------------------------------------------------------------------------
@@ -1540,7 +1540,7 @@
   server.servlet.encoding.charset=UTF-8
   server.servlet.encoding.force=true
   [comment uniquement si la librairie SSO n'est pas activée./]
-  [if (not any.isRsSSOAuthEnabled())]
+  [if (not any.is_rsSSOAuthEnabled())]
     # Un exemple de cle symetrique (pour le developpement uniquement).
     security.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
   [/if]
@@ -1639,7 +1639,7 @@
   spring.cloud.vault.kv.backend=secret
   # Nom utilisé pour accéder au chemin dans Vault (ex. secret/data/myapp).
   spring.cloud.vault.kv.application-name=[any.nameProject().toLower()/]
-  [if (any.isRsSSOAuthEnabled())]
+  [if (any.is_rsSSOAuthEnabled())]
     
     # ----------------------------------------------------------------------------------------------
     # SSO - SERVEURS - URLS (Toujours sans "/" à la fin).

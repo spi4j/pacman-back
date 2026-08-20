@@ -82,7 +82,7 @@
   [/if]
   
   [comment écriture de la couche de sécurite (si librairie sso non cochée)./]
-  [if (not r.isRsSSOAuthEnabled())]
+  [if (not r.is_rsSSOAuthEnabled())]
     [comment écriture de l'exception pour une erreur d'authentification./]
     [r.fileRsAuthenticationExceptionImpl()/]
     [comment écriture de la classe d'exception pour une erreur d'authentification (rest)./]

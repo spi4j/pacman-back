@@ -24,7 +24,7 @@
     [m.fileInIntegrationTestsConfigImpl()/]
     
     [comment implémentation de la configuration pour la sécurité rest./]
-    [if (m.isRsSecured() and not m.isRsSSOAuthEnabled())]
+    [if (m.isRsSecured() and not m.is_rsSSOAuthEnabled())]
       [comment écrase et remplace le fichier généré par défaut./]
       [m.fileRsSecurityConfigImpl()/]
       [comment implémentation du service de création du jeton jwt./]
@@ -34,7 +34,7 @@
     [/if]
     
     [comment implémentation de la configuration pour la sécurité rest./]
-    [if (m.isRsSecured() and m.isRsSSOAuthEnabled())]
+    [if (m.isRsSecured() and m.is_rsSSOAuthEnabled())]
       [comment écriture de la partie dynamique pour configuration sso (keycloack)./]
       [m.fileApplicationSSOProperties()/]
     [/if]

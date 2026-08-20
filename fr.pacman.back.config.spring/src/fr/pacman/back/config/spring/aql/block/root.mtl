@@ -231,7 +231,7 @@
               <scope>runtime</scope>
             </dependency>
           [/if]
-          [if (any.isRsSSOAuthEnabled())]
+          [if (any.is_rsSSOAuthEnabled())]
             <!-- Utilisation librairie SSO -->
             <dependency>
               <groupId>fr.dga</groupId>

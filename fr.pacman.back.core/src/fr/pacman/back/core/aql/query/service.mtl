@@ -52,10 +52,10 @@
   and s.synchronization = soa::SynchronizationKind::asynchronous/]
 
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]  
-[query public rsUri(s : soa::Service) : String = if (s.isRsSSOAuthEnabled()) then s.rsUriMinArm() else s.rsUriStandard() endif /]
+[query public rsUri(s : soa::Service) : String = if (s.is_rsSSOAuthEnabled()) then s.rsUriMinArm() else s.rsUriStandard() endif /]
   
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]  
-[query public rsUri(m : soa::System) : String = if (m.isRsSSOAuthEnabled()) then m.rsUriMinArm() else m.rsUriStandard() endif /]
+[query public rsUri(m : soa::System) : String = if (m.is_rsSSOAuthEnabled()) then m.rsUriMinArm() else m.rsUriStandard() endif /]
 
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
 [query private rsUriStandard(s : soa::Service) : String = if (s.isRsService()) then let c = s.eContainer().oclAsType(soa::Component) 

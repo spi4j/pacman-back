@@ -51,6 +51,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_project_type = "project.type";
 	public static final String c_project_rs_log = "project.rs.log.enabled";
 	public static final String c_project_rs_auth_log = "project.rs.auth.log.enabled";
+	public static final String c_project_validation_jkw = "project.validation.jkw.enabled";
 
 	// public static final String c_sql_idsuffix = "sql.id.suffix.enabled";
 	public static final String c_sql_fields = "sql.table.fields";
@@ -169,6 +170,9 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_sql_fields, c_noDefaultValue,
 						"Champs additionnels pour les tables de l'application"),
+
+				PacmanProperty.newRequired(c_project_validation_jkw, "true",
+						"Interdiction des mots-clés java dans la modélisation"),
 
 //				PacmanProperty.newRequired(c_is_debug, "false",
 //						"Flag indiquant si le mode debug pour PacMan est actif (plus d'informations en cas d'erreur de generation)"),
@@ -580,7 +584,7 @@ public final class ProjectProperties extends PropertiesCategory {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_is_wsHk2));
 	}
 
-	public static String get_wsSecuritySchemeId() {
+	public static String getWsSecuritySchemeId() {
 		return PropertiesHandler.getProperty(c_ws_security_scheme_id);
 	}
 
@@ -640,7 +644,7 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_sql_tableSchema);
 	}
 
-	public static String use_fetchingStrategy() {
+	public static String useFetchingStrategy() {
 		return PropertiesHandler.getProperty(c_project_fetchingStrategy);
 	}
 
@@ -736,12 +740,16 @@ public final class ProjectProperties extends PropertiesCategory {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_profiler));
 	}
 
-	public static boolean isRsSSOAuthEnabled(final Object p_object) {
+	public static boolean is_rsSSOAuthEnabled(final Object p_object) {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_sso_auth));
 	}
 
 	public static String get_rsIDORControl(final Object p_object) {
 		return PropertiesHandler.getProperty(c_project_idor_control);
+	}
+
+	public static boolean is_validJKWEnabled(final Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_validation_jkw));
 	}
 
 	public static String get_XtoSupKey(final Object p_object) {

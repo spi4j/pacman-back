@@ -40,3 +40,13 @@
 [comment écriture du nom de l'attrbut pour le rapport (a améliorer)./]
 [query public nameAttribute(a : environment::Attribute) : String =  a.eContainer().oclAsType(environment::StructuredType).name 
   + '.' + a.name /]
+  
+[comment vérifie si le nom d'un élement correspond à un mot-clé java./]
+[query public isJavaKeyword(s : String) : Boolean =
+    s.toLower()
+      .matches('abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|'
+              + 'default|do|double|else|enum|extends|final|finally|float|for|goto|if|'
+              + 'implements|import|instanceof|int|interface|long|native|new|null|package|'
+              + 'private|protected|public|return|short|static|strictfp|super|switch|'
+              + 'synchronized|this|throw|throws|transient|try|void|volatile|while')
+/]

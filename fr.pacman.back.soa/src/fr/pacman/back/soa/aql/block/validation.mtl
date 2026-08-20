@@ -13,6 +13,7 @@
 [import fr::pacman::back::core::aql::query::property/]
 [import fr::pacman::back::core::aql::query::dto/]
 [import fr::pacman::back::core::aql::validation::common/]
+[import fr::pacman::back::core::aql::validation::validate/]
 [import fr::pacman::back::core::validation::PacmanValidatorsReport/]
 [import fr::pacman::back::core::property::project::ProjectProperties/]
 [import fr::pacman::back::core::service::AnnotationUtils/]
@@ -21,7 +22,12 @@
 [comment écriture du rapport de validation pour un fichier de modélisation (soa)./]
 [comment pour les dtos on est pas relié directement à la base de données, doit on être plus souple sur les références ?/]
 [template public validation (m : soa::System)]
+  
+  [comment on fait déjà une passe pour les mots-clés java./]
+  [m.validateJKW()/]
+  
   [for (d | m.eAllContents(environment::DTO))]
+      
     [comment pas de dto vide./]
     [if (d.attributesNoPK()->isEmpty())][d.add(d.err1())/][/if]
       
@@ -50,8 +56,10 @@
   
   [let dtss = m.superTypesDtos()]
   [for (s | m.regularServices())]
+      
     [if (s.ownedInterface <> null)]
       [for (o | s.ownedInterface.ownedOperations)]
+        
       [comment pas de service mappé sur une entité./]
       [if (not o.output->select(o1 | o1.type.oclIsKindOf(entity::Entity))->isEmpty())][o.add(s.err7(o))/][/if]
         
@@ -181,7 +189,7 @@
         [if (s.flows->size() <> 1)][s.add(s.err35())/][/if]
       [/if]
       [comment pas librairie sso si pas oidc./]
-      [if (m.isRsSSOAuthEnabled() 
+      [if (m.is_rsSSOAuthEnabled() 
         and s.type <> soa::SecuritySchemeType::OPEN_ID_CONNECT)]
         [s.add(s.err27())/]
       [/if]
