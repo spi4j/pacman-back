@@ -6193,6 +6193,17 @@ Comme indiqué, ce message signifie que la représentation n'existe pas (elle n'
 
 • Il est aussi possible de lancer directement la vérification du modèle qui se soldera obligatoirement par l'affichage d'une fenêtre indiquant soit la présence d'erreur(s) de modélisation, soit la bonne prise en compte du modèle.
 
+❗ Il est à noter que, par défaut, la validation vérifie systématiquement la présence d'éventuels mots-clés Java susceptibles de perturber la génération du code. Lorsqu'un tel cas est détecté, une erreur de validation est systématiquement signalée.
+
+Toutefois, il peut arriver que le développeur ne maîtrise pas entièrement la modélisation, notamment lors de l'intégration d'une API externe à partir de l'import d’un fichier Swagger. Par exemple, un mot-clé Java peut être utilisé comme valeur d'une énumération alors qu'il est impossible de modifier le modèle, car la valeur explicite du littéral est attendue par l'API externe.
+
+Dans ce cas, il est toujours possible de désactiver la validation des mots-clés Java en positionnant la propriété "*project.validation.jkw.enabled*" à "*false*", propriété présente dans le fichier de configuration "*project.properties*".
+
+```properties
+# Interdiction des mots-clés java dans la modélisation
+project.validation.jkw.enabled = false
+```
+
 ### 📦 Déploiement de l'application
 
 Pour déployer l'application, ouvrir une fenêtre de commande (cmd ou power shell, etc...) et se positionner à la racine du projet (un **dir** (ou **ls-al**) doit renvoyer l'ensemble des sous-projets). 

@@ -5243,6 +5243,12 @@ Au niveau de l'implémentation pour la récupération du document, on peut remar
 </div>
 <p>Comme indiqué, ce message signifie que la représentation n'existe pas (elle n'a pas encore été créée). Il est donc nécessaire pour l'utilisateur de créer manuellement ladite représentation, puis de sélectionner à nouveau la ligne incriminée. La représentation sera alors automatiquement chargée et l'élément du diagramme sera sélectionné. </p>
 <p>• Il est aussi possible de lancer directement la vérification du modèle qui se soldera obligatoirement par l'affichage d'une fenêtre indiquant soit la présence d'erreur(s) de modélisation, soit la bonne prise en compte du modèle.</p>
+<p>❗ Il est à noter que, par défaut, la validation vérifie systématiquement la présence d'éventuels mots-clés Java susceptibles de perturber la génération du code. Lorsqu'un tel cas est détecté, une erreur de validation est systématiquement signalée.</p>
+<p>Toutefois, il peut arriver que le développeur ne maîtrise pas entièrement la modélisation, notamment lors de l'intégration d'une API externe à partir de l'import d’un fichier Swagger. Par exemple, un mot-clé Java peut être utilisé comme valeur d'une énumération alors qu'il est impossible de modifier le modèle, car la valeur explicite du littéral est attendue par l'API externe.</p>
+<p>Dans ce cas, il est toujours possible de désactiver la validation des mots-clés Java en positionnant la propriété "<em>project.validation.jkw.enabled</em>" à "<em>false</em>", propriété présente dans le fichier de configuration "<em>project.properties</em>".</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Interdiction des mots-clés java dans la modélisation</span>
+<span class="na">project.validation.jkw.enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+</code></pre></div>
 <h3 id="deploiement-de-lapplication">📦 Déploiement de l'application</h3>
 <p>Pour déployer l'application, ouvrir une fenêtre de commande (cmd ou power shell, etc...) et se positionner à la racine du projet (un <strong>dir</strong> (ou <strong>ls-al</strong>) doit renvoyer l'ensemble des sous-projets). </p>
 <div class="codehilite"><pre><span></span><code><span class="m">07</span>/11/2025<span class="w">  </span><span class="m">15</span>:00<span class="w">    </span>&lt;DIR&gt;<span class="w">          </span>.
