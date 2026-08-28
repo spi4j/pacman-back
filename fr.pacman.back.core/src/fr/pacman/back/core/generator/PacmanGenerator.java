@@ -408,9 +408,9 @@ public abstract class PacmanGenerator {
 	protected IQualifiedNameResolver createResolver() {
 		if (EMFPlugin.IS_OSGI_RUNNING) {
 			final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-			return new OSGiQualifiedNameResolver(bundle, AcceleoParser.QUALIFIER_SEPARATOR);
+			return new OSGiQualifiedNameResolver(bundle, EPackage.Registry.INSTANCE, AcceleoParser.QUALIFIER_SEPARATOR);
 		} else {
-			return new ClassLoaderQualifiedNameResolver(this.getClass().getClassLoader(),
+			return new ClassLoaderQualifiedNameResolver(this.getClass().getClassLoader(), EPackage.Registry.INSTANCE,
 					AcceleoParser.QUALIFIER_SEPARATOR);
 		}
 	}

@@ -12,8 +12,6 @@
       <import plugin="org.eclipse.emf.ecore"/>
       <import plugin="org.eclipse.emf.ecore.xmi"/>
       <import plugin="org.eclipse.ocl.ecore"/>
-      <import plugin="org.eclipse.acceleo.model"/>
-      <import plugin="org.eclipse.acceleo.engine"/>
       <import plugin="org.obeonetwork.dsl.overview"/>
       <import plugin="org.obeonetwork.dsl.entity"/>
       <import plugin="org.obeonetwork.dsl.soa"/>

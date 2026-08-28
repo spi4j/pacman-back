@@ -5,7 +5,7 @@ Bundle-Name: Pacman Back - Tests
 Bundle-SymbolicName: fr.pacman.back.test
 Bundle-Version: 5.0.0.qualifier
 Bundle-Vendor: Cali
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Eclipse-LazyStart: true
 Require-Bundle: org.junit,

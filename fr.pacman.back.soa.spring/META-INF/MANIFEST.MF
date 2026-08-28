@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  fr.pacman.back.core,
  org.eclipse.acceleo.aql,
  org.eclipse.acceleo.query
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: fr.pacman.back.soa.spring.aql.file,
  fr.pacman.back.soa.spring.aql.block

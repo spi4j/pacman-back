@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
  fr.pacman.back.core.ui,
  fr.pacman.back.start, 
  fr.pacman.back.config 
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.sirius.business.api.dialect,
  org.eclipse.sirius.business.api.session,

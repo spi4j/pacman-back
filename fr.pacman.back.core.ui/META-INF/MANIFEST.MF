@@ -21,11 +21,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.obeonetwork.dsl.environment,
  org.obeonetwork.dsl.entity,
  org.obeonetwork.dsl.soa,
- org.eclipse.acceleo.engine,
  org.eclipse.acceleo.query,
  org.eclipse.acceleo.aql, 
  fr.pacman.back.core
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
 Export-Package: fr.pacman.back.core.ui.generator,
  fr.pacman.back.core.ui.plugin.activator,
