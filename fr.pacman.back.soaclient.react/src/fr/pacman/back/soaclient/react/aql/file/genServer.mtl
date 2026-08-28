@@ -6,6 +6,7 @@
 [import fr::pacman::back::core::aql::name::directories/]	
 [import fr::pacman::back::core::aql::output::resources/]
 [import fr::pacman::back::soaclient::react::aql::block::xto/]
+[import fr::pacman::back::soaclient::react::aql::block::enumeration/]
 [import fr::pacman::back::soaclient::react::aql::block::service/]
 [import fr::pacman::back::core::aql::name::javascript/]
 
@@ -14,6 +15,13 @@
   , dss : Sequence(environment::DTO))]
   [file (d.nameClassXtoImpl().toFileTs(d.nameDirModels()), overwrite, d.defaultFileEncoding())]
     [d.xtoImpl(ds, dss)/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation pour les énumérations./]
+[template public fileEnumImpl(e : environment::Enumeration)]
+  [file (e.nameClassEnumeration().toFileTs(e.nameDirModels()), overwrite, e.defaultFileEncoding())]
+    [e.enumerationImpl()/]
   [/file]
 [/template]
 

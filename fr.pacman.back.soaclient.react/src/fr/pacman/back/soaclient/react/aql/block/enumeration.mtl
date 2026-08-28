@@ -1,0 +1,14 @@
+[module enumeration( 'http://www.obeonetwork.org/dsl/environment/3.0.0')/]
+
+[import fr::pacman::back::core::aql::name::classes/]
+[import fr::pacman::back::core::aql::name::eobjects/]
+
+[comment écriture du corps pour une énumération./]
+[template public enumerationImpl(e : environment::Enumeration)]
+  
+  export enum [e.nameClassEnumeration()/] {
+    [for (l | e.literals)]
+      [if (l <> null and l.name().trim().size() > 0)][l.name()/][if (l <> e.literals->last())],[/if][/if]
+    [/for]
+  }
+[/template]

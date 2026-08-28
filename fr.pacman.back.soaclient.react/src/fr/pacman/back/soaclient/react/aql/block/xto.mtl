@@ -33,7 +33,17 @@
     
     [comment liste des imports./]
     [for (r : environment::Reference | rs)]
-      import { [r.referencedDto(d).nameClassXtoImpl()/] } from "./[r.referencedDto(d).nameClassXtoImpl()/]";
+      [if (r.referencedDto(d) <> d)]
+        import { [r.referencedDto(d).nameClassXtoImpl()/] } from "./[r.referencedDto(d).nameClassXtoImpl()/]";
+      [/if]
+    [/for]
+    
+    [comment liste des imports pour les énumérations/]
+    [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
+      [if (a.type.oclIsKindOf(environment::Enumeration))]
+        [let e = a.type.oclAsType(environment::Enumeration)]
+          import { [e.nameClassEnumeration()/] } from "./[e.nameClassEnumeration()/]";[/let]
+      [/if]
     [/for]
     
     [comment écriture de l'objet métier./]
@@ -44,7 +54,7 @@
       
       [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
         [a.description.commentSingleLine()/]
-        [a.nameAttribute()/][if (not a.isMandatory())]?[/if]: [a.type().toJSType()/];
+        [a.nameAttribute()/][if (not a.isMandatory())]?[/if]: [a.type().toJSList().toJSType()/];
         
       [/for]
       [comment si la référence est une référence inverse on "applati" le dto avec un simple identifiant./]

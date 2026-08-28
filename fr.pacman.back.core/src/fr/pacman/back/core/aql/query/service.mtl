@@ -59,19 +59,20 @@
 
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
 [query private rsUriStandard(s : soa::Service) : String = if (s.isRsService()) then let c = s.eContainer().oclAsType(soa::Component) 
-  in ('/' + c.URI +  '/' + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 'v'  + c.apiVersion.substring(1,1) 
-  else '' endif  + '/' + s.URI).toUri() else s.cNoModelisation() endif/]
+  in ('/' + c.URI +  '/' + s.cUriVersionPlaceholder() + '/' + s.URI).toUri().rsUriVersion(c) else s.cNoModelisation() endif/]
   
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
 [query private rsUriStandard (m : soa::System) : String =  if (m.eAllContents(soa::Component)->size() = 1) then '/' + 
-  let c = m.eAllContents(soa::Component)->first() in  c.URI + '/' + (if (c.apiVersion.exists()) then 'v' 
-  + c.apiVersion.substring(1,1) else '' endif).toUri() else m.cNoModelisation() endif/]
+  let c = m.eAllContents(soa::Component)->first() in  (c.URI + '/' + m.cUriVersionPlaceholder()).toUri().rsUriVersion(c) 
+  else m.cNoModelisation() endif/]
  
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
 [query private rsUriMinArm(s : soa::Service) : String = if (s.isRsService()) then let c = s.eContainer().oclAsType(soa::Component) 
-  in  ('/' + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then 'v'  + c.apiVersion.substring(1,1) 
-  else '' endif + '/' + c.URI + '/' + s.URI).toUri() else s.cNoModelisation() endif/]  
+  in  ('/' + s.cUriVersionPlaceholder() + '/' + c.URI + '/' + s.URI).toUri().rsUriVersion(c) else s.cNoModelisation() endif/]  
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]
-[query private rsUriMinArm (m : soa::System) : String =  if (m.eAllContents(soa::Component)->size() = 1) then '/' + 
- let c = m.eAllContents(soa::Component)->first() in (if (c.apiVersion.exists()) then 'v' + c.apiVersion.substring(1,1) 
- else '' endif + '/' + c.URI).toUri() else m.cNoModelisation() endif/]
+[query private rsUriMinArm (m : soa::System) : String =  if (m.eAllContents(soa::Component)->size() = 1) then '/' + m.cUriVersionPlaceholder() 
+ + let c = m.eAllContents(soa::Component)->first() in ( + '/' + c.URI).toUri().rsUriVersion(c) else m.cNoModelisation() endif/]
+
+[comment en dernier, remplace le placeholder par la version (permet ainsi que la version ne soit pas traitée par toUri())./]
+[query private rsUriVersion(s : String, c : soa::Component) : String  = if (c.apiVersion.exists())  then s.replace(c.cUriVersionPlaceholder(), 
+  c.apiVersion) else s.replace('/' + c.cUriVersionPlaceholder(), '') endif/]

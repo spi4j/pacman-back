@@ -112,10 +112,8 @@
 [query private writeRsInputsUri(o : soa::Operation, s : soa::Service) : String = if (o.hasInputs()) then
   let queryParams : Sequence(soa::Parameter) = o.input->select(p | p.isRsQueryParam()) in
   let bodyParams  : Sequence(soa::Parameter) = o.input->select(p | p.isRsBodyParam()) in
-  if (not queryParams->isEmpty()) then ', { params: {' + queryParams->collect(qp | qp.restData.restId 
-  + ': ' + qp.name().apply_parameterMethodClassicIn())->sep(',') + ' }}' else '' endif + if (not s.isS3Service() 
-  and not bodyParams->isEmpty()) then ', ' + bodyParams->first().name.apply_parameterMethodClassicIn() 
-  else '' endif else '' endif /]
+  if (not s.isS3Service() and not bodyParams->isEmpty()) then ', ' + bodyParams->first().name.apply_parameterMethodClassicIn()   else '' endif + if (not queryParams->isEmpty()) then ', { params: {' + queryParams->collect(qp | qp.restData.restId 
+  + ': ' + qp.name().apply_parameterMethodClassicIn())->sep(',') + ' }}' else '' endif  else '' endif /]
   
 [comment 	écriture de la liste des paramètres en entrée (si existent) pour une opération de type rest. 
 			Pour l'instant permière version on le jeton n'est pas passé en paramètre, il doit être mis au 
@@ -141,10 +139,8 @@
 			la désencapsulation des données et placer les métadonnées au niveau de l'en-tête. A faire aussi dans le cas du 
 			client React. Pour les paramètres passés dans le path ils sont traités différement avec o.URI.toJSUri()).toUri(), 
 			ensuite on traite les autres types de passage avec o.writeRsInputsUri/]
-[query public writeOperationUri( o : soa::Operation, s : soa::Service) : String =  o.verb.toString().toLower() 
-  + '(`' +  ( + if (s.eContainer().oclAsType(soa::Component).apiVersion.exists()) then '/' 
-  + 'v' + s.eContainer().oclAsType(soa::Component).apiVersion.substring(1,1) else '' endif
-  + '/' + s.URI + '/' + o.URI.toJSUri()).toUri() + '`' + o.writeRsInputsUri(s) + if (s.isS3Service()) then 
+[query public writeOperationUri( o : soa::Operation, s : soa::Service) : String =  let c = s.eContainer().oclAsType(soa::Component) in 
+  o.verb.toString().toLower() + '(`' + (s.rsUri() + o.URI).toJSUri() + '`' + o.writeRsInputsUri(s) + if (s.isS3Service()) then 
   if (o.verb = soa::Verb::GET) then ', { responseType: \'blob\' }' else '' endif else '' endif + ');'/]
 
 [comment écriture des imports pour l'ensemble des dtos utilisés par le service. Ici on peut avoir l'impression de 

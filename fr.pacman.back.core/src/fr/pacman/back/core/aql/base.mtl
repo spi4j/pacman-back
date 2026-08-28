@@ -321,3 +321,6 @@
 [comment retourne le message à afficher si la modélisation est manquante par rapport à ce qui est demandé./]
 [query public cNoModelisation(e : ecore::EObject) : String = 'ERREUR DE MODELISATION'/]
 
+[comment retourne la variable de substitution pour la version dans une URI./]
+[query public cUriVersionPlaceholder(e : ecore::EObject) : String = '<@VERSION>'/]
+
