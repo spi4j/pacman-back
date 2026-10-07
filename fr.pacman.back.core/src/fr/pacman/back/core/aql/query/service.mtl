@@ -42,7 +42,7 @@
   ->select(o | o.isRsSecured())->isEmpty()/]
 
 [comment vérifie si le service est un service de persistance de type jpa (base de données)./]
-[query public isJpaService(s : soa::Service) : Boolean = not s.is_metaS3Storage()/]
+[query public isJpaService(s : soa::Service) : Boolean = not s.isS3Service() and not s.isCustomService()/]
 
 [comment vérifie si le service est un service de type stockage S3 (documents)./]
 [query public isS3Service(s : soa::Service) : Boolean = s.is_metaS3Storage()/]
@@ -50,6 +50,9 @@
 [comment vérifie si le service est un service asynchrone (batch)./]
 [query public isBatchService(s : soa::Service) : Boolean = s.kind = soa::InterfaceKind::required 
   and s.synchronization = soa::SynchronizationKind::asynchronous/]
+
+[comment vérifie si le service est un service de type custom (implémentation libre)./]
+[query public isCustomService(s : soa::Service) : Boolean = s.is_metaCustom()/]
 
 [comment retourne l'uri (base) pour un service rest, si rien de renseigné, renvoie '/' par défaut./]  
 [query public rsUri(s : soa::Service) : String = if (s.is_rsSSOAuthEnabled()) then s.rsUriMinArm() else s.rsUriStandard() endif /]

@@ -106,11 +106,6 @@
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
         </dependency>
-        <!-- Jackson unique pour l'application -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-jackson2</artifactId>
-        </dependency> 
         <!-- circuit breaker -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
@@ -123,8 +118,8 @@
         </dependency>
         <!-- tests type cucumber -->
         <dependency>
-            <groupId>com.intuit.karate</groupId>
-            <artifactId>karate-junit5</artifactId>
+            <groupId>io.karatelabs</groupId>
+            <artifactId>karate-junit6</artifactId>
         </dependency>
         <!-- Stockage S3 -->
         <dependency>
@@ -140,10 +135,6 @@
             <groupId>[any.namePackageProject()/]</groupId>
             <artifactId>[any.nameProjectCommon()/]</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
         </dependency>
         <!-- Base H2 embarquée pour les tests. -->
         <dependency>

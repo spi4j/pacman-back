@@ -33,8 +33,8 @@
           <artifactId>slf4j-api</artifactId>
        </dependency>
        <dependency>
-         <groupId>com.fasterxml.jackson.core</groupId>
-         <artifactId>jackson-annotations</artifactId>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
        </dependency>
        <!--
        [protected ('dependencies'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -68,8 +68,7 @@
                               <!-- Placer ici les librairies authorisées. -->
                               <!-- Pour l'instant uniquement librairies de test. -->
                               <include>*:*:*:*:test</include>
-                              <include>org.junit.jupiter:junit-jupiter</include>
-                              <include>org.assertj:assertj-core</include>
+                              <include>com.fasterxml.jackson.core:jackson-annotations</include>
                               <include>org.slf4j:slf4j-api</include>
                            </includes>
                         </bannedDependencies>

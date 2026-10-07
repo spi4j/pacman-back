@@ -24,6 +24,13 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation pour un service de persistance libre (infra)./]
+[template public fileServiceOutCustomImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
+  [file (s.nameClassServiceOutImpl('custom').toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]
+    [s.outCustomImpl(ds)/]
+  [/file]
+[/template]
+
 [comment écriture du fichier d'implémentation pour un service de persistance jpa (infra)./]
 [template public fileServiceOutJpaImpl(s: soa::Service, ds : OrderedSet(environment::DTO))]
   [file (s.nameClassServiceOutImpl('jpa').toFileJava(s.namePackageOutImpl()), overwrite, s.defaultFileEncoding())]

@@ -69,6 +69,8 @@ public enum AnnotationEnum {
 	S3_IMMUTABLE("STORAGE_IMMUTABLE", ModelEnum.DSL_SOA_SERVICE, false),
 
 	S3_STORAGE("STORAGE", ModelEnum.DSL_SOA_SERVICE, false),
+	
+	CUSTOM("CUSTOM", ModelEnum.DSL_SOA_SERVICE, false),
 
 	IDOR_CONTEXT("DATA_ISOLATION_CONTEXT", ModelEnum.DSL_SOA_SERVICE, false),
 

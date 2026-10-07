@@ -7,9 +7,6 @@
 [query public versionMavenExecPlugin(any : ecore::EObject) : String = '3.6.2'/]
 [query public versionMaven(any : ecore::EObject) : String = '3.9.11'/]
 [query public versionSpringBoot(any : ecore::EObject) : String = '4.0.1'/]
-[query public versionJackson2(any : ecore::EObject) : String = '4.0.1'/]
-[query public versionJacksonBom(any : ecore::EObject) : String = '2.22.0'/]
-[query public versionJsonCore(any : ecore::EObject) : String = '2.17.0'/]
 [query public versionH2(any : ecore::EObject) : String = '2.2.224'/]
 [query public versionJupiter(any : ecore::EObject) : String = '5.11.4'/]
 [query public versionAssertJ(any : ecore::EObject) : String = '3.27.3'/]
@@ -33,9 +30,10 @@
 [query public versionSSOMinarm(any : ecore::EObject) : String = '1.1.0'/]
 [query public versionS3(any : ecore::EObject) : String = '8.6.0'/]
 [query public versionOkhttp3(any : ecore::EObject) : String = '4.12.0'/]
-[query public versionKarate(any : ecore::EObject) : String = '1.4.1'/]
+[query public versionKarate(any : ecore::EObject) : String = '2.1.2'/]
 [query public versionJwt(any : ecore::EObject) : String = '0.12.7'/]
-   
+[query public versionJacksonAnnotation(any : ecore::EObject) : String = '2.22'/]
+ 
 [comment query public spi4jVersion(any : eoecore::EObject) : String = ''/]  
 [comment query public mvnSurefireVersion(any : eoecore::EObject) : String = ''/]
 [comment query public mvnAssemblyVersion(any : eoecore::EObject) : String = ''/]

@@ -56,10 +56,6 @@
          <artifactId>spring-boot-starter-test</artifactId>
        </dependency>
        <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter</artifactId>
-       </dependency>
-       <dependency>
          <groupId>org.assertj</groupId>
          <artifactId>assertj-core</artifactId>
        </dependency>
@@ -182,13 +178,14 @@
       import org.springframework.http.HttpStatusCode;
       import org.springframework.http.MediaType;
       import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-      import org.springframework.http.codec.json.Jackson2JsonDecoder;
+      import org.springframework.http.codec.json.JacksonJsonDecoder;
       import org.springframework.web.reactive.function.client.ClientResponse;
       import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
       import org.springframework.web.reactive.function.client.WebClient;
-      import com.fasterxml.jackson.databind.JsonNode;
-      import com.fasterxml.jackson.databind.ObjectMapper;
-      import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+      import tools.jackson.databind.JsonNode;
+      import tools.jackson.databind.ObjectMapper;
+      import tools.jackson.databind.PropertyNamingStrategies;
+      import tools.jackson.databind.json.JsonMapper;
       import io.netty.channel.ChannelOption;
       import reactor.core.publisher.Mono;
       import reactor.netty.http.client.HttpClient;
@@ -228,11 +225,13 @@
      private static final Logger ['log'.apply_attributeFinalStatic()/] = LoggerFactory.getLogger([any.nameClassRsClientConfigImpl()/].class);
      
     /**
-     * Instance unique et réutilisable de {@link ObjectMapper} utilisée
+     * Instance unique et réutilisable de {@link JsonMapper} utilisée
      * pour le parsing et la sérialisation JSON dans les méthodes utilitaires
      * de logging (par exemple {@code formatJsonAsTable}).
      */
-     private static final ObjectMapper ['mapper'.apply_attributeFinalStatic()/] = new ObjectMapper();
+     private static final JsonMapper ['mapper'.apply_attributeFinalStatic()/] = JsonMapper.builder()
+        .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+        .build();
      
      /**
       * L'environnement Spring dans lequel l'application s'exécute.
@@ -304,8 +303,6 @@
       public WebClient [(any.nameProject() + ' web client').apply_methodDefault()/]
          (final WebClient.Builder ['builder'.apply_parameterMethodClassicIn()/]) {
          
-         ['mapper'.apply_attributeFinalStatic()/].setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-         
          ConnectionProvider ['provider'.apply_variableDefault()/] = ConnectionProvider.builder("[any.namePackageProject().toLower()/]")
            .maxConnections(100)
            .pendingAcquireTimeout(Duration.ofSeconds(5))
@@ -320,8 +317,8 @@
             .clientConnector(new ReactorClientHttpConnector(['http client'.apply_variableDefault()/]));
             
           ['internal builder'.apply_variableDefault()/].codecs(['configure'.apply_variableDefault()/] 
-             -> ['configure'.apply_variableDefault()/].defaultCodecs().jackson2JsonDecoder(
-             new Jackson2JsonDecoder(['mapper'.apply_attributeFinalStatic()/], MediaType.APPLICATION_JSON)));
+             -> ['configure'.apply_variableDefault()/].defaultCodecs().jacksonJsonDecoder(
+             new JacksonJsonDecoder(['mapper'.apply_attributeFinalStatic()/])));
             
             if (Arrays.asList(['environment'.apply_attributeFinal()/].getActiveProfiles()).contains("dev")) {
               ['internal builder'.apply_variableDefault()/]
@@ -476,9 +473,9 @@
             if (['fieldName'.apply_parameterMethodClassicIn()/] != null) {
                ['sb'.apply_parameterMethodClassicIn()/].append(['prefix'.apply_variableDefault()/]).append(['fieldName'.apply_parameterMethodClassicIn()/]).append(":\n");
             }
-            ['node'.apply_parameterMethodClassicIn()/].fieldNames().forEachRemaining(['key'.apply_variableDefault()/] -> {
-              ['format node'.apply_methodDefault()/](['node'.apply_parameterMethodClassicIn()/].get(['key'.apply_variableDefault()/] ), ['sb'.apply_parameterMethodClassicIn()/]
-              , ['indent'.apply_parameterMethodClassicIn()/], ['level'.apply_parameterMethodClassicIn()/] + 1, ['key'.apply_variableDefault()/] );
+            ['node'.apply_parameterMethodClassicIn()/].properties().forEach(['entry'.apply_variableDefault()/] -> {
+              ['format node'.apply_methodDefault()/](['entry'.apply_parameterMethodClassicIn()/].getValue(), ['sb'.apply_parameterMethodClassicIn()/]
+              , ['indent'.apply_parameterMethodClassicIn()/], ['level'.apply_parameterMethodClassicIn()/] + 1, ['entry'.apply_variableDefault()/].getKey());
        	    });
           } else if (['node'.apply_parameterMethodClassicIn()/].isArray()) {
             if (['fieldName'.apply_parameterMethodClassicIn()/] != null) {
@@ -496,7 +493,7 @@
                 , ['level'.apply_parameterMethodClassicIn()/] + 2, null);
             }
           } else {
-             String ['value'.apply_variableDefault()/] = ['node'.apply_parameterMethodClassicIn()/].isTextual() ? "\"" + ['node'.apply_parameterMethodClassicIn()/].asText() 
+             String ['value'.apply_variableDefault()/] = ['node'.apply_parameterMethodClassicIn()/].isString() ? "\"" + ['node'.apply_parameterMethodClassicIn()/].asString() 
              + "\"" : ['node'.apply_parameterMethodClassicIn()/].toString();
              if (['fieldName'.apply_parameterMethodClassicIn()/] != null) {
                 ['sb'.apply_parameterMethodClassicIn()/].append(['prefix'.apply_variableDefault()/])

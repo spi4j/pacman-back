@@ -15,6 +15,59 @@
 [import fr::pacman::back::core::aql::rule::parameter/]
 [import fr::pacman::back::core::aql::rule::variable/]
 
+[comment écriture partie commune pour la javadoc de la classe de test./]
+[template private writeHelperJavadoc (any : ecore::EObject)]
+  /**
+   * Helper de tests permettant de récupérer et de réutiliser un jeton
+   * d'authentification (JWT). Le terme « jeton JWT » constitue toutefois un abus
+   * de langage : la classe n'est pas limitée à ce type de mécanisme
+   * d’authentification.
+   * 
+   * Elle permet plus généralement de fournir une chaîne d'authentification à
+   * transmettre avec la requête. Cette chaîne peut ainsi correspondre à
+   * différents mécanismes de sécurité selon le contexte d'utilisation. Par
+   * exemple, dans le cas d'une authentification HTTP Basic, elle pourra contenir
+   * les informations nécessaires à la construction de l'en-tête Authorization.
+   * 
+   * Ainsi, même si le cas d'utilisation principal est la fourniture d’un JWT, la
+   * classe a vocation à rester générique et peut être utilisée avec différents
+   * schémas d’authentification.
+   * 
+   * Ce helper donc mémorise le jeton obtenu lors du premier appel, évitant de
+   * réémettre une requête à chaque utilisation.
+   * 
+   * @author [any.nameAuthor()/]
+   */
+[/template]
+
+[comment écriture de la classe helper pour la gestion du jeton (token) 
+         (si on arrive pas à trouver le service d'authetification dans la modélisation)./]
+[template public serviceRsCustomClientTokenTestsHelper (m : soa::System)]
+  [m.classHeader(m.namePackageApplicationBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+  [/protected]
+  
+  [m.writeHelperJavadoc()/]
+  @Component
+  public class [m.nameClassRsClienTokenTestsHelper()/]
+  {
+    
+    ['Placer ici l\'ensemble du code nécessaire'.commentMultiLines()/]
+    [protected ('token helper'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    [/protected]
+    
+    ['Méthode libre pour obtention du jeton'.commentMultiLines()/]
+    public String ['token'.apply_methodGet()/]() {
+       
+       [protected ('get token'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         
+         return "";
+         
+       [/protected]  
+    }
+  }
+[/template]
+
 [comment écriture de la classe helper pour la gestion du jeton (token)./]
 [template public serviceRsClientTokenTestsHelper (o : soa::Operation)]
   [let s = o.eContainer().eContainer().oclAsType(soa::Service)]
@@ -68,16 +121,7 @@
           [s.prefixAffectation()/][s.name().apply_attributeFinal()/] = [s.name().apply_parameterMethodClassicIn()/];
         }
         
-       /**
-        * Retourne le jeton JWT à utiliser pour les appels protégés.
-        * 
-        * Si le jeton n'a pas encore été récupéré, une requête d'authentification est
-        * envoyée. Compléter le code avec l'initialisation des données nécessaires pour
-        * obtenir le jeton. En retour, saisir la méthode utilisée pour la récupération
-        * du jeton en fonction du type pour la paramètre de sortie.
-        *
-        * @return le jeton JWT sous forme de chaîne.
-        */
+        [o.writeHelperJavadoc()/]
         public String ['token'.apply_methodGet()/]() {
           if (['token'.apply_attributeDefault()/] == null || ['token'.apply_attributeDefault()/].isEmpty()) {
             [for (o1 | o.input)]
@@ -163,7 +207,7 @@
             [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
               
             [for (p | o.input)]
-              [p.writeDescriptionMultiLines()/]
+              [p.writeDescriptionMultiLines().commentMultiLines()/]
               [p.inputRsType()/] [p.name().apply_variableDefault()/] = null;
               
             [/for]

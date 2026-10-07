@@ -49,20 +49,6 @@
     
     <dependencyManagement>
        <dependencies>
-          <!-- lié au passage Spring 4 -->
-          <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-jackson2</artifactId>
-            <version>[any.versionJackson2()/]</version>
-          </dependency>
-          <!-- lié au passage Spring 4 -->
-          <dependency>
-            <groupId>com.fasterxml.jackson</groupId>
-            <artifactId>jackson-bom</artifactId>
-            <version>[any.versionJacksonBom()/]</version>
-            <type>pom</type>
-            <scope>import</scope>
-          </dependency> 
           <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -74,11 +60,12 @@
             <artifactId>spring-boot-starter-log4j2</artifactId>
             <version>[any.versionSpringBoot()/]</version>
           </dependency>
+          <!-- Aligne jackson-annotations sur Jackson 3 pour éviter -->
+          <!-- les conflits de version transitifs (notamment avec MinIO) -->
           <dependency>
-             <groupId>org.junit.jupiter</groupId>
-             <artifactId>junit-jupiter</artifactId>
-             <version>[any.versionJupiter()/]</version>
-             <scope>test</scope>
+             <groupId>com.fasterxml.jackson.core</groupId>
+             <artifactId>jackson-annotations</artifactId>
+             <version>[any.versionJacksonAnnotation()/]</version>
           </dependency>
           <dependency>
              <groupId>org.assertj</groupId>
@@ -175,8 +162,8 @@
           </dependency>
           <!-- tests type cucumber -->
           <dependency>
-             <groupId>com.intuit.karate</groupId>
-             <artifactId>karate-junit5</artifactId>
+             <groupId>io.karatelabs</groupId>
+             <artifactId>karate-junit6</artifactId>
              <version>[any.versionKarate()/]</version>
              <scope>test</scope>
              <exclusions>

@@ -178,9 +178,9 @@
      body="REST : Contexte pour le contrôle de violation des paramètres"
      condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_O2TZYF8LEfG-uoT4Tlu8ZQ"
-     title="TODO"
-     body=""
-     condition="aql:Sequence{'x'}->includes(self.eClass().name.toLower())"/>
+     title="CUSTOM"
+     body="SERVICE : Génération minimaliste du provider pour l'infrastructure"
+     condition="aql:Sequence{'service'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_Kz4s0F8LEfG-uoT4Tlu8ZQ"
      title="TODO"
      body=""

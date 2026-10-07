@@ -225,7 +225,7 @@
     import org.springframework.test.web.servlet.MockMvc;
     import org.springframework.test.web.servlet.ResultActions;
     import org.springframework.http.MediaType;
-    import com.fasterxml.jackson.databind.ObjectMapper;
+    import tools.jackson.databind.ObjectMapper;
     import [s.namePackageProject()/].[s.nameClassIntegrationTestsConfig()/];
     import [s.namePackageProject()/].[s.nameClassIntegrationTestUtils()/];
     import [s.namePackageProject()/].[s.nameClassIntegrationTestAbstract()/];

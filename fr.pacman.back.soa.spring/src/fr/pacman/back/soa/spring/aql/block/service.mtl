@@ -277,6 +277,53 @@
   }
 [/template]
 
+[comment écriture de l'implémentation pour le service de persistance libre (couche infrastructure)./]
+[template public outCustomImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
+  [s.classHeader(s.namePackageOutImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import org.springframework.beans.factory.annotation.Autowired;
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageCommonBase()/].[s.nameClassAnnotationOut()/];
+    import [s.namePackageProject()/].[s.namePackageCommonException()/].[s.nameClassNotImplementedExceptionImpl()/];
+    
+  [/protected]
+  
+  [s.commentInterface()/]
+  @[s.nameClassAnnotationOut()/]
+  public class [s.nameClassServiceOutImpl('custom')/] implements [s.nameClassServiceOutItf()/]
+  {
+      
+      [protected ('gestionnaires de persistance custom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
+      
+      ['Constructeur'.commentMultiLines()/]
+      @Autowired
+      [protected ('constructeur'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        public [s.nameClassServiceOutImpl('custom')/] ()
+        {
+        }
+      [/protected]
+      
+      [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
+         [o.commentOperation()/]
+         @Override
+         [o.writePersistSignature()/]
+         {
+           
+           [protected (o.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+             
+             throw new [s.nameClassNotImplementedExceptionImpl()/] 
+                  ("La méthode '[o.nameOperation()/]' n'a pas été implémentée");
+             
+           [/protected]
+         }
+         
+      [/for]
+  }
+[/template]
+
 [comment écriture de l'implémentation pour le service de persistance jpa (couche infrastructure)./]
 [template public outJpaImpl(s : soa::Service, ds : OrderedSet(environment::DTO))]
   [s.classHeader(s.namePackageOutImpl())/]

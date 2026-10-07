@@ -216,6 +216,10 @@ public final class AnnotationUtils {
 	public static boolean is_metaReferential(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.REFERENTIAL);
 	}
+	
+	public static boolean is_metaCustom(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.CUSTOM);
+	}
 
 	public static boolean has_metaPhysicalSize(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PHYSICAL_SIZE);

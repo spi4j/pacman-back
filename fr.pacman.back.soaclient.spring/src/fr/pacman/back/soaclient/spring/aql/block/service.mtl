@@ -78,7 +78,7 @@
   + '(Map.of(' +  o.input->select(o3| o3.isRsHeaderParam())->collect(o4 | '"' + o4.restData.restId + '",' + o4.name().apply_parameterMethodClassicIn())
   ->sep(', ') + '))'  else '' endif + if (not o.input->select (o3 | o3.isRsBodyParam())->isEmpty()) then '.' + 'with body'.apply_methodDefault() 
   + '(' + let b = o.input->select (o3 | o3.isRsBodyParam())->first() in b.name().apply_parameterMethodClassicIn() + ')'  else '' endif  else '' endif 
-  + if(o.isRsSecured()) then '.' +  if (o.isRsApiKeyByQuerySecurity()) then 'with query token'.apply_methodDefault() else 'with header token'.apply_methodDefault() 
+  + if (o.isRsSecured()) then '.' + if (o.isRsApiKeyByQuerySecurity()) then 'with query token'.apply_methodDefault() else 'with header token'.apply_methodDefault() 
   endif + '("' + if (o.hasRsApiKeySecurity()) then o.securitySchemes->first().key else 'Authorization' endif + '", ' + if (o.isRsHttpBasicSecurity()) then '' 
   else '"Bearer " + ' endif + 'token'.apply_parameterMethodClassicIn() +')' else '' endif + if (o.has_metaSkipEmptyValues()) then '.' + 
   'with skip empty values'.apply_methodDefault() + '()' else '' endif + '.' + 'execute'.apply_methodDefault() + '();'/]

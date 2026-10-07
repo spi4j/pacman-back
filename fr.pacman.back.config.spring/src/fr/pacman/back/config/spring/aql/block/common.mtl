@@ -1,6 +1,7 @@
 [module common(	'http://www.obeonetwork.org/dsl/overview/2.0.0')/]
 
 [import fr::pacman::back::core::aql::base/]
+[import fr::pacman::back::core::aql::versions/]
 [import fr::pacman::back::core::aql::name::classes/]
 [import fr::pacman::back::core::aql::name::packages/]
 [import fr::pacman::back::core::aql::output::headers/]
@@ -35,10 +36,13 @@
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
        </dependency>
+       <!-- Ne pas faire gérer la version par pom parent -->
        <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
-       </dependency>
+           <groupId>org.junit.jupiter</groupId>
+           <artifactId>junit-jupiter</artifactId>
+           <version>[any.versionJupiter()/]</version>
+           <scope>test</scope>
+      </dependency>
        <dependency>
           <groupId>org.assertj</groupId>
           <artifactId>assertj-core</artifactId>

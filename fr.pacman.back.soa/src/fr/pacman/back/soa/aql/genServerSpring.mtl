@@ -59,6 +59,8 @@
         [if (s.isS3Service())][s.fileServiceOutS3Impl()/][/if]
         [comment implémentation des tests pour le contrôleur (application)./]
         [if (s.isJpaService())][s.fileInIntegrationTestImpl()/][/if]
+        [comment implémentation du service infrastructure (persistance libre)./]
+        [if (s.isCustomService())][s.fileServiceOutCustomImpl(ads)/][/if]
       [/let]
     [/for]
     

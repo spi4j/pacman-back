@@ -91,7 +91,7 @@
       [if (o.URI.exists() and '/'.equalsIgnoreCase(o.URI.last(1)))][o.add(s.err15(o))/][/if]
         
       [comment pas de service avec plusieurs paramètres passés dans le corps (body), c'est la norme (hormis s3)./]
-      [if (o.input->select(o1 | s.isJpaService() and o1.restData.passingMode == soa::ParameterPassingMode::BODY)->size() > 1)]
+      [if (o.input->select(o1 | not s.isS3Service() and o1.restData.passingMode == soa::ParameterPassingMode::BODY)->size() > 1)]
         [o.add(s.err16(o))/][/if]
         
       [comment pas de service avec plusieurs paramètres de sortie./]
