@@ -1,0 +1,8 @@
+[module security(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
+					'http://www.obeonetwork.org/dsl/entity/3.0.0',
+				    'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
+
+[import fr::pacman::back::core::aql::query::application/]
+
+[comment vérifie si l'application utilise une sécurité de type http basic./]
+[query public isRsHttpSecured(m : soa::System) : Boolean = soa::SecuritySchemeType::HTTP == m.securityRsScheme().type/]

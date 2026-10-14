@@ -14,7 +14,7 @@
 [comment vérifie si l'application est sécurisée par un controle IDOR des paramètres (mode statefull)/]
 [query public isRsIdorLessCtrlEnabled(any : ecore::EObject) : Boolean = 'sless'.equalsIgnoreCase(any.get_rsIDORControl())/]
 
-[comment vérifie si l'application est sécurisée par uu contrôle IDOR de paramètres (mode stateless)./]
+[comment vérifie si l'application est sécurisée par un contrôle IDOR de paramètres (mode stateless)./]
 [query public isRsIdorFullCtrlEnabled(any : ecore::EObject) : Boolean = 'sfull'.equalsIgnoreCase( any.get_rsIDORControl())/]
 
 [comment vérifie si l'application est sécurisée par un controle IDOR des paramètres/]

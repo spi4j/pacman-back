@@ -1560,6 +1560,17 @@
   # Routage vers configuration Log4j2
   logging.config=classpath:log4j2.properties
   
+  # Active les logs pour l'ensemble de Spring Security
+  logging.level.org.springframework.security=OFF
+  # Active les logs pour le filtrage des requêtes et la sélection des SecurityFilterChain
+  logging.level.org.springframework.security.web.FilterChainProxy=OFF
+  # Active les logs pour le processus d'authentification
+  logging.level.org.springframework.security.authentication=OFF
+  # Active les logs TRACE pour l'authentification HTTP Basic
+  logging.level.org.springframework.security.web.authentication.www.BasicAuthenticationFilter=OFF
+  # Active les logs TRACE pour le processus d'authentification, quel que soit le mécanisme utilisé
+  logging.level.org.springframework.security.authentication=OFF
+  
   # ----------------------------------------------------------------------------------------------
   # SPRING PROFILES
   # ----------------------------------------------------------------------------------------------

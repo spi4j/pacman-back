@@ -11,6 +11,7 @@
 [import fr::pacman::back::core::aql::query::service/]
 [import fr::pacman::back::core::aql::query::operation/]
 [import fr::pacman::back::core::aql::query::application/]
+[import fr::pacman::back::core::aql::query::security/]
 [import fr::pacman::back::core::aql::query::parameter/]
 [import fr::pacman::back::core::aql::query::dto/]
 [import fr::pacman::back::core::aql::output::headers/]
@@ -172,6 +173,12 @@
         * directement en charge JWT, on profite donc de la librairie oauth2 dans tous
         * les cas pour le codage / décodage du jeton
         *
+        * Les configurations HTTP sont désormais utilisées de manière exceptionnelle.
+        * En cas de configuration HTTP, les générateurs ne procèdent pas actuellement
+        * au nettoyage du code jwt devenu inutile, afin de ne pas les complexifier. 
+        * Il reste à déterminer si le support des configurations HTTP sera maintenu 
+        * dans les versions futures.
+        *
         * @param ['http'.apply_parameterMethodClassicIn()/] l'objet HttpSecurity qui permet de configurer la sécurité des requêtes HTTP.
         * @return un objet SecurityFilterChain configuré avec les règles de sécurité.
         * @throws Exception si une erreur se produit lors de la configuration.
@@ -199,10 +206,15 @@
               .anyRequest().authenticated();
               
            })
-           .oauth2ResourceServer(oauth2 -> oauth2
-           .bearerTokenResolver(['jwt token resolver'.apply_methodDefault()/]())
-           .jwt(Customizer.withDefaults()))
-           .exceptionHandling(Customizer.withDefaults())
+           [if (m.isRsHttpSecured())]
+              .httpBasic(basic -> basic
+              .authenticationEntryPoint(authEntryPoint))
+           [else]
+             .oauth2ResourceServer(oauth2 -> oauth2
+             .bearerTokenResolver(['jwt token resolver'.apply_methodDefault()/]())
+             .jwt(Customizer.withDefaults()))
+             .exceptionHandling(Customizer.withDefaults())
+           [/if]
            .build();
         }
         
@@ -440,8 +452,17 @@
        }
        
        /**
-        * Crée un bean {@link UserDetailsService} en mémoire avec un utilisateur de
-        * base.
+        * Point d'extension permettant de personnaliser la gestion des utilisateurs
+        * dans Spring Security.
+        *
+        * L'implémentation fournie par défaut est un exemple utilisant un utilisateur
+        * en mémoire. Elle peut être remplacée par le développeur pour utiliser sa
+        * propre source d'utilisateurs ou sa propre logique de gestion.
+        *
+        * Ce bean n'est pas nécessaire à l'authentification OAuth2/OpenID Connect.
+        * Il est néanmoins conservé comme point d'extension afin de permettre au
+        * développeur de personnaliser la gestion des utilisateurs lorsque cela est
+        * nécessaire.
         * 
         * Cet utilisateur possède le nom d'utilisateur "user", un mot de passe encodé
         * avec {@link BCryptPasswordEncoder} et le rôle "USER" par défaut.
