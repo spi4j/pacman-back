@@ -134,7 +134,6 @@
         <dependency>
             <groupId>[any.namePackageProject()/]</groupId>
             <artifactId>[any.nameProjectCommon()/]</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!-- Base H2 embarquée pour les tests. -->
         <dependency>

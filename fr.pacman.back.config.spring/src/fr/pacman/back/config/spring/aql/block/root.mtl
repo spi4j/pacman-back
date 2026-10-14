@@ -132,6 +132,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>[any.versionSpringBoot()/]</version>
           </dependency>
+          <!-- projet métier (domaine). -->
+          <dependency>
+            <groupId>[any.namePackageProject()/]</groupId>
+            <artifactId>[any.nameProjectCommon()/]</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+          </dependency>
           <!-- block swagger-ui -->
           <dependency>
             <groupId>org.springdoc</groupId>
