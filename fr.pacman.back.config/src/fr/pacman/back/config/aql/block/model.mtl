@@ -18,7 +18,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>[any.nameProjectModel()/]</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     
     <!-- Même si ce n'est pas strictement nécessaire pour Maven, certains outils
     (comme Eclipse avec m2e) veulent le voir dans chaque module. -->

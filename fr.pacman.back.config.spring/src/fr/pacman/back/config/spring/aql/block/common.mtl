@@ -112,7 +112,7 @@
     <!-- Tests fonctionnels -->
     <profiles>
        <profile>
-          <id>tests</id>
+          <id>tests-fonctionnels</id>
           <build>
              <plugins>
                  <!-- JAR contenant les classes compilées des tests -->
@@ -121,7 +121,7 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <executions>
                        <execution>
-                          <id>tests-fonctionnels</id>
+                          <id>jar-tests-fonctionnels</id>
                           <phase>package</phase>
                           <goals>
                              <goal>test-jar</goal>
@@ -145,7 +145,7 @@
                              <goal>shade</goal>
                           </goals>
                           <configuration>
-                             <shadeTestJar>true</shadeTestJar>
+                             <shadeTestJar>false</shadeTestJar>
                              <shadedArtifactAttached>true</shadedArtifactAttached>
                              <shadedClassifierName>tests-fonctionnels</shadedClassifierName>
                              <transformers>
@@ -153,6 +153,14 @@
                                   <mainClass>[any.namePackageProject()/].[any.nameClassIntegrationApiTestRunner()/]</mainClass>
                                 </transformer>
                              </transformers>
+                             <filters>
+                               <filter>
+                                  <artifact>*:*</artifact>
+                                  <excludes>
+                                     <exclude>META-INF/MANIFEST.MF</exclude>
+                                  </excludes>
+                               </filter>
+                             </filters>
                           </configuration>
                       </execution>
                     </executions>
