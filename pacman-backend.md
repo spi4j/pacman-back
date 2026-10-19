@@ -1,4 +1,4 @@
-# 🛠️ Documentation Technique<br>Pacman Générateur de Code Java Backend 
+# 🛠️ Documentation Technique<br>Pacman Générateur de Code Java Backend
 
 📅 Historique des mises à jour
 
@@ -17,7 +17,9 @@
 - 09/07/2026 : Ajouts : Contrôle d'isolation des données.
 - 29/07/2026 : Modifications : Contrôle d'isolation des données.
 - 12/08/2026 : Ajouts : Migration Spring Boot 4.
-- 13/08/2026 : Modifications : Logging
+- 13/08/2026 : Modifications : Logging.
+- 28/08/2026 : Adaptation Pacman sur Studio 6.0.0.
+- 16/10/2026 : Ajouts : Complétion tests karaté au niveau du domaine.
 ---
 
 ## 🚀 Introduction
@@ -92,8 +94,8 @@ Pour Pacman lors de l'initialisation d'un projet, le générateur va toujours cr
 ## 🛠️ Installation
 ---
 ### Prérequis
-- Version Information System Designer  :  5.1.1+  (https://www.isdesigner.org et https://github.com/ObeoNetwork/InformationSystem/releases)
-- JDK : 17+
+- Version Information System Designer  :  6.0.0+  (https://www.isdesigner.org et https://github.com/ObeoNetwork/InformationSystem/releases)
+- JDK : 21+
 
 ### Plugins externes
 
@@ -745,6 +747,25 @@ logging.auth.audit.enabled=true
 ```
 
 On peut ici constater la présence de deux interrupteurs ("*logging.api.audit.enabled*" et "*logging.auth.audit.enabled*") qui permettent d'activer ou non la journalisation des données sur redémarrage du serveur.
+
+Par ailleurs, les propriétés ci-dessous permettent d'activer des logs détaillés concernant la sécurité de l'application.
+
+Elles sont désactivées par défaut afin de ne pas générer inutilement des logs en fonctionnement normal. Elles peuvent être activées ponctuellement par le développeur lors du développement ou pour diagnostiquer un problème lié à la sécurité ou à l'authentification.
+
+Chaque propriété cible un niveau différent de la chaîne de sécurité et peut être activée indépendamment selon le niveau de détail recherché.
+
+```properties
+# Active les logs pour l'ensemble de Spring Security
+logging.level.org.springframework.security=OFF
+# Active les logs pour le filtrage des requêtes et la sélection des SecurityFilterChain
+logging.level.org.springframework.security.web.FilterChainProxy=OFF
+# Active les logs pour le processus d'authentification
+logging.level.org.springframework.security.authentication=OFF
+# Active les logs TRACE pour l'authentification HTTP Basic
+logging.level.org.springframework.security.web.authentication.www.BasicAuthenticationFilter=OFF
+# Active les logs TRACE pour le processus d'authentification, quel que soit le mécanisme utilisé
+logging.level.org.springframework.security.authentication=OFF
+```
 
 Dans tous les cas, un second fichier est toujours crée afin de compléter la configuration des logs applicatifs puisque cette tâche a été déléguée à log4J2. Il s'agit du fichier "*log4j2.properties*", présent dans le même répertoire. Si toutes les options d'audit ont été cochées, ce fichier se présente alors sous la forme suivante :  
 
@@ -1598,10 +1619,12 @@ Plusieurs remarques à ce stade :
 /******************************************************************/
 /* Base de donnees:      h2                                       */
 /* Application:          demo                                     */
-/* Date de creation:     07/05/2025 15:50:30                      */ /******************************************************************/
+/* Date de creation:     07/05/2025 15:50:30                      */
+/******************************************************************/
 
 /******************************************************************/
-/* Schema: SCH                                                    */ /******************************************************************/
+/* Schema: SCH                                                    */
+/******************************************************************/
 create schema SCH;
     
 /******************************************************************/
@@ -3128,6 +3151,42 @@ Le développeur peut alors ajouter l'ensemble de son code personnalisé afin de 
 ```
 Spring Boot n'a pas nativement de système de décodage des jetons JWT, il convient donc d'utiliser celui qui est fourni par les ressources pour la gestion *OAuth2*. C'est pourquoi *OAuth2* sera toujours présent au niveau de la classe de configuration de la sécurité, même si la sécurité demandée est de type *Http* ou *ApiKey*.
 
+❗ Le mécanisme d'authentification HTTP Basic est désormais utilisé de manière exceptionnelle et n'est plus le mécanisme d'authentification privilégié.
+
+Les éléments de configuration associés sont néanmoins conservés afin de maintenir la compatibilité avec les cas nécessitant encore ce mode d'authentification. Dans ce contexte, les générateurs ne procèdent pas actuellement à l'épuration automatique du code lié à HTTP Basic, ceci afin de ne pas les complexifier avec de nombreuses structures conditionnelles.
+
+Le maintien de ce support pourra d'ailleurs être réévalué ultérieurement, en fonction des besoins et de l'évolution des configurations de sécurité. Le code java devient alors (remplace le code précédent): 
+
+```java
+.httpBasic(basic -> basic
+  .authenticationEntryPoint(authEntryPoint))
+  .build();
+```
+
+❗ Un point d'extension UserDetailsService est généré afin de permettre au développeur de personnaliser, si nécessaire, la gestion des utilisateurs dans Spring Security.
+
+Le code fourni par défaut constitue uniquement un exemple et peut être remplacé par une implémentation adaptée aux besoins de l'application (utilisateurs en mémoire, base de données, service externe, etc.).
+
+Ce point d'extension n'est pas requis pour l'authentification OAuth2 ou OpenID Connect. Il est néanmoins disponible dans tous les modes de sécurité afin de permettre une personnalisation de la gestion des utilisateurs lorsque l'application en a besoin. Par contre il est justement utile dans le cadre d'une authentification de type Http puisu'il permet ici au développeur de gérer son authentification.
+
+```java
+@Bean
+public UserDetailsService users() {
+
+    // Start of user code 9bc65c2abec141778ffaa729489f3e87
+
+    UserDetails user = User.builder().username("user")
+        .password(passwordEncoder()
+        .encode("password"))
+        .roles("admin").build();
+
+    return new InMemoryUserDetailsManager(user);
+    // End of user code
+}
+```
+
+Le code étant entre balises "*user code*" il est bien entendu possible d'utiliser un accès base de données, un coffre fort, etc... ceci, afin de récupérer l'ensemble des informations nécessaires à l'authentification utilisateur.
+
 #### Librairie SSO du ministère
 
 Le Backend For Frontend (BFF) est, à la base, une couche intermédiaire (design-pattern) entre un frontend et les services backend. Le BFF se charge d'appeler les services nécessaires, d'assembler et de transformer les données, et de ne retourner que les informations utiles au frontend. Cela permet au frontend de se concentrer uniquement sur l'affichage et l'expérience utilisateur.
@@ -3253,6 +3312,16 @@ project.frontend.uri=[URL complète du service backend]
 
 ### 🥋 Génération des tests fonctionnels d'API
 
+#### Architecture hexagonale
+
+L'un des objectifs fondamentaux de l'architecture hexagonale est de préserver l'indépendance du domaine métier vis-à-vis des technologies et des frameworks utilisés dans le reste de l'application. Cette indépendance doit également être prise en compte dans la stratégie de test, même si elle ne s'applique pas exactement de la même manière au code métier et au code de test. Le domaine ne doit connaître ni JUnit, ni Karate, ni Spring, ni aucun autre framework utilisé pour vérifier son comportement : ses services doivent pouvoir être instanciés et exécutés avec de simples classes Java, en s'appuyant sur les ports définis par le domaine et sur les implémentations qui leur sont fournies. 
+
+En revanche, les tests peuvent parfaitement utiliser des frameworks spécialisés, à condition que leurs dépendances restent confinées à leur propre périmètre et ne contaminent pas le code métier. Dans cette logique, JUnit peut servir à lancer les tests Java, tandis que Karate peut être utilisé pour décrire des scénarios fonctionnels à l'aide de fichiers `.feature`, alimentés par des données JSON. 
+
+Ces outils constituent des choix techniques destinés à faciliter l'écriture, l'exécution et la restitution des tests. Ils ne font pas partie du domaine et ne doivent pas conditionner son fonctionnement. Ces dépendances sont acceptables puisqu'elles se situent dans la partie chargée de l'exécution des tests. Si Karate devait être remplacé ultérieurement, le runner et le dispositif de description ou d'exécution des scénarios devraient être adaptés, mais les services métier, les ports et les règles fonctionnelles devraient pouvoir rester inchangés. 
+
+Il serait techniquement possible d'ajouter une abstraction supplémentaire pour isoler davantage le framework de test, mais cette précaution n'est pas automatiquement nécessaire : multiplier les interfaces et les couches uniquement pour anticiper un éventuel remplacement de l'outil risquerait d'ajouter de la complexité sans apporter de bénéfice concret. L'objectif n'est donc pas de supprimer toute dépendance technique, ce qui serait irréaliste, mais de maîtriser leur emplacement et leur sens. Les dépendances vers les frameworks doivent rester à la périphérie, tandis que le domaine conserve son autonomie. 
+
 #### Le framework Karaté
 
 Dans une architecture moderne exposant des API, les tests unitaires ne suffisent généralement pas à garantir le bon fonctionnement global du système. Même si chaque composant pris isolément peut fonctionner correctement, les erreurs apparaissent souvent au niveau des différentes interactions entre plusieurs services. C'est pour répondre à ce besoin que les tests fonctionnels et d'intégration plus poussés d'API deviennent essentiels. Ils permettent de valider un comportement réel de bout en bout, en simulant des appels HTTP proches de ceux effectués par des clients ou d'autres services, et en vérifiant non seulement les réponses, mais aussi les effets produits sur le système.
@@ -3261,7 +3330,7 @@ Dans ce contexte, Karate a été adopté comme framework de test. Karate est bas
 
 Cette différence réduit considérablement la complexité de mise en œuvre et de maintenance des tests. De plus, alors que Cucumber est un framework générique pouvant s'adapter à tout type de test mais nécessitant une implémentation manuelle de la logique, Karate est spécialisé dans les tests d'API HTTP et fournit nativement des fonctionnalités avancées pour les appels REST, les assertions JSON, la gestion des données et l'exécution parallèle. En comparaison, Cucumber est plus flexible mais plus verbeux et moins orienté “API testing out-of-the-box”, tandis que Karate privilégie la productivité et la simplicité pour les tests d'intégration et fonctionnels de services web.
 
-Une seule classe (par défaut très simple) est généré au niveau du squelette pour le projet. Elle permet d'activer le framework Karate et de lancer les différents tests sur un port aléatoire (plus simple si présence de tests concurrents).
+Au niveau du projet serveur "***[Nom de l'application]-server***" une seule classe (par défaut très simple) est généré au niveau du squelette pour le projet, dans le package : "*/src/test/java/[Package racine]*". Elle permet d'activer le framework Karate et de lancer les différents tests sur un port aléatoire (plus simple si présence de tests concurrents).
 
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -3314,7 +3383,7 @@ void runAllTests() {
 
 #### Centralisation de tests communs
 
-Dans un projet de tests fonctionnels, certaines opérations ou configurations sont souvent communes à plusieurs scénarios. Afin d’éviter la duplication de code dans les différents fichiers "*.feature*", il est recommandé de centraliser ces traitements dans des scénarios Karate réutilisables. Cette approche améliore la lisibilité des tests, facilite leur maintenance et garantit un comportement cohérent sur l'ensemble de la suite de tests fonctionnels.
+Dans un projet de tests fonctionnels, certaines opérations ou configurations sont souvent communes à plusieurs scénarios. Afin d'éviter la duplication de code dans les différents fichiers "*.feature*", il est recommandé de centraliser ces traitements dans des scénarios Karate réutilisables. Cette approche améliore la lisibilité des tests, facilite leur maintenance et garantit un comportement cohérent sur l'ensemble de la suite de tests fonctionnels.
 
 Par exemple, dans de nombreux projets, les API exposées par l'application sont protégées par un mécanisme d'authentification (JWT, OAuth2, session, API key, etc.). Les tests fonctionnels doivent donc envoyer automatiquement les informations d'authentification nécessaires à chaque requête HTTP. Afin d'éviter la duplication du code d'authentification dans tous les fichiers "*.feature*", il est recommandé de centraliser cette logique dans un scénario Karate partagé. Cette approche permet de mutualiser la récupération du jeton, de simplifier la maintenance des tests et de garantir un comportement homogène sur l'ensemble des scénarios fonctionnels.
 
@@ -3466,9 +3535,334 @@ Scenario: Création, récupération et suppression d'un document
   Then status 404
 ```
 
-### 🧩 Génération des relations
+#### La couche métier (domaine)
 
-Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple, bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. 
+De même, au niveau du domaine (couche métier), une classe de configuration est générée dans le package "*/src/test/java/[Package Racine]*". Cette classe (par défaut très simple) à un code tout à fait similaire à celui de la couche d'infrastructure et à les mêmes objectifs, à savoir activer le framework Karate et lancer les différents tests sur un port aléatoire.
+
+```java        
+void runTests(final String featuresPath, final String scenarioName) {
+
+   System.out.println("========================================");
+   System.out.println(" Tests fonctionnels du domaine");
+   System.out.println(" Scénarios : " + featuresPath);
+   System.out.println("========================================");
+
+   var builder = Runner
+      .path(featuresPath)
+      .outputHtmlReport(true)
+      .outputCucumberJson(true);
+
+   if (scenarioName != null) {
+      builder.scenarioName(scenarioName);
+   }
+   SuiteResult results = builder.parallel(1);
+}
+```
+
+A la différences des tests pour la couche d'infrastrcuture, cette méthode est appelée soit par la ligne de commande soit par le bais de l'IDE Eclipse avec l'aide des annotations Junit : 
+
+```java
+@Test
+void runAllTests() {
+    runTests("classpath:features", null);
+}
+	
+public static void main(String[] args) {
+    String featuresPath = args.length > 0 ? args[0] : "classpath:features";
+    String scenarioName = args.length >= 2 ? args[1] : null;
+    runTests(featuresPath);
+}
+```
+
+Dans une architecture hexagonale, la couche métier constitue le cœur de l'application. Elle porte les règles de gestion et orchestre les opérations métier, indépendamment des technologies utilisées pour accéder aux données, exposer des services ou communiquer avec des systèmes externes.
+
+Dans le cadre des tests fonctionnels, les dépendances techniques doivent être remplacées par des implémentations dédiées aux tests. Il devient alors possible de vérifier le comportement métier sans démarrer une base de données, déployer une API ou solliciter un système externe.
+
+❗ L'objectif n'est plus de tester les implémentations techniques réelles, mais uniquement de vérifier que les services métier respectent leur contrat fonctionnel. Les tests fonctionnels de la couche métier ne doivent pas être réservés aux développeurs. Ils ont vocation à être utilisés par les équipes fonctionnelles tout au long du cycle de vie du projet, depuis la phase de développement jusqu'à la validation des comportements métier.
+
+Pour répondre à cet objectif, le dispositif de test doit permettre de définir et d'exécuter des scénarios sans nécessiter la maîtrise du code Java ni le déploiement de l'application complète.
+
+L'objectif est de disposer d'un dispositif unique de tests fonctionnels, utilisable par les deux populations, plutôt que de maintenir des tests spécifiques aux développeurs et d'autres réservés aux fonctionnels.
+
+Les développeurs restent donc responsables de l'implémentation du dispositif d'exécution, des adaptateurs de test et du raccordement aux opérations métier. Les équipes fonctionnelles contribuent à la définition des scénarios, des jeux de données et des résultats attendus.
+
+Cette séparation permet aux équipes fonctionnelles de travailler au niveau du comportement métier, sans dépendre de la connaissance des détails d'implémentation.
+
+Le dispositif doit donc distinguer :
+
+- Le code d'exécution et les adaptateurs, maintenus par les développeurs.
+- Les scénarios fonctionnels, élaborés et maintenus conjointement ou par les équipes fonctionnelles.
+- Les jeux de données et les résultats attendus, modifiables indépendamment du code.
+- La configuration d'exécution, permettant de lancer les tests dans différents environnements.
+
+La génération permet donc la création de scénarios pour chaque service au niveau du package "*/src/test/resources/feature*". 
+
+Chaque service possède son propre fichier de type "*.feature*". 
+
+Chaque fichier se présente sous la forme suivante (on reprend ici notre projet "*demo*" avec les deux opérations : "*retourneTous*" et "*chercheParId*"):  
+
+```gherkin
+Feature: Service personnes
+    
+  Scenario: retourneTous
+    * print '--- Service métier : retourneTous ---'
+    
+    # Chargement des données d'entrée
+    * def externalData = karate.properties['test.data.dir']
+    * def dataFileName = 'personnes.yaml'
+    * def dataFile = externalData ? 'file:' + externalData + '/' + dataFileName : 'classpath:data/' + dataFileName
+    * def data = read(dataFile)
+    
+    # Initialisation du service métier
+    * def Test = Java.type('fr.demo.domain.services.karate.testdomain.PersonnesServiceTestImpl')
+    * def test = new Test()
+    
+    # Exécution du service métier
+    * def result = test.retourneTous(data.retourneTous)
+    
+    # Vérification du résultat
+    * match result != null
+    # TODO : compléter les assertions selon le comportement attendu
+    # Start of user code 76901942dcec873b8d69280745538a96
+    # End of user code
+
+  Scenario: chercheParId
+    * print '--- Service métier : chercheParId ---'
+    
+    # Chargement des données d'entrée
+    * def externalData = karate.properties['test.data.dir']
+    * def dataFileName = 'personnes.yaml'
+    * def dataFile = externalData ? 'file:' + externalData + '/' + dataFileName : 'classpath:data/' + dataFileName
+    * def data = read(dataFile)
+    
+    # Initialisation du service métier
+    * def Test = Java.type('fr.demo.domain.services.karate.testdomain.PersonnesServiceTestImpl')
+    * def test = new Test()
+    
+    # Exécution du service métier
+    * def result = test.chercheParId(data.chercheParId)
+    
+    # Vérification du résultat
+    * match result != null
+    # TODO : compléter les assertions selon le comportement attendu
+    # Start of user code d5213483b134a09f890e250679f635e0
+    
+    # End of user code
+```
+
+Chaque service étant dans l'obligation de retourner quelque chose, le début de la vérification de la sortie est aussi automatiquement généré par **Pacman** : 
+
+```gherkin
+# Vérification du résultat
+* match result != null
+```
+
+Par contre c'est ensuite au développeur (ou aux fonctionnels) de compléter les attendus à l'intérieur des balises de type "*user code*".
+
+En parallèle, chaque service dispose d'un squelette pour le fichier d'injection des données, situé au niveau du package : "*/src/test/resources/data*". Ce fichier est au format "*.yaml*" et par défaut ne contient que les rubriques suivantes :  
+
+```yaml
+retourneTous:
+   # Start of user code 76901942dcec873b8d69280745538a96
+   # End of user code
+
+chercheParId:
+   # Start of user code 213b153cf17e81eda9f6b8b67f005368
+   # End of user code
+```
+
+❗ Le fichier YAML contenant les données de test n'est volontairement pas généré automatiquement. Ce choix permet de laisser aux développeurs et aux équipes fonctionnelles la liberté de définir les jeux de données en fonction des besoins de validation, sans imposer une structure ou un contenu prédéfini par le générateur. Ce choix évite de produire un fichier artificiellement rempli de valeurs par défaut, qui ne correspondraient pas nécessairement aux règles métier ni aux besoins réels de validation.
+
+Un fournisseur de test ("*provider*") est automatiquement généré. Pour rappel le "*provider*" est le service d'infrastructure représentant la couche de persistance pour le service métier. Ici il s'agit donc d'un fournisseur de persistance destiné à servir de bouchon pour les tests fonctionnels du domaine. 
+
+Cette classe "*[Nom du service]ProviderTestImpl*" contient par défaut le code généré suivant : 
+
+```java
+@Override
+public List<PersonneDtoImpl> retourneTous() {
+    // Start of user code 76901942dcec873b8d69280745538a96
+    return null;
+    // End of user code
+}
+
+@Override
+public PersonneDtoImpl chercheParId(final Long personne_id) {
+    // Start of user code 213b153cf17e81eda9f6b8b67f005368
+    return null;
+    // End of user code
+}
+```
+
+Pour les mêmes raisons que celles évoquées avec le fichier de données, c'est au développeur de coder l'interfaçage (toujours entre les balises de type "*user code*".
+
+L'autre classe générée "*[Nom du service]ServiceTestImpl*", quant à elle, constitue le point d'entrée des scénarios Karate vers le service métier testé. Elle permet d'invoquer les opérations métier à partir des données fournies par les scénarios, sans exposer directement les détails techniques de conversion des données YAML vers les objets Java attendus par le domaine. 
+
+Cette classe "*[Nom du service]ServiceTestImpl*" assure notamment :
+
+- L'initialisation du service métier à tester avec le "*provider*" dédié aux tests.
+- La récupération des paramètres d'entrée transmis par les scénarios.
+- La conversion de ces paramètres vers les types attendus par les opérations métier.
+- L'appel des opérations du service métier.
+- Le retour des résultats aux scénarios Karate, afin qu'ils puissent être vérifiés.
+
+Elle joue ainsi le rôle d'adaptateur entre le format des données de test et les interfaces du domaine métier. Dans le cadre de ce paragraphe on identifiera par la suite cette classe comme étant un adaptateur.
+
+Le fournisseur dédié aux tests est simplement injecté dans le service initialement à tester avec le code suivant au niveau du constructeur de l'adaptateur : 
+
+```java
+public PersonnesServiceTestImpl() {
+    this.provider = new PersonnesServiceProviderTestImpl();
+    this.service = new PersonnesServiceImpl(provider);
+}
+```
+
+Et pour chaque opération du service est générée une méthode :
+
+```java
+public List<PersonneDtoImpl> retourneTous(final Map<String, Object> data) {
+
+    // Start of user code 76901942dcec873b8d69280745538a96
+    // End of user code
+
+    return this.service.retourneTous();
+}
+	
+public Optional<PersonneDtoImpl> chercheParId(final Map<String, Object> data) {
+
+    Long idPersonne = null;
+
+    // Start of user code d5213483b134a09f890e250679f635e0
+    // End of user code
+
+    return this.service.chercheParId(idPersonne);
+}
+```
+
+Map<String, Object> : une Map est une structure qui associe une clé à une valeur. Ici, les clés sont des String correspondant aux noms des propriétés définies dans le YAML, et les valeurs sont des objets Java (Object) pouvant être de différents types : chaînes, nombres, booléens, listes, dtos ou autres maps.
+
+Ici un extrait pour la récupération de la liste (retourneTous), on ne présente que la partie de mapping pour une personne, hors de tout contexte de boucle :  
+
+```java
+PersonneDtoImpl personne = new PersonneDtoImpl();
+personne.setPersonne_id(((Number) data.get("personne_id")).longValue());
+personne.setNom((String) data.get("nom"));
+personne.setPrenom((String) data.get("prenom"));
+personne.setAge(((Number) data.get("age")).intValue());
+etc...
+```
+
+Le fonctionnement général est donc le suivant : 
+
+- Lecture du fichier YAML et convertion de son contenu en objets Java au niveau de l'adaptateur.
+
+- Initialisation du fournisseur de persistance qui simule l'accès aux données sans dépendre de l'infrastructure réelle.
+
+- Initialisation du service métier à tester qui est instancié avec ce fournisseur, conformément à l'architecture hexagonale.
+
+- Le scénario Karate appelle l'adaptateur qui transmet la demande au service métier. Celui-ci délègue le traitement au fournisseur via l'interface métier.
+
+- Le résultat obtenu remonte du fournisseur vers le service métier, puis vers l'adaptateur, qui le retourne au scénario Karate.
+
+- Karate compare le résultat obtenu avec les valeurs attendues définies dans le scénario et valide ou signale l'échec du test.
+
+❗ Le fichier YAML permet de définir principalement deux types de données : les données d'entrée utilisées pour exécuter une opération et les données de sortie utilisées pour simuler la réponse du fournisseur.
+
+- Données d'entrée : elles décrivent les paramètres nécessaires à l'opération testée. Elles sont lues depuis le fichier YAML, puis converties en objets Java au niveau de l'adaptateur, avant d'être transmises au service métier.
+
+- Données de sortie : elles décrivent les données que le fournisseur de test doit retourner en réponse à une opération. Elles sont également lues et converties au niveau de l'adaptateur, mais doivent ensuite être transmises au fournisseur afin que celui-ci puisse simuler la réponse attendue.
+
+La transmission des données de sortie nécessite donc un mécanisme spécifique. En effet, l'interface métier définit uniquement les opérations que tout fournisseur doit obligatoirement implémenter. Elle n'a pas vocation à imposer une méthode supplémentaire dédiée à la configuration des tests, car cette fonctionnalité ne relève pas du contrat métier.
+
+Pour éviter de modifier cette interface, le mécanisme retenu consiste très simplement à transmettre la Map directement à l'implémentation du fournisseur de test, au moyen d'une méthode spécifique "*setData()*". 
+
+Ainsi dans le cas de l'opération "*retourneTous()*" on aurait un extrait de code du type :
+
+```java
+public List<PersonneDtoImpl> retourneTous(final Map<String, Object> data) {
+
+   // Start of user code 76901942dcec873b8d69280745538a96
+
+   traitement de la boucle...
+      PersonneDtoImpl personne = new PersonneDtoImpl();
+      personne.setPersonne_id(((Number) data.get("personne_id")).longValue());
+      personne.setNom((String) data.get("nom"));
+      personne.setPrenom((String) data.get("prenom"));
+      personne.setAge(((Number) data.get("age")).intValue());
+      ... ajout de chaque personne à la liste
+      personnes.add(personne);
+
+   ... à la sortie de boucle transfert des données au fournisseur.
+   Map<String, Object> personnesMap = new HashMap<>();
+   personnesMap.put("personnes", personnesMap);
+   this.provider.setData(personnesMap);
+
+   // End of user code
+
+   return this.service.getPersonnes();
+}
+```
+
+Et le fournisseur récupère l'ensemble des données : 
+
+```java
+@Override
+public List<PersonneDtoImpl> retourneTous() {
+
+    // Start of user code 76901942dcec873b8d69280745538a96
+    
+    return (List<PersonneDtoImpl>) this.data.get("personnes");
+
+    // End of user code
+}
+```
+
+❗ L'exemple donné est ici simpliste et dans le cadre de tests fonctionnels ne sert strictement à rien mais il pemet simplement de montrer l'ensemble de l'architecture. Il est évident que, dans le cadre de tests fonctionnels, l'objectif est uniquement de vérifier le bon fonctionnement du code présent dans la partie métier ci-dessous (ici il n'y a pas de code fonctionnel puisqu'on se contente de retourner une liste de personnes, mais on aurait pu imaginer des règles métier qui complètent les données, etc...) :
+
+```java
+@Override
+public List<PersonneDtoImpl> getPersonnes() {
+    List<PersonneDtoImpl> personnes = this.personnesProvider.getPersonnes();
+    return personnes;
+}
+```
+
+Le schéma suivant donne un aperçu de l'enchaînement des différentes étapes du test fonctionnel : 
+    
+<div align="center">
+   <img src="images/pcm-test-soa-5.png" alt="Tests Karaté" width="800">
+</div>
+
+La compilation permet de produire un fichier JAR contenant les classes compilées de la couche métier. Ce fichier constitue une bibliothèque réutilisable par les applications qui s'appuient sur le domaine. Il ne s'agit pas d'une application autonome et il n'est donc pas destiné à être lancé directement.
+        
+Une fois le domaine compilé, les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.
+
+Pour exécuter un scénario tapper la commande suivante (le jar spécifique est construit avec le suffixe "-tests-fonctionnels") : 
+
+```bash
+java -Dtest.data.dir="C:/mes-tests/data" -jar demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar "C:/mes-tests/features/personnes.feature" -- retouneTous
+```
+
+Cette commande se décompose comme suit :
+
+- '***java***' : lance la machine virtuelle Java.
+
+- '***-Dtest.data.dir="C:/mes-tests/data"***' : définit la propriété système test.data.dir, qui indique le répertoire contenant les fichiers de données YAML utilisés par les scénarios. Dans cet exemple, le fichier "*personnes.yaml*" est recherché dans "*C:/mes-tests/data*".
+
+- '***-jar demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar***' : exécute le JAR autonome contenant les classes de tests et leurs dépendances.
+
+- '***"C:/mes-tests/features/personnes.feature"***' : indique le fichier Karate contenant les scénarios fonctionnels à exécuter pour le service concerné.
+
+- '***--retourneTous***' : désigne le scénario à sélectionner dans le fichier "*.feature*".
+
+Pour lancer tous les scénarios : 
+
+```bash
+java -Dtest.data.dir="C:/mes-tests/data" -jar demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar "C:/mes-tests/features"
+```
+
+### 🧩 Génération des relations
+    
+Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple    , bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. 
 
 L'objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. 
 
@@ -3477,6 +3871,8 @@ Ici deux entités seront modélisées, avec toujours pour noms respectifs, simpl
 ❗ Attention dans ce chapitre, à ne pas confondre bidirectionnel au sens JPA et bidirectionnel au sens de la modélisation. Ce n'est pas parceque le développeur doit tirer une relation bidirectionnelle (appelée telle qu'elle au niveau de l'outil de modélisation) que l'on désire au niveau JPA attaquer la relation dans les deux sens (bidirectionnel au sens JPA). La nécessité du bidirectionnel au sens JPA sera à étudier selon les éventuels futurs besoins au niveau des générateurs **Pacman**.
 
 ❗ Au niveau des scripts SQL, ne sont pour l'instant affichées que les créations de table afin de rapidement visualiser les différentes relations. Ne sont donc pas présentés les indexs et contraintes inhérentes à la création de ces relations.
+
+
 
 #### Relation (1)/(0,1)
 
@@ -5884,6 +6280,42 @@ Un bref shéma récapitulatif explique le fonctionnement de cette implémentatio
   <img src="images/pcm-soa-s3-impl.png" alt="Architecture S3" width="500">
 </div>
 
+#### Mise en place d'un service custom
+
+Il est possible de créer des services d'infrastructure avec juste le squelette de base, ceci afin de coder librement (hors de tout gestionnaire de persistance Jpa ou autre). C'est donc au développeur de coder entièrement son service de persistance (ou autre) à l'intérieur des balises de type "*user code*".
+
+Pour ce faire, il suffit simplement de positionner la métadonnée "*CUSTOM*" au niveau du service. La classe générée sera, quant à elle, toujours nommée : "**[nom du service]CustomProviderImpl**". 
+
+Le code de chaque opération du service d'infrastructure est alors du type : 
+
+```java
+@Override
+public String myCustomOperation(final Boolean forceStart) {
+
+    // Start of user code 0235dc0e4fb20f159615b3d0358ad63c
+
+    throw new ObeoTsBackupNotImplementedException
+      ("La méthode 'myCustomOperation' n'a pas été implémentée");
+
+    // End of user code
+}
+```
+
+... et son constructeur est entièrement encadré par des balises de type "*user code*", ceci afin de pouvoir pratiquer les injections désirées : 
+
+```java
+// Start of user code 2129864a49adcaa3a812f92be467bf4e
+// End of user code
+
+/**
+ * Constructeur.
+ */
+@Autowired
+// Start of user code 2e3e969fd52202f4f94ef7456a361c15
+public myCustomServiceCustomProviderImpl() {
+}
+// End of user code
+```
 
 #### Contrôle d'isolation des données
 
@@ -6351,9 +6783,11 @@ Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[n
   <img src="images/pcm-gen-soaclient-1.png" alt="Génération soa client" width=600>
 </div>
 
+❗ Attention : noter qu'ici, si il existe bien un projet généré avec la dénomination : "***[Nom de l'application]-domain***", il ne s'agit en aucun cas d'une architecture hexagonale. En effet ce projet contient uniquement les objets sérialisés (XTO) et une dépendance technique avec les annotation Json. Il s'agit plus en l'occurence d'un projet de type "***-common***" mais la dénomination "***-domain***" a été laissée simplement pour homogénéisation des noms de sous-projets (couche métier).
+
 **Au niveau du projet du domaine (couche métier)** : 
 
-• ***[package racine].domain.entities.[nom du namespace]*** : Ces packages contiennent l'ensemble des objets métier (***dtos***). Comme il s'agit d'objets sérialisés, on parlera donc d'objet de type "***Xto***" dans le cadre de générateurs **Pacman**.
+• ***[package racine].app.entities.[nom du namespace]*** : Ces packages contiennent l'ensemble des objets métier (***dtos***). Comme il s'agit d'objets sérialisés, on parlera donc d'objet de type "***Xto***" dans le cadre de générateurs **Pacman**.
 
 **Au niveau du projet serveur** : 
 
@@ -6939,6 +7373,7 @@ Liste des métadonnées disponibles (certaines métadonnées sont présentes mai
 | STORAGE_IMMUTABLE | NON | Le document n'est pas modifiable | SERVICE |
 | STORAGE_RETENTION_DURATION | NON | Assigne la durée de rétention du document | SERVICE |
 | STORAGE_RETENTION | OUI | Assigne le type de rétention du document | SERVICE |
+| CUSTOM | NON | Assigne le service pour du code libre | SERVICE |
 | BATCH_READ | NON | L'opération lit en base de données | OPERATION |
 | BATCH_WRITE | NON | L'opération écrit en base de données | OPERATION |
 | BATCH_PROCESS | NON | L'opération effectue un traitement hors base | OPERATION |

@@ -124,7 +124,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>09/07/2026 : Ajouts : Contrôle d'isolation des données.</li>
 <li>29/07/2026 : Modifications : Contrôle d'isolation des données.</li>
 <li>12/08/2026 : Ajouts : Migration Spring Boot 4.</li>
-<li>13/08/2026 : Modifications : Logging</li>
+<li>13/08/2026 : Modifications : Logging.</li>
+<li>28/08/2026 : Adaptation Pacman sur Studio 6.0.0.</li>
+<li>16/10/2026 : Ajouts : Complétion tests karaté au niveau du domaine.</li>
 </ul>
 <hr/>
 <h2 id="introduction">🚀 Introduction</h2>
@@ -197,8 +199,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <hr/>
 <h3 id="prerequis">Prérequis</h3>
 <ul>
-<li>Version Information System Designer  :  5.1.1+  (https://www.isdesigner.org et https://github.com/ObeoNetwork/InformationSystem/releases)</li>
-<li>JDK : 17+</li>
+<li>Version Information System Designer  :  6.0.0+  (https://www.isdesigner.org et https://github.com/ObeoNetwork/InformationSystem/releases)</li>
+<li>JDK : 21+</li>
 </ul>
 <h3 id="plugins-externes">Plugins externes</h3>
 <p>1 - Vérification de la version pour l'IDE</p>
@@ -682,6 +684,20 @@ Il s'agit des vues suivantes : </p>
 <span class="na">logging.auth.audit.enabled</span><span class="o">=</span><span class="s">true</span>
 </code></pre></div>
 <p>On peut ici constater la présence de deux interrupteurs ("<em>logging.api.audit.enabled</em>" et "<em>logging.auth.audit.enabled</em>") qui permettent d'activer ou non la journalisation des données sur redémarrage du serveur.</p>
+<p>Par ailleurs, les propriétés ci-dessous permettent d'activer des logs détaillés concernant la sécurité de l'application.</p>
+<p>Elles sont désactivées par défaut afin de ne pas générer inutilement des logs en fonctionnement normal. Elles peuvent être activées ponctuellement par le développeur lors du développement ou pour diagnostiquer un problème lié à la sécurité ou à l'authentification.</p>
+<p>Chaque propriété cible un niveau différent de la chaîne de sécurité et peut être activée indépendamment selon le niveau de détail recherché.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Active les logs pour l'ensemble de Spring Security</span>
+<span class="na">logging.level.org.springframework.security</span><span class="o">=</span><span class="s">OFF</span>
+<span class="c1"># Active les logs pour le filtrage des requêtes et la sélection des SecurityFilterChain</span>
+<span class="na">logging.level.org.springframework.security.web.FilterChainProxy</span><span class="o">=</span><span class="s">OFF</span>
+<span class="c1"># Active les logs pour le processus d'authentification</span>
+<span class="na">logging.level.org.springframework.security.authentication</span><span class="o">=</span><span class="s">OFF</span>
+<span class="c1"># Active les logs TRACE pour l'authentification HTTP Basic</span>
+<span class="na">logging.level.org.springframework.security.web.authentication.www.BasicAuthenticationFilter</span><span class="o">=</span><span class="s">OFF</span>
+<span class="c1"># Active les logs TRACE pour le processus d'authentification, quel que soit le mécanisme utilisé</span>
+<span class="na">logging.level.org.springframework.security.authentication</span><span class="o">=</span><span class="s">OFF</span>
+</code></pre></div>
 <p>Dans tous les cas, un second fichier est toujours crée afin de compléter la configuration des logs applicatifs puisque cette tâche a été déléguée à log4J2. Il s'agit du fichier "<em>log4j2.properties</em>", présent dans le même répertoire. Si toutes les options d'audit ont été cochées, ce fichier se présente alors sous la forme suivante :  </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># ============================================================</span>
 <span class="c1"># CONSOLE</span>
@@ -1341,10 +1357,12 @@ vault<span class="w"> </span>write<span class="w"> </span>-f<span class="w"> </s
 <div class="codehilite"><pre><span></span><code><span class="cm">/******************************************************************/</span>
 <span class="cm">/* Base de donnees:      h2                                       */</span>
 <span class="cm">/* Application:          demo                                     */</span>
-<span class="cm">/* Date de creation:     07/05/2025 15:50:30                      */</span><span class="w"> </span><span class="cm">/******************************************************************/</span>
+<span class="cm">/* Date de creation:     07/05/2025 15:50:30                      */</span>
+<span class="cm">/******************************************************************/</span>
 
 <span class="cm">/******************************************************************/</span>
-<span class="cm">/* Schema: SCH                                                    */</span><span class="w"> </span><span class="cm">/******************************************************************/</span>
+<span class="cm">/* Schema: SCH                                                    */</span>
+<span class="cm">/******************************************************************/</span>
 <span class="k">create</span><span class="w"> </span><span class="k">schema</span><span class="w"> </span><span class="n">SCH</span><span class="p">;</span>
 
 <span class="cm">/******************************************************************/</span>
@@ -2595,6 +2613,31 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
 </code></pre></div>
 <p>Spring Boot n'a pas nativement de système de décodage des jetons JWT, il convient donc d'utiliser celui qui est fourni par les ressources pour la gestion <em>OAuth2</em>. C'est pourquoi <em>OAuth2</em> sera toujours présent au niveau de la classe de configuration de la sécurité, même si la sécurité demandée est de type <em>Http</em> ou <em>ApiKey</em>.</p>
+<p>❗ Le mécanisme d'authentification HTTP Basic est désormais utilisé de manière exceptionnelle et n'est plus le mécanisme d'authentification privilégié.</p>
+<p>Les éléments de configuration associés sont néanmoins conservés afin de maintenir la compatibilité avec les cas nécessitant encore ce mode d'authentification. Dans ce contexte, les générateurs ne procèdent pas actuellement à l'épuration automatique du code lié à HTTP Basic, ceci afin de ne pas les complexifier avec de nombreuses structures conditionnelles.</p>
+<p>Le maintien de ce support pourra d'ailleurs être réévalué ultérieurement, en fonction des besoins et de l'évolution des configurations de sécurité. Le code java devient alors (remplace le code précédent): </p>
+<div class="codehilite"><pre><span></span><code><span class="p">.</span><span class="na">httpBasic</span><span class="p">(</span><span class="n">basic</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">basic</span>
+<span class="w">  </span><span class="p">.</span><span class="na">authenticationEntryPoint</span><span class="p">(</span><span class="n">authEntryPoint</span><span class="p">))</span>
+<span class="w">  </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+</code></pre></div>
+<p>❗ Un point d'extension UserDetailsService est généré afin de permettre au développeur de personnaliser, si nécessaire, la gestion des utilisateurs dans Spring Security.</p>
+<p>Le code fourni par défaut constitue uniquement un exemple et peut être remplacé par une implémentation adaptée aux besoins de l'application (utilisateurs en mémoire, base de données, service externe, etc.).</p>
+<p>Ce point d'extension n'est pas requis pour l'authentification OAuth2 ou OpenID Connect. Il est néanmoins disponible dans tous les modes de sécurité afin de permettre une personnalisation de la gestion des utilisateurs lorsque l'application en a besoin. Par contre il est justement utile dans le cadre d'une authentification de type Http puisu'il permet ici au développeur de gérer son authentification.</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Bean</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">UserDetailsService</span><span class="w"> </span><span class="nf">users</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// Start of user code 9bc65c2abec141778ffaa729489f3e87</span>
+
+<span class="w">    </span><span class="n">UserDetails</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">User</span><span class="p">.</span><span class="na">builder</span><span class="p">().</span><span class="na">username</span><span class="p">(</span><span class="s">"user"</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="na">password</span><span class="p">(</span><span class="n">passwordEncoder</span><span class="p">()</span>
+<span class="w">        </span><span class="p">.</span><span class="na">encode</span><span class="p">(</span><span class="s">"password"</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="na">roles</span><span class="p">(</span><span class="s">"admin"</span><span class="p">).</span><span class="na">build</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">InMemoryUserDetailsManager</span><span class="p">(</span><span class="n">user</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Le code étant entre balises "<em>user code</em>" il est bien entendu possible d'utiliser un accès base de données, un coffre fort, etc... ceci, afin de récupérer l'ensemble des informations nécessaires à l'authentification utilisateur.</p>
 <h4 id="librairie-sso-du-ministere_1">Librairie SSO du ministère</h4>
 <p>Le Backend For Frontend (BFF) est, à la base, une couche intermédiaire (design-pattern) entre un frontend et les services backend. Le BFF se charge d'appeler les services nécessaires, d'assembler et de transformer les données, et de ne retourner que les informations utiles au frontend. Cela permet au frontend de se concentrer uniquement sur l'affichage et l'expérience utilisateur.</p>
 <p>Ainsi, le BFF permet (entre autres) de :</p>
@@ -2697,11 +2740,16 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <div class="codehilite"><pre><span></span><code><span class="na">project.frontend.uri</span><span class="o">=</span><span class="s">[URL complète du service backend]</span>
 </code></pre></div>
 <h3 id="generation-des-tests-fonctionnels-dapi">🥋 Génération des tests fonctionnels d'API</h3>
+<h4 id="architecture-hexagonale_1">Architecture hexagonale</h4>
+<p>L'un des objectifs fondamentaux de l'architecture hexagonale est de préserver l'indépendance du domaine métier vis-à-vis des technologies et des frameworks utilisés dans le reste de l'application. Cette indépendance doit également être prise en compte dans la stratégie de test, même si elle ne s'applique pas exactement de la même manière au code métier et au code de test. Le domaine ne doit connaître ni JUnit, ni Karate, ni Spring, ni aucun autre framework utilisé pour vérifier son comportement : ses services doivent pouvoir être instanciés et exécutés avec de simples classes Java, en s'appuyant sur les ports définis par le domaine et sur les implémentations qui leur sont fournies. </p>
+<p>En revanche, les tests peuvent parfaitement utiliser des frameworks spécialisés, à condition que leurs dépendances restent confinées à leur propre périmètre et ne contaminent pas le code métier. Dans cette logique, JUnit peut servir à lancer les tests Java, tandis que Karate peut être utilisé pour décrire des scénarios fonctionnels à l'aide de fichiers <code>.feature</code>, alimentés par des données JSON. </p>
+<p>Ces outils constituent des choix techniques destinés à faciliter l'écriture, l'exécution et la restitution des tests. Ils ne font pas partie du domaine et ne doivent pas conditionner son fonctionnement. Ces dépendances sont acceptables puisqu'elles se situent dans la partie chargée de l'exécution des tests. Si Karate devait être remplacé ultérieurement, le runner et le dispositif de description ou d'exécution des scénarios devraient être adaptés, mais les services métier, les ports et les règles fonctionnelles devraient pouvoir rester inchangés. </p>
+<p>Il serait techniquement possible d'ajouter une abstraction supplémentaire pour isoler davantage le framework de test, mais cette précaution n'est pas automatiquement nécessaire : multiplier les interfaces et les couches uniquement pour anticiper un éventuel remplacement de l'outil risquerait d'ajouter de la complexité sans apporter de bénéfice concret. L'objectif n'est donc pas de supprimer toute dépendance technique, ce qui serait irréaliste, mais de maîtriser leur emplacement et leur sens. Les dépendances vers les frameworks doivent rester à la périphérie, tandis que le domaine conserve son autonomie. </p>
 <h4 id="le-framework-karate">Le framework Karaté</h4>
 <p>Dans une architecture moderne exposant des API, les tests unitaires ne suffisent généralement pas à garantir le bon fonctionnement global du système. Même si chaque composant pris isolément peut fonctionner correctement, les erreurs apparaissent souvent au niveau des différentes interactions entre plusieurs services. C'est pour répondre à ce besoin que les tests fonctionnels et d'intégration plus poussés d'API deviennent essentiels. Ils permettent de valider un comportement réel de bout en bout, en simulant des appels HTTP proches de ceux effectués par des clients ou d'autres services, et en vérifiant non seulement les réponses, mais aussi les effets produits sur le système.</p>
 <p>Dans ce contexte, Karate a été adopté comme framework de test. Karate est basé sur une approche hybride combinant le langage Gherkin (Given / When / Then) et un moteur d’exécution directement intégré au runtime Java via la JVM. Karate s'inscrit dans la même famille d'outils que Cucumber, à savoir les frameworks BDD (Behavior Driven Development), mais il s'en distingue fortement dans son approche technique et son positionnement. Là où Cucumber repose sur une séparation stricte entre la spécification écrite en Gherkin et le code d’exécution en Java (les "step definitions"), Karate adopte une philosophie beaucoup plus intégrée : les scénarios Gherkin sont directement exécutables sans avoir à écrire de "glue code". </p>
 <p>Cette différence réduit considérablement la complexité de mise en œuvre et de maintenance des tests. De plus, alors que Cucumber est un framework générique pouvant s'adapter à tout type de test mais nécessitant une implémentation manuelle de la logique, Karate est spécialisé dans les tests d'API HTTP et fournit nativement des fonctionnalités avancées pour les appels REST, les assertions JSON, la gestion des données et l'exécution parallèle. En comparaison, Cucumber est plus flexible mais plus verbeux et moins orienté “API testing out-of-the-box”, tandis que Karate privilégie la productivité et la simplicité pour les tests d'intégration et fonctionnels de services web.</p>
-<p>Une seule classe (par défaut très simple) est généré au niveau du squelette pour le projet. Elle permet d'activer le framework Karate et de lancer les différents tests sur un port aléatoire (plus simple si présence de tests concurrents).</p>
+<p>Au niveau du projet serveur "<strong><em>[Nom de l'application]-server</em></strong>" une seule classe (par défaut très simple) est généré au niveau du squelette pour le projet, dans le package : "<em>/src/test/java/[Package racine]</em>". Elle permet d'activer le framework Karate et de lancer les différents tests sur un port aléatoire (plus simple si présence de tests concurrents).</p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@SpringBootTest</span><span class="p">(</span><span class="n">webEnvironment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SpringBootTest</span><span class="p">.</span><span class="na">WebEnvironment</span><span class="p">.</span><span class="na">RANDOM_PORT</span><span class="p">)</span>
 <span class="nd">@ActiveProfiles</span><span class="p">(</span><span class="s">"test"</span><span class="p">)</span>
 <span class="kd">class</span> <span class="nc">DemoApiTestRunner</span><span class="w"> </span><span class="p">{</span>
@@ -2740,7 +2788,7 @@ Il est possible d'enregistrer une personne sans démarche en laissant le code pa
 <span class="p">}</span>
 </code></pre></div>
 <h4 id="centralisation-de-tests-communs">Centralisation de tests communs</h4>
-<p>Dans un projet de tests fonctionnels, certaines opérations ou configurations sont souvent communes à plusieurs scénarios. Afin d’éviter la duplication de code dans les différents fichiers "<em>.feature</em>", il est recommandé de centraliser ces traitements dans des scénarios Karate réutilisables. Cette approche améliore la lisibilité des tests, facilite leur maintenance et garantit un comportement cohérent sur l'ensemble de la suite de tests fonctionnels.</p>
+<p>Dans un projet de tests fonctionnels, certaines opérations ou configurations sont souvent communes à plusieurs scénarios. Afin d'éviter la duplication de code dans les différents fichiers "<em>.feature</em>", il est recommandé de centraliser ces traitements dans des scénarios Karate réutilisables. Cette approche améliore la lisibilité des tests, facilite leur maintenance et garantit un comportement cohérent sur l'ensemble de la suite de tests fonctionnels.</p>
 <p>Par exemple, dans de nombreux projets, les API exposées par l'application sont protégées par un mécanisme d'authentification (JWT, OAuth2, session, API key, etc.). Les tests fonctionnels doivent donc envoyer automatiquement les informations d'authentification nécessaires à chaque requête HTTP. Afin d'éviter la duplication du code d'authentification dans tous les fichiers "<em>.feature</em>", il est recommandé de centraliser cette logique dans un scénario Karate partagé. Cette approche permet de mutualiser la récupération du jeton, de simplifier la maintenance des tests et de garantir un comportement homogène sur l'ensemble des scénarios fonctionnels.</p>
 <ul>
 <li>Créer un scénario dédié à l'authentification :</li>
@@ -2877,8 +2925,284 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="nf">  </span><span class="k">When </span><span class="nf">method get</span>
 <span class="nf">  </span><span class="k">Then </span><span class="nf">status </span><span class="s">404</span>
 </code></pre></div>
+<h4 id="la-couche-metier-domaine">La couche métier (domaine)</h4>
+<p>De même, au niveau du domaine (couche métier), une classe de configuration est générée dans le package "<em>/src/test/java/[Package Racine]</em>". Cette classe (par défaut très simple) à un code tout à fait similaire à celui de la couche d'infrastructure et à les mêmes objectifs, à savoir activer le framework Karate et lancer les différents tests sur un port aléatoire.</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">runTests</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">featuresPath</span><span class="p">,</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">scenarioName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">   </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"========================================"</span><span class="p">);</span>
+<span class="w">   </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">" Tests fonctionnels du domaine"</span><span class="p">);</span>
+<span class="w">   </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">" Scénarios : "</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">featuresPath</span><span class="p">);</span>
+<span class="w">   </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"========================================"</span><span class="p">);</span>
+
+<span class="w">   </span><span class="kd">var</span><span class="w"> </span><span class="n">builder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Runner</span>
+<span class="w">      </span><span class="p">.</span><span class="na">path</span><span class="p">(</span><span class="n">featuresPath</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="na">outputHtmlReport</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+<span class="w">      </span><span class="p">.</span><span class="na">outputCucumberJson</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">scenarioName</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">builder</span><span class="p">.</span><span class="na">scenarioName</span><span class="p">(</span><span class="n">scenarioName</span><span class="p">);</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="w">   </span><span class="n">SuiteResult</span><span class="w"> </span><span class="n">results</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">parallel</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>A la différences des tests pour la couche d'infrastrcuture, cette méthode est appelée soit par la ligne de commande soit par le bais de l'IDE Eclipse avec l'aide des annotations Junit : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Test</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">runAllTests</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">runTests</span><span class="p">(</span><span class="s">"classpath:features"</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">featuresPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">args</span><span class="p">.</span><span class="na">length</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s">"classpath:features"</span><span class="p">;</span>
+<span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">scenarioName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">args</span><span class="p">.</span><span class="na">length</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">args</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">    </span><span class="n">runTests</span><span class="p">(</span><span class="n">featuresPath</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Dans une architecture hexagonale, la couche métier constitue le cœur de l'application. Elle porte les règles de gestion et orchestre les opérations métier, indépendamment des technologies utilisées pour accéder aux données, exposer des services ou communiquer avec des systèmes externes.</p>
+<p>Dans le cadre des tests fonctionnels, les dépendances techniques doivent être remplacées par des implémentations dédiées aux tests. Il devient alors possible de vérifier le comportement métier sans démarrer une base de données, déployer une API ou solliciter un système externe.</p>
+<p>❗ L'objectif n'est plus de tester les implémentations techniques réelles, mais uniquement de vérifier que les services métier respectent leur contrat fonctionnel. Les tests fonctionnels de la couche métier ne doivent pas être réservés aux développeurs. Ils ont vocation à être utilisés par les équipes fonctionnelles tout au long du cycle de vie du projet, depuis la phase de développement jusqu'à la validation des comportements métier.</p>
+<p>Pour répondre à cet objectif, le dispositif de test doit permettre de définir et d'exécuter des scénarios sans nécessiter la maîtrise du code Java ni le déploiement de l'application complète.</p>
+<p>L'objectif est de disposer d'un dispositif unique de tests fonctionnels, utilisable par les deux populations, plutôt que de maintenir des tests spécifiques aux développeurs et d'autres réservés aux fonctionnels.</p>
+<p>Les développeurs restent donc responsables de l'implémentation du dispositif d'exécution, des adaptateurs de test et du raccordement aux opérations métier. Les équipes fonctionnelles contribuent à la définition des scénarios, des jeux de données et des résultats attendus.</p>
+<p>Cette séparation permet aux équipes fonctionnelles de travailler au niveau du comportement métier, sans dépendre de la connaissance des détails d'implémentation.</p>
+<p>Le dispositif doit donc distinguer :</p>
+<ul>
+<li>Le code d'exécution et les adaptateurs, maintenus par les développeurs.</li>
+<li>Les scénarios fonctionnels, élaborés et maintenus conjointement ou par les équipes fonctionnelles.</li>
+<li>Les jeux de données et les résultats attendus, modifiables indépendamment du code.</li>
+<li>La configuration d'exécution, permettant de lancer les tests dans différents environnements.</li>
+</ul>
+<p>La génération permet donc la création de scénarios pour chaque service au niveau du package "<em>/src/test/resources/feature</em>". </p>
+<p>Chaque service possède son propre fichier de type "<em>.feature</em>". </p>
+<p>Chaque fichier se présente sous la forme suivante (on reprend ici notre projet "<em>demo</em>" avec les deux opérations : "<em>retourneTous</em>" et "<em>chercheParId</em>"):  </p>
+<div class="codehilite"><pre><span></span><code><span class="k">Feature:</span><span class="nf"> Service personnes</span>
+
+<span class="nf">  </span><span class="k">Scenario:</span><span class="nf"> retourneTous</span>
+<span class="k">    * </span><span class="nf">print '--- Service métier : retourneTous ---'</span>
+
+<span class="c">    # Chargement des données d'entrée</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def externalData = karate.properties['test.data.dir']</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def dataFileName = 'personnes.yaml'</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def dataFile = externalData ? 'file:' + externalData + '/' + dataFileName : 'classpath:data/' + dataFileName</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def data = read(dataFile)</span>
+
+<span class="c">    # Initialisation du service métier</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def Test = Java.type('fr.demo.domain.services.karate.testdomain.PersonnesServiceTestImpl')</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def test = new Test()</span>
+
+<span class="c">    # Exécution du service métier</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def result = test.retourneTous(data.retourneTous)</span>
+
+<span class="c">    # Vérification du résultat</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">match result != null</span>
+<span class="c">    # TODO : compléter les assertions selon le comportement attendu</span>
+<span class="c">    # Start of user code 76901942dcec873b8d69280745538a96</span>
+<span class="c">    # End of user code</span>
+
+<span class="nf">  </span><span class="k">Scenario:</span><span class="nf"> chercheParId</span>
+<span class="k">    * </span><span class="nf">print '--- Service métier : chercheParId ---'</span>
+
+<span class="c">    # Chargement des données d'entrée</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def externalData = karate.properties['test.data.dir']</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def dataFileName = 'personnes.yaml'</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def dataFile = externalData ? 'file:' + externalData + '/' + dataFileName : 'classpath:data/' + dataFileName</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def data = read(dataFile)</span>
+
+<span class="c">    # Initialisation du service métier</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def Test = Java.type('fr.demo.domain.services.karate.testdomain.PersonnesServiceTestImpl')</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def test = new Test()</span>
+
+<span class="c">    # Exécution du service métier</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def result = test.chercheParId(data.chercheParId)</span>
+
+<span class="c">    # Vérification du résultat</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">match result != null</span>
+<span class="c">    # TODO : compléter les assertions selon le comportement attendu</span>
+<span class="c">    # Start of user code d5213483b134a09f890e250679f635e0</span>
+
+<span class="c">    # End of user code</span>
+</code></pre></div>
+<p>Chaque service étant dans l'obligation de retourner quelque chose, le début de la vérification de la sortie est aussi automatiquement généré par <strong>Pacman</strong> : </p>
+<div class="codehilite"><pre><span></span><code><span class="c"># Vérification du résultat</span>
+<span class="k">* </span><span class="nf">match result != null</span>
+</code></pre></div>
+<p>Par contre c'est ensuite au développeur (ou aux fonctionnels) de compléter les attendus à l'intérieur des balises de type "<em>user code</em>".</p>
+<p>En parallèle, chaque service dispose d'un squelette pour le fichier d'injection des données, situé au niveau du package : "<em>/src/test/resources/data</em>". Ce fichier est au format "<em>.yaml</em>" et par défaut ne contient que les rubriques suivantes :  </p>
+<div class="codehilite"><pre><span></span><code><span class="nt">retourneTous</span><span class="p">:</span>
+<span class="w">   </span><span class="c1"># Start of user code 76901942dcec873b8d69280745538a96</span>
+<span class="w">   </span><span class="c1"># End of user code</span>
+
+<span class="nt">chercheParId</span><span class="p">:</span>
+<span class="w">   </span><span class="c1"># Start of user code 213b153cf17e81eda9f6b8b67f005368</span>
+<span class="w">   </span><span class="c1"># End of user code</span>
+</code></pre></div>
+<p>❗ Le fichier YAML contenant les données de test n'est volontairement pas généré automatiquement. Ce choix permet de laisser aux développeurs et aux équipes fonctionnelles la liberté de définir les jeux de données en fonction des besoins de validation, sans imposer une structure ou un contenu prédéfini par le générateur. Ce choix évite de produire un fichier artificiellement rempli de valeurs par défaut, qui ne correspondraient pas nécessairement aux règles métier ni aux besoins réels de validation.</p>
+<p>Un fournisseur de test ("<em>provider</em>") est automatiquement généré. Pour rappel le "<em>provider</em>" est le service d'infrastructure représentant la couche de persistance pour le service métier. Ici il s'agit donc d'un fournisseur de persistance destiné à servir de bouchon pour les tests fonctionnels du domaine. </p>
+<p>Cette classe "<em>[Nom du service]ProviderTestImpl</em>" contient par défaut le code généré suivant : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Override</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">retourneTous</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Start of user code 76901942dcec873b8d69280745538a96</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+<span class="p">}</span>
+
+<span class="nd">@Override</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">PersonneDtoImpl</span><span class="w"> </span><span class="nf">chercheParId</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">personne_id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Start of user code 213b153cf17e81eda9f6b8b67f005368</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Pour les mêmes raisons que celles évoquées avec le fichier de données, c'est au développeur de coder l'interfaçage (toujours entre les balises de type "<em>user code</em>".</p>
+<p>L'autre classe générée "<em>[Nom du service]ServiceTestImpl</em>", quant à elle, constitue le point d'entrée des scénarios Karate vers le service métier testé. Elle permet d'invoquer les opérations métier à partir des données fournies par les scénarios, sans exposer directement les détails techniques de conversion des données YAML vers les objets Java attendus par le domaine. </p>
+<p>Cette classe "<em>[Nom du service]ServiceTestImpl</em>" assure notamment :</p>
+<ul>
+<li>L'initialisation du service métier à tester avec le "<em>provider</em>" dédié aux tests.</li>
+<li>La récupération des paramètres d'entrée transmis par les scénarios.</li>
+<li>La conversion de ces paramètres vers les types attendus par les opérations métier.</li>
+<li>L'appel des opérations du service métier.</li>
+<li>Le retour des résultats aux scénarios Karate, afin qu'ils puissent être vérifiés.</li>
+</ul>
+<p>Elle joue ainsi le rôle d'adaptateur entre le format des données de test et les interfaces du domaine métier. Dans le cadre de ce paragraphe on identifiera par la suite cette classe comme étant un adaptateur.</p>
+<p>Le fournisseur dédié aux tests est simplement injecté dans le service initialement à tester avec le code suivant au niveau du constructeur de l'adaptateur : </p>
+<div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="nf">PersonnesServiceTestImpl</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PersonnesServiceProviderTestImpl</span><span class="p">();</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="na">service</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PersonnesServiceImpl</span><span class="p">(</span><span class="n">provider</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Et pour chaque opération du service est générée une méthode :</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">retourneTous</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// Start of user code 76901942dcec873b8d69280745538a96</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">service</span><span class="p">.</span><span class="na">retourneTous</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">chercheParId</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="n">Long</span><span class="w"> </span><span class="n">idPersonne</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Start of user code d5213483b134a09f890e250679f635e0</span>
+<span class="w">    </span><span class="c1">// End of user code</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">service</span><span class="p">.</span><span class="na">chercheParId</span><span class="p">(</span><span class="n">idPersonne</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Map<string, object=""> : une Map est une structure qui associe une clé à une valeur. Ici, les clés sont des String correspondant aux noms des propriétés définies dans le YAML, et les valeurs sont des objets Java (Object) pouvant être de différents types : chaînes, nombres, booléens, listes, dtos ou autres maps.</string,></p>
+<p>Ici un extrait pour la récupération de la liste (retourneTous), on ne présente que la partie de mapping pour une personne, hors de tout contexte de boucle :  </p>
+<div class="codehilite"><pre><span></span><code><span class="n">PersonneDtoImpl</span><span class="w"> </span><span class="n">personne</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PersonneDtoImpl</span><span class="p">();</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setPersonne_id</span><span class="p">(((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"personne_id"</span><span class="p">)).</span><span class="na">longValue</span><span class="p">());</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setNom</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"nom"</span><span class="p">));</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setPrenom</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"prenom"</span><span class="p">));</span>
+<span class="n">personne</span><span class="p">.</span><span class="na">setAge</span><span class="p">(((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"age"</span><span class="p">)).</span><span class="na">intValue</span><span class="p">());</span>
+<span class="n">etc</span><span class="p">...</span>
+</code></pre></div>
+<p>Le fonctionnement général est donc le suivant : </p>
+<ul>
+<li>
+<p>Lecture du fichier YAML et convertion de son contenu en objets Java au niveau de l'adaptateur.</p>
+</li>
+<li>
+<p>Initialisation du fournisseur de persistance qui simule l'accès aux données sans dépendre de l'infrastructure réelle.</p>
+</li>
+<li>
+<p>Initialisation du service métier à tester qui est instancié avec ce fournisseur, conformément à l'architecture hexagonale.</p>
+</li>
+<li>
+<p>Le scénario Karate appelle l'adaptateur qui transmet la demande au service métier. Celui-ci délègue le traitement au fournisseur via l'interface métier.</p>
+</li>
+<li>
+<p>Le résultat obtenu remonte du fournisseur vers le service métier, puis vers l'adaptateur, qui le retourne au scénario Karate.</p>
+</li>
+<li>
+<p>Karate compare le résultat obtenu avec les valeurs attendues définies dans le scénario et valide ou signale l'échec du test.</p>
+</li>
+</ul>
+<p>❗ Le fichier YAML permet de définir principalement deux types de données : les données d'entrée utilisées pour exécuter une opération et les données de sortie utilisées pour simuler la réponse du fournisseur.</p>
+<ul>
+<li>
+<p>Données d'entrée : elles décrivent les paramètres nécessaires à l'opération testée. Elles sont lues depuis le fichier YAML, puis converties en objets Java au niveau de l'adaptateur, avant d'être transmises au service métier.</p>
+</li>
+<li>
+<p>Données de sortie : elles décrivent les données que le fournisseur de test doit retourner en réponse à une opération. Elles sont également lues et converties au niveau de l'adaptateur, mais doivent ensuite être transmises au fournisseur afin que celui-ci puisse simuler la réponse attendue.</p>
+</li>
+</ul>
+<p>La transmission des données de sortie nécessite donc un mécanisme spécifique. En effet, l'interface métier définit uniquement les opérations que tout fournisseur doit obligatoirement implémenter. Elle n'a pas vocation à imposer une méthode supplémentaire dédiée à la configuration des tests, car cette fonctionnalité ne relève pas du contrat métier.</p>
+<p>Pour éviter de modifier cette interface, le mécanisme retenu consiste très simplement à transmettre la Map directement à l'implémentation du fournisseur de test, au moyen d'une méthode spécifique "<em>setData()</em>". </p>
+<p>Ainsi dans le cas de l'opération "<em>retourneTous()</em>" on aurait un extrait de code du type :</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">retourneTous</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">   </span><span class="c1">// Start of user code 76901942dcec873b8d69280745538a96</span>
+
+<span class="w">   </span><span class="n">traitement</span><span class="w"> </span><span class="n">de</span><span class="w"> </span><span class="n">la</span><span class="w"> </span><span class="n">boucle</span><span class="p">...</span>
+<span class="w">      </span><span class="n">PersonneDtoImpl</span><span class="w"> </span><span class="n">personne</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PersonneDtoImpl</span><span class="p">();</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setPersonne_id</span><span class="p">(((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"personne_id"</span><span class="p">)).</span><span class="na">longValue</span><span class="p">());</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setNom</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"nom"</span><span class="p">));</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setPrenom</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"prenom"</span><span class="p">));</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setAge</span><span class="p">(((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"age"</span><span class="p">)).</span><span class="na">intValue</span><span class="p">());</span>
+<span class="w">      </span><span class="p">...</span><span class="w"> </span><span class="n">ajout</span><span class="w"> </span><span class="n">de</span><span class="w"> </span><span class="n">chaque</span><span class="w"> </span><span class="n">personne</span><span class="w"> </span><span class="n">à</span><span class="w"> </span><span class="n">la</span><span class="w"> </span><span class="n">liste</span>
+<span class="w">      </span><span class="n">personnes</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">personne</span><span class="p">);</span>
+
+<span class="w">   </span><span class="p">...</span><span class="w"> </span><span class="n">à</span><span class="w"> </span><span class="n">la</span><span class="w"> </span><span class="n">sortie</span><span class="w"> </span><span class="n">de</span><span class="w"> </span><span class="n">boucle</span><span class="w"> </span><span class="n">transfert</span><span class="w"> </span><span class="n">des</span><span class="w"> </span><span class="n">données</span><span class="w"> </span><span class="n">au</span><span class="w"> </span><span class="n">fournisseur</span><span class="p">.</span>
+<span class="w">   </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnesMap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span>
+<span class="w">   </span><span class="n">personnesMap</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">"personnes"</span><span class="p">,</span><span class="w"> </span><span class="n">personnesMap</span><span class="p">);</span>
+<span class="w">   </span><span class="k">this</span><span class="p">.</span><span class="na">provider</span><span class="p">.</span><span class="na">setData</span><span class="p">(</span><span class="n">personnesMap</span><span class="p">);</span>
+
+<span class="w">   </span><span class="c1">// End of user code</span>
+
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">service</span><span class="p">.</span><span class="na">getPersonnes</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Et le fournisseur récupère l'ensemble des données : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Override</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">retourneTous</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// Start of user code 76901942dcec873b8d69280745538a96</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"personnes"</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// End of user code</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>❗ L'exemple donné est ici simpliste et dans le cadre de tests fonctionnels ne sert strictement à rien mais il pemet simplement de montrer l'ensemble de l'architecture. Il est évident que, dans le cadre de tests fonctionnels, l'objectif est uniquement de vérifier le bon fonctionnement du code présent dans la partie métier (ici il n'y a pas de code fonctionnel puisqu'on se contente de retourner une liste de personnes, mais on aurait pu imaginer des règles métier qui complètent les données, etc...) :</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Override</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getPersonnes</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">personnesProvider</span><span class="p">.</span><span class="na">getPersonnes</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">personnes</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Le schéma suivant donne un aperçu de l'enchaînement des différentes étapes du test fonctionnel : </p>
+<div align="center">
+<img alt="Tests Karaté" src="images/pcm-test-soa-5.png" width="800"/>
+</div>
+<p>La compilation permet de produire un fichier JAR contenant les classes compilées de la couche métier. Ce fichier constitue une bibliothèque réutilisable par les applications qui s'appuient sur le domaine. Il ne s'agit pas d'une application autonome et il n'est donc pas destiné à être lancé directement.</p>
+<p>Une fois le domaine compilé, les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.</p>
+<p>Pour exécuter un scénario tapper la commande suivante (le jar spécifique est construit avec le suffixe "-tests-fonctionnels") : </p>
+<div class="codehilite"><pre><span></span><code>java<span class="w"> </span>-Dtest.data.dir<span class="o">=</span><span class="s2">"C:/mes-tests/data"</span><span class="w"> </span>-jar<span class="w"> </span>demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar<span class="w"> </span><span class="s2">"C:/mes-tests/features/personnes.feature"</span><span class="w"> </span>--<span class="w"> </span>retouneTous
+</code></pre></div>
+<p>Cette commande se décompose comme suit :</p>
+<ul>
+<li>
+<p>'<strong><em>java</em></strong>' : lance la machine virtuelle Java.</p>
+</li>
+<li>
+<p>'<strong><em>-Dtest.data.dir="C:/mes-tests/data"</em></strong>' : définit la propriété système test.data.dir, qui indique le répertoire contenant les fichiers de données YAML utilisés par les scénarios. Dans cet exemple, le fichier "<em>personnes.yaml</em>" est recherché dans "<em>C:/mes-tests/data</em>".</p>
+</li>
+<li>
+<p>'<strong><em>-jar demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar</em></strong>' : exécute le JAR autonome contenant les classes de tests et leurs dépendances.</p>
+</li>
+<li>
+<p>'<strong><em>"C:/mes-tests/features/personnes.feature"</em></strong>' : indique le fichier Karate contenant les scénarios fonctionnels à exécuter pour le service concerné.</p>
+</li>
+<li>
+<p>'<strong><em>--retourneTous</em></strong>' : désigne le scénario à sélectionner dans le fichier "<em>.feature</em>".</p>
+</li>
+</ul>
+<p>Pour lancer tous les scénarios : </p>
+<div class="codehilite"><pre><span></span><code>java<span class="w"> </span>-Dtest.data.dir<span class="o">=</span><span class="s2">"C:/mes-tests/data"</span><span class="w"> </span>-jar<span class="w"> </span>demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar<span class="w"> </span><span class="s2">"C:/mes-tests/features"</span>
+</code></pre></div>
 <h3 id="generation-des-relations">🧩 Génération des relations</h3>
-<p>Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple, bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. </p>
+<p>Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple    , bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. </p>
 <p>L'objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. </p>
 <p>Ici deux entités seront modélisées, avec toujours pour noms respectifs, simplement A et B.</p>
 <p>❗ Attention dans ce chapitre, à ne pas confondre bidirectionnel au sens JPA et bidirectionnel au sens de la modélisation. Ce n'est pas parceque le développeur doit tirer une relation bidirectionnelle (appelée telle qu'elle au niveau de l'outil de modélisation) que l'on désire au niveau JPA attaquer la relation dans les deux sens (bidirectionnel au sens JPA). La nécessité du bidirectionnel au sens JPA sera à étudier selon les éventuels futurs besoins au niveau des générateurs <strong>Pacman</strong>.</p>
@@ -5019,6 +5343,34 @@ Au niveau de l'implémentation pour la récupération du document, on peut remar
 <div align="center">
 <img alt="Architecture S3" src="images/pcm-soa-s3-impl.png" width="500"/>
 </div>
+<h4 id="mise-en-place-dun-service-custom">Mise en place d'un service custom</h4>
+<p>Il est possible de créer des services d'infrastructure avec juste le squelette de base, ceci afin de coder librement (hors de tout gestionnaire de persistance Jpa ou autre). C'est donc au développeur de coder entièrement son service de persistance (ou autre) à l'intérieur des balises de type "<em>user code</em>".</p>
+<p>Pour ce faire, il suffit simplement de positionner la métadonnée "<em>CUSTOM</em>" au niveau du service. La classe générée sera, quant à elle, toujours nommée : "<strong>[nom du service]CustomProviderImpl</strong>". </p>
+<p>Le code de chaque opération du service d'infrastructure est alors du type : </p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@Override</span>
+<span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">myCustomOperation</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">forceStart</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// Start of user code 0235dc0e4fb20f159615b3d0358ad63c</span>
+
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ObeoTsBackupNotImplementedException</span>
+<span class="w">      </span><span class="p">(</span><span class="s">"La méthode 'myCustomOperation' n'a pas été implémentée"</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// End of user code</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>... et son constructeur est entièrement encadré par des balises de type "<em>user code</em>", ceci afin de pouvoir pratiquer les injections désirées : </p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Start of user code 2129864a49adcaa3a812f92be467bf4e</span>
+<span class="c1">// End of user code</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Constructeur.</span>
+<span class="cm"> */</span>
+<span class="nd">@Autowired</span>
+<span class="c1">// Start of user code 2e3e969fd52202f4f94ef7456a361c15</span>
+<span class="kd">public</span><span class="w"> </span><span class="nf">myCustomServiceCustomProviderImpl</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="p">}</span>
+<span class="c1">// End of user code</span>
+</code></pre></div>
 <h4 id="controle-disolation-des-donnees">Contrôle d'isolation des données</h4>
 <p>Une vulnérabilité fréquente des applications Web consiste à faire confiance aux identifiants transmis par le client (URI, paramètres de requête ou corps de requête) sans vérifier que la ressource demandée appartient bien au périmètre de données de l'utilisateur connecté. Ce type de faille est connu sous le nom d'IDOR (Insecure Direct Object Reference) ou plus généralement BOLA (Broken Object Level Authorization) pour les API REST. </p>
 <p>Un scénario typique est le suivant : un utilisateur authentifié consulte la liste de ses contrats et ouvre le contrat n°2358478 via l'URL "<em>/contracts/2358478</em>". S'il modifie manuellement cette URL en "<em>/contracts/2358479</em>" et que le serveur se contente d'effectuer une recherche par identifiant ("<em>findById(2358479)</em>"), il peut, avec un peu de chance, accéder au contrat d'un autre utilisateur. Il ne s'agit pas d'un problème de droits fonctionnels (l'utilisateur est correctement authentifié et possède bien le droit de consulter ses contrats) mais d'un défaut de cloisonnement des données qui permet de sortir du périmètre qui lui est normalement associé.</p>
@@ -5359,8 +5711,9 @@ Au niveau de l'implémentation pour la récupération du document, on peut remar
 <div align="center">
 <img alt="Génération soa client" src="images/pcm-gen-soaclient-1.png" width="600"/>
 </div>
+<p>❗ Attention : noter qu'ici, si il existe bien un projet généré avec la dénomination : "<strong><em>[Nom de l'application]-domain</em></strong>", il ne s'agit en aucun cas d'une architecture hexagonale. En effet ce projet contient uniquement les objets sérialisés (XTO) et une dépendance technique avec les annotation Json. Il s'agit plus en l'occurence d'un projet de type "<strong><em>-common</em></strong>" mais la dénomination "<strong><em>-domain</em></strong>" a été laissée simplement pour homogénéisation des noms de sous-projets (couche métier).</p>
 <p><strong>Au niveau du projet du domaine (couche métier)</strong> : </p>
-<p>• <strong><em>[package racine].domain.entities.[nom du namespace]</em></strong> : Ces packages contiennent l'ensemble des objets métier (<strong><em>dtos</em></strong>). Comme il s'agit d'objets sérialisés, on parlera donc d'objet de type "<strong><em>Xto</em></strong>" dans le cadre de générateurs <strong>Pacman</strong>.</p>
+<p>• <strong><em>[package racine].app.entities.[nom du namespace]</em></strong> : Ces packages contiennent l'ensemble des objets métier (<strong><em>dtos</em></strong>). Comme il s'agit d'objets sérialisés, on parlera donc d'objet de type "<strong><em>Xto</em></strong>" dans le cadre de générateurs <strong>Pacman</strong>.</p>
 <p><strong>Au niveau du projet serveur</strong> : </p>
 <p>•  <strong><em>[package racine].app.client.[nom du namespace]</em></strong> : Ces packages contiennent l'ensemble des services pour l'ensemble des appels du fournisseur externe. Chaque classe client à la même structure et récupère (par le biais de l'injection Spring) le WebClient (<strong><em>[Nom de l'application]WebClientHelper</em></strong>) permettant d'effectuer l'appel. </p>
 <p>Si l'opération nécessite une sécurisation par jeton, alors le paramètre "<strong><em>final String token</em></strong>" sera automatiquement ajouté dans la liste des différents paramètres en entrée. Ainsi, pour l'opération de recherche des films et séries, point d'entrée de l'api pour "TheTVDB", le code sera le suivant : </p>
@@ -6015,6 +6368,12 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 <td>SERVICE</td>
 </tr>
 <tr>
+<td>CUSTOM</td>
+<td>NON</td>
+<td>Assigne le service pour du code libre</td>
+<td>SERVICE</td>
+</tr>
+<tr>
 <td>BATCH_READ</td>
 <td>NON</td>
 <td>L'opération lit en base de données</td>
@@ -6428,6 +6787,6 @@ Run<span class="w"> </span><span class="sb">`</span>npm<span class="w"> </span>a
 <span class="c1">// End of user code</span>
 </code></pre></div>
 </main>
-<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#plugins-externes">Plugins externes</a></li><li><a href="#plugin-pacman_1">Plugin Pacman</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#cas-projet-fournisseur">Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot">Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react">Cas projet client (React)</a></li></ul><li><a href="#migration-spring-boot-4">❗ Migration Spring Boot 4</a></li><ul><li><a href="#problematique">Problématique</a></li><li><a href="#solution-temporaire">Solution (temporaire)</a></li></ul><li><a href="#fichiers-generes">📝 Fichiers Générés</a></li><ul><li><a href="#cas-projet-fournisseur_1">📁 Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot_1">📁 Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react_1">📁 Cas projet client (React)</a></li></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-projet-fournisseur_2">📁 Cas projet fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-sso">Serveur SSO</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre-fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#stockage-s3">Stockage S3</a></li><li><a href="#librairie-sso-du-ministere">Librairie SSO du ministère</a></li><li><a href="#contexte-disolation">Contexte d'isolation</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-projet-client-springboot_2">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul><li><a href="#cas-projet-client-react_2">📁 Cas projet client (React)</a></li><ul><li><a href="#npmignore">.npmignore</a></li><li><a href="#npmrc">.npmrc</a></li><li><a href="#packagejson">package.json</a></li><li><a href="#tsconfigbuildjson">tsconfig.build.json</a></li><li><a href="#tsconfigjson">tsconfig.json</a></li></ul><li><a href="#securisation-de-la-configuration">🔑 Sécurisation de la configuration</a></li><ul><li><a href="#les-variables-denvironnement">Les variables d'environnement</a></li><li><a href="#externaliser-la-configuration">Externaliser la configuration</a></li><li><a href="#utiliser-un-coffre-fort">Utiliser un coffre-fort</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-projet-fournisseur_3">📁 Cas projet fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#generation-du-peuplement-de-la-base">Génération du peuplement de la base</a></li><ul><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#librairie-sso-du-ministere_1">Librairie SSO du ministère</a></li></ul><li><a href="#generation-des-tests-fonctionnels-dapi">🥋 Génération des tests fonctionnels d'API</a></li><ul><li><a href="#le-framework-karate">Le framework Karaté</a></li><li><a href="#creation-des-tests">Création des tests</a></li><li><a href="#initialisation-des-donnees">Initialisation des données</a></li><li><a href="#centralisation-de-tests-communs">Centralisation de tests communs</a></li><li><a href="#resultat-des-tests-reporting">Résultat des tests (reporting)</a></li><li><a href="#exemple-de-scenario-complexe">Exemple de scénario complexe</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li><li><a href="#relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li><li><a href="#mise-en-place-des-traitements-asynchrones">Mise en place des traitements asynchrones</a></li><li><a href="#mise-en-place-du-stockage-s3">Mise en place du stockage S3</a></li><li><a href="#controle-disolation-des-donnees">Contrôle d'isolation des données</a></li><li><a href="#audit-des-services-et-de-lauthentification">Audit des services et de l'authentification</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li></ul><li><a href="#cas-projet-client">📁 Cas projet client</a></li><li><a href="#cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_5">Génération</a></li><li><a href="#tests_3">Tests</a></li><li><a href="#deploiement">Déploiement</a></li></ul><li><a href="#cas-projet-client-react_3">📁 Cas projet client (React)</a></li><ul><li><a href="#axios">Axios</a></li><li><a href="#modelisation_5">Modélisation</a></li><li><a href="#generation_6">Génération</a></li><li><a href="#deploiement_1">Déploiement</a></li></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li><ul><li><a href="#metadonnees-disponibles">Métadonnées disponibles</a></li><li><a href="#regles-de-validation">Règles de validation</a></li><li><a href="#metadonnees-sso">Métadonnées SSO</a></li><li><a href="#exemple-configuration-sso">Exemple configuration SSO</a></li></ul></ul></nav>
+<nav class="local-toc"><ul><li><a href="#introduction">🚀 Introduction</a></li><li><a href="#plugin-et-architecture-hexagonale">🧩 Plugin et architecture hexagonale</a></li><ul><li><a href="#plugin-pacman">Plugin Pacman</a></li><li><a href="#architecture-hexagonale">Architecture hexagonale</a></li><li><a href="#pacman-et-lhexagonal">Pacman et l'hexagonal</a></li></ul><li><a href="#installation">🛠️ Installation</a></li><ul><li><a href="#prerequis">Prérequis</a></li><li><a href="#plugins-externes">Plugins externes</a></li><li><a href="#plugin-pacman_1">Plugin Pacman</a></li></ul><li><a href="#creation-du-projet">☕ Création du projet</a></li><ul><li><a href="#wizard-de-creation">Wizard de création</a></li><li><a href="#cas-projet-fournisseur">Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot">Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react">Cas projet client (React)</a></li></ul><li><a href="#migration-spring-boot-4">❗ Migration Spring Boot 4</a></li><ul><li><a href="#problematique">Problématique</a></li><li><a href="#solution-temporaire">Solution (temporaire)</a></li></ul><li><a href="#fichiers-generes">📝 Fichiers Générés</a></li><ul><li><a href="#cas-projet-fournisseur_1">📁 Cas projet fournisseur</a></li><li><a href="#cas-projet-client-springboot_1">📁 Cas projet client (SpringBoot)</a></li><li><a href="#cas-projet-client-react_1">📁 Cas projet client (React)</a></li></ul><li><a href="#fichiers-de-configuration">📝 Fichiers de configuration</a></li><ul><li><a href="#cas-projet-fournisseur_2">📁 Cas projet fournisseur</a></li><ul><li><a href="#applicationproperties">application.properties</a></li><li><a href="#api-de-sante">Api de santé</a></li><li><a href="#open-api">Open Api</a></li><li><a href="#uris">URIs</a></li><li><a href="#serveur-sso">Serveur SSO</a></li><li><a href="#serveur-http">Serveur HTTP</a></li><li><a href="#logging">Logging</a></li><li><a href="#les-profils">Les profils</a></li><li><a href="#cache">Cache</a></li><li><a href="#circuit-breaker">Circuit-breaker</a></li><li><a href="#coffre-fort">Coffre-fort</a></li><li><a href="#datasources">Datasources</a></li><li><a href="#stockage-s3">Stockage S3</a></li><li><a href="#librairie-sso-du-ministere">Librairie SSO du ministère</a></li><li><a href="#contexte-disolation">Contexte d'isolation</a></li><li><a href="#testsproperties">tests.properties</a></li></ul><li><a href="#cas-projet-client-springboot_2">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#applicationproperties_1">application.properties</a></li></ul><li><a href="#cas-projet-client-react_2">📁 Cas projet client (React)</a></li><ul><li><a href="#npmignore">.npmignore</a></li><li><a href="#npmrc">.npmrc</a></li><li><a href="#packagejson">package.json</a></li><li><a href="#tsconfigbuildjson">tsconfig.build.json</a></li><li><a href="#tsconfigjson">tsconfig.json</a></li></ul><li><a href="#securisation-de-la-configuration">🔑 Sécurisation de la configuration</a></li><ul><li><a href="#les-variables-denvironnement">Les variables d'environnement</a></li><li><a href="#externaliser-la-configuration">Externaliser la configuration</a></li><li><a href="#utiliser-un-coffre-fort">Utiliser un coffre-fort</a></li></ul></ul><li><a href="#gestion-des-imports">📦 Gestion des imports</a></li><li><a href="#cas-projet-fournisseur_3">📁 Cas projet fournisseur</a></li><ul><li><a href="#generation-de-la-persistance">🛢 Génération de la persistance</a></li><ul><li><a href="#modelisation">Modélisation</a></li><li><a href="#generation">Génération</a></li><li><a href="#tests">Tests</a></li></ul><li><a href="#generation-des-regles-de-gestion">📏 Génération des règles de gestion</a></li><ul><li><a href="#modelisation_1">Modélisation</a></li><li><a href="#generation_1">Génération</a></li></ul><li><a href="#generation-des-services">🌐 Génération des services</a></li><ul><li><a href="#modelisation_2">Modélisation</a></li><li><a href="#generation_2">Génération</a></li><li><a href="#tests_1">Tests</a></li></ul><li><a href="#generation-du-peuplement-de-la-base">Génération du peuplement de la base</a></li><ul><li><a href="#generation_3">Génération</a></li><li><a href="#tests_2">Tests</a></li></ul><li><a href="#gestion-des-champs-automatiques">➕ Gestion des champs automatiques</a></li><ul><li><a href="#champs-predefinis">Champs prédéfinis</a></li><li><a href="#cycle-de-vie">Cycle de vie</a></li></ul><li><a href="#gestion-de-la-securite">🔑 Gestion de la sécurité</a></li><ul><li><a href="#modelisation_3">Modélisation</a></li><li><a href="#generation_4">Génération</a></li><li><a href="#librairie-sso-du-ministere_1">Librairie SSO du ministère</a></li></ul><li><a href="#generation-des-tests-fonctionnels-dapi">🥋 Génération des tests fonctionnels d'API</a></li><ul><li><a href="#architecture-hexagonale_1">Architecture hexagonale</a></li><li><a href="#le-framework-karate">Le framework Karaté</a></li><li><a href="#creation-des-tests">Création des tests</a></li><li><a href="#initialisation-des-donnees">Initialisation des données</a></li><li><a href="#centralisation-de-tests-communs">Centralisation de tests communs</a></li><li><a href="#resultat-des-tests-reporting">Résultat des tests (reporting)</a></li><li><a href="#exemple-de-scenario-complexe">Exemple de scénario complexe</a></li><li><a href="#la-couche-metier-domaine">La couche métier (domaine)</a></li></ul><li><a href="#generation-des-relations">🧩 Génération des relations</a></li><ul><li><a href="#relation-101">Relation (1)/(0,1)</a></li><li><a href="#relation-01">Relation (0,*)/(1,*)</a></li><li><a href="#relation-recursive-101">Relation récursive (1)/(0,1)</a></li><li><a href="#relation-recursive-01">Relation récursive (0,*)/(1,*)</a></li><li><a href="#relation-bidirectionnelle-01">Relation bidirectionnelle (0,*)/(1,*)</a></li><li><a href="#relation-01-et-objets-metier">Relation (0,*)/(1,*) et objets métier</a></li></ul><li><a href="#documentation-open-api">🔧 Documentation Open Api</a></li><ul><li><a href="#documentation-generale">Documentation générale</a></li><li><a href="#documentation-des-services">Documentation des services</a></li><li><a href="#documentation-pour-les-objets-serialises">Documentation pour les objets sérialisés</a></li><li><a href="#affichage-et-tests">Affichage et tests</a></li></ul><li><a href="#generation-avancee">📐 Génération avancée</a></li><ul><li><a href="#mise-a-disposition-de-lentity-manager">Mise à disposition de l'entity manager</a></li><li><a href="#utilisation-du-lazy-loading">Utilisation du lazy loading</a></li><li><a href="#utilisation-de-cascade">Utilisation de cascade</a></li><li><a href="#utilisation-des-transactions">Utilisation des transactions</a></li><li><a href="#utilisation-de-lheritage">Utilisation de l'héritage</a></li><li><a href="#exemple-de-modelisation-avancee">Exemple de modélisation avancée</a></li><li><a href="#renvoie-dentites-partielles">Renvoie d'entités partielles</a></li><li><a href="#domaine-et-persistances">Domaine et persistances.</a></li><li><a href="#mise-en-place-dun-service-pagine">Mise en place d'un service paginé</a></li><li><a href="#mise-en-place-du-circuit-breaker">Mise en place du "circuit-breaker"</a></li><li><a href="#mise-en-place-des-traitements-asynchrones">Mise en place des traitements asynchrones</a></li><li><a href="#mise-en-place-du-stockage-s3">Mise en place du stockage S3</a></li><li><a href="#mise-en-place-dun-service-custom">Mise en place d'un service custom</a></li><li><a href="#controle-disolation-des-donnees">Contrôle d'isolation des données</a></li><li><a href="#audit-des-services-et-de-lauthentification">Audit des services et de l'authentification</a></li></ul><li><a href="#validation-de-la-modelisation">✔️ Validation de la modélisation</a></li><li><a href="#deploiement-de-lapplication">📦 Déploiement de l'application</a></li></ul><li><a href="#cas-projet-client">📁 Cas projet client</a></li><li><a href="#cas-projet-client-springboot_3">📁 Cas projet client (SpringBoot)</a></li><ul><li><a href="#webclient">WebClient</a></li><li><a href="#recuperation-du-fichier-swagger">Récupération du fichier Swagger</a></li><li><a href="#modelisation_4">Modélisation</a></li><li><a href="#generation_5">Génération</a></li><li><a href="#tests_3">Tests</a></li><li><a href="#deploiement">Déploiement</a></li></ul><li><a href="#cas-projet-client-react_3">📁 Cas projet client (React)</a></li><ul><li><a href="#axios">Axios</a></li><li><a href="#modelisation_5">Modélisation</a></li><li><a href="#generation_6">Génération</a></li><li><a href="#deploiement_1">Déploiement</a></li></ul><li><a href="#problemes-courants-et-resolution">❓ Problèmes Courants et Résolution</a></li><li><a href="#annexes">📎 Annexes</a></li><ul><li><a href="#metadonnees-disponibles">Métadonnées disponibles</a></li><li><a href="#regles-de-validation">Règles de validation</a></li><li><a href="#metadonnees-sso">Métadonnées SSO</a></li><li><a href="#exemple-configuration-sso">Exemple configuration SSO</a></li></ul></ul></nav>
 </body>
 </html>
