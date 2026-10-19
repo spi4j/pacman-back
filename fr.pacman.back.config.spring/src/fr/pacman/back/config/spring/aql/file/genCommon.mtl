@@ -83,5 +83,12 @@
   [/file]
 [/template]
 
+[comment écriture de la classe principale pour la gestion des tests métier (karaté)./]
+[template public fileApiTestRunnerImpl(any : ecore::EObject)]
+  [file (any.nameClassIntegrationApiTestRunner().toFileJavaTest(null), overwrite, any.defaultFileEncoding())]
+    [any.apiTestRunnerImpl()/]
+  [/file]
+[/template]
+
 
 

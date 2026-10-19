@@ -992,8 +992,8 @@
   + ds.lineSeparator())->toString() + if (not ds->select(o1 | o1.isPersistent())->isEmpty()) then ';' + if (em) then ds.prefixAffectation() 
   + 'entity manager'.apply_attributeFinal() + ' = ' + 'entity manager'.apply_parameterMethodClassicIn() + ';' else '' endif else '' endif/]
 
-[comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée./]
-[query private writePersistSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]
+[comment écriture de la signature complète d'une opération avec le paramètre en sortie et les paramètres en entrée (public car utilisée pour les tests domain)./]
+[query public writePersistSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + o.nameOperation() + '(' + o.inputSignature() + ')' /]
 
 [comment écriture de la signature complète d'une opération de fallback avec le paramètre en sortie et les paramètres en entrée./]
 [query private writeRsFallbackSignature(o : soa::Operation) : String = 'public ' + o.outputType() + ' ' + (o.name() + ' fallback').apply_methodDefault() 

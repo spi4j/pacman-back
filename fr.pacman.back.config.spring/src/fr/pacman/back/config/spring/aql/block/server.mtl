@@ -1950,7 +1950,7 @@
 [comment écriture de la classe utilitaire pour les tests d'intégration de type karaté./]
 [template public integrationApiTestRunnerImpl(any : ecore::EObject)]
   [any.classHeader(null)/]
-  import com.intuit.karate.Runner;
+  import io.karatelabs.core.Runner;
   import org.junit.jupiter.api.Test;
   import org.junit.jupiter.api.BeforeEach;
   import org.springframework.boot.test.context.SpringBootTest;

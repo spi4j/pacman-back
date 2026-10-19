@@ -32,6 +32,8 @@
   [r.fileS3OutputParamRequestImpl()/]
   [comment écriture de la classe pour l'ensemble des paramètres pour les traitements asynchrones (output)/]
   [r.fileBatchOutputParamRequestImpl()/]
+  [comment écriture de la classe pour la configuration des tests fonctionnels (karate)./]
+  [r.fileApiTestRunnerImpl()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]

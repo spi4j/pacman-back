@@ -37,15 +37,21 @@
           <artifactId>slf4j-api</artifactId>
        </dependency>
        <!-- Ne pas faire gérer la version par pom parent -->
+       <!-- Tests Junit -->
        <dependency>
-           <groupId>org.junit.jupiter</groupId>
-           <artifactId>junit-jupiter</artifactId>
-           <version>[any.versionJupiter()/]</version>
-           <scope>test</scope>
-      </dependency>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>junit-jupiter</artifactId>
+          <version>[any.versionJupiter()/]</version>
+          <scope>test</scope>
+       </dependency>
        <dependency>
           <groupId>org.assertj</groupId>
           <artifactId>assertj-core</artifactId>
+       </dependency>
+       <!-- tests type cucumber -->
+       <dependency>
+          <groupId>io.karatelabs</groupId>
+          <artifactId>karate-junit6</artifactId>
        </dependency>
        
        <!--
@@ -78,11 +84,15 @@
                            </excludes>
                            <includes>
                               <!-- Placer ici les librairies authorisées. -->
-                              <!-- Pour l'instant uniquement librairies de test. -->
+                              
+                              <!-- Dépendances autorisées pour le code métier -->
+                              <include>org.slf4j:slf4j-api</include>
+                              
+                              <!-- Dépendances autorisées pour les tests -->
                               <include>*:*:*:*:test</include>
                               <include>org.junit.jupiter:junit-jupiter</include>
                               <include>org.assertj:assertj-core</include>
-                              <include>org.slf4j:slf4j-api</include>
+                              <include>io.karatelabs:karate-junit6</include>
                            </includes>
                         </bannedDependencies>
                      </rules>
@@ -90,7 +100,6 @@
                </execution>
             </executions>
          </plugin>
-         
          <!--
          [protected ('plugins'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
            -->
@@ -99,6 +108,59 @@
          -->
       </plugins>
     </build>
+    
+    <!-- Tests fonctionnels -->
+    <profiles>
+       <profile>
+          <id>tests</id>
+          <build>
+             <plugins>
+                 <!-- JAR contenant les classes compilées des tests -->
+                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <executions>
+                       <execution>
+                          <id>tests-fonctionnels</id>
+                          <phase>package</phase>
+                          <goals>
+                             <goal>test-jar</goal>
+                          </goals>
+                          <configuration>
+                              <forceCreation>true</forceCreation>
+                          </configuration>
+                       </execution>
+                    </executions>
+                </plugin>
+                
+                <!-- JAR autonome contenant les dépendances -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <executions>
+                      <execution>
+                          <id>jar-autonome-tests-fonctionnels</id>
+                          <phase>package</phase>
+                          <goals>
+                             <goal>shade</goal>
+                          </goals>
+                          <configuration>
+                             <shadeTestJar>true</shadeTestJar>
+                             <shadedArtifactAttached>true</shadedArtifactAttached>
+                             <shadedClassifierName>tests-fonctionnels</shadedClassifierName>
+                             <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                  <mainClass>[any.namePackageProject()/].[any.nameClassIntegrationApiTestRunner()/]</mainClass>
+                                </transformer>
+                             </transformers>
+                          </configuration>
+                      </execution>
+                    </executions>
+                </plugin>
+             </plugins>
+          </build>
+       </profile>
+    </profiles>
     
     <!--
     [protected ('pom'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -750,5 +812,127 @@
         FAILED,
         STOPPED
      }
+  }
+[/template]
+
+[comment écriture de la classe de configuration pour les tests de type karate./]
+[template public apiTestRunnerImpl(any : ecore::EObject)]
+  [any.classHeader(null)/]
+  
+  import org.junit.jupiter.api.Test;
+  import io.karatelabs.core.Runner;
+  import io.karatelabs.core.SuiteResult;
+  
+  /**
+  * Runner principal des tests fonctionnels du domaine.
+  *
+  * <p>
+  * Exécute les scénarios fonctionnels décrits avec Karate en invoquant
+  * directement les services métier, sans démarrer le serveur ni son
+  * infrastructure technique.
+  * </p>
+  *
+  * <p>
+  * Le runner peut être utilisé de deux façons :
+  * </p>
+  * <ul>
+  *   <li>Depuis Eclipse, avec JUnit, pour exécuter les scénarios embarqués
+  *       dans le classpath sous {@code features}.</li>
+  *   <li>En ligne de commande, pour exécuter un fichier {@code .feature}
+  *       spécifié en argument et, facultativement, un scénario particulier.</li>
+  * </ul>
+  *
+  * <p>
+  * Les fichiers de données YAML peuvent être chargés depuis un répertoire
+  * externe défini par la propriété système {@code test.data.dir}, selon
+  * la configuration des scénarios Karate. Cette propriété peut être
+  * transmise au lancement avec l'option Java {@code -Dtest.data.dir=chemin}.
+  * En l'absence de cette propriété, les scénarios peuvent utiliser les
+  * données embarquées dans le classpath.
+  * </p>
+  *
+  * <p>
+  * Les rapports HTML et Cucumber JSON sont demandés à Karate. Leur emplacement
+  * dépend de la configuration d'exécution ; avec la configuration par défaut,
+  * ils sont généralement générés dans {@code target/karate-reports/}.
+  * </p>
+  *
+  * <p>
+  * L'exécution est séquentielle, avec un niveau de parallélisme fixé à
+  * {@code 1}.
+  * </p>
+  *
+  * @author [any.nameAuthor()/]
+  */
+  public class [any.nameClassIntegrationApiTestRunner()/] {    
+    /**
+     * Exécution depuis Eclipse avec JUnit.
+     * Lance tous les fichiers .feature du classpath.
+     */
+    @Test
+    void ['run all tests'.apply_methodDefault()/]() {
+        ['run tests'.apply_methodDefault()/]("classpath:features", null);
+    }
+    
+    /**
+     * Exécution autonome en ligne de commande.
+     *
+     * args['['/]0[']'/] : chemin du fichier .feature
+     * args['['/]1[']'/] : nom du scénario (facultatif)
+     */
+    public static void main(String['['/][']'/] args) {
+        
+        String ['features path'.apply_variableDefault()/] = args.length > 0
+                ? args['['/]0[']'/]
+                : "classpath:features";
+        String ['scenario name'.apply_variableDefault()/] = args.length >= 2
+                ? args['['/]1[']'/]
+                : null;
+        ['run tests'.apply_methodDefault()/](
+             ['features path'.apply_variableDefault()/],
+             ['scenario name'.apply_variableDefault()/]);
+             
+    }
+    
+    /**
+    * Configure et exécute les tests Karate.
+    *
+    * <p>
+    * Le chemin fourni détermine les ressources de test à exécuter.
+    * Un nom de scénario facultatif permet de limiter l'exécution à
+    * un scénario particulier.
+    * </p>
+    *
+    * <p>
+    * La génération des rapports HTML et Cucumber JSON est activée.
+    * L'exécution est séquentielle, avec un parallélisme de {@code 1}.
+    * </p>
+    *
+    * @param ['features path'.apply_parameterMethodClassicIn()/] chemin du fichier ou des ressources Karate à exécuter
+    * @param ['scenario name'.apply_parameterMethodClassicIn()/] nom du scénario à sélectionner, ou {@code null}
+    *                     pour ne pas filtrer par nom
+    */
+    @SuppressWarnings("unused")
+    private static void ['run tests'.apply_methodDefault()/](final String ['features path'.apply_parameterMethodClassicIn()/], 
+       final String ['scenario name'.apply_parameterMethodClassicIn()/]) {
+      
+      [protected ('api test runner'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           
+        System.out.println("========================================");
+        System.out.println(" Tests fonctionnels du domaine");
+        System.out.println(" Scénarios : " + ['featuresPath'.apply_variableDefault()/]);
+        System.out.println("========================================");
+        
+        var ['builder'.apply_variableDefault()/] = Runner.path(['featuresPath'.apply_parameterMethodClassicIn()/])
+              .outputHtmlReport(true)
+              .outputCucumberJson(true);
+              
+        if (['scenario name'.apply_parameterMethodClassicIn()/] != null) {
+              ['builder'.apply_variableDefault()/].scenarioName(['scenario name'.apply_parameterMethodClassicIn()/]);
+        }
+        SuiteResult ['results'.apply_variableDefault()/] = ['builder'.apply_variableDefault()/].parallel(1);
+        
+      [/protected]
+    }
   }
 [/template]

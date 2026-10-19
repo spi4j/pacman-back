@@ -172,7 +172,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * création.
 	 */
 	private void initWithDefault() {
-		_javaVersion = "17";
+		_javaVersion = "21";
 		_typeProject = "server";
 		_typeFramework = "springboot";
 		_spi4jRsCdi = "false";
@@ -328,7 +328,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	private Combo addComboJavaVersion(final Composite p_parent) {
 		Combo cbx = addComboBox(p_parent, "Version Java", "La version LTS pour la compilation des classes du projet.",
-				new String[] { "Java 17", "Java 21" }, 0);
+				new String[] { "Java 21", "Java 25" }, 0);
 
 		cbx.addSelectionListener(new SelectionListener() {
 			@Override

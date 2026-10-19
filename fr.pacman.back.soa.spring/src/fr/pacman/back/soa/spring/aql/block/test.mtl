@@ -28,6 +28,7 @@
 
 [import fr::pacman::back::core::service::TestUtils/]
 [import fr::pacman::back::core::service::DatabaseUtils/]
+[import fr::pacman::back::soa::spring::aql::block::service/]
 
 [comment écriture de l'implémentation du résolveur de paramètres pour les tests junit (domain + infra)./]
 [template public serviceOutResolverImpl(s : soa::Service)] 
@@ -323,6 +324,183 @@
      [protected (s.nameClassServiceTestImpl().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
        
      [/protected]
+  }
+[/template]
+
+[comment écriture du fichier de définition des données à injecter pour le service dans les tests fonctionnels (karate/domain)./]
+[template public serviceApiTestRunnerDefaultData (s : soa::Service)]
+  [for (o | s.ownedInterface.ownedOperations->select(o1 | o1.isRsOperation())) separator('\n')]
+    [o.name()/]:
+       [protected (o.name().protectedId()) startTagPrefix('# ') endTagPrefix('# ')]
+        [/protected]
+  [/for]
+[/template]
+
+[comment écriture du fichier de définition des scenarios pour le service dans les tests fonctionnels (karate/domain)./]
+[template public serviceApiTestRunnerDefaultGherkin (s : soa::Service)]
+  
+  Feature: Service [s.name()/]
+      
+    [for (o | s.ownedInterface.ownedOperations->select(o1 | o1.isRsOperation())) separator('\n')]
+      @[o.name()/]
+      Scenario: [o.name()/]
+        * print '--- Service métier : [o.name()/] ---'
+        
+        # Chargement des données d'entrée
+        * def externalData = karate.properties['['/]'test.data.dir'[']'/]
+        * def dataFileName = '[s.name()/].yaml'
+        * def dataFile = externalData ? 'file:' + externalData + '/' + dataFileName : 'classpath:data/' + dataFileName
+        * def data = read(dataFile)
+        
+        # Initialisation du service métier
+        * def Test = Java.type('[s.namePackageProject()/].[s.namePackageIntegrationTestImpl()/].[s.nameClassServiceTestImpl()/]')
+        * def test = new Test()
+        
+        # Exécution du service métier
+        * def result = test.[o.name()/](data.[o.name()/])
+        
+        # Vérification du résultat
+        * match result != null
+        # TODO : compléter les assertions selon le comportement attendu
+        [protected (o.name().protectedId()) startTagPrefix('# ') endTagPrefix('# ')]
+          
+        [/protected]
+        
+    [/for]
+      
+[/template]
+
+[comment écriture de l'implémentation pour le test du service (karate)./]
+[template public serviceApiTestRunnerImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageIntegrationTestImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    import [s.namePackageProject()/].[s.namePackageServiceImpl()/].[s.nameClassServiceImpl()/];
+    
+  [/protected]
+  
+  /**
+  * Adaptateur de test permettant d'exécuter les opérations du service métier
+  * {@link [s.nameClassServiceImpl()/]} dans les scénarios Karate.
+  *
+  * Pour récupérer une valeur issue des données YAML transmises dans la map
+  * {@code data}, utiliser la clé correspondant au nom de l'attribut défini dans
+  * le fichier YAML et effectuer une conversion vers le type Java attendu.
+  * 
+  * Exemple pour renseigner le nom d'une personne : personne.setNom((String)
+  * data.get("nom"));
+  * 
+  * Pour les valeurs numériques, utiliser si nécessaire {@code Number}, pour
+  * convertir la valeur vers le type attendu, par exemple : personne.setAge
+  * ((Number) data.get("age")).integerValue() );
+  * 
+  * Les clés utilisées dans {@code data.get(...)} doivent correspondre exactement
+  * à celles définies dans le fichier YAML.
+  *
+  * @author [s.nameAuthor()/]
+  */
+  public class [s.nameClassServiceTestImpl()/] {
+    
+    /**
+     * Service métier utilisé pour exécuter les opérations.
+     */
+    private final [s.nameClassServiceImpl()/] ['service'.apply_attributeFinal()/];
+    
+    /**
+     * Fournisseur de données utilisé par le service métier dans le cadre des tests
+     * fonctionnels.
+     */
+    private final [s.nameClassServiceTestProviderImpl()/] ['provider'.apply_attributeFinal()/];
+    
+    /**
+    * Initialise l'adaptateur pour le service métier.
+    */
+    public [s.nameClassServiceTestImpl()/]() {
+       [s.prefixAffectation()/]['provider'.apply_variableDefault()/] 
+         = new [s.nameClassServiceTestProviderImpl()/]();
+       [s.prefixAffectation()/]['service'.apply_attributeFinal()/] 
+         = new [s.nameClassServiceImpl()/](['provider'.apply_variableDefault()/]);
+    }
+    
+    [for (o | s.ownedInterface.ownedOperations->select(o1 | o1.isRsOperation())) separator('\n')]
+       [o.commentOperation()/]
+       public [o.outputType()/] [o.name()/](final Map<String, Object> ['data'.apply_parameterMethodClassicIn()/]) {
+       
+         [for (p | o.input)]
+           [p.type.type()/] [p.name()/] = null;
+         [/for]
+         
+         // Insérez ici le code nécessaire pour le chargement des données à partir du
+         // fichier : [s.name()/].yaml, au niveau de la rubrique : "[o.name()/]"
+         
+         [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+         [/protected]
+         
+         return [s.prefixAffectation()/]['service'.apply_attributeFinal()/].[o.name()/]([o.input->collect(o1 | o1.name())->sep(',')/]);
+       }
+       
+    [/for]
+  }
+[/template]
+  
+[comment écriture de l'implémentation pour le test du service (karate)./]
+[template public serviceApiTestRunnerProviderImpl (s : soa::Service)]
+  [s.classHeader(s.namePackageIntegrationTestImpl())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [s.defaultImports()/]
+    import [s.namePackageProject()/].[s.namePackageOutItf()/].[s.nameClassServiceOutItf()/];
+    
+  [/protected]
+  
+  /**
+  * Fournisseur de données dédié aux tests du service : [s.nameClassServiceImpl()/]. 
+  * Il implémente le port {@link [s.nameClassServiceOutItf()/]} afin de simuler l'accès aux données sans
+  * recourir à une source de données réelle. Les données doivent être
+  * implémentées à partir du contenu du fichier JSON utilisé par les scénarios
+  * Karate, tout en faisant correspondre chaque opération du fournisseur aux données
+  * d'entrée et aux résultats attendus.
+  * 
+  * Cette implémentation assure ainsi le lien entre le jeu de données JSON et les
+  * opérations sollicitées par le service métier lors des tests.
+  * 
+  * @author [s.nameAuthor()/]
+  */
+  class [s.nameClassServiceTestProviderImpl()/] implements [s.nameClassServiceOutItf()/] {
+    
+    /**
+     * Données de test issues du fichier [s.name()/].yaml.
+     */
+    @SuppressWarnings("unused")
+    private Map<String, Object> ['data'.apply_attributeDefault()/];
+    
+    /**
+     * Définit les données de test utilisables par le fournisseur.
+     *
+     * @param ['data'.apply_parameterMethodClassicIn()/] map contenant les données chargées depuis le fichier YAML
+     */
+    void ['data'.apply_methodSet()/] (final Map<String, Object> ['data'.apply_parameterMethodClassicIn()/]) {
+       [s.prefixAffectation()/]['data'.apply_attributeDefault()/] = ['data'.apply_parameterMethodClassicIn()/];
+    }
+    
+    [for (o | s.ownedInterface.ownedOperations->select(o1 | o1.isRsOperation())) separator('\n')]
+       [o.commentOperation()/]
+       @Override
+       [o.writePersistSignature()/] {
+           
+           // Insérez ici le code nécessaire pour charger les données depuis la rubrique
+           // "[o.name()/]" du fichier [s.name()/].yaml et/ou compléter l'objet selon
+           // le rôle de l'opération dans le service métier.
+           
+          [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            
+            return null;
+            
+          [/protected]
+       }
+    [/for]
   }
 [/template]
 

@@ -39,7 +39,7 @@
 [comment écriture d'un fichier de type 'script sql' pour les tests./]
 [query public toFileSqlTest(fName : String) : String =  fName.toFile(fName.dirJavaTestResources(), fName.extensionSql()) /]  
 
-[comment écriture d'un fichier de type 'json'./]
+[comment écriture d'un fichier de type 'json' (attention ne pas utiliser pour du json dans projet java !)./]
 [query public toFileJson(fName : String, pkName : String) : String =  fName.toFile(fName.nameProject().toLower() 
   + '/' + pkName, fName.extensionJson()) /]  
 

@@ -19,8 +19,18 @@
 [/template]
 
 [comment ./]
+[template private commentOneLine(s : String, b : Boolean)]
+  [if (b)]/**[/if] [if (s.exists())][s.sanitizeComment()/][else][s.cNoDescription()/][/if]. [if (b)]*/[/if]
+[/template]
+
+[comment ./]
 [template public commentSingleLine(s : String)]
-  /** [if (s.exists())][s.sanitizeComment()/][else][s.cNoDescription()/][/if]. */
+  [s.commentOneLine(true)/]
+[/template]
+
+[comment dans certains cas (fichiers json) il ne faut pas avoir les /** */ ./]
+[template public commentSingleLine(s : String, b : Boolean)]
+  [s.commentOneLine(b)/]
 [/template]
 
 [comment ./]

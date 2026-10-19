@@ -47,6 +47,9 @@
 
 [comment retourne le nom pour l'implémentation de la classe de test pour le service soa (domain)./]
 [query public nameClassServiceTestImpl(s : soa::Service) : String = (s.name() + s.suffixService() + ' test').apply_classImplem()/]
+  
+[comment retourne le nom pour l'implémentation de la classe provider de test pour le service soa (domain/karate)./]
+[query public nameClassServiceTestProviderImpl(s : soa::Service) : String = (s.name() + s.suffixService() + s.suffixInterfaceOut() + ' test').apply_classImplem()/]
 
 [comment retourne le nom pour l'implémentation de la classe de configuration pour les tests./]
 [query public nameClassIntegrationTestsConfig(any : ecore::EObject) : String = (any.nameProject() + ' test config').apply_classDefault()/]
