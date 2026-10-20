@@ -3671,7 +3671,29 @@ chercheParId:
    # End of user code
 ```
 
-❗ Le fichier YAML contenant les données de test n'est volontairement pas généré automatiquement. Ce choix permet de laisser aux développeurs et aux équipes fonctionnelles la liberté de définir les jeux de données en fonction des besoins de validation, sans imposer une structure ou un contenu prédéfini par le générateur. Ce choix évite de produire un fichier artificiellement rempli de valeurs par défaut, qui ne correspondraient pas nécessairement aux règles métier ni aux besoins réels de validation.
+❗ Les fichiers "*.yaml*" ne sont volontairement pas générés automatiquement. En effet, il est impossible de déterminer à l'avance le nombre exact d'occurrences nécessaires pour les listes, les valeurs précises à renseigner ou encore les éventuels noms d'attributs à utiliser. 
+
+En effet, ces fichiers peuvent également être produits par un autre outil, avec une structure ou des conventions de nommage différentes. Enfin, leur structure étant relativement simple à définir, il est aujourd'hui facile de la générer à l'aide d'une IA, en fonction des besoins spécifiques de chaque projet. Il est donc préférable de laisser leur création à la charge de l'utilisateur, afin de conserver la souplesse nécessaire et d'éviter de générer des fichiers incomplets ou inadaptés.
+
+Voici à titre informatif, et pour démontrer la facilité d'écriture d'un tel fichier, un exemple pour la méthode : "*retourneTous*" : 
+
+```yaml
+retourneTous:
+  - id: 1
+    nom: "Dupont"
+    prenom: "Jean"
+    age: 35
+
+  - id: 2
+    nom: "Martin"
+    prenom: "Sophie"
+    age: 28
+
+  - id: 3
+    nom: "Bernard"
+    prenom: "Paul"
+    age: 42
+```
 
 Un fournisseur de test ("*provider*") est automatiquement généré. Pour rappel le "*provider*" est le service d'infrastructure représentant la couche de persistance pour le service métier. Ici il s'agit donc d'un fournisseur de persistance destiné à servir de bouchon pour les tests fonctionnels du domaine. 
 

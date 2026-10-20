@@ -3035,7 +3035,25 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="w">   </span><span class="c1"># Start of user code 213b153cf17e81eda9f6b8b67f005368</span>
 <span class="w">   </span><span class="c1"># End of user code</span>
 </code></pre></div>
-<p>❗ Le fichier YAML contenant les données de test n'est volontairement pas généré automatiquement. Ce choix permet de laisser aux développeurs et aux équipes fonctionnelles la liberté de définir les jeux de données en fonction des besoins de validation, sans imposer une structure ou un contenu prédéfini par le générateur. Ce choix évite de produire un fichier artificiellement rempli de valeurs par défaut, qui ne correspondraient pas nécessairement aux règles métier ni aux besoins réels de validation.</p>
+<p>❗ Les fichiers "<em>.yaml</em>" ne sont volontairement pas générés automatiquement. En effet, il est impossible de déterminer à l'avance le nombre exact d'occurrences nécessaires pour les listes, les valeurs précises à renseigner ou encore les éventuels noms d'attributs à utiliser. </p>
+<p>En effet, ces fichiers peuvent également être produits par un autre outil, avec une structure ou des conventions de nommage différentes. Enfin, leur structure étant relativement simple à définir, il est aujourd'hui facile de la générer à l'aide d'une IA, en fonction des besoins spécifiques de chaque projet. Il est donc préférable de laisser leur création à la charge de l'utilisateur, afin de conserver la souplesse nécessaire et d'éviter de générer des fichiers incomplets ou inadaptés.</p>
+<p>Voici à titre informatif, et pour démontrer la facilité d'écriture d'un tel fichier, un exemple pour la méthode : "<em>retourneTous</em>" : </p>
+<div class="codehilite"><pre><span></span><code><span class="nt">retourneTous</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">nom</span><span class="p">:</span><span class="w"> </span><span class="s">"Dupont"</span>
+<span class="w">    </span><span class="nt">prenom</span><span class="p">:</span><span class="w"> </span><span class="s">"Jean"</span>
+<span class="w">    </span><span class="nt">age</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">35</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">    </span><span class="nt">nom</span><span class="p">:</span><span class="w"> </span><span class="s">"Martin"</span>
+<span class="w">    </span><span class="nt">prenom</span><span class="p">:</span><span class="w"> </span><span class="s">"Sophie"</span>
+<span class="w">    </span><span class="nt">age</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">28</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">    </span><span class="nt">nom</span><span class="p">:</span><span class="w"> </span><span class="s">"Bernard"</span>
+<span class="w">    </span><span class="nt">prenom</span><span class="p">:</span><span class="w"> </span><span class="s">"Paul"</span>
+<span class="w">    </span><span class="nt">age</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">42</span>
+</code></pre></div>
 <p>Un fournisseur de test ("<em>provider</em>") est automatiquement généré. Pour rappel le "<em>provider</em>" est le service d'infrastructure représentant la couche de persistance pour le service métier. Ici il s'agit donc d'un fournisseur de persistance destiné à servir de bouchon pour les tests fonctionnels du domaine. </p>
 <p>Cette classe "<em>[Nom du service]ProviderTestImpl</em>" contient par défaut le code généré suivant : </p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Override</span>
