@@ -30,11 +30,29 @@
     <scm>
     </scm>
     
-    <modules>
-      <module>[any.nameProjectCommon()/]</module>
-      <module>[any.nameProjectServer()/]</module>
-      <module>[any.nameProjectModel()/]</module>
-    </modules>
+    <!-- Profils de construction -->
+    <profiles>
+       <!-- Build standard integration -->
+       <profile>
+          <id>integration</id>
+          <activation>
+             <activeByDefault>true</activeByDefault>
+          </activation>
+          <modules>
+             <module>[any.nameProjectCommon()/]</module>
+             <module>[any.nameProjectServer()/]</module>
+             <module>[any.nameProjectModel()/]</module>
+          </modules>
+       </profile>
+       
+       <!-- JAR autonome des tests fonctionnels -->
+       <profile>
+          <id>tests-fonctionnels</id>
+          <modules>
+             <module>[any.nameProjectCommon()/]</module>
+          </modules>
+       </profile>
+    </profiles>
     
     <!-- Repository specifique pour les pilotes Oracle. -->
     <!-- 
