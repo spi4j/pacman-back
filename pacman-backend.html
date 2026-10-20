@@ -3164,7 +3164,7 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="w">    </span><span class="c1">// End of user code</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>❗ L'exemple donné est ici simpliste et dans le cadre de tests fonctionnels ne sert strictement à rien mais il pemet simplement de montrer l'ensemble de l'architecture. Il est évident que, dans le cadre de tests fonctionnels, l'objectif est uniquement de vérifier le bon fonctionnement du code présent dans la partie métier (ici il n'y a pas de code fonctionnel puisqu'on se contente de retourner une liste de personnes, mais on aurait pu imaginer des règles métier qui complètent les données, etc...) :</p>
+<p>❗ L'exemple donné est ici simpliste et dans le cadre de tests fonctionnels ne sert strictement à rien mais il pemet simplement de montrer l'ensemble de l'architecture. Il est évident que, dans le cadre de tests fonctionnels, l'objectif est uniquement de vérifier le bon fonctionnement du code présent dans la partie métier ci-dessous (ici il n'y a pas de code fonctionnel puisqu'on se contente de retourner une liste de personnes, mais on aurait pu imaginer des règles métier qui complètent les données, etc...) :</p>
 <div class="codehilite"><pre><span></span><code><span class="nd">@Override</span>
 <span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">getPersonnes</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="n">personnes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">personnesProvider</span><span class="p">.</span><span class="na">getPersonnes</span><span class="p">();</span>
@@ -3176,8 +3176,8 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <img alt="Tests Karaté" src="images/pcm-test-soa-5.png" width="800"/>
 </div>
 <p>La compilation permet de produire un fichier JAR contenant les classes compilées de la couche métier. Ce fichier constitue une bibliothèque réutilisable par les applications qui s'appuient sur le domaine. Il ne s'agit pas d'une application autonome et il n'est donc pas destiné à être lancé directement.</p>
-<p>Une fois le domaine compilé, les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.</p>
-<p>Pour exécuter un scénario tapper la commande suivante (le jar spécifique est construit avec le suffixe "-tests-fonctionnels") : </p>
+<p>Une fois le domaine compilé (cf. Déploiement de l'application), les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.</p>
+<p>Pour exécuter un scénario en particulier tapper la commande suivante (le jar spécifique est toujours  construit avec le suffixe "-tests-fonctionnels") : </p>
 <div class="codehilite"><pre><span></span><code>java<span class="w"> </span>-Dtest.data.dir<span class="o">=</span><span class="s2">"C:/mes-tests/data"</span><span class="w"> </span>-jar<span class="w"> </span>demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar<span class="w"> </span><span class="s2">"C:/mes-tests/features/personnes.feature"</span><span class="w"> </span>--<span class="w"> </span>retouneTous
 </code></pre></div>
 <p>Cette commande se décompose comme suit :</p>
@@ -5961,7 +5961,26 @@ Au niveau de l'implémentation pour la récupération du document, on peut remar
 <span class="w">        </span><span class="na">etc...</span>
 </code></pre></div>
 <h3 id="deploiement">Déploiement</h3>
-<p>[A traiter]</p>
+<p>Le déploiement de l'application s'effectue de manière très simple à l'aide de Maven.</p>
+<ul>
+<li>
+<p>Modifier les numéros de version ou niveau des fichier "<em>pom.xml</em>".</p>
+</li>
+<li>
+<p>Se positionner à la racine du projet "<strong><em>[Nom de l'application]</em></strong>" et ouvrir une ligne de commande.</p>
+</li>
+<li>
+<p>Pour un build complet de l'application tapper la commande suivante : </p>
+<p><code>bash
+mvn clean package -P integration</code></p>
+</li>
+<li>
+<p>Pour un build des tests fonctionnels de la couche métier, tapper la commande suivante : </p>
+<p><code>bash
+mvn clean package -P tests-fonctionnels</code>
+- Les executables se situent toujours au niveau du répertoire "<em>/target</em> de chaque projet. Il est à notter que dans le cas des tests fonctionnels le build passe par un phase intermédiaire qui crée un fichier "<em>.jar</em>" supplémentaire. Celui à récupérer est donc toujours le fichier suivant : "<strong><em>[Nom de l'application]-[Version]-tests-fonctionnels.jar</em></strong>" et non : "<strong><em>[Nom de l'application]-[Version]-tests.jar</em></strong>".</p>
+</li>
+</ul>
 <h2 id="cas-projet-client-react_3">📁 Cas projet client (React)</h2>
 <h3 id="axios">Axios</h3>
 <p>Axios est une bibliothèque JavaScript et TypeScript qui permet de réaliser facilement des requêtes HTTP depuis le navigateur ou Node.js. Elle simplifie l'envoi et la réception de données, notamment au format JSON, et offre des fonctionnalités avancées comme la gestion des en-têtes, des paramètres de requête, des délais d'attente, et l'annulation de requêtes. </p>

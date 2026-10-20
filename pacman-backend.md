@@ -3834,9 +3834,9 @@ Le schéma suivant donne un aperçu de l'enchaînement des différentes étapes 
 
 La compilation permet de produire un fichier JAR contenant les classes compilées de la couche métier. Ce fichier constitue une bibliothèque réutilisable par les applications qui s'appuient sur le domaine. Il ne s'agit pas d'une application autonome et il n'est donc pas destiné à être lancé directement.
         
-Une fois le domaine compilé, les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.
+Une fois le domaine compilé (cf. Déploiement de l'application), les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.
 
-Pour exécuter un scénario tapper la commande suivante (le jar spécifique est construit avec le suffixe "-tests-fonctionnels") : 
+Pour exécuter un scénario en particulier tapper la commande suivante (le jar spécifique est toujours  construit avec le suffixe "-tests-fonctionnels") : 
 
 ```bash
 java -Dtest.data.dir="C:/mes-tests/data" -jar demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar "C:/mes-tests/features/personnes.feature" -- retouneTous
@@ -7063,7 +7063,24 @@ Body (JSON sous forme de table):
 
 ### Déploiement
 
-[A traiter]
+Le déploiement de l'application s'effectue de manière très simple à l'aide de Maven.
+
+- Modifier les numéros de version ou niveau des fichier "*pom.xml*".
+
+- Se positionner à la racine du projet "***[Nom de l'application]***" et ouvrir une ligne de commande.
+
+- Pour un build complet de l'application tapper la commande suivante : 
+
+    ```bash
+    mvn clean package -P integration
+    ```
+
+- Pour un build des tests fonctionnels de la couche métier, tapper la commande suivante : 
+
+    ```bash
+    mvn clean package -P tests-fonctionnels
+    ```
+- Les executables se situent toujours au niveau du répertoire "*/target* de chaque projet. Il est à notter que dans le cas des tests fonctionnels le build passe par un phase intermédiaire qui crée un fichier "*.jar*" supplémentaire. Celui à récupérer est donc toujours le fichier suivant : "***[Nom de l'application]-[Version]-tests-fonctionnels.jar***" et non : "***[Nom de l'application]-[Version]-tests.jar***".
 
 ## 📁 Cas projet client (React)
 
