@@ -15,13 +15,19 @@
 
 [comment liste des requêtes possibles au niveau des références pour les entités. 
 
-         Pour l'obtention du nom de l'objet référencé, dans le deuxième cas on ne peut 
+         Pour l'obtention du nom de l'objet référencé, dans le deuxième cas (liste) on ne peut 
          se contenter du nom de l'objet il faut aussi le concaténer avec celui de la relation.
          Ceci pour un cas particulier ou, entre deux entités (ou dtos) on a plusieurs relations 
          (0,*) ou (1,*), pour la fk inverse il y aurait alors des duplicates. L'objet qui a 
          la navigabilté récupère donc le nom de la relation et l'objet d'ou part la navigabilité 
          à le nom de l'objet + celui de la relation. Dans tous les cas cela permet une meilleure 
          lisibilité./]
+         
+[comment edit du 23/10/2026 ABANDON TEMPORAIRE DU TRAITEMENT DES REFERENCES POUR LES SUPER-ENTITES. 
+         Après plusieurs tests, trops de problématiques et de bugs, il faut revoir tout le système 
+         en profondeur. Pour l'instant on interdit la modélisation de relations à partir de super-entités, 
+         seules les entités hérités peuvent avoir des relations entre elles. Il faut simplifier le système 
+         qui est actuellement trop complexe./]
 
 [comment retourne le nom pour l'attribut en provenance de la référence (pas de name pour StructuredType)./]
 [query public referencedName(e : entity::Entity, r : environment::Reference) : String = 
@@ -59,15 +65,24 @@
 [comment retourne le type référencé (si fonctionne mal peut toujours comparer les identifiants techniques !) 
 		 On sépare complètement la notion d'héritage qui est moins courante et qui si plante, ne porte pas 
 		 préjudice au reste du fonctionnement. Dans le cas de l'héritage si on a une récursivité alors 
-		 ne pas oublier qu'il faut redescendre la récursivité au niveau de la structure héritée (st)./] 
+		 ne pas oublier qu'il faut redescendre la récursivité au niveau de la structure héritée (st)./] 	
 [query public referencedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+	if (st.supertype <> null) then if (r.isZeroOneRecursive()) st else if (r.containingType = st) then r.referencedType 
+	else r.containingType endif endif else if (r.containingType = st) then r.referencedType else r.containingType endif endif/] 
+	
+[comment retourne le type référencé. Version sauvegardée du 23/10/2026./] 
+[comment uery public referencedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
 	if (st.supertype <> null) then if (r.isZeroOneRecursive()) st else r.referencedType endif 
-	else if (r.containingType = st) then r.referencedType else r.containingType endif endif/]  
+	else if (r.containingType = st) then r.referencedType else r.containingType endif endif/]
 
 [comment retourne le type contenu. Toujours 'r.containingType' sauf dans le cas de l'héritage ou il faut 
-		 redescendre la relation au niveau de la structure héritée (st)./]
-[query public containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+		 redescendre la relation au niveau de la structure héritée (st). Version sauvegardée du 23/10/2026./]
+[comment query public containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
 	if (st.supertype <> null) then st else r.containingType endif/]
+
+[comment retourne uniquement le type contenu. Version temporaire modifiée du 23/10/2026./]	
+[query public containedType(r : environment::Reference, st : environment::StructuredType) : environment::StructuredType = 
+	r.containingType/]
 
 [comment vérifie si une référence appartient à un super-type (superclass). Concerne les FKs !
 		 Ne pas oublier que l'héritage est récursif, il n'y a donc pas besoin de remonter 
@@ -176,12 +191,12 @@
     ->union(fkis->collect(r | es->select(o2 | o2.isSubType(r.containingType) or o2.isSubType(r.referencedType))
     ->collect(o3 | r.downgradeReference(o3))->collect(o4 | o4.set_multiplicityZeroStar())))/]
 
-[comment liste complète des clés étrangères avec héritage -> pour spring boot uniquement./]
+[comment liste complète des clés étrangères avec héritage -> pour sql et spi4j uniquement./]
 [query public referencesFKResolved(st : environment::StructuredType, es : Sequence(environment::StructuredType)
 	, ess : Sequence(environment::StructuredType)) : OrderedSet(environment::Reference) = 
 	st.referencesFKResolved(es,ess,st.referencesFK())/]
 
-[comment liste complètes des clés étrangères avec héritage -> pour sql et spi4j uniquement./]
+[comment liste complètes des clés étrangères avec héritage -> pour spring boot uniquement./]
 [query public referencesFKSBResolved(st : environment::StructuredType, es : Sequence(environment::StructuredType)
 	, ess : Sequence(environment::StructuredType)) : OrderedSet(environment::Reference) = 
 	st.referencesFKResolved(es,ess,st.referencesFKSB())/]

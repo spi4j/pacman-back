@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -38,6 +38,9 @@ import org.eclipse.sirius.viewpoint.description.Viewpoint;
 import org.eclipse.ui.IEditorPart;
 import org.obeonetwork.dsl.entity.EntityFactory;
 import org.obeonetwork.dsl.entity.Root;
+import org.obeonetwork.dsl.environment.Environment;
+import org.obeonetwork.dsl.environment.EnvironmentFactory;
+import org.obeonetwork.dsl.environment.PrimitiveType;
 import org.obeonetwork.dsl.requirement.Repository;
 import org.obeonetwork.dsl.requirement.RequirementFactory;
 import org.obeonetwork.dsl.soa.SoaFactory;
@@ -45,10 +48,6 @@ import org.obeonetwork.dsl.soa.System;
 
 import fr.pacman.back.core.ui.util.RepresentationUtils;
 import fr.pacman.back.start.ui.exception.PacmanInitModelException;
-
-import org.obeonetwork.dsl.environment.Environment;
-import org.obeonetwork.dsl.environment.EnvironmentFactory;
-import org.obeonetwork.dsl.environment.PrimitiveType;
 
 /**
  * Classe utilitaire pour tout ce qui concerne la création d'un projet de
@@ -77,16 +76,10 @@ public class SiriusUtil {
 	// ISD consolidated view
 	static {
 		_openedRepresentations = new ArrayList<String>();
-		_openedRepresentations.add(RepresentationUtils.c_entityNH);
 		_openedRepresentations.add(RepresentationUtils.c_dtoNH);
+		_openedRepresentations.add(RepresentationUtils.c_entityNH);
 
-		_models = new HashMap<String, SiriusModelDescriptor>();
-		_models.put("entity",
-				new SiriusModelDescriptor(".entity",
-						Arrays.asList(RepresentationUtils.c_entityNH, RepresentationUtils.c_entityPN),
-						Arrays.asList("org.obeonetwork.dsl.entity.design/Entity Views",
-								"org.obeonetwork.is.design/Entity (ISD consolidated view)",
-								"org.obeonetwork.dsl.environment.properties/Environment Views")));
+		_models = new LinkedHashMap<String, SiriusModelDescriptor>();
 
 		_models.put("requirement",
 				new SiriusModelDescriptor(".requirement", Arrays.asList(RepresentationUtils.c_requirementT),
@@ -99,6 +92,13 @@ public class SiriusUtil {
 				Arrays.asList("org.obeonetwork.is.design/SOA (ISD consolidated view)",
 						"org.obeonetwork.dsl.soa.design/SOA Views",
 						"org.obeonetwork.dsl.environment.properties/Environment Views")));
+
+		_models.put("entity",
+				new SiriusModelDescriptor(".entity",
+						Arrays.asList(RepresentationUtils.c_entityNH, RepresentationUtils.c_entityPN),
+						Arrays.asList("org.obeonetwork.dsl.entity.design/Entity Views",
+								"org.obeonetwork.is.design/Entity (ISD consolidated view)",
+								"org.obeonetwork.dsl.environment.properties/Environment Views")));
 	}
 
 	/**
@@ -517,9 +517,10 @@ public class SiriusUtil {
 	 */
 	private static void openRepresentations(final Session p_session, final IProgressMonitor p_monitor,
 			final Map<String, DRepresentation> p_lstRepresentations) {
-		for (Entry<String, DRepresentation> v_entry : p_lstRepresentations.entrySet()) {
-			if (_openedRepresentations.contains(v_entry.getKey())) {
-				openRepresentation(p_session, (DRepresentation) v_entry.getValue(), p_monitor);
+		for (String v_representationID : _openedRepresentations) {
+			DRepresentation v_representation = p_lstRepresentations.get(v_representationID);
+			if (null != v_representation) {
+				openRepresentation(p_session, v_representation, p_monitor);
 			}
 		}
 	}

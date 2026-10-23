@@ -234,8 +234,9 @@
 	if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().toUpper() else r.nameReferenceId(r.referencedEntity(e)
 	, 0).toUpper() endif + ' ' + r.typeColumnRef(dbType) + r.writeEndLine((r.referencedType(e) <> e), dbType) + ','/]
 
-[comment écriture d'un segment commun pour certaines lignes (nn: not null -> force not null sur FK si FK inverse)./]
-[query private writeEndLine (p : environment::Property, nn : Boolean, dbType : String) : String = if (p.is_mandatoryEntity() or nn) 
+[comment écriture d'un segment commun pour certaines lignes (nn: not null -> force not null sur FK si FK inverse... 
+         supprimé temporairement le 21/10/2026 -> if (p.is_mandatoryEntity() or nn) )./]
+[query private writeEndLine (p : environment::Property, nn : Boolean, dbType : String) : String = if (p.is_mandatoryEntity()) 
 	then ' not null' else '' endif + if (dbType.is_mySqlType() and p.description.exists()) then ' ' + p.description.toString()
 	.escapeSqlComment() else '' endif/]
 	

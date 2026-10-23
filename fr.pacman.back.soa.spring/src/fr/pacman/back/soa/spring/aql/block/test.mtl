@@ -438,7 +438,8 @@
          [protected (o.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
          [/protected]
          
-         return [s.prefixAffectation()/]['service'.apply_attributeFinal()/].[o.name()/]([o.input->collect(o1 | o1.name())->sep(',')/]);
+         return [s.prefixAffectation()/]['service'.apply_attributeFinal()/].[o.name().apply_methodDefault()/]
+            ([o.input->collect(o1 | o1.name())->sep(',')/]);
        }
        
     [/for]

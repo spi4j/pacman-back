@@ -130,18 +130,51 @@ public class WizardUtil {
 						view = page.showView(c_view_problem);
 						view = page.showView(c_view_properties);
 						view = page.showView(c_view_junit);
-						view = page.showView(c_view_html);
 
-						page.hideView(view); // Sinon de rafraichit pas.
+						// Affiche la vue HTML, puis la masque pour forcer son rafraîchissement.
 						view = page.showView(c_view_html);
+						page.hideView(view);
+						// Réaffiche la vue HTML.
+						view = page.showView(c_view_html);
+						// Redonne le focus à la vue HTML après les mises à jour de l'interface.
+						focusHtmlView();
 
 					} catch (PartInitException e) {
 						displayMessageInDialog("ATTENTION",
 								"Impossible d'activer automatiquement l'ensemble des vues nécessaires "
 										+ " pour le projet. \n Activez les différentes vues manuellement.");
-					} finally {
-						if (view != null) {
-							view.setFocus();
+					}
+				}
+			}
+		});
+	}
+
+	/**
+	 * Redonne le focus à la vue HTML de récapitulatif après les mises à jour de
+	 * l'interface Eclipse.
+	 * <p>
+	 * Cette opération est exécutée de manière asynchrone sur le thread de
+	 * l'interface graphique afin de laisser se terminer les traitements en cours et
+	 * de garantir que la vue HTML récupère le focus en dernier.
+	 * </p>
+	 * <p>
+	 * Si aucune fenêtre de travail active n'est disponible, si aucune page active
+	 * n'est accessible ou si la vue HTML n'est plus ouverte, aucune action n'est
+	 * effectuée.
+	 * </p>
+	 */
+	private static void focusHtmlView() {
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				IWorkbenchWindow activeWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+				if (activeWindow != null) {
+					IWorkbenchPage activePage = activeWindow.getActivePage();
+					if (activePage != null) {
+						IViewPart htmlView = activePage.findView(c_view_html);
+						if (htmlView != null && !htmlView.getSite().getShell().isDisposed()) {
+							activePage.activate(htmlView);
+							htmlView.setFocus();
 						}
 					}
 				}

@@ -98,6 +98,7 @@
     @Autowired
     ['Constructeur avec injection des persistance disponibles'.commentSingleLine()/]
     public [root.nameClassDatabasePopulateImpl()/]([es->writeConstructorSignature()/]) {
+     
      [for (e : entity::Entity | es)]
        [e.prefixAffectation()/][e.nameClassEntityPersistItf().apply_attributeDefault()/] 
          = [e.nameClassEntityPersistItf().apply_parameterMethodClassicIn()/];
@@ -106,15 +107,39 @@
     
     [for (e : entity::Entity | es)]
       [e.description.commentMultiLines()/]
-      [e.nameClassEntityImpl()/] [(e.name() + ' populateWithFakeData').apply_methodDefault()/] ([e.writePopulateSignature(es,ess)/]) {
+      [e.nameClassEntityImpl()/] [(e.name() + ' populate').apply_methodDefault()/] () {
+          
           [e.nameClassEntityImpl()/] [e.name().apply_variableDefault()/] = new [e.nameClassEntityImpl()/]();
           
-          [protected (e.name().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-            
+          // Liste des attributs à recopier dans la zone réservée.
           [for (a | e.attributesNoPK())]
-            [e.name().apply_variableDefault()/].[a.name().apply_methodSet()/]([a.type.writeFakerData()/]);
+            // [e.name().apply_variableDefault()/].[a.name().apply_methodSet()/]([a.type.writeFakerData()/]);
           [/for]
+          [let fks = e.referencesFKSBResolved(es, ess)]
+          [let jts = e.referencesJTSBResolved()] 
+            [for (r : environment::Reference | fks)]
+              [comment : il faudrait modifier r.containedType(e) comme r.referencedType(e) ??/]
+              [if (r.isMultiple() and (r.containingType = e))]
+                [let re = r.referencedEntity(e)]
+                  // [r.referencedTypeSignature(e)/] [re.name().apply_variableDefault() /] = new ArrayList<>();
+                  // IntStream.range(0, [e.prefixAffectation()/]['nb relations'.apply_attributeFinal()/]).forEach(i -> {
+                  //     [re.name().apply_variableDefault()/].add([(re.name() + ' populate').apply_methodDefault()/]());
+                  // });
+                  // [e.name().apply_variableDefault()/].[r.name().apply_methodSet()/]([re.name().apply_variableDefault()/]);
+                [/let]
+              [/if]
+              
+            [/for]
+            
+          [/let]
+          [/let]
           
+          [protected ((e.name() + ' populate').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            
+            [for (a | e.attributesNoPK())]
+              [e.name().apply_variableDefault()/].[a.name().apply_methodSet()/]([a.type.writeFakerData()/]);
+            [/for]
+            
           [/protected]
           
           return [e.name().apply_variableDefault()/];
@@ -132,27 +157,30 @@
    */
    @PostConstruct
    public void populate() {
+      
       if (!populateEnabled) 
          return;
+         
+      IntStream.range(0, [root.prefixAffectation()/]['nb entities'.apply_attributeFinal()/]).forEach(i -> {
       
-      IntStream.range(0, ['nb entities'.apply_attributeFinal()/]).forEach(i -> {
-        [let ers = root.eAllContents(environment::Reference)
-          ->select(r | (r.isMultiple() or r.isMultipleBidirectionnal()))]
+        [comment cas des entités à ..../]
+        [let res = es->primaryLoopEntities(ess,  root.eAllContents(environment::Reference) )]
           [for (e : entity::Entity | es)]
-            [protected ((e.name() + 'persist').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-              [if (ers->exists(r | r.containedEntity(e) <> e))]
-                IntStream.range(0, ['nb relations'.apply_attributeFinal()/]).forEach(i2 -> {
-                   [e.writePopulateEntity(es, ess)/]
-                });
-              [else]
+            [if (res->includes(e))]
+              // [e.writePopulateEntity(es, ess)/]
+            [/if]
+          [/for]
+          
+          [protected ('populate'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+            
+            [for (e : entity::Entity | es)]
+              [if (res->includes(e))]
                 [e.writePopulateEntity(es, ess)/]
               [/if]
-            [/protected]
+            [/for]
             
-          [/for]
+          [/protected]
         [/let]
-        [protected ('populate'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-        [/protected]
       });
     }
   }
@@ -160,11 +188,18 @@
 
 [comment écriture du nombre de lignes pour l'entité ./]
 [query private writeNbRows(e : entity::Entity) : String = '10'/]
+  
+[comment récupération de la liste de toutes les entités qui n'ont aucune référence./]
 
 [comment écriture de la ligne pour le peuplement de l'entité + sauvegarde./]
-[query private writePopulateEntity(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String = e.nameClassEntityImpl() 
-  + ' ' + e.name().apply_variableDefault() + ' = ' + e.nameClassEntityPersistItf().apply_attributeDefault() + '.save(' 
-  + (e.name() + ' populateWithFakeData').apply_methodDefault() + ' ' + '(' + e.writePopulateSignatureWithDefaultNull(es, ess) + '));'/]
+[query private writePopulateEntity(e : entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity)) : String =
+   e.nameClassEntityPersistItf().apply_attributeDefault() + '.save(' + (e.name() + ' populate').apply_methodDefault() + ' ' + '());'/]
+  
+[comment récupération de toutes les entités qui peuvent être instanciées dans la boucle primaire : toutes celles qui sont autonomes (pas de référence) 
+         + toutes celles qui ont des références dont elles sont le point de départ - celles qui sont référencées par d'autres entités/]
+[query private primaryLoopEntities(es : Sequence(entity::Entity), ess : Sequence(entity::Entity), rs : Sequence(environment::Reference)) : OrderedSet(entity::Entity) =
+  es->collect(e | e.referencesFKSBResolved(es, ess)->collect(r | r.containedEntity(e).oclAsType(entity::Entity)))
+  ->union( es->select(e | not rs->exists(r | r.containingType = e or r.referencedType = e)))->asSet()/]
 
 [comment écriture de la signature pour le constructeur de la classe./]
 [query private writeConstructorSignature (es : Sequence(entity::Entity)) : String = '' + es->collect(o | 'final ' 

@@ -16,6 +16,8 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -88,9 +90,21 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 * 
 	 * @param p_defaultSize
 	 */
-	void resize(final boolean p_defaultSize) {
+	void resizeAndCenter(final boolean p_defaultSize) {
 		if (p_defaultSize)
 			getShell().setSize(getShell().computeSize(720, 300));
+
+		getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				if (getShell().isDisposed())
+					return;
+				Rectangle bounds = getShell().getDisplay().getPrimaryMonitor().getClientArea();
+				Point size = getShell().getSize();
+				getShell().setLocation(bounds.x + (bounds.width - size.x) / 2,
+						bounds.y + (bounds.height - size.y) / 2 - 30);
+			}
+		});
 	}
 
 	/**
@@ -163,7 +177,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		setControl(container);
 		setPageComplete(false);
 		initWithDefault();
-		resize(true);
+		resizeAndCenter(true);
 	}
 
 	/**

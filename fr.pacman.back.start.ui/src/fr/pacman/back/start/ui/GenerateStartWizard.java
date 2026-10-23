@@ -331,12 +331,10 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	private void configureSubProjectsWithMaven(final IProject p_project) throws CoreException {
 
 		final String workspace = p_project.getWorkspace().getRoot().getLocation().toPortableString();
-
 		final int result = WizardUtil.executeExternalWizard(new IParametrizedExternalWizard() {
 
 			@Override
 			public void initExternalWizard(IWizard p_wizard) throws Exception {
-
 				Field wizardField = p_wizard.getClass().getDeclaredField("locations");
 				wizardField.setAccessible(Boolean.TRUE);
 				wizardField.set(p_wizard, Collections.singletonList(workspace));
@@ -344,7 +342,6 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 
 			@Override
 			public String getWizardId() {
-
 				return "org.eclipse.m2e.core.wizards.Maven2ImportWizard";
 			}
 		});
