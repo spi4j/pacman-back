@@ -1817,7 +1817,7 @@ Voici un exemple de test unitaire pour la persistance :
 }
 ```
 
-❗ Avant de lancer les tests, ne pas oublier de demander (si cela n'a pas déjà été effectué au préalable) la génération des scripts SQL. Pour ce faire, se positionner au niveau du fichier de modélisation de la couche de persistance ***[nom de l'application].entity*** et par clic droit, demander la génération : 
+❗❗ Avant de lancer les tests, ne pas oublier de demander (si cela n'a pas déjà été effectué au préalable) la génération des scripts SQL et éventuellement de supprimer le fichier d'initialisation, ne pas oublier que l'intitialisation des tables est placée entre balises de type "*user code*". Pour ce faire, se positionner au niveau du fichier de modélisation de la couche de persistance ***[nom de l'application].entity*** et par clic droit, demander la génération : 
 
 <img src="images/pcm-gen-entity-3.png" alt="Génération scripts SQL" width="600">
 
@@ -2646,7 +2646,7 @@ Dans l'explorateur de modèles, aller au niveau du projet de modélisation ***[n
 Pour chaque entité une méthode est créé, avec en paramètres les autres entités si l'objet traité est une grappe d'objets plus ou moins complexe. 
 
 ```java
-PersonneEntityImpl personnePopulateWithFakeData(final DemarcheEntityImpl demarche) {
+PersonneEntityImpl personnePopulate() {
 	PersonneEntityImpl personne = new PersonneEntityImpl();
 
 	// Start of user code cf79eb27d3d3d239876f4f42e3789192
@@ -2670,8 +2670,9 @@ PersonneEntityImpl personnePopulateWithFakeData(final DemarcheEntityImpl demarch
 }
 ```
 
-❗ Il est important de noter ici que par défaut, seuls les attributs modélisés de l'entité sont générés. En effet, pour des raisons de complexité liées aux références potentiellement cycliques, ces dernières ne sont pour l'instant pas générées. C'est donc au développeur de finaliser les appels en fonction du besoin. De même, toujours par défaut (et pour les mêmes raisons), les instances des paramètres sont toujours initialisées à "**null**" au niveau de la méthode principale de la classe qui permet de lancer le traitement. 
-L'idée et le but de la génération sont au départ, d'avoir un code qui compile : 
+❗❗ Il est important de noter ici que par défaut, seuls les attributs modélisés de l'entité sont générés. En effet, pour des raisons de complexité liées aux références potentiellement cycliques (notamment à cause d'hibernate), ces dernières ne sont pour l'instant pas générées. C'est donc au développeur de finaliser les appels en fonction du besoin. 
+
+L'idée et le but de la génération sont au départ, d'avoir un code de base qui compile : 
 
 ```java
 @PostConstruct
@@ -2682,7 +2683,7 @@ public void populate() {
    IntStream.range(0, nbEntities).forEach(i -> {
 
 	// Start of user code f1399e649e5189a1b6ddbc2110423d17
-	PersonneEntityImpl personne = personneRepository.save(personnePopulateWithFakeData(null));
+	PersonneEntityImpl personne = personneRepository.save(personnePopulate());
 	// End of user code
 
 	....
@@ -2696,33 +2697,35 @@ public void populate() {
 Ainsi dans une relation (0,\*) entre une *personne* et ses démarches, une *personne* a une liste de démarches, et ( pour le bidirectionnel Hibernate ), une *démarche* porte sur instance de *personne*. 
 Il est possible d'enregistrer une personne sans démarche en laissant le code par défaut. 
 
-Puis on enregistre la démarche pour la personne nouvellement crée en modifiant le code de la manière suivante (au niveau de la méthode *populate()*) ...
+Puis on enregistre la démarche pour la personne nouvellement crée en modifiant le code de la manière suivante ...
 
 ```java
-// Start of user code eff84bdefaf9cdc14ddeb8376157f2a4
-DemarcheEntityImpl demarche = demarcheRepository.save(demarchePopulateWithFakeData(personne));
+PersonneEntityImpl personne = new PersonneEntityImpl();
+
+// Start of user code cf79eb27d3d3d239876f4f42e3789192
+
+personne.setNom(faker.lorem().characters(5, 20));
+personne.setPrenom(faker.lorem().characters(5, 20));
+personne.setTel(faker.lorem().characters(5, 20));
+personne.setMail(faker.lorem().characters(5, 20));
+personne.setVille(faker.lorem().characters(5, 20));
+personne.setCodePostal(faker.lorem().characters(5, 20));
+personne.setLogin(faker.lorem().characters(5, 20));
+personne.setAdresse(faker.lorem().characters(5, 20));
+personne.setCivilite(faker.lorem().characters(5, 20));
+personne.setDateNaissance(randomLocalDate(0));
+personne.setMotPasse(faker.lorem().characters(5, 20));
+personne.setSecteurPro(faker.lorem().characters(5, 20));
+
+List<Entity2EntityImpl> demarches = new ArrayList<>();
+IntStream.range(0, this.nbRelations).forEach(i -> {
+	demarches.add(demarchesPopulate());
+});
+personne.setDemarches(demarches);
+	
 // End of user code
-```
 
-... et en rajoutant une ligne au niveau de la démarche : 
-
-```java
-DemarcheEntityImpl demarchePopulateWithFakeData(final personneEntityImpl personne) {
-   DemarcheEntityImpl demarche = new DemarcheEntityImpl();
-
-   // Start of user code 2b3517d11bcb1172ba92edf896aa109a
-
-   demarche.setType(faker.lorem().characters(5, 20));
-   demarche.setRaison(faker.lorem().characters(5, 20));
-   demarche.setIdentifiant(faker.lorem().characters(5, 20));
-   demarche.setStatut(faker.lorem().characters(5, 20));
-   
-   demarche.setPersonne_demarche(personne);     <- Ajout de la ligne.
-
-   // End of user code
-
-   return demarche;
-}
+return personne;
 ```
 Enfin, paramétrer le nombre d'occurrences à insérer dans la base de données en modifiant le code suivant :
 
@@ -2734,26 +2737,13 @@ private final int nbRelations = 5;
 // End of user code
 ```
 
-La variable "**nbEntities**" indique le nombre d'occurrences à enregistrer pour chaque entité et la variable "**nbRelations**" permet de définir le nombre d'occurrences à enregistrer pour chaque entité qui est en relation avec une autre entité. Ainsi avec l'exemple précédent, 10 *personnes* sont enregistrées avec pur chaque personne 5 "*démarches*". Ceci donne le code suivant au niveau de la méthode *populate()* : 
+La variable "**nbEntities**" indique le nombre d'occurrences à enregistrer pour chaque entité et la variable "**nbRelations**" permet de définir le nombre d'occurrences à enregistrer pour chaque entité qui est en relation avec une autre entité. 
 
-```java
-IntStream.range(0, nbEntities).forEach(i -> {
-    // Start of user code f1399e649e5189a1b6ddbc2110423d17
-    UserDemoEntityImpl userDemo = userDemoRepository.save(userDemoPopulateWithFakeData(null));
-    // End of user code
-    
-    // Start of user code eff84bdefaf9cdc14ddeb8376157f2a4
-    IntStream.range(0, nbRelations).forEach(i2 -> {
-        RequestDemoEntityImpl requestDemo = requestDemoRepository.save(requestDemoPopulateWithFakeData(userDemo));
-    });
-    // End of user code
-    
-    // Start of user code e679aa86ca55b033b965ba72500dbe92
-    // End of user code
-});
-```
+❗ Encore une fois, il est important de comprendre que les générateurs de code ne peuvent pas, à eux seuls, produire un code entièrement finalisé pour le peuplement de la base de données. En effet, l'utilisation d'Hibernate avec des relations bidirectionnelles entre les entités peut entraîner des références circulaires lors de la création et de la persistance des objets. Chaque entité peut alors référencer une autre entité qui, à son tour, référence la première, provoquant une boucle infinie lors du parcours des relations. 
 
-Bien évidemment, tout l'intérêt de ce générateur (par rapport à un script SQL) est de pouvoir afficher facilement des données compréhensibles pour l'utilisateur, même en phase de développement. Il est donc nécessaire de modifier le code par défaut afin de coller au code métier. Pour cela se reporter aux fonctionnalités de la librairie DataFaker.
+Cette situation peut notamment conduire à une "*StackOverflowError*". Une intervention humaine reste donc nécessaire pour maîtriser le parcours des relations, contrôler les opérations de persistance et garantir un peuplement fiable de la base de données. Il reste donc un travail potentiellement important (selon la taille de la modélisation) afin de finaliser le code de peuplement pour la base.
+
+Cependant, tout l'intérêt de ce générateur (par rapport à un script SQL) est de pouvoir afficher facilement des données compréhensibles pour l'utilisateur, même en phase de développement ou pour des démonstrations. Il est par ailleurs nécessaire de modifier le code par défaut afin de coller au code métier. Pour cela se reporter aux différentes fonctionnalités de la librairie DataFaker.
 
 Exemple d'utilisation : 
 
@@ -2770,33 +2760,6 @@ personne.setCivilite(faker.name().prefix()); // ex : Mr, Mrs, Mme
 personne.setDateNaissance(randomLocalDate(80)); // personne âgée de max 80 ans
 personne.setMotPasse(faker.internet().password());
 personne.setSecteurPro(faker.company().industry());
-```
-
-❗ Attention, il faut bien comprendre que cette fonctionnalité est juste un "squelette" basique pour faciliter le chargement des données et qu'il ne s'agit absolument pas d'un produit fini qui répond à l'ensemble des cas de modélisation. Il est donc parfois nécessaire pour le développeur de modifier certaines parties et d'en commenter (et/ou en déplacer) d'autres selon les différents cas de figure. Il dispose cependant de l'ensemble des fonctions de base pour ajuster la classe en fonction de ses besoins. 
-
-Voici un exemple tiré d'une autre modélisation : 
-
-```java
-IntStream.range(0, nbEntities).forEach(i -> {
-    // Start of user code e704d2492cceeb15a1dc8a03aa9894d3
-    GradeEntityImpl grade = gradeRepository.save(gradePopulateWithFakeData());
-    IntStream.range(0, nbRelations).forEach(i2 -> {
-        PersonneEntityImpl personne = personneRepository.save(personnePopulateWithFakeData(null, grade));
-    });
-    // End of user code
-
-    // Start of user code d93e54e0f81ff8ee8728385070aa5406
-    //IntStream.range(0, nbRelations).forEach(i2 -> {
-    //   GradeEntityImpl grade = gradeRepository.save(gradePopulateWithFakeData());
-    //});
-    // End of user code
-
-    // Start of user code dba3aec7e9f3d23fe5f2fe65483bd1d2
-    IntStream.range(0, nbRelations).forEach(i2 -> {
-        VilleEntityImpl ville = villeRepository.save(villePopulateWithFakeData());
-    });
-    // End of user code
-});
 ```
 
 #### Tests
@@ -3351,7 +3314,7 @@ class DemoApiTestRunner {
 }
 ```
 
-#### Création des tests
+#### Création des tests (couche infra)
 
 Tous les tests sont donc à positionner au niveau du projet "***[Nom de l'application]-server***" dans le répertoire "*/src/test/resources/features*". Chaque test doit être écrit en "*Gherkin*" et chaque fichier de test doit avoir l'extension "*.feature*". Par défaut un simple test de ping est généré à la création du projet, ce test se présente sous la forme suivante : 
 
@@ -3659,43 +3622,63 @@ Chaque service étant dans l'obligation de retourner quelque chose, le début de
 
 Par contre c'est ensuite au développeur (ou aux fonctionnels) de compléter les attendus à l'intérieur des balises de type "*user code*".
 
-En parallèle, chaque service dispose d'un squelette pour le fichier d'injection des données, situé au niveau du package : "*/src/test/resources/data*". Ce fichier est au format "*.yaml*" et par défaut ne contient que les rubriques suivantes :  
+En parallèle, chaque service dispose d'un squelette pour le fichier d'injection des données, situé au niveau du package : "*/src/test/resources/data*". Ce fichier est au format "*.yaml*" et par défaut ne contient les rubriques suivantes (une par opération de service) :  
 
 ```yaml
 retourneTous:
    # Start of user code 76901942dcec873b8d69280745538a96
+   [données en sortie]
+   [données en entrée]
    # End of user code
 
 chercheParId:
    # Start of user code 213b153cf17e81eda9f6b8b67f005368
+   [données en sortie]
+   [données en entrée]
    # End of user code
 ```
 
-❗ Les fichiers "*.yaml*" ne sont volontairement pas générés automatiquement. En effet, il est impossible de déterminer à l'avance le nombre exact d'occurrences nécessaires pour les listes, les valeurs précises à renseigner ou encore les éventuels noms d'attributs à utiliser. 
+❗ Les fichiers "*.yaml*" ne sont volontairement pas générés dans leur version finale. Ils constituent une trame initiale qui doit être complétée et adaptée manuellement avant de pouvoir être utilisée pour les tests. En effet, il est impossible de déterminer à l'avance le nombre exact d'occurrences nécessaires pour les listes, les valeurs précises à renseigner. 
 
-En effet, ces fichiers peuvent également être produits par un autre outil, avec une structure ou des conventions de nommage différentes. Enfin, leur structure étant relativement simple à définir, il est aujourd'hui facile de la générer à l'aide d'une IA, en fonction des besoins spécifiques de chaque projet. Il est donc préférable de laisser leur création à la charge de l'utilisateur, afin de conserver la souplesse nécessaire et d'éviter de générer des fichiers incomplets ou inadaptés.
+Par ailleurs, ces fichiers peuvent également être produits par un autre outil, avec des conventions de nommage différentes. Enfin, il est aujourd'hui facile de la générer à l'aide d'une IA, en fonction des besoins spécifiques de chaque projet. Il est donc préférable de laisser leur développement finalisé à la charge de l'utilisateur, ceci afin de conserver la souplesse nécessaire et d'éviter de générer des fichiers incomplets ou inadaptés.
 
-Voici à titre informatif, et pour démontrer la facilité d'écriture d'un tel fichier, un exemple pour la méthode : "*retourneTous*" : 
+Les générateurs produisent toutefois une première ébauche des structures de données nécessaires aux tests Karate. Les fichiers générés constituent une base de travail destinée à illustrer la structure attendue et à faciliter la mise en place des tests. Ils ne peuvent toutefois pas garantir des données directement exploitables dans tous les contextes. Il appartient donc au développeur de compléter, modifier et finaliser les données générées en fonction des besoins spécifiques des scénarios de test et des contraintes métier de l'application.
+
+❗ Comme toujours, dans le cadre de la génération des données de test, les relations entre DTO doivent être développées avec précaution. En effet, les entités peuvent présenter des relations bidirectionnelles, dans lesquelles chaque objet référence à son tour l'objet d'origine. Le développement systématique de toutes les références entraînerait encore une fois, une récursion infinie. 
+
+Pour éviter ce problème, **Pacman** développe les objets associés nécessaires tout en limitant le parcours aux DTO déjà rencontrés. Les références vers des objets déjà parcourus peuvent ainsi être représentées uniquement par leur identifiant, ce qui permet de conserver la cohérence des associations sans dupliquer inutilement les données ni créer de cycles dans la structure YAML générée. Libre au développeur de compléter le fichier "*.yaml*" en collaboration avec les fonctionnels.
+
+Voici un exemple de modélisation complétée pour montrer une structure générée plus importante (la sortie est toujours donnée en premier): 
+
+<div align="center">
+   <img src="images/pcm-test-soa-6.png" alt="Tests Karaté" width="600">
+</div>
 
 ```yaml
-retourneTous:
-  - id: 1
-    nom: "Dupont"
-    prenom: "Jean"
-    age: 35
-
-  - id: 2
-    nom: "Martin"
-    prenom: "Sophie"
-    age: 28
-
-  - id: 3
-    nom: "Bernard"
-    prenom: "Paul"
-    age: 42
+getPersonnes:
+   - personne_id:
+     numeroFiscal: ""
+     profession: ""
+     revenuAnnuel: 
+     situationFamiliale: ""
+     nom: ""
+     prenom: ""
+     dateNaissance: ""
+     aPourAdresse:
+       - adresse_id:
+         rue: ""
+         ville: ""
+         codePostal: ""
+     aPourDossiers:
+       - dossier_id:
+         reference: ""
+         statut: ""
+     organisme_id:
 ```
 
-Un fournisseur de test ("*provider*") est automatiquement généré. Pour rappel le "*provider*" est le service d'infrastructure représentant la couche de persistance pour le service métier. Ici il s'agit donc d'un fournisseur de persistance destiné à servir de bouchon pour les tests fonctionnels du domaine. 
+❗ Lorsque l'opération possède des paramètres d'entrée, qu'il s'agisse de DTO ou de types primitifs, leurs données sont ajoutées à la suite du bloc "*----- entrées -----*". Pour les DTO, la structure YAML reprend le nom du paramètre comme clé principale et détaille ses attributs.  
+
+Par ailleurs, un fournisseur de test ("*provider*") est automatiquement généré. Pour rappel le "*provider*" est le service d'infrastructure représentant la couche de persistance pour le service métier. Ici il s'agit donc d'un fournisseur de persistance destiné à servir de bouchon pour les tests fonctionnels du domaine. 
 
 Cette classe "*[Nom du service]ProviderTestImpl*" contient par défaut le code généré suivant : 
 
@@ -3770,6 +3753,8 @@ personne.setPersonne_id(((Number) data.get("personne_id")).longValue());
 personne.setNom((String) data.get("nom"));
 personne.setPrenom((String) data.get("prenom"));
 personne.setAge(((Number) data.get("age")).intValue());
+personne.setNumeroFiscal((String) data.get("numeroFiscal"));
+
 etc...
 ```
 
@@ -3810,6 +3795,8 @@ public List<PersonneDtoImpl> retourneTous(final Map<String, Object> data) {
       personne.setNom((String) data.get("nom"));
       personne.setPrenom((String) data.get("prenom"));
       personne.setAge(((Number) data.get("age")).intValue());
+      personne.setNumeroFiscal((String) data.get("numeroFiscal"));
+      
       ... ajout de chaque personne à la liste
       personnes.add(personne);
 
@@ -3894,13 +3881,21 @@ Ici deux entités seront modélisées, avec toujours pour noms respectifs, simpl
 
 ❗ Au niveau des scripts SQL, ne sont pour l'instant affichées que les créations de table afin de rapidement visualiser les différentes relations. Ne sont donc pas présentés les indexs et contraintes inhérentes à la création de ces relations.
 
+❗❗ Une association entre deux entités est habituellement représentée par une relation accompagnée d'une cardinalité à chaque extrémité, chacune exprimant une contrainte différente. 
 
+Toutefois, avec la modélisation Obeo, dans le cadre des relations unidirectionnelles, une seule cardinalité est affichée, tandis que la navigation de la relation indique le sens dans lequel s'effectue la référence. Cette navigation permet notamment d'identifier l'entité qui porte la clé étrangère.
+
+**Selon le type de cardinalité**, il convient donc de distinguer  : 
+
+- La cardinalité, qui définit les règles d'association entre les entités.
+
+- La navigation, qui précise le sens de la référence et permet de déterminer où positionner la clé étrangère dans le modèle de données. 
 
 #### Relation (1)/(0,1)
 
 <img src="images/pcm-model-relation-1.png" alt="Relations">
 
-La seule différence selon que la cardinalité soit à 1 ou à (0,1) consiste en la présence de "*not null*" au niveau de la clé étrangère pour l'entité A. La navigabilité étant dirigée vers l'entité B, c'est l'entité A qui récupère la clé étrangère.
+La seule différence selon que la cardinalité soit à 1 ou à (0,1) consiste en la présence de "*not null*" au niveau de la clé étrangère pour l'entité A. **La navigabilité étant dirigée vers l'entité B, c'est l'entité A qui récupère la clé étrangère**.
 
 Le code SQL généré est donc le suivant : 
 
@@ -3939,7 +3934,13 @@ private BEntityImpl b;
 
 <img src="images/pcm-model-relation-2.png" alt="Relations">
 
-Ici, avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A. La relations se traduit par un ***@OneToMany*** au niveau de l'entité A et un ***@ManyToOne*** au niveau de l'entité B. Par défaut, *@OneToMany* sans *mappedBy* crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d'utiliser *mappedBy* dans A, et un *@ManyToOne* dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).
+Ce qui correspond dans un modèle typé Meurise à : 
+
+<img src="images/pcm-model-relation-2b.png" alt="Relations">
+
+Ici, **avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A** (on est donc inversé par rapport à du (1)/(01)). Dans ce type de relation, attention donc au sens de la flêche (navigabilité) ! 
+
+La relations se traduit par un ***@OneToMany*** au niveau de l'entité A et un ***@ManyToOne*** au niveau de l'entité B. Par défaut, *@OneToMany* sans *mappedBy* crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d'utiliser *mappedBy* dans A, et un *@ManyToOne* dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).
 
 ```sql
 create table A
@@ -4029,7 +4030,9 @@ private List<AEntityImpl> relationA;
 
 #### Relation bidirectionnelle (0,\*)/(1,\*)
 
-❗ Il est impossible avec **Pacman** d'avoir des relations bidirectionnelles avec la navigabilité dans les deux sens, il est donc nécessaire après avoir tiré la relation bidirectionnelle entre deux entités, de supprimer une des deux navigabilités.
+❗ Il est impossible avec **Pacman** d'avoir des relations bidirectionnelles avec la navigabilité dans les deux sens, il est donc nécessaire après avoir tiré la relation bidirectionnelle entre deux entités, de supprimer une des deux navigabilités. 
+
+❗ Ici peut importe la navigabilité à supprimer, il s'agit plus d'une problèmatique technique liée aux générateurs **Pacman**.
 
 Cette relation utilise l'annotation ***@ManyToMany*** soit au niveau de l'entité A, soit au niveau de l'entité B, selon la navigabilité qui a été initialement modélisée. Ici la navigabilité est pointée sur B, c'est donc l'entité A qui prend la relation. Par ailleurs, une table de liaison est automatiquement générée avec la concaténation du nom de la table et celui de la relation (dépend de la navigabilité). Les deux noms sont séparés par un underscore. Bien noter par contre que le nom de l'attribut au niveau de l'entité est celui de la relation (dépend aussi du sens de la navigabilité).
 
@@ -4062,7 +4065,7 @@ En effet, lorsque l'on construit des DTO, le rôle n'est plus de représenter de
 
 Si un DTO B contient un DTO A, qui lui-même contient une liste de DTO B, on produit alors immédiatement une boucle infinie : la sérialisation JSON part en récursion infinie, les mappers se ré-appellent indéfiniment et finissent en StackOverflowError, et les outils de documentation (OpenAPI, Swagger) refusent le modèle car il n'est pas acyclique.
 
-Les générateurs **Pacman** vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d'API plus explicite.   
+Les générateurs **Pacman** vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples (dans le cas des références inverses uniquement) : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d'API plus explicite.   
 
 Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l'API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l'architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non récursive et optimisée pour l'échange de données.
 
@@ -4431,24 +4434,42 @@ Quant utiliser l'héritage avec **Pacman** et sous quelle forme ?
 
 - ✅ pleinement supporté, aucun impact de performance.
 - ⚠️ supporté mais en version alpha pour l'instant.️
-- 🛠️️️ en cours d'implémentation, non finalisé sur l'ensemble des couches.
+- 🛠️️️ en cours d'implémentation, non finalisé sur l'ensemble des couches
+- ⏳ désactivé provisoirement.
+- ⛔ bloqué ne sera jamais implémenté.
 
 
 ✅ Factoriser un ensemble d'attributs communs à plusieurs entités. Ici il ne faut pas confondre avec la notion de champs automatiques vue précédement qui elle, applique des attributs mais sur la totalité des entités modélisées. Avec l'héritage il est ainsi possible d'avoir un contrôle plus fin sur les attributs communs. 
 
-⚠️  Ajouter des relations de type (0,1) entre les entités héritées.
+✅  Ajouter des relations de type (0,1) entre les entités héritées.
 
-🛠️️️️️️ Ajouter des relations de type (0,*) entre les entités héritées.
+✅ ️️️️️️ Ajouter des relations de type (0,*) entre les entités héritées.
 
-🛠️️️️️️ Ajouter des relations bidirectionnelles de type (0,*) entre les entités héritées.
+✅ ️️️️️️ Ajouter des relations bidirectionnelles de type (0,*) entre les entités héritées.
+
+⚠️⏳ Ajouter des relations de type (0,1) entre entités parents et héritées.
+ 
+⚠️⏳ Ajouter des relations de type (0,*) entre les entités parents et héritées.
+ 
+⚠️⏳ Ajouter des relations bidirectionnelles de type (0,*) entre les entités parents et héritées.
+
+⛔ Ajouter des relations de type (0,1) entre les entités parents.️️️
+
+⛔ Ajouter des relations de type (0,*) entre les entités parents.️️
+
+⛔ Ajouter des relations bidirectionnelles de type (0,*) entre les entités parents.
 
 A titre indicatif, voici un exemple de modélisation avec héritage qui regroupe l'ensemble des possibilités disponibles (au niveau des différentes relations) par **Pacman**.
+
+[**Edit du 23/10/2026 : comme vu plus haut certaines fonctionnalités sont temporairement désactivées ⏳  car en régression... en cours de rétablissement.**]
 
 <div align="center">
   <img src="images/pcm-model-heritage-1.png" alt="Modélisation héritage" >
 </div>
 
-Et le code SQL généré (ne sont pas présentées pour l'instant les couches Java au niveau entités et objets métier) : 
+On suppose ici (pour l'exemple), que la couleur est unique, qu'une voiture peut être bicolore et que de même, si un véhicule peut transporter plusieurs passagers, un passager ne peut monter que dans un seul véhicule...
+
+Et ci-dessous le code SQL généré (ne sont pas présentées pour l'instant les couches Java au niveau entités et objets métier) : 
 
 ```sql
 /******************************************************************/
@@ -6660,7 +6681,7 @@ project.validation.jkw.enabled = false
 
 ### 📦 Déploiement de l'application
 
-Pour déployer l'application, ouvrir une fenêtre de commande (cmd ou power shell, etc...) et se positionner à la racine du projet (un **dir** (ou **ls-al**) doit renvoyer l'ensemble des sous-projets). 
+Pour déployer l'application, modifier les numéros de version au niveau des fichier "*pom.xml*", ouvrir une fenêtre de commande (cmd ou power shell, etc...) et se positionner à la racine du projet (un **dir** (ou **ls-al**) doit renvoyer l'ensemble des sous-projets). 
 
 ```bash
 07/11/2025  15:00    <DIR>          .
@@ -6674,10 +6695,10 @@ Pour déployer l'application, ouvrir une fenêtre de commande (cmd ou power shel
                2 fichier(s)            7 898 octets
                6 Rép(s)  350 891 282 432 octets libres
 ```
-Puis tapper simplement la commande : 
+Pour un build complet de l'application tapper la commande suivante :  
 
 ```bash
-mvn clean install 
+mvn clean package -P integration
 ```
 Une fois le processus de compilation effectué, l'utilisateur doit alors avoir un récapitulatif du type : 
 ```bash
@@ -6736,6 +6757,14 @@ WebApplicationContext
 2025-11-07 22:11:59 - fr.demo.DemoBootstrap - Started DemoBootstrap in 7.121 seconds (process running for
 7.66)
 ```
+
+Pour un build des tests fonctionnels de la couche métier, tapper la commande suivante : 
+
+```bash
+mvn clean package -P tests-fonctionnels
+```
+
+❗ Il est à notter que dans le cas des tests fonctionnels le build passe par un phase intermédiaire qui crée un fichier "*.jar*" supplémentaire. Celui à récupérer est donc toujours le fichier suivant : "***[Nom de l'application]-[Version]-tests-fonctionnels.jar***" et non : "***[Nom de l'application]-[Version]-tests.jar***".
 
 ## 📁 Cas projet client 
 
@@ -7094,15 +7123,8 @@ Le déploiement de l'application s'effectue de manière très simple à l'aide d
 - Pour un build complet de l'application tapper la commande suivante : 
 
     ```bash
-    mvn clean package -P integration
+    mvn clean package
     ```
-
-- Pour un build des tests fonctionnels de la couche métier, tapper la commande suivante : 
-
-    ```bash
-    mvn clean package -P tests-fonctionnels
-    ```
-- Les executables se situent toujours au niveau du répertoire "*/target* de chaque projet. Il est à notter que dans le cas des tests fonctionnels le build passe par un phase intermédiaire qui crée un fichier "*.jar*" supplémentaire. Celui à récupérer est donc toujours le fichier suivant : "***[Nom de l'application]-[Version]-tests-fonctionnels.jar***" et non : "***[Nom de l'application]-[Version]-tests.jar***".
 
 ## 📁 Cas projet client (React)
 
@@ -7332,6 +7354,8 @@ La problématique est que, en conséquence, il devient impossible au générateu
 Il n'est par ailleurs pas possible au niveau des imports de créer une section libre pour la génération et une section "*user code*" pour les imports spécifiques utilisateurs car l'organisation automatique ne fonctionne pas si les balises sont positionnées différement. 
     
 L'unique solution pour l'instant consiste donc à lancer une organisation automatique des imports manuellement sur les différentes classes en erreur et effectuer les choix nécessaires. Lors de la prochaine demande de génération, les imports étant reconstitués, les classes ne devraient plus être en erreur.
+
+Cette problématique est surtout présente lors des modifications de cardinalité avec les imports de listes (*List<>*).
   
 • **Suite à demande de génération, mes classes ont des warnings** :  en ouvrant une classe, je vois que de nombreux imports ne sont pas utilisés. Pourtant, au niveau de mon fichier "*project.properties*" je ne suis pas en mode debug. 
   
