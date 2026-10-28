@@ -145,7 +145,9 @@ L'installation et la configuration de Maven dans Eclipse sont essentielles pour 
 
 1b - Compilation des sources (développement)
 
-Il est aussi possible de récupérer l'ensemble des sources et de les compiler (JDK 17 au minimum et Maven 3.9.9) afin d'obtenir l'update site. Les étapes sont les suivantes : 
+Il est aussi possible de récupérer l'ensemble des sources et de les compiler (JDK 21 au minimum et Maven 3.9.9 ❗ Ne pas monter en 3.10.0 cela pose des problématiques avec tycho 4.0.8 !) afin d'obtenir l'update site.
+
+Les différentes étapes sont les suivantes : 
 
 - Créer un répertoire sur le disque local
 - Lancer la commande : ```git clone https://github.com/spi4j/pacman-back.git```
