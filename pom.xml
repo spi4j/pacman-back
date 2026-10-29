@@ -13,12 +13,12 @@
 
 	<properties>
 		<java.version>21</java.version>
-		<tycho-version>4.0.8</tycho-version>
+		<tycho-version>4.0.12</tycho-version>
 		<properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
 		<acceleo-releases-url>https://download.eclipse.org/acceleo/updates/releases/4.1/R202502130921/</acceleo-releases-url>
 		<odc-updatesite-url>http://www.obeo.fr/download/release/designer/12.0/community/12.0.0/repository/</odc-updatesite-url>
 		<is-updatesite-url>https://www.obeosoft.com/download/release/informationsystem/6.0.0/design/repository/</is-updatesite-url>
-		<eclipse-updatesite-url>http://download.eclipse.org/releases/2023-03/</eclipse-updatesite-url> 
+		<eclipse-updatesite-url>http://download.eclipse.org/releases/2025-09/</eclipse-updatesite-url> 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.release>${java.version}</maven.compiler.release>
