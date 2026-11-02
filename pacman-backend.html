@@ -2982,7 +2982,7 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="nf">    </span><span class="k">* </span><span class="nf">def test = new Test()</span>
 
 <span class="c">    # Exécution du service métier</span>
-<span class="nf">    </span><span class="k">* </span><span class="nf">def result = test.chercheParId(data.chercheParId)</span>
+<span class="nf">    </span><span class="k">* </span><span class="nf">def result = test.chercheParId(data)</span>
 
 <span class="c">    # Vérification du résultat</span>
 <span class="nf">    </span><span class="k">* </span><span class="nf">match result != null</span>
@@ -3075,6 +3075,9 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <p>Et pour chaque opération du service est générée une méthode :</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">retourneTous</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
+<span class="w">    </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"unchecked"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;&gt;</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"retourneTous"</span><span class="p">);</span>
+
 <span class="w">    </span><span class="c1">// Start of user code 76901942dcec873b8d69280745538a96</span>
 <span class="w">    </span><span class="c1">// End of user code</span>
 
@@ -3084,6 +3087,9 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <span class="kd">public</span><span class="w"> </span><span class="n">Optional</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">chercheParId</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
 <span class="w">    </span><span class="n">Long</span><span class="w"> </span><span class="n">idPersonne</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+
+<span class="w">    </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"unchecked"</span><span class="p">)</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;&gt;</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"chercheParId"</span><span class="p">);</span>
 
 <span class="w">    </span><span class="c1">// Start of user code d5213483b134a09f890e250679f635e0</span>
 <span class="w">    </span><span class="c1">// End of user code</span>
@@ -3137,15 +3143,18 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <p>Ainsi dans le cas de l'opération "<em>retourneTous()</em>" on aurait un extrait de code du type :</p>
 <div class="codehilite"><pre><span></span><code><span class="kd">public</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">PersonneDtoImpl</span><span class="o">&gt;</span><span class="w"> </span><span class="nf">retourneTous</span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 
+<span class="w">   </span><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">"unchecked"</span><span class="p">)</span>
+<span class="w">   </span><span class="kd">final</span><span class="w"> </span><span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;&gt;</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"retourneTous"</span><span class="p">);</span>
+
 <span class="w">   </span><span class="c1">// Start of user code 76901942dcec873b8d69280745538a96</span>
 
 <span class="w">   </span><span class="n">traitement</span><span class="w"> </span><span class="n">de</span><span class="w"> </span><span class="n">la</span><span class="w"> </span><span class="n">boucle</span><span class="p">...</span>
 <span class="w">      </span><span class="n">PersonneDtoImpl</span><span class="w"> </span><span class="n">personne</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">PersonneDtoImpl</span><span class="p">();</span>
-<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setPersonne_id</span><span class="p">(((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"personne_id"</span><span class="p">)).</span><span class="na">longValue</span><span class="p">());</span>
-<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setNom</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"nom"</span><span class="p">));</span>
-<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setPrenom</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"prenom"</span><span class="p">));</span>
-<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setAge</span><span class="p">(((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"age"</span><span class="p">)).</span><span class="na">intValue</span><span class="p">());</span>
-<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setNumeroFiscal</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"numeroFiscal"</span><span class="p">));</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setPersonne_id</span><span class="p">(((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"personne_id"</span><span class="p">)).</span><span class="na">longValue</span><span class="p">());</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setNom</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"nom"</span><span class="p">));</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setPrenom</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"prenom"</span><span class="p">));</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setAge</span><span class="p">(((</span><span class="n">Number</span><span class="p">)</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"age"</span><span class="p">)).</span><span class="na">intValue</span><span class="p">());</span>
+<span class="w">      </span><span class="n">personne</span><span class="p">.</span><span class="na">setNumeroFiscal</span><span class="p">((</span><span class="n">String</span><span class="p">)</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">"numeroFiscal"</span><span class="p">));</span>
 
 <span class="w">      </span><span class="p">...</span><span class="w"> </span><span class="n">ajout</span><span class="w"> </span><span class="n">de</span><span class="w"> </span><span class="n">chaque</span><span class="w"> </span><span class="n">personne</span><span class="w"> </span><span class="n">à</span><span class="w"> </span><span class="n">la</span><span class="w"> </span><span class="n">liste</span>
 <span class="w">      </span><span class="n">personnes</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">personne</span><span class="p">);</span>
@@ -3207,6 +3216,53 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 </ul>
 <p>Pour lancer tous les scénarios : </p>
 <div class="codehilite"><pre><span></span><code>java<span class="w"> </span>-Dtest.data.dir<span class="o">=</span><span class="s2">"C:/mes-tests/data"</span><span class="w"> </span>-jar<span class="w"> </span>demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar<span class="w"> </span><span class="s2">"C:/mes-tests/features"</span>
+</code></pre></div>
+<p>Pour les utilisateurs qui ne souhaitent pas lancer les tests fonctionnels depuis la ligne de commande, un script Windows "<em>"[Nom de l'application]-tests-fonctionnels.bat</em>" est également fourni dans le répertoire "<em>src/test/resources</em>".</p>
+<p>Ce script permet de lancer les tests fonctionnels de manière interactive, sans avoir à saisir manuellement la commande Java.</p>
+<p>Son fonctionnement est simple :</p>
+<ol>
+<li>
+<p>Configuration : les chemins et paramètres peuvent être renseignés directement dans la zone CONFIGURATION située au début du fichier "<em>.bat</em>". Par exemple, si le chemin du JAR, le répertoire des fichiers "<em>.feature</em>" et celui des données YAML sont déjà renseignés dans le script, l'utilisateur n'aura pas à les saisir au lancement. Le script passe automatiquement à la question suivante uniquement pour les paramètres laissés vides. Cela permet notamment de conserver une configuration permanente et de ne renseigner que le fichier "<em>.feature</em>" ou le scénario à exécuter selon les besoins.</p>
+</li>
+<li>
+<p>Sélection des tests : il est possible de lancer l'ensemble des tests, de sélectionner un fichier "<em>.feature</em>" particulier ou encore de cibler un scénario précis.</p>
+</li>
+<li>
+<p>Confirmation : avant l'exécution, le script affiche la configuration retenue ainsi que la commande Java qui sera exécutée. L'utilisateur peut alors confirmer ou annuler le lancement.</p>
+</li>
+<li>
+<p>Exécution : les tests sont lancés et le résultat de l'exécution est affiché à la fin.</p>
+</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>Chemin<span class="w"> </span>du<span class="w"> </span>JAR<span class="w"> </span>executable<span class="w"> </span>:
+&gt;<span class="w"> </span>C:<span class="se">\T</span>ests<span class="se">\d</span>emo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar
+
+Repertoire<span class="w"> </span>des<span class="w"> </span>fichiers<span class="w"> </span>.feature<span class="w"> </span>:
+&gt;<span class="w"> </span>C:<span class="se">\T</span>ests<span class="se">\f</span>eatures
+
+Repertoire<span class="w"> </span>des<span class="w"> </span>fichiers<span class="w"> </span>YAML<span class="w"> </span>:
+&gt;<span class="w"> </span>C:<span class="se">\T</span>ests<span class="se">\d</span>ata
+
+Fichier<span class="w"> </span>.feature<span class="w"> </span><span class="o">(</span><span class="nv">Entree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>tous<span class="w"> </span>les<span class="w"> </span>tests<span class="o">)</span><span class="w"> </span>:
+&gt;<span class="w"> </span>personnes.feature
+
+Nom<span class="w"> </span>du<span class="w"> </span>scenario<span class="w"> </span><span class="o">(</span><span class="nv">Entree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>tous<span class="w"> </span>les<span class="w"> </span>scenarios<span class="o">)</span><span class="w"> </span>:
+&gt;<span class="w"> </span><span class="nv">retourneTous</span>
+
+<span class="o">============================================================</span>
+CONFIGURATION<span class="w"> </span>DES<span class="w"> </span>TESTS<span class="w"> </span><span class="nv">FONCTIONNELS</span>
+<span class="o">============================================================</span>
+JAR<span class="w">              </span>:<span class="w"> </span>C:<span class="se">\T</span>ests<span class="se">\d</span>emo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar
+Fichiers<span class="w"> </span>feature<span class="w"> </span>:<span class="w"> </span>C:<span class="se">\T</span>ests<span class="se">\f</span>eatures
+Donnees<span class="w"> </span>YAML<span class="w">     </span>:<span class="w"> </span>C:<span class="se">\T</span>ests<span class="se">\d</span>ata
+Fichier<span class="w"> </span>execute<span class="w">  </span>:<span class="w"> </span>C:<span class="se">\T</span>ests<span class="se">\f</span>eatures<span class="se">\p</span>ersonnes.feature
+Scenario<span class="w">         </span>:<span class="w"> </span><span class="nv">retourneTous</span>
+<span class="o">============================================================</span>
+
+Commande<span class="w"> </span>executee<span class="w"> </span>:
+java<span class="w"> </span>-Dtest.data.dir<span class="o">=</span><span class="s2">"C:\Tests\data"</span><span class="w"> </span>-jar<span class="w"> </span><span class="s2">"C:\Tests\demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar"</span><span class="w"> </span><span class="s2">"C:\Tests\features\personnes.feature"</span><span class="w"> </span>--<span class="w"> </span><span class="s2">"retourneTous"</span>
+
+Confirmer<span class="w"> </span>le<span class="w"> </span>lancement<span class="w"> </span>?<span class="w"> </span><span class="o">(</span>O/N<span class="o">)</span><span class="w"> </span>:
 </code></pre></div>
 <h3 id="generation-des-relations">🧩 Génération des relations</h3>
 <p>Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple    , bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. </p>

@@ -3605,7 +3605,7 @@ Feature: Service personnes
     * def test = new Test()
     
     # Exécution du service métier
-    * def result = test.chercheParId(data.chercheParId)
+    * def result = test.chercheParId(data)
     
     # Vérification du résultat
     * match result != null
@@ -3728,6 +3728,9 @@ Et pour chaque opération du service est générée une méthode :
 ```java
 public List<PersonneDtoImpl> retourneTous(final Map<String, Object> data) {
 
+	@SuppressWarnings("unchecked")
+	final List<Map<String, Object>> params = (List<Map<String, Object>>) data.get("retourneTous");
+	
     // Start of user code 76901942dcec873b8d69280745538a96
     // End of user code
 
@@ -3737,6 +3740,9 @@ public List<PersonneDtoImpl> retourneTous(final Map<String, Object> data) {
 public Optional<PersonneDtoImpl> chercheParId(final Map<String, Object> data) {
 
     Long idPersonne = null;
+    
+    @SuppressWarnings("unchecked")
+    final List<Map<String, Object>> params = (List<Map<String, Object>>) data.get("chercheParId");
 
     // Start of user code d5213483b134a09f890e250679f635e0
     // End of user code
@@ -3789,15 +3795,18 @@ Ainsi dans le cas de l'opération "*retourneTous()*" on aurait un extrait de cod
 ```java
 public List<PersonneDtoImpl> retourneTous(final Map<String, Object> data) {
 
+   @SuppressWarnings("unchecked")
+   final List<Map<String, Object>> params = (List<Map<String, Object>>) data.get("retourneTous");
+		
    // Start of user code 76901942dcec873b8d69280745538a96
 
    traitement de la boucle...
       PersonneDtoImpl personne = new PersonneDtoImpl();
-      personne.setPersonne_id(((Number) data.get("personne_id")).longValue());
-      personne.setNom((String) data.get("nom"));
-      personne.setPrenom((String) data.get("prenom"));
-      personne.setAge(((Number) data.get("age")).intValue());
-      personne.setNumeroFiscal((String) data.get("numeroFiscal"));
+      personne.setPersonne_id(((Number) params.get("personne_id")).longValue());
+      personne.setNom((String) params.get("nom"));
+      personne.setPrenom((String) params.get("prenom"));
+      personne.setAge(((Number) params.get("age")).intValue());
+      personne.setNumeroFiscal((String) params.get("numeroFiscal"));
       
       ... ajout de chaque personne à la liste
       personnes.add(personne);
@@ -3869,6 +3878,53 @@ Pour lancer tous les scénarios :
 
 ```bash
 java -Dtest.data.dir="C:/mes-tests/data" -jar demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar "C:/mes-tests/features"
+```
+
+Pour les utilisateurs qui ne souhaitent pas lancer les tests fonctionnels depuis la ligne de commande, un script Windows "*"[Nom de l'application]-tests-fonctionnels.bat*" est également fourni dans le répertoire "*src/test/resources*".
+
+Ce script permet de lancer les tests fonctionnels de manière interactive, sans avoir à saisir manuellement la commande Java.
+
+Son fonctionnement est simple :
+
+1. Configuration : les chemins et paramètres peuvent être renseignés directement dans la zone CONFIGURATION située au début du fichier "*.bat*". Par exemple, si le chemin du JAR, le répertoire des fichiers "*.feature*" et celui des données YAML sont déjà renseignés dans le script, l'utilisateur n'aura pas à les saisir au lancement. Le script passe automatiquement à la question suivante uniquement pour les paramètres laissés vides. Cela permet notamment de conserver une configuration permanente et de ne renseigner que le fichier "*.feature*" ou le scénario à exécuter selon les besoins.
+
+2. Sélection des tests : il est possible de lancer l'ensemble des tests, de sélectionner un fichier "*.feature*" particulier ou encore de cibler un scénario précis.
+
+3. Confirmation : avant l'exécution, le script affiche la configuration retenue ainsi que la commande Java qui sera exécutée. L'utilisateur peut alors confirmer ou annuler le lancement.
+
+4. Exécution : les tests sont lancés et le résultat de l'exécution est affiché à la fin.
+
+```bash
+Chemin du JAR executable :
+> C:\Tests\demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar
+
+Repertoire des fichiers .feature :
+> C:\Tests\features
+
+Repertoire des fichiers YAML :
+> C:\Tests\data
+
+Fichier .feature (Entree = tous les tests) :
+> personnes.feature
+
+Nom du scenario (Entree = tous les scenarios) :
+> retourneTous
+
+============================================================
+CONFIGURATION DES TESTS FONCTIONNELS
+============================================================
+JAR              : C:\Tests\demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar
+Fichiers feature : C:\Tests\features
+Donnees YAML     : C:\Tests\data
+Fichier execute  : C:\Tests\features\personnes.feature
+Scenario         : retourneTous
+============================================================
+
+Commande executee :
+java -Dtest.data.dir="C:\Tests\data" -jar "C:\Tests\demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar" "C:\Tests\features\personnes.feature" -- "retourneTous"
+
+Confirmer le lancement ? (O/N) :
+    
 ```
 
 ### 🧩 Génération des relations
