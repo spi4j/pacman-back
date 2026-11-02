@@ -52,6 +52,7 @@
        <dependency>
           <groupId>io.karatelabs</groupId>
           <artifactId>karate-junit6</artifactId>
+          <scope>${karate.scope}</scope>
        </dependency>
        
        <!--
@@ -146,6 +147,9 @@
                           </goals>
                           <configuration>
                              <shadeTestJar>false</shadeTestJar>
+                             <extraJars>
+                                <extraJar>${project.build.directory}/${project.build.finalName}-tests.jar</extraJar>
+                             </extraJars>
                              <shadedArtifactAttached>true</shadedArtifactAttached>
                              <shadedClassifierName>tests-fonctionnels</shadedClassifierName>
                              <transformers>
@@ -943,4 +947,238 @@
       [/protected]
     }
   }
+[/template]
+
+[comment écriture du fichier .bat pour lancer facilement les tests fonctionnels en ligne de commande (karate)./]
+[template public serviceApiTestRunnerCommandLine(any : ecore::EObject)]
+  @echo off
+  setlocal
+  
+  REM ============================================================
+  REM CONFIGURATION
+  REM
+  REM Renseigner les variables pour eviter les prompts.
+  REM Laisser vide pour demander la valeur au lancement.
+  REM ============================================================
+  
+  REM Chemin du JAR executable
+  set "JAR_PATH="
+  
+  REM Repertoire contenant les fichiers .feature
+  set "FEATURES_DIR="
+  
+  REM Repertoire contenant les fichiers YAML
+  set "DATA_DIR="
+  
+  REM Fichier .feature a executer (vide = tous les tests)
+  set "FEATURE_FILE="
+  
+  REM Nom du scenario a executer (vide = tous les scenarios)
+  set "SCENARIO_NAME="
+  
+  REM Options supplementaires de la JVM (facultatif)
+  set "JAVA_OPTS="
+  
+  
+  REM ============================================================
+  REM VERIFICATION DE JAVA
+  REM ============================================================
+  
+  where java >nul 2>&1
+  if errorlevel 1 (
+      echo ERREUR : Java n'est pas disponible dans le PATH.
+      goto ERROR
+  )
+  
+  
+  REM ============================================================
+  REM SAISIE DES PARAMETRES MANQUANTS
+  REM ============================================================
+  
+  if defined JAR_PATH goto JAR_OK
+  set /p "JAR_PATH=Chemin du JAR executable : "
+  :JAR_OK
+  
+  if defined FEATURES_DIR goto FEATURES_OK
+  set /p "FEATURES_DIR=Repertoire des fichiers .feature : "
+  :FEATURES_OK
+  
+  if defined DATA_DIR goto DATA_OK
+  set /p "DATA_DIR=Repertoire des fichiers YAML : "
+  :DATA_OK
+  
+  REM Selection du fichier .feature.
+  REM Une saisie vide permet de lancer tous les tests.
+  
+  if defined FEATURE_FILE goto FILE_OK
+  echo.
+  set /p "FEATURE_FILE=Fichier .feature (Entree = tous les tests) : "
+  :FILE_OK
+  
+  REM Selection du scenario si un fichier particulier est choisi.
+  
+  if not defined FEATURE_FILE goto SELECTION_OK
+  if defined SCENARIO_NAME goto SELECTION_OK
+  echo.
+  set /p "SCENARIO_NAME=Nom du scenario (Entree = tous les scenarios) : "
+  :SELECTION_OK
+  
+  
+  REM ============================================================
+  REM VERIFICATION DES PARAMETRES
+  REM ============================================================
+  
+  if not defined JAR_PATH (
+      echo ERREUR : aucun fichier JAR indique.
+      goto ERROR
+  )
+  
+  if not exist "%JAR_PATH%" (
+      echo ERREUR : fichier JAR introuvable : %JAR_PATH%
+      goto ERROR
+  )
+  
+  if not defined FEATURES_DIR (
+      echo ERREUR : aucun repertoire de fichiers .feature indique.
+      goto ERROR
+  )
+  
+  if not exist "%FEATURES_DIR%\" (
+      echo ERREUR : repertoire .feature introuvable : %FEATURES_DIR%
+      goto ERROR
+  )
+  
+  if not defined DATA_DIR (
+      echo ERREUR : aucun repertoire YAML indique.
+      goto ERROR
+  )
+  
+  if not exist "%DATA_DIR%\" (
+      echo ERREUR : repertoire YAML introuvable : %DATA_DIR%
+      goto ERROR
+  )
+  
+  
+  REM ============================================================
+  REM CONSTRUCTION DU CHEMIN DU FICHIER .FEATURE
+  REM ============================================================
+  
+  REM Par defaut, tous les fichiers .feature sont executes.
+  
+  set "FEATURE_PATH=%FEATURES_DIR%"
+  
+  REM Si un fichier particulier est indique, rechercher d'abord
+  REM dans FEATURES_DIR, puis dans le chemin fourni directement.
+  
+  if not defined FEATURE_FILE goto BUILD_ARGS
+  
+  if exist "%FEATURES_DIR%\%FEATURE_FILE%" (
+      set "FEATURE_PATH=%FEATURES_DIR%\%FEATURE_FILE%"
+      goto BUILD_ARGS
+  )
+  
+  if exist "%FEATURE_FILE%" (
+      set "FEATURE_PATH=%FEATURE_FILE%"
+      goto BUILD_ARGS
+  )
+  
+  echo ERREUR : fichier .feature introuvable : %FEATURE_FILE%
+  goto ERROR
+  
+  
+  REM ============================================================
+  REM RECAPITULATIF
+  REM ============================================================
+  
+  :BUILD_ARGS
+  
+  echo.
+  echo ============================================================
+  echo CONFIGURATION DES TESTS FONCTIONNELS
+  echo ============================================================
+  echo JAR              : %JAR_PATH%
+  echo Fichiers feature : %FEATURES_DIR%
+  echo Donnees YAML     : %DATA_DIR%
+  
+  if defined FEATURE_FILE (
+      echo Fichier execute : %FEATURE_PATH%
+  ) else (
+      echo Fichiers executes : Tous
+  )
+  
+  if defined SCENARIO_NAME (
+      echo Scenario         : %SCENARIO_NAME%
+  ) else (
+      echo Scenarios        : Tous
+  )
+  
+  echo ============================================================
+  echo.
+  
+  REM Affichage de la commande exacte.
+  
+  echo Commande executee :
+  
+  if defined SCENARIO_NAME (
+      echo java %JAVA_OPTS% -Dtest.data.dir="%DATA_DIR%" -jar "%JAR_PATH%" "%FEATURE_PATH%" -- "%SCENARIO_NAME%"
+  ) else (
+      echo java %JAVA_OPTS% -Dtest.data.dir="%DATA_DIR%" -jar "%JAR_PATH%" "%FEATURE_PATH%"
+  )
+  
+  echo.
+  set /p "CONFIRM=Confirmer le lancement ? (O/N) : "
+  
+  if /i not "%CONFIRM%"=="O" (
+      echo.
+      echo Execution annulee.
+      set "EXIT_CODE=0"
+      goto END
+  )
+  
+  
+  REM ============================================================
+  REM EXECUTION
+  REM ============================================================
+  
+  echo.
+  echo Lancement des tests...
+  echo.
+  
+  if defined SCENARIO_NAME (
+      java %JAVA_OPTS% -Dtest.data.dir="%DATA_DIR%" -jar "%JAR_PATH%" "%FEATURE_PATH%" -- "%SCENARIO_NAME%"
+  ) else (
+      java %JAVA_OPTS% -Dtest.data.dir="%DATA_DIR%" -jar "%JAR_PATH%" "%FEATURE_PATH%"
+  )
+  
+  set "EXIT_CODE=%ERRORLEVEL%"
+  
+  echo.
+  echo ============================================================
+  
+  if "%EXIT_CODE%"=="0" (
+      echo Execution terminee.
+  ) else (
+      echo Execution terminee avec une erreur.
+      echo Code retour : %EXIT_CODE%
+  )
+  
+  echo ============================================================ 
+ 
+  goto END
+  
+  
+  REM ============================================================
+  REM GESTION DES ERREURS
+  REM ============================================================
+  
+  :ERROR
+  echo.
+  echo Execution impossible.
+  set "EXIT_CODE=1"
+  
+  
+  :END
+  echo.
+  pause
+  exit /b %EXIT_CODE%
 [/template]

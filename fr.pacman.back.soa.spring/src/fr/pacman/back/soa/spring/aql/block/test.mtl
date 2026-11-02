@@ -211,21 +211,21 @@
 	+ '.perform(' + o.writeRsUri(s) + o.writeRsInputBodyParams() + '.contentType("' + if (o.hasMediaRsOutputType()) 
 	then  o.output->first().mediaRsType() else o.defaultRsMediaType() endif + '")' + ')'/]
 
-[comment écriture de l'uri (avec les paramètres) pour l'opération rest./]
-[query private writeRsUri(o : soa::Operation, s : soa::Service) : String = 
+[comment écriture de l'uri (avec les paramètres) pour l'opération rest (complètement redondant mais laisse pour l'instant)./]
+[comment query private writeRsUri(o : soa::Operation, s : soa::Service) : String = 
   if (o.verb = soa::Verb::GET) then 'get("' + s.rsUri() + o.rsUri() + '"' + o.writeRsInputParams()
-  else if (o.verb = soa::Verb::POST) then 'post("' + s.rsUri() + o.rsUri()  + '")'
-  else if (o.verb = soa::Verb::PUT) then 'put("' + s.rsUri() + o.rsUri()  + '")'
-  else if (o.verb = soa::Verb::OPTIONS) then 'options("' + s.rsUri() + o.rsUri()  + '")'
-  else if (o.verb = soa::Verb::DELETE) then 'delete("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::POST) then 'post("' + s.rsUri() + o.rsUri()  + '")' + '"' + o.writeRsInputParams()
+  else if (o.verb = soa::Verb::PUT) then 'put("' + s.rsUri() + o.rsUri()  + '")' + '"' + o.writeRsInputParams()
+  else if (o.verb = soa::Verb::OPTIONS) then 'options("' + s.rsUri() + o.rsUri()  + '")' + '"' + o.writeRsInputParams()
+  else if (o.verb = soa::Verb::DELETE) then 'delete("' + s.rsUri() + o.rsUri()  + '")' + '"' + o.writeRsInputParams()
   else if (o.verb = soa::Verb::HEAD) then 'head("' + s.rsUri() + o.rsUri() + '"' + o.writeRsInputParams()
-  else if (o.verb = soa::Verb::PATCH) then 'patch("' + s.rsUri() + o.rsUri()  + '")'
+  else if (o.verb = soa::Verb::PATCH) then 'patch("' + s.rsUri() + o.rsUri()  + '")' + '"' + o.writeRsInputParams()
   else if (o.verb = soa::Verb::TRACE) then o.cNoModelisation()
   else '' endif endif endif endif endif endif endif endif/]
   
-[comment écriture des différents paramètres à injecter pour l'opération (uri)./]
-[query private writeRsInputParams(o : soa::Operation) : String = o.writeRsInputPathParams() + o.writeRsInputQueryParams() 
- 	+ o.writeRsInputCookieParams()/]
+[query private writeRsUri(o : soa::Operation, s : soa::Service) : String = if (o.verb = soa::Verb::TRACE) then o.cNoModelisation() 
+  else o.verb.toString().toLower() + '("' + s.rsUri() + o.rsUri() + '"' + o.writeRsInputPathParams() + o.writeRsInputQueryParams() 
+ 	+ o.writeRsInputCookieParams() endif/]
 
 [comment écriture des différents paramètres à injecter pour l'opération (uri /path)./]
 [query private writeRsInputPathParams(o : soa::Operation) : String = if (not o.input

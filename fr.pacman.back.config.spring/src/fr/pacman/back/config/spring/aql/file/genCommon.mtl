@@ -90,5 +90,12 @@
   [/file]
 [/template]
 
+[comment écriture du fichier .bat pour lancer facilement les tests fonctionnels en ligne de commande (karate)./]
+[template public fileServiceApiTestRunnerCommandLine(any : ecore::EObject)]
+  [file ((any.nameProject().toLower() + '-tests-fonctionnels').toFile(any.namePackageTestResources(),'.bat'), overwrite, any.defaultFileEncoding())]
+    [any.serviceApiTestRunnerCommandLine()/]
+  [/file]
+[/template]
+
 
 

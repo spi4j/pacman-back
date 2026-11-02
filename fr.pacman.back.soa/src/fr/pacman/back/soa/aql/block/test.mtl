@@ -121,6 +121,7 @@
     [for (o | s.ownedInterface.ownedOperations->select(o1 | o1.isRsOperation())) separator('\n')]
        [o.commentOperation()/]
        @Override
+       @SuppressWarnings("unchecked")
        [o.writePersistSignature()/] {
            
            // Insérez ici le code nécessaire pour charger les données depuis la rubrique
@@ -158,7 +159,7 @@
         * def test = new Test()
         
         # Exécution du service métier
-        * def result = test.[o.name()/](data.[o.name()/])
+        * def result = test.[o.name()/](data)
         
         # Vérification du résultat
         * match result != null
@@ -232,6 +233,10 @@
          [for (p | o.input)]
            [p.type.type()/] [p.name()/] = null;
          [/for]
+         
+         @SuppressWarnings("unchecked")
+         final List<Map<String, Object>> ['params'.apply_variableDefault()/] =
+                 (List<Map<String, Object>>) ['data'.apply_parameterMethodClassicIn()/].get("[o.name()/]");
          
          // Insérez ici le code nécessaire pour le chargement des données à partir du
          // fichier : [s.name()/].yaml, au niveau de la rubrique : "[o.name()/]"
@@ -391,7 +396,7 @@
 [comment écriture de l'exemple de structure pour le fichier yaml./]
 [query private writeDataYaml(o : soa::Operation, m : soa::System) : String = let out = o.output->first() in if (out.type.oclIsKindOf(environment::DTO)) then 
   out.type.oclAsType(environment::DTO).writeDtoYaml(m.subTypesDtos(), m.superTypesDtos(), out.isMultiple(), true, '', Sequence{out.type.oclAsType(environment::DTO)}) 
-  else out.writeParamYaml() endif + if (o.hasInputs())  then m.lineSeparator() + '----- entrées -----' + m.lineSeparator() else '' endif + o.input
+  else out.writeParamYaml() endif + if (o.hasInputs())  then m.lineSeparator() + '----- entrée(s) -----' + m.lineSeparator() else '' endif + o.input
   ->collect(p | if (p.type.oclIsKindOf(environment::DTO)) then p.type.oclAsType(environment::DTO).writeDtoYaml(m.subTypesDtos(), m.superTypesDtos(), p.isMultiple()
   , false, '', Sequence{p.type.oclAsType(environment::DTO)}) else p.writeParamYaml() endif)/]
 

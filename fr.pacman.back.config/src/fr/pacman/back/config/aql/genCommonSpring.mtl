@@ -34,6 +34,8 @@
   [r.fileBatchOutputParamRequestImpl()/]
   [comment écriture de la classe pour la configuration des tests fonctionnels (karate)./]
   [r.fileApiTestRunnerImpl()/]
+  [comment écriture du fichier .bat pour le lancement des tests en ligne de commande./]
+  [r.fileServiceApiTestRunnerCommandLine()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]
