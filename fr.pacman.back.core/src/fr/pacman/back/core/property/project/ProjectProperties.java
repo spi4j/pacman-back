@@ -118,6 +118,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	// persistance
 
 	public static final String c_tests_bdd_enabled = "tests.bdd.enabled";
+	public static final String c_tests_domain_enabled = "tests.domain.enabled";
 	public static final String c_rootfiles_generate_enabled = "application.rootfiles.generate";
 	public static final String c_ws_security_scheme_id = "ws.security.scheme.spi4id";
 
@@ -173,7 +174,10 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_project_validation_jkw, "true",
 						"Interdiction des mots-clés java dans la modélisation"),
-
+				
+				PacmanProperty.newConditional(c_tests_domain_enabled, "true",
+						"Activation des tests fonctionnels karate pour la couche métier (actif par defaut)"),
+				
 //				PacmanProperty.newRequired(c_is_debug, "false",
 //						"Flag indiquant si le mode debug pour PacMan est actif (plus d'informations en cas d'erreur de generation)"),
 
@@ -375,6 +379,7 @@ public final class ProjectProperties extends PropertiesCategory {
 			if (getRefValue().indexOf("spring") != -1) {
 				updateProperty(p_pacmanProperties.get(c_project_sso_auth));
 				updateProperty(p_pacmanProperties.get(c_project_idor_control));
+				updateProperty(p_pacmanProperties.get(c_tests_domain_enabled));	
 			}
 		}
 	}
@@ -544,12 +549,16 @@ public final class ProjectProperties extends PropertiesCategory {
 		return false;
 	}
 
-	public static Boolean get_useSpi4jSecurity(final Object p_object) {
+	public static boolean get_useSpi4jSecurity(final Object p_object) {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_security));
 	}
 
 	public static String get_useTestBDD() {
 		return PropertiesHandler.getProperty(c_tests_bdd_enabled);
+	}
+	
+	public static boolean get_useTestDomain(final Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_tests_domain_enabled));
 	}
 
 	public static boolean is_library() {

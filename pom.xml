@@ -13,10 +13,9 @@
 
 	<properties>
 		<java.version>21</java.version>
-		<tycho-version>4.0.12</tycho-version>
-		<properties-maven-plugin.version>1.0.0</properties-maven-plugin.version>
+		<tycho.version>5.0.2</tycho.version>
 		<acceleo-releases-url>https://download.eclipse.org/acceleo/updates/releases/4.1/R202502130921/</acceleo-releases-url>
-		<odc-updatesite-url>http://www.obeo.fr/download/release/designer/12.0/community/12.0.0/repository/</odc-updatesite-url>
+		<odc-updatesite-url>http://www.obeosoft.com/download/release/designer/12.0/community/12.0.0/repository/</odc-updatesite-url>
 		<is-updatesite-url>https://www.obeosoft.com/download/release/informationsystem/6.0.0/design/repository/</is-updatesite-url>
 		<eclipse-updatesite-url>http://download.eclipse.org/releases/2025-09/</eclipse-updatesite-url> 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,13 +51,13 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho-version}</version>
+				<version>${tycho.version}</version>
 				<extensions>true</extensions>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
-				<version>${tycho-version}</version>
+				<version>${tycho.version}</version>
 				<configuration>
 					<strictVersions>false</strictVersions>
 				</configuration>
@@ -66,7 +65,7 @@
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
-				<version>${tycho-version}</version>
+				<version>${tycho.version}</version>
 				<configuration>
 					<encoding>UTF-8</encoding>
 					<extraClasspathElements>
