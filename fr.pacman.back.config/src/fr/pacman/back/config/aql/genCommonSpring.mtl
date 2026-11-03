@@ -36,6 +36,8 @@
   [r.fileApiTestRunnerImpl()/]
   [comment écriture du fichier .bat pour le lancement des tests en ligne de commande./]
   [r.fileServiceApiTestRunnerCommandLine()/]
+  [comment écriture du fichier d'assemblage pour les tests en ligne de commande./]
+  [r.fileServiceApiTestRunnerAssembly()/]
   [comment écriture du fichier de configuration maven./]
   [r.filePom()/]
 [/template]

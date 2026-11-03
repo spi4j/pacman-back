@@ -97,5 +97,12 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'assemblage pour les tests fonctionnels (karate)./]
+[template public fileServiceApiTestRunnerAssembly(any : ecore::EObject)]
+  [file ('tests-fonctionnels'.toFile(any.namePackageAssemblyResources(),'.xml'), overwrite, any.defaultFileEncoding())]
+    [any.apiTestRunnerAssembly()/]
+  [/file]
+[/template]
+
 
 

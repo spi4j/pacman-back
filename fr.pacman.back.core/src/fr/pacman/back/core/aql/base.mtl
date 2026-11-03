@@ -199,6 +199,9 @@
   
 [comment le répertoire pour l'ensemble des ressources de test./] 
 [query public dirJavaTestResources(any : ecore::EObject) : String = 'src/test/resources/'/]
+  
+[comment le répertoire pour les fichiers d'assemblage (si besoin)./] 
+[query public dirAssemblyResources(any : ecore::EObject) : String = 'src/test/resources/assembly'/]
    
 [comment le répertoire pour l'ensemble des tests unitaires./]
 [query public dirJavaTests(any : ecore::EObject) : String = 'src/test/java/'/]

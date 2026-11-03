@@ -122,8 +122,11 @@
   
 [comment retourne le package pour les stockage des fichiers de ressources (partie tests)./]
 [query public namePackageTestResources(any : ecore::EObject) : String = any.dirJavaTestResources()/]
+  
+[comment retourne le package pour les stockage des fichiers d'assemblage (si besoin)./]
+[query public namePackageAssemblyResources(any : ecore::EObject) : String = any.dirAssemblyResources()/]
 
-[comment la packahe des requirements, spécifiques pour une catégorie./]  
+[comment la package des requirements, spécifiques pour une catégorie./]  
 [query public namePackageRequirementCategory(c : requirement::Category) : String = if (c.parentCategory = null) 
   then c.repository.namePackageRequirement() else c.get_packageRequirement() + c.blockHierarchy() endif/]
   

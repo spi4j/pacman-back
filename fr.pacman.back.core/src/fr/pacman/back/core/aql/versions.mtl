@@ -7,6 +7,7 @@
 [query public versionMavenExecPlugin(any : ecore::EObject) : String = '3.6.2'/]
 [query public versionMavenJarPlugin(any : ecore::EObject) : String = '3.4.2'/]
 [query public versionMavenShadePlugin(any : ecore::EObject) : String = '3.6.0'/] 
+[query public versionMavenAssemblyPlugin(any : ecore::EObject) : String = '3.7.1'/] 
 [query public versionMaven(any : ecore::EObject) : String = '3.9.11'/]
 [query public versionSpringBoot(any : ecore::EObject) : String = '4.0.1'/]
 [query public versionH2(any : ecore::EObject) : String = '2.2.224'/]

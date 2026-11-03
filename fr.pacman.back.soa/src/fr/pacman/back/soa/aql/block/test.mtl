@@ -404,7 +404,7 @@
          des références et transférant les dtos déjà visités./]
 [query private writeDtoYaml(d : environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO)
   , lst : Boolean, isOutput : Boolean, indent : String, visited : Sequence(environment::DTO)) : String = indent + (if (lst) then '- ' else '' endif)
-  + if(isOutput) then d.writePk() else d.name() endif + ':' + d.lineSeparator() + d.attributesNoPK()->collect(a | indent + '  ' + a.name() 
+  + if (isOutput) then d.writePk() else d.name() endif + ':' + d.lineSeparator() + d.attributesNoPK()->collect(a | indent + '  ' + a.name() 
   + ': ' + (if (a.type.needsYamlQuotes()) then '""' else '' endif) + d.lineSeparator()) + d.referencesFKSBResolved(ds,dss)->union(d.referencesJTSBResolved())
   ->select(r | not visited->includes(r.referencedDto(d)))->collect(r | indent + '  ' + if (r.isInverseReference(d)) then r.referencedDto(d).writePk() + ':' 
   + d.lineSeparator() else  r.referencedDto(d).referencedName(r) + ':' + d.lineSeparator() + r.referencedDto(d).writeDtoYaml(ds, dss, r.referencedTypeSignature(d)
