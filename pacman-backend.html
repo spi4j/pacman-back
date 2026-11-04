@@ -204,7 +204,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </ul>
 <h3 id="plugins-externes">Plugins externes</h3>
 <p>1 - Vérification de la version pour l'IDE</p>
-<p>Avant de commencer l'installation ou l'utilisation du plugin, il est indispensable de vérifier que l'IDE Information System Designer (ISD) utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez ISD puis accédez au menu "<em>Help/About Information System Designer</em>". Dans la fenêtre d'information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d'éviter tout comportement inattendu ou erreur d'exécution liée à une version non conforme de l'environnement d'ISD.</p>
+<p>Avant de commencer l'installation ou l'utilisation du plugin, il est indispensable de vérifier que l'IDE Information System Designer (ISD) utilisé correspond bien à la version 6.0.0 requise. Pour cela, ouvrez ISD puis accédez au menu "<em>Help/About Information System Designer</em>". Dans la fenêtre d'information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 6.0.0, afin de garantir la compatibilité complète du plugin et d'éviter tout comportement inattendu ou erreur d'exécution liée à une version non conforme de l'environnement d'ISD.</p>
 <div align="center">
 <img alt="Installation" src="images/pcm-ecr-about-version.png" width="500"/>
 </div>
@@ -234,7 +234,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <li>Charger le plugin et le stocker dans un répertoire de votre choix sur le disque. </li>
 </ul>
 <p>1b - Compilation des sources (développement)</p>
-<p>Il est aussi possible de récupérer l'ensemble des sources et de les compiler (JDK 21 au minimum et Maven 3.9.9 ❗ Ne pas monter en 3.10.0 cela pose des problématiques avec tycho 4.0.8 !) afin d'obtenir l'update site.</p>
+<p>Il est aussi possible de récupérer l'ensemble des sources et de les compiler (JDK 21 au minimum et Maven 3.9.16 ❗ Ne pas monter en 3.10.0 cela pose des problématiques avec tycho 5.0.2 !) afin d'obtenir l'update site.</p>
 <p>Les différentes étapes sont les suivantes : </p>
 <ul>
 <li>Créer un répertoire sur le disque local</li>
@@ -3191,8 +3191,24 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <div align="center">
 <img alt="Tests Karaté" src="images/pcm-test-soa-5.png" width="800"/>
 </div>
-<p>La compilation permet de produire un fichier JAR contenant les classes compilées de la couche métier. Ce fichier constitue une bibliothèque réutilisable par les applications qui s'appuient sur le domaine. Il ne s'agit pas d'une application autonome et il n'est donc pas destiné à être lancé directement.</p>
-<p>Une fois le domaine compilé (cf. Déploiement de l'application), les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.</p>
+<p>Une fois le domaine compilé, les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.</p>
+<p>Lors de l'activation du profil Maven "<em>tests-fonctionnels</em>"  (cf. Déploiement de l'application), un fichier au format "<em>.zip</em>" est généré automatiquement dans le répertoire "<em>/target</em>" du projet "<strong><em>[Nom de l'application]-domain</em></strong>". Cette archive constitue le livrable à transmettre aux testeurs fonctionnels. Elle regroupe l'ensemble des éléments nécessaires à l'exécution des tests, sans nécessiter de disposer du projet Eclipse ou de son environnement de développement.</p>
+<p>L'archive contient :</p>
+<ul>
+<li>
+<p>Le JAR exécutable "<strong><em>[Nom de l'application]-[Version]-tests-fonctionnels.jar</em></strong>" : il contient le domaine, le moteur Karate, le runner et les ressources nécessaires à l'exécution des scénarios.</p>
+</li>
+<li>
+<p>Le répertoire "<strong><em>/features</em></strong>" : il regroupe les fichiers "<em>.feature</em>" décrivant les scénarios de tests fonctionnels.</p>
+</li>
+<li>
+<p>Le répertoire "<strong><em>/data</em></strong>" : il contient les fichiers de données utilisés par les scénarios, notamment les fichiers aux format "<em>.yaml</em>".</p>
+</li>
+<li>
+<p>Le script "<strong><em>[Nom de l'application]-tests-fonctionnels.bat</em></strong>" : il facilite le lancement des tests en ligne de commande sous Windows.</p>
+</li>
+</ul>
+<p>Le testeur peut ainsi extraire l'archive dans le répertoire de son choix, adapter si nécessaire les données ou les scénarios, puis lancer les tests à l'aide du script fourni. Les tests peuvent également être exécutés directement à partir du JAR, en utilisant les paramètres prévus pour indiquer les emplacements des fichiers de fonctionnalités et de données.</p>
 <p>Pour exécuter un scénario en particulier tapper la commande suivante (le jar spécifique est toujours  construit avec le suffixe "-tests-fonctionnels") : </p>
 <div class="codehilite"><pre><span></span><code>java<span class="w"> </span>-Dtest.data.dir<span class="o">=</span><span class="s2">"C:/mes-tests/data"</span><span class="w"> </span>-jar<span class="w"> </span>demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar<span class="w"> </span><span class="s2">"C:/mes-tests/features/personnes.feature"</span><span class="w"> </span>--<span class="w"> </span>retouneTous
 </code></pre></div>
@@ -3217,8 +3233,7 @@ scenarios:<span class="w">  </span><span class="m">1</span><span class="w"> </sp
 <p>Pour lancer tous les scénarios : </p>
 <div class="codehilite"><pre><span></span><code>java<span class="w"> </span>-Dtest.data.dir<span class="o">=</span><span class="s2">"C:/mes-tests/data"</span><span class="w"> </span>-jar<span class="w"> </span>demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar<span class="w"> </span><span class="s2">"C:/mes-tests/features"</span>
 </code></pre></div>
-<p>Pour les utilisateurs qui ne souhaitent pas lancer les tests fonctionnels depuis la ligne de commande, un script Windows "<em>"[Nom de l'application]-tests-fonctionnels.bat</em>" est également fourni dans le répertoire "<em>src/test/resources</em>".</p>
-<p>Ce script permet de lancer les tests fonctionnels de manière interactive, sans avoir à saisir manuellement la commande Java.</p>
+<p>Pour les utilisateurs qui ne souhaitent pas lancer les tests fonctionnels depuis la ligne de commande, un script Windows "<em>"[Nom de l'application]-tests-fonctionnels.bat</em>" est donc également fourni avec l'archive. Ce script permet de lancer les tests fonctionnels de manière interactive, sans avoir à saisir manuellement la commande Java.</p>
 <p>Son fonctionnement est simple :</p>
 <ol>
 <li>
@@ -3264,6 +3279,8 @@ java<span class="w"> </span>-Dtest.data.dir<span class="o">=</span><span class="
 
 Confirmer<span class="w"> </span>le<span class="w"> </span>lancement<span class="w"> </span>?<span class="w"> </span><span class="o">(</span>O/N<span class="o">)</span><span class="w"> </span>:
 </code></pre></div>
+<p>À l'issue de l'exécution des tests fonctionnels, Karate génère automatiquement des rapports détaillés permettant de consulter les résultats des scénarios exécutés, notamment les tests réussis, les éventuelles erreurs et les étapes en échec. </p>
+<p>Ces rapports sont disponibles dans le répertoire "<em>/target/karate-reports</em>" du répertoire depuis lequel les tests sont exécutés. Le fichier "<em>karate-summary.html</em>" constitue le rapport de synthèse principal et peut être ouvert directement dans un navigateur Web pour consulter le bilan de l'exécution.</p>
 <h3 id="generation-des-relations">🧩 Génération des relations</h3>
 <p>Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple    , bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. </p>
 <p>L'objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. </p>
@@ -5757,7 +5774,15 @@ Au niveau de l'implémentation pour la récupération du document, on peut remar
 <p>Pour un build des tests fonctionnels de la couche métier, tapper la commande suivante : </p>
 <div class="codehilite"><pre><span></span><code>mvn<span class="w"> </span>clean<span class="w"> </span>package<span class="w"> </span>-P<span class="w"> </span>tests-fonctionnels
 </code></pre></div>
-<p>❗ Il est à notter que dans le cas des tests fonctionnels le build passe par un phase intermédiaire qui crée un fichier "<em>.jar</em>" supplémentaire. Celui à récupérer est donc toujours le fichier suivant : "<strong><em>[Nom de l'application]-[Version]-tests-fonctionnels.jar</em></strong>" et non : "<strong><em>[Nom de l'application]-[Version]-tests.jar</em></strong>".</p>
+<p>❗ Il est à notter que dans le cas des tests fonctionnels le build passe par un phase intermédiaire qui crée un fichier "<em>.jar</em>" supplémentaire. Celui à utiliser est donc toujours le fichier suivant : "<strong><em>[Nom de l'application]-[Version]-tests-fonctionnels.jar</em></strong>" et non : "<strong><em>[Nom de l'application]-[Version]-tests.jar</em></strong>".</p>
+<p>Par ailleurs, l'activation du profil Maven "<em>tests-fonctionnels</em>" à l'aide de la commande "<em>mvn clean package -P tests-fonctionnels</em>" déclenche la compilation du module domaine, la création de ce JAR exécutable autonome, mais aussi la génération d'une archive au format "<em>.zip</em>" regroupant tous les éléments nécessaires à l'exécution des tests fonctionnels, à savoir : </p>
+<ul>
+<li>Le JAR.</li>
+<li>Les scénarios Karate.</li>
+<li>Les fichiers de données.</li>
+<li>Le script de lancement. </li>
+</ul>
+<p>Cette archive est produite automatiquement dans le répertoire "<em>/target</em>" du projet "<em>[Nom de l'application]-domain</em>" et constitue le livrable à transmettre aux testeurs.</p>
 <h2 id="cas-projet-client">📁 Cas projet client</h2>
 <p>Deux possibilités de création de client sont offertes par <strong>Pacman</strong>. La création d'un client en SpringBoot et la création d'un client en React. Il faut bien distinguer la différence de positionnement entre ces deux frameworks car le processus de génération est complètement différent entre les deux languages.</p>
 <ul>

@@ -101,7 +101,7 @@ Pour Pacman lors de l'initialisation d'un projet, le générateur va toujours cr
 
 1 - Vérification de la version pour l'IDE
 
-Avant de commencer l'installation ou l'utilisation du plugin, il est indispensable de vérifier que l'IDE Information System Designer (ISD) utilisé correspond bien à la version 5.1.1 requise. Pour cela, ouvrez ISD puis accédez au menu "*Help/About Information System Designer*". Dans la fenêtre d'information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 5.1.1, afin de garantir la compatibilité complète du plugin et d'éviter tout comportement inattendu ou erreur d'exécution liée à une version non conforme de l'environnement d'ISD.
+Avant de commencer l'installation ou l'utilisation du plugin, il est indispensable de vérifier que l'IDE Information System Designer (ISD) utilisé correspond bien à la version 6.0.0 requise. Pour cela, ouvrez ISD puis accédez au menu "*Help/About Information System Designer*". Dans la fenêtre d'information, contrôlez attentivement le numéro de version affiché ainsi que les détails de la plateforme. Assurez-vous que la version indiquée est au moins la 6.0.0, afin de garantir la compatibilité complète du plugin et d'éviter tout comportement inattendu ou erreur d'exécution liée à une version non conforme de l'environnement d'ISD.
 
 <div align="center">
   <img src="images/pcm-ecr-about-version.png" alt="Installation" width="500">
@@ -145,7 +145,7 @@ L'installation et la configuration de Maven dans Eclipse sont essentielles pour 
 
 1b - Compilation des sources (développement)
 
-Il est aussi possible de récupérer l'ensemble des sources et de les compiler (JDK 21 au minimum et Maven 3.9.9 ❗ Ne pas monter en 3.10.0 cela pose des problématiques avec tycho 4.0.8 !) afin d'obtenir l'update site.
+Il est aussi possible de récupérer l'ensemble des sources et de les compiler (JDK 21 au minimum et Maven 3.9.16 ❗ Ne pas monter en 3.10.0 cela pose des problématiques avec tycho 5.0.2 !) afin d'obtenir l'update site.
 
 Les différentes étapes sont les suivantes : 
 
@@ -3852,9 +3852,22 @@ Le schéma suivant donne un aperçu de l'enchaînement des différentes étapes 
    <img src="images/pcm-test-soa-5.png" alt="Tests Karaté" width="800">
 </div>
 
-La compilation permet de produire un fichier JAR contenant les classes compilées de la couche métier. Ce fichier constitue une bibliothèque réutilisable par les applications qui s'appuient sur le domaine. Il ne s'agit pas d'une application autonome et il n'est donc pas destiné à être lancé directement.
-        
-Une fois le domaine compilé (cf. Déploiement de l'application), les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.
+Une fois le domaine compilé, les tests fonctionnels peuvent être exécutés afin de vérifier le comportement des services métier à partir des scénarios Karate et des jeux de données définis dans les fichiers YAML.
+
+Lors de l'activation du profil Maven "*tests-fonctionnels*"  (cf. Déploiement de l'application), un fichier au format "*.zip*" est généré automatiquement dans le répertoire "*/target*" du projet "***[Nom de l'application]-domain***". Cette archive constitue le livrable à transmettre aux testeurs fonctionnels. Elle regroupe l'ensemble des éléments nécessaires à l'exécution des tests, sans nécessiter de disposer du projet Eclipse ou de son environnement de développement.
+
+L'archive contient :
+
+- Le JAR exécutable "***[Nom de l'application]-[Version]-tests-fonctionnels.jar***" : il contient le domaine, le moteur Karate, le runner et les ressources nécessaires à l'exécution des scénarios.
+
+- Le répertoire "***/features***" : il regroupe les fichiers "*.feature*" décrivant les scénarios de tests fonctionnels.
+
+- Le répertoire "***/data***" : il contient les fichiers de données utilisés par les scénarios, notamment les fichiers aux format "*.yaml*".
+
+- Le script "***[Nom de l'application]-tests-fonctionnels.bat***" : il facilite le lancement des tests en ligne de commande sous Windows.
+
+
+Le testeur peut ainsi extraire l'archive dans le répertoire de son choix, adapter si nécessaire les données ou les scénarios, puis lancer les tests à l'aide du script fourni. Les tests peuvent également être exécutés directement à partir du JAR, en utilisant les paramètres prévus pour indiquer les emplacements des fichiers de fonctionnalités et de données.
 
 Pour exécuter un scénario en particulier tapper la commande suivante (le jar spécifique est toujours  construit avec le suffixe "-tests-fonctionnels") : 
 
@@ -3880,9 +3893,7 @@ Pour lancer tous les scénarios :
 java -Dtest.data.dir="C:/mes-tests/data" -jar demo-domain-0.0.1-SNAPSHOT-tests-fonctionnels.jar "C:/mes-tests/features"
 ```
 
-Pour les utilisateurs qui ne souhaitent pas lancer les tests fonctionnels depuis la ligne de commande, un script Windows "*"[Nom de l'application]-tests-fonctionnels.bat*" est également fourni dans le répertoire "*src/test/resources*".
-
-Ce script permet de lancer les tests fonctionnels de manière interactive, sans avoir à saisir manuellement la commande Java.
+Pour les utilisateurs qui ne souhaitent pas lancer les tests fonctionnels depuis la ligne de commande, un script Windows "*"[Nom de l'application]-tests-fonctionnels.bat*" est donc également fourni avec l'archive. Ce script permet de lancer les tests fonctionnels de manière interactive, sans avoir à saisir manuellement la commande Java.
 
 Son fonctionnement est simple :
 
@@ -3926,6 +3937,10 @@ java -Dtest.data.dir="C:\Tests\data" -jar "C:\Tests\demo-domain-0.0.1-SNAPSHOT-t
 Confirmer le lancement ? (O/N) :
     
 ```
+
+À l'issue de l'exécution des tests fonctionnels, Karate génère automatiquement des rapports détaillés permettant de consulter les résultats des scénarios exécutés, notamment les tests réussis, les éventuelles erreurs et les étapes en échec. 
+
+Ces rapports sont disponibles dans le répertoire "*/target/karate-reports*" du répertoire depuis lequel les tests sont exécutés. Le fichier "*karate-summary.html*" constitue le rapport de synthèse principal et peut être ouvert directement dans un navigateur Web pour consulter le bilan de l'exécution.
 
 ### 🧩 Génération des relations
     
@@ -6822,7 +6837,17 @@ Pour un build des tests fonctionnels de la couche métier, tapper la commande su
 mvn clean package -P tests-fonctionnels
 ```
 
-❗ Il est à notter que dans le cas des tests fonctionnels le build passe par un phase intermédiaire qui crée un fichier "*.jar*" supplémentaire. Celui à récupérer est donc toujours le fichier suivant : "***[Nom de l'application]-[Version]-tests-fonctionnels.jar***" et non : "***[Nom de l'application]-[Version]-tests.jar***".
+❗ Il est à notter que dans le cas des tests fonctionnels le build passe par un phase intermédiaire qui crée un fichier "*.jar*" supplémentaire. Celui à utiliser est donc toujours le fichier suivant : "***[Nom de l'application]-[Version]-tests-fonctionnels.jar***" et non : "***[Nom de l'application]-[Version]-tests.jar***".
+
+Par ailleurs, l'activation du profil Maven "*tests-fonctionnels*" à l'aide de la commande "*mvn clean package -P tests-fonctionnels*" déclenche la compilation du module domaine, la création de ce JAR exécutable autonome, mais aussi la génération d'une archive au format "*.zip*" regroupant tous les éléments nécessaires à l'exécution des tests fonctionnels, à savoir : 
+
+- Le JAR.
+- Les scénarios Karate.
+- Les fichiers de données.
+- Le script de lancement. 
+ 
+Cette archive est produite automatiquement dans le répertoire "*/target*" du projet "*[Nom de l'application]-domain*" et constitue le livrable à transmettre aux testeurs.
+
 
 ## 📁 Cas projet client 
 
