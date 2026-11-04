@@ -126,7 +126,7 @@
 											tycho-packaging-plugin
 										</artifactId>
 										<versionRange>
-											[${tycho-version},)
+											[${tycho.version},)
 										</versionRange>
 										<goals>
 											<goal>build-qualifier</goal>
@@ -152,7 +152,7 @@
 											tycho-compiler-plugin
 										</artifactId>
 										<versionRange>
-											[${tycho-version},)
+											[${tycho.version},)
 										</versionRange>
 										<goals>
 											<goal>compile</goal>
