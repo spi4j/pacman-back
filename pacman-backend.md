@@ -1763,6 +1763,10 @@ public interface ContratRepository extends JpaRepository<ContratEntityImpl, Long
 
 #### Tests
 
+***[package racine]*** : Une classe utilitaire pour les tests a été automatiquement générée, il s'agit de la classe "***[Nom de l'application]TestsUtils***". Cette classe utilitaire regroupe des méthodes permettant de générer des valeurs aléatoires destinées au peuplement des données de test. Elle prend notamment en charge les principaux types numériques en produisant des valeurs volontairement limitées afin de réduire les risques de dépassement des capacités des colonnes en base de données. Ces méthodes facilitent la génération de données de test variées et permettent notamment d'éviter les conflits liés aux contraintes d'unicité lors de l'exécution répétée des tests.
+
+En effet, l'utilisation de valeurs aléatoires répond également à une problématique liée aux contraintes d'unicité définies en base de données. En effet, les tests générés peuvent être exécutés plusieurs fois, voire créer plusieurs enregistrements au cours d'une même exécution. L'utilisation systématique de valeurs fixes peut alors provoquer des violations de contraintes d'unicité (index uniques ou clés candidates), empêchant l'insertion de nouveaux enregistrements. La génération de valeurs variables permet de réduire fortement ce risque de collision et de rendre les tests plus facilement réexécutables.
+
 ➤ ***[package racine].infra.adapters.[nom du namespace]*** : Des tests unitaires JUnit sont générés par défaut au niveau du package de test, avec pour chaque entité, une classe ***[nom de l'entité]RepositoryTestImpl***, dans le cadre de l'application "demo", il s'agit de la classe *PersonneRepositoryTestImpl*. Ces tests de base auto générés permettent de vérifier le bon fonctionnement des opérations CRUD pour la base de  données. 
 
 Chaque classe de test récupère le "Repository" par le biais d'une injection par constucteur, on active le profil Spring pour les tests et on demande expressément la configuration issue de "***test.properties***" au lieu de celle de production "***application.properties***". Enfin on demande l'initialisation de la base de donnée avec la ligne "***initSql(dataSource);***" :
@@ -1819,7 +1823,26 @@ Voici un exemple de test unitaire pour la persistance :
 }
 ```
 
-❗❗ Avant de lancer les tests, ne pas oublier de demander (si cela n'a pas déjà été effectué au préalable) la génération des scripts SQL et éventuellement de supprimer le fichier d'initialisation, ne pas oublier que l'intitialisation des tables est placée entre balises de type "*user code*". Pour ce faire, se positionner au niveau du fichier de modélisation de la couche de persistance ***[nom de l'application].entity*** et par clic droit, demander la génération : 
+Si un champ est soumis à une contrainte d'unicité (ici par exemple le numéro de sécurité sociale), alors le code d'injection de la valeur par défaut fera appel à la classe utilitaire de test pour l'attribution de la valeur par défaut : 
+
+```java
+@Test
+public void testCreate() throws Exception {
+
+   PersonneEntityImpl personne = new PersonneEntityImpl();
+   personne.setPrenom("S");
+   personne.setNom("S");
+   personne.setNumSecu(TestsBDDTestUtils.randomString());
+   personne.setDateNaissance(LocalDate.now());
+
+   personneRepository.save(entity1);
+   this.crudIdRun = personne.getPersonne_id();
+
+   assertNotNull(personne.getPersonne_id(), "L'entity creee devrait avoir une cle primaire renseignee");
+}
+```
+
+❗❗ Avant de lancer les tests, ne pas oublier de demander (si cela n'a pas déjà été effectué au préalable) la génération des scripts SQL et éventuellement de supprimer le fichier d'initialisation, ne pas oublier que l'initialisation des tables est placée entre balises de type "*user code*". Pour ce faire, se positionner au niveau du fichier de modélisation de la couche de persistance ***[nom de l'application].entity*** et par clic droit, demander la génération : 
 
 <img src="images/pcm-gen-entity-3.png" alt="Génération scripts SQL" width="600">
 
@@ -7489,9 +7512,9 @@ Liste des métadonnées disponibles (certaines métadonnées sont présentes mai
 |-------------|-------------|------------|----------------|
 | PHYSICAL_NAME | OUI | Nom pour la table | ENTITY |
 | PHYSICAL_SHORT_NAME | OUI | Nom (longues tables) | ENTITY, REFERENCE |
-| PHYSICAL_DEFAULT | OUI | Valeur par défaut | ENTITY |
+| PHYSICAL_DEFAULT | OUI | Valeur par défaut | ATTRIBUTE |
 | PHYSICAL_CHECK | OUI | Contrainte de vérification pour insertion ou modification | ENTITY |
-| PHYSICAL_UNIQUE | OUI | Contrainte d'unicité pour la colonne | ATTRIBUTE, ENTITY |
+| PHYSICAL_UNIQUE | OUI/NON | Contrainte d'unicité pour la colonne | ATTRIBUTE, ENTITY |
 | PHYSICAL_SIZE | OUI | Taille de l'attribut | ATTRIBUTE |
 | VERSION | OUI | Version de l'entité (gestion automatique du Lock Optimiste) | SYSTEM, CATEGORY, DTO |
 | REFERENTIAL🚫 |     |   |          |
@@ -7524,6 +7547,30 @@ Liste des métadonnées disponibles (certaines métadonnées sont présentes mai
 | BATCH_WRITE | NON | L'opération écrit en base de données | OPERATION |
 | BATCH_PROCESS | NON | L'opération effectue un traitement hors base | OPERATION |
 | DATA_ISOLATION_CONTEXTE | NON | Le retour de l'opération sert pour le contexte d'isolation | OPERATION |
+
+### Exemples de métadonnées
+
+Voici quelques exemples pour les métadonnées qui nécessitent des explications supplémentaires :  
+
+- PHYSICAL_UNIQUE : Lorsque la métadonnée est définie au niveau de l'attribut, il n'est pas nécessaire de préciser les champs concernés. En revanche, lorsqu'elle est définie au niveau de l'entité, il est nécessaire de renseigner l'ensemble des attributs participant à la contrainte d'unicité, ainsi que leur ordre de tri. la syntaxe est alors la suivante : "*[ attributX:ASC,attributY:ASC,attributZ:DESC,etc... ]*"
+
+- PHYSICAL_CHECK : "*[ (age >= 0) | (email LIKE '%@%') | etc... ]*"
+
+- PERMISSIONS : [A traiter]
+
+- PERMISSIONS_OR : [A traiter]
+
+- PERMISSIONS_AND :  [A traiter]
+
+- CASCADE_TYPE : "*[ PERSIST | MERGE | REMOVE | REFRESH | DETACH | ALL ]*"
+
+- AUTH_TOKEN : [A traiter]
+
+❗ Il est à noter que toutes les métadonnées de type "*PHYSICAL_*" sont aussi visibles (et/ou) saisissables au niveau du diagramme "*[Nom de l'application] - Entities PhysicalNames*"
+
+<div align="center">
+  <img src="images/pcm-model-diagram-pysical.png" alt="Métadonnées" >
+</div>
 
 ### Règles de validation
 
