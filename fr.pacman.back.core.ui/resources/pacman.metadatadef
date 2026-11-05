@@ -23,7 +23,7 @@
      technicalid="_hBCekL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_DEFAULT" 
      body="BDD : Valeur par défaut si aucune valeur n'a été précisée." 
-     condition="aql:Sequence{'entity'}->includes(self.eClass().name.toLower())"/>
+     condition="aql:Sequence{'attribute'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_hUgNIL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_CHECK" 

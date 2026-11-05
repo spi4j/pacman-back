@@ -2142,11 +2142,13 @@
   [any.defaultImports()/]
   import java.util.Random;
   import java.time.format.DateTimeFormatter;
+  import java.util.Random;
+  import java.util.concurrent.ThreadLocalRandom;
   
   /**
    * Classe utilitaire pour les tests unitaires ou d'intégration. Fournit des
-   * constantes de format de date/heure et une méthode de génération de données
-   * binaires aléatoires.
+   * constantes de format de date/heure et des méthodes de génération de données
+   * aléatoires.
    *
    * Cette classe n'est pas instanciable.
    *
@@ -2182,6 +2184,96 @@
         Random ['random'.apply_variableDefault()/] = new Random();
         ['random'.apply_variableDefault()/].nextBytes(['random bytes'.apply_variableDefault()/]);
         return ['random bytes'.apply_variableDefault()/];
+     }
+     
+    /**
+     * Génère une chaîne de caractères unique.
+     *
+     * @return une chaîne de caractères unique.
+     */
+     public static String ['random string'.apply_methodDefault()/]() {
+        return UUID.randomUUID().toString().replace("-", "");
+     }
+     
+     /**
+     * Génère un entier aléatoire.
+     *
+     * @return un entier aléatoire.
+     */
+     public static Integer ['random integer'.apply_methodDefault()/]() {
+        return ThreadLocalRandom.current().nextInt(1, 10_000);
+     }
+     
+     /**
+     * Génère un entier long aléatoire.
+     *
+     * @return un entier long aléatoire.
+     */
+     public static Long ['random long'.apply_methodDefault()/]() {
+        return ThreadLocalRandom.current().nextLong(1, 1_000_000);
+     }
+     
+     /**
+     * Génère un nombre décimal aléatoire.
+     *
+     * @return un nombre décimal aléatoire.
+     */
+     public static Double ['random double'.apply_methodDefault()/]() {
+        return ThreadLocalRandom.current().nextDouble(1.0, 10000.0);
+     }
+     
+     /**
+     * Génère un nombre flottant aléatoire.
+     *
+     * @return un nombre flottant aléatoire.
+     */
+     public static Float ['random float'.apply_methodDefault()/]() {
+        return ThreadLocalRandom.current().nextFloat() * 10000.0f;
+     }
+     
+     /**
+     * Génère un booléen aléatoire.
+     *
+     * @return un booléen aléatoire.
+     */
+     public static Boolean ['random boolean'.apply_methodDefault()/]() {
+        return ThreadLocalRandom.current().nextBoolean();
+     }
+     
+    /**
+     * Génère un UUID.
+     *
+     * @return un UUID.
+     */
+     public static UUID ['random UUID'.apply_methodDefault()/]() {
+        return UUID.randomUUID();
+     }
+     
+     /**
+     * Génère une date aléatoire.
+     *
+     * @return une date aléatoire.
+     */
+     public static LocalDate ['random date'.apply_methodDefault()/]() {
+        return LocalDate.ofEpochDay(ThreadLocalRandom.current().nextLong(0, LocalDate.now().toEpochDay() + 1));
+     }
+     
+     /**
+     * Génère une date et une heure aléatoires.
+     *
+     * @return une date et une heure aléatoires.
+     */
+     public static Instant ['random timestamp'.apply_methodDefault()/]() {
+        return Instant.now().minusSeconds(ThreadLocalRandom.current().nextLong(0, 31536000));
+     }
+     
+     /**
+     * Génère une heure aléatoire.
+     *
+     * @return une heure aléatoire.
+     */
+     public static LocalTime ['random time'.apply_methodDefault()/]() {
+        return LocalTime.ofSecondOfDay(ThreadLocalRandom.current().nextLong(0, 86400));
      }
   }
 [/template]

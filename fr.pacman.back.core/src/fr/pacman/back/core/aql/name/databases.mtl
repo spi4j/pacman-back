@@ -130,6 +130,10 @@
 [query public nameIndexUnique(e : entity::Entity, idx1 : Integer, idx2 : Integer) : String = e.nameTable() + if e.is_mandatoryAnnotationProperties(e.get_metaPhysicalUnique()) 
 	then e.suffixSqlUnique() else e.suffixSqlIndex() endif  +  idx1 + '_' + idx2/]	
 
+[comment retourne le nom pour un index unique au niveau de l'attribut./]	
+[query public nameIndexUnique(a : environment::Attribute, e : entity::Entity, idx1 : Integer, idx2 : Integer) : String =  e.nameTable() +  a.suffixSqlUnique()  
+  +  idx1 + '_' + idx2/]	
+
 [comment retourne le nom physique pour la référence (si existe) et vérifie le nommage de type identifiant. 
          Pour l'instant on transfert toujours idx mais priori il n'y en a plus besoin, il est forcé à 0 pour 
          ne pas etre pris en considération. Si non utilité vraiment confirmée, on supprimera ce paramètre./]

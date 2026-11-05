@@ -226,8 +226,9 @@
 
 [comment écriture de la ligne pour chaque attribut de l'entité./]  
 [query private writeAttribute(a : environment::Attribute, dbType : String) : String = a.nameColumn().toUpper() + ' ' 
-	+ a.get_columnTypeForDatabase(dbType) + a.writeEndLine(false, dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT' 
-	+ '\'' + a.get_metaPhysicalDefault() + '\'' else '' endif + ','/]
+	+ a.get_columnTypeForDatabase(dbType) + a.writeEndLine(false, dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT ' 
+	+ if (a.type.name.get_useQuotesForDefaultValue()) then '\'' + a.get_metaPhysicalDefault().replaceAll('\'','') + '\'' else a.get_metaPhysicalDefault() 
+	endif  else '' endif + ','/]
 
 [comment écriture de la ligne pour chacune des tables référencées (on récupère les références des tables héritées)./]
 [query private writeReferenceFK(r : environment::Reference, e : entity::Entity, dbType : String) : String = 
@@ -250,9 +251,11 @@
 	+ e.nameIndexUnique(columns.get_nbColumnsInUniqueIndex(), idx).toUpper() + ' on ' + e.nameTableSchema().toUpper() 
 	+ if (cmd.equalsIgnoreCase(e.cmdCreate())) then '(' + columns.replaceAll(':',' ').toUpper() + ')' else '' endif + ';'/]
   
-[comment écriture de la ligne pour un index unique sur un attribut A TERMINER !!!!!./]
+[comment écriture de la ligne pour un index unique sur un attribut./]
 [query private writeUniqueIndex(e : entity::Entity, a : environment::Attribute, dbType : String, idx : Integer, cmd : String) : String = 
-	if (cmd.equalsIgnoreCase(e.cmdCreate())) then 'create ' else 'drop ' endif + 'unique index ' + ';'/]
+	if (cmd.equalsIgnoreCase(e.cmdCreate())) then 'create ' else 'drop ' endif + 'unique index ' + a.nameIndexUnique(e, 1, idx).toUpper() 
+	+ ' on ' + e.nameTableSchema().toUpper() + if (cmd.equalsIgnoreCase(e.cmdCreate())) then  '(' + a.nameAttribut().toUpper() + ')' 
+	else '' endif + ';'/]
 
 [comment écriture de la ligne pour un index portant sur un ou plusieurs attribut(s) (colonne(s))./]
 [query private writeIndex(e : entity::Entity, r : environment::Reference, dbType : String, columnNameForId : String, idx : Integer, cmd : String) : String = 

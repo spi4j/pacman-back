@@ -84,6 +84,12 @@ public class DatabaseUtils {
 	private static Map<String, String> _defaultValues;
 
 	/**
+	 * Liste des types qui nécessitent des quotes pour les valeurs par défaut
+	 * (scripts sql).
+	 */
+	private static List<String> _typesWithQuotes;
+
+	/**
 	 * Initialisation des variables pour les compteurs de nommage.
 	 */
 	private static int _oldCpt = 0;
@@ -117,6 +123,13 @@ public class DatabaseUtils {
 		_types.put(c_typeMySql, false);
 		_types.put(c_typePostgres, false);
 		_types.put(c_typeH2, false);
+
+		_typesWithQuotes = new ArrayList<>();
+		_typesWithQuotes.add(c_typeColumnChar);
+		_typesWithQuotes.add(c_typeColumnString);
+		_typesWithQuotes.add(c_typeColumnDate);
+		_typesWithQuotes.add(c_typeColumnTime);
+		_typesWithQuotes.add(c_typeColumnTimestamp);
 
 		_defaultColumnLengths = new HashMap<>();
 		_defaultColumnLengths.put(c_typeColumnLong, "10");
@@ -364,6 +377,16 @@ public class DatabaseUtils {
 		if (_defaultValues.containsKey(p_type))
 			return _defaultValues.get(p_type);
 		return "Unknown default value !!!";
+	}
+
+	/**
+	 * Vérifie si le type a besoin de l'utilisation des quotes pour les scripts sql.
+	 * 
+	 * @param p_type le type pour lequel vérifier l'utilisation des quotes.
+	 * @return 'true' si le type nécessite l'utilisation de quotes.
+	 */
+	public static boolean get_useQuotesForDefaultValue(final String p_type) {
+		return _typesWithQuotes.contains(p_type);
 	}
 //
 //

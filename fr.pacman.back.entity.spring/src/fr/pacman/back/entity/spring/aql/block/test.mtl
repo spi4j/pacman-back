@@ -25,6 +25,7 @@
 
 [import fr::pacman::back::core::service::TestUtils/]
 [import fr::pacman::back::core::service::DatabaseUtils/]
+[import fr::pacman::back::core::service::AnnotationUtils/]
 
 [comment écriture de l'implémentation des tests de persistance sur une entité./]
 [template public outIntegrationTestImpl(e : entity::Entity, es : Sequence(entity::Entity)
@@ -187,6 +188,9 @@
       [/for]
       
       [e.writeReferencedFK(fks)/]
+      
+      [protected ('test create init params'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+      [/protected]
       
       [e.nameRepository().apply_attributeFinal()/].save([eName/]);
       [e.prefixAffectation()/]['crud id run'.apply_attributeDefault()/] 
@@ -506,15 +510,20 @@
   + '_' + e.get_counterFK(1) else e.referencedName(r).apply_variableDefault() endif/]
 
 [comment écriture de la valeur par defaut à injecter dans le setter./]
-[query private writeDefaultValue (prop : String) : String = if ('Time'.equalsIgnoreCase(prop) 
-	or 'Timestamp'.equalsIgnoreCase(prop)) then prop.get_defaulValueForType() + '.truncatedTo(ChronoUnit.MILLIS)' 
-	else if ('Binary'.equalsIgnoreCase(prop)) then prop.nameClassIntegrationTestUtils() + '.' + 'generate random byte array'
-	.apply_methodDefault() +  '(10)' else prop.get_defaulValueForType() endif endif/]
+[query private writeDefaultValue (type : String) : String = if ('Time'.equalsIgnoreCase(type) 
+	or 'Timestamp'.equalsIgnoreCase(type)) then type.get_defaulValueForType() + '.truncatedTo(ChronoUnit.MILLIS)' 
+	else if ('Binary'.equalsIgnoreCase(type)) then type.nameClassIntegrationTestUtils() + '.' + 'generate random byte array'
+	.apply_methodDefault() +  '(10)' else type.get_defaulValueForType() endif endif/]
+
+[comment écriture de la valeur par defaut à injecter dans le setter (valeur random nottament pour les index uniques)./]	
+[query private writeDefaultRandomValue(type : String) : String = type.nameClassIntegrationTestUtils() + '.' + ('random ' 
+   + type).apply_methodDefault() + '()'/]
 	
 [comment écriture de la valeur par defaut à injecter dans le setter (si enum on cherche l'enum par son nom)./]
 [query private writeDefaultValue(a : environment::Attribute) : String = if (a.type.oclIsKindOf( environment::Enumeration )) then 
 	a.type.name.apply_classEnum() + '.' + a.root().eAllContents(environment::Enumeration)->select(o | o = a.type)
-	->first().literals->first().nameLiteral() else a.type.name.writeDefaultValue() endif/]
+	->first().literals->first().nameLiteral() else if (a.has_metaPhysicalUnique()) then a.type.name.writeDefaultRandomValue() 
+	else a.type.name.writeDefaultValue() endif endif/]
 	
 [comment écriture de la valeur par défaut à injecter dans le setter (non à priori impossible d'avoir des listes sur attribut !!!!)./]  
 [comment query private defaultValue(a : environment::Attribute, timeType :  Boolean ) : String = if (a.isMultiple()) then 
