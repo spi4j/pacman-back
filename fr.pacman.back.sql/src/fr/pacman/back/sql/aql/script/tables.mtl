@@ -227,8 +227,8 @@
 [comment écriture de la ligne pour chaque attribut de l'entité./]  
 [query private writeAttribute(a : environment::Attribute, dbType : String) : String = a.nameColumn().toUpper() + ' ' 
 	+ a.get_columnTypeForDatabase(dbType) + a.writeEndLine(false, dbType) + if (a.has_metaPhysicalDefault()) then ' DEFAULT ' 
-	+ if (a.type.name.get_useQuotesForDefaultValue()) then '\'' + a.get_metaPhysicalDefault().replaceAll('\'','') + '\'' else a.get_metaPhysicalDefault() 
-	endif  else '' endif + ','/]
+	+ if (a.type.name.get_useQuotesForDefaultValue()) then '\'' + a.get_metaPhysicalDefault().replaceAll('\'{1,}', '\'\'')
+	+ '\'' else a.get_metaPhysicalDefault() endif  else '' endif + ','/]
 
 [comment écriture de la ligne pour chacune des tables référencées (on récupère les références des tables héritées)./]
 [query private writeReferenceFK(r : environment::Reference, e : entity::Entity, dbType : String) : String = 
