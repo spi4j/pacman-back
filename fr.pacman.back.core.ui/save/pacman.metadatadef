@@ -33,7 +33,7 @@
      technicalid="_jNrVQL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_UNIQUE" 
      body="BDD : Contrainte d'unicité pour la colonne." 
-     condition="aql:Sequence{'attribute'}->includes(self.eClass().name.toLower())"/>
+     condition="aql:Sequence{'attribute','entity'}->includes(self.eClass().name.toLower())"/>
   <metaDataDefinitions 
      technicalid="_jpDCoL1bEe-jcvmoMOdyBg" 
      title="PHYSICAL_SIZE" 
