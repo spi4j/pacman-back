@@ -7505,8 +7505,13 @@ Voici la liste des causes possibles et comment les éliminer une par une.
 
 Liste des métadonnées disponibles (certaines métadonnées sont présentes mais ne sont pas encore actives, ou seront probablement supprimées suite à études. Par ailleurs, certaines métadonnées ne concernent pas le framework Spring Boot (ne pas oublier que **Pacman** est un générateur multi-frameworks et que dans un avenir proche, le framework Spi4j sera aussi inclus).
 
-  Ces métadonnées sont pour l'instant toujours listées mais avec une icône 🚫. 
+Ces métadonnées sont pour l'instant toujours listées mais avec une icône 🚫. 
 
+❗ En raison de la possibilité de créer des DTO directement associés aux entités au niveau du métamodèle, il peut arriver que certaines métadonnées apparaissent dans un contexte où elles ne sont pas destinées à être utilisées. 
+
+Ainsi, des métadonnées propres aux DTO peuvent être proposées sur des entités, et inversement. Ce comportement est lié aux limites actuelles de distinction entre ces deux types d'éléments dans le métamodèle. Ce comportement peut être déroutant pour l'utilisateur, mais n'a aucun impact sur le fonctionnement des générateurs, qui tiennent compte du contexte réel des éléments lors de la génération du code.
+
+Une solution est actuellement à l'étude afin de fiabiliser les conditions d'affichage et de garantir que chaque métadonnée soit proposée uniquement dans le contexte auquel elle est destinée.
 
 | Métadonnée  | Corps       | Description| S'applique sur |
 |-------------|-------------|------------|----------------|
