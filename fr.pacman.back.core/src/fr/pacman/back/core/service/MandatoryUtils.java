@@ -80,6 +80,8 @@ public final class MandatoryUtils {
 	 * toutes les propriétes sont obligatoires. La propriete doit absolument se
 	 * presenter sous la forme XXXX:[ASC|DESC].
 	 * 
+	 * Ex : attribut1:ASC,attribut2:ASC,attribut3:DESC
+	 * 
 	 * @param p_lstAttributes
 	 * @return
 	 */

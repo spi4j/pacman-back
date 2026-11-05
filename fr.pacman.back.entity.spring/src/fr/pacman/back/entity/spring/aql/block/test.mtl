@@ -522,8 +522,9 @@
 [comment écriture de la valeur par defaut à injecter dans le setter (si enum on cherche l'enum par son nom)./]
 [query private writeDefaultValue(a : environment::Attribute) : String = if (a.type.oclIsKindOf( environment::Enumeration )) then 
 	a.type.name.apply_classEnum() + '.' + a.root().eAllContents(environment::Enumeration)->select(o | o = a.type)
-	->first().literals->first().nameLiteral() else if (a.has_metaPhysicalUnique()) then a.type.name.writeDefaultRandomValue() 
-	else a.type.name.writeDefaultValue() endif endif/]
+	->first().literals->first().nameLiteral() else if (a.has_metaPhysicalUnique() or a.eContainer().has_metaPhysicalUnique() and a.eContainer()
+    .get_metaPhysicalUnique().get_columnsForUniqueIndexs()->exists(c | (c.contains( a.name)))) then a.type.name.writeDefaultRandomValue() 
+    else a.type.name.writeDefaultValue() endif endif/]
 	
 [comment écriture de la valeur par défaut à injecter dans le setter (non à priori impossible d'avoir des listes sur attribut !!!!)./]  
 [comment query private defaultValue(a : environment::Attribute, timeType :  Boolean ) : String = if (a.isMultiple()) then 
