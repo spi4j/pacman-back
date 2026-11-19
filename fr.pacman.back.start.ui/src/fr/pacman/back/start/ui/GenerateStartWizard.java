@@ -60,7 +60,7 @@ public class GenerateStartWizard extends Wizard implements INewWizard {
 	/**
 	 * La version du générateur.
 	 */
-	private static final String c_version = "5.0.0";
+	private static final String c_version = "5.0.1";
 
 	/***
 	 * Le répertoire cible pour la copie des fichiers swagger-ui.

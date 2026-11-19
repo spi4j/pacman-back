@@ -2,7 +2,7 @@
 <feature
       id="fr.pacman.back.requirement.ui.feature"
       label="PacMan Backend - Requirement"
-      version="5.0.0.qualifier"
+      version="5.0.1.qualifier"
       provider-name="Cali"
       plugin="fr.pacman.back.branding">
 

@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.back.soa.spring
 Bundle-ManifestVersion: 2
 Bundle-Name: PacMan Back - Soa - Spring
 Bundle-SymbolicName: fr.pacman.back.soa.spring
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 5.0.1.qualifier
 Bundle-Activator: fr.pacman.back.soa.spring.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,

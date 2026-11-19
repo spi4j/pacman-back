@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.back.sql.ui
 Bundle-ManifestVersion: 2
 Bundle-Name: PacMan Back - SQL - UI
 Bundle-SymbolicName: fr.pacman.back.sql.ui;singleton:=true
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 5.0.1.qualifier
 Bundle-Activator: fr.pacman.back.sql.ui.plugin.Activator$Implementation
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.emf.ecore,

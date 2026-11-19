@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.back.entity
 Bundle-ManifestVersion: 2
 Bundle-Name: PacMan Back - Entity
 Bundle-SymbolicName: fr.pacman.back.entity
-Bundle-Version: 5.0.0.qualifier
+Bundle-Version: 5.0.1.qualifier
 Bundle-Activator: fr.pacman.back.entity.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,
