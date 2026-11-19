@@ -249,7 +249,7 @@
 [query private writeUniqueIndex(e : entity::Entity, dbType : String, columns : String, idx : Integer, cmd : String) : String = 
 	if (cmd.equalsIgnoreCase(e.cmdCreate())) then 'create ' else 'drop ' endif + 'unique index ' 
 	+ e.nameIndexUnique(columns.get_nbColumnsInUniqueIndex(), idx).toUpper() + ' on ' + e.nameTableSchema().toUpper() 
-	+ if (cmd.equalsIgnoreCase(e.cmdCreate())) then '(' + columns.replaceAll(':',' ').toUpper() + ')' else '' endif + ';'/]
+	+ if (cmd.equalsIgnoreCase(e.cmdCreate())) then '(' + columns.replaceAll(':', ' ').toUpper() + ')' else '' endif + ';'/]
   
 [comment écriture de la ligne pour un index unique sur un attribut./]
 [query private writeUniqueIndex(e : entity::Entity, a : environment::Attribute, dbType : String, idx : Integer, cmd : String) : String = 

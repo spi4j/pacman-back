@@ -66,7 +66,7 @@
                    le dto avec un simple identifiant./]
           [for (r : environment::Reference | rs)]
             [if (r.isInverseReference(d))]
-              /** L'identifiant pour [r.referencedDto(d).name()/]. */
+              /** L'identifiant applati pour [r.referencedDto(d).name()/]. */
               private [d.defaultTypePk()/] [r.referencedDto(d).writePk()/];
             [else]
               [r.referencedDto(d).comment().commentSingleLine()/]

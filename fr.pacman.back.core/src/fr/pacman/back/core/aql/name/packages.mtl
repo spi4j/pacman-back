@@ -37,7 +37,7 @@
 [query public namePackageCommonResolver(s : soa::Service) : String = s.get_suffixCommon() + '.' + s.suffixService().trim() + 's.resolvers.' + s.nameComponent()/]
   
 [comment retourne le package pour les exceptions métier du domain/]
-[query public namePackageCommonException(any : ecore::EObject) : String = any.get_suffixCommon() + '.a.exceptions'/]
+[query public namePackageCommonException(any : ecore::EObject) : String = any.get_suffixCommon() + '.services.exceptions'/]
 
 [comment retourne le package pour l'interface du port (domain->persistance)./]
 [query public namePackageOutItf(s : soa::Service) : String = s.get_suffixCommon() + '.port.' + s.suffixInterfaceIn().trim() + 's' + '.' + s.nameComponent()/]
