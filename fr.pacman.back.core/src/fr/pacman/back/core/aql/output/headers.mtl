@@ -100,14 +100,14 @@
     [/if]
     [if (o.oclIsKindOf(environment::Reference))]
       [if (any.oclIsKindOf(environment::DTO))]
-        import [o.referencedDto(any).namePackageDtoImpl()
-        	.package(o.referencedDto(any).nameClassDtoImpl())/]
-        import [o.referencedDto(any).namePackageXtoImpl()
-        	.package(o.referencedDto(any).nameClassXtoImpl())/]
+        import [o.referencedDto().namePackageDtoImpl()
+        	.package(o.referencedDto().nameClassDtoImpl())/]
+        import [o.referencedDto().namePackageXtoImpl()
+        	.package(o.referencedDto().nameClassXtoImpl())/]
       [/if]
       [if (any.oclIsKindOf(entity::Entity))]
-        import [o.referencedEntity(any).namePackageEntityImpl()
-        	.package(o.referencedEntity(any).nameClassEntityImpl())/]
+        import [o.referencedEntity().namePackageEntityImpl()
+        	.package(o.referencedEntity().nameClassEntityImpl())/]
       [/if]
     [/if]
   [/for][/if]
@@ -148,14 +148,14 @@
     [/if]
     [if (o.oclIsKindOf(environment::Reference))]
       [if (any.oclIsKindOf(environment::DTO))]
-        import [o.referencedDto(any).namePackageDtoImpl()
-        	.package(o.referencedDto(any).nameClassDtoImpl())/]
-        import [o.referencedDto(any).namePackageXtoImpl()
-        	.package(o.referencedDto(any).nameClassXtoImpl())/]
+        import [o.referencedDto().namePackageDtoImpl()
+        	.package(o.referencedDto().nameClassDtoImpl())/]
+        import [o.referencedDto().namePackageXtoImpl()
+        	.package(o.referencedDto().nameClassXtoImpl())/]
       [/if]
       [if (any.oclIsKindOf(entity::Entity))]
-        import [o.referencedEntity(any).namePackageEntityImpl()
-        	.package(o.referencedEntity(any).nameClassEntityImpl())/]
+        import [o.referencedEntity().namePackageEntityImpl()
+        	.package(o.referencedEntity().nameClassEntityImpl())/]
       [/if]
     [/if]
   [/for][/if]

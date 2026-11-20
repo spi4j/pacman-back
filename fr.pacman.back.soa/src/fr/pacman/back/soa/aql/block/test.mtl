@@ -24,6 +24,7 @@
 [import fr::pacman::back::core::aql::rule::variable/]
 [import fr::pacman::back::core::aql::rule::attribute/]
 [import fr::pacman::back::core::aql::rule::method/]
+[import fr::pacman::back::core::service::ReferenceUtils/]
 
 [comment écriture de l'implémentation pour le stub associé au service (domain + infra)./]
 [template public serviceOutStubImpl(s : soa::Service)]
@@ -381,8 +382,6 @@
 [template public serviceApiTestRunnerDefaultData (s : soa::Service, m : soa::System)]
   [for (o | s.ownedInterface.ownedOperations->select(o1 | o1.isRsOperation())) separator('\n')]
     [o.name()/]:
-    
-    
        [o.writeDataYaml(m)/]
        
        [protected (o.name().protectedId()) startTagPrefix('# ') endTagPrefix('# ')]
@@ -395,20 +394,77 @@
 
 [comment écriture de l'exemple de structure pour le fichier yaml./]
 [query private writeDataYaml(o : soa::Operation, m : soa::System) : String = let out = o.output->first() in if (out.type.oclIsKindOf(environment::DTO)) then 
-  out.type.oclAsType(environment::DTO).writeDtoYaml(m.subTypesDtos(), m.superTypesDtos(), out.isMultiple(), true, '', Sequence{out.type.oclAsType(environment::DTO)}) 
-  else out.writeParamYaml() endif + if (o.hasInputs())  then m.lineSeparator() + '----- entrée(s) -----' + m.lineSeparator() else '' endif + o.input
-  ->collect(p | if (p.type.oclIsKindOf(environment::DTO)) then p.type.oclAsType(environment::DTO).writeDtoYaml(m.subTypesDtos(), m.superTypesDtos(), p.isMultiple()
-  , false, '', Sequence{p.type.oclAsType(environment::DTO)}) else p.writeParamYaml() endif)/]
+  out.type.oclAsType(environment::DTO).writeDtoYaml(out.isMultiple(), true, '', Sequence{out.type.oclAsType(environment::DTO)}) else out.writeParamYaml() endif 
+  + if (o.hasInputs())  then m.lineSeparator() + '----- entrée(s) -----' + m.lineSeparator() else '' endif + o.input->collect(p | if (p.type.oclIsKindOf(environment::DTO)) 
+  then p.type.oclAsType(environment::DTO).writeDtoYaml(p.isMultiple(), false, '', Sequence{p.type.oclAsType(environment::DTO)}) else p.writeParamYaml() endif)/]
 
 [comment écriture d'un dto (qu'il soit en entrée ou en sortie) avec récursivité pour les références. Evite la récursivité infinie 
-         des références et transférant les dtos déjà visités./]
-[query private writeDtoYaml(d : environment::DTO, ds : Sequence(environment::DTO), dss : Sequence(environment::DTO)
-  , lst : Boolean, isOutput : Boolean, indent : String, visited : Sequence(environment::DTO)) : String = indent + (if (lst) then '- ' else '' endif)
-  + if (isOutput) then d.writePk() else d.name() endif + ':' + d.lineSeparator() + d.attributesNoPK()->collect(a | indent + '  ' + a.name() 
-  + ': ' + (if (a.type.needsYamlQuotes()) then '""' else '' endif) + d.lineSeparator()) + d.referencesFKSBResolved(ds,dss)->union(d.referencesJTSBResolved())
-  ->select(r | not visited->includes(r.referencedDto(d)))->collect(r | indent + '  ' + if (r.isInverseReference(d)) then r.referencedDto(d).writePk() + ':' 
-  + d.lineSeparator() else  r.referencedDto(d).referencedName(r) + ':' + d.lineSeparator() + r.referencedDto(d).writeDtoYaml(ds, dss, r.referencedTypeSignature(d)
-  .matches('.*(List|Set).*'), false, indent + '    ', visited->including(r.referencedDto(d)) endif))/]
+         des références et transférant les dtos déjà visités. La requête est tellement complexe que l'on conserve le formattage pour mieux se repérer./]
+[query private writeDtoYaml(d : environment::DTO, lst : Boolean, isOutput : Boolean, indent : String, visited : Sequence(environment::DTO)) : String = 
+    indent
+    + (if (lst) then '- ' else '' endif)
+    + (if (isOutput) then d.getPkName().apply_attributeDefault() else d.name() endif) 
+    + ':' + d.lineSeparator()
+    + d.attributesNoPK()->collect(a |
+        indent + a.name() + ': '
+        + (if (a.type.needsYamlQuotes()) then '""' else '' endif)
+        + d.lineSeparator()
+    )
+    + d.get_unidirectionnals()
+    ->union(d.get_bidirectionnals())
+    ->collect(r |
+        indent + r.referencedDto().referencedName(r)
+        + ':' + d.lineSeparator()
+        + if (visited->includes(r.referencedDto())) then
+            r.referencedDto().writeDtoYamlWithoutReferences(
+                r.referencedSignature().matches('.*(List|Set).*'),
+                false,
+                indent + '  '
+            )
+          else
+            r.referencedDto().writeDtoYaml(
+                r.referencedSignature().matches('.*(List|Set).*'),
+                false,
+                indent + '  ',
+                visited->including(r.referencedDto())
+            )
+          endif
+    )
+    + d.get_unidirectionnalsInverse()
+    ->collect(r |
+        indent + r.referencedDto().referencedName(r)
+        + ':' + d.lineSeparator()
+        + if (visited->includes(r.containingDto())) then
+            r.containingDto().writeDtoYamlWithoutReferences(
+                true,
+                false,
+                indent + '  '
+            )
+          else
+            r.containingDto().writeDtoYaml(
+                true,
+                false,
+                indent + '  ',
+                visited->including(r.containingDto())
+            )
+          endif
+    )
+/]
+
+[comment écriture d'un dto (qu'il soit en entrée ou en sortie) avec récursivité pour les références./]
+[query private writeDtoYamlWithoutReferences(d : environment::DTO, lst : Boolean, isOutput : Boolean, indent : String) : String =
+    indent
+    + (if (lst) then '- ' else '' endif)
+    + if (isOutput) then d.getPkName().apply_attributeDefault() else d.name() endif
+    + ':' + d.lineSeparator()
+    + d.attributesNoPK()
+        ->collect(a |
+            indent + a.name() + ': '
+            + (if (a.type.needsYamlQuotes()) then '""' else '' endif)
+            + d.lineSeparator()
+        )
+/]
+
 
 [comment écriture d'un simple paramètre qu'il soit en entrée ou en sortie./]
 [query private writeParamYaml(p : soa::Parameter) : String = p.name() + ' : ' + if (p.type.needsYamlQuotes()) then '""' else '' endif + p.lineSeparator()/]

@@ -2,7 +2,7 @@
 <feature
       id="fr.pacman.back.soa.ui.feature"
       label="PacMan Backend - Soa"
-      version="5.0.1.qualifier"
+      version="5.1.0.qualifier"
       provider-name="Cali"
       plugin="fr.pacman.back.branding">
 

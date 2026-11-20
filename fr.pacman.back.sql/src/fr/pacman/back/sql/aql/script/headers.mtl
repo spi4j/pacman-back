@@ -3,6 +3,7 @@
 [import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::core::aql::string/]	
 [import fr::pacman::back::core::aql::name::databases/]	
+
 [import fr::pacman::back::core::service::DateUtils/]
 
 [comment écriture de l'en-tête pour le schéma./]

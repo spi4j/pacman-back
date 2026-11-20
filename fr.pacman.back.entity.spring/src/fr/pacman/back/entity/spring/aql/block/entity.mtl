@@ -19,13 +19,12 @@
 [import fr::pacman::back::core::aql::rule::parameter/]
 [import fr::pacman::back::core::aql::rule::attribute/]
 [import fr::pacman::back::core::aql::rule::method/]
-
 [import fr::pacman::back::core::service::AnnotationUtils/]	
-[import fr::pacman::back::core::property::project::ProjectProperties/]	
+[import fr::pacman::back::core::service::ReferenceUtils/]	
+[import fr::pacman::back::core::property::project::ProjectProperties/]
 
 [comment écriture du corps pour la classe d'implémentation d'une entité./]
-[template public entityImpl (e : entity::Entity, es : Sequence(entity::Entity)
-  , ess : Sequence(entity::Entity))]
+[template public entityImpl (e : entity::Entity)]
   [e.classHeader(e.namePackageEntityImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -58,25 +57,22 @@
   [e.writeAnnotationTable()/]
   public class [e.nameClassEntityImpl()/] extends [e.nameClassEntityAbs()/]
   {   
-      
-      // CONSTANTES ET ATTRIBUTS
-      [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-
-      [/protected]
-      [comment liste des champs automatiques pour l'entité./]
       [let oas = e.autoAttributes()]
-      [comment liste des tables de liaison pour l'entité (directes + héritées)./]
-      [let jts = e.referencesJTSBResolved()] 
-      [comment liste des clé étrangères (directes + héritées)./] 
-      [let fks = e.referencesFKSBResolved(es, ess)]
-      [comment liste de toutes les références (clé étrangères + tables de jointure)./]
-      [let rs = fks->union(jts)]
+      [let rus = e.get_unidirectionnals()]
+      [let ris = e.get_unidirectionnalsInverse()]
+      [let rbs = e.get_bidirectionnals()]  
+      [let rs = rus->union(rbs)]
+        
+        // CONSTANTES ET ATTRIBUTS
+        [protected ('constantes'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        
+        [/protected]
         
         ['Id'.commentSingleLine()/]
         @Id
         @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "[(e.name() + '_SEQUENCE').toUpper()/]")
         @Column(name = "[e.namePrimaryKey().toUpper()/]", nullable = false)
-        private [e.defaultTypePk()/] [e.writePk()/];	
+        private [e.defaultTypePk()/] [e.nameSimplePropertyID().apply_attributeDefault()/];	
         
         [comment gestion des attributs./]
         [for (a : environment::Attribute | e.attributesNoPK())]
@@ -87,24 +83,37 @@
           private [a.type()/] [a.nameAttribute()/];
           
         [/for]
+        
         [comment gestion des clés étrangères./]
-        [for (r : environment::Reference | fks)]
-          [r.referencedEntity(e).comment().commentSingleLine()/]
-          [protected (e.referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [for (r | rus)]
+          [r.referencedType.comment().commentSingleLine()/]
+          [protected (r.referencedEntity().referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
-          [r.writeAnnotationsFK(e)/]
-          private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
-            
+          [r.writeAnnotationsFK()/]
+          private [r.referencedSignature()/] [r.referencedEntity().referencedName(r).apply_attributeDefault()/];
+          
         [/for]  
-        [comment gestion des tables de liaison (jointures)/]
-        [for (r : environment::Reference | jts)]
-          [r.referencedEntity(e).comment().commentSingleLine()/]
-          [protected (r.name.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        
+        [comment gestion des clés étrangères (références inverses donc list<> pour relations (0,*))./]
+        [for (r | ris)]
+          [r.containingType.comment().commentSingleLine()/]
+          [protected ((r.referencedEntity().referencedName(r) + '_inv').protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           [/protected]
-          [r.writeAnnotationsJT(e)/]
-          private [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
+          [r.writeAnnotationsFKInverse(e)/]
+          private [r.referencedSignatureInverse()/] [r.containingEntity().referencedName(r).apply_attributeDefault()/];
           
         [/for]
+        
+        [comment gestion des tables de liaison (jointures)/]
+        [for (r | rbs)]
+          [r.referencedType.comment().commentSingleLine()/]
+          [protected (r.referencedEntity().referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+          [r.writeAnnotationsJT(e)/]
+          private [r.referencedSignature()/] [r.referencedEntity().referencedName(r).apply_attributeDefault()/];
+          
+        [/for]
+        
         [comment constructeur pour l'entité./]
         [('Constructeur sans paramètre pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
         public [e.nameClassEntityImpl()/] ()
@@ -117,20 +126,28 @@
         
         [comment constructeur pour l'entité (avec tous les paramètres)./]
         [('Constructeur avec paramètres pour la classe \'' + e.nameClassEntityImpl() + '\'').commentMultiLines()/]
-        public [e.nameClassEntityImpl()/] ([e.writeInputSignature(rs, oas)/])
+        public [e.nameClassEntityImpl()/] ([e.writeInputSignature(rs, ris, oas)/])
         {
            super();
-           [for (a : environment::Attribute | e.attributesNoPK())]
-             [e.prefixAffectation()/][a.name().apply_attributeDefault()/] = [a.name().apply_parameterMethodClassicIn()/];
-           [/for]
-           [for (r : environment::Reference | rs)]
-             [e.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
-                  = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
-           [/for]
            
-           [for (prop : String | oas)]
+           [for (a : environment::Attribute | e.attributesNoPK())]
+             [e.prefixAffectation()/][a.name().apply_attributeDefault()/] 
+               = [a.name().apply_parameterMethodClassicIn()/];
+           [/for]
+           [comment références unidirectionnelles et bidirectionnelles./]
+           [for (r | rs)]
+             [e.prefixAffectation()/][r.referencedEntity().referencedName(r).apply_attributeDefault()/] 
+               = [r.referencedEntity().referencedName(r).apply_parameterMethodClassicIn()/];
+           [/for]
+           [comment références inverses (unidirectionnels (0,*)) (A->B) A LIST< B>./]
+           [for (r | ris)]
+             [e.prefixAffectation()/][r.containingEntity().referencedName(r).apply_attributeDefault()/] 
+               = [r.containingEntity().referencedName(r).apply_parameterMethodClassicIn()/];
+           [/for]
+           [comment attributs automatiques./]
+           [for (prop : String | e.autoAttributes())]
              [e.prefixAffectation()/][prop.nameAutoAttribute().apply_attributeDefault()/] 
-                 = [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/]; 
+               = [prop.nameAutoAttribute().apply_parameterMethodClassicIn()/]; 
            [/for]
            
            [protected ('constructeur avec parametres'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -161,7 +178,7 @@
         }
         
         [comment écriture des assesseurs pour les attributs./]
-        [for (a : environment::Attribute | e.attributesNoPK())]
+        [for (a | e.attributesNoPK())]
           [a.commentGet()/]
           public [a.type()/] [a.nameAttribute().apply_methodGet()/]()
           {
@@ -172,26 +189,42 @@
           public void [a.nameAttribute().apply_methodSet()/]
           (final [a.type()/] [a.nameAttribute().apply_parameterMethodClassicIn()/]) 
           {
-             [a.prefixAffectation()/][a.nameAttribute()/] 
-                = [a.nameAttribute().apply_parameterMethodClassicIn()/];
+             [a.prefixAffectation()/][a.nameAttribute()/] = [a.nameAttribute().apply_parameterMethodClassicIn()/];
           }
           
         [/for]
         
-        [comment écriture des assesseurs pour les références (clée étrangères + tables de jointure)./]
-        [for (r : environment::Reference | rs)]
-          [r.referencedEntity(e).referencedName(r).commentGet()/]
-          public [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_methodGet()/]()
+        [comment écriture des assesseurs pour les références (clés étrangères + tables de jointure)./]
+        [for (r | rs)]
+          [r.referencedEntity().referencedName(r).commentGet()/]
+          public [r.referencedSignature()/] [r.referencedEntity().referencedName(r).apply_methodGet()/]()
           {
-             return [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/];
+             return [r.prefixAffectation()/][r.referencedEntity().referencedName(r).apply_attributeDefault()/];
           }
           
-          [r.referencedEntity(e).referencedName(r).commentSet()/]
-          public void [r.referencedEntity(e).referencedName(r).apply_methodSet()/]
-             (final [r.referencedTypeSignature(e)/] [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/])
+          [r.referencedEntity().referencedName(r).commentSet()/]
+          public void [r.referencedEntity().referencedName(r).apply_methodSet()/]
+             (final [r.referencedSignature()/] [r.referencedEntity().referencedName(r).apply_parameterMethodClassicIn()/])
           {
-            [r.prefixAffectation()/][r.referencedEntity(e).referencedName(r).apply_attributeDefault()/] 
-              = [r.referencedEntity(e).referencedName(r).apply_parameterMethodClassicIn()/];
+            [r.prefixAffectation()/][r.referencedEntity().referencedName(r).apply_attributeDefault()/] 
+              = [r.referencedEntity().referencedName(r).apply_parameterMethodClassicIn()/];
+          }
+        [/for]
+        
+        [comment écriture des assesseurs pour les références inverses)./]
+        [for (r | ris)]
+          [r.containingEntity().referencedName(r).commentGet()/]
+          public [r.referencedSignatureInverse()/] [r.containingEntity().referencedName(r).apply_methodGet()/]()
+          {
+             return [r.prefixAffectation()/][r.containingEntity().referencedName(r).apply_attributeDefault()/];
+          }
+          
+          [r.containingEntity().referencedName(r).commentSet()/]
+          public void [r.containingEntity().referencedName(r).apply_methodSet()/]
+             (final [r.referencedSignatureInverse()/] [r.containingEntity().referencedName(r).apply_parameterMethodClassicIn()/])
+          {
+            [r.prefixAffectation()/][r.containingEntity().referencedName(r).apply_attributeDefault()/] 
+              = [r.containingEntity().referencedName(r).apply_parameterMethodClassicIn()/];
           }
         [/for]
         
@@ -199,8 +232,9 @@
         [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
         [/protected]
         
-     [/let][/let]
-     [/let][/let]
+      [/let][/let]
+      [/let][/let]
+      [/let]
   }
 [/template]
 
@@ -236,25 +270,19 @@
   }
 [/template]
 
-[comment simmple raccourci pour l'écriture de la clé primaire./]
-[query private writePk(e : entity::Entity) : String = e.nameSimplePropertyID().apply_attributeDefault()/]
-
-[comment vérifie si la référence a une stratégie de récupération paresseuse (LAZY)./]
-[query private isLazyReference (r : environment::Reference) : Boolean = r.is_metaFetchLazy() or r.isMultipleBidirectionnal()/]
-
 [comment écriture du type de 'cascade' pour la référence./]  
 [query private writeCascade(r : environment::Reference) : String = 'cascade = ' + if (r.get_metaLiteralCascadeType().index(',') > 0) 
   then '{' + r.get_metaLiteralCascadeType().tokenize(',')->collect(o | 'CascadeType.' + o.trim())->sep(', ') + '}' 
   else 'CascadeType.' + r.get_metaLiteralCascadeType().trim().toUpper() endif + if (r.get_metaLiteralCascadeType().matches('(?i).*ALL.*')) 
   then ', orphanRemoval = true' else '' endif/]
   
-[comment retourne les types et les nom des attributs pour l'entité (optional + list + type + nom)./]
-[query public writeInputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference), props : Sequence(String)) : String =  
-  e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' + o1.name().apply_parameterMethodClassicInOut())->sep(', ')
-  + if (rs->size() > 0) then ', ' + rs->collect(o2 | 'final ' + o2.referencedTypeSignature(e) + ' ' + o2.referencedEntity(e)
-  .referencedName(o2).apply_parameterMethodClassicIn())->sep(', ') else '' endif + if (not props->isEmpty()) then ', ' +
-  props->collect(o | 'final ' + o.autoAttributeType().type() + ' ' + o.nameAutoAttribute().apply_parameterMethodClassicIn())->sep(', ') 
-  else '' endif/]
+[comment (REF) retourne les types et les nom des attributs pour l'entité (optional + list + type + nom). Traite les références (rs) + références inverses (ris)./]
+[query public writeInputSignature(e : entity::Entity, rs : OrderedSet(environment::Reference), ris : OrderedSet(environment::Reference), 
+  props : Sequence(String)) : String =  e.attributesNoPK()->collect(o1 | 'final ' + o1.type() + ' ' + o1.name().apply_parameterMethodClassicInOut())->sep(', ')
+  + if (not rs->isEmpty()) then ', ' + rs->collect(o2 | 'final ' + o2.referencedSignature() + ' ' + o2.referencedEntity().referencedName(o2).apply_parameterMethodClassicIn())
+  ->sep(', ') else '' endif + if (not props->isEmpty()) then ', ' + props->collect(o | 'final ' + o.autoAttributeType().type() + ' ' + o.nameAutoAttribute()
+  .apply_parameterMethodClassicIn())->sep(', ') else '' endif + if (not ris->isEmpty()) then ', ' + ris->collect(o2 | 'final ' + o2.referencedSignatureInverse() 
+  + ' ' + o2.containingEntity().referencedName(o2).apply_parameterMethodClassicIn())->sep(', ') else '' endif /]
 
 [comment écriture de l'annotation @Table pour l'entité (si aucun héritage p = e)./]
 [query private writeAnnotationTable(e : entity::Entity) : String = '@Table(name = "' + e.nameTable().toUpper() + '"' 
@@ -272,23 +300,25 @@
   endif  endif endif + if ('Date'.equalsIgnoreCase(a.type.name) or 'Time'.equalsIgnoreCase(a.type.name) or 'Timestamp'.equalsIgnoreCase(a.type.name)) 
   then ', columnDefinition = "' + a.type.name.toUpper() +'"' else '' endif +  ')'/]
   
-[comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk)./]
-[query private writeAnnotationsFK(r : environment::Reference, e : entity::Entity) : String = if (r.isMultiple()) 
-  then if (r.containedEntity(e) = e) then '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
-  + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif  + ', mappedBy = "' + e.referencedName(r).apply_attributeDefault() 
-  + '")' else '@ManyToOne' + r.lineSeparator() + '@JoinColumn(name = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
-  + '", nullable = false)' endif else '@ManyToOne(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif 
-  + if (r.has_metaCascadeType()) then ', ' +  r.writeCascade() else '' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' 
-  + if (r.isZeroOneRecursive()) then r.nameSimplePropertyID().apply_attributeDefault().toUpper() else r.referencedEntity(e)
-  .namePrimaryKey().toUpper() endif + '", referencedColumnName = "' + r.referencedEntity(e).namePrimaryKey().toUpper() 
-  + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) then 'false' else 'true' endif +')' endif/]
+[comment (REF) écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk) (A->B (1/(0,1)) A prend clé B) si (0,*) B prend clé A./]
+[query private writeAnnotationsFK(r : environment::Reference) : String = if (r.isMultiple()) then '@ManyToOne' + r.lineSeparator() + '@JoinColumn(name = "' 
+  + r.referencedEntity().namePrimaryKey().toUpper() + '", nullable = false)'  else '@ManyToOne(fetch = FetchType.' + if (r.is_metaFetchLazy()) then 'LAZY' 
+  else 'EAGER' endif + if (r.has_metaCascadeType()) then ', ' +  r.writeCascade() else '' endif +')' + r.lineSeparator() + '@JoinColumn(name = "' 
+  + if (r.isZeroOneReflexive()()) then r.nameSimplePropertyID().apply_attributeDefault().toUpper() else r.referencedEntity().namePrimaryKey().toUpper() endif 
+  + '", referencedColumnName = "' + r.referencedEntity().namePrimaryKey().toUpper() + '", nullable = ' + if (r.multiplicity = environment::MultiplicityKind::ONE) 
+  then 'false' else 'true' endif +')' endif/]
   
-[comment écriture de la chaine complète des annotations pour faire les liaisons inter-tables (n-n jt)./]
+[comment (REF) écriture de la chaine complète des annotations pour faire les liaisons inter-tables (fk) (A->B (0,*)) A LIST<B>)./]
+[query private writeAnnotationsFKInverse(r : environment::Reference, e : entity::Entity) : String = '@OneToMany(fetch = FetchType.' + if (r.is_metaFetchLazy()) 
+  then 'LAZY' else 'EAGER' endif + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif + ', mappedBy = "' 
+  + e.referencedName(r).apply_attributeDefault() + '")'/]
+  
+[comment (REF) écriture de la chaine complète des annotations pour faire les liaisons inter-tables, bidirectionnel (0,*)./]
 [query private writeAnnotationsJT(r : environment::Reference, e : entity::Entity) : String =  '@ManyToMany(fetch = FetchType.' 
   + if (r.is_metaFetchLazy()) then 'LAZY' else 'EAGER' endif + if (r.has_metaCascadeType()) then ', ' + r.writeCascade() else '' endif 
-  + ', targetEntity = ' + r.referencedEntity(e).nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' 
+  + ', targetEntity = ' + r.referencedEntity().nameClassEntityImpl() +'.class)' + e.lineSeparator() + '@JoinTable(name = "' 
   + r.nameTableJoin().toUpper() + '"' + if (e.get_SQLTableSchema().exists()) then ', schema = "' + e.get_SQLTableSchema().toUpper() 
   + '"' else '' endif +  ', joinColumns = @JoinColumn(name = "' + e.namePrimaryKey().toUpper() + '"), inverseJoinColumns = @JoinColumn(name = "' 
-  + if (r.isStarRecursive()) then r.referencedType.oclAsType(entity::Entity).namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive()
-  ,r.suffixSqlId()).toUpper() else r.referencedEntity(e).namePrimaryKey().toUpper()  endif + '"))'/]
+  + if (r.isStarReflexive()()) then r.referencedEntity().namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinReflexive()
+  ,r.suffixSqlId()).toUpper() else r.referencedEntity().namePrimaryKey().toUpper()  endif + '"))'/]
  

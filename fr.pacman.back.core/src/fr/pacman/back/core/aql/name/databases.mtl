@@ -70,7 +70,8 @@
 [query public nameTableHeader(e : entity::Entity) : String = e.prefixSqlTableHeader() + e.namePrefixSchema() + e.nameTable()/]
 
 [comment retourne le nom d'en-tete complet pour une table de liaison (0-1,*) SQL à afficher (avec le schéma si existe)./]  
-[query public nameTableHeaderJoin(r : environment::Reference) : String =  r.prefixSqlTableHeaderJoin() + r.namePrefixSchema() + r.nameTableJoin()/]
+[query public nameTableHeaderJoin(r : environment::Reference) : String = r.prefixSqlTableHeaderJoin() + r.namePrefixSchema() 
+	+ r.containingEntity().nameTable() + ' <-> ' + r.namePrefixSchema() + r.referencedEntity().nameTable()/]
 
 [comment retourne le nom physique (si existe) ou le nom direct de l'entité pour la couche de persistance (avec préfixe si existe)./]
 [query public nameTable(e : entity::Entity) : String =  e.namePrefixTable() + (if e.has_metaPhysicalName() then e.get_metaPhysicalName() else e.name endif).sanitizeSql()/]
@@ -82,9 +83,8 @@
 [query public nameTableSchema(e : entity::Entity) : String = e.namePrefixSchema() + e.nameTable()/]   
 
 [comment retourne le nom physique (si existe) de la table de référence dans le cas de relation (*,*) (avec préfixe si existe). /]
-[query public nameTableJoin(r : environment::Reference) : String = if r.has_metaPhysicalName() then r.namePrefixTable() 
-	+ r.get_metaPhysicalName().sanitizeSql()  r.containingType.name.sanitizeSql() + '_' 
-	+ r.name.sanitizeSql() endif/] 
+[query public nameTableJoin(r : environment::Reference) : String = if r.has_metaPhysicalName() then r.namePrefixTable() + r.get_metaPhysicalName().sanitizeSql() 
+  else r.containingType.name.sanitizeSql() + '_' + r.referencedType.name.sanitizeSql() + '_' + r.name.sanitizeSql() endif/] 
 	
 [comment retourne le nom physique (si existe) de la table de référence dans le cas de relation (*,*) (avec préfixe si existe). /]
 [comment query public nameTableJoin(r : environment::Reference) : String = if r.has_metaPhysicalName() then r.namePrefixTable() 
@@ -119,12 +119,12 @@
 [comment query public nameIndex(r : environment::Reference, idx : Integer) : String = if (r.isMultiple()) then r.nameIndex(r.referencedType, idx) else r.nameIndex(r.containingType, idx)  endif/]
 
 [comment retourne le nom de l'index pour la colonne dans l'entité./]
-[query public nameIndex(r : environment::Reference, idx : Integer, e : entity::Entity) : String = if (r.isMultiple()) then r.nameIndex(r.referencedType, idx) 
-	else if (r.isSuperTypeReference(e)) then r.nameIndex(e, idx) else r.nameIndex(r.containingType, idx) endif  endif/]
-	
+[comment query public nameIndex(r : environment::Reference, idx : Integer, e : entity::Entity) : String = if (r.isMultiple()) then r.nameIndex(r.referencedType, idx) 
+	else r.nameIndex(r.containingType, idx) endif/]
+		
 [comment retourne le nom de l'index pour la référence (avec le préfixe de table)./]
-[query private nameIndex(r : environment::Reference, e : environment::StructuredType , idx : Integer) : String = e.oclAsType(entity::Entity).nameTableShort()
-	.first(r.maxIndexSize()) + r.suffixSqlIndexMultiple() + idx/]
+[query public nameIndex(e : environment::StructuredType , idx : Integer) : String = e.oclAsType(entity::Entity).nameTableShort().first(e.maxIndexSize()) 
+  + e.suffixSqlIndexMultiple() + idx/]
   
 [comment retourne le nom pour un index unique au niveau de l'entité (table)./]
 [query public nameIndexUnique(e : entity::Entity, idx1 : Integer, idx2 : Integer) : String = e.nameTable() + if e.is_mandatoryAnnotationProperties(e.get_metaPhysicalUnique()) 
@@ -137,14 +137,14 @@
 [comment retourne le nom physique pour la référence (si existe) et vérifie le nommage de type identifiant. 
          Pour l'instant on transfert toujours idx mais priori il n'y en a plus besoin, il est forcé à 0 pour 
          ne pas etre pris en considération. Si non utilité vraiment confirmée, on supprimera ce paramètre./]
-[query public nameReferenceId(r : environment::Reference, any : environment::StructuredType, idx : Integer) : String = r.nameReference(any, idx).buildSimpleReferenceName()/]
+[query public nameReferenceId(r : environment::Reference, idx : Integer) : String = r.nameReference(r.referencedType, idx).buildSimpleReferenceName()/]
 
 [comment retourne le nom physique pour la référence (si existe) et vérifie le nommage de type identifiant./]
 [query public nameReferenceId(r : environment::Reference, any : environment::StructuredType) : String = r.nameReference(any, null).buildSimpleReferenceName()/]
 
 [comment retourne le nom physique pour la référence (avec schéma et préfixe table) (si existe) ou xxxx. ./]	
-[query public nameTableReferenceSchema(r : environment::Reference, e : entity::Entity) : String = r.namePrefixSchema() + r.namePrefixTable() + r.referencedEntity(e).name/]
-
+[query public nameTableReferenceSchema(r : environment::Reference) : String = r.namePrefixSchema() + r.namePrefixTable() + r.referencedType.name/]
+  
 [comment retourne le nom pour la contrainte de la clé primaire pour l'entité./]
 [query public nameConstraintPrimaryKey(e : entity::Entity) : String = e.nameTable().first(e.defaultMaxSqlConstraintPrimaryKeySize()) +  e.suffixSqlPrimaryKey()/]
 
@@ -155,7 +155,8 @@
 [query public nameConstraintCheck(e : entity::Entity, idx : Integer) : String = e.nameTable().first(e.maxConstraintSize()) + e.suffixSqlConstraintCheck() + idx/]
 
 [comment retourne le nom pour la contrainte sur une clé étrangère pour l'entité./]
-[query public nameConstraintForeignKey(e : entity::Entity, r : environment::Reference, idx : Integer) : String = e.nameTableShort().first(e.maxConstraintSize()) + e.suffixSqlConstraintForeignKey() + '_' + idx/]
+[query public nameConstraintForeignKey(e : entity::Entity, r : environment::Reference, idx : Integer) : String = e.nameTableShort().first(e.maxConstraintSize()) 
+  + e.suffixSqlConstraintForeignKey() + '_' + idx/]
 
 [comment retourne le nom pour la contrainte sur clé étrangère (n-n) pour l'entité./]
 [query public nameConstraintJointure1(r : environment::Reference) : String = r.nameTableJoin().first(r.maxJointureSize()) + r.suffixSqlJoin1()/]

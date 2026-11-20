@@ -14,22 +14,22 @@
 
 [import fr::pacman::back::core::service::AnnotationUtils/]
 [import fr::pacman::back::core::service::DatabaseUtils/]
-[import fr::pacman::back::core::service::InheritanceUtils/]
+[import fr::pacman::back::core::service::ReferenceUtils/]
 
 [comment création de l'ensemble des contraintes pour la base de données./]
-[template public createConstraints(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
-  [root.constraints(es,ess,root.cmdCreate(),dbType)/]
+[template public createConstraints(root : entity::Root, dbType : String)]
+  [root.constraints(root.cmdCreate(),dbType)/]
 [/template]
 
 [comment suppression de l'ensemble des contraintes pour la base de données./]
-[template public dropConstraints(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), dbType : String)]
-  [root.constraints(es,ess,root.cmdDelete(),dbType)/]
+[template public dropConstraints(root : entity::Root, dbType : String)]
+  [root.constraints(root.cmdDelete(),dbType)/]
 [/template]
 
 [comment écriture des lignes pour les contraintes de la base de données./]
-[template private constraints(root : entity::Root, es : Sequence(entity::Entity), ess : Sequence(entity::Entity), cmd : String, dbType : String)]
+[template private constraints(root : entity::Root, cmd : String, dbType : String)]
   [root.constraintsHeader()/]
-  [for (e : entity::Entity | es)]
+  [for (e : entity::Entity | root.subTypesEntities())]
     [for (a : environment::Attribute | e.attributes)]
       [if (a.has_metaPhysicalCheck())]
         [e.writeCheck(a, e.get_counterCK(), cmd)/];
@@ -39,38 +39,37 @@
         [e.writeCheckEnum(a, e.get_counterCK(), cmd)/];
       [/if]
     [/for]
-    [for (r : environment::Reference | e.referencesFKResolved(es,ess))]
+    [for (r | e.get_unidirectionnals())]
       [e.writeForeignKey(r, e.get_counterFK(1), cmd)/];
     [/for]
   [/for]
-  [for (r : environment::Reference | root.referencesJTResolved(es,ess))]
-    [r.writeForeignKeyJoin1(cmd)/];
+  [for (r | root.get_bidirectionnals())]
+    [r .writeForeignKeyJoin1(cmd)/];
     [r.writeForeignKeyJoin2(cmd)/];
   [/for]
 [/template]
 
-[comment écriture de la ligne pour une contrainte sur les clés étrangères./]
+[comment (REF) écriture de la ligne pour une contrainte sur les clés étrangères./]
 [query private writeForeignKey(e : entity::Entity, r : environment::Reference, idx : Integer, cmd : String) : String = 'alter table ' 
 	+ e.nameTableSchema().toUpper() +  if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' 
-	+ e.nameConstraintForeignKey(r, idx).toUpper() + if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' foreign key (' + if (r.isZeroOneRecursive()) 
-	then r.nameSimplePropertyID().toUpper() else  r.nameReferenceId(r.referencedEntity(e), 0).toUpper() endif + ') references ' 
-	+ r.referencedEntity(e).oclAsType(entity::Entity).nameTableSchema().toUpper() + ' (' +  r.referencedEntity(e).oclAsType(entity::Entity)
-	.namePrimaryKey().toUpper() + ')' else '' endif/]
+	+ e.nameConstraintForeignKey(r, idx).toUpper() + if (cmd.equalsIgnoreCase(e.cmdCreate())) then ' foreign key (' + if (r.isZeroOneReflexive()) 
+	then r.nameSimplePropertyID().toUpper() else  r.nameReferenceId(0).toUpper() endif + ') references ' + r.referencedEntity()
+	.nameTableSchema().toUpper() + ' (' +  r.referencedEntity().namePrimaryKey().toUpper() + ')' else '' endif/]
 
-[comment écriture de la ligne pour une contrainte sur les clé étrangères de jointure./]
-[query private writeForeignKeyJoin1(r : environment::Reference, cmd : String) : String = 'alter table ' + r.nameTableSchemaJoin().toUpper() 
-	+  if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' + r.nameConstraintJointure1().toUpper() 
-	+ if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' foreign key (' + r.containingType.oclAsType(entity::Entity).namePrimaryKey()
-	.toUpper() + ') references ' + r.containingType.oclAsType(entity::Entity).nameTableSchema().toUpper() + ' (' 
-	+ r.containingType.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ')' else '' endif/]
+[comment (REF) écriture de la ligne pour une contrainte sur les clé étrangères de jointure./]
+[query private writeForeignKeyJoin1(r : environment::Reference, cmd : String) : String = 'alter table ' 
+	+ r.nameTableSchemaJoin().toUpper() +  if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' 
+	+ r.nameConstraintJointure1().toUpper() + if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' foreign key (' 
+	+ r.containingEntity().namePrimaryKey().toUpper() + ') references ' + r.containingEntity().nameTableSchema().toUpper() + ' (' 
+	+ r.containingEntity().namePrimaryKey().toUpper() + ')' else '' endif/]
 	
-[comment écriture de la ligne pour une contrainte sur les clé étrangères de jointure./]
+[comment (REF) écriture de la ligne pour une contrainte sur les clé étrangères de jointure./]
 [query private writeForeignKeyJoin2(r : environment::Reference, cmd : String) : String = 'alter table ' + r.nameTableSchemaJoin().toUpper() 
 	+  if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' add' else ' drop' endif + ' constraint ' + r.nameConstraintJointure2().toUpper() 
-	+ if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' foreign key (' + if (r.isRecursive()) then r.referencedType.oclAsType(entity::Entity)
-	.namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinRecursive(),r.suffixSqlId()).toUpper() else r.referencedType.oclAsType(entity::Entity)
-	.namePrimaryKey().toUpper() endif + ') references ' + r.referencedType.oclAsType(entity::Entity).nameTableSchema().toUpper() 
-	+ ' (' + r.referencedType.oclAsType(entity::Entity).namePrimaryKey().toUpper() + ')' endif else '' endif/]
+	+ if (cmd.equalsIgnoreCase(r.cmdCreate())) then ' foreign key (' + if (r.isReflexive()) then r.referencedEntity()
+	.namePrimaryKey().insert(r.suffixSqlPrimaryKeyJoinReflexive(),r.suffixSqlId()).toUpper() else r.referencedEntity()
+	.namePrimaryKey().toUpper() endif + ') references ' + r.referencedEntity().nameTableSchema().toUpper() + ' (' 
+	+ r.referencedEntity().namePrimaryKey().toUpper() + ')' endif else '' endif/]
 
 [comment écriture de la ligne pour la contrainte de vérification (check) sur un attribut./]
 [query private writeCheck(e : entity::Entity, a : environment::Attribute, idx : Integer, cmd : String) : String = 'alter table ' 

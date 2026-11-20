@@ -17,11 +17,11 @@
 [import fr::pacman::back::core::aql::rule::parameter/]
 [import fr::pacman::back::core::aql::rule::attribute/]
 [import fr::pacman::back::core::aql::rule::method/]
-[import fr::pacman::back::soa::aql::block::common/]	
+[import fr::pacman::back::soa::aql::block::common/]
+[import fr::pacman::back::core::service::ReferenceUtils/]		
 
 [comment écriture de l'implémentation pour un objet métier sérialisé (xto)./]
-[template public xtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
-  , dss : Sequence(environment::DTO))]
+[template public xtoImpl(d : environment::DTO)]
   [d.classHeader(d.namePackageXtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -54,15 +54,14 @@
      ['Id'.commentSingleLine()/]
      @JsonProperty("id")
      @Schema(description = "Identifiant unique de l'entité", accessMode = Schema.AccessMode.READ_ONLY)
-     private [d.defaultTypePk()/] [d.writePk()/];
+     private [d.defaultTypePk()/] [d.getPkName().apply_attributeDefault()/];
      
      // ATTRIBUTS
      
-     [comment liste des tables de liaison pour l'entité (directes + héritées)./]
-     [let jts = d.referencesJTSBResolved()]      [comment liste des clé étrangères (directes + héritées)./] 
-     [let fks = d.referencesFKSBResolved(ds, dss)]
-     [comment liste de toutes les références (clé étrangères + tables de jointure)./]
-     [let rs = jts->union(fks)]
+     [let oas = d.autoAttributes()]
+     [let rbs = d.get_bidirectionnals()] 
+     [let rus = d.get_unidirectionnals()]
+     [let ris = d.get_unidirectionnalsInverse()]
        
        [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
          [a.comment().commentSingleLine()/]
@@ -73,23 +72,43 @@
          private [a.type()/] [a.nameAttribute()/];
          
        [/for]
-       [comment si la référence est une référence inverse on "applati" le dto avec un simple identifiant./]
-       [for (r : environment::Reference | rs)]
-          [if (r.isInverseReference(d))]
-            /** L'identifiant pour [r.referencedDto(d).name()/]. */
-            [protected (r.referencedDto(d).writePk().protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-              @JsonProperty("[r.referencedDto(d).writePk()/]")
-            [/protected]
-            [r.writeShemaAnnotation(null)/]
-            private [d.defaultTypePk()/] [r.referencedDto(d).writePk()/];
-          [else]
-            [r.referencedDto(d).comment().commentSingleLine()/]
-            [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
-              @JsonProperty("[r.referencedDto(d).referencedName(r).apply_attributeDefault()/]")
-            [/protected]
-            [r.writeShemaAnnotation(d)/]
-            private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
-          [/if]
+       
+       [comment ecriture des références unidirectionnelles ici il faut traiter les références applaties./]
+       [for (r : environment::Reference | rus)]
+         [r.referencedDto().comment().commentSingleLine()/]
+         [protected (r.referencedDto().referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           @JsonProperty("[r.referencedDto().referencedName(r).apply_attributeDefault()/]")
+         [/protected]
+         [comment note : référence à applatir dans tous les cas (A->B (0,*) A List<B> et B prend A -> à applatir)./]
+         [if (r.isMultiple())]
+           [r.writeShemaAnnotationFlatten(d)/]
+           private [d.defaultTypeFk()/] [r.referencedDto().writePkNameFlatten(r)/];
+         [else]
+           [r.writeShemaAnnotation(d)/]
+           private [r.referencedSignatureOut()/] [r.referencedDto().referencedName(r).apply_attributeDefault()/];
+         [/if]
+         
+       [/for]
+       
+       [comment écriture des références bidirectionnelles./]
+       [for (r : environment::Reference | rbs)]
+         [r.referencedDto().comment().commentSingleLine()/]
+         [protected (r.referencedDto().referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           @JsonProperty("[r.referencedDto().referencedName(r).apply_attributeDefault()/]")
+         [/protected]
+         [r.writeShemaAnnotation(d)/]
+         private [r.referencedSignatureOut()/] [r.referencedDto().referencedName(r).apply_attributeDefault()/];
+         
+       [/for]
+       
+       [comment écriture des références inverses (A->B (0,*) A LIST<B>./]
+       [for (r | d.get_unidirectionnalsInverse())]
+         [r.referencedDto().comment().commentSingleLine()/]
+         [protected (r.containingDto().referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+           @JsonProperty("[r.containingDto().referencedName(r).apply_attributeDefault()/]")
+         [/protected]
+         [r.writeShemaAnnotationInverse(d)/]
+         private [r.referencedSignatureOutInverse()/] [r.containingDto().referencedName(r).apply_attributeDefault()/];
          
        [/for]
                
@@ -99,52 +118,38 @@
          super();
        }
        
-       [let e = d.associatedEntity()]
-         /**
-          * Retourne l'identifiant pour le dto. 
-          *
-          * @return la valeur de l'identifiant.
-          */
-          public [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_methodGet()/]()
-          {
-            return [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/];
-          }
-       
-         /**
-          * Affecte l'identifiant pour le dto'. 
-          *
-          * @param la valeur de l'identifiant'.
-          */
-          public void [e.nameSimplePropertyID().apply_methodSet()/](final [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
-          {
-            [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
-          }
-       [/let]
-        
+       [d.writeIdPropertyWithGetterAndSetter(d.cmdDto())/]
        [d.writeGetterAndSetterForAttributes(d.attributesNoPKAndNoComputed())/]
-       [d.writeGetterAndSetterForReferences(rs, d.cmdXto())/]
+       
+       [d.writeGetterAndSetterForReferences(rbs->union(rus), d.cmdXto(),false)/]
+       [d.writeGetterAndSetterForReferences(ris, d.cmdXto(), true)/]
        
        // METHODES
        [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
        [/protected]
        
      [/let][/let]
-     [/let]
+     [/let][/let]
   }
 [/template]
 
-[comment écriture de l'annotation @Schema pour open api./]
+[comment écriture de l'annotation @Schema pour open api (ancienne version)./]
 [comment query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String = if (r.isMultiple() 
   and r.containedType(d) = d) then '@JsonManagedReference' + r.lineSeparator() + if (r.isMandatory()) then '@Schema(hidden = true)' 
   + ' //Non utile pour swagger-ui.' else '@ArraySchema(schema = @Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
   + '.class))' endif else '@JsonBackReference' + r.lineSeparator() + '@Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
   + '.class, description = "' + r.referencedDto(d).writeDescription() + '")'  endif/]
-  
+
 [comment écriture de l'annotation @Schema pour open api./]
-[query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String = if (r.isMultiple() 
-  and r.containedType(d) = d) then + if (r.isMandatory()) then '@Schema(hidden = true)' 
-  + ' //Non utile pour swagger-ui.' else '@ArraySchema(schema = @Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() 
-  + '.class))' endif else if (d = null) then '@Schema(description = "' + r.referencedDto(d).writeDescriptionSingleLine() + '")' 
-  else '@Schema(implementation = ' + r.referencedDto(d).nameClassXtoImpl() + '.class, description = "' 
-  + r.referencedDto(d).writeDescriptionSingleLine() + '")' endif  endif/]
+[query private writeShemaAnnotationFlatten(r : environment::Reference, d : environment::DTO) : String = '@Schema(description = "Identifiant de ' 
+  + r.referencedDto().writeDescriptionSingleLine() + '")'/]
+
+[comment écriture de l'annotation @Schema pour open api./]  
+[query private writeShemaAnnotation(r : environment::Reference, d : environment::DTO) : String =  
+  if (r.isMultiple()) then'@ArraySchema(schema = @Schema(ref = "#/components/schemas/' + r.referencedDto().nameClassXtoImpl() + '"))'else'@Schema(ref = "' 
+  + '#/components/schemas/' + r.referencedDto().nameClassXtoImpl() + '", description = "' + r.referencedDto().writeDescriptionSingleLine() + '")'endif /]
+  
+[comment écriture de l'annotation @Schema pour open api (ici se souvenir qu'on a inversé les acteurs c'est donc containing et non referenced)./]
+[query private writeShemaAnnotationInverse(r : environment::Reference, d : environment::DTO) : String = '@ArraySchema(schema = @Schema(ref = "' +
+   '#/components/schemas/' + r.containingDto().nameClassXtoImpl() + '"))'/]
 

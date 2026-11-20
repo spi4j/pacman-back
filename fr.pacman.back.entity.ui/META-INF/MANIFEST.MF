@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.back.entity.ui
 Bundle-ManifestVersion: 2
 Bundle-Name: PacMan Back - Entity - UI
 Bundle-SymbolicName: fr.pacman.back.entity.ui;singleton:=true
-Bundle-Version: 5.0.1.qualifier
+Bundle-Version: 5.1.0.qualifier
 Bundle-Activator: fr.pacman.back.entity.ui.plugin.Activator$Implementation
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.emf.ecore,

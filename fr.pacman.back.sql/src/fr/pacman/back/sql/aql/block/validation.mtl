@@ -9,6 +9,7 @@
 [import fr::pacman::back::core::aql::validation::common/]
 [import fr::pacman::back::core::validation::PacmanValidatorsReport/]
 [import fr::pacman::back::core::service::AnnotationUtils/]
+[import fr::pacman::back::core::aql::query::validation/]
 				
 [comment écriture du rapport de validation pour un fichier de modélisation (entity)./]
 [template public validation (r : entity::Root)]
@@ -30,7 +31,7 @@
       [if (not e.attributes->select(o | not o.type.exists())->isEmpty())][e.add(e.err5())/][/if]
       
       [comment pas de multiples relations recursives avec le même nom./]
-      [if (not e.referencesFKSB()->union(e.referencesJT())->hasRecursivesWithSameName())][e.add(e.err7())/][/if]
+      [if (not e.referencesFKSB()->union(e.referencesJT())->hasReflexivesWithSameName())][e.add(e.err7())/][/if]
       
       [comment pas de relation de type composite./]
       [if (not e.referencesFKSB()->select(o | o.isComposite)->isEmpty())][e.add(e.err8())/][/if]
@@ -66,29 +67,16 @@
     [/for]
     
     [let pes = r.eAllContents(entity::Entity)->select(e | not es->includes(e))]
-      [for (e | pes)]      
-        [comment pas de classe mère avec des relations  non bidir (0,* - 1,*)/]
-        [comment if (not e.referencesFKSB()->select(o | o.isMultiple())->isEmpty())][e.add(e.erre6())/]
-         
-        [comment pas de relation fk entre les classes parents (hors récursive)./]
-        [if (not e.referencesFK()->select(o | pes->includes(o.referencedType(e)))
-             ->select(o2 | not o2.isZeroOneRecursive())->isEmpty())][e.add(e.err9())/][/if]
-             
-        [comment *********************************************************************************/]
-        [comment verrou temporaire du 23/10/2026 pour toutes les relations sur les classes parents/]
-        [comment *********************************************************************************/]
-        [if (not e.referencesFKSB()->isEmpty() or not e.references->isEmpty())][e.add(e.err9b())/][/if]
-      [/for]
       
       [for (re | r.eAllContents(environment::Reference))]
         [comment pas de relation bidirectionnelle avec double navigabilité./]
         [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.err10())/][/if]
         
         [comment pas de relation bidirectionnelle avec (1 ou 0,1)./]
-        [if (re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.err11())/][/if]
+        [if (re.oppositeOf <> null and not re.isBidirectionnal())][re.add(re.err11())/][/if]
         
         [comment pas de relation jt entre les classes parents./]
-        [if (not pes->isEmpty() and (re.isMultipleBidirectionnal() and not re.isRecursive() 
+        [if (not pes->isEmpty() and (re.isBidirectionnal() and not re.isReflexive() 
         	and (pes->includes(re.containingType) and pes->includes(re.referencedType))))][re.add(re.err13())/][/if]
         	
         [comment vérification des métadonnées (doit avoir un corps)./]

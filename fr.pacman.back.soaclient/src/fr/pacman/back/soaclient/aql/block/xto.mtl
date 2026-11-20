@@ -14,6 +14,7 @@
 [import fr::pacman::back::core::aql::output::comments/]
 [import  fr::pacman::back::soa::aql::block::common/]
 [import fr::pacman::back::core::aql::rule::attribute/]
+[import fr::pacman::back::core::service::ReferenceUtils/]
 
 [comment écriture de l'implémentation pour l'objet métier (dto)./]
 [comment ici il n'y a pas de notion d'héritage on part uniquement du fichier swagger./]
@@ -48,18 +49,18 @@
     [comment ici on ne doit pas traiter les bidirections hibernate, il faut donc les exclure. On devrait utiliser 
              referencesFK mais ne fonctionne pas, renvoie ->size() = 1 alors que c'est vide ? On fait donc l'exclusion 
              manuellement pour l'instant avec ->reject() ou alors faire un referencesFK()->reject(null)./]
-    [let rs = d.referencesFKSB()->reject(o | o.referencedType = d )->union(d.referencesJT())]
+    [let rs = d.get_unidirectionnals()->union(d.get_bidirectionnals())]
       [for (r : environment::Reference | rs)]
-        [r.referencedDto(d).comment().commentSingleLine()/]
-        [protected (r.referencedDto(d).referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+        [r.referencedDto().comment().commentSingleLine()/]
+        [protected (r.referencedDto().referencedName(r).protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
           @JsonProperty(value = "[r.name/]")
         [/protected]
-        private [r.referencedOutTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
+        private [r.referencedSignatureOut()/] [r.referencedDto().referencedName(r).apply_attributeDefault()/];
         
       [/for]
     
       [d.writeGetterAndSetterForAttributes(d.attributesNoPKAndNoComputed())/]
-      [d.writeGetterAndSetterForReferences(rs, d.cmdXto())/]
+      [d.writeGetterAndSetterForReferences(rs, d.cmdXto(), false)/]
     [/let]
     
     // METHODES

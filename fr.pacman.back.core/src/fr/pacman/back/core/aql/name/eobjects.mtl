@@ -43,6 +43,9 @@
 [comment retourne le nom de la clé primaire d'une entitée./]
 [query public nameSimplePropertyID(e : entity::Entity) : String = e.name().safeCamelCase() + e.suffixIdPk()/]
   
+[comment retourne le nom de la clé primaire d'un dto/xto./]
+[query public nameSimplePropertyID(d : environment::DTO) : String = d.name().safeCamelCase() + d.suffixIdPk()/]
+  
 [comment retourne le nom de la clé primaire xxxxxxxxxxx./]
 [query public nameSimplePropertyID(r : environment::Reference) : String = r.name.safeCamelCase() + r.suffixIdPk()/]
   

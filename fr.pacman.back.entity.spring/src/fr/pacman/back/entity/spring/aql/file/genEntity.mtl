@@ -10,17 +10,16 @@
 [import fr::pacman::back::entity::spring::aql::block::test/]
 
 [comment écriture du fichier d'implémentation pour l'entité (infra)./]
-[template public fileEntityImpl(e: entity::Entity, es : Sequence(entity::Entity), ess : Sequence(entity::Entity))]
+[template public fileEntityImpl(e: entity::Entity)]
   [file (e.nameClassEntityImpl().toFileJava(e.namePackageEntityImpl()), overwrite, e.defaultFileEncoding())]
-    [e.entityImpl(es,ess)/]
+    [e.entityImpl()/]
   [/file]
 [/template]
 
 [comment écriture du fichier d'implémentation des tests d'intégration pour la persistance (infra)./]
-[template public fileOutIntegrationTestImpl(e : entity::Entity, es : Sequence(entity::Entity)
-  , ess : Sequence(entity::Entity))]
+[template public fileOutIntegrationTestImpl(e : entity::Entity)]
   [file (e.nameClassOutIntegrationTestImpl().toFileJavaTest(e.namePackageOutIntegrationTestImpl()), overwrite, e.defaultFileEncoding())]
-    [e.outIntegrationTestImpl(es,ess)/]
+    [e.outIntegrationTestImpl()/]
   [/file]
 [/template]
 

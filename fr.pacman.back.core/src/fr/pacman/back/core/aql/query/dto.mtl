@@ -8,6 +8,14 @@
 [import fr::pacman::back::core::service::AnnotationUtils/]
 
 [comment liste des requêtes possibles sur les objets de transfert./]
+[comment ***********************************************************************************************************************./]
+[comment ATTENTION : ces requêtes fonctionnent parfaitement si on interroge directement les objets issus de la modélisation mais 
+                     ne doivent surtout pas être utilisées à partir des objets issus des références car en cas d'héritage ne pas 
+                     oublier que l'on travaille sur des objets anémiques (évite la corruption involontaire du modèle) et dans ce 
+                     cas, les structures n'ont que le nom... il est alors impossible de récupérer l'entitée associée au dto qui 
+                     sera toujours à null ! -> donc ne JAMAIS appeler la plupart de ces méthodes dans le cadre du traitement des 
+                     références entres les différents dtos / xtos./]
+[comment ***********************************************************************************************************************./]
 
 [comment vérifie si une propriété (attribut ou référence) est obligatoire pour un dto./]
 [query public isMandatory(d : dtenvironment::DTO ,p : environment::Property) : Boolean = p.is_mandatorySoa()/]
@@ -31,7 +39,7 @@
 [query public associatedType(d : environment::DTO) : environment::Type = if (d.associatedTypes <> null and not d.associatedTypes->isEmpty()) 
    then d.associatedTypes->first() else null endif/]
 
-[comment retourne la liste des dtos non hérités (noter qu'au niveau soa on a perdu la relation d'héritage mais ...)./]
+[comment retourne la liste des dtos non hérités (noter qu'au niveau soa on a perdu la relation d'héritage mais on s'y retrouve avec les entités)./]
 [query public subTypesDtos(r : environment::NamespacesContainer) : Sequence(environment::DTO) = r.eAllContents(environment::DTO)
   ->select(o1 | r.eAllContents(environment::DTO)->forAll(o2 | not o2.associatedEntity()
   .supertype->includes(o1.associatedEntity())))/]

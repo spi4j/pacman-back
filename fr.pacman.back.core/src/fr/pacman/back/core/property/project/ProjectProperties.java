@@ -52,6 +52,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_project_rs_log = "project.rs.log.enabled";
 	public static final String c_project_rs_auth_log = "project.rs.auth.log.enabled";
 	public static final String c_project_validation_jkw = "project.validation.jkw.enabled";
+	public static final String c_project_apiReferencestrategy = "project.default.api.reference.strategy";
 
 	// public static final String c_sql_idsuffix = "sql.id.suffix.enabled";
 	public static final String c_sql_fields = "sql.table.fields";
@@ -174,10 +175,10 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_project_validation_jkw, "true",
 						"Interdiction des mots-clés java dans la modélisation"),
-				
+
 				PacmanProperty.newConditional(c_tests_domain_enabled, "true",
 						"Activation des tests fonctionnels karate pour la couche métier (actif par defaut)"),
-				
+
 //				PacmanProperty.newRequired(c_is_debug, "false",
 //						"Flag indiquant si le mode debug pour PacMan est actif (plus d'informations en cas d'erreur de generation)"),
 
@@ -223,6 +224,9 @@ public final class ProjectProperties extends PropertiesCategory {
 
 				PacmanProperty.newRequired(c_project_rs_log, "false",
 						"Flag indiquant si on doit logger l'ensemble des appels rest"),
+
+				PacmanProperty.newRequired(c_project_apiReferencestrategy, "EMBEDDED",
+						"Stratégie d'exposition des références pour les appels rest (EMBEDDED par défaut)"),
 
 				PacmanProperty.newRequired(c_project_rs_auth_log, "false",
 						"Flag indiquant si on doit logger l'ensemble des authentifications par appels rest"),
@@ -379,7 +383,7 @@ public final class ProjectProperties extends PropertiesCategory {
 			if (getRefValue().indexOf("spring") != -1) {
 				updateProperty(p_pacmanProperties.get(c_project_sso_auth));
 				updateProperty(p_pacmanProperties.get(c_project_idor_control));
-				updateProperty(p_pacmanProperties.get(c_tests_domain_enabled));	
+				updateProperty(p_pacmanProperties.get(c_tests_domain_enabled));
 			}
 		}
 	}
@@ -556,7 +560,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static String get_useTestBDD() {
 		return PropertiesHandler.getProperty(c_tests_bdd_enabled);
 	}
-	
+
 	public static boolean get_useTestDomain(final Object p_object) {
 		return Boolean.valueOf(PropertiesHandler.getProperty(c_tests_domain_enabled));
 	}
@@ -679,6 +683,10 @@ public final class ProjectProperties extends PropertiesCategory {
 
 	public static String get_javaPagingCount(final Object p_object) {
 		return PropertiesHandler.getProperty(c_paging_pageCount);
+	}
+
+	public static String get_apiReferenceStrategy(final Object p_object) {
+		return PropertiesHandler.getProperty(c_project_apiReferencestrategy);
 	}
 
 //	public static String isDebugMode() {

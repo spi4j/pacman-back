@@ -11,6 +11,7 @@
 [import fr::pacman::back::core::aql::name::eobjects/]
 [import fr::pacman::back::core::aql::rule::attribute/]
 [import fr::pacman::back::core::aql::output::comments/]
+[import fr::pacman::back::core::service::ReferenceUtils/]	
 				
 [comment écriture du fichier d'implémentation pour objet métier (react) 
          pour l'instant la base est toujours SpringBoot. Le contrat entre 
@@ -25,16 +26,16 @@
   , dss : Sequence(environment::DTO))]
   [d.commentClass()/]
   [comment liste des tables de liaison pour l'entité (directes + héritées)./]
-  [let jts = d.referencesJTSBResolved()]
+  [let rbs = d.get_bidirectionnals()]
   [comment liste des clé étrangères (directes + héritées)./]
-  [let fks = d.referencesFKSBResolved(ds, dss)]
+  [let rus = d.get_unidirectionnals()]
   [comment liste de toutes les références (clé étrangères + tables de jointure)./]
-  [let rs = jts->union(fks)]
+  [let rs = rbs->union(rus)]
     
     [comment liste des imports./]
     [for (r : environment::Reference | rs)]
-      [if (r.referencedDto(d) <> d)]
-        import { [r.referencedDto(d).nameClassXtoImpl()/] } from "./[r.referencedDto(d).nameClassXtoImpl()/]";
+      [if (r.referencedDto() <> d)]
+        import { [r.referencedDto().nameClassXtoImpl()/] } from "./[r.referencedDto().nameClassXtoImpl()/]";
       [/if]
     [/for]
     
@@ -50,7 +51,7 @@
     export interface [d.nameClassXtoImpl()/] {
     
       ['Id'.commentSingleLine()/]
-      [d.writePk()/] : [d.defaultTypePk().toJSType()/];
+      [comment d.writePk()/] : [d.defaultTypePk().toJSType()/];
       
       [for (a : environment::Attribute | d.attributesNoPKAndNoComputed())]
         [a.description.commentSingleLine()/]
@@ -59,13 +60,13 @@
       [/for]
       [comment si la référence est une référence inverse on "applati" le dto avec un simple identifiant./]
       [for (r : environment::Reference | rs)]
-        [if (r.isInverseReference(d))]
-          /** L'identifiant pour [r.referencedDto(d).name()/]. */
-          [(r.referencedDto(d).name() + r.suffixIdPk()).apply_attributeDefault()/]  : [r.defaultTypePk().toJSType()/];
-        [else]
-          [r.referencedDto(d).comment().commentSingleLine()/]
-          [r.referencedDto(d).referencedName(r).apply_attributeDefault()/] : [r.referencedOutTypeSignature(d).toJSList()/] ;
-        [/if]
+        [comment if (r.isInverseReference(d))/]
+          /** L'identifiant pour [r.referencedDto().name()/]. */
+          [(r.referencedDto().name() + r.suffixIdPk()).apply_attributeDefault()/]  : [r.defaultTypePk().toJSType()/];
+        [comment else/]
+          [r.referencedDto().comment().commentSingleLine()/]
+          [r.referencedDto().referencedName(r).apply_attributeDefault()/] : [r.referencedSignatureOut().toJSList()/] ;
+        [comment /if/]
        
       [/for]
   [/let][/let]

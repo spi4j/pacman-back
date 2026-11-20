@@ -20,10 +20,10 @@
 [import fr::pacman::back::core::aql::rule::attribute/]
 [import fr::pacman::back::core::aql::rule::variable/]
 [import fr::pacman::back::soa::aql::block::common/]
+[import fr::pacman::back::core::service::ReferenceUtils/]	
 
 [comment écriture de l'implémentation pour l'objet métier (dto)./]
-[template public dtoImpl(d : environment::DTO, ds : Sequence(environment::DTO)
-  , dss : Sequence(environment::DTO))]
+[template public dtoImpl(d : environment::DTO)]
   [d.classHeader(d.namePackageDtoImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -45,62 +45,40 @@
         [/protected]
         
         // ATTRIBUTS
-        [comment liste des champs automatiques pour l'objet métier./]
+        
         [let oas = d.autoAttributes()]
-        [comment liste des tables de liaison pour l'entité (directes + héritées)./]
-        [let jts = d.referencesJTSBResolved()] 
-        [comment liste des clé étrangères (directes + héritées)./] 
-        [let fks = d.referencesFKSBResolved(ds, dss)]
-        [comment liste de toutes les références (clé étrangères + tables de jointure)./]
-        [let rs = jts->union(fks)]
-          
+        [let ris = d.get_unidirectionnalsInverse()]
+        [let rus = d.get_unidirectionnals()]
+        [let rbs = d.get_bidirectionnals()]
+
           ['Id'.commentSingleLine()/]
-          private [d.defaultTypePk()/] [d.writePk()/];
+          private [d.defaultTypePk()/] [d.getPkName().apply_attributeDefault()/];
           
           [for (a : environment::Attribute | d.attributesNoPK())]
             [a.comment().commentSingleLine()/]
             private [a.type()/] [a.nameAttribute()/];
             
           [/for]
-          [comment si la référence est une référence inverse on "applati" 
-                   le dto avec un simple identifiant./]
-          [for (r : environment::Reference | rs)]
-            [if (r.isInverseReference(d))]
-              /** L'identifiant applati pour [r.referencedDto(d).name()/]. */
-              private [d.defaultTypePk()/] [r.referencedDto(d).writePk()/];
-            [else]
-              [r.referencedDto(d).comment().commentSingleLine()/]
-              private [r.referencedTypeSignature(d)/] [r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
-            [/if]
+          
+          [comment écriture de références unidirectionnelles et bidirectionnelles./]
+          [for (r | rus->union(rbs))]
+            [r.referencedDto().comment().commentSingleLine()/]
+            private [r.referencedSignature()/] [r.referencedDto().referencedName(r).apply_attributeDefault()/];
             
           [/for]
           
-          [let e = d.associatedEntity()]
-            /**
-             * Retourne l'identifiant pour le dto. 
-             *
-             * @return la valeur de l'identifiant.
-             */
-             public [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_methodGet()/]()
-             {
-               return [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/];
-             }
-             
-            /**
-             * Affecte l'identifiant pour le dto. 
-             *
-             * @param la valeur de l'identifiant.
-             */
-             public void [e.nameSimplePropertyID().apply_methodSet()/]
-             (final [d.defaultTypePk()/] [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/])
-             {
-                [d.prefixAffectation()/][e.nameSimplePropertyID().apply_attributeDefault()/] 
-                  = [e.nameSimplePropertyID().apply_parameterMethodClassicIn()/];
-             }
-          [/let]
+          [comment écriture des unidirectionnelles inverses (A->B (0,*) A LIST<B>./]
+          [for (r | d.get_unidirectionnalsInverse())]
+            [r.referencedDto().comment().commentSingleLine()/]
+            private [r.referencedSignatureInverse()/] [r.containingDto().referencedName(r).apply_attributeDefault()/];
+            
+          [/for]
           
+          [d.writeIdPropertyWithGetterAndSetter(d.cmdDto())/]
           [d.writeGetterAndSetterForAttributes(d.attributesNoPK())/]
-          [d.writeGetterAndSetterForReferences(rs, d.cmdDto())/]
+          
+          [d.writeGetterAndSetterForReferences(rus->union(rbs), d.cmdDto(), false)/]
+          [d.writeGetterAndSetterForReferences(ris, d.cmdDto(), true)/]
             
           // METHODES
           [protected ('methods'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
@@ -171,7 +149,8 @@
              }
               
              [d.nameClassDtoImpl()/] [d.name()/] = ([d.nameClassDtoImpl()/]) ['obj'.apply_parameterMethodClassicIn()/];
-             return Objects.equals([d.prefixAffectation()/][d.writePk()/], [d.writePk()/])
+             return Objects.equals([d.prefixAffectation()/][d.getPkName().apply_attributeDefault()/]
+               , [d.getPkName().apply_attributeDefault()/])
              
              [for (a : environment::Attribute | d.attributesNoPK())]
                && Objects.equals([d.prefixAffectation()/][a.nameAttribute()/], [d.name()/].[a.nameAttribute()/])
@@ -195,7 +174,8 @@
             @Override
             public int hashCode() 
             {
-              return Objects.hash([d.prefixAffectation()/][d.writePk()/][for (a : environment::Attribute | d.attributesNoPK())], 
+              return Objects.hash([d.prefixAffectation()/][d.getPkName().apply_attributeDefault()/]
+                [for (a : environment::Attribute | d.attributesNoPK())], 
                 [d.prefixAffectation()/][a.nameAttribute()/][/for]
                 [for (o | oas)],
                 [d.prefixAffectation()/][o.nameAutoAttribute()/][/for]);
@@ -211,7 +191,8 @@
              @Override
              public String toString() 
              {
-               return "[d.nameClassDtoImpl()/] { [d.writePk()/] = " + [d.prefixAffectation()/][d.writePk()/]
+               return "[d.nameClassDtoImpl()/] { [d.getPkName().apply_attributeDefault()/] = " 
+                 + [d.prefixAffectation()/][d.getPkName().apply_attributeDefault()/]
                  [for (a : environment::Attribute | d.attributesNoPK())] 
                  + "[a.nameAttribute()/] = " + [d.prefixAffectation()/][a.nameAttribute()/][/for]
                  [for (o | oas)] 
@@ -224,20 +205,16 @@
 [/template]
 
 [comment écriture de la ligne de validation pour le caractère obligatoire de l'attribut./]
-[query private writeNotNullValidation(a : environment::Attribute) : String = if (a.isMandatory()) then 
-  a.nameClassValidatorUtilsImpl() + '.' + 'check mandatory'.apply_methodDefault() + '("' + a.nameAttribute() + '", ' 
-  + a.nameAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif /]
+[query private writeNotNullValidation(a : environment::Attribute) : String = if (a.isMandatory()) then a.nameClassValidatorUtilsImpl() + '.' 
+  + 'check mandatory'.apply_methodDefault() + '("' + a.nameAttribute() + '", ' + a.nameAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif /]
   
-[query private writeNotNullValidation(s: String) : String = if('false'.equalsIgnoreCase(s.autoAttributNull())) 
-  then s.nameClassValidatorUtilsImpl() + '.' + 'check mandatory'.apply_methodDefault() + '("' + s.nameAutoAttribute() 
-  + '", ' + s.nameAutoAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif/]
+[query private writeNotNullValidation(s: String) : String = if('false'.equalsIgnoreCase(s.autoAttributNull())) then s.nameClassValidatorUtilsImpl() + '.' 
+  + 'check mandatory'.apply_methodDefault() + '("' + s.nameAutoAttribute() + '", ' + s.nameAutoAttribute() + ', ' + 'errors'.apply_variableDefault() + ');' else '' endif/]
   
 [comment écriture de la ligne de validation pour la valeur de l'attribut./]
-[query private writeSizeValidation(a : environment::Attribute) : String = if (a.hasSizeConstraints()) then 
-  a.nameClassValidatorUtilsImpl() + '.' + 'check size'.apply_methodDefault() + '("' + a.nameAttribute() + '", ' 
-  + a.nameAttribute() + ',' + if (a.minimum.exists()) then a.minimum else 'null' endif + ',' 
-  + if (a.maximum.exists()) then a.maximum else 'null' endif + ', ' + 'errors'.apply_variableDefault() 
-  + ');' else '' endif /]
+[query private writeSizeValidation(a : environment::Attribute) : String = if (a.hasSizeConstraints()) then a.nameClassValidatorUtilsImpl() + '.' 
+  + 'check size'.apply_methodDefault() + '("' + a.nameAttribute() + '", ' + a.nameAttribute() + ',' + if (a.minimum.exists()) then a.minimum else 'null' endif + ',' 
+  + if (a.maximum.exists()) then a.maximum else 'null' endif + ', ' + 'errors'.apply_variableDefault()  + ');' else '' endif /]
 
 [comment écriture de la ligne de validation pour la regex de l'attribut./]
 [query private writePatternValidation(a : environment::Attribute) : String = ''/]

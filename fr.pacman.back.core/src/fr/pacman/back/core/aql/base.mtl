@@ -9,7 +9,7 @@
 		 des fichiers spécifiques en fonction de l'objet ou du domaine. Ce fichier 
 		 fonctionne à la fois pour Java et pour React/]
 
-[comment commutateur pour indiquer si on gère l'uimmutabilité des dtos./]
+[comment commutateur pour indiquer si on gère l'immutabilité des dtos (pour l'instant non traité)./]
 [query public immutable(any : ecore::EObject) : Boolean = false/]
 
 [comment la longueur pour un en-tête dans les scripts SQL./]  
@@ -113,8 +113,8 @@
 [comment suffixe par défaut pour une contrainte de vérification (check) SQL./] 
 [query public suffixSqlConstraintCheck (any : ecore::EObject) : String = '_CK1_'/]  
 
-[comment suffixe par défaut pour la clé primaire d'une récursivité dans les tables de jointure./]
-[query public suffixSqlPrimaryKeyJoinRecursive (any : ecore::EObject) : String = '_RECURSIVE'/]  
+[comment suffixe par défaut pour la clé primaire d'une reflexivité dans les tables de jointure./]
+[query public suffixSqlPrimaryKeyJoinReflexive (any : ecore::EObject) : String = '_REFLEXIVE'/]  
   
 [comment le suffixe par défaut pour le nom de classes de DAO dans le cadre des test./]  
 [query public suffixDaoTest(any : ecore::EObject) : String = '  dao jdbc'/] 
@@ -156,7 +156,7 @@
 [query public prefixSqlTableHeader(any : ecore::EObject) : String = 'Table : '/]  
 
 [comment le 'préfixe' dans le cadre des commentaires pour les tables SQL./]  
-[query public prefixSqlTableHeaderJoin(any : ecore::EObject) : String = 'Table de liaison : '/] 
+[query public prefixSqlTableHeaderJoin(any : ecore::EObject) : String = 'Liaison : '/] 
 
 [comment retourne le préfixe pour l'ensemble des tables SQL. /]
 [query public prefixTable(any : ecore::EObject) : String = any.get_SQLTablePrefix()/]  
@@ -324,6 +324,15 @@
 [comment retourne le message à afficher si la modélisation est manquante par rapport à ce qui est demandé./]
 [query public cNoModelisation(e : ecore::EObject) : String = 'ERREUR DE MODELISATION'/]
 
-[comment retourne la variable de substitution pour la version dans une URI./]
+[comment retourne la constante de substitution pour la version dans une URI./]
 [query public cUriVersionPlaceholder(e : ecore::EObject) : String = '<@VERSION>'/]
+
+[comment retourne la constante à tester pour avoir uniquement l'identifiant de l'objet référencé./]
+[query public cApIdentifier(e : ecore::EObject) : String = 'IDENTIFIER'/]
+
+[comment retourne la constante à tester pour avoir un objet référencé contenant un ensemble limité de propriétés./]
+[query public cApiSummary(e : ecore::EObject) : String = 'SUMMARY'/]
+
+[comment retourne la constante à tester pour intégrer l'objet référencé dans la réponse./]
+[query public cApiEmbedded(e : ecore::EObject) : String = 'EMBEDDED'/]
 

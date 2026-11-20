@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.back.test
 Bundle-ManifestVersion: 2
 Bundle-Name: Pacman Back - Tests
 Bundle-SymbolicName: fr.pacman.back.test
-Bundle-Version: 5.0.1.qualifier
+Bundle-Version: 5.1.0.qualifier
 Bundle-Vendor: Cali
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy

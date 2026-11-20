@@ -70,7 +70,7 @@ public final class AnnotationUtils {
 		return isAnnotationExists(p_obj, p_annotation.get_annotationName(), false);
 	}
 
-	/**	
+	/**
 	 * Retourne la valeur d'une annotation, en remontant récursivement dans le
 	 * modèle à partir d'un objet p_obj.
 	 * 
@@ -216,7 +216,7 @@ public final class AnnotationUtils {
 	public static boolean is_metaReferential(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.REFERENTIAL);
 	}
-	
+
 	public static boolean is_metaCustom(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.CUSTOM);
 	}

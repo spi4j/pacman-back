@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.back.start
 Bundle-ManifestVersion: 2
 Bundle-Name: PacMan Back - Start
 Bundle-SymbolicName: fr.pacman.back.start
-Bundle-Version: 5.0.1.qualifier
+Bundle-Version: 5.1.0.qualifier
 Bundle-Activator: fr.pacman.back.start.plugin.Activator
 Bundle-Vendor: Cali
 Require-Bundle: org.eclipse.core.runtime,

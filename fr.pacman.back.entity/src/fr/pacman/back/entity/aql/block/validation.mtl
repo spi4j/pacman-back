@@ -5,6 +5,7 @@
 [import fr::pacman::back::core::aql::query::eobject/]
 [import fr::pacman::back::core::aql::query::attribute/]
 [import fr::pacman::back::core::aql::query::reference/]
+[import fr::pacman::back::core::aql::query::validation/]
 [import fr::pacman::back::core::aql::query::entity/]
 [import fr::pacman::back::core::aql::validation::common/]
 [import fr::pacman::back::core::aql::validation::validate/]
@@ -36,8 +37,8 @@
       [comment pas d'attribut sans type défini./]
       [if (not e.attributes->select(o | not o.type.exists())->isEmpty())][e.add(e.err5())/][/if]
       
-      [comment pas de multiples relations recursives avec le même nom./]
-      [if (not e.referencesFKSB()->union(e.referencesJT())->hasRecursivesWithSameName())][e.add(e.err7())/][/if]
+      [comment pas de multiples relations reflexivess avec le même nom./]
+      [if (not e.referencesFKSB()->union(e.referencesJT())->hasReflexivesWithSameName())][e.add(e.err7())/][/if]
       
       [comment pas de relation de type composite./]
       [if (not e.referencesFKSB()->select(o | o.isComposite)->isEmpty())][e.add(e.err8())/][/if]
@@ -81,13 +82,13 @@
         [comment if (not e.referencesFKSB()->select(o | o.isMultiple())->isEmpty())][e.add(e.erre6())/]
          
         [comment pas de relation fk entre les classes parents (hors récursive)./]
-        [if (not e.referencesFK()->select(o | ess->includes(o.referencedType(e)))
-             ->select(o2 | not o2.isZeroOneRecursive())->isEmpty())][e.add(e.err9())/][/if]
+        [comment if (not e.referencesFK()->select(o | ess->includes(o.referencedType(e)))
+             ->select(o2 | not o2.isZeroOneRecursive())->isEmpty())][e.add(e.err9())/]
          
         [comment *********************************************************************************/]
         [comment verrou temporaire du 23/10/2026 pour toutes les relations sur les classes parents/]
         [comment *********************************************************************************/]
-        [if (not e.referencesFKSB()->isEmpty() or not e.references->isEmpty())][e.add(e.err9b())/][/if]
+        [comment if (not e.referencesFKSB()->isEmpty() or not e.references->isEmpty())][e.add(e.err9b())/]
       [/for]
       
       [for (re | r.eAllContents(environment::Reference))]
@@ -95,11 +96,11 @@
         [if (re.navigable and re.oppositeOf <> null and re.oppositeOf.navigable)][re.add(re.err10())/][/if]
         
         [comment pas de relation bidirectionnelle avec (1 ou 0,1)./]
-        [if (re.oppositeOf <> null and not re.isMultipleBidirectionnal())][re.add(re.err11())/][/if]
+        [if (re.oppositeOf <> null and not re.isBidirectionnal())][re.add(re.err11())/][/if]
         
         [comment pas de relation jt entre les classes parents./]
-        [if (not ess->isEmpty() and (re.isMultipleBidirectionnal() and not re.isRecursive() 
-        	and (ess->includes(re.containingType) and ess->includes(re.referencedType))))][re.add(re.err13())/][/if]
+        [comment if (not ess->isEmpty() and (re.isBidirectionnal() and not re.isRecursive() 
+        	and (ess->includes(re.containingType) and ess->includes(re.referencedType))))][re.add(re.err13())/]
         	
         [comment vérification des métadonnées (doit avoir un corps)./]
         [if (re.has_metaPhysicalShortname() and not re.get_metaPhysicalShortname().exists())][re.add(re.err15())/][/if]

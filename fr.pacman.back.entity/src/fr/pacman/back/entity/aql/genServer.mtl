@@ -3,10 +3,16 @@
 
 [import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::common::aql::file::genEntityAbs/]
+[import fr::pacman::back::core::service::DatabaseUtils/]
+[import fr::pacman::back::core::service::ReferenceUtils/]
 
 [comment écriture des classes et fichiers persistence pour la partie serveur de l'application cible./]
-[template public genServer(r : entity::Root)]
+[template public genServer(root : entity::Root)]
+  [comment on a besoin des compteurs uniquement pour les relations récursives./]
+  [root.do_resetCounters()/]
+  [comment activation du pre-traitement des références./]
+  [root.do_initializeWorkingReferences()/]
   [comment implémentation des champs automatiques pour la base de données./]
-  [r.fileEntityAbs(r.cmdEntity())/]
+  [root.fileEntityAbs(root.cmdEntity())/]
 [/template]
 

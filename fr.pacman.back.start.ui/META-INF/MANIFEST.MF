@@ -3,7 +3,7 @@ Automatic-Module-Name: fr.pacman.back.start.ui
 Bundle-ManifestVersion: 2
 Bundle-Name: PacMan Back - Start - UI
 Bundle-SymbolicName: fr.pacman.back.start.ui;singleton:=true
-Bundle-Version: 5.0.1.qualifier
+Bundle-Version: 5.1.0.qualifier
 Bundle-Activator: fr.pacman.back.start.ui.activator.Activator
 Bundle-Vendor: Cali
 Bundle-Classpath: ., resources/lib/commonmark-0.24.0.jar

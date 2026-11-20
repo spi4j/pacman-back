@@ -5,6 +5,8 @@
 [comment enlever ces imports suite a correction bug./]
 [import fr::pacman::back::core::aql::base/]
 [import fr::pacman::back::common::aql::file::genEntityAbs/]
+[import fr::pacman::back::core::service::DatabaseUtils/]
+[import fr::pacman::back::core::service::ReferenceUtils/]
 [comment enlever ces imports suite a correction bug./]
 
 [comment @main/]

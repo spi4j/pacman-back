@@ -4,6 +4,7 @@
 [comment enlever ces imports suite a correction bug./]
 [import fr::pacman::back::soa::aql::file::genServer/]
 [import fr::pacman::back::core::aql::query::eobject/]
+[import fr::pacman::back::core::service::ReferenceUtils/]
 [comment enlever ces imports suite a correction bug./]
 
 [comment @main/]

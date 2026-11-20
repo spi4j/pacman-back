@@ -24,12 +24,12 @@
 [import fr::pacman::back::core::aql::rule::class/]	
 
 [import fr::pacman::back::core::service::TestUtils/]
+[import fr::pacman::back::core::service::ReferenceUtils/]	
 [import fr::pacman::back::core::service::DatabaseUtils/]
 [import fr::pacman::back::core::service::AnnotationUtils/]
 
 [comment écriture de l'implémentation des tests de persistance sur une entité./]
-[template public outIntegrationTestImpl(e : entity::Entity, es : Sequence(entity::Entity)
-  , ess : Sequence(entity::Entity))]
+[template public outIntegrationTestImpl(e : entity::Entity)]
   [e.classHeader(e.namePackageOutIntegrationTestImpl())/]
   [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
     
@@ -59,8 +59,8 @@
     import [e.namePackageProject()/].[e.namePackageEntityImpl()/].[e.nameClassEntityImpl()/];
     import [e.namePackageProject()/].[e.namePackageEntityPersistItf()/].[e.nameClassEntityPersistItf()/];
     import [e.namePackageProject()/].[e.nameClassIntegrationTestAbstract()/];
-    [for (r | e.referencesFKSB())]
-      [let e1 = r.referencedEntity(e)]
+    [for (r | e.get_unidirectionnals())]
+      [let e1 = r.referencedEntity()]
         import [e.namePackageProject()/].[e1.namePackageEntityImpl()/].[e1.nameClassEntityImpl()/];
       [/let]
     [/for]
@@ -75,6 +75,13 @@
    * La classe étend {@link [e.nameClassIntegrationTestAbstract()/]}, ce qui permet d'hériter des 
    * configurations de test de base et des fonctionnalités liées à la gestion des données.
    * 
+   * Dans le cas de multiples références reflexives (1/(0,*)) un index est
+   * automatiquement rajouté au niveau du nom de l'entité référencée, bien noter
+   * que cet index simplement est lié à la boucle sur les références, il ne
+   * commence donc pas obligatoirement à 1 et il peut y avoir des trous. Il s'agit
+   * juste de ne pas avoir plusieurs variables avec le même nom dans le cadre des
+   * tests unitaires.
+   *
    * Cette classe teste les fonctionnalités suivantes :
    * <ul>
    *     <li>findAll : Récupération de toutes les entités.</li>
@@ -124,7 +131,7 @@
        ['init sql'.apply_methodDefault()/](['data source'.apply_parameterMethodClassicIn()/]);
    }
     [comment on récupère la liste des clés étrangères (directes et héritées)./]
-    [let fks = e.referencesFKSBResolved(es, ess)]
+    [let fks = e.get_unidirectionnals()]
       [e.writeTestFindAll()/]
       [e.writeTestFindById()/]
       [e.writetestFindByColumn()/]
@@ -481,33 +488,27 @@
     [comment on ne s'occupe que des attributs obligatoires pour passer la création 
     (les autres champs ont gérés dans les tests suivants)./]
     [if (r.isMandatory())]
-      [e.writeReferencedEntity(r)/]
+      [e.writeReferencedEntity(r, rIndex)/]
     [/if]
+    
   [/for]
   
 [/template]
 
 [comment écriture pour la prise en compte des références de l'entité./]
-[template private writeReferencedEntity (e : entity::Entity, r : environment::Reference)]
-  [let e1 =  r.referencedEntity(e)]
-    [let e1Name = e1.referencedEntityName(r)]
+[template private writeReferencedEntity (e : entity::Entity, r : environment::Reference, idx : Integer)]
+  [let e1 =  r.referencedEntity()]
+    [let e1Name = e1.referencedEntityName(r, idx)]
       [e1.nameClassEntityImpl()/] [e1Name/] = new [e1.nameClassEntityImpl()/]();
       [e1Name/].[e1.nameSimplePropertyID().apply_methodSet()/](['crud id'.apply_attributeDefault()/]);
-      [e.name().apply_variableDefault()/].[r.referencedEntity(e).referencedName(r).apply_methodSet()/]([r.writeDefaultReference(e1, e1Name)/]);
-    
-      [for (r1 | e1.referencesFK())]
-        [comment on coupe si l'entité référencée reprend l'entité référancante./]
-        [if (r1.isMandatory() and r1.containingType <> e)]
-          [comment e.writeReferencedEntity(r.referencedEntity(e1), r1)/]
-        [/if]
-    [/for]
+      [e.name().apply_variableDefault()/].[r.referencedEntity().referencedName(r).apply_methodSet()/]([r.writeDefaultReference(e1, e1Name)/]);
     [/let]
   [/let]
 [/template]
 
-[comment retoune l'entité référencée, si relation récursive, on ajoute un index afin de ne pas avoir de doublon dans le nom de l'entité./]
-[query private referencedEntityName(e : entity::Entity, r : environment::Reference) : String = if (r.isRecursive()) then e.name() 
-  + '_' + e.get_counterFK(1) else e.referencedName(r).apply_variableDefault() endif/]
+[comment retoune l'entité référencée, si relation récursive, on ajoute un index (on utilise pas get_nexCounter() afin de ne pas avoir de doublon dans le nom de l'entité./]
+[query private referencedEntityName(e : entity::Entity, r : environment::Reference, idx : Integer) : String = if (r.isReflexive()()) then e.name() 
+  + '_' + idx else e.referencedName(r).apply_variableDefault() endif/]
 
 [comment écriture de la valeur par defaut à injecter dans le setter./]
 [query private writeDefaultValue (type : String) : String = if ('Time'.equalsIgnoreCase(type) 
@@ -532,7 +533,7 @@
 	
 [comment écriture de la valeur par défaut à injecter dans le setter./]  
 [query private writeDefaultReference(r : environment::Reference, e : entity::Entity, d : String) : String = 
-	if (r.isMultiple() and e = r.referencedType	) then 'new ArrayList<' + e.nameClassEntityImpl() + '>(List.of(' + d + '))' else d endif/]
+	if (r.isMultiple() and e = r.containingType) then 'new ArrayList<' + e.nameClassEntityImpl() + '>(List.of(' + d + '))' else d endif/]
 
 [comment écriture d'une ligne pour un attribut automatique./]
 [query private writeAutoAttribute(e : entity::Entity, prop : String, forNull : Boolean) : String = e.name().apply_variableDefault() 

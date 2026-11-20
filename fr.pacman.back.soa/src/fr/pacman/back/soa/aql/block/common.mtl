@@ -13,6 +13,32 @@
 [import fr::pacman::back::core::aql::rule::method/]
 [import fr::pacman::back::core::aql::rule::attribute/]
 
+
+[comment écriture de toute la partie identifiant (avec les assesseurs)./]
+[template public writeIdPropertyWithGetterAndSetter(d : environment::DTO, cmd : String)]
+  [let e = d.associatedEntity()]
+    /**
+     * Retourne l'identifiant pour le dto. 
+     *
+     * @return la valeur de l'identifiant.
+     */
+     public [d.defaultTypePk()/] [d.getPkName().apply_methodGet()/]()
+     {
+       return [d.prefixAffectation()/][d.getPkName().apply_attributeDefault()/];
+     } 
+     
+    /**
+     * Affecte l'identifiant pour le dto. 
+     *
+     * @param la valeur de l'identifiant.
+     */
+     public void [d.getPkName().apply_methodSet()/] (final [d.defaultTypePk()/] [d.getPkName().apply_parameterMethodClassicIn()/])
+     {
+        [d.prefixAffectation()/][d.getPkName().apply_attributeDefault()/] = [d.getPkName().apply_parameterMethodClassicIn()/];
+     }
+   [/let]
+[/template]
+
 [comment écriture des assesseurs pour les attributs standards du dto | xto./]
 [template public writeGetterAndSetterForAttributes (d : environment::DTO, as : OrderedSet(environment::Attribute))]
   [for (a : environment::Attribute | as)]
@@ -31,66 +57,94 @@
   [/for]
 [/template]
 
+[comment ******************************************************************************************************************************************./]
+[comment ne jamais utiliser les méthodes associatesEntity, etc... à partir de cette partie, on travaille sur les références avec un modèle anémique./]
+[comment ******************************************************************************************************************************************./]
+
 [comment écriture des assesseurs pour les références (liaisons avec les autres dtos | xtos)./]
-[template public writeGetterAndSetterForReferences(d : environment::DTO, rs : OrderedSet(environment::Reference), cmd : String)]
+[comment cette méthode est une factorisation mais cela oblige à passer trop de paramètres (à revoir ?).//]
+[template public writeGetterAndSetterForReferences(d : environment::DTO, rs : OrderedSet(environment::Reference), cmd : String, refInverse : Boolean)]
   [for (r : environment::Reference | rs)]
-    [comment si la référence est une référence inverse on "applati" l'objet métier avec un simple identifiant../]
-    [if (r.isInverseReference(d))] 
-    /**
-     * Retourne l'identifiant pour [r.referencedDto(d).name()/]. 
-     *
-     * @return la valeur de l'identifiant.
-     */
-      public [r.defaultTypePk()/] [r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodGet()/]()
+    [comment écriture spéciale pour les assesseurs des références inverses, on crée des assesseurs avec listes (List<>)./]
+    [if (refInverse)] 
+      [r.containingDto().referencedName(r).commentGet()/]
+      public [r.writeReferenceSignatureInverse(cmd)/] [r.containingDto().referencedName(r).apply_methodGet()/]()
       {
-        return [r.prefixAffectation()/][r.referencedDto(d).writePk()/];
+          return [r.prefixAffectation()/][r.containingDto().referencedName(r).apply_attributeDefault()/];
       }
-      
-     /**
-      * Affecte l'identifiant pour [r.referencedDto(d).name()/]. 
-      *
-      * @param la valeur de l'identifiant.
-      */
-      public void [r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_methodSet()/] 
-         ([r.defaultTypePk()/] [r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_parameterMethodClassicIn()/])
+       
+      [r.containingDto().referencedName(r).commentSet()/]
+      public void [r.containingDto().referencedName(r).apply_methodSet()/]
+          (final [r.writeReferenceSignatureInverse(cmd)/] [r.containingDto().referencedName(r).apply_parameterMethodClassicIn()/])
       {
-        [r.prefixAffectation()/][r.referencedDto(d).writePk()/] 
-          = [r.referencedDto(d).associatedEntity().nameSimplePropertyID().apply_parameterMethodClassicIn()/];
+         [r.prefixAffectation()/][r.containingDto().referencedName(r).apply_attributeDefault()/] 
+           = [r.containingDto().referencedName(r).apply_parameterMethodClassicIn()/];
       }
-    [comment écriture pour les assesseurs "normaux"./]
+    [comment écriture pour tous les autres assesseurs./]
     [else]
-      [r.referencedDto(d).commentGet()/]
-      public [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_methodGet()/]()
-      {
-         [if (r.isMultiple() and r.containedDto(d) = d)]
-           // Permet de gérer open api.
-           if (null ==  [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/]) { 
-            [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
-              = [d.writeNewTypeSignature(r, cmd)/];
-           }
-         [/if]
-         return [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/];
-      }
-      
-      [r.referencedDto(d).commentSet()/]
-      public void [r.referencedDto(d).referencedName(r).apply_methodSet()/]
-      (final [d.writeTypeSignature(r, cmd)/] [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/])
-      {
-         [r.prefixAffectation()/][r.referencedDto(d).referencedName(r).apply_attributeDefault()/] 
-            = [r.referencedDto(d).referencedName(r).apply_parameterMethodClassicIn()/];
-      }
+      [comment si DTO rien de particulier./]
+      [if (d.cmdDto().equalsIgnoreCase(cmd))]
+        [r.referencedDto().commentGet()/]
+        public [r.writeReferenceSignature(cmd)/] [r.referencedDto().referencedName(r).apply_methodGet()/]()
+        {
+           return [r.prefixAffectation()/][r.referencedDto().referencedName(r).apply_attributeDefault()/];
+        }
+        
+        [r.referencedDto().commentSet()/]
+        public void [r.referencedDto().referencedName(r).apply_methodSet()/]
+        (final [r.writeReferenceSignature(cmd)/] [r.referencedDto().referencedName(r).apply_parameterMethodClassicIn()/])
+        {
+           [r.prefixAffectation()/][r.referencedDto().referencedName(r).apply_attributeDefault()/] 
+              = [r.referencedDto().referencedName(r).apply_parameterMethodClassicIn()/];
+        }
+      [comment si XTO il faut traiter les références applaties (cas unidirectionnelle (0,*) et containingType)./]
+      [else]
+        [comment référence à aplatir dans tous les cas, quelle que soit la stratégie./]
+        [comment (A->B (0,*) A List<B> et B prend A -> à applatir./]
+        [if (r.hasToFlattenReference(d))]
+          [r.referencedDto().writePkNameFlatten(r).commentGet()/]
+          public [r.defaultTypeFk()/] [r.referencedDto().referencedName(r).apply_methodGet()/]()
+          {
+            return [r.prefixAffectation()/][r.referencedDto().writePkNameFlatten(r)/];
+          }
+          [r.referencedDto().writePkNameFlatten(r).commentSet()/]
+          public void [r.referencedDto().referencedName(r).apply_methodSet()/]([r.defaultTypeFk()/] 
+            [r.referencedDto().writePkNameFlatten(r).apply_parameterMethodClassicIn()/]){
+            [r.prefixAffectation()/][r.referencedDto().writePkNameFlatten(r)/] 
+              = [r.referencedDto().writePkNameFlatten(r).apply_parameterMethodClassicIn()/];
+          }
+        [comment on retourne sur le traitement courant./]
+        [else]
+          [r.referencedDto().commentGet()/]
+          public [r.writeReferenceSignature(cmd)/] [r.referencedDto().referencedName(r).apply_methodGet()/]()
+          {
+             return [r.prefixAffectation()/][r.referencedDto().referencedName(r).apply_attributeDefault()/];
+          }
+          
+          [r.referencedDto().commentSet()/]
+          public void [r.referencedDto().referencedName(r).apply_methodSet()/]
+          (final [r.writeReferenceSignature(cmd)/] [r.referencedDto().referencedName(r).apply_parameterMethodClassicIn()/])
+          {
+             [r.prefixAffectation()/][r.referencedDto().referencedName(r).apply_attributeDefault()/] 
+                = [r.referencedDto().referencedName(r).apply_parameterMethodClassicIn()/];
+          }
+        [/if]
+      [/if]
     [/if]
 
   [/for]
 [/template]
 
-[comment écriture du type pour l'initialisation de la référence (on profite de writeTypeSignature)./]
-[query private writeNewTypeSignature(d : environment::DTO, r : environment::Reference, cmd : String) : String = 'new ' +
-  d.writeTypeSignature(r, cmd).replace('List<','ArrayList<').replace('Set<','HashSet<') + '()'/]
-
-[comment écriture du type pour la référence (dépend si on écrit un dto ou un xto)./]
-[query private writeTypeSignature(d : environment::DTO, r : environment::Reference, cmd : String) : String = 
-  if (d.cmdDto().equalsIgnoreCase(cmd)) then r.referencedTypeSignature(d) else r.referencedOutTypeSignature(d) endif/]
+[comment permet d'orienter vers les bonnes méthodes en fonction d'un dto ou d'un xto./]
+[query private writeReferenceSignature(r : environment::Reference, cmd : String) : String = if (r.cmdDto().equalsIgnoreCase(cmd)) 
+  then r.referencedSignature() else r.referencedSignatureOut() endif/]
+  
+[comment permet d'orienter vers les bonnes méthodes en fonction d'un dto ou d'un xto./]
+[query private writeReferenceSignatureInverse(r : environment::Reference, cmd : String) : String = if (r.cmdDto().equalsIgnoreCase(cmd)) 
+  then r.referencedSignatureInverse() else r.referencedSignatureOutInverse() endif/]
 
 [comment raccourci pour l'écriture de la clé primaire./]
-[query public writePk(d : environment::DTO) : String = d.associatedEntity().nameSimplePropertyID().apply_attributeDefault()/]
+[query public getPkName(d : environment::DTO) : String = d.nameSimplePropertyID()/]
+  
+[comment écriture de la clé applatie dans le cadre des unidirectionnelles (0,n). (A->B) B prend la clé applatie de A./]
+[query public writePkNameFlatten (d : environment::DTO, r : environment::Reference) : String =  d.referencedName(r).apply_attributeDefault()/]

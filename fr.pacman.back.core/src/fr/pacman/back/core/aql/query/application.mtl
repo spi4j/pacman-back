@@ -1,6 +1,7 @@
 [module application(	'http://www.obeonetwork.org/dsl/environment/3.0.0', 
 				    	'http://www.obeonetwork.org/dsl/soa/4.0.0')/]
-				    	
+
+[import fr::pacman::back::core::aql::base/]    	
 [import fr::pacman::back::core::property::project::ProjectProperties/]
 
 [comment récupération du schéma de sécurité./]
@@ -22,3 +23,12 @@
 
 [comment vérifie si l'application doit auditer les appels rest et/ou les authentifications rest./]
 [query public isRsLogEnabled(any : ecore::EObject) : Boolean = any.get_useRsLog() or any.get_useRsAuthLog()/]
+  
+[comment vérifie si l'application à une stratégie d'exposition des références de type EMBEDDED./]
+[query public isReferenceEmbedded(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApiEmbedded())/]
+  
+[comment vérifie si l'application à une stratégie d'exposition des références de type SUMMARY./]
+[query public isReferenceSummary(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApiSummary())/]
+  
+[comment vérifie si l'application à une stratégie d'exposition des références de type IDENTIFIER./]
+[query public isReferenceIdentifier(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApIdentifier())/]
