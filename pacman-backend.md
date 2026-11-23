@@ -20,6 +20,7 @@
 - 13/08/2026 : Modifications : Logging.
 - 28/08/2026 : Adaptation Pacman sur Studio 6.0.0.
 - 16/10/2026 : Ajouts : Complétion tests karaté au niveau du domaine.
+- 23/11/2026 : Modifications : Gestion des références et peuplement de la base de données.
 ---
 
 ## 🚀 Introduction
@@ -1822,6 +1823,11 @@ Voici un exemple de test unitaire pour la persistance :
    // End of user code
 }
 ```
+❗ Lors de l'exécution des tests JUnit, l'initialisation par défaut des données est volontairement limitée au strict nécessaire afin d'éviter de construire des ensembles de données trop complexes, notamment en raison des grappes d'entités liées entre elles par de nombreuses associations. Par exemple les relations bidirectionnelles ne sont pas initialisées ni traitées dans ces tests. 
+
+Cette initialisation minimale est néanmoins suffisante pour vérifier la validité du code Hibernate généré (annotations, mappings et associations pris en charge), ainsi que sa cohérence avec le script SQL généré, notamment au niveau de la structure des tables, des colonnes, des clés primaires et des clés étrangères.
+
+❗ Le développeur peut cependant compléter les initialisations générées en ajoutant ses propres traitements directement au niveau des balises de type "*user code*" prévues à cet effet. Il peut ainsi enrichir les données de test selon les besoins de son application, notamment en initialisant les associations et les relations qui ne sont pas prises en charge par l'initialisation minimale, comme justement, les relations bidirectionnelles ou les grappes d'entités associées. 
 
 Si un champ est soumis à une contrainte d'unicité (ici par exemple le numéro de sécurité sociale), alors le code d'injection de la valeur par défaut fera appel à la classe utilitaire de test pour l'attribution de la valeur par défaut : 
 
@@ -2654,6 +2660,8 @@ C'est donc au développeur d'ajouter l'ensemble des attendus nécessaires pour c
 
 Dans la cas d'un projet fournisseur de services, il est possible de peupler automatiquement la base de données avec des informations de type "Random" mais cohérentes et lisibles pour le développeur. Cette fonctionnalité peut être utilisée pour : 
 
+- La facilitation des phases de développement et de test de l'application.
+
 - Le développement de projets de démonstration avec une base H2 embarquée.
 
 - Le développement d'un projet de type fronted appelant la librairie. Le développeur peut ainsi avoir des données à afficher dans ses écrans en cours de développement, sans pour autant avoir à installer une base de données externe et la peupler "à la main". 
@@ -2674,8 +2682,22 @@ Pour chaque entité une méthode est créé, avec en paramètres les autres enti
 PersonneEntityImpl personnePopulate() {
 	PersonneEntityImpl personne = new PersonneEntityImpl();
 
-	// Start of user code cf79eb27d3d3d239876f4f42e3789192
+    // Liste des attributs à recopier dans la zone réservée.
 
+	// personne.setNom(faker.lorem().characters(5, 20));
+	// personne.setPrenom(faker.lorem().characters(5, 20));
+	// personne.setTel(faker.lorem().characters(5, 20));
+	// personne.setMail(faker.lorem().characters(5, 20));
+	// personne.setVille(faker.lorem().characters(5, 20));
+	// personne.setCodePostal(faker.lorem().characters(5, 20));
+	// personne.setLogin(faker.lorem().characters(5, 20));
+    ...
+    
+    // personne.setPersonne_aPourDemarches(new
+	// HashSet<>(randomElements(demarcheList,nbRelations)));
+	
+	// Start of user code cf79eb27d3d3d239876f4f42e3789192
+	
 	personne.setNom(faker.lorem().characters(5, 20));
 	personne.setPrenom(faker.lorem().characters(5, 20));
 	personne.setTel(faker.lorem().characters(5, 20));
@@ -2683,11 +2705,7 @@ PersonneEntityImpl personnePopulate() {
 	personne.setVille(faker.lorem().characters(5, 20));
 	personne.setCodePostal(faker.lorem().characters(5, 20));
 	personne.setLogin(faker.lorem().characters(5, 20));
-	personne.setAdresse(faker.lorem().characters(5, 20));
-	personne.setCivilite(faker.lorem().characters(5, 20));
-	personne.setDateNaissance(randomLocalDate(0));
-	personne.setMotPasse(faker.lorem().characters(5, 20));
-	personne.setSecteurPro(faker.lorem().characters(5, 20));
+	...
 	
 	// End of user code
 
@@ -2695,9 +2713,54 @@ PersonneEntityImpl personnePopulate() {
 }
 ```
 
-❗❗ Il est important de noter ici que par défaut, seuls les attributs modélisés de l'entité sont générés. En effet, pour des raisons de complexité liées aux références potentiellement cycliques (notamment à cause d'hibernate), ces dernières ne sont pour l'instant pas générées. C'est donc au développeur de finaliser les appels en fonction du besoin. 
+❗ Pour le peuplement des références, l'initialisation repose sur la génération de données aléatoires et leur persistance en base de données au moyen des repositories associés aux entités. La séparation entre la création des entités et l'établissement de leurs relations permet notamment de limiter les risques de récursivité lors de la construction des objets.
 
-L'idée et le but de la génération sont au départ, d'avoir un code de base qui compile : 
+Le processus d'initialisation se déroule en plusieurs étapes :
+
+- **Préparation des données** : création d'un ensemble d'entités préalables, stockées en mémoire afin de constituer un réservoir de données utilisables pour établir les relations entre les entités.
+
+- **Génération des entités** : création des entités à enregistrer, avec des valeurs générées aléatoirement pour leurs attributs.
+
+- **Établissement des relations** : les relations peuvent être renseignées à partir des entités disponibles dans le réservoir, en tenant compte des contraintes du modèle de données.
+
+- **Persistance** : enregistrement des entités générées au moyen des repositories de persistance.
+
+Le jeu de données est constitué au démarrage de l'application, avant la création des entités destinées à être enregistrées en base de données.
+
+Pour chaque type d'entité du modèle, un ensemble de "**nbDefaultEntitiesStock**" instances est généré et conservé en mémoire dans des listes dédiées. Ces instances constituent un réservoir d'entités de référence dans lequel les méthodes de génération peuvent puiser pour établir les relations entre les objets.
+
+```java
+/** Nombre de lignes à créer dans la base de données. */
+private final int nbEntities = 10;
+
+/** Nombre de lignes pour le stock dans lequel piocher les relations. */
+private final int nbDefaultEntitiesStock = 50;
+
+/** Nombre d'entités à enregistrer pour chaque relation. */
+private final int nbRelations = 5;
+```
+
+La variable "**nbEntities**" indique le nombre d'occurrences à enregistrer pour chaque entité et la variable "**nbRelations**" permet de définir le nombre d'occurrences à enregistrer pour chaque entité qui est en relation avec une autre entité. 
+
+Chaque liste est alimentée indépendamment des autres. Les entités sont créées sans renseigner leurs relations, afin de disposer d'objets préalablement construits et de limiter les risques de récursivité lors de la génération des données.
+
+Lors de la création des entités destinées à être enregistrées, les relations peuvent être établies en sélectionnant aléatoirement une ou plusieurs entités dans les listes correspondantes. Une même entité du réservoir peut ainsi être associée à plusieurs entités générées. Les sélections étant indépendantes, une même entité peut également être sélectionnée plusieurs fois pour une même relation.
+
+Le nombre d'entités présentes dans le réservoir est indépendant du nombre d'entités à enregistrer en base de données. Il permet de disposer d'un ensemble suffisamment large de références pour diversifier les associations entre les objets générés (ici par exemple pour constituer un stock d'adresses et de démarches).
+
+
+```java
+private void listEntitiesPopulate() {
+   IntStream.range(0, nbDefaultEntitiesStock).forEach(i -> {
+      adresseList.add(adressePopulate());
+      demarcheList.add(demarchePopulate());
+   });
+}
+```
+
+Ce jeu de données constitue un stock intermédiaire destiné à la génération des relations. Il ne correspond pas directement aux données enregistrées en base de données : seules les entités explicitement transmises aux repositories sont persistées.
+
+L'idée et le but de la génération est donc au départ, d'avoir un code de base qui compile et activable immédiatement : 
 
 ```java
 @PostConstruct
@@ -2706,12 +2769,14 @@ public void populate() {
       return;
 
    IntStream.range(0, nbEntities).forEach(i -> {
+   
+    // personneRepository.save(personnePopulate());
 
 	// Start of user code f1399e649e5189a1b6ddbc2110423d17
-	PersonneEntityImpl personne = personneRepository.save(personnePopulate());
+	
+	personneRepository.save(personnePopulate());
+	
 	// End of user code
-
-	....
 
 	// Start of user code e679aa86ca55b033b965ba72500dbe92
 	// End of user code
@@ -2722,7 +2787,7 @@ public void populate() {
 Ainsi dans une relation (0,\*) entre une *personne* et ses démarches, une *personne* a une liste de démarches, et ( pour le bidirectionnel Hibernate ), une *démarche* porte sur instance de *personne*. 
 Il est possible d'enregistrer une personne sans démarche en laissant le code par défaut. 
 
-Puis on enregistre la démarche pour la personne nouvellement crée en modifiant le code de la manière suivante ...
+Puis on peut enregistrer la démarche pour la personne nouvellement crée en copiant le code en commentaire de la manière suivante ...
 
 ```java
 PersonneEntityImpl personne = new PersonneEntityImpl();
@@ -2736,33 +2801,13 @@ personne.setMail(faker.lorem().characters(5, 20));
 personne.setVille(faker.lorem().characters(5, 20));
 personne.setCodePostal(faker.lorem().characters(5, 20));
 personne.setLogin(faker.lorem().characters(5, 20));
-personne.setAdresse(faker.lorem().characters(5, 20));
-personne.setCivilite(faker.lorem().characters(5, 20));
-personne.setDateNaissance(randomLocalDate(0));
-personne.setMotPasse(faker.lorem().characters(5, 20));
-personne.setSecteurPro(faker.lorem().characters(5, 20));
 
-List<Entity2EntityImpl> demarches = new ArrayList<>();
-IntStream.range(0, this.nbRelations).forEach(i -> {
-	demarches.add(demarchesPopulate());
-});
-personne.setDemarches(demarches);
+personne.setPersonne_aPourDemarches(new HashSet<>(randomElements(demarcheList,nbRelations)));
 	
 // End of user code
 
 return personne;
 ```
-Enfin, paramétrer le nombre d'occurrences à insérer dans la base de données en modifiant le code suivant :
-
-```java
-// Start of user code ccd1066343c95877b75b79d47c36bebe
-/** Nombre de lignes à créer dans la base de données. */
-private final int nbEntities = 10;
-private final int nbRelations = 5;
-// End of user code
-```
-
-La variable "**nbEntities**" indique le nombre d'occurrences à enregistrer pour chaque entité et la variable "**nbRelations**" permet de définir le nombre d'occurrences à enregistrer pour chaque entité qui est en relation avec une autre entité. 
 
 ❗ Encore une fois, il est important de comprendre que les générateurs de code ne peuvent pas, à eux seuls, produire un code entièrement finalisé pour le peuplement de la base de données. En effet, l'utilisation d'Hibernate avec des relations bidirectionnelles entre les entités peut entraîner des références circulaires lors de la création et de la persistance des objets. Chaque entité peut alors référencer une autre entité qui, à son tour, référence la première, provoquant une boucle infinie lors du parcours des relations. 
 
@@ -2770,22 +2815,6 @@ Cette situation peut notamment conduire à une "*StackOverflowError*". Une inter
 
 Cependant, tout l'intérêt de ce générateur (par rapport à un script SQL) est de pouvoir afficher facilement des données compréhensibles pour l'utilisateur, même en phase de développement ou pour des démonstrations. Il est par ailleurs nécessaire de modifier le code par défaut afin de coller au code métier. Pour cela se reporter aux différentes fonctionnalités de la librairie DataFaker.
 
-Exemple d'utilisation : 
-
-```java
-personne.setNom(faker.name().lastName());
-personne.setPrenom(faker.name().firstName());
-personne.setTel(faker.phoneNumber().phoneNumber());
-personne.setMail(faker.internet().emailAddress());
-personne.setVille(faker.address().city());
-personne.setCodePostal(faker.address().zipCode());
-personne.setLogin(faker.internet().username());
-personne.setAdresse(faker.address().streetAddress());
-personne.setCivilite(faker.name().prefix()); // ex : Mr, Mrs, Mme
-personne.setDateNaissance(randomLocalDate(80)); // personne âgée de max 80 ans
-personne.setMotPasse(faker.internet().password());
-personne.setSecteurPro(faker.company().industry());
-```
 
 #### Tests
 
@@ -3967,7 +3996,7 @@ Ces rapports sont disponibles dans le répertoire "*/target/karate-reports*" du 
 
 ### 🧩 Génération des relations
     
-Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple    , bidirectionnelle, récursive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. 
+Dans ce chapitre, est abordé la gestion des relations dans l'outil de modélisation, en présentant les différents types de relations supportées (association simple    , bidirectionnelle, réflexive, etc.) ainsi que leurs variantes cardinalitaires. Pour chaque type de relation, est détaillé la manière dont elle peut être exprimée dans le modèle ainsi que le code généré automatiquement par l'outil, tant du point de vue des scripts SQL que de la configuration JPA. 
 
 L'objectif est de fournir une vue claire et pratique des possibilités offertes, tout en mettant en lumière les impacts concrets de chaque choix de modélisation sur le code qui est produit. 
 
@@ -3997,7 +4026,7 @@ Le code SQL généré est donc le suivant :
 
 ```sql
 create table A
-(
+(   
   /* PK de la table A */
   A_ID NUMBER(19) not null,
   ATTRIBUTEA VARCHAR(100) not null,
@@ -4034,9 +4063,9 @@ Ce qui correspond dans un modèle typé Meurise à :
 
 <img src="images/pcm-model-relation-2b.png" alt="Relations">
 
-Ici, **avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A** (on est donc inversé par rapport à du (1)/(01)). Dans ce type de relation, attention donc au sens de la flêche (navigabilité) ! 
+Ici, **avec la navigabilité dirigée vers B, c'est l'entité B qui récupère la clé étrangère pour pointer sur l'entité A**.
 
-La relations se traduit par un ***@OneToMany*** au niveau de l'entité A et un ***@ManyToOne*** au niveau de l'entité B. Par défaut, *@OneToMany* sans *mappedBy* crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d'utiliser *mappedBy* dans A, et un *@ManyToOne* dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).
+La relations se traduit par un ***@OneToMany*** au niveau de l'entité B et un ***@ManyToOne*** au niveau de l'entité A qui récupère une liste de B. Par défaut, *@OneToMany* sans *mappedBy* crée une relation unidirectionnelle avec une jointure explicite. Dans un modèle bidirectionnel, il est courant d'utiliser *mappedBy* dans A, et un *@ManyToOne* dans B. Cela permet à JPA de comprendre que la relation est gérée par B (le côté possédant la clé étrangère).
 
 ```sql
 create table A
@@ -4046,42 +4075,44 @@ create table A
   ATTRIBUTEA VARCHAR(100) not null,
   constraint A_PK1_1 primary key (A_ID)
 );
-
+        
 create table B
 (
   /* PK de la table B */
   B_ID NUMBER(19) not null,
   ATTRIBUTEB VARCHAR(100),
-  /* FK vers la table A */
+  /* FK vers la table A (Relation) */
   A_ID NUMBER(19),
   constraint B_PK1_1 primary key (B_ID)
 );
 ```
 
-Entité A : 
+Entité A (relation inverse pour hibernate) : 
 
 ```java
-@OneToMany(fetch = FetchType.EAGER, mappedBy = "a")
-private List<BEntityImpl> relation;
+@OneToMany(fetch = FetchType.EAGER, mappedBy = "relation")
+private List<BEntityImpl> b_relation;
 ```
 
-Entité B : 
+Entité B (relation initialement modélisée) : 
 
 ```java
 @ManyToOne
 @JoinColumn(name = "A_ID", nullable = false)
-private AEntityImpl a;
+private AEntityImpl a_relation;
 ```
+
+❗ Au niveau de l'attribut, il a été retenu le nom de l'entité et de la relation plutôt que le nom de l'entité car cela semble plus simple à comprendre au niveau des assesseurs et respecte mieux la volontée du modèle.
 
 ❗ Il est particulièrement important de ne pas utiliser ce type de relation pour modéliser une véritable relation bidirectionnelle (0,\*) ou (1,\*). En effet, deux relations (0,\*) ou (1,\*) ne sont pas générées par **Pacman** de la même manière qu'une relation bidirectionnelle, et cela entrainera des effets de bords non désirés. Un des effets principaux étant simplement que l'on va perdre une relation (\*) au niveau d'une des deux entités. 
 
 <img src="images/pcm-model-relation-6.png" alt="Relations">
 
-#### Relation récursive (1)/(0,1)
+#### Relation réflexive (1)/(0,1)
 
 <img src="images/pcm-model-relation-3.png" alt="Relations">
 
-Ici la relation récursive est annotée ***@ManyToOne***, de même que pour une relation (1)(0,1) entre deux entités. La seule différence est que la clé étrangère prend le nom de la relation (avec toujours "*_ID*" comme suffixe).
+Ici la relation réflexive est annotée ***@ManyToOne***, de même que pour une relation (1)(0,1) entre deux entités. La seule différence est que la clé étrangère prend le nom de la relation (avec toujours "*_ID*" comme suffixe).
 
 ```sql
 create table A
@@ -4102,7 +4133,7 @@ Entité A :
 private AEntityImpl relationA;
 ```
 
-#### Relation récursive (0,\*)/(1,\*)
+#### Relation réflexive (0,\*)/(1,\*)
 
 Comme pour les relations bidirectionnelles, une table de liaison est automatiquement créée, cette table prend pour nom la concaténation du nom de la table et du nom de la relation. Chaque nom est séparé par un underscore. Bien noter cependant que le nom de l'attribut au niveau de la classe est bien le nom de la relation.
 
@@ -4163,7 +4194,7 @@ Si un DTO B contient un DTO A, qui lui-même contient une liste de DTO B, on pro
 
 Les générateurs **Pacman** vont donc "aplatir" les relations dans les DTO. Cela signifie qu'ils vont remplacer les objets liés par leurs identifiants simples (dans le cas des références inverses uniquement) : un DTO de B ne contient pas un objet A, mais simplement l'identifiant de A (comme pour la base de données). Cette approche élimine complètement les cycles, clarifie la structure réseau, simplifie les tests, stabilise la sérialisation et rend le contrat d'API plus explicite.   
 
-Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l'API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l'architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non récursive et optimisée pour l'échange de données.
+Ainsi découpler la couche de transport des contraintes de la couche de persistance permet de faire en sorte que le modèle exposé par l'API ne soit plus un reflet brut du modèle Hibernate (c'est aussi un pilier de l'architecture hexagonale et du DDD), mais une vue volontairement simplifiée, non réflexive et optimisée pour l'échange de données.
 
 <img src="images/pcm-model-relation-2.png" alt="Relations">
 
@@ -4204,6 +4235,28 @@ xto.setB_id(dto.getB_id());
 xto.setAttribute1(dto.getAttribute1());
 xto.setA_id(dto.getA_id());
 ```
+
+#### Relations : swagger-ui
+
+Les références réflexives des DTO sont correctement décrites dans les schémas OpenAPI générés par **Pacman**, au moyen de références "*$ref*" vers les composants correspondants. Toutefois, Swagger UI présente actuellement une limitation dans la génération automatique des exemples JSON : lorsqu'il rencontre une référence réflexive, il peut la représenter à tort par une chaîne de caractères ("*string*"), alors que la propriété correspond à un objet ou à une collection d'objets. Ce comportement a été identifié comme un défaut dans le projet Swagger UI (issue #10524).
+
+Pacman ne doit pas pallier cette limitation en générant artificiellement des exemples JSON explicites pour chaque opération REST. Une telle solution alourdirait inutilement le code généré et introduirait une responsabilité qui ne relève pas du générateur. De même, l'application de correctifs spécifiques à Swagger UI n'est pas retenue, car elle imposerait de maintenir une version modifiée d'un composant tiers et de reproduire cette maintenance lors de chaque déploiement.
+
+En conséquence, Pacman conserve les schémas OpenAPI conformes et les références réflexives telles qu'elles sont définies dans le modèle. L'affichage des exemples automatiques reste sous la responsabilité de Swagger UI. Ce point pourra être réexaminé lorsqu'une version officielle intégrera une correction de ce défaut.
+
+#### Relations : stratégies d'exposition
+
+Lorsqu'un service REST expose un objet métier, il doit également définir la manière dont les relations de cet objet sont représentées dans les données retournées. En effet, une référence vers un autre objet peut être exposée de plusieurs manières selon le choix d'une intégration directe de l'objet référencé dans la réponse, ou en ne retournant que son identifiant (par exemple). Ce choix a des conséquences importantes sur la structure des données échangées avec les consommateurs de l'API.
+
+La représentation sous forme d'objet permet de fournir directement les informations associées à une relation, sans obliger le consommateur à effectuer un nouvel appel pour obtenir cet objet. En revanche, elle peut conduire à des réponses volumineuses, notamment lorsque les objets exposés possèdent eux-mêmes de nombreuses relations. À l'inverse, la représentation par identifiant limite le contenu de la réponse et laisse au consommateur la responsabilité de récupérer les informations associées lorsqu'il en a besoin. Elle permet également de maîtriser plus finement les données exposées par l'API.
+
+Il n'existe donc pas de représentation universellement adaptée à toutes les situations : le choix dépend du rôle de l'opération, des informations attendues par son consommateur et du niveau de détail nécessaire pour répondre au besoin métier. Une même relation peut ainsi légitimement être exposée sous forme d'objet dans une opération et sous forme d'identifiant dans une autre.
+
+À ce stade, Pacman privilégie une stratégie d'exposition des références consistant à exposer les objets associés directement dans la représentation de l'objet principal, plutôt que de systématiquement remplacer les références par leurs identifiants.
+
+L'objectif est de proposer une représentation des données lisible et exploitable par les consommateurs de l'API, tout en conservant une structure cohérente avec le modèle métier.
+
+Cette approche constitue un choix initial de conception. Elle ne préjuge pas de la stratégie qui sera retenue à terme.
 
 ### 🔧 Documentation Open Api
 ---
@@ -4509,7 +4562,7 @@ public PersonneDtoImpl sauvegarde(final PersonneDtoImpl personne, etc...) {
 
 #### Utilisation de l'héritage
 
-❗ La modélisation de l'héritage est encore en version Alpha, elle sera pleinement supportée très prochainement.
+❗ La modélisation de l'héritage est maintenant pleinement supportée depuis la version 5.1.0 de **Pacman**.
 
 Avec **Pacman** l'héritage entre entités est supporté afin de favoriser la réutilisation et la structuration du modèle métier. Cependant, de manière générale, il est conseillé de ne pas en abuser car il ne faut pas oublier que l'implémentation de l'héritage en JPA peut introduire une complexité technique non négligeable et avoir un impact négatif sur les performances.
 
@@ -4526,38 +4579,7 @@ Les règles sont les suivantes :
 - Ceci implique la création d'une table de liaison par sous-entité lors de relations bidirectionnelles de type (0,\*) ou (1,\*).
 - Ceci implique la multiplication des identifiants pour les clés étrangères dans le cas des relations non-bidirectionnelles de type (0,\*) ou (1,\*).
 
-Quant utiliser l'héritage avec **Pacman** et sous quelle forme ?
-
-- ✅ pleinement supporté, aucun impact de performance.
-- ⚠️ supporté mais en version alpha pour l'instant.️
-- 🛠️️️ en cours d'implémentation, non finalisé sur l'ensemble des couches
-- ⏳ désactivé provisoirement.
-- ⛔ bloqué ne sera jamais implémenté.
-
-
-✅ Factoriser un ensemble d'attributs communs à plusieurs entités. Ici il ne faut pas confondre avec la notion de champs automatiques vue précédement qui elle, applique des attributs mais sur la totalité des entités modélisées. Avec l'héritage il est ainsi possible d'avoir un contrôle plus fin sur les attributs communs. 
-
-✅  Ajouter des relations de type (0,1) entre les entités héritées.
-
-✅ ️️️️️️ Ajouter des relations de type (0,*) entre les entités héritées.
-
-✅ ️️️️️️ Ajouter des relations bidirectionnelles de type (0,*) entre les entités héritées.
-
-⚠️⏳ Ajouter des relations de type (0,1) entre entités parents et héritées.
- 
-⚠️⏳ Ajouter des relations de type (0,*) entre les entités parents et héritées.
- 
-⚠️⏳ Ajouter des relations bidirectionnelles de type (0,*) entre les entités parents et héritées.
-
-⛔ Ajouter des relations de type (0,1) entre les entités parents.️️️
-
-⛔ Ajouter des relations de type (0,*) entre les entités parents.️️
-
-⛔ Ajouter des relations bidirectionnelles de type (0,*) entre les entités parents.
-
 A titre indicatif, voici un exemple de modélisation avec héritage qui regroupe l'ensemble des possibilités disponibles (au niveau des différentes relations) par **Pacman**.
-
-[**Edit du 23/10/2026 : comme vu plus haut certaines fonctionnalités sont temporairement désactivées ⏳  car en régression... en cours de rétablissement.**]
 
 <div align="center">
   <img src="images/pcm-model-heritage-1.png" alt="Modélisation héritage" >
@@ -7451,6 +7473,8 @@ Il est maintenant possible d'importer les ressources (voir le fichier *index.ts*
 
 • **La création ou la construction de mon projet Maven échoue avec des erreurs de téléchargement de dépendances ou de lecture de POM** : Avant toute création de projet, vérifier qu'aucun antivirus, pare-feu ou logiciel de sécurité (notamment ceux effectuant une inspection SSL/HTTPS) ne bloque l'accès aux dépôts Maven, aux certificats ou aux connexions réseau nécessaires au téléchargement des dépendances. Ces outils peuvent intercepter les communications HTTPS et provoquer des erreurs de résolution de dépendances ou de certificats. Le cas échéant, désactiver temporairement ces protections ou configurez-les correctement (ajout des certificats requis, exclusions réseau) avant de relancer la création ou la construction du projet.
 
+• **Quand  je lance les tests unitaires de persistance, j'ai des erreurs au niveau de la base de données** : Le script d'initialisation des données pour le lancement des tests est entre balises de type "*user code*". Avant de lancer les tests, toujours bien vérifier que l'initialisation des tables est bien en adéquation avec la dernière génération. Si vous relancez la génération des scripts SQL, il faut : soit supprimer le précedent script d'initialisation, soit l'adapter en recopiant les données générées au niveau des balises "*user code*". 
+
 • **Quand je relance une génération j'ai des erreurs au niveau de mes classes à cause de données manquantes dans les imports** : ceci est une problématique liée plus précisément à des modifications de modélisation suite à générations antérieures. 
     
 **Pacman**, afin de conserver les imports non générés (ceux spécifiquement (et éventuellement) rajoutés par les développeurs) est obligé de générer les imports entre balise de type "*user code*". Ainsi, lors des futures demandes de génération, les imports utilisateurs ne sont pas écrasés. 
@@ -7553,6 +7577,7 @@ Une solution est actuellement à l'étude afin de fiabiliser les conditions d'af
 | BATCH_PROCESS | NON | L'opération effectue un traitement hors base | OPERATION |
 | DATA_ISOLATION_CONTEXTE | NON | Le retour de l'opération sert pour le contexte d'isolation | OPERATION |
 
+
 ### Exemples de métadonnées
 
 Voici quelques exemples pour les métadonnées qui nécessitent des explications supplémentaires :  
@@ -7588,7 +7613,7 @@ Liste des règles de validation dans les différents diagrammes.
 |Pas d'attribut avec une cardinalité multiple|ENTITY|
 |Pas d'attribut sans nom défini|ENTITY/DTO|
 |Pas d'attribut sans type défini|ENTITY/DTO|
-|Pas de relations récursives avec le même nom|ENTITY/DTO|
+|Pas de relations réflexives avec le même nom|ENTITY/DTO|
 |Pas de relation de type 'composite'|ENTITY/DTO|
 |Pas de relation entre sous-entités et super-entités|ENTITY/DTO|
 |Pas de relations entre super-entités|ENTITY/DTO|
