@@ -8,7 +8,7 @@
 
 [comment écriture des classes et fichiers persistence pour la partie serveur de l'application cible./]
 [template public genServer(root : entity::Root)]
-  [comment on a besoin des compteurs uniquement pour les relations récursives./]
+  [comment on a besoin des compteurs uniquement pour les relations réflexivess./]
   [root.do_resetCounters()/]
   [comment activation du pre-traitement des références./]
   [root.do_initializeWorkingReferences()/]

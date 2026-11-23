@@ -6,7 +6,7 @@
 
 	<groupId>fr.pacman.back</groupId>
 	<artifactId>fr.pacman.back.parent</artifactId>
-	<version>6.0.0</version>
+	<version>5.1.0</version>
 	<packaging>pom</packaging>
 	<name>fr.pacman.back.parent</name>
 	<description>Projet parent à l'ensemble des générateurs Pacman back.</description>

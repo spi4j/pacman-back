@@ -222,7 +222,7 @@
 	then ' not null' else '' endif + if (dbType.is_mySqlType() and p.description.exists()) then ' ' + p.description.toString()
 	.escapeSqlComment() else '' endif/]
 	
-[comment écriture de la référence ciblée pour la création de l'index (dépend si la référence est récursive ou pas)./]
+[comment écriture de la référence ciblée pour la création de l'index (dépend si la référence est réflexive ou pas)./]
 [query private writeReferenceId(r: environment::Reference) : String = if (r.isZeroOneReflexive()) then r.nameSimplePropertyID().toUpper() 
   else r.nameReferenceId(0) endif/]
 

@@ -48,7 +48,7 @@
 [query private sortedByName(c : Sequence(environment::Reference)) : OrderedSet(environment::Reference) = 
 	c->asOrderedSet()->sortedBy(o | o.name.toLower())/]
   
-[comment vérifie si pour une entité il existe plusieurs références récursive avec le même nom./]
+[comment vérifie si pour une entité il existe plusieurs références réflexive avec le même nom./]
 [query public hasReflexivesWithSameName(c : OrderedSet(environment::Reference)) : Boolean = c->select(o | o.isReflexive())
 	->collect(o | o.name)->asSet()->size() = c->select(o | o.isReflexive())->size()/]
 
@@ -70,7 +70,7 @@
 
 [comment retourne les références pour les tables de jointure : 
 		- les relations bidirectionnelles (*,*)
-		- les relations unidirectionnelles récursives (0,*)(1,*)
+		- les relations unidirectionnelles réflexives (0,*)(1,*)
 		-> pour scripts sql et spi4j uniquement./]	
 [query private referencesJT(rs : Sequence(environment::Reference)) : Sequence(environment::Reference) = 
 	rs->select(o : environment::Reference | o.isMultiple() 

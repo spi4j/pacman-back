@@ -506,7 +506,7 @@
   [/let]
 [/template]
 
-[comment retoune l'entité référencée, si relation récursive, on ajoute un index (on utilise pas get_nexCounter() afin de ne pas avoir de doublon dans le nom de l'entité./]
+[comment retoune l'entité référencée, si relation réflexive, on ajoute un index (on utilise pas get_nexCounter() afin de ne pas avoir de doublon dans le nom de l'entité./]
 [query private referencedEntityName(e : entity::Entity, r : environment::Reference, idx : Integer) : String = if (r.isReflexive()()) then e.name() 
   + '_' + idx else e.referencedName(r).apply_variableDefault() endif/]
 
