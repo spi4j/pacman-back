@@ -167,6 +167,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>[any.versionSpringBoot()/]</version>
           </dependency>
+          <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>            <version>[any.versionSpringBoot()/]</version>
+          </dependency>
           <!-- projet métier (domaine). -->
           <dependency>
             <groupId>[any.namePackageProject()/]</groupId>

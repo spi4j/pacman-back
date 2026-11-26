@@ -182,7 +182,19 @@
      body="SERVICE : Génération minimaliste du provider pour l'infrastructure"
      condition="aql:Sequence{'service'}->includes(self.eClass().name.toLower())"/>
    <metaDataDefinitions technicalid="_Kz4s0F8LEfG-uoT4Tlu8ZQ"
-     title="TODO"
-     body=""
-     condition="aql:Sequence{'x'}->includes(self.eClass().name.toLower())"/>
+     title="PUSH"
+     body="SERVICE : Génération de service de type Push pour envoi de notifications "
+     condition="aql:Sequence{'service'}->includes(self.eClass().name.toLower())"/>
+   <metaDataDefinitions technicalid="_S-jMMOj3EfGf1N4ub2O08g"
+     title="PUSH_GLOBAL_NOTIFICATION"
+     body="SERVICE : Notification à envoyer pour le service Push (tous les utilisateurs)"
+     condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
+     <metaDataDefinitions technicalid="_tYD9sOmTEfGVoctPM1cmWQ"
+     title="PUSH_SERVICE_NOTIFICATION"
+     body="SERVICE : Notification à envoyer pour le service Push (utilisateurs abonnés au service)"
+     condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
+     <metaDataDefinitions technicalid="_uDA_MOmTEfGVoctPM1cmWQ"
+     title="PUSH_USER_NOTIFICATION"
+     body="SERVICE : Notification à envoyer pour le service Push (utilisateur spécifique)"
+     condition="aql:Sequence{'operation'}->includes(self.eClass().name.toLower())"/>
 </metadatadef:MetaDataDefinitions>

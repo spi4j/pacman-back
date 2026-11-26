@@ -69,6 +69,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	private String _rsIDORCtrl = "";
 	private String _rsApiLog = "";
 	private String _rsAuthLog = "";
+	private String _rsPush = "";
 
 	// Pas en String car ne vas pas dans les propriétés.
 	private boolean _displayReadme;
@@ -158,6 +159,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		registerWidget("ck_idorCtrl2", addCheckBoxIDORControl2(options2));
 		registerWidget("ck_rsApiLog", addCheckBoxApiLog(options2));
 		registerWidget("ck_rsAuthLog", addCheckBoxAuthLog(options2));
+		registerWidget("ck_rsPush", addCheckBoxPush(options2));
 		// registerWidget("ck_fileConfig", addCheckBoxSpi4jConfig(options2));
 		// registerWidget("ck_fetchStrategy", addCheckBoxFetchStrategy(options2));
 		// registerWidget("ck_security", addCheckBoxSecurity(options2));
@@ -189,12 +191,13 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		_javaVersion = "21";
 		_typeProject = "server";
 		_typeFramework = "springboot";
+		_spi4jfetchingStrategy = "false";
 		_spi4jRsCdi = "false";
 		_rsSSOAuth = "false";
 		_rsIDORCtrl = "none";
 		_rsApiLog = "false";
 		_rsAuthLog = "false";
-		_spi4jfetchingStrategy = "false";
+		_rsPush = "false";
 		_spi4jSecurity = "false";
 		_projectCrud = "false";
 		_displayReadme = true;
@@ -727,6 +730,38 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	}
 
 	/**
+	 * Demande l'activation service de push des notifications pour les services
+	 * REST.
+	 * 
+	 * Lorsque le service est activé, le serveur transmet automatiquement les
+	 * notifications en temps réel via STOMP afin de suivre l'évolution des
+	 * traitements sans avoir à actualiser l'application.
+	 *
+	 * La sélection de la case met à jour la propriété {@code _rsPush} avec la
+	 * valeur {@code "true"} ou {@code "false"}.
+	 * 
+	 * @param p_parent le composite parent dans lequel ajouter la case à cocher
+	 * @return le bouton représentant la case à cocher du service de push
+	 */
+	private Button addCheckBoxPush(final Composite p_parent) {
+		Button cbx = addCheckBox(p_parent, "Api REST - Activation des services de push",
+				"Active la réception des notifications en temps réel via STOMP afin de suivre l'évolution "
+						+ "des traitements sans avoir à actualiser l'application. Les notifications *"
+						+ "sont transmises automatiquement par le serveur dès qu'un événement survient");
+		cbx.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(final SelectionEvent p_e) {
+				boolean v_selected = ((Button) p_e.getSource()).getSelection();
+				if (v_selected) {
+					_rsPush = "true";
+				} else {
+					_rsPush = "false";
+				}
+			}
+		});
+		return cbx;
+	}
+
+	/**
 	 * Demande l'activation des logs pour l'ensemble des appels rest.
 	 * 
 	 * @param p_parent le composite parent sur lequel accrocher le composant.
@@ -993,6 +1028,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 		enable(getWidget("ck_idorCtrl2"));
 		enable(getWidget("ck_rsApiLog"));
 		enable(getWidget("ck_rsAuthLog"));
+		enable(getWidget("ck_rsPush"));
 		disable(getWidget("ck_jerseyCdi"));
 		// disable(getWidget("ck_fileConfig"));
 		// disable(getWidget("ck_fetchStrategy"));
@@ -1016,6 +1052,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			disable(getWidget("ck_idorCtrl2"));
 			disable(getWidget("ck_rsApiLog"));
 			disable(getWidget("ck_rsAuthLog"));
+			disable(getWidget("ck_rsPush"));
 		}
 		if ("client".equalsIgnoreCase(_typeProject)) {
 			disable(getWidget("grp_database2"));
@@ -1027,6 +1064,7 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 			disable(getWidget("ck_idorCtrl2"));
 			disable(getWidget("ck_rsApiLog"));
 			disable(getWidget("ck_rsAuthLog"));
+			disable(getWidget("ck_rsPush"));
 		}
 	}
 
@@ -1238,6 +1276,14 @@ public class PropertiesWizardStartPage extends PropertiesWizardPage<Control> {
 	 */
 	public String getRsAuthLog() {
 		return _rsAuthLog;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getRsPush() {
+		return _rsPush;
 	}
 
 	/**

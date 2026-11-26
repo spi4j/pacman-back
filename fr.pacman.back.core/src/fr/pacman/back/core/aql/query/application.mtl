@@ -25,10 +25,10 @@
 [query public isRsLogEnabled(any : ecore::EObject) : Boolean = any.get_useRsLog() or any.get_useRsAuthLog()/]
   
 [comment vérifie si l'application à une stratégie d'exposition des références de type EMBEDDED./]
-[query public isReferenceEmbedded(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApiEmbedded())/]
+[comment query public isReferenceEmbedded(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApiEmbedded())/]
   
 [comment vérifie si l'application à une stratégie d'exposition des références de type SUMMARY./]
-[query public isReferenceSummary(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApiSummary())/]
+[comment query public isReferenceSummary(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApiSummary())/]
   
 [comment vérifie si l'application à une stratégie d'exposition des références de type IDENTIFIER./]
-[query public isReferenceIdentifier(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApIdentifier())/]
+[comment query public isReferenceIdentifier(any : ecore::EObject) : Boolean = any.get_apiReferenceStrategy().equalsIgnoreCase(any.cApIdentifier())/]

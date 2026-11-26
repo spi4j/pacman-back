@@ -92,6 +92,12 @@
 
 [comment retourne le nom pour l'implémentation du filtre d'audit pour l'ensemble des authentifications par service rest./]  
 [query public nameClassRsAuditAuthFilterImpl(any : ecore::EObject) : String = (any.nameProject() + '  api auth filter').apply_classDefault()/]
+  
+[comment retourne le nom pour l'implémentation de la classe de configuration pour les services de push (stomp)./]  
+[query public nameClassRsPushConfigImpl(any : ecore::EObject) : String = (any.nameProject() + '  web socket config').apply_classDefault()/]
+  
+[comment retourne le nom pour l'implémentation de la classe de service générique de notification pour les services de push (stomp)./]  
+[query public nameClassRsPushServiceImpl(any : ecore::EObject) : String = (any.nameProject() + ' notification service').apply_classDefault()/]
 
 [comment retourne le nom pour l'implémentation d'une classe de service soa (contrôleur rest, etc..)./]  
 [query public nameClassRsServiceImpl(s : soa::Service) : String = (s.name() + ' controller').apply_classImplem()/]

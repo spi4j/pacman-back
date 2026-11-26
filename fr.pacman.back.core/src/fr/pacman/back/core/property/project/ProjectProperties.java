@@ -51,6 +51,7 @@ public final class ProjectProperties extends PropertiesCategory {
 	public static final String c_project_type = "project.type";
 	public static final String c_project_rs_log = "project.rs.log.enabled";
 	public static final String c_project_rs_auth_log = "project.rs.auth.log.enabled";
+	public static final String c_project_rs_push = "project.rs.push.enabled";
 	public static final String c_project_validation_jkw = "project.validation.jkw.enabled";
 	public static final String c_project_apiReferencestrategy = "project.default.api.reference.strategy";
 
@@ -215,6 +216,9 @@ public final class ProjectProperties extends PropertiesCategory {
 				PacmanProperty.newConditional(c_project_sso_auth, "false",
 						"Flag indiquant si le projet utilise la librairie sso pour authentification"),
 
+				PacmanProperty.newConditional(c_project_rs_push, "false",
+						"Flag indiquant si le projet utilise des services de type push (non par défaut)"),
+
 				PacmanProperty.newConditional(c_project_idor_control, "none",
 						"Flag indiquant si le projet ajoute un contrôle sur la cohérence des paramètres rest"),
 
@@ -225,8 +229,8 @@ public final class ProjectProperties extends PropertiesCategory {
 				PacmanProperty.newRequired(c_project_rs_log, "false",
 						"Flag indiquant si on doit logger l'ensemble des appels rest"),
 
-				PacmanProperty.newRequired(c_project_apiReferencestrategy, "EMBEDDED",
-						"Stratégie d'exposition des références pour les appels rest (EMBEDDED par défaut)"),
+//				PacmanProperty.newRequired(c_project_apiReferencestrategy, "EMBEDDED",
+//						"Stratégie d'exposition des références pour les appels rest (EMBEDDED par défaut)"),
 
 				PacmanProperty.newRequired(c_project_rs_auth_log, "false",
 						"Flag indiquant si on doit logger l'ensemble des authentifications par appels rest"),
@@ -384,6 +388,7 @@ public final class ProjectProperties extends PropertiesCategory {
 				updateProperty(p_pacmanProperties.get(c_project_sso_auth));
 				updateProperty(p_pacmanProperties.get(c_project_idor_control));
 				updateProperty(p_pacmanProperties.get(c_tests_domain_enabled));
+				updateProperty(p_pacmanProperties.get(c_project_rs_push));
 			}
 		}
 	}
@@ -626,6 +631,10 @@ public final class ProjectProperties extends PropertiesCategory {
 		// return PropertiesHandler.getProperty(c_is_crud);
 	}
 
+	public static final Boolean get_useRsPush(Object p_object) {
+		return Boolean.valueOf(PropertiesHandler.getProperty(c_project_rs_push));
+	}
+
 	public static final Boolean get_useConfigFilesSpi4jFrwk(Object p_object) {
 		return false;
 		// return PropertiesHandler.getProperty(c_is_spi4jConfig);
@@ -685,9 +694,9 @@ public final class ProjectProperties extends PropertiesCategory {
 		return PropertiesHandler.getProperty(c_paging_pageCount);
 	}
 
-	public static String get_apiReferenceStrategy(final Object p_object) {
-		return PropertiesHandler.getProperty(c_project_apiReferencestrategy);
-	}
+//	public static String get_apiReferenceStrategy(final Object p_object) {
+//		return PropertiesHandler.getProperty(c_project_apiReferencestrategy);
+//	}
 
 //	public static String isDebugMode() {
 //		return PropertiesHandler.getProperty(c_is_debug);

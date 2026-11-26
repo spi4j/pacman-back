@@ -114,6 +114,14 @@
       [r.fileRsAuditFilterAuthImpl()/]
     [/if]
   [/if]
+  
+  [comment gestion des services push (stomp)./]
+  [if (r.get_useRsPush())]
+    [comment écriture de la classe de configuration pour stomp./]
+    [r.fileRsPushConfigImpl()/]
+    [comment écriture du service générique de notification./]
+    [r.fileRsPushServiceImpl()/]
+  [/if]
 [/template]
 
 [comment implémentation de l'api de santé pour l'application./]

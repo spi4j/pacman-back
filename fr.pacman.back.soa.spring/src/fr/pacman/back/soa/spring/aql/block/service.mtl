@@ -93,6 +93,7 @@
     import [s.namePackageProject()/].[s.namePackageRsControllerBase()/].[s.nameClassRsDataIsolationContextImpl()/];
     import [s.namePackageProject()/].[s.namePackageRsControllerBase()/].[s.nameClassRsDataIsolationContextHolderImpl()/];
     import [s.namePackageProject()/].[s.namePackageRsControllerBase()/].[s.nameClassRsDataIsolationUserCodeImpl()/];
+    import [s.namePackageProject()/].[s.namePackageRsControllerBase()/].[s.nameClassRsPushServiceImpl()/];
     
     [for (d | ds)]
       import [s.namePackageProject()/].[d.namePackageMapperInImpl()/].[d.nameClassMapperImpl()/];
@@ -112,11 +113,18 @@
     ['Interface service métier'.commentMultiLines()/]
     private final [s.nameClassServiceInItf()/] [s.name().apply_attributeFinal()/];
     
+    [if (s.is_metaPush())]
+      ['Service technique d\'envoi des notifications STOMP'.commentSingleLine()/]
+      private final [s.nameClassRsPushServiceImpl()/] ['notification service'.apply_attributeFinal()/];
+    [/if]
+    
     ['Constructeur'.commentMultiLines()/]
     @Autowired
-    public [s.nameClassRsServiceImpl()/](final [s.nameClassServiceInItf()/] [s.name().apply_parameterMethodClassicInOut()/])
+    public [s.nameClassRsServiceImpl()/] ([s.writeConstructor()/])
     {
       [s.prefixAffectation()/][s.name().apply_attributeFinal()/] = [s.name().apply_parameterMethodClassicInOut()/];
+      [if (s.is_metaPush())][s.prefixAffectation()/]['notification service'.apply_attributeFinal()/] 
+         = ['notification service'.apply_parameterMethodClassicIn()/];[/if]
     }
     
     [for (o : soa::Operation | s.ownedInterface.ownedOperations)]
@@ -138,9 +146,11 @@
              [o.writeSortByParam()/]
              [o.writeRsHeadOptionOperation(s)/]
              [o.writeDefaultCodeForDataIsolation()/]
+             [o.writeDefaultPushUserVariable(s)/]
              
            [/protected]
            
+           [o.writeRsPushOperation(s)/]
            [o.writeRsOperation(s)/] 
         }
       [/if]
@@ -920,6 +930,21 @@
 [comment écriture de l'éventuel paramètre de pagination./]
 [query private writeSortByParam(o : soa::Operation) : String = if (o.paged) then 'final String ' + 'sort by'.apply_variableDefault() + '= "' 
 	+ '";' else '' endif/]
+
+[comment écriture de la signature pour le constructeur de l'opération./]
+[query private writeConstructor(s : soa::Service) : String = 'final ' + s.nameClassServiceInItf() + ' ' + s.name().apply_parameterMethodClassicInOut() 
+  + if (s.is_metaPush()) then ', final ' + s.nameClassRsPushServiceImpl() + ' ' + 'notification service'.apply_parameterMethodClassicIn() else '' endif/]
+
+[comment écriture de la variable de récupération pour le userId dans le cas on on effectue du push (user) quant même préférable de tester "isRsPush()" avant./]
+[query private writeDefaultPushUserVariable(o : soa::Operation, s : soa::Service) : String = if (o.isRsPush(s) and o.has_metaPushUserNotification()) then 
+  'String ' + 'user id'.apply_variableDefault() + ' = null;' else '' endif/]
+
+[comment écriture de l'envoi des notifications par push (si push activé pour le service)./]
+[query private writeRsPushOperation(o : soa::Operation, s : soa::Service) : String = if (o.isRsPush(s)) then 'notification service'.apply_attributeFinal() 
+  + '.' + if (o.has_metaPushServiceNotification()) then 'send notification'.apply_methodDefault() + '("' + o.name() +'","' + o.get_metaPushServiceNotification() 
+  else '' endif + if (o.has_metaPushGlobalNotification()) then 'send global notification'.apply_methodDefault() + '("' + o.get_metaPushGlobalNotification() 
+  else '' endif + if (o.has_metaPushUserNotification()) then 'send user notification'.apply_methodDefault() + '(' + 'user id'.apply_variableDefault() 
+  + ', "' + o.get_metaPushUserNotification() else '' endif + '");' + o.lineSeparator() else '' endif/]
 	
 [comment écriture du code par défaut pour la partie utilisateur si le contrôle de la violation des données est actif ./]
 [query private writeDefaultCodeForDataIsolation(o : soa::Operation) : String = if (o.isRsIdorCtrlEnabled()) then o.nameClassRsDataIsolationUserCodeImpl() 

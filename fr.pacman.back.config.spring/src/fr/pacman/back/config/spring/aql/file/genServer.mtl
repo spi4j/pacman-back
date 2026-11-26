@@ -288,3 +288,17 @@
   [/file]
 [/template]
 
+[comment écriture du fichier d'implémentation classe de configuration pour le push (stomp)./]
+[template public fileRsPushConfigImpl(any : ecore::EObject)]
+  [file (any.nameClassRsPushConfigImpl().toFileJava(any.namePackageApplicationBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsPushConfigImpl()/]
+  [/file]
+[/template]
+
+[comment écriture du fichier d'implémentation classe du service générique de notification pour le push (stomp)./]
+[template public fileRsPushServiceImpl(any : ecore::EObject)]
+  [file (any.nameClassRsPushServiceImpl().toFileJava(any.namePackageRsControllerBase()), overwrite, any.defaultFileEncoding())]
+    [any.rsPushServiceImpl()/]
+  [/file]
+[/template]
+

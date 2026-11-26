@@ -87,8 +87,12 @@
  (o.defaultRsNotFoundStatusCode1()) or f.statusCode.equalsIgnoreCase(o.defaultRsNotFoundStatusCode2()))->isEmpty()/]
 
 [comment retourne la 'fault' de type 'Not Found' qui a été définie sur l'opération rest./]
-[query public notRsFoundFault (o :soa::Operation) : soa::Parameter =  o.fault->select(f | f.statusCode.equalsIgnoreCase
+[query public notRsFoundFault(o :soa::Operation) : soa::Parameter =  o.fault->select(f | f.statusCode.equalsIgnoreCase
  (o.defaultRsNotFoundStatusCode1()) or f.statusCode.equalsIgnoreCase(o.defaultRsNotFoundStatusCode2()))->first()/]
+ 
+[comment vérifie si une opération doit aussi renvoyer des notification de type push./]
+[query public isRsPush(o : soa::Operation, s : soa::Service) : Boolean = s.is_metaPush() and (o.has_metaPushGlobalNotification() 
+  or o.has_metaPushServiceNotification() or o.has_metaPushUserNotification())/]
   
 [comment vérifie si l'opération est une opération de type rest./]
 [query public isRsOperation(o : soa::Operation) : Boolean = o.exists() and o.public and o.exposition = soa::ExpositionKind::REST/]

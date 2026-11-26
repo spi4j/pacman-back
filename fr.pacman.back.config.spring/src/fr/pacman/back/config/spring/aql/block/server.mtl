@@ -72,21 +72,26 @@
            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-webmvc-test</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- Notifications Push -->
+        <dependency>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
         <!-- On passe par log4j et non par logBack --> 
         <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-log4j2</artifactId>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
         <!-- batchs asynchrones -->
         <dependency>
@@ -95,12 +100,12 @@
         </dependency>
         <!-- swagger-ui -->
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+           <groupId>org.springdoc</groupId>
+           <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
+           <groupId>org.hibernate.validator</groupId>
+           <artifactId>hibernate-validator</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.el</groupId>
@@ -1617,6 +1622,22 @@
     # ----------------------------------------------------------------------------------------------
     # Un exemple de cle symetrique (pour le developpement uniquement).
     data-isolation.jwt.secret=HhO7b9aZ0e6eXEkQcL4BFxkGXGcWyN7F
+  [/if]
+  
+  [if (any.get_useRsPush())]
+    # ----------------------------------------------------------------------------------------------
+    # SERVICES DE PUSH (STOMP).
+    # ----------------------------------------------------------------------------------------------
+    # Point de connexion WebSocket.
+    push.websocket.endpoint=/ws
+    # Préfixe des messages entrants vers Spring.
+    push.stomp.application-prefix=/app
+    # Préfixes des destinations de diffusion.
+    push.stomp.broker-prefixes=/topic,/queue
+    # Préfixe des destinations individuelles.
+    push.stomp.user-prefix=/user
+    # Configuration du service de push.
+    push.stomp.notification-destination=/topic/notifications
   [/if]
   
   # ----------------------------------------------------------------------------------------------
@@ -4225,14 +4246,14 @@
   /**
    * Écoute les événements d'authentification générés par Spring Security afin
    * d'assurer la traçabilité des tentatives de connexion.
-   * <p>
+   * 
    * Les authentifications réussies et échouées sont journalisées dans un logger
    * dédié {@code AUTH_AUDIT}, indépendant des logs techniques de l'application.
-   * </p>
-   * <p>
+   * 
    * La journalisation peut être activée ou désactivée globalement au moyen de la
    * propriété {@code logging.auth.audit.enabled}.
-   * </p>
+   * 
+   * @author [any.nameAuthor()/]
    */
   @Component
   public class [any.nameClassRsAuditAuthFilterImpl()/] {
@@ -4281,6 +4302,187 @@
        ['logger'.apply_attributeFinalStatic()/].info("NOK | login={} | erreur={}", ['login'.apply_variableDefault()/]
          , ['error'.apply_variableDefault()/]);
     }
+  }
+[/template]
+
+
+[comment écriture de l'implémentation pour la classe de configuration Push (stomp)./]
+[template public rsPushServiceImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageRsControllerBase())/]
+  
+  import org.springframework.messaging.simp.SimpMessagingTemplate;
+  import org.springframework.stereotype.Service;
+  
+  /**
+  * Service d'envoi des notifications via le protocole STOMP.
+  *
+  * @author [any.nameAuthor()/]
+  */
+  @Service
+  public class [any.nameClassRsPushServiceImpl()/] {
+      
+      ['Composant Spring permettant d\'envoyer des messages STOMP.'.commentSingleLine()/]
+      private final SimpMessagingTemplate ['messaging template'.apply_attributeFinal()/];
+      
+      @SuppressWarnings("unused")
+      ['Préfixe des destinations STOMP des notifications'.commentSingleLine()/]
+      private final String ['destination prefix'.apply_attributeFinal()/];
+      
+      [''.commentSingleLine()/]
+      private final String ['notification destination'.apply_attributeFinal()/];
+     
+      /**
+      * Initialise le service d'envoi des notifications.
+      *
+      * @param ['messaging template'.apply_parameterMethodClassicIn()/] composant Spring d'envoi des messages STOMP
+      * @param ['destination prefix'.apply_parameterMethodClassicIn()/] préfixe des destinations STOMP des notifications
+      */
+      public [any.nameClassRsPushServiceImpl()/](
+        final SimpMessagingTemplate ['messaging template'.apply_parameterMethodClassicIn()/], 
+        @Value("${push.stomp.destination-prefix}") final String ['destination prefix'.apply_parameterMethodClassicIn()/], 
+        @Value("${push.stomp.notification-destination}") final String ['notification destination'.apply_parameterMethodClassicIn()/]) {
+        [any.prefixAffectation()/]['messaging template'.apply_attributeFinal()/] = ['messaging template'.apply_parameterMethodClassicIn()/];
+        [any.prefixAffectation()/]['destination prefix'.apply_attributeFinal()/] = ['destination prefix'.apply_parameterMethodClassicIn()/];
+        [any.prefixAffectation()/]['notification destination'.apply_attributeFinal()/] = ['notification destination'.apply_parameterMethodClassicIn()/];
+      }
+     
+      /**
+      * Envoie une notification à tous les clients abonnés à la destination
+      * configurée pour les notifications.
+      *
+      * @param p_serviceName nom du service métier destinataire
+      * @param p_notification contenu de la notification à transmettre
+      */
+      public void ['send notification'.apply_methodDefault()/](
+         final String ['service name'.apply_parameterMethodClassicIn()/], 
+         final Object ['notification'.apply_parameterMethodClassicIn()/]) {
+         
+         [any.prefixAffectation()/]['messaging template'.apply_attributeFinal()/].convertAndSend
+           ([any.prefixAffectation()/]['destination prefix'.apply_attributeFinal()/] + "/" + 
+           ['service name'.apply_parameterMethodClassicIn()/], ['notification'.apply_parameterMethodClassicIn()/]);
+      }
+      
+      /**
+      * Envoie une notification globale à tous les clients abonnés
+      * à la destination configurée pour les notifications.
+      *
+      * @param ['notification'.apply_parameterMethodClassicIn()/] contenu de la notification à transmettre
+      */
+      public void ['send global notification'.apply_methodDefault()/](final Object ['notification'.apply_parameterMethodClassicIn()/]) {
+          [any.prefixAffectation()/]['messaging template'.apply_attributeFinal()/].convertAndSend
+          ([any.prefixAffectation()/]['notification destination'.apply_attributeFinal()/], ['notification'.apply_parameterMethodClassicIn()/]);
+      }
+      
+      /**
+      * Envoie une notification à un utilisateur connecté.
+      *
+      * @param ['user name'.apply_parameterMethodClassicIn()/] identifiant de l'utilisateur destinataire
+      * @param ['notification'.apply_parameterMethodClassicIn()/] contenu de la notification
+      */
+      public void sendUserNotification(final String ['user name'.apply_parameterMethodClassicIn()/]
+         , final Object ['notification'.apply_parameterMethodClassicIn()/]) {
+           [any.prefixAffectation()/]['messaging template'.apply_attributeFinal()/].convertAndSendToUser(
+           ['user name'.apply_parameterMethodClassicIn()/], "/queue/notifications"
+           , ['notification'.apply_parameterMethodClassicIn()/]);
+      }
+  }
+[/template]
+
+[comment écriture de l'implémentation pour la classe de configuration Push (stomp)./]
+[template public rsPushConfigImpl(any : ecore::EObject)]
+  [any.classHeader(any.namePackageApplicationBase())/]
+  [protected ('imports'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+    
+    [any.defaultImports()/]
+    import org.springframework.beans.factory.annotation.Value;
+    import org.springframework.context.annotation.Configuration;
+    import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+    import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+    import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+    import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+  
+  [/protected]
+  
+  /**
+   * Configure le service de push des notifications via WebSocket et STOMP.
+   * 
+   * Les paramètres de connexion et de routage des messages sont définis
+   * dans le fichier application.properties.
+   *
+   * @author [any.nameAuthor()/]
+   */
+  @Configuration
+  @EnableWebSocketMessageBroker
+  public class [any.nameClassRsPushConfigImpl()/] implements WebSocketMessageBrokerConfigurer {
+     
+      ['Point de connexion WebSocket.'.commentSingleLine()/]
+      @Value("${push.websocket.endpoint}")
+      private final String ['web socket endpoint'.apply_attributeFinal()/];
+
+      ['Préfixe des messages entrants vers l\'application.'.commentSingleLine()/]
+      @Value("${push.stomp.application-prefix}")
+      private final String ['application prefix'.apply_attributeFinal()/];
+
+      ['Préfixes des destinations prises en charge par le broker.'.commentSingleLine()/]
+      @Value("${push.stomp.broker-prefixes}")
+      private final String['['/][']'/] ['broker prefixes'.apply_attributeFinal()/];
+
+      ['Préfixe des destinations individuelles.'.commentSingleLine()/]
+      @Value("${push.stomp.user-prefix}")
+      private final String ['user prefix'.apply_attributeFinal()/];
+      
+      /**
+      * Initialise la configuration STOMP à partir des propriétés Spring.
+      *
+      * @param ['web socket endpoint'.apply_parameterMethodClassicIn()/] point de connexion WebSocket
+      * @param ['application prefix'.apply_parameterMethodClassicIn()/] préfixe des messages entrants
+      * @param ['broker prefixes'.apply_parameterMethodClassicIn()/] préfixes des destinations du broker
+      * @param ['user prefix'.apply_parameterMethodClassicIn()/] préfixe des destinations individuelles
+      */
+      [any.nameClassRsPushConfigImpl()/] (
+           @Value("${push.websocket.endpoint}") final String ['web socket endpoint'.apply_parameterMethodClassicIn()/], 
+           @Value("${push.stomp.application-prefix}") final String ['application prefix'.apply_parameterMethodClassicIn()/], 
+           @Value("${push.stomp.broker-prefixes}") final String['['/][']'/] ['broker prefixes'.apply_parameterMethodClassicIn()/], 
+           @Value("${push.stomp.user-prefix}") final String ['user prefix'.apply_parameterMethodClassicIn()/])
+       {
+           [any.prefixAffectation()/]['web socket endpoint'.apply_attributeFinal()/] = ['web socket endpoint'.apply_parameterMethodClassicIn()/];
+           [any.prefixAffectation()/]['application prefix'.apply_attributeFinal()/] = ['application prefix'.apply_parameterMethodClassicIn()/];
+           [any.prefixAffectation()/]['broker prefixes'.apply_attributeFinal()/] = ['broker prefixes'.apply_parameterMethodClassicIn()/];
+           [any.prefixAffectation()/]['user prefix'.apply_attributeFinal()/] =  ['user prefix'.apply_parameterMethodClassicIn()/];
+       }
+      
+      /**
+      * Enregistre le point de connexion WebSocket utilisé par les clients
+      * pour établir une connexion STOMP avec le serveur.
+      *
+      * @param ['registry'.apply_parameterMethodClassicIn()/] registre des points de connexion STOMP
+      */
+      @Override
+      public void registerStompEndpoints(StompEndpointRegistry ['registry'.apply_parameterMethodClassicIn()/]) 
+      {
+          ['registry'.apply_parameterMethodClassicIn()/].addEndpoint([any.prefixAffectation()/]['web socket endpoint'.apply_attributeFinal()/]);
+          
+          [protected ('registerStompEndpoints'.protectedId()) startTagPrefix('// ') endTagPrefix('// ')]
+          [/protected]
+      }
+      
+      /**
+      * Configure le routage des messages STOMP entre les clients,
+      * l'application et le broker de messagerie.
+      * 
+      * Définit les préfixes des destinations prises en charge par le broker,
+      * le préfixe des messages entrants destinés à l'application ainsi que
+      * le préfixe utilisé pour les destinations individuelles.
+      *
+      * @param ['registry'.apply_parameterMethodClassicIn()/] registre de configuration du broker de messagerie
+      */
+      @Override
+      public void configureMessageBroker(MessageBrokerRegistry ['registry'.apply_parameterMethodClassicIn()/]) 
+      {
+          ['registry'.apply_parameterMethodClassicIn()/].enableSimpleBroker([any.prefixAffectation()/]['broker prefixes'.apply_attributeFinal()/]);
+          ['registry'.apply_parameterMethodClassicIn()/].setApplicationDestinationPrefixes([any.prefixAffectation()/]['application prefix'.apply_attributeFinal()/]);
+          ['registry'.apply_parameterMethodClassicIn()/].setUserDestinationPrefix([any.prefixAffectation()/]['user prefix'.apply_attributeFinal()/]);
+      }
   }
 [/template]
 

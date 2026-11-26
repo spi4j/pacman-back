@@ -257,6 +257,18 @@ public final class AnnotationUtils {
 		return is_annotationExists(p_object, AnnotationEnum.COMPUTED);
 	}
 
+	public static boolean has_metaPushGlobalNotification(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.PUSH_GLOBAL_NOTIFICATION);
+	}
+	
+	public static boolean has_metaPushServiceNotification(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.PUSH_SERVICE_NOTIFICATION);
+	}
+	
+	public static boolean has_metaPushUserNotification(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.PUSH_USER_NOTIFICATION);
+	}
+
 	public static boolean has_metaPermissionOr(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.PERMISSIONS_OR);
 	}
@@ -283,6 +295,10 @@ public final class AnnotationUtils {
 
 	public static boolean is_metaS3Storage(final ObeoDSMObject p_object) {
 		return is_annotationExists(p_object, AnnotationEnum.S3_STORAGE);
+	}
+
+	public static boolean is_metaPush(final ObeoDSMObject p_object) {
+		return is_annotationExists(p_object, AnnotationEnum.PUSH);
 	}
 
 	public static boolean is_metaBatchRead(final ObeoDSMObject p_object) {
@@ -335,6 +351,18 @@ public final class AnnotationUtils {
 
 	public static String get_metaPhysicalCheck(final ObeoDSMObject p_object) {
 		return get_annotationBody(p_object, AnnotationEnum.PHYSICAL_CHECK);
+	}
+
+	public static String get_metaPushGlobalNotification(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.PUSH_GLOBAL_NOTIFICATION);
+	}
+	
+	public static String get_metaPushServiceNotification(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.PUSH_SERVICE_NOTIFICATION);
+	}
+	
+	public static String get_metaPushUserNotification(final ObeoDSMObject p_object) {
+		return get_annotationBody(p_object, AnnotationEnum.PUSH_USER_NOTIFICATION);
 	}
 
 	public static String get_metaPhysicalUnique(final ObeoDSMObject p_object) {
