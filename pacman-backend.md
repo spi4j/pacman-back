@@ -21,6 +21,7 @@
 - 28/08/2026 : Adaptation Pacman sur Studio 6.0.0.
 - 16/10/2026 : Ajouts : Complétion tests karaté au niveau du domaine.
 - 23/11/2026 : Modifications : Gestion des références et peuplement de la base de données.
+- 26/11/2026 : Ajouts : Mise en place de Stomp (Push).
 ---
 
 ## 🚀 Introduction
@@ -332,22 +333,6 @@ Puis sélectionner la valeur "*React*" au niveau de la rubrique "*Framework*" su
 ❗ Il faut bien distinguer ici la différence entre la création d'un client React et celle d'un client SpringBoot (en dehors de la question du langage). Le client SpringBoot est pour l'instant créé afin d'appeler une librairie d'un fournisseur externe, on part donc un fichier Swagger pour obtenir la modalisation. Le client React quant à lui est utilisé pour appeler une librairie interne (au sens ou le backend a été précédemment créé avec **Pacman**). 
 
 En effet, pour des raisons internes purement techniques liées à l'outil de modélisation, il n'est pas possible de s'appuyer uniquement sur un fichier Swagger. Pour garantir une génération cohérente, stable et capable de détecter précisément les évolutions entre deux versions de la librairie fournisseur, Pacman doit s'appuyer directement sur le fichier de modélisation. C'est ce modèle qui constitue la source de vérité et qui permet d'identifier correctement les deltas structuraux (nouvelles entités, changements de types, suppressions, renommages, etc.) indispensables à une génération fiable du client.
-
-## ❗ Migration Spring Boot 4
-
-Le générateur **Pacman**, initialement basé sur Spring Boot 3, a été adapté pour prendre en charge Spring Boot 4.
-
-### Problématique
-
-Le passage de Spring Boot 3 à Spring Boot 4 a nécessité notamment une adaptation de la gestion de la librairie Jackson, Spring Boot en version 4 utilisant désormais Jackson 3 par défaut. En effet, plusieurs bibliothèques utilisée dans l'application générée reposent encore sur Jackson 2. Une migration immédiate vers Jackson 3 aurait alors provoqué des incompatibilités avec ces bibliothèques qui attendent encore les classes et les packages de Jackson 2 (*com.fasterxml.jackson*), sachant qu'il n'y a pas de compatibilité ascendante. Une bibliothèque prévue pour Jackson 2 ne fonctionnerait donc pas nécessairement avec Jackson 3.
-
-### Solution (temporaire)
-
-Afin d'éviter une coexistence de deux générations de Jackson dans l'application ce qui engendrait de multiples conflits, le choix a donc été de maintenir temporairement l'écosystème Jackson 2 en utilisant (forçant) spring-boot-jackson2 à l'aide de l'artéfact "*spring-boot-jackson2*", tout en maîtrisant explicitement sa version. Le Jackson BOM en version 2.22.0 complète donc cette configuration : il permet d'aligner tous les modules Jackson 2 utilisés par l'application ("*jackson-core, jackson-databind, jackson-annotations, jackson-datatype-xxx, etc.*) sur une version unique et cohérente. 
-
-Cette solution permet ainsi de conserver la compatibilité avec les bibliothèques existantes tout en utilisant Spring Boot 4, sans imposer immédiatement une migration de l'ensemble de l'application vers Jackson 3. Le passage à Jackson 3 pourra être réalisé ultérieurement, lorsque les différentes bibliothèques utilisées par l'application seront toutes compatibles avec cette nouvelle génération. 
-
-❗ Ce point est donc à surveiller pour les futurs développeurs de **Pacman**.
 
 ## 📝 Fichiers Générés
 
@@ -971,6 +956,53 @@ La propriété essentielle pour la couche de persistance ! **Pacman** est un ens
 spring.populate.faker.enabled=false
 ``` 
 Si activé, permet de lancer le peuplement automatique de la base de données avec des données issues de la librairie DataFaker. Utile dans le cas de projets de démonstration ou pour développer un fronted avec des services REST.
+
+#### Services Push
+
+Le mécanisme de Push permet aux services métier de transmettre des notifications aux applications clientes sans attendre une nouvelle requête HTTP. Il repose sur une connexion WebSocket utilisant le protocole STOMP et un broker de messagerie intégré à Spring Boot.
+
+Il permet de diffuser des notifications à l'ensemble des clients abonnés à une destination commune. Par exemple, lorsqu'un service métier termine un traitement, il peut envoyer une notification à tous les clients intéressés par ce traitement. Le client reçoit alors la notification dès qu'elle est publiée, indépendamment de la réponse REST éventuellement retournée au client qui a déclenché le traitement.
+
+```properties
+# Point de connexion WebSocket.
+push.websocket.endpoint=/ws
+# Préfixe des messages entrants vers Spring.
+push.stomp.application-prefix=/app
+# Préfixes des destinations de diffusion.
+push.stomp.broker-prefixes=/topic,/queue
+# Préfixe des destinations individuelles.
+push.stomp.user-prefix=/user
+# Configuration du service de push.
+push.stomp.notification-destination=/topic/notifications
+```
+
+Les propriétés ci-dessus définissent les points d'entrée et les règles de routage des messages STOMP. Ces propriétés définissent comment les clients se connectent au serveur, comment les messages sont acheminés et à quelles destinations les notifications peuvent être envoyées.
+
+- "***push.websocket.endpoint***" : Cette propriété définit l'adresse à laquelle les clients établissent leur connexion WebSocket avec le serveur. Une fois cette connexion établie, le client peut échanger des messages STOMP avec l'application Spring Boot. Il s'agit du point d'entrée du mécanisme de Push. Il ne correspond pas à une destination de notification : il permet simplement d'établir la connexion.
+
+- "***push.stomp.application-prefix***" : Ce préfixe permet de distinguer les messages envoyés par les clients à l'application Spring des messages destinés à être diffusés par le broker. Par exemple, un client qui envoie un message à "*/app/traitement*" adresse une requête STOMP à l'application. Spring peut alors la transmettre à un contrôleur ou à un traitement prévu pour recevoir ce type de message.
+
+    Ce préfixe est utile lorsque l'application doit recevoir des messages STOMP. Il n'intervient pas dans l'envoi des notifications effectué par SimpMessagingTemplate (voir par la suite dans ce document).
+
+- "***push.stomp.broker-prefixes***" : Ces préfixes définissent les différents destinations que le broker STOMP est chargé de gérer. Le broker assure la distribution des messages aux clients abonnés aux différentes destinations correspondantes. Les deux préfixes permettent de distinguer deux usages :
+"*/topic*" : diffusion d'un message à l'ensemble des clients abonnés à une destination commune. "*/queue*" : destination utilisée pour des échanges de type file de messages, notamment dans le routage individuel des notifications.
+
+    Par exemple, une notification publiée sur "*/topic/Operation1*" est distribuée aux clients abonnés à cette destination.
+
+- "***push.stomp.user-prefix***" : Ce préfixe permet à Spring de gérer les destinations individuelles associées aux utilisateurs. Contrairement à une destination commune, une destination individuelle permet de transmettre une notification à un utilisateur particulier, sans la diffuser aux autres utilisateurs.
+
+    Le client s'abonne à une destination logique telle que "*/user/queue/notifications*". Spring se charge alors de déterminer les sessions STOMP correspondant à l'utilisateur destinataire. Ce mécanisme nécessite donc qu'une identité utilisateur soit associée à la connexion STOMP. Il ne dépend pas obligatoirement de JWT ou de Keycloak, mais nécessite à minima un mécanisme d'identification adapté à l'application.
+
+- "***push.stomp.notification-destination***" : Cette propriété définit la destination utilisée pour les notifications globales de l'application. Elle permet de diffuser une notification indépendamment du service métier qui l'a produite.
+
+    Par exemple, une notification globale peut signaler une maintenance programmée, une information générale ou un événement concernant l'ensemble de l'application.Les clients souhaitant recevoir ces notifications doivent s'abonner à "*/topic/notifications*".
+
+Synthèse du fonctionnement :
+
+<div align="center">
+  <img src="images/pcm-service-stomp.png" alt="Stomp" width="800">
+</div>
+
 
 #### Stockage S3
 
@@ -6441,11 +6473,208 @@ Un bref shéma récapitulatif explique le fonctionnement de cette implémentatio
   <img src="images/pcm-soa-s3-impl.png" alt="Architecture S3" width="500">
 </div>
 
+#### Mise en place de Stomp (Push)
+
+Le mécanisme de Push repose sur le protocole STOMP, qui permet d'échanger des messages entre le serveur Spring Boot et les applications clientes connectées via WebSocket. Contrairement aux échanges REST classiques, le serveur peut ainsi transmettre une notification à un client sans attendre une nouvelle requête de sa part.
+
+L'implémentation s'appuie sur trois composants principaux : la configuration WebSocket/STOMP, le broker de messagerie et le service d'envoi des notifications.
+
+Pour bénéficier de la génération des services de push, il est nécessaire de cliquer sur la case à cocher "*Api REST - Activation des services de push*" au niveau de l'onglet "*Autre*" sur le formulaire de création du projet.
+
+La configuration WebSocket/STOMP définit le point de connexion des clients, les préfixes de routage et les destinations prises en charge par le broker. Celui-ci assure la distribution des messages aux clients abonnés aux destinations correspondantes. Cette configuration est effectuée au niveau de la classe "***[Nom de l'application]WebSocketConfig***" dans le package racine pour la couche applicative de l'infrastructure, à savoir : "*[Package racine].app*" dans le projet : "***[Nom de l'application]-server***".
+
+Le code par défaut de cette classe est le suivant : 
+
+```java
+@Configuration
+@EnableWebSocketMessageBroker
+public class DemoWebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Value("${push.websocket.endpoint}")
+    private final String webSocketEndpoint;
+    
+    @Value("${push.stomp.application-prefix}")
+    private final String applicationPrefix;
+    
+    @Value("${push.stomp.broker-prefixes}")
+    private final String[] brokerPrefixes;
+
+    @Value("${push.stomp.user-prefix}")
+    private final String userPrefix;
+
+    DemoWebSocketConfig(@Value("${push.websocket.endpoint}") final String webSocketEndpoint,
+        @Value("${push.stomp.application-prefix}") final String applicationPrefix,
+        @Value("${push.stomp.broker-prefixes}") final String[] brokerPrefixes,
+        @Value("${push.stomp.user-prefix}") final String userPrefix) {
+           this.webSocketEndpoint = webSocketEndpoint;
+           this.applicationPrefix = applicationPrefix;
+           this.brokerPrefixes = brokerPrefixes;
+           this.userPrefix = userPrefix;
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint(this.webSocketEndpoint);
+	}
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker(this.brokerPrefixes);
+        registry.setApplicationDestinationPrefixes(this.applicationPrefix);
+        registry.setUserDestinationPrefix(this.userPrefix);
+    }
+}
+```
+
+Cette classe se contente de récupérer les propriétés du fichier de configuration "*application.properties*" puis, elle enregistre le point de connexion utilisé par les clients, active le broker de messagerie et définit les préfixes de routage. Ces derniers permettent de distinguer les messages entrants destinés à l'application, les destinations de diffusion gérées par le broker et les destinations individuelles utilisées pour adresser des notifications à un utilisateur particulier.
+
+
+Un service de notification est aussi généré suite à la création du projet. Il est injecté dans les différents services métier concernés. Il utilise le composant SimpMessagingTemplate de Spring pour publier les messages et propose trois modes de diffusion : les notifications associées à un service métier, les notifications globales destinées aux clients abonnés à une destination commune et les notifications individuelles adressées à un utilisateur identifié.
+
+Cette classe est la classe "***[Nom de l'application]NotificationService***" dans le package "*[Package racine].app.adapters.controllers*"
+
+```java
+@Service
+public class DemoNotificationService {
+
+    private final SimpMessagingTemplate messagingTemplate;
+    private final String destinationPrefix;
+    private final String notificationDestination;
+    
+    public DemoNotificationService(final SimpMessagingTemplate messagingTemplate,
+        @Value("${push.stomp.destination-prefix}") final String destinationPrefix,
+        @Value("${push.stomp.notification-destination}") final String notificationDestination) {
+        this.messagingTemplate = messagingTemplate;
+        this.destinationPrefix = destinationPrefix;
+        this.notificationDestination = notificationDestination;
+    }
+	
+	public void sendNotification(final String serviceName, final Object notification) {
+	    this.messagingTemplate.convertAndSend(this.destinationPrefix + "/" + serviceName, notification);
+	}
+	
+	public void sendGlobalNotification(final Object notification) {
+	    this.messagingTemplate.convertAndSend(this.notificationDestination, notification);
+	}
+	
+	public void sendUserNotification(final String userName, final Object notification) {
+	    this.messagingTemplate.convertAndSendToUser(userName, "/queue/notifications", notification);
+	}
+}
+```
+
+La gestion des notifications PUSH repose sur deux niveaux de métadonnées dans le modèle :
+
+- **Au niveau du service** : la métadonnée "*PUSH*" indique que le service prend en charge l'émission de notifications PUSH.
+
+- **Au niveau de chaque opération** : une métadonnée précise le mode de notification à déclencher. "*PUSH_GLOBAL_NOTIFICATION*" : diffusion d'une notification à l'ensemble des abonnés à la destination globale, "*PUSH_SERVICE_NOTIFICATION* : diffusion d'une notification destinée aux abonnés du service, "*PUSH_USER_NOTIFICATION*" : envoi d'une notification à un utilisateur identifié. 
+
+Pour chaque métadonnée portée par une opération, son corps contient le message à transmettre. Le générateur s'appuie ainsi sur ces informations pour produire l'appel correspondant au mécanisme d'envoi approprié. Cette modélisation permet d'activer explicitement le mécanisme PUSH au niveau du service, puis de choisir indépendamment, opération par opération, le type de diffusion souhaité et le message associé.
+
+Ainsi, si on reprend notre exemple de récupération de l'ensemble des personnes : 
+
+<div align="center">
+  <img src="images/pcm-model-adv-stomp-1.png" alt="Stomp" width="800">
+</div>
+
+<div align="center">
+  <img src="images/pcm-model-adv-stomp-2.png" alt="Stomp" width="800">
+</div>
+
+La génération donnera le code suivant au niveau du service (sachant que la classe "*notificationService*" a automatiquement été injectée dans le contrôleur): 
+
+```java
+public ResponseEntity<List<PersonneXtoImpl>> retourneTous() {
+
+    ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(200);
+    
+    notificationService.sendNotification("retourneTous", "Un listing de l'ensemble des personnes a été demandé.... ");
+    
+    return responseBuilder.body(this.gestionPersonnes.retourneTous().stream().map(o -> PersonneMapper.toXto(o)).collect(Collectors.toList()));
+}
+```
+
+Pour les notifications de type "*PUSH_USER_NOTIFICATION*", le développeur doit fournir le code permettant de récupérer l'identifiant (userId) de l'utilisateur destinataire. Le générateur ne présuppose aucun mécanisme particulier d'identification et ne fournit donc pas cette logique automatiquement.
+
+Ce choix est volontaire : le mécanisme PUSH est ainsi totalement indépendant des solutions d'authentification et de gestion des identités telles que SSO ou JWT. L'application reste ainsi libre d'utiliser le dispositif d'identification de son choix, ou de ne pas en utiliser, sans pour autant créer de dépendance technique entre la gestion des notifications et la stratégie de sécurité retenue.
+
+```java
+public ResponseEntity<List<PersonneXtoImpl>> retourneTous() {
+
+    ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(200);
+    
+    // Start of user code 1f82841b68b9a27af5cfcf572412847c
+    
+    String userId = null;
+    
+    // End of user code
+    
+    notificationService.sendUserNotification(userId, "Un listing de l'ensemble des personnes a été demandé.... ");
+    
+    return responseBuilder.body(this.gestionPersonnes.retourneTous().stream().map(o -> PersonneMapper.toXto(o)).collect(Collectors.toList()));
+}
+```
+
+❗ Il est à noter que l'émission d'une notification est indépendante du traitement REST qui l'a déclenchée. Un service métier peut ainsi retourner sa réponse HTTP tout en publiant une notification destinée à un ou plusieurs clients connectés.
+
+Pour recevoir les notifications PUSH, le client doit établir une connexion WebSocket avec le serveur en utilisant le point de connexion configuré, puis initier une session STOMP. Une fois connecté, il s'abonne aux destinations correspondant aux notifications qu'il souhaite recevoir. Il peut ainsi s'abonner à une destination de service (par exemple "*/topic/retourneTous*"), à la destination globale ("*/topic/notifications*") ou, dans le cas d'une notification individuelle, à sa destination utilisateur ("*/user/queue/notifications*"). Le broker se charge ensuite d'acheminer les messages vers les clients abonnés. L'abonnement est donc réalisé côté client : aucune inscription préalable n'est nécessaire côté serveur.
+
+Les exemples suivants illustrent cette mise en œuvre dans différentes technologies clientes, pour les notifications de service (par exemple) :
+
+```java
+WebSocketClient webSocketClient = new StandardWebSocketClient();
+WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
+StompSessionHandler sessionHandler = new StompSessionHandlerAdapter() {
+
+    @Override
+    public void afterConnected(
+        StompSession session,
+        StompHeaders connectedHeaders) {
+        session.subscribe("/topic/retourneTous",
+            new StompFrameHandler() {
+                @Override
+                public Type getPayloadType(StompHeaders headers) {
+                    return String.class;
+                }
+
+                @Override
+                public void handleFrame(
+                    StompHeaders headers, Object payload) {
+                    System.out.println("Notification reçue : " + payload);
+                }
+            });
+    }
+};
+
+stompClient.connectAsync(
+    "ws://localhost:8081/ws",
+    sessionHandler
+);
+```
+
+```typescript
+import { Client } from '@stomp/stompjs';
+
+const client = new Client({
+  brokerURL: 'ws://localhost:8081/ws',
+  reconnectDelay: 5000,
+
+  onConnect: () => {
+    client.subscribe('/topic/retourneTous', message => {
+      console.log('Notification reçue :', message.body);
+    });
+  }
+});
+client.activate();
+```
+
+❗ Les notifications PUSH sont totalement découplées des endpoints REST du service. Elles disposent de leur propre point d'entrée WebSocket ( par exemple : "*/ws*") et de leurs propres destinations STOMP (par exemple "*/topic/retourneTous*"). Ainsi, un service exposé en REST sur "*/api/v1.0/personnes*" peut émettre des notifications sur "*/topic/retourneTous*", sans que ces deux chemins soient liés techniquement. Le client utilise donc deux mécanismes indépendants : les endpoints REST pour effectuer ses appels et la connexion WebSocket pour recevoir les notifications en temps réel. Cette séparation permet de faire évoluer l'exposition REST et le mécanisme PUSH indépendamment l'un de l'autre.
+
 #### Mise en place d'un service custom
 
 Il est possible de créer des services d'infrastructure avec juste le squelette de base, ceci afin de coder librement (hors de tout gestionnaire de persistance Jpa ou autre). C'est donc au développeur de coder entièrement son service de persistance (ou autre) à l'intérieur des balises de type "*user code*".
 
-Pour ce faire, il suffit simplement de positionner la métadonnée "*CUSTOM*" au niveau du service. La classe générée sera, quant à elle, toujours nommée : "**[nom du service]CustomProviderImpl**". 
+Pour ce faire, il suffit simplement de positionner la métadonnée "*CUSTOM*" au niveau du service. La classe générée sera, quant à elle, toujours nommée : "***[nom du service]CustomProviderImpl***". 
 
 Le code de chaque opération du service d'infrastructure est alors du type : 
 
@@ -7567,6 +7796,10 @@ Une solution est actuellement à l'étude afin de fiabiliser les conditions d'af
 | CASCADE_TYPE | OUI | Gestion des relations entre dépendances | REFERENCE |
 | FETCH_LAZY | NON | Demande de chargement paresseux | REFERENCE |
 | ENTITY_MANAGER | NON | Demande d'utilisation de l'entity manager | ENTITY |
+| PUSH | NON | Assigne le service pour du push (WebSocket) | SERVICE |
+| PUSH_GLOBAL_NOTIFICATION | OUI | Message à envoyer pour le push| OPERATION |
+| PUSH_SERVICE_NOTIFICATION | OUI | Message à envoyer pour le push| OPERATION |
+| PUSH_USER_NOTIFICATION | OUI | Message à envoyer pour le push| OPERATION |
 | STORAGE | NON | Assigne le service pour le stockage de documents | SERVICE |
 | STORAGE_IMMUTABLE | NON | Le document n'est pas modifiable | SERVICE |
 | STORAGE_RETENTION_DURATION | NON | Assigne la durée de rétention du document | SERVICE |
